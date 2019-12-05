@@ -1,7 +1,7 @@
 ; OCR Forms team
 *chazhang
 *xinz
-*anatolyp
+*anatolip
 *angaivor
 *kunzheng
 *ninwan
