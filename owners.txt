@@ -1,0 +1,25 @@
+; OCR Forms team
+*chazhang
+*xinz
+*anatolyp
+*angaivor
+*kunzheng
+*ninwan
+*lyl
+*yuda
+*ivmatan
+
+; UX Team
+*carlosp
+*tchuang
+*xya
+
+; Platform team
+*tezhou
+*angli
+*lizh
+*delzh
+*ziweihe
+*xiaoy
+*darwinw
+*zhlao
