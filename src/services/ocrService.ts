@@ -1,0 +1,142 @@
+import Guard from "../common/guard";
+import { IProject } from "../models/applicationState";
+import { IStorageProvider, StorageProviderFactory } from "../providers/storage/storageProviderFactory";
+import { constants } from "../common/constants";
+import ServiceHelper from "./serviceHelper";
+
+export enum OcrStatus {
+    loadingFromAzureBlob,
+    runningOCR,
+    done,
+}
+
+/**
+ * @name - OCR Service
+ * @description - Functions for dealing with OCR
+ */
+export class OCRService {
+    private storageProviderInstance: IStorageProvider;
+
+    constructor(private project: IProject) {
+        Guard.null(project);
+    }
+
+    /**
+     * get recognized text from OCR service
+     * @param filePath - filepath sent to OCR
+     * @param fileName - name of OCR file
+     */
+    public async getRecognizedText(filePath: string, fileName: string, onStatusChanged?: (ocrStatus: OcrStatus) => void): Promise<any> {
+        Guard.empty(filePath);
+        Guard.empty(this.project.apiUriBase);
+
+        const notifyStatusChanged = (ocrStatus: OcrStatus) => onStatusChanged && onStatusChanged(ocrStatus);
+        const ocrFileName = decodeURIComponent(`${fileName}${constants.ocrFileExtension}`);
+
+        let ocrJson;
+        try {
+            notifyStatusChanged(OcrStatus.loadingFromAzureBlob);
+            ocrJson = await this.readOcrFile(ocrFileName);
+            if (!this.isValidOcrFormat(ocrJson)) {
+                ocrJson = await this.fetchOcrUriResult(filePath, ocrFileName);
+            }
+        } catch {
+            notifyStatusChanged(OcrStatus.runningOCR);
+            ocrJson = await this.fetchOcrUriResult(filePath, ocrFileName);
+        } finally {
+            notifyStatusChanged(OcrStatus.done);
+        }
+
+        return ocrJson;
+    }
+
+    /**
+     * Get Storage Provider from project's target connection
+     */
+    protected get storageProvider(): IStorageProvider {
+        if (!this.storageProviderInstance) {
+            this.storageProviderInstance = StorageProviderFactory.create(
+                this.project.targetConnection.providerType,
+                this.project.targetConnection.providerOptions,
+            );
+        }
+
+        return this.storageProviderInstance;
+    }
+
+    private readOcrFile = async (ocrFileName: string) => {
+        const json = await this.storageProvider.readText(ocrFileName, true);
+        if (json !== null) {
+            return new Promise((resolve, reject) => {
+                resolve(JSON.parse(json));
+            });
+        }
+    }
+
+    private fetchOcrUriResult = async (filePath: string, ocrFileName: string) => {
+        try {
+            const headers = { "Content-Type": "application/json" };
+            const response = await ServiceHelper.postWithAutoRetry(
+                this.project.apiUriBase + "/formrecognizer/v2.0-preview/layout/analyze",
+                { url: filePath },
+                { headers },
+                this.project.apiKey as string,
+            );
+
+            const operationLocation = response.headers["operation-location"];
+            return this.poll(
+                () => ServiceHelper.getWithAutoRetry(operationLocation, { headers }, this.project.apiKey as string),
+                120000,
+                1500).then((data) => {
+                    this.save(ocrFileName, data);
+                    return data;
+                });
+        } catch (err) {
+            ServiceHelper.handleServiceError(err);
+        }
+    }
+
+    /**
+     * Save OCR
+     * @param metadata - Metadata for asset
+     */
+    private async save(fileName: string, ocrJson: any): Promise<any> {
+        Guard.empty(fileName);
+        Guard.null(ocrJson);
+
+        await this.storageProvider.writeText(fileName, JSON.stringify(ocrJson, null, 4));
+        return ocrJson;
+    }
+
+    /**
+     * Poll function to repeatly check if request succeeded
+     * @param func - function that will be called repeatly
+     * @param timeout - timeout
+     * @param interval - interval
+     */
+    private poll = (func, timeout, interval): Promise<any> => {
+        const endTime = Number(new Date()) + (timeout || 10000);
+        interval = interval || 100;
+
+        const checkSucceeded = (resolve, reject) => {
+            const ajax = func();
+            ajax.then((response) => {
+                if (response.data.status === constants.statusCodeSucceeded) {
+                    resolve(response.data);
+                } else if (Number(new Date()) < endTime) {
+                    // If the request isn't succeeded and the timeout hasn't elapsed, go again
+                    setTimeout(checkSucceeded, interval, resolve, reject);
+                } else {
+                    // Didn't succeeded after too much time, reject
+                    reject(new Error("Timed out for getting OCR results"));
+                }
+            });
+        };
+
+        return new Promise(checkSucceeded);
+    }
+
+    private isValidOcrFormat = (ocr): boolean => {
+        return ocr && ocr.analyzeResult && ocr.analyzeResult.readResults;
+    }
+}

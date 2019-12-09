@@ -1,0 +1,12 @@
+{
+    "type": "object",
+    "required": [
+        "providerType"
+    ],
+    "properties": {
+        "providerType": {
+            "title": "${strings.common.provider}",
+            "type": "string"
+        }
+    }
+}

@@ -1,0 +1,153 @@
+{
+    "type": "object",
+    "title": "${strings.export.providers.azureCV.displayName}",
+    "required": [
+        "assetState",
+        "apiKey",
+        "region"
+    ],
+    "properties": {
+        "assetState": {
+            "type": "string",
+            "title": "${strings.export.providers.common.properties.assetState.title}",
+            "description": "${strings.export.providers.common.properties.assetState.description}",
+            "enum": [
+                "all",
+                "visited",
+                "tagged"
+            ],
+            "default": "visited",
+            "enumNames": [
+                "${strings.export.providers.common.properties.assetState.options.all}",
+                "${strings.export.providers.common.properties.assetState.options.visited}",
+                "${strings.export.providers.common.properties.assetState.options.tagged}"
+            ]
+        },
+        "region": {
+            "type": "string",
+            "title": "${strings.export.providers.azureCV.properties.region.title}",
+            "description": "${strings.export.providers.azureCV.properties.region.description}",
+            "default": "southcentralus",
+            "enum": [
+                "australiaeast",
+                "centralindia",
+                "eastus",
+                "eastus2",
+                "japaneast",
+                "northcentralus",
+                "northeurope",
+                "southcentralus",
+                "southeastasia",
+                "uksouth",
+                "westus2",
+                "westeurope"
+            ],
+            "enumNames": [
+                "${strings.export.providers.azureCV.regions.australiaEast}",
+                "${strings.export.providers.azureCV.regions.centralIndia}",
+                "${strings.export.providers.azureCV.regions.eastUs}",
+                "${strings.export.providers.azureCV.regions.eastUs2}",
+                "${strings.export.providers.azureCV.regions.japanEast}",
+                "${strings.export.providers.azureCV.regions.northCentralUs}",
+                "${strings.export.providers.azureCV.regions.northEurope}",
+                "${strings.export.providers.azureCV.regions.southCentralUs}",
+                "${strings.export.providers.azureCV.regions.southeastAsia}",
+                "${strings.export.providers.azureCV.regions.ukSouth}",
+                "${strings.export.providers.azureCV.regions.westUs2}",
+                "${strings.export.providers.azureCV.regions.westEurope}"
+            ]
+        },
+        "apiKey": {
+            "type": "string",
+            "title": "${strings.export.providers.azureCV.properties.apiKey.title}"
+        },
+        "newOrExisting": {
+            "type": "string",
+            "title": "${strings.export.providers.azureCV.properties.newOrExisting.title}",
+            "enum": [
+                "new",
+                "existing"
+            ],
+            "enumNames": [
+                "${strings.export.providers.azureCV.properties.newOrExisting.options.new}",
+                "${strings.export.providers.azureCV.properties.newOrExisting.options.existing}"
+            ],
+            "default": "existing"
+        }
+    },
+    "dependencies": {
+        "newOrExisting": {
+            "oneOf": [
+                {
+                    "properties": {
+                        "newOrExisting": {
+                            "enum": [
+                                "new"
+                            ]
+                        },
+                        "name": {
+                            "type": "string",
+                            "title": "${strings.export.providers.azureCV.properties.name.title}"
+                        },
+                        "description": {
+                            "type": "string",
+                            "title": "${strings.export.providers.azureCV.properties.description.title}"
+                        },
+                        "projectType": {
+                            "type": "string",
+                            "title": "${strings.export.providers.azureCV.properties.projectType.title}",
+                            "default": "Classification",
+                            "enum": [
+                                "Classification",
+                                "ObjectDetection"
+                            ],
+                            "enumNames": [
+                                "${strings.export.providers.azureCV.properties.projectType.options.classification}",
+                                "${strings.export.providers.azureCV.properties.projectType.options.objectDetection}"
+                            ]
+                        },
+                        "classificationType": {
+                            "type": "string",
+                            "title": "${strings.export.providers.azureCV.properties.classificationType.title}",
+                            "default": "Multilabel",
+                            "enum": [
+                                "Multilabel",
+                                "Multiclass"
+                            ],
+                            "enumNames": [
+                                "${strings.export.providers.azureCV.properties.classificationType.options.multiLabel}",
+                                "${strings.export.providers.azureCV.properties.classificationType.options.multiClass}"
+                            ]
+                        },
+                        "domainId": {
+                            "type": "string",
+                            "title": "${strings.export.providers.azureCV.properties.domainId.title}"
+                        }
+                    },
+                    "required": [
+                        "name",
+                        "projectType",
+                        "classificationType",
+                        "domainId"
+                    ]
+                },
+                {
+                    "properties": {
+                        "newOrExisting": {
+                            "enum": [
+                                "existing"
+                            ]
+                        },
+                        "projectId": {
+                            "type": "string",
+                            "title": "${strings.export.providers.azureCV.properties.projectId.title}"
+                        }
+                    },
+                    "required": [
+                        "projectId"
+                    ]
+                }
+            ]
+        }
+    }
+}

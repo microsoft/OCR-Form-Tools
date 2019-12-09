@@ -1,0 +1,138 @@
+@import './assets/sass/theme.scss';
+@import './react/components/common/common.scss';
+
+.app {
+    &-shell {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
+
+    &-main {
+        display: flex;
+        flex-direction: row;
+        flex-grow: 1;
+    }
+
+    &-navbar, &-sidebar {
+        .fas {
+            color: #ccc;
+            &:hover {
+                color: #fff;
+            }
+        }
+    }
+
+    &-navbar {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        min-height: 40px;
+        line-height: 40px;
+
+
+        ul, li {
+            margin: 0;
+            padding: 0;
+        }
+
+        li {
+            list-style-type: none;
+
+            a {
+                display: inline-block;
+                padding: 0 10px;
+                max-height: 40px;
+
+                &.active, &:hover {
+                    .fas {
+                        color: #fff;
+                    }
+
+                    background-color: #666;
+                }
+            }
+        }
+
+        &-logo {
+            font-size: 20px;
+
+            .fas {
+                color: $color-green;
+            }
+        }
+
+        &-brand {
+            flex-grow: 1;
+            padding: 0 10px;
+        }
+    }
+
+    &-sidebar {
+        font-size: 20px;
+        display: flex;
+        flex-direction: column;
+
+        &-fill {
+            flex-grow: 1;
+        }
+
+        ul {
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            display: block;
+            text-align: center;
+
+            a, span {
+                display: inline-block;
+                width: 45px;
+                padding: 5px 10px;
+
+                &.active, &:hover {
+                    .fas {
+                        color: #fff;
+                    }
+
+                    background-color: $lighter-3;
+                }
+
+                &.disabled {
+                    opacity: 0.25;
+
+                    &:hover {
+                        background-color: transparent;
+                    }
+
+                    &.fas {
+                        color: transparent;
+                    }
+                }
+            }
+        }
+    }
+
+    &-content {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: auto;
+    }
+}
+
+.app-help-menu-icon {
+    color: #ccc;
+    display: inline-block;
+
+    &:hover {
+        color: #fff;
+        background-color: $lighter-2;
+        cursor: pointer;
+    }
+}
+
+.Toastify .vott-toast-container {
+    top: 3em;
+}

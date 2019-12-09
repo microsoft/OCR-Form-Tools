@@ -1,0 +1,16 @@
+{
+    "required": [
+        "name"
+    ],
+    "type": "object",
+    "properties": {
+        "name": {
+            "title": "${strings.common.displayName}",
+            "type": "string"
+        },
+        "description": {
+            "title": "${strings.common.description}",
+            "type": "string"
+        }
+    }
+}

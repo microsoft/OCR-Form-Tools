@@ -1,0 +1,47 @@
+{
+    "type": "object",
+    "properties": {
+        "name": {
+            "title": "${strings.common.displayName}",
+            "type": "string",
+            "pattern": "^[^\\\\\\\\/:*?\\\\\\\"<>|]*$"
+        },
+        "securityToken": {
+            "title": "${strings.projectSettings.securityToken.title}",
+            "description": "${strings.projectSettings.securityToken.description}",
+            "type": "string"
+        },
+        "sourceConnection": {
+            "title": "${strings.projectSettings.sourceConnection.title}",
+            "description": "${strings.projectSettings.sourceConnection.description}",
+            "type": "object"
+        },
+        "folderPath": {
+            "title": "Folder Path",
+            "description": "Subfolder path to your files",
+            "type": "string"
+        },
+        "formRecognizerBackend": {
+            "title": "Form Recognizer Backend",
+            "description": "Form Recognizer Backend",
+            "type": "string",
+            "format": "uri"
+        },
+        "ocrUriBase": {
+            "title": "OCR Service Uri",
+            "description": "OCR Service Uri",
+            "type": "string",
+            "format": "uri"
+        },
+        "description": {
+            "title": "${strings.common.description}",
+            "type": "string"
+        }
+    },
+    "required": [
+        "name",
+        "sourceConnection",
+        "formRecognizerBackend",
+        "ocrUriBase"
+    ]
+}

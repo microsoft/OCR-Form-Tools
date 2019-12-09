@@ -1,0 +1,32 @@
+{
+    "type": "object",
+    "title": "${strings.connections.providers.bing.options}",
+    "required": ["apiKey","query"],
+    "properties": {
+        "apiKey": {
+            "type": "string",
+            "title": "${strings.connections.providers.bing.apiKey}"
+        },
+        "query": {
+            "type": "string",
+            "title": "${strings.connections.providers.bing.query}"
+        },
+        "aspectRatio": {
+            "type": "string",
+            "title": "${strings.connections.providers.bing.aspectRatio.title}",
+            "enum": [
+                "all",
+                "square",
+                "wide",
+                "tall"
+            ],
+            "default": "all",
+            "enumNames": [
+                "${strings.connections.providers.bing.aspectRatio.all}",
+                "${strings.connections.providers.bing.aspectRatio.square}",
+                "${strings.connections.providers.bing.aspectRatio.wide}",
+                "${strings.connections.providers.bing.aspectRatio.tall}"
+            ]
+        }
+    }
+}

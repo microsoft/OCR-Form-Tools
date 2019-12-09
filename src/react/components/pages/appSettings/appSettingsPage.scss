@@ -1,0 +1,14 @@
+.app-settings-page {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+    min-height: fit-content;
+
+    &-form {
+        flex-grow: 1;
+    }
+
+    &-sidebar {
+        flex-basis: 30vw;
+    }
+}
