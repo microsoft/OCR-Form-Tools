@@ -1,0 +1,83 @@
+environment:
+  host:
+    os: 'linux'
+    flavor: 'ubuntu'
+    version: '16.04'
+  runtime:
+    provider: 'appcontainer'
+    image: 'cdpxlinux.azurecr.io/legacy/global/ubuntu-1604-all:1.0'
+    source_mode: 'link'
+
+workspace_options:
+  enable_legacy_networking: true
+
+version:
+  name: 'Form-Recognizer-CDPX'
+  major: 1
+  minor: 0
+  tag: 'alpha'
+  system: 'patch'
+
+versioning:
+  commands:
+
+static_analysis_options:
+  fxcop_options:
+    files_to_scan:
+      - exclude:
+        - '*'
+  moderncop_options:
+    files_to_scan:
+      - exclude:
+        - '*'
+  policheck_options:
+    files_to_scan:
+      - exclude:
+        - '*'
+  binskim_options:
+    files_to_scan:
+      - exclude:
+        - '*'
+  elfskim_options:
+    files_to_scan:
+      - exclude:
+        - '*'
+
+restore:
+  commands:
+    - !!defaultcommand
+      name: 'NPM Install'
+      command: 'install.sh'
+
+build:
+  commands:
+    - !!buildcommand
+      name: 'Build Node'
+      command: 'build.sh'
+      artifacts:
+        - from: 'FormRecoginzerUX'
+          to: 'FormRecoginzerUX'
+          include:
+          - '**/*'
+
+package:
+  commands: 
+    - !!dockerbuildcommand
+        name: 'Build labelling UX'
+        context_folder: ''
+        dockerfile_name: 'Dockerfile.cdpx'
+        repository_name: 'microsoft/cognitive-services-form-recognizer-custom-supervised-labeltool'
+        latest: false
+        publish: true
+        publish_build_tag: true
+        metadata_file:
+          artifact_path: 'microsoft/form-recognizer-custom-supervised-labeltool.json'
+
+test:
+  commands:
+
+publish:
+  commands:
+
+user_cleanup:
+  commands:
