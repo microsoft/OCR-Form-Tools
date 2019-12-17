@@ -10,10 +10,13 @@ import { IStorageProvider, IStorageProviderRegistrationOptions } from "../provid
 import { IProjectSettingsPageProps } from "../react/components/pages/projectSettings/projectSettingsPage";
 import { IEditorPageProps } from "../react/components/pages/editorPage/editorPage";
 import IProjectActions, * as projectActions from "../redux/actions/projectActions";
-import IApplicationActions, * as applicationActions from "../redux/actions/applicationActions"
+import IApplicationActions, * as applicationActions from "../redux/actions/applicationActions";
 import { generateKey } from "./crypto";
-import { randomIntInRange, encodeFileURI } from "./utils"
-import { appInfo } from "./appInfo"
+import { randomIntInRange, encodeFileURI } from "./utils";
+import { appInfo } from "./appInfo";
+import { IKeyboardBindingProps } from "../react/components/common/keyboardBinding/keyboardBinding";
+import { KeyEventType } from "../react/components/common/keyboardManager/keyboardManager";
+import { IKeyboardRegistrations } from "../react/components/common/keyboardManager/keyboardRegistrationManager";
 
 export default class MockFactory {
     
@@ -145,10 +148,67 @@ export default class MockFactory {
     }
 
     /**
+     * Creates fake Azure containers
+     * @param count Number of containers
+     */
+    public static createAzureContainers(count: number = 3) {
+        const result = [];
+        for (let i = 0; i < count; i++) {
+            result.push({
+                name: `container${i}`,
+                blobs: MockFactory.createAzureBlobs(i),
+            });
+        }
+        return { containerItems: result };
+    }
+
+    /**
      * Creates fake IAzureCloudStorageOptions
      */
     public static createAzureOptions(): IAzureCloudStorageOptions {
         return { sas: "sas" };
+    }
+
+    /**
+     * Creates fake data for testing Azure Cloud Storage
+     */
+    public static createAzureData() {
+        const options = MockFactory.createAzureOptions();
+        return {
+            blobName: "file1.jpg",
+            blobText: "This is the content",
+            fileType: "image/jpg",
+            containers: MockFactory.createAzureContainers(),
+            blobs: MockFactory.createAzureBlobs(),
+            options,
+        };
+    }
+
+    /**
+     * Creates fake Blob object
+     * @param name Name of blob
+     * @param content Content of blob
+     * @param fileType File type of blob
+     */
+    public static blob(name: string, content: string | Buffer, fileType: string): Blob {
+        const blob = new Blob([content], { type: fileType });
+        blob["name"] = name;
+        return blob;
+    }
+
+    /**
+     * Creates fake Azure Blobs
+     * @param id ID of blob
+     * @param count Number of blobs
+     */
+    public static createAzureBlobs(id: number = 1, count: number = 10) {
+        const result = [];
+        for (let i = 0; i < count; i++) {
+            result.push({
+                name: `blob-${id}-${i}.jpg`,
+            });
+        }
+        return { segment: { blobItems: result } };
     }
 
     /**
@@ -251,6 +311,17 @@ export default class MockFactory {
             createContainer: jest.fn(),
             deleteContainer: jest.fn(),
             getAssets: jest.fn(),
+        };
+    }
+
+    /**
+     * Creates a storage provider from IConnection
+     * @param connection Connection with which to create Storage Provider
+     */
+    public static createStorageProviderFromConnection(connection: IConnection): IStorageProvider {
+        return {
+            ...MockFactory.createStorageProvider(),
+            storageType: MockFactory.getStorageType(connection.providerType),
         };
     }
 
@@ -499,6 +570,32 @@ export default class MockFactory {
         });
     }
 
+    public static createKeyboardRegistrations(count = 5, handlers?): IKeyboardRegistrations {
+        const keyDownRegs = {};
+        if (!handlers) {
+            handlers = [];
+            for (let i = 0; i < count; i++) {
+                handlers.push(jest.fn(() => i));
+            }
+        }
+        for (let i = 0; i < count; i++) {
+            const upper = String.fromCharCode(65 + i);
+            const lower = String.fromCharCode(97 + i);
+            const binding: IKeyboardBindingProps = {
+                displayName: `Binding ${i + 1}`,
+                accelerators: [upper, lower],
+                handler: handlers[i],
+                icon: `test-icon-${i + 1}`,
+                keyEventType: KeyEventType.KeyDown,
+            };
+            keyDownRegs[upper] = binding;
+            keyDownRegs[lower] = binding;
+        }
+        return {
+            keydown: keyDownRegs,
+        };
+    }
+
     private static pageProps(projectId: string, method: string) {
         return {
             project: null,
@@ -618,5 +715,20 @@ export default class MockFactory {
 
             return canvas;
         });
+    }
+
+    /**
+     * Gets StorageType for asset providers
+     * @param providerType Asset Providet type
+     */
+    private static getStorageType(providerType: string): StorageType {
+        switch (providerType) {
+            case "azureBlobStorage":
+                return StorageType.Cloud;
+            case "localFileSystemProxy":
+                return StorageType.Local;
+            default:
+                return StorageType.Other;
+        }
     }
 }

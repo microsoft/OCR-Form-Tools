@@ -85,17 +85,6 @@ describe("Project Redux Actions", () => {
         expect(result.version).toEqual(appInfo.version);
     });
 
-    it("Save Project action does not override existing export format", async () => {
-        projectServiceMock.prototype.save = jest.fn((project) => Promise.resolve(project));
-
-        const project = MockFactory.createTestProject("TestProject");
-        const result = await projectActions.saveProject(project)(store.dispatch, store.getState);
-
-        const expectedExportFormat = MockFactory.exportFormat();
-
-        expect(result.exportFormat).toEqual(expectedExportFormat);
-    });
-
     it("Delete Project action calls project service and dispatches redux action", async () => {
         projectServiceMock.prototype.delete = jest.fn(() => Promise.resolve());
 
@@ -198,32 +187,6 @@ describe("Project Redux Actions", () => {
         const result = await projectActions.saveAssetMetadata(project, assetMetadata)(store.dispatch);
 
         expect(result.version).toEqual(appInfo.version);
-    });
-
-    it("Export project calls export provider and dispatches redux action", async () => {
-        const mockExportProvider: IExportProvider = {
-            project: null,
-            export: jest.fn(() => Promise.resolve()),
-        };
-        ExportProviderFactory.create = jest.fn(() => mockExportProvider);
-
-        const project = MockFactory.createTestProject("TestProject");
-        await projectActions.exportProject(project)(store.dispatch);
-        const actions = store.getActions();
-
-        expect(actions.length).toEqual(1);
-        expect(actions[0]).toEqual({
-            type: ActionTypes.EXPORT_PROJECT_SUCCESS,
-            payload: project,
-        });
-
-        expect(ExportProviderFactory.create).toBeCalledWith(
-            project.exportFormat.providerType,
-            project,
-            project.exportFormat.providerOptions,
-        );
-
-        expect(mockExportProvider.export).toHaveBeenCalled();
     });
 
     describe("Updating project tags", () => {

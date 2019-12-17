@@ -1,5 +1,5 @@
 import React from "react";
-import Sidebar from "./sidebar";
+import { Sidebar } from "./sidebar";
 import { BrowserRouter as Router } from "react-router-dom";
 import { mount } from "enzyme";
 import { IProject } from "../../../models/applicationState";

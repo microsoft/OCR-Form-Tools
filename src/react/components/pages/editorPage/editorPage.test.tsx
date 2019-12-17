@@ -525,6 +525,7 @@ describe("Editor Page Component", () => {
             }));
         });
     });
+});
 
 function createStore(project: IProject, setCurrentProject: boolean = false): Store<any, AnyAction> {
     const initialState: IApplicationState = {

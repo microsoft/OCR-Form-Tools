@@ -9,7 +9,6 @@ import ProjectSettingsPage, { IProjectSettingsPageProps, IProjectSettingsPageSta
 jest.mock("../../../../services/projectService");
 import ProjectService from "../../../../services/projectService";
 import { IAppSettings, IProject } from "../../../../models/applicationState";
-import ProjectMetrics from "./projectMetrics";
 import ProjectForm, { IProjectFormProps } from "./projectForm";
 
 jest.mock("./projectMetrics", () => () => {
@@ -133,15 +132,6 @@ describe("Project settings page", () => {
         });
 
         expect(localStorage.removeItem).toBeCalledWith("projectForm");
-    });
-
-    it("render ProjectMetrics", () => {
-        const store = createReduxStore(MockFactory.initialState());
-        const props = MockFactory.projectSettingsProps();
-
-        const wrapper = createComponent(store, props);
-        const projectMetrics = wrapper.find(ProjectMetrics);
-        expect(projectMetrics).toHaveLength(1);
     });
 
     describe("project does not exists", () => {

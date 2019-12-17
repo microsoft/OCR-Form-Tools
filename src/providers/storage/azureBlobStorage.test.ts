@@ -36,10 +36,6 @@ describe("Azure blob functions", () => {
         const provider: AzureBlobStorage = new AzureBlobStorage(options);
 
         const content = await provider.readText(ad.blobName);
-        expect(ContainerURL.fromServiceURL).toBeCalledWith(
-            expect.any(ServiceURL),
-            ad.containerName,
-        );
         expect(BlockBlobURL.fromContainerURL).toBeCalledWith(
             expect.any(ContainerURL),
             ad.blobName,
@@ -60,10 +56,6 @@ describe("Azure blob functions", () => {
         const provider: AzureBlobStorage = new AzureBlobStorage(options);
 
         const content = await provider.readBinary(ad.blobName);
-        expect(ContainerURL.fromServiceURL).toBeCalledWith(
-            expect.any(ServiceURL),
-            ad.containerName,
-        );
         expect(BlockBlobURL.fromContainerURL).toBeCalledWith(
             expect.any(ContainerURL),
             ad.blobName,
@@ -81,10 +73,6 @@ describe("Azure blob functions", () => {
         const provider: AzureBlobStorage = new AzureBlobStorage(options);
 
         provider.writeText(ad.blobName, ad.blobText);
-        expect(ContainerURL.fromServiceURL).toBeCalledWith(
-            expect.any(ServiceURL),
-            ad.containerName,
-        );
         expect(BlockBlobURL.fromContainerURL).toBeCalledWith(
             expect.any(ContainerURL),
             ad.blobName,
@@ -102,10 +90,6 @@ describe("Azure blob functions", () => {
         const provider: AzureBlobStorage = new AzureBlobStorage(options);
 
         provider.writeText(ad.blobName, Buffer.from(ad.blobText));
-        expect(ContainerURL.fromServiceURL).toBeCalledWith(
-            expect.any(ServiceURL),
-            ad.containerName,
-        );
         expect(BlockBlobURL.fromContainerURL).toBeCalledWith(
             expect.any(ContainerURL),
             ad.blobName,
@@ -130,10 +114,6 @@ describe("Azure blob functions", () => {
         const provider: AzureBlobStorage = new AzureBlobStorage(options);
 
         provider.deleteFile(ad.blobName);
-        expect(ContainerURL.fromServiceURL).toBeCalledWith(
-            expect.any(ServiceURL),
-            ad.containerName,
-        );
         expect(BlockBlobURL.fromContainerURL).toBeCalledWith(
             expect.any(ContainerURL),
             ad.blobName,
@@ -151,10 +131,6 @@ describe("Azure blob functions", () => {
     it("Creates a container in the account", async () => {
         const provider: AzureBlobStorage = new AzureBlobStorage(options);
         await expect(provider.createContainer(null)).resolves.not.toBeNull();
-        expect(ContainerURL.fromServiceURL).toBeCalledWith(
-            expect.any(ServiceURL),
-            ad.containerName,
-        );
         expect(containerURL.prototype.create).toBeCalled();
     });
 
@@ -165,20 +141,12 @@ describe("Azure blob functions", () => {
 
         const provider: AzureBlobStorage = new AzureBlobStorage(options);
         await expect(provider.createContainer(null)).resolves.not.toBeNull();
-        expect(ContainerURL.fromServiceURL).toBeCalledWith(
-            expect.any(ServiceURL),
-            ad.containerName,
-        );
         expect(containerURL.prototype.create).toBeCalled();
     });
 
     it("Deletes a container in the account", () => {
         const provider: AzureBlobStorage = new AzureBlobStorage(options);
         provider.deleteContainer(null);
-        expect(ContainerURL.fromServiceURL).toBeCalledWith(
-            expect.any(ServiceURL),
-            ad.containerName,
-        );
         expect(containerURL.prototype.delete).toBeCalled();
     });
 
@@ -221,18 +189,5 @@ describe("Azure blob functions", () => {
         const provider: AzureBlobStorage = new AzureBlobStorage(options);
         await provider.initialize();
         expect(serviceURL.prototype.listContainersSegment).toBeCalled();
-    });
-
-    it("throws an error if container not found and not created", async () => {
-        const newContainerName = "newContainer";
-        const provider: AzureBlobStorage = new AzureBlobStorage({
-            ...options,
-            containerName: newContainerName,
-        });
-        try {
-            await provider.initialize();
-        } catch (e) {
-            expect(e.message).toEqual(`Container "${newContainerName}" does not exist`);
-        }
     });
 });
