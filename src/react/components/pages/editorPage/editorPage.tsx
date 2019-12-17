@@ -14,7 +14,6 @@ import {
 } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
-import { AssetService } from "../../../../services/assetService";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
 import { KeyboardBinding } from "../../common/keyboardBinding/keyboardBinding";
 import { KeyEventType } from "../../common/keyboardManager/keyboardManager";
@@ -456,8 +455,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         await this.props.actions.saveProject(this.props.project);
 
-        const assetService = new AssetService(this.props.project);
-
         // Find and update the root asset in the internal state
         // This forces the root assets that are displayed in the sidebar to
         // accurately show their correct state (not-visited, visited or tagged)
@@ -468,6 +465,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 ...rootAsset,
             };
         }
+
+        this.setState({ assets, isValid: true });
     }
 
     /**
