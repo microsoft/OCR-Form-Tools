@@ -1,5 +1,5 @@
 import React from "react";
-import { IAssetProps } from "./assetPreview";
+import { IAssetPreviewProps } from "./assetPreview";
 import * as pdfjsLib from "pdfjs-dist";
 import { constants } from "../../../../common/constants";
 
@@ -13,10 +13,16 @@ export interface IPDFAssetState {
 /**
  * PDFAsset component used to render all PDF assets
  */
-export class PDFAsset extends React.Component<IAssetProps, IPDFAssetState> {
-    public state: IPDFAssetState = { imageUri: "" };
-
+export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState> {
     private image: React.RefObject<HTMLImageElement> = React.createRef();
+
+    constructor(props: IAssetPreviewProps) {
+        super(props);
+
+        this.state = {
+            imageUri: "",
+        };
+    }
 
     public componentDidMount() {
         if (this.props.asset != null) {

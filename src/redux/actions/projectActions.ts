@@ -2,7 +2,6 @@ import { Action, Dispatch } from "redux";
 import ProjectService from "../../services/projectService";
 import { ActionTypes } from "./actionTypes";
 import { AssetService } from "../../services/assetService";
-import { ExportProviderFactory } from "../../providers/export/exportProviderFactory";
 import {
     AppError,
     ErrorCode,
@@ -12,9 +11,7 @@ import {
     IProject,
 } from "../../models/applicationState";
 import { createAction, createPayloadAction, IPayloadAction } from "./actionCreators";
-import { IExportResults } from "../../providers/export/exportProvider";
 import { appInfo } from "../../common/appInfo";
-import { strings } from "../../common/strings";
 
 /**
  * Actions to be performed in relation to projects
@@ -24,7 +21,6 @@ export default interface IProjectActions {
     saveProject(project: IProject): Promise<IProject>;
     deleteProject(project: IProject): Promise<void>;
     closeProject(): void;
-    exportProject(project: IProject): Promise<void> | Promise<IExportResults>;
     loadAssets(project: IProject): Promise<IAsset[]>;
     loadAssetMetadata(project: IProject, asset: IAsset): Promise<IAssetMetadata>;
     saveAssetMetadata(project: IProject, assetMetadata: IAssetMetadata): Promise<IAssetMetadata>;
@@ -68,7 +64,7 @@ export function saveProject(project: IProject)
 
         if (projectService.isDuplicate(project, appState.recentProjects)) {
             throw new AppError(ErrorCode.ProjectDuplicateName, `Project with name '${project.name}
-                already exists with the same target connection '${project.targetConnection.name}'`);
+                already exists with the same target connection '${project.sourceConnection.name}'`);
         }
 
         const projectToken = appState.appSettings.securityTokens
@@ -234,30 +230,6 @@ export function deleteProjectTag(project: IProject, tagName)
 }
 
 /**
- * Initialize export provider, get export data and dispatch export project action
- * @param project - Project to export
- */
-export function exportProject(project: IProject): (dispatch: Dispatch) => Promise<void> | Promise<IExportResults> {
-    return async (dispatch: Dispatch) => {
-        if (!project.exportFormat) {
-            throw new AppError(ErrorCode.ExportFormatNotFound, strings.errors.exportFormatNotFound.message);
-        }
-
-        if (project.exportFormat && project.exportFormat.providerType) {
-            const exportProvider = ExportProviderFactory.create(
-                project.exportFormat.providerType,
-                project,
-                project.exportFormat.providerOptions);
-
-            const results = await exportProvider.export();
-            dispatch(exportProjectAction(project));
-
-            return results as IExportResults;
-        }
-    };
-}
-
-/**
  * Load project action type
  */
 export interface ILoadProjectAction extends IPayloadAction<string, IProject> {
@@ -307,13 +279,6 @@ export interface ISaveAssetMetadataAction extends IPayloadAction<string, IAssetM
 }
 
 /**
- * Export project action type
- */
-export interface IExportProjectAction extends IPayloadAction<string, IProject> {
-    type: ActionTypes.EXPORT_PROJECT_SUCCESS;
-}
-
-/**
  * Update Project Tag action type
  */
 export interface IUpdateProjectTagAction extends IPayloadAction<string, IProject> {
@@ -358,11 +323,6 @@ export const loadAssetMetadataAction =
  */
 export const saveAssetMetadataAction =
     createPayloadAction<ISaveAssetMetadataAction>(ActionTypes.SAVE_ASSET_METADATA_SUCCESS);
-/**
- * Instance of Export Project action
- */
-export const exportProjectAction =
-    createPayloadAction<IExportProjectAction>(ActionTypes.EXPORT_PROJECT_SUCCESS);
 /**
  * Instance of Update project tag action
  */

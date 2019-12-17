@@ -9,7 +9,6 @@ import { IApplicationState } from "../../models/applicationState";
  */
 const initialState: IApplicationState = {
     appSettings: {
-        devToolsEnabled: false,
         securityTokens: [],
     },
     connections: [],

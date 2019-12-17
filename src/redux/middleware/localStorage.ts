@@ -1,10 +1,9 @@
 import { Middleware, Dispatch, AnyAction, MiddlewareAPI } from "redux";
+import { constants } from "../../common/constants";
 
 export interface ILocalStorageMiddlewareOptions {
     paths: string[];
 }
-
-const version = "pubpreview_1.0_";
 
 export function createLocalStorage(config: ILocalStorageMiddlewareOptions): Middleware {
     return (store: MiddlewareAPI<Dispatch<AnyAction>>) => (next: Dispatch<AnyAction>) => (action: any) => {
@@ -35,13 +34,13 @@ export function mergeInitialState(state: any, paths: string[]) {
 }
 
 export function setStorageItem(key: string, value: string) {
-    localStorage.setItem(`${version}${key}`, value);
+    localStorage.setItem(`${constants.version}_${key}`, value);
 }
 
 export function getStorageItem(key: string) {
-    return localStorage.getItem(`${version}${key}`);
+    return localStorage.getItem(`${constants.version}_${key}`);
 }
 
 export function removeStorageItem(key: string) {
-    return localStorage.removeItem(`${version}${key}`);
+    return localStorage.removeItem(`${constants.version}_${key}`);
 }

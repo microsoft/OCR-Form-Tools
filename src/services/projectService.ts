@@ -2,16 +2,12 @@ import shortid from "shortid";
 import { StorageProviderFactory, IStorageProvider } from "../providers/storage/storageProviderFactory";
 import {
     IProject, ITag, ISecurityToken, AppError,
-    ErrorCode, ModelPathType, IActiveLearningSettings,
+    ErrorCode,
 } from "../models/applicationState";
 import Guard from "../common/guard";
 import { constants } from "../common/constants";
-import { ExportProviderFactory } from "../providers/export/exportProviderFactory";
 import { decryptProject, encryptProject } from "../common/utils";
 import packageJson from "../../package.json";
-import { ExportAssetState } from "../providers/export/exportProvider";
-import { IExportFormat } from "vott-react";
-import { Tag } from "vott-ct/lib/js/CanvasTools/Core/Tag";
 import { strings, interpolate } from "../common/strings";
 import { toast } from "react-toastify";
 const tagColors = require("../react/components/common/tagColors.json");
@@ -27,20 +23,6 @@ export interface IProjectService {
     delete(project: IProject): Promise<void>;
     isDuplicate(project: IProject, projectList: IProject[]): boolean;
 }
-
-const defaultActiveLearningSettings: IActiveLearningSettings = {
-    autoDetect: false,
-    predictTag: true,
-    modelPathType: ModelPathType.Coco,
-};
-
-const defaultExportOptions: IExportFormat = {
-    providerType: "vottJson",
-    providerOptions: {
-        assetState: ExportAssetState.Visited,
-        includeImages: true,
-    },
-};
 
 /**
  * @name - Project Service
@@ -63,18 +45,6 @@ export default class ProjectService implements IProjectService {
                 loadedProject.tags = [];
             }
 
-            // Initialize active learning settings if they don't exist
-            if (!loadedProject.activeLearningSettings) {
-                loadedProject.activeLearningSettings = defaultActiveLearningSettings;
-            }
-
-            // Initialize export settings if they don't exist
-            if (!loadedProject.exportFormat) {
-                loadedProject.exportFormat = defaultExportOptions;
-            }
-
-            this.ensureBackwardsCompatibility(loadedProject);
-
             return Promise.resolve({ ...loadedProject });
         } catch (e) {
             const error = new AppError(ErrorCode.ProjectInvalidSecurityToken, "Error decrypting project settings");
@@ -96,19 +66,7 @@ export default class ProjectService implements IProjectService {
             project.id = shortid.generate();
         }
 
-        // Initialize active learning settings if they don't exist
-        if (!project.activeLearningSettings) {
-            project.activeLearningSettings = defaultActiveLearningSettings;
-        }
-
-        // Initialize export settings if they don't exist
-        if (!project.exportFormat) {
-            project.exportFormat = defaultExportOptions;
-        }
-
-        await this.saveExportSettings(project);
-
-        const storageProvider = StorageProviderFactory.createFromConnection(project.targetConnection);
+        const storageProvider = StorageProviderFactory.createFromConnection(project.sourceConnection);
 
         if (!project.tags) {
             await this.getTagsFromPreExistingLabelFiles(project, storageProvider);
@@ -131,7 +89,7 @@ export default class ProjectService implements IProjectService {
     public async delete(project: IProject): Promise<void> {
         Guard.null(project);
 
-        const storageProvider = StorageProviderFactory.createFromConnection(project.targetConnection);
+        const storageProvider = StorageProviderFactory.createFromConnection(project.sourceConnection);
 
         try {
             // try deleting project file
@@ -159,14 +117,14 @@ export default class ProjectService implements IProjectService {
         const duplicateProjects = projectList.find((p) =>
             p.id !== project.id &&
             p.name === project.name &&
-            JSON.stringify(p.targetConnection.providerOptions) ===
-            JSON.stringify(project.targetConnection.providerOptions),
+            JSON.stringify(p.sourceConnection.providerOptions) ===
+            JSON.stringify(project.sourceConnection.providerOptions),
         );
         return (duplicateProjects !== undefined);
     }
 
     public async isProjectNameAlreadyUsed(project: IProject): Promise<boolean> {
-        const storageProvider = StorageProviderFactory.createFromConnection(project.targetConnection);
+        const storageProvider = StorageProviderFactory.createFromConnection(project.sourceConnection);
         const fileList = await storageProvider.listFiles(null/*folderPath*/, constants.projectFileExtension/*ext*/);
         for (const fileName of fileList) {
             if (fileName === `${project.name}${constants.projectFileExtension}`) {
@@ -209,40 +167,14 @@ export default class ProjectService implements IProjectService {
                 throw new Error("Invalid label file");
             }
             tagNameArray.forEach((name, index) => {
-                tags.push(new Tag(name, tagColors[index]));
+                tags.push({
+                    name,
+                    color: tagColors[index]
+                });
             });
             project.tags = tags;
         } catch (err) {
             project.tags = [];
-        }
-    }
-
-    private async saveExportSettings(project: IProject): Promise<void> {
-        if (!project.exportFormat || !project.exportFormat.providerType) {
-            return Promise.resolve();
-        }
-
-        const exportProvider = ExportProviderFactory.createFromProject(project);
-
-        if (!exportProvider.save) {
-            return Promise.resolve();
-        }
-
-        project.exportFormat.providerOptions = await exportProvider.save(project.exportFormat);
-    }
-
-    /**
-     * Ensures backwards compatibility with project
-     * @param project The project to update
-     */
-    private ensureBackwardsCompatibility(project: IProject) {
-        const projectVersion = project.version.toLowerCase();
-
-        if (projectVersion.startsWith("2.0.0")) {
-            // Required for backwards compatibility with v2.0.0 release
-            if (project.exportFormat.providerType === "tensorFlowPascalVOC") {
-                project.exportFormat.providerType = "pascalVOC";
-            }
         }
     }
 }

@@ -9,7 +9,6 @@ import CustomFieldTemplate from "../../common/customField/customFieldTemplate";
 import { ISecurityTokenPickerProps, SecurityTokenPicker } from "../../common/securityTokenPicker/securityTokenPicker";
 import "vott-react/dist/css/tagsInput.css";
 import { IConnectionProviderPickerProps } from "../../common/connectionProviderPicker/connectionProviderPicker";
-import LocalFolderPicker from "../../common/localFolderPicker/localFolderPicker";
 import { ProjectSettingAction } from "./projectSettingAction";
 import { ProtectedInput } from "../../common/protectedInput/protectedInput";
 
@@ -56,7 +55,6 @@ export interface IProjectFormState {
  */
 export default class ProjectForm extends React.Component<IProjectFormProps, IProjectFormState> {
     private widgets = {
-        localFolderPicker: (LocalFolderPicker as any) as Widget,
         protectedInput: (ProtectedInput as any) as Widget,
     };
 
@@ -182,7 +180,7 @@ export default class ProjectForm extends React.Component<IProjectFormProps, IPro
     private onFormSubmit(args: ISubmitEvent<IProject>) {
         const project: IProject = {
             ...args.formData,
-            targetConnection: args.formData.sourceConnection,
+            sourceConnection: args.formData.sourceConnection,
             folderPath: this.normalizeFolderPath(args.formData.folderPath),
         };
         this.props.onSubmit(project);

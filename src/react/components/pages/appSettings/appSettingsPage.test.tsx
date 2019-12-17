@@ -67,30 +67,6 @@ describe("App Settings Page", () => {
         expect(goBackSpy).toBeCalled();
     });
 
-    it("Toggles on clicking dev tools button", () => {
-        const appSettings = MockFactory.appSettings();
-        const store = createStore(appSettings);
-        const props = createProps();
-        const toggleDevToolsSpy = jest.spyOn(props.actions, "toggleDevTools");
-
-        const wrapper = createComponent(store, props);
-        wrapper.find("button#toggleDevTools").simulate("click");
-
-        expect(toggleDevToolsSpy).toBeCalledWith(!appSettings.devToolsEnabled);
-    });
-
-    it("Refreshes the application when clicking on the refresh button", () => {
-        const appSettings = MockFactory.appSettings();
-        const store = createStore(appSettings);
-        const props = createProps();
-        const reloadAppSpy = jest.spyOn(props.actions, "reloadApplication");
-
-        const wrapper = createComponent(store, props);
-        wrapper.find("button#refreshApp").simulate("click");
-
-        expect(reloadAppSpy).toBeCalled();
-    });
-
     function createProps(): IAppSettingsProps {
         return {
             appSettings: null,

@@ -157,12 +157,6 @@ describe("Connections Page", () => {
             wrapper.update();
 
             wrapper
-                .find("input#root_providerOptions_accountName")
-                .simulate("change", { target: { value: options.accountName } });
-            wrapper
-                .find("input#root_providerOptions_containerName")
-                .simulate("change", { target: { value: options.containerName } });
-            wrapper
                 .find("input#root_providerOptions_sas")
                 .simulate("change", { target: { value: options.sas } });
             wrapper

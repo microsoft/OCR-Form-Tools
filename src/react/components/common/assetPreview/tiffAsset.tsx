@@ -1,5 +1,5 @@
 import React from "react";
-import { IAssetProps } from "./assetPreview";
+import { IAssetPreviewProps } from "./assetPreview";
 import { IAsset } from "../../../../models/applicationState";
 import HtmlFileReader from "../../../../common/htmlFileReader";
 import { parseTiffData, renderTiffToCanvas } from "../../../../common/utils";
@@ -12,10 +12,16 @@ export interface ITiffAsset {
 /**
  * TiffAsset component used to render all Tiff assets
  */
-export class TiffAsset extends React.Component<IAssetProps, ITiffAsset> {
-    public state: ITiffAsset = { imageUri: "" };
-
+export class TiffAsset extends React.Component<IAssetPreviewProps, ITiffAsset> {
     private image: React.RefObject<HTMLImageElement> = React.createRef();
+
+    constructor(props: IAssetPreviewProps) {
+        super(props);
+
+        this.state = {
+            imageUri: "",
+        };
+    }
 
     public componentDidMount() {
         if (this.props.asset != null) {

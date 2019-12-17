@@ -1,7 +1,8 @@
 import React from "react";
+import { toast } from "react-toastify";
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
-import { strings } from "../../../../common/strings";
-import { IConnection, StorageType } from "../../../../models/applicationState";
+import { strings, interpolate } from "../../../../common/strings";
+import { IConnection, StorageType, ErrorCode, AppError } from "../../../../models/applicationState";
 import { StorageProviderFactory } from "../../../../providers/storage/storageProviderFactory";
 import CondensedList, { ListItem } from "../condensedList/condensedList";
 
@@ -171,13 +172,22 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
         const connection: IConnection = {
             ...args,
         };
-        const fileList = await this.fileList(connection);
-        this.setState({
-            selectedConnection: connection,
-            modalHeader: `Select a file from "${connection.name}"`,
-            condensedList: fileList,
-            backDisabled: false,
-        });
+        try {
+            const fileList = await this.fileList(connection);
+            this.setState({
+                selectedConnection: connection,
+                modalHeader: `Select a file from "${connection.name}"`,
+                condensedList: fileList,
+                backDisabled: false,
+            });
+        } catch (err) {
+            if (err instanceof AppError && err.errorCode === ErrorCode.BlobContainerIONotFound) {
+                const reason = interpolate(strings.errors.blobContainerIONotFound.message, {});
+                toast.error(reason, { autoClose: false });
+                return;
+            }
+            throw err;
+        }
     }
 
     private async fileList(connection: IConnection) {

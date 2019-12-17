@@ -46,8 +46,6 @@ export default class AppSettingsPage extends React.Component<IAppSettingsProps> 
     constructor(props: IAppSettingsProps) {
         super(props);
 
-        this.toggleDevTools = this.toggleDevTools.bind(this);
-        this.reloadApp = this.reloadApp.bind(this);
         this.onFormSubmit = this.onFormSubmit.bind(this);
         this.onFormCancel = this.onFormCancel.bind(this);
     }
@@ -71,13 +69,5 @@ export default class AppSettingsPage extends React.Component<IAppSettingsProps> 
 
     private onFormCancel() {
         this.props.history.goBack();
-    }
-
-    private toggleDevTools = async () => {
-        await this.props.actions.toggleDevTools(!this.props.appSettings.devToolsEnabled);
-    }
-
-    private reloadApp = async () => {
-        await this.props.actions.reloadApplication();
     }
 }

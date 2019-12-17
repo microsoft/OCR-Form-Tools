@@ -10,8 +10,6 @@ import ProjectService from "../../services/projectService";
 
 jest.mock("../../services/assetService");
 import { AssetService } from "../../services/assetService";
-import { ExportProviderFactory } from "../../providers/export/exportProviderFactory";
-import { IExportProvider } from "../../providers/export/exportProvider";
 import { IApplicationState, IProject } from "../../models/applicationState";
 import initialState from "../store/initialState";
 import { appInfo } from "../../common/appInfo";

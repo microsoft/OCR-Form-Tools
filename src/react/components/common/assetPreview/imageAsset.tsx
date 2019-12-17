@@ -1,5 +1,5 @@
 import React from "react";
-import { IAssetProps } from "./assetPreview";
+import { IAssetPreviewProps } from "./assetPreview";
 import { loadImageToCanvas } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 
@@ -10,9 +10,16 @@ interface IImageAssetState {
 /**
  * ImageAsset component used to render all image assets
  */
-export class ImageAsset extends React.Component<IAssetProps, IImageAssetState> {
-    public state: IImageAssetState = { imageUri: null };
+export class ImageAsset extends React.Component<IAssetPreviewProps, IImageAssetState> {
     private image: React.RefObject<HTMLImageElement> = React.createRef();
+
+    constructor(props: IAssetPreviewProps) {
+        super(props);
+
+        this.state = {
+            imageUri: null,
+        };
+    }
 
     public async componentDidMount() {
         if (this.props.asset != null) {
@@ -30,7 +37,6 @@ export class ImageAsset extends React.Component<IAssetProps, IImageAssetState> {
                 alt={this.props.asset.name}
                 onLoad={this.onLoad}
                 onError={(e) => {
-                    console.log(e);
                     this.props.onError(e)
                 }}
                 crossOrigin="anonymous" />);

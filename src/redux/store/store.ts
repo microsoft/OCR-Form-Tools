@@ -3,7 +3,6 @@ import thunk from "redux-thunk";
 import rootReducer from "../reducers";
 import { IApplicationState } from "../../models/applicationState";
 import { mergeInitialState } from "../middleware/localStorage";
-import { createAppInsightsLogger } from "../middleware/appInsights";
 import { Env } from "../../common/environment";
 
 /**
@@ -16,7 +15,7 @@ export default function createReduxStore(
     useLocalStorage: boolean = false): Store {
     const paths: string[] = ["appSettings", "connections", "recentProjects"];
 
-    let middlewares = [thunk, createAppInsightsLogger()];
+    let middlewares = [thunk];
 
     if (useLocalStorage) {
         const localStorage = require("../middleware/localStorage");

@@ -1,5 +1,4 @@
 import { Action, Dispatch } from "redux";
-import { IpcRendererProxy } from "../../common/ipcRendererProxy";
 import { ActionTypes } from "./actionTypes";
 import { createPayloadAction, createAction, IPayloadAction } from "./actionCreators";
 import { IAppSettings } from "../../models/applicationState";
@@ -12,35 +11,8 @@ import { generateKey } from "../../common/crypto";
  * @member reloadApplication - Reload application
  */
 export default interface IApplicationActions {
-    toggleDevTools(show: boolean): Promise<void>;
-    reloadApplication(): Promise<void>;
     saveAppSettings(appSettings: IAppSettings): IAppSettings;
     ensureSecurityToken(project: IProject): IAppSettings;
-}
-
-/**
- * Open or close dev tools
- * @param show - Dev tools is open
- */
-export function toggleDevTools(show: boolean): (dispatch: Dispatch) => Promise<void> {
-    return (dispatch: Dispatch) => {
-        return IpcRendererProxy.send("TOGGLE_DEV_TOOLS", show)
-            .then(() => {
-                dispatch(toggleDevToolsAction(show));
-            });
-    };
-}
-
-/**
- * Reload application
- */
-export function reloadApplication(): (dispatch: Dispatch) => Promise<void> {
-    return (dispatch: Dispatch) => {
-        return IpcRendererProxy.send("RELOAD_APP")
-            .then(() => {
-                dispatch(refreshApplicationAction());
-            });
-    };
 }
 
 /**
@@ -81,7 +53,6 @@ export function ensureSecurityToken(project: IProject):
         };
 
         const updatedAppSettings: IAppSettings = {
-            devToolsEnabled: appState.appSettings.devToolsEnabled,
             securityTokens: [...appState.appSettings.securityTokens, securityToken],
         };
 
@@ -91,20 +62,6 @@ export function ensureSecurityToken(project: IProject):
         dispatch(ensureSecurityTokenAction(updatedAppSettings));
         return updatedAppSettings;
     };
-}
-
-/**
- * Toggle Dev Tools Redux Action type
- */
-export interface IToggleDevToolsAction extends IPayloadAction<string, boolean> {
-    type: ActionTypes.TOGGLE_DEV_TOOLS_SUCCESS;
-}
-
-/**
- * Refresh app action type
- */
-export interface IRefreshApplicationAction extends Action<string> {
-    type: ActionTypes.REFRESH_APP_SUCCESS;
 }
 
 /**
@@ -121,14 +78,6 @@ export interface IEnsureSecurityTokenAction extends IPayloadAction<string, IAppS
     type: ActionTypes.ENSURE_SECURITY_TOKEN_SUCCESS;
 }
 
-/**
- * Instance of toggle dev tools action
- */
-export const toggleDevToolsAction = createPayloadAction<IToggleDevToolsAction>(ActionTypes.TOGGLE_DEV_TOOLS_SUCCESS);
-/**
- * Instance of refresh app action
- */
-export const refreshApplicationAction = createAction<IRefreshApplicationAction>(ActionTypes.REFRESH_APP_SUCCESS);
 /**
  * Instance of save app settings action
  */

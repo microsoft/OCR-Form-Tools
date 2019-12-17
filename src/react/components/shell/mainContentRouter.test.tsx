@@ -7,7 +7,7 @@ import { Provider } from "react-redux";
 import { AnyAction, Store } from "redux";
 import createReduxStore from "../../../redux/store/store";
 
-import MainContentRouter from "./mainContentRouter";
+import { MainContentRouter } from "./mainContentRouter";
 import HomePage, { IHomePageProps } from "./../pages/homepage/homePage";
 import SettingsPage from "./../pages/appSettings/appSettingsPage";
 import ConnectionsPage from "./../pages/connections/connectionsPage";
@@ -34,7 +34,7 @@ describe("Main Content Router", () => {
     it("renders correct routes", () => {
         const wrapper = shallow(<MainContentRouter />);
         const pathMap = wrapper.find(Route).reduce((pathMap, route) => {
-            const routeProps = route.props();
+            const routeProps = route.props() as any;
             pathMap[routeProps.path] = routeProps.component;
             return pathMap;
         }, {});

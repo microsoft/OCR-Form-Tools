@@ -1,5 +1,5 @@
 import React from "react";
-import { IAssetProps } from "./assetPreview";
+import { IAssetPreviewProps } from "./assetPreview";
 import { ReactWrapper, mount } from "enzyme";
 import { ImageAsset } from "./imageAsset";
 import MockFactory from "../../../../common/mockFactory";
@@ -7,14 +7,14 @@ import MockFactory from "../../../../common/mockFactory";
 describe("Image Asset Component", () => {
     // tslint:disable-next-line:max-line-length
     const dataUri = "data:image/gif;base64,R0lGODlhEAAQAMQAAORHHOVSKudfOulrSOp3WOyDZu6QdvCchPGolfO0o/XBs/fNwfjZ0frl3/zy7////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAkAABAALAAAAAAQABAAAAVVICSOZGlCQAosJ6mu7fiyZeKqNKToQGDsM8hBADgUXoGAiqhSvp5QAnQKGIgUhwFUYLCVDFCrKUE1lBavAViFIDlTImbKC5Gm2hB0SlBCBMQiB0UjIQA7";
-    let wrapper: ReactWrapper<IAssetProps> = null;
+    let wrapper: ReactWrapper<IAssetPreviewProps> = null;
     const onLoadHandler = jest.fn();
     const onActivatedHandler = jest.fn();
     const onDeactivatedHandler = jest.fn();
     const onErrorHandler = jest.fn();
 
     MockFactory.createTestAsset("test");
-    const defaultProps: IAssetProps = {
+    const defaultProps: IAssetPreviewProps = {
         asset: {
             ...MockFactory.createTestAsset("test"),
             path: dataUri,
@@ -25,7 +25,7 @@ describe("Image Asset Component", () => {
         onError: onErrorHandler,
     };
 
-    function createComponent(props?: IAssetProps): ReactWrapper<IAssetProps> {
+    function createComponent(props?: IAssetPreviewProps): ReactWrapper<IAssetPreviewProps> {
         props = props || defaultProps;
         return mount(<ImageAsset {...props} />);
     }

@@ -86,7 +86,6 @@ describe("Project settings page", () => {
                 name: project.name,
                 connections: {
                     source: project.sourceConnection,
-                    target: project.targetConnection,
                 },
             },
             actions: {

@@ -56,8 +56,8 @@ export class OCRService {
     protected get storageProvider(): IStorageProvider {
         if (!this.storageProviderInstance) {
             this.storageProviderInstance = StorageProviderFactory.create(
-                this.project.targetConnection.providerType,
-                this.project.targetConnection.providerOptions,
+                this.project.sourceConnection.providerType,
+                this.project.sourceConnection.providerOptions,
             );
         }
 

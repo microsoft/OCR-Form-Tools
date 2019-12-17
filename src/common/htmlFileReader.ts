@@ -1,8 +1,6 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { IAsset, AssetType, IFileInfo } from "../models/applicationState";
 import Guard from "./guard";
-import { TFRecordsReader } from "../providers/export/tensorFlowRecords/tensorFlowReader";
-import { FeatureType } from "../providers/export/tensorFlowRecords/tensorFlowBuilder";
 import * as EXIF from "exif-js";
 import { isNumber } from "util";
 
@@ -55,10 +53,6 @@ export default class HtmlFileReader {
         switch (asset.type) {
             case AssetType.Image:
                 return await this.readImageAttributes(asset.path);
-            case AssetType.Video:
-                return await this.readVideoAttributes(asset.path);
-            case AssetType.TFRecord:
-                return await this.readTFRecordAttributes(asset);
             default:
                 throw new Error("Asset not supported");
         }
@@ -82,17 +76,12 @@ export default class HtmlFileReader {
             responseType: "blob",
         };
 
-        let data = null;
-        if (asset.type === AssetType.VideoFrame) {
-            data = await this.getAssetFrameImage(asset);
-        } else {
-            // Download the asset binary from the storage provider
-            const response = await axios.get<Blob>(asset.path, config);
-            if (response.status !== 200) {
-                throw new Error("Error downloading asset binary");
-            }
-            data = await response.data;
+        // Download the asset binary from the storage provider
+        const response = await axios.get<Blob>(asset.path, config);
+        if (response.status !== 200) {
+            throw new Error("Error downloading asset binary");
         }
+        const data = await response.data;
 
         return data;
     }
@@ -176,31 +165,6 @@ export default class HtmlFileReader {
                 reject(err);
             }
         });
-    }
-
-    private static readVideoAttributes(url: string): Promise<{ width: number, height: number, duration: number }> {
-        return new Promise((resolve, reject) => {
-            const video = document.createElement("video") as HTMLVideoElement;
-            video.onloadedmetadata = () => {
-                resolve({
-                    width: video.videoWidth,
-                    height: video.videoHeight,
-                    duration: video.duration,
-                });
-            };
-            video.onerror = reject;
-            video.src = url;
-        });
-    }
-
-    private static async readTFRecordAttributes(asset: IAsset): Promise<{ width: number, height: number }> {
-        // Get from TFRecord Reader
-        const tfrecords = new Buffer(await this.getAssetArray(asset));
-        const reader = new TFRecordsReader(tfrecords);
-        const width = reader.getFeature(0, "image/width", FeatureType.Int64) as number;
-        const height = reader.getFeature(0, "image/height", FeatureType.Int64) as number;
-
-        return { width, height };
     }
 
     public static async readImageOrientation(image: HTMLImageElement): Promise<number> {

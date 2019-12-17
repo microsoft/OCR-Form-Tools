@@ -9,7 +9,6 @@ describe("App Settings Form", () => {
     const onSubmitHandler = jest.fn();
     const onCancelHandler = jest.fn();
     const defaultAppSettings: IAppSettings = {
-        devToolsEnabled: false,
         securityTokens: [],
     };
 
@@ -38,7 +37,6 @@ describe("App Settings Form", () => {
 
     it("initializes state with saved app settings", () => {
         const appSettings: IAppSettings = {
-            devToolsEnabled: false,
             securityTokens: [
                 { name: "A", key: "1" },
                 { name: "B", key: "2" },
@@ -54,7 +52,6 @@ describe("App Settings Form", () => {
     it("updates state if app settings change", () => {
         wrapper = createComponent();
         const updatedAppSettings: IAppSettings = {
-            devToolsEnabled: false,
             securityTokens: [
                 { name: "A", key: "1" },
                 { name: "B", key: "2" },

@@ -5,10 +5,9 @@ import MockFactory from "../../../../common/mockFactory";
 import { KeyCodes } from "../../../../common/utils";
 import registerProviders from "../../../../registerProviders";
 import ProjectForm, { IProjectFormProps, IProjectFormState } from "./projectForm";
-import { IProjectVideoSettings } from "../../../../models/applicationState";
 import { SecurityTokenPicker } from "../../common/securityTokenPicker/securityTokenPicker";
 import { ConnectionPickerWithRouter } from "../../common/connectionPicker/connectionPicker";
-import { TagsInput } from "vott-react";
+import { ProjectSettingAction } from "./projectSettingAction";
 
 describe("Project Form Component", () => {
     const project = MockFactory.createTestProject("TestProject");
@@ -42,6 +41,7 @@ describe("Project Form Component", () => {
                 project,
                 connections,
                 appSettings,
+                action: ProjectSettingAction.Create,
                 onSubmit: onSubmitHandler,
                 onChange: onChangeHandler,
                 onCancel: onCancelHandler,
@@ -51,15 +51,12 @@ describe("Project Form Component", () => {
         it("renders the form correctly", () => {
             expect(wrapper.find(SecurityTokenPicker)).toHaveLength(1);
             expect(wrapper.find(ConnectionPickerWithRouter)).toHaveLength(2);
-            expect(wrapper.find(TagsInput)).toHaveLength(1);
         });
 
         it("starting project has initial state loaded correctly", () => {
             const formData = wrapper.state().formData;
             expect(formData.name).toEqual(project.name);
             expect(formData.sourceConnection).toEqual(project.sourceConnection);
-            expect(formData.targetConnection).toEqual(project.targetConnection);
-            expect(formData.videoSettings).toEqual(project.videoSettings);
             expect(formData.description).toEqual(project.description);
             expect(project.tags.length).toBeGreaterThan(0);
             expect(formData.tags).toEqual(project.tags);
@@ -131,25 +128,6 @@ describe("Project Form Component", () => {
             expect(onSubmitHandler).toBeCalledWith(expectedProject);
         });
 
-        it("starting project should update target connection ID upon submission", () => {
-            const newConnection = connections[1];
-            const currentConnectionId = wrapper.state().formData.targetConnection.id;
-            expect(currentConnectionId).not.toEqual(newConnection.id);
-            expect(currentConnectionId).toEqual(project.targetConnection.id);
-            expect(wrapper.find("select#root_targetConnection").exists()).toBe(true);
-            wrapper.find("select#root_targetConnection").simulate("change", { target: { value: newConnection.id } });
-            expect(wrapper.state().formData.targetConnection).toEqual(newConnection);
-            wrapper.find("form").simulate("submit");
-
-            const expectedProject = {
-                ...project,
-                targetConnection: connections[1],
-            };
-
-            expect(onChangeHandler).toBeCalledWith(expect.objectContaining(project));
-            expect(onSubmitHandler).toBeCalledWith(expectedProject);
-        });
-
         it("starting project should call onSubmitHandler on submission", () => {
             const form = wrapper.find("form");
             form.simulate("submit");
@@ -197,28 +175,6 @@ describe("Project Form Component", () => {
             cancelButton.simulate("click");
             expect(onCancelHandler).toBeCalled();
         });
-
-        it("Does not include asset providers in target connections", () => {
-            const bingConnections = MockFactory.createTestBingConnections();
-            const newConnections = [...connections, ...bingConnections];
-
-            const newWrapper = createComponent({
-                project,
-                appSettings,
-                connections: newConnections,
-                onSubmit: onSubmitHandler,
-                onChange: onChangeHandler,
-                onCancel: onCancelHandler,
-            });
-            // Source Connection should have all connections
-            expect(newWrapper.find("select#root_sourceConnection .connection-option")).toHaveLength(
-                newConnections.length,
-            );
-            // Target Connection should not have asset provider connections
-            expect(newWrapper.find("select#root_targetConnection .connection-option")).toHaveLength(
-                newConnections.length - bingConnections.length,
-            );
-        });
     });
 
     describe("Empty Project", () => {
@@ -227,6 +183,7 @@ describe("Project Form Component", () => {
                 project: null,
                 appSettings,
                 connections,
+                action: ProjectSettingAction.Create,
                 onSubmit: onSubmitHandler,
                 onChange: onChangeHandler,
                 onCancel: onCancelHandler,
@@ -234,11 +191,8 @@ describe("Project Form Component", () => {
         });
         it("Has initial state loaded correctly", () => {
             const formData = wrapper.state().formData;
-            const defaultVideoSettings: IProjectVideoSettings = { frameExtractionRate: 15 };
             expect(formData.name).toBe(undefined);
             expect(formData.sourceConnection).toEqual({});
-            expect(formData.targetConnection).toEqual({});
-            expect(formData.videoSettings).toEqual(defaultVideoSettings);
             expect(formData.description).toBe(undefined);
             expect(formData.tags).toBe(undefined);
         });
@@ -258,6 +212,7 @@ describe("Project Form Component", () => {
                 project: null,
                 appSettings,
                 connections,
+                action: ProjectSettingAction.Create,
                 onSubmit: onSubmitHandler,
                 onChange: onChangeHandler,
                 onCancel: onCancelHandler,

@@ -5,8 +5,7 @@ import {
 } from "../../../../models/applicationState";
 import CanvasHelpers from "./canvasHelpers";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
-import { SelectionMode } from "vott-ct/lib/js/CanvasTools/Interface/ISelectorSettings";
-import ImageMap from "ol-image-map";
+import { ImageMap } from "../../common/imageMap/imageMap";
 import "./canvas.scss";
 import Style from "ol/style/Style";
 import Stroke from "ol/style/Stroke";
@@ -30,7 +29,6 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.j
 export interface ICanvasProps extends React.Props<Canvas> {
     selectedAsset: IAssetMetadata;
     editorMode: EditorMode;
-    selectionMode: SelectionMode;
     project: IProject;
     lockedTags: string[];
     hoveredLabel: ILabel;
@@ -65,7 +63,6 @@ interface IRegionOrder {
 
 export default class Canvas extends React.Component<ICanvasProps, ICanvasState> {
     public static defaultProps: ICanvasProps = {
-        selectionMode: SelectionMode.POLYGON,
         editorMode: EditorMode.Select,
         selectedAsset: null,
         project: null,

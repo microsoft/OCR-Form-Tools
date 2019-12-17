@@ -13,6 +13,7 @@ import TrainTable from "./trainTable";
 import { ITrainRecordProps } from "./trainRecord";
 import "./trainPage.scss";
 import { strings } from "../../../../common/strings";
+import { constants } from "../../../../common/constants";
 import _ from "lodash";
 import Alert from "../../common/alert/alert";
 import url from "url";
@@ -221,9 +222,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     private async train(): Promise<any> {
         const baseURL = url.resolve(
             this.props.project.apiUriBase,
-            "/formrecognizer/v2.0-preview/custom/models",
+            constants.apiModelsPath,
         );
-        const provider = this.props.project.targetConnection.providerOptions as any;
+        const provider = this.props.project.sourceConnection.providerOptions as any;
         const trainSourceURL = provider.sas;
 
         console.log(baseURL, trainSourceURL);

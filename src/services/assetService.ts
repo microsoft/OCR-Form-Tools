@@ -1,17 +1,13 @@
 import MD5 from "md5.js";
 import _ from "lodash";
-import * as shortid from "shortid";
 import Guard from "../common/guard";
 import {
     IAsset, AssetType, IProject, IAssetMetadata, AssetState,
-    IRegion, RegionType, ITFRecordMetadata, ILabelData, ILabel, ErrorCode,
+    IRegion, RegionType, ILabelData, ILabel,
 } from "../models/applicationState";
 import { AssetProviderFactory, IAssetProvider } from "../providers/storage/assetProviderFactory";
 import { StorageProviderFactory, IStorageProvider } from "../providers/storage/storageProviderFactory";
 import { constants } from "../common/constants";
-import HtmlFileReader from "../common/htmlFileReader";
-import { TFRecordsReader } from "../providers/export/tensorFlowRecords/tensorFlowReader";
-import { FeatureType } from "../providers/export/tensorFlowRecords/tensorFlowBuilder";
 import { appInfo } from "../common/appInfo";
 import { encodeFileURI } from "../common/utils";
 import { strings, interpolate } from "../common/strings";
@@ -83,15 +79,6 @@ export class AssetService {
             case "tif":
             case "tiff":
                 return AssetType.TIFF;
-            case "mp4":
-            case "mov":
-            case "avi":
-            case "m4v":
-            case "mpg":
-            case "wmv":
-                return AssetType.Video;
-            case "tfrecord":
-                return AssetType.TFRecord;
             case "pdf":
                 return AssetType.PDF;
             default:
@@ -126,8 +113,8 @@ export class AssetService {
     protected get storageProvider(): IStorageProvider {
         if (!this.storageProviderInstance) {
             this.storageProviderInstance = StorageProviderFactory.create(
-                this.project.targetConnection.providerType,
-                this.project.targetConnection.providerOptions,
+                this.project.sourceConnection.providerType,
+                this.project.sourceConnection.providerOptions,
             );
         }
 
@@ -146,23 +133,6 @@ export class AssetService {
         }).filter(asset => this.isInExactFolderPath(asset.name, project.folderPath));
 
         return returnedAssets;
-    }
-
-    /**
-     * Get a list of child assets associated with the current asset
-     * @param rootAsset The parent asset to search
-     */
-    public getChildAssets(rootAsset: IAsset): IAsset[] {
-        Guard.null(rootAsset);
-
-        if (rootAsset.type !== AssetType.Video) {
-            return [];
-        }
-
-        return _
-            .values(this.project.assets)
-            .filter((asset) => asset.parent && asset.parent.id === rootAsset.id)
-            .sort((a, b) => a.timestamp - b.timestamp);
     }
 
     /**
@@ -252,21 +222,12 @@ export class AssetService {
                 const reason = interpolate(strings.errors.invalidJSONFormat.message, { labelFileName });
                 toast.error(reason, { autoClose: false });
             }
-            if (asset.type === AssetType.TFRecord) {
-                return {
-                    asset: { ...asset },
-                    regions: await this.getRegionsFromTFRecord(asset),
-                    version: appInfo.version,
-                    labelData: null,
-                };
-            } else {
-                return {
-                    asset: { ...asset },
-                    regions: [],
-                    version: appInfo.version,
-                    labelData: null,
-                };
-            }
+            return {
+                asset: { ...asset },
+                regions: [],
+                version: appInfo.version,
+                labelData: null,
+            };
         }
     }
 
@@ -343,8 +304,6 @@ export class AssetService {
             if (field) {
                 foundTag = true;
                 assetMetadata.labelData = labelTransformer(assetMetadata.labelData);
-                console.log("found!");
-                console.log(assetMetadata.labelData);
             }
         }
 
@@ -355,53 +314,6 @@ export class AssetService {
         }
 
         return false;
-    }
-
-    private async getRegionsFromTFRecord(asset: IAsset): Promise<IRegion[]> {
-        const objectArray = await this.getTFRecordMetadata(asset);
-        const regions: IRegion[] = [];
-
-        // Add Regions from TFRecord in Regions
-        for (let index = 0; index < objectArray.textArray.length; index++) {
-            regions.push({
-                id: shortid.generate(),
-                type: RegionType.Rectangle,
-                tags: [objectArray.textArray[index]],
-                boundingBox: {
-                    left: objectArray.xminArray[index] * objectArray.width,
-                    top: objectArray.yminArray[index] * objectArray.height,
-                    width: (objectArray.xmaxArray[index] - objectArray.xminArray[index]) * objectArray.width,
-                    height: (objectArray.ymaxArray[index] - objectArray.yminArray[index]) * objectArray.height,
-                },
-                points: [{
-                    x: objectArray.xminArray[index] * objectArray.width,
-                    y: objectArray.yminArray[index] * objectArray.height,
-                },
-                {
-                    x: objectArray.xmaxArray[index] * objectArray.width,
-                    y: objectArray.ymaxArray[index] * objectArray.height,
-                }],
-                pageNumber: 1,
-            });
-        }
-
-        return regions;
-    }
-
-    private async getTFRecordMetadata(asset: IAsset): Promise<ITFRecordMetadata> {
-        const tfrecords = new Buffer(await HtmlFileReader.getAssetArray(asset));
-        const reader = new TFRecordsReader(tfrecords);
-
-        const width = reader.getFeature(0, "image/width", FeatureType.Int64) as number;
-        const height = reader.getFeature(0, "image/height", FeatureType.Int64) as number;
-
-        const xminArray = reader.getArrayFeature(0, "image/object/bbox/xmin", FeatureType.Float) as number[];
-        const yminArray = reader.getArrayFeature(0, "image/object/bbox/ymin", FeatureType.Float) as number[];
-        const xmaxArray = reader.getArrayFeature(0, "image/object/bbox/xmax", FeatureType.Float) as number[];
-        const ymaxArray = reader.getArrayFeature(0, "image/object/bbox/ymax", FeatureType.Float) as number[];
-        const textArray = reader.getArrayFeature(0, "image/object/class/text", FeatureType.String) as string[];
-
-        return { width, height, xminArray, yminArray, xmaxArray, ymaxArray, textArray };
     }
 
     private isInExactFolderPath = (assetName: string, normalizedPath: string): boolean => {

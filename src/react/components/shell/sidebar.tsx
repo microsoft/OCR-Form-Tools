@@ -10,7 +10,7 @@ import { strings } from "../../../common/strings";
  *      project - IProject
  * }
  */
-export default function Sidebar({ project }) {
+export function Sidebar({ project }) {
     const projectId = project ? project.id : null;
 
     return (
@@ -49,20 +49,6 @@ export default function Sidebar({ project }) {
                         <i className="fas fa-sliders-h"></i>
                     </ConditionalNavLink>
                 </li>
-                {/* <li>
-                    <ConditionalNavLink disabled={!projectId}
-                        title={strings.export.title}
-                        to={`/projects/${projectId}/export`}>
-                        <i className="fas fa-external-link-square-alt"></i>
-                    </ConditionalNavLink>
-                </li> */}
-                {/* <li>
-                    <ConditionalNavLink disabled={!projectId}
-                        title={strings.activeLearning.title}
-                        to={`/projects/${projectId}/active-learning`}>
-                        <i className="fas fa-graduation-cap"></i>
-                    </ConditionalNavLink>
-                </li> */}
                 <li>
                     <NavLink title={strings.connections.title}
                         to={`/connections`}><i className="fas fa-plug"></i></NavLink>

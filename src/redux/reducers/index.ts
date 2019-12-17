@@ -11,6 +11,7 @@ import * as appError from "./appErrorReducer";
  * @member connections - Connections reducer
  * @member recentProjects - Recent Projects reducer
  * @member currentProject - Current Project reducer
+ * @member appError = Application error
  */
 export default combineReducers({
     appSettings: appSettings.reducer,

@@ -4,13 +4,13 @@ import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { RouteComponentProps } from "react-router-dom";
 import ProjectForm from "./projectForm";
+import { constants } from "../../../../common/constants";
 import { strings, interpolate } from "../../../../common/strings";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import { IApplicationState, IProject, IConnection, IAppSettings } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import { toast } from "react-toastify";
 import "./projectSettingsPage.scss";
-import ProjectMetrics from "./projectMetrics";
 import { ProjectSettingAction } from "./projectSettingAction";
 import ProjectService from "../../../../services/projectService";
 import { getStorageItem, setStorageItem, removeStorageItem } from "../../../../redux/middleware/localStorage";
@@ -51,8 +51,6 @@ function mapDispatchToProps(dispatch) {
         applicationActions: bindActionCreators(applicationActions, dispatch),
     };
 }
-
-const projectFormTempKey = "projectForm";
 
 /**
  * @name - Project Settings Page
@@ -128,11 +126,6 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
                             action={this.state.action} />
                     </div>
                 </div>
-                {false && this.props.project &&
-                    <div className="project-settings-page-metrics bg-lighter-1">
-                        <ProjectMetrics project={this.props.project} />
-                    </div>
-                }
                 {this.state.isError &&
                     <Redirect to="/" />
                 }
@@ -141,7 +134,7 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
     }
 
     private newProjectSetting = (): void => {
-        const projectJson = getStorageItem(projectFormTempKey);
+        const projectJson = getStorageItem(constants.projectFormTempKey);
         if (projectJson) {
             this.setState({ project: JSON.parse(projectJson) });
         }
@@ -165,7 +158,7 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
      */
     private onFormChange = (project: IProject) => {
         if (this.isPartialProject(project)) {
-            setStorageItem(projectFormTempKey, JSON.stringify(project));
+            setStorageItem(constants.projectFormTempKey, JSON.stringify(project));
         }
     }
 
@@ -180,7 +173,7 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
         await this.deleteOldProjectWhenRenamed(project, isNew);
         await this.props.applicationActions.ensureSecurityToken(project);
         await this.props.projectActions.saveProject(project);
-        removeStorageItem(projectFormTempKey);
+        removeStorageItem(constants.projectFormTempKey);
 
         toast.success(interpolate(strings.projectSettings.messages.saveSuccess, { project }));
 
@@ -192,7 +185,7 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
     }
 
     private onFormCancel = () => {
-        removeStorageItem(projectFormTempKey);
+        removeStorageItem(constants.projectFormTempKey);
         this.props.history.goBack();
     }
 
@@ -205,8 +198,6 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
                 !!project.name
                 || !!project.description
                 || (project.sourceConnection && Object.keys(project.sourceConnection).length > 0)
-                || (project.targetConnection && Object.keys(project.targetConnection).length > 0)
-                || (project.exportFormat && Object.keys(project.exportFormat).length > 0)
                 || (project.tags && project.tags.length > 0)
             );
     }

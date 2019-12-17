@@ -2,9 +2,9 @@
  * Constants used throughout application
  */
 export const constants = {
+    version: "pubpreview_1.0",
+    projectFormTempKey: "projectForm",
     projectFileExtension: ".vott",
-    assetMetadataFileExtension: "-asset.json",
-    exportFileExtension: "-export.json",
     labelFileExtension: ".labels.json",
     ocrFileExtension: ".ocr.json",
     maxConcurrentServiceRequests: 3,
@@ -16,4 +16,6 @@ export const constants = {
     convertedImageFormat: "image/jpeg",
     convertedImageQuality: 0.7,
     convertedThumbnailQuality: 0.2,
+
+    apiModelsPath: "/formrecognizer/v2.0-preview/custom/models",
 };

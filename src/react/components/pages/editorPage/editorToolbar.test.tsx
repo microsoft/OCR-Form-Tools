@@ -56,14 +56,6 @@ describe("Editor Toolbar", () => {
         expect(items.length).toEqual(toolbarRegistry.length);
     });
 
-    it("Sets the selected toolbar item", async () => {
-        const exportProject = wrapper.find(".exportProject");
-        exportProject.find("button").simulate("click");
-
-        const toolbar = wrapper.find(EditorToolbar) as ReactWrapper<IEditorToolbarProps, IEditorToolbarState>;
-        expect(toolbar.state().selectedItem).toEqual(ToolbarItemName.ExportProject);
-    });
-
     it("Sets correct keyboard binding when accelerator is defined", () => {
         const toolbar = wrapper.find(EditorToolbar) as ReactWrapper<IEditorToolbarProps, IEditorToolbarState>;
         const select = toolbar.props().items[0];

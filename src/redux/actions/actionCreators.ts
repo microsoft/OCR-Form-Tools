@@ -1,10 +1,9 @@
 import { Action } from "redux";
-import { IToggleDevToolsAction,
-         IRefreshApplicationAction,
-         ISaveAppSettingsAction,
-         IEnsureSecurityTokenAction,
-} from "./applicationActions";
 import { ActionTypes } from "./actionTypes";
+import {
+    ISaveAppSettingsAction,
+    IEnsureSecurityTokenAction,
+} from "./applicationActions";
 import {
     ILoadConnectionAction,
     ISaveConnectionAction,
@@ -17,7 +16,6 @@ import {
     ILoadProjectAssetsAction,
     ISaveAssetMetadataAction,
     ILoadAssetMetadataAction,
-    IExportProjectAction,
     IDeleteProjectAction,
 } from "./projectActions";
 import {
@@ -71,10 +69,10 @@ export const anyOtherAction = createAction<IOtherAction>(ActionTypes.ANY_OTHER_A
  * Used by reducers to type-check all actions
  */
 export type AnyAction = IOtherAction |
-    IToggleDevToolsAction |
-    IRefreshApplicationAction |
     ISaveAppSettingsAction |
     IEnsureSecurityTokenAction |
+    ISaveConnectionAction |
+    IDeleteConnectionAction |
     ILoadConnectionAction |
     ISaveConnectionAction |
     IDeleteConnectionAction |
@@ -85,6 +83,5 @@ export type AnyAction = IOtherAction |
     ILoadProjectAssetsAction |
     ISaveAssetMetadataAction |
     ILoadAssetMetadataAction |
-    IExportProjectAction |
     IShowAppErrorAction |
     IClearErrorAction;

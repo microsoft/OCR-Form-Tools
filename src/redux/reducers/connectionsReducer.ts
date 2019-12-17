@@ -1,3 +1,4 @@
+import { constants } from "../../common/constants";
 import { ActionTypes } from "../actions/actionTypes";
 import { IConnection } from "../../models/applicationState";
 import { AnyAction } from "../actions/actionCreators";
@@ -18,11 +19,11 @@ export const reducer = (state: IConnection[] = [], action: AnyAction): IConnecti
 
     switch (action.type) {
         case ActionTypes.SAVE_CONNECTION_SUCCESS:
-            const projectJson = getStorageItem("projectForm");
+            const projectJson = getStorageItem(constants.projectFormTempKey);
             if (projectJson) {
                 const project = JSON.parse(projectJson);
                 project.sourceConnection = action.payload;
-                setStorageItem("projectForm", JSON.stringify(project));
+                setStorageItem(constants.projectFormTempKey, JSON.stringify(project));
             }
             return [
                 { ...action.payload },
@@ -31,21 +32,11 @@ export const reducer = (state: IConnection[] = [], action: AnyAction): IConnecti
         case ActionTypes.DELETE_CONNECTION_SUCCESS:
             return [...state.filter((connection) => connection.id !== action.payload.id)];
         case ActionTypes.LOAD_PROJECT_SUCCESS:
-            const isSourceTargetEqual = action.payload.sourceConnection.id === action.payload.targetConnection.id;
-            if (isSourceTargetEqual) {
-                return [
-                    { ...action.payload.sourceConnection },
-                    ...state.filter((connection) => connection.id !== action.payload.sourceConnection.id),
-                ];
-            }
-
             return [
                 { ...action.payload.sourceConnection },
-                { ...action.payload.targetConnection },
-                ...state.filter((connection) => {
-                    return connection.id !== action.payload.sourceConnection.id &&
-                        connection.id !== action.payload.targetConnection.id;
-                })];
+                ...state.filter((connection) => connection.id !== action.payload.sourceConnection.id),
+            ];
+
         default:
             return state;
     }

@@ -8,7 +8,7 @@ import "./predictPage.scss";
 import {
     IApplicationState, IConnection, IProject, IAppSettings, AppError, ErrorCode,
 } from "../../../../models/applicationState";
-import ImageMap from "ol-image-map";
+import { ImageMap } from "../../common/imageMap/imageMap";
 import Style from "ol/style/Style";
 import Stroke from "ol/style/Stroke";
 import Fill from "ol/style/Fill";
@@ -350,7 +350,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         }
         const endpointURL = url.resolve(
             this.props.project.apiUriBase,
-            `/formrecognizer/v2.0-preview/custom/models/${modelID}/analyze?includeTextDetails=true`,
+            `${constants.apiModelsPath}/${modelID}/analyze?includeTextDetails=true`,
         );
         const headers = { "Content-Type": this.state.file.type, "cache-control": "no-cache" };
         let response;

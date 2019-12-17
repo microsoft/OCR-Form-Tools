@@ -1,5 +1,3 @@
-import { ExportAssetState } from "../providers/export/exportProvider";
-import { IAssetPreviewSettings } from "../react/components/common/assetPreview/assetPreview";
 import { ITrainRecordProps } from "../react/components/pages/train/trainRecord";
 
 /**
@@ -40,19 +38,11 @@ export enum ErrorCode {
     // the enum key is in Pascal casing
     Unknown = "unknown",
     GenericRenderError = "genericRenderError",
-    CanvasError = "canvasError",
-    V1ImportError = "v1ImportError",
-    ProjectUploadError = "projectUploadError",
-    ProjectDeleteError = "projectDeleteError",
     ProjectInvalidJson = "projectInvalidJson",
     ProjectInvalidSecurityToken = "projectInvalidSecurityToken",
     ProjectDuplicateName = "projectDuplicateName",
-    ProjectNotFound = "projectNotFound",
     SecurityTokenNotFound = "securityTokenNotFound",
-    ExportFormatNotFound = "exportFormatNotFound",
-    PasteRegionTooBig = "pasteRegionTooBig",
     OverloadedKeyBinding = "overloadedKeyBinding",
-    ActiveLearningPredictionError = "activeLearningPredictionError",
     BlobContainerIONotFound = "blobContainerIONotFound",
     BlobContainerIOForbidden = "blobContainerIOForbidden",
     PredictWithoutTrainForbidden = "predictWithoutTrainForbidden",
@@ -94,25 +84,20 @@ export interface IProviderOptions {
  * @member securityTokens - Token used to encrypt sensitive project settings
  */
 export interface IAppSettings {
-    devToolsEnabled: boolean;
     securityTokens: ISecurityToken[];
     thumbnailSize?: ISize;
 }
 
 /**
  * @name - Project
- * @description - Defines the structure of a VoTT project
+ * @description - Defines the structure of a tagging project
  * @member id - Unique identifier
  * @member name - User defined name
  * @member securityToken - The Base64 encoded token used to encrypt sensitive project data
  * @member description - User defined description
  * @member tags - User defined list of tags
- * @member sourceConnection - Full source connection details
- * @member targetConnection - Full target connection details
- * @member exportFormat - Full export format definition
+ * @member targetConnection - Full source connection details
  * @member assets - Map of assets within a project
- * @member autoSave - Whether or not the project will automatically save updates to the underlying target
- * @member modelIDs - IDs for all models trained for this specific project
  */
 export interface IProject {
     id: string;
@@ -122,11 +107,6 @@ export interface IProject {
     description?: string;
     tags: ITag[];
     sourceConnection: IConnection;
-    targetConnection: IConnection;
-    exportFormat: IExportFormat;
-    videoSettings: IProjectVideoSettings;
-    activeLearningSettings: IActiveLearningSettings;
-    autoSave: boolean;
     assets?: { [index: string]: IAsset };
     lastVisitedAssetId?: string;
     apiUriBase: string;
@@ -148,7 +128,7 @@ export interface IFileInfo {
 
 /**
  * @name - Tag
- * @description - Defines the structure of a VoTT tag
+ * @description - Defines the structure of a tag
  * @member name - User defined name
  * @member color - User editable color associated to tag
  */
@@ -185,91 +165,10 @@ export interface IConnection {
     providerOptions: IProviderOptions | ISecureString;
 }
 
-/**
- * @name - Export Provider Options
- * @description - options defining the type of asset to export
- * @member assetState - export asset with the following state
- */
-export interface IExportProviderOptions extends IProviderOptions {
-    assetState: ExportAssetState;
-}
-
-/**
- * @name - Export Format
- * @description - Defines the settings for how project data is exported into commonly used format
- * @member id - Unique identifier for export format
- * @member name - Name of export format
- * @member providerType - The export format type (TF Records, YOLO, CSV, etc)
- * @member providerOptions - The provider specific option required to export data
- */
-export interface IExportFormat {
-    providerType: string;
-    providerOptions: IExportProviderOptions | ISecureString;
-}
-
-/**
- * @name - Video Tagging Settings for the project
- * @description - Defines the video settings within a VoTT project
- * @member frameExtractionRate - Extraction rate for a video (number of frames per second of video)
- */
-export interface IProjectVideoSettings {
-    frameExtractionRate: number;
-}
-
-/**
- * @name - Model Path Type
- * @description - Defines the mechanism to load the TF.js model for Active Learning
- * @member Coco - Specifies the default/generic pre-trained Coco-SSD model
- * @member File - Specifies to load a custom model from filesystem
- * @member Url - Specifies to load a custom model from a web server
- */
-export enum ModelPathType {
-    Coco = "coco",
-    File = "file",
-    Url = "url",
-}
-
-/**
- * Properties for additional project settings
- * @member activeLearningSettings - Active Learning settings
- */
-export interface IAdditionalPageSettings extends IAssetPreviewSettings {
-    activeLearningSettings: IActiveLearningSettings;
-}
-
-/**
- * @name - Active Learning Settings for the project
- * @description - Defines the active learning settings within a VoTT project
- * @member modelPathType - Model loading type ["coco", "file", "url"]
- * @member modelPath - Local filesystem path to the TF.js model
- * @member modelUrl - Web url to the TF.js model
- * @member autoDetect - Flag for automatically call the model while opening a new asset
- * @member predictTag - Flag to predict also the tag name other than the rectangle coordinates only
- */
-export interface IActiveLearningSettings {
-    modelPathType: ModelPathType;
-    modelPath?: string;
-    modelUrl?: string;
-    autoDetect: boolean;
-    predictTag: boolean;
-}
-
-/**
- * @name - Asset Video Settings
- * @description - Defines the settings for video assets
- * @member shouldAutoPlayVideo - true if the video should auto play when loaded, false otherwise
- * @member posterSource - Source location of the image to display when the video is not playing,
- * null for default (first frame of video)
- */
-export interface IAssetVideoSettings {
-    shouldAutoPlayVideo: boolean;
-    posterSource: string;
-    shouldShowPlayControls: boolean;
-}
 
 /**
  * @name - Asset
- * @description - Defines an asset within a VoTT project
+ * @description - Defines an asset within a project
  * @member id - Unique identifier for asset
  * @member type - Type of asset (Image, Video, etc)
  * @member name - Generated name for asset
@@ -393,14 +292,12 @@ export interface IPoint {
  * @name - Asset Type
  * @description - Defines the type of asset within a project
  * @member Image - Specifies an asset as an image
- * @member Video - Specifies an asset as a video
+ * @member PDF - Specifies an asset as a PDF
+ * @member TIFF - Specifies an asset as a TIFF image
  */
 export enum AssetType {
     Unknown = 0,
     Image = 1,
-    Video = 2,
-    VideoFrame = 3,
-    TFRecord = 4,
     PDF = 5,
     TIFF = 6,
 }
@@ -450,14 +347,4 @@ export interface ISecureString {
 export interface ISecurityToken {
     name: string;
     key: string;
-}
-
-export interface ITFRecordMetadata {
-    width: number;
-    height: number;
-    xminArray: number[];
-    yminArray: number[];
-    xmaxArray: number[];
-    ymaxArray: number[];
-    textArray: string[];
 }

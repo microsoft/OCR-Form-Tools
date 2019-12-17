@@ -43,7 +43,6 @@ describe("Connections Reducer", () => {
     it("Load Project with new connection appends connection to list", () => {
         const testProject = MockFactory.createTestProject("TestProject");
         testProject.sourceConnection = MockFactory.createTestConnection("1");
-        testProject.targetConnection = MockFactory.createTestConnection("2");
 
         const state: IConnection[] = [];
 
@@ -51,7 +50,6 @@ describe("Connections Reducer", () => {
         const result = reducer(state, action);
         expect(result.length).toEqual(2);
         expect(result[0]).toEqual(testProject.sourceConnection);
-        expect(result[1]).toEqual(testProject.targetConnection);
     });
 
     it("Load project with existing connection updates connection list", () => {
@@ -59,15 +57,12 @@ describe("Connections Reducer", () => {
         const testProject = MockFactory.createTestProject("Test");
         testProject.sourceConnection = { ...testConnections[0] };
         testProject.sourceConnection.name += " Updated";
-        testProject.targetConnection = { ...testConnections[1] };
-        testProject.targetConnection.name += " Updated";
 
         const state: IConnection[] = testConnections;
         const action = loadProjectAction(testProject);
         const result = reducer(state, action);
         expect(result.length).toEqual(testConnections.length);
         expect(result[0]).toEqual(testProject.sourceConnection);
-        expect(result[1]).toEqual(testProject.targetConnection);
     });
 
     it("Unknown action performs a noop", () => {

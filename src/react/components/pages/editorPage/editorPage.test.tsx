@@ -8,7 +8,7 @@ import EditorPage, { IEditorPageProps, IEditorPageState } from "./editorPage";
 import MockFactory from "../../../../common/mockFactory";
 import {
     IApplicationState, IAssetMetadata, IProject,
-    IAsset, AssetState, ISize, IActiveLearningSettings, ModelPathType,
+    IAsset, AssetState, ISize,
 } from "../../../../models/applicationState";
 import { AssetProviderFactory } from "../../../../providers/storage/assetProviderFactory";
 import createReduxStore from "../../../../redux/store/store";
@@ -19,11 +19,6 @@ import { KeyboardManager, KeyEventType } from "../../common/keyboardManager/keyb
 jest.mock("../../../../services/projectService");
 import ProjectService from "../../../../services/projectService";
 
-jest.mock("vott-ct/lib/js/CanvasTools/CanvasTools.Editor");
-import { Editor } from "vott-ct/lib/js/CanvasTools/CanvasTools.Editor";
-
-jest.mock("vott-ct/lib/js/CanvasTools/Region/RegionsManager");
-import { RegionsManager } from "vott-ct/lib/js/CanvasTools/Region/RegionsManager";
 import Canvas from "./canvas";
 import { appInfo } from "../../../../common/appInfo";
 import SplitPane from "react-split-pane";
@@ -33,7 +28,6 @@ import registerMixins from "../../../../registerMixins";
 import { TagInput } from "../../common/tagInput/tagInput";
 import { EditorToolbar } from "./editorToolbar";
 import { ToolbarItem } from "../../toolbar/toolbarItem";
-import { ActiveLearningService } from "../../../../services/activeLearningService";
 
 function createComponent(store, props: IEditorPageProps): ReactWrapper<IEditorPageProps, IEditorPageState, EditorPage> {
     return mount(
@@ -75,20 +69,6 @@ describe("Editor Page Component", () => {
 
     beforeAll(() => {
         registerToolbar();
-        // window["require"] = jest.fn(() => electronMock);
-
-        const editorMock = Editor as any;
-        editorMock.prototype.addContentSource = jest.fn(() => Promise.resolve());
-        editorMock.prototype.scaleRegionToSourceSize = jest.fn((regionData: any) => regionData);
-        editorMock.prototype.RM = {
-            ...new RegionsManager(null, null),
-            getSelectedRegionsBounds: jest.fn(() => MockFactory.createTestRegions()),
-        };
-        editorMock.prototype.AS = {
-            setSelectionMode: jest.fn(),
-            enable: jest.fn(),
-            disable: jest.fn(),
-        };
     });
 
     beforeEach(() => {
@@ -390,83 +370,6 @@ describe("Editor Page Component", () => {
         expect(matchingRootAsset.state).toEqual(AssetState.Tagged);
     });
 
-    describe("Editing Video Assets", () => {
-        let wrapper: ReactWrapper;
-        let videoAsset: IAsset;
-        let videoFrames: IAsset[];
-
-        beforeEach(async () => {
-            const testProject = MockFactory.createTestProject("TestProject");
-            videoAsset = MockFactory.createVideoTestAsset("TestVideo");
-            videoFrames = MockFactory.createChildVideoAssets(videoAsset);
-            const projectAssets = [videoAsset].concat(videoFrames);
-            testProject.assets = _.keyBy(projectAssets, (asset) => asset.id);
-
-            const store = createStore(testProject, true);
-            const props = MockFactory.editorPageProps(testProject.id);
-
-            wrapper = createComponent(store, props);
-
-            await MockFactory.flushUi();
-            wrapper.update();
-        });
-
-        it("Child assets are not included within editor page state", () => {
-            const editorPage = wrapper.find(EditorPage).childAt(0) as ReactWrapper<IEditorPageProps, IEditorPageState>;
-
-            expect(editorPage.state().assets.length).toEqual(testAssets.length + 1);
-            expect(editorPage.state().selectedAsset.asset).toEqual({
-                ...videoAsset,
-                state: AssetState.Visited,
-            });
-        });
-
-        it("When a VideoFrame is updated the root asset is also updated", async () => {
-            const getAssetMetadataMock = assetServiceMock.prototype.getAssetMetadata as jest.Mock;
-            getAssetMetadataMock.mockImplementationOnce(() => Promise.resolve({
-                asset: { ...videoAsset },
-                regions: [],
-            }));
-
-            const editedVideoFrame: IAssetMetadata = {
-                asset: videoFrames[0],
-                regions: [MockFactory.createTestRegion("region1", ["test"])],
-                version: appInfo.version,
-                labelData: null,
-            };
-
-            const saveMock = assetServiceMock.prototype.save as jest.Mock;
-            saveMock.mockClear();
-
-            wrapper.find(Canvas).props().onAssetMetadataChanged(editedVideoFrame);
-            await MockFactory.flushUi();
-
-            const editorPage = wrapper.find(EditorPage).childAt(0) as ReactWrapper<IEditorPageProps, IEditorPageState>;
-
-            const expectedRootVideoMetadata: IAssetMetadata = {
-                asset: {
-                    ...videoAsset,
-                    state: AssetState.Tagged,
-                },
-                regions: [],
-                version: appInfo.version,
-                labelData: null,
-            };
-
-            // Called 2 times, once for root and once for child.
-            expect(saveMock).toBeCalledTimes(2);
-
-            // Root asset is updated
-            expect(saveMock.mock.calls[0][0]).toEqual(expectedRootVideoMetadata);
-
-            // Child asset is updated
-            expect(saveMock.mock.calls[1][0]).toEqual(editedVideoFrame);
-
-            const matchingRootAsset = editorPage.state().assets.find((asset) => asset.id === videoAsset.id);
-            expect(matchingRootAsset.state).toEqual(AssetState.Tagged);
-        });
-    });
-
     describe("Basic tag interaction tests", () => {
 
         beforeAll(() => {
@@ -606,20 +509,6 @@ describe("Editor Page Component", () => {
             expect(editorPage.state().thumbnailSize).toEqual(defaultThumbnailSize);
         });
 
-        it("resizes child components", () => {
-            // const editorPage = wrapper.find(EditorPage).childAt(0);
-            // const canvas = editorPage.find(Canvas).instance() as Canvas;
-            // const resizeSpy = jest.spyOn(canvas, "forceResize");
-            // const newThumbnailWidth = 300;
-            // wrapper.find(SplitPane).props().onChange(newThumbnailWidth);
-
-            // expect(resizeSpy).toBeCalled();
-            // expect(editorPage.state().thumbnailSize).toEqual({
-            //     width: newThumbnailWidth,
-            //     height: newThumbnailWidth / (4 / 3),
-            // });
-        });
-
         it("Saves thumbnail size to app settings", () => {
             const editorPage = wrapper.find(EditorPage).childAt(0) as ReactWrapper<IEditorPageProps>;
             const saveSettingsSpy = jest.spyOn(editorPage.props().applicationActions, "saveAppSettings");
@@ -636,73 +525,6 @@ describe("Editor Page Component", () => {
             }));
         });
     });
-
-    describe("Active Learning", async () => {
-        let wrapper: ReactWrapper;
-        let editorPage: ReactWrapper<IEditorPageProps, IEditorPageState>;
-        const activeLearningMock = ActiveLearningService as jest.Mocked<typeof ActiveLearningService>;
-
-        async function beforeActiveLearningTest(activeLearningSettings?: IActiveLearningSettings) {
-            document.querySelector = MockFactory.mockCanvas();
-            activeLearningMock.prototype.isModelLoaded = jest.fn(() => true);
-            activeLearningMock.prototype.predictRegions = jest.fn((canvas, assetMetadtata) => {
-                return Promise.resolve({
-                    ...assetMetadtata,
-                    predicted: true,
-                });
-            });
-            const project = MockFactory.createTestProject();
-
-            if (activeLearningSettings) {
-                project.activeLearningSettings = activeLearningSettings;
-            }
-
-            const store = createReduxStore({
-                ...MockFactory.initialState(),
-                currentProject: project,
-            });
-
-            wrapper = createComponent(store, MockFactory.editorPageProps());
-            await waitForSelectedAsset(wrapper);
-            wrapper.update();
-            editorPage = wrapper.find(EditorPage).childAt(0);
-        }
-
-        it("predicts regions when auto detect has been enabled", async () => {
-            const activeLearningSettings: IActiveLearningSettings = {
-                modelPathType: ModelPathType.Coco,
-                autoDetect: true,
-                predictTag: true,
-            };
-
-            await beforeActiveLearningTest(activeLearningSettings);
-
-            editorPage.find(Canvas).props().onCanvasRendered(document.createElement("canvas"));
-            expect(activeLearningMock.prototype.predictRegions).toBeCalled();
-        });
-
-        it("predicts regions when toolbar item is selected", async () => {
-            await beforeActiveLearningTest();
-
-            const toolbarItem = {
-                props: {
-                    name: ToolbarItemName.ActiveLearning,
-                },
-            };
-
-            const selectedAsset = editorPage.state().selectedAsset;
-            wrapper.find(EditorToolbar).props().onToolbarItemSelected(toolbarItem as ToolbarItem);
-
-            await MockFactory.flushUi();
-
-            expect(activeLearningMock.prototype.predictRegions).toBeCalledWith(expect.anything(), selectedAsset);
-            expect(assetServiceMock.prototype.save).toBeCalledWith({
-                ...selectedAsset,
-                predicted: true,
-            });
-        });
-    });
-});
 
 function createStore(project: IProject, setCurrentProject: boolean = false): Store<any, AnyAction> {
     const initialState: IApplicationState = {

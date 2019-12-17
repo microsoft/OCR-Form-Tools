@@ -1,4 +1,4 @@
-import React, { RefObject, SyntheticEvent } from "react";
+import React from "react";
 
 /**
  * Protected input properties
@@ -26,8 +26,6 @@ export interface IProtectedInputState {
  * @description - Used for sensitive fields such as passwords, keys, tokens, etc
  */
 export class ProtectedInput extends React.Component<IProtectedInputProps, IProtectedInputState> {
-    private inputElement: RefObject<HTMLInputElement> = React.createRef<HTMLInputElement>();
-
     constructor(props) {
         super(props);
 
@@ -47,7 +45,7 @@ export class ProtectedInput extends React.Component<IProtectedInputProps, IProte
 
     public componentDidUpdate(prevProps: IProtectedInputProps) {
         if (prevProps.value !== this.props.value) {
-            this.setState({ value: this.props.value });
+            this.setState({ value: this.props.value || "" });
         }
     }
 
@@ -58,7 +56,6 @@ export class ProtectedInput extends React.Component<IProtectedInputProps, IProte
         return (
             <div className="input-group">
                 <input id={id}
-                    ref={this.inputElement}
                     type={showKey ? "text" : "password"}
                     readOnly={readOnly}
                     className="form-control"
@@ -82,10 +79,8 @@ export class ProtectedInput extends React.Component<IProtectedInputProps, IProte
         );
     }
 
-    private onChange(e: SyntheticEvent) {
-        const input = e.target as HTMLInputElement;
-        const value = input.value ? input.value : undefined;
-        this.setState({ value }, () => this.props.onChange(value));
+    private onChange(e: React.ChangeEvent<HTMLInputElement>) {
+        this.setState({ value: e.target.value }, () => this.props.onChange(this.state.value));
     }
 
     private toggleKeyVisibility() {
@@ -97,7 +92,7 @@ export class ProtectedInput extends React.Component<IProtectedInputProps, IProte
     private async copyKey() {
         const clipboard = (navigator as any).clipboard;
         if (clipboard && clipboard.writeText && typeof clipboard.writeText === "function") {
-            await clipboard.writeText(this.inputElement.current.value);
+            await clipboard.writeText(this.state.value);
         }
     }
 }

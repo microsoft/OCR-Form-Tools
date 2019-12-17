@@ -11,7 +11,7 @@ export class HelpMenu extends React.Component<IHelpMenuProps, IHelpMenuState> {
 
     public render() {
         return (
-            <a className={"help-menu-button"} href={this.akaMsLink} target="_blank">
+            <a className={"help-menu-button"} href={this.akaMsLink} target="_blank" rel="noopener noreferrer">
                 <i className={`fas ${this.icon}`}/>
             </a>
         );

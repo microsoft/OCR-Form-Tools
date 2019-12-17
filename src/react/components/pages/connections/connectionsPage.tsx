@@ -114,10 +114,11 @@ export default class ConnectionPage extends React.Component<IConnectionPageProps
     }
 
     private async loadConnection(connectionId: string) {
-        const connection = this.props.connections.find((connection) => connection.id === connectionId);
-        if (connection) {
-            this.setState({ connection });
+        let connection = this.props.connections.find((connection) => connection.id === connectionId);
+        if (!connection) {
+            connection = { id: null, name: null, providerType: "azureBlobStorage", providerOptions: {} };
         }
+        this.setState({ connection });
     }
 
     private onConnectionDelete = async (connection: IConnection) => {
@@ -136,7 +137,7 @@ export default class ConnectionPage extends React.Component<IConnectionPageProps
             await this.props.actions.saveConnection(connection);
             toast.success(interpolate(strings.connections.messages.saveSuccess, { connection }));
 
-            this.props.history.goBack();
+            this.props.history.push("/connections");
         }
         catch (error) {
             alert(error);

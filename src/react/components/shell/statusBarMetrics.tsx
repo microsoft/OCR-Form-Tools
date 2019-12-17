@@ -27,10 +27,6 @@ export class StatusBarMetrics extends React.Component<IStatusBarMetricsProps> {
                     <i className="fas fa-upload"></i>
                     <span className="metric-source-connection-name">{project.sourceConnection.name}</span>
                 </li>
-                <li title={strings.projectSettings.targetConnection.title}>
-                    <i className="fas fa-download"></i>
-                    <span className="metric-target-connection-name">{project.targetConnection.name}</span>
-                </li>
                 <li title={interpolate(strings.projectMetrics.taggedAssets, { count: taggedAssets.length })}>
                     <i className="fas fa-tag"></i>
                     <span className="metric-tagged-asset-count">{taggedAssets.length}</span>

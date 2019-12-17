@@ -9,12 +9,15 @@ describe("Tag Input Item", () => {
         return {
             tag: MockFactory.createTestTag(),
             index: 0,
+            labels: [],
             isBeingEdited: false,
             isLocked: false,
             isSelected: false,
             appliedToSelectedRegions: false,
             onClick: jest.fn(),
             onChange: jest.fn(),
+            onLabelEnter: jest.fn(),
+            onLabelLeave: jest.fn(),
         };
     }
 
