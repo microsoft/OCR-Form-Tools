@@ -4,6 +4,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
+import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import "./predictPage.scss";
 import {
     IApplicationState, IConnection, IProject, IAppSettings, AppError, ErrorCode,
@@ -33,6 +34,7 @@ export interface IPredictPageProps extends RouteComponentProps, React.Props<Pred
     project: IProject;
     actions: IProjectActions;
     applicationActions: IApplicationActions;
+    appTitleActions: IAppTitleActions;
 }
 
 export interface IPredictPageState {
@@ -66,6 +68,7 @@ function mapDispatchToProps(dispatch) {
     return {
         actions: bindActionCreators(projectActions, dispatch),
         applicationActions: bindActionCreators(applicationActions, dispatch),
+        appTitleActions: bindActionCreators(appTitleActions, dispatch),
     };
 }
 
@@ -98,6 +101,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         if (projectId) {
             const project = this.props.recentProjects.find((project) => project.id === projectId);
             await this.props.actions.loadProject(project);
+            this.props.appTitleActions.setTitle(project.name);
         }
     }
 

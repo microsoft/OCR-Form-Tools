@@ -5,6 +5,7 @@ import { bindActionCreators } from "redux";
 import { strings, interpolate } from "../../../../common/strings";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
+import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import { CloudFilePicker } from "../../common/cloudFilePicker/cloudFilePicker";
 import CondensedList from "../../common/condensedList/condensedList";
 import Confirm from "../../common/confirm/confirm";
@@ -26,6 +27,7 @@ export interface IHomePageProps extends RouteComponentProps, React.Props<HomePag
     applicationActions: IApplicationActions;
     appSettings: IAppSettings;
     project: IProject;
+    appTitleActions: IAppTitleActions;
 }
 
 export interface IHomePageState {
@@ -45,6 +47,7 @@ function mapDispatchToProps(dispatch) {
     return {
         actions: bindActionCreators(projectActions, dispatch),
         applicationActions: bindActionCreators(applicationActions, dispatch),
+        appTitleActions: bindActionCreators(appTitleActions, dispatch),
     };
 }
 
@@ -57,6 +60,10 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
 
     private deleteConfirm: React.RefObject<Confirm> = React.createRef();
     private cloudFilePicker: React.RefObject<CloudFilePicker> = React.createRef();
+
+    public async componentDidMount() {
+        this.props.appTitleActions.setTitle("Welcome");
+    }
 
     public render() {
         return (

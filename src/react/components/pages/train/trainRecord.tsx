@@ -27,12 +27,12 @@ export default class TrainRecord extends React.Component<ITrainRecordProps, ITra
                     <h6> Average Accuracy </h6>
                     <p>
                         {(this.props.averageAccuracy*100).toFixed(2) + '%'}
-                        <div className="accuracy-info">
-                            <a href="https://aka.ms/form-recognizer/docs/train" target="_blank">
-                                <i className={`fas fa-info-circle`}/><span>Learn more about improving model accuracy.</span>
-                            </a>
-                        </div>
                     </p>
+                    <div className="accuracy-info">
+                        <a href="https://aka.ms/form-recognizer/docs/train" target="_blank">
+                            <i className={`fas fa-info-circle`}/><span>Learn more about improving model accuracy.</span>
+                        </a>
+                    </div>
                 </div>
             </aside>
         );

@@ -2,6 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
+import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import { IApplicationState, IAppSettings } from "../../../../models/applicationState";
 import "./appSettingsPage.scss";
 import { strings } from "../../../../common/strings";
@@ -14,10 +15,12 @@ import { toast } from "react-toastify";
  * @member appSettings - Current Application settings
  * @member connections - Application connections
  * @member actions - Application actions
+ * @member appTitleActions - Application Title actions
  */
 export interface IAppSettingsProps extends RouteComponentProps, React.Props<AppSettingsPage> {
     appSettings: IAppSettings;
     actions: IApplicationActions;
+    appTitleActions: IAppTitleActions;
 }
 
 /**
@@ -35,6 +38,7 @@ function mapStateToProps(state: IApplicationState) {
 function mapDispatchToProps(dispatch) {
     return {
         actions: bindActionCreators(applicationActions, dispatch),
+        appTitleActions: bindActionCreators(appTitleActions, dispatch),
     };
 }
 
@@ -48,6 +52,10 @@ export default class AppSettingsPage extends React.Component<IAppSettingsProps> 
 
         this.onFormSubmit = this.onFormSubmit.bind(this);
         this.onFormCancel = this.onFormCancel.bind(this);
+    }
+
+    public async componentDidMount() {
+        this.props.appTitleActions.setTitle(strings.appSettings.title);
     }
 
     public render() {

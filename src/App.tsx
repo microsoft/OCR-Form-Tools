@@ -6,14 +6,14 @@ import { ToastContainer } from "react-toastify";
 import { IAppError, IApplicationState, IProject, ErrorCode } from "./models/applicationState";
 import "./App.scss";
 import "react-toastify/dist/ReactToastify.css";
-import IAppErrorActions, * as appErrorActions from "./redux/actions/appErrorActions"
+import IAppErrorActions, * as appErrorActions from "./redux/actions/appErrorActions";
 import { ErrorHandler } from "./react/components/common/errorHandler/errorHandler";
 import { KeyboardManager } from "./react/components/common/keyboardManager/keyboardManager";
 import { HelpMenu } from "./react/components/shell/helpMenu";
 import { MainContentRouter } from "./react/components/shell/mainContentRouter";
 import { Sidebar } from "./react/components/shell/sidebar";
 import { StatusBar } from "./react/components/shell/statusBar";
-import { StatusBarMetrics } from "./react/components/shell/statusBarMetrics"
+import { StatusBarMetrics } from "./react/components/shell/statusBarMetrics";
 import { TitleBar } from "./react/components/shell/titleBar";
 import history from "./history";
 
@@ -67,27 +67,26 @@ export default class App extends React.Component<IAppProps> {
                     error={this.props.appError}
                     onError={this.props.actions.showError}
                     onClearError={this.props.actions.clearError} />
-                    {/* Don't render app contents during a render error */}
-                    {(!this.props.appError || this.props.appError.errorCode !== ErrorCode.GenericRenderError) &&
-                        <KeyboardManager>
-                            <Router history={history}>
-                                <div className={`app-shell platform-${platform}`}>
-                                    <TitleBar icon="fas fa-tags"
-                                        title={this.props.currentProject ? this.props.currentProject.name : ""}>
-                                        <div className="app-help-menu-icon"><HelpMenu/></div>
-                                    </TitleBar>
-                                    <div className="app-main">
-                                        <Sidebar project={this.props.currentProject} />
-                                        <MainContentRouter />
-                                    </div>
-                                    <StatusBar>
-                                        <StatusBarMetrics project={this.props.currentProject} />
-                                    </StatusBar>
-                                    <ToastContainer className="frtt-toast-container" />
+                {/* Don't render app contents during a render error */}
+                {(!this.props.appError || this.props.appError.errorCode !== ErrorCode.GenericRenderError) &&
+                    <KeyboardManager>
+                        <Router history={history}>
+                            <div className={`app-shell platform-${platform}`}>
+                                <TitleBar icon="fas fa-tags">
+                                    <div className="app-help-menu-icon"><HelpMenu/></div>
+                                </TitleBar>
+                                <div className="app-main">
+                                    <Sidebar project={this.props.currentProject} />
+                                    <MainContentRouter />
                                 </div>
-                            </Router>
-                        </KeyboardManager>
-                    }
+                                <StatusBar>
+                                    <StatusBarMetrics project={this.props.currentProject} />
+                                </StatusBar>
+                                <ToastContainer className="frtt-toast-container" />
+                            </div>
+                        </Router>
+                    </KeyboardManager>
+                }
             </Fragment>
         );
     }

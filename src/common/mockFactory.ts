@@ -11,6 +11,7 @@ import { IProjectSettingsPageProps } from "../react/components/pages/projectSett
 import { IEditorPageProps } from "../react/components/pages/editorPage/editorPage";
 import IProjectActions, * as projectActions from "../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../redux/actions/applicationActions";
+import IAppTitleActions, * as appTitleActions from "../redux/actions/appTitleActions";
 import { generateKey } from "./crypto";
 import { randomIntInRange, encodeFileURI } from "./utils";
 import { appInfo } from "./appInfo";
@@ -505,6 +506,7 @@ export default class MockFactory {
             ...MockFactory.pageProps(projectId, "settings"),
             connections: MockFactory.createTestConnections(),
             appSettings: MockFactory.appSettings(),
+            appTitleActions: (appTitleActions as any) as IAppTitleActions,
         };
     }
 
@@ -516,6 +518,7 @@ export default class MockFactory {
         return {
             actions: (projectActions as any) as IProjectActions,
             applicationActions: (applicationActions as any) as IApplicationActions,
+            appTitleActions: (appTitleActions as any) as IAppTitleActions,
             ...MockFactory.pageProps(projectId, "edit"),
         };
     }

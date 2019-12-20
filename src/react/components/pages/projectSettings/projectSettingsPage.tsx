@@ -9,6 +9,7 @@ import { strings, interpolate } from "../../../../common/strings";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import { IApplicationState, IProject, IConnection, IAppSettings } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
+import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import { toast } from "react-toastify";
 import "./projectSettingsPage.scss";
 import { ProjectSettingAction } from "./projectSettingAction";
@@ -20,6 +21,8 @@ import { getStorageItem, setStorageItem, removeStorageItem } from "../../../../r
  * @member recentProjects - Array of projects recently viewed/edited
  * @member actions - Project actions
  * @member connections - Array of connections available for projects
+ * @member appSettings - Application settings
+ * @member appTitleActions - Application title actions
  */
 export interface IProjectSettingsPageProps extends RouteComponentProps, React.Props<ProjectSettingsPage> {
     project: IProject;
@@ -28,6 +31,7 @@ export interface IProjectSettingsPageProps extends RouteComponentProps, React.Pr
     applicationActions: IApplicationActions;
     connections: IConnection[];
     appSettings: IAppSettings;
+    appTitleActions: IAppTitleActions;
 }
 
 export interface IProjectSettingsPageState {
@@ -49,6 +53,7 @@ function mapDispatchToProps(dispatch) {
     return {
         projectActions: bindActionCreators(projectActions, dispatch),
         applicationActions: bindActionCreators(applicationActions, dispatch),
+        appTitleActions: bindActionCreators(appTitleActions, dispatch),
     };
 }
 
@@ -86,6 +91,8 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
             this.setState({ isError: true });
             alert(error);
         }
+
+        this.props.appTitleActions.setTitle(strings.projectSettings.title);
     }
 
     private getProjectSettingAction = (projectId: string): ProjectSettingAction => {

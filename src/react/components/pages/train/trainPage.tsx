@@ -4,6 +4,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
+import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import {
     IApplicationState, IConnection, IProject, IAppSettings,
 } from "../../../../models/applicationState";
@@ -27,6 +28,7 @@ export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainP
     actions: IProjectActions;
     applicationActions: IApplicationActions;
     recentProjects: IProject[];
+    appTitleActions: IAppTitleActions;
 }
 
 export interface ITrainPageState {
@@ -58,6 +60,7 @@ function mapDispatchToProps(dispatch) {
     return {
         actions: bindActionCreators(projectActions, dispatch),
         applicationActions: bindActionCreators(applicationActions, dispatch),
+        appTitleActions: bindActionCreators(appTitleActions, dispatch),
     };
 }
 
@@ -82,6 +85,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             const project = this.props.recentProjects.find((project) => project.id === projectId);
             await this.props.actions.loadProject(project);
 
+            this.props.appTitleActions.setTitle(project.name);
             this.updateCurrTrainRecord(this.getProjectTrainRecord());
         }
     }
@@ -226,8 +230,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         );
         const provider = this.props.project.sourceConnection.providerOptions as any;
         const trainSourceURL = provider.sas;
-
-        console.log(baseURL, trainSourceURL);
 
         const payload = {
             source: trainSourceURL,

@@ -26,6 +26,8 @@ export enum ActionTypes {
 
     ANY_OTHER_ACTION = "ANY_OTHER_ACTION_SUCCESS",
 
-    SHOW_ERROR= "SHOW_ERROR",
+    SHOW_ERROR = "SHOW_ERROR",
     CLEAR_ERROR = "CLEAR_ERROR",
+
+    SET_TITLE = "SET_TITLE",
 }

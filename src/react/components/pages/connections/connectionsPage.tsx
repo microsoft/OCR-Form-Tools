@@ -5,6 +5,7 @@ import { bindActionCreators } from "redux";
 import { strings, interpolate } from "../../../../common/strings";
 import { IApplicationState, IConnection } from "../../../../models/applicationState";
 import IConnectionActions, * as connectionActions from "../../../../redux/actions/connectionActions";
+import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import CondensedList from "../../common/condensedList/condensedList";
 import Confirm from "../../common/confirm/confirm";
 import ConnectionForm from "./connectionForm";
@@ -16,10 +17,12 @@ import { toast } from "react-toastify";
  * Properties for Connection Page
  * @member connections - Array of Connections
  * @member actions - Actions to perform
+ * @member appTitleActions - Application Title Actions
  */
 export interface IConnectionPageProps extends RouteComponentProps, React.Props<ConnectionPage> {
     connections: IConnection[];
     actions: IConnectionActions;
+    appTitleActions: IAppTitleActions;
 }
 
 /**
@@ -39,6 +42,7 @@ function mapStateToProps(state: IApplicationState) {
 function mapDispatchToProps(dispatch) {
     return {
         actions: bindActionCreators(connectionActions, dispatch),
+        appTitleActions: bindActionCreators(appTitleActions, dispatch),
     };
 }
 
@@ -67,6 +71,8 @@ export default class ConnectionPage extends React.Component<IConnectionPageProps
         if (connectionId) {
             this.loadConnection(connectionId);
         }
+
+        this.props.appTitleActions.setTitle(strings.connections.title);
     }
 
     public componentDidUpdate = (prevProps) => {

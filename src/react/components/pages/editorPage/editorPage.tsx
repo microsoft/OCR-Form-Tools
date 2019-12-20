@@ -14,6 +14,7 @@ import {
 } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
+import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
 import { KeyboardBinding } from "../../common/keyboardBinding/keyboardBinding";
 import { KeyEventType } from "../../common/keyboardManager/keyboardManager";
@@ -42,6 +43,7 @@ export interface IEditorPageProps extends RouteComponentProps, React.Props<Edito
     appSettings: IAppSettings;
     actions: IProjectActions;
     applicationActions: IApplicationActions;
+    appTitleActions: IAppTitleActions;
 }
 
 /**
@@ -92,6 +94,7 @@ function mapDispatchToProps(dispatch) {
     return {
         actions: bindActionCreators(projectActions, dispatch),
         applicationActions: bindActionCreators(applicationActions, dispatch),
+        appTitleActions: bindActionCreators(appTitleActions, dispatch),
     };
 }
 
@@ -116,14 +119,18 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private canvas: RefObject<Canvas> = React.createRef();
     private renameTagConfirm: React.RefObject<Confirm> = React.createRef();
     private deleteTagConfirm: React.RefObject<Confirm> = React.createRef();
+    private isUnmount: boolean = false;
 
     public async componentDidMount() {
+        this.isUnmount = false;
         const projectId = this.props.match.params["projectId"];
         if (this.props.project) {
             await this.loadProjectAssets();
+            this.props.appTitleActions.setTitle(this.props.project.name);
         } else if (projectId) {
             const project = this.props.recentProjects.find((project) => project.id === projectId);
             await this.props.actions.loadProject(project);
+            this.props.appTitleActions.setTitle(project.name);
         }
     }
 
@@ -135,6 +142,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         if (this.props.project && prevProps.project && this.props.project.tags !== prevProps.project.tags) {
             this.updateRootAssets();
         }
+    }
+
+    public componentWillUnmount() {
+        this.isUnmount = true;
     }
 
     public render() {
@@ -391,16 +402,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     /**
-     * Raised when a child asset is selected on the Asset Preview
-     * ex) When a video is paused/seeked to on a video
-     */
-    private onChildAssetSelected = async (childAsset: IAsset) => {
-        if (this.state.selectedAsset && this.state.selectedAsset.asset.id !== childAsset.id) {
-            await this.selectAsset(childAsset);
-        }
-    }
-
-    /**
      * Returns a value indicating whether the current asset is taggable
      */
     private isTaggableAssetType = (asset: IAsset): boolean => {
@@ -467,6 +468,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
 
         this.setState({ assets, isValid: true });
+
+        // Workaround for if component is unmounted
+        if (!this.isUnmount) {
+            this.props.appTitleActions.setTitle(`${this.props.project.name} - [ ${rootAsset.name} ]`);
+        }
     }
 
     /**

@@ -22,6 +22,7 @@ import {
     IShowAppErrorAction,
     IClearErrorAction,
 } from "./appErrorActions";
+import { ISetTitleAction } from "./appTitleActions";
 
 /**
  * Data payload dispatched from the action and delivered to reducer
@@ -84,4 +85,5 @@ export type AnyAction = IOtherAction |
     ISaveAssetMetadataAction |
     ILoadAssetMetadataAction |
     IShowAppErrorAction |
-    IClearErrorAction;
+    IClearErrorAction |
+    ISetTitleAction;
