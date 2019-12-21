@@ -141,7 +141,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         displayName={"Delete region"}
                         key={"Delete"}
                         keyEventType={KeyEventType.KeyDown}
-                        accelerators={["Delete", "Backspace"]}
+                        accelerators={["Delete", "Backspace", "Left", "ArrowLeft", "Right", "ArrowRight"]}
                         handler={this.handleKeyDown} />
                 <ImageMap
                     ref={(ref) => this.imageMap = ref}
@@ -783,6 +783,16 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             case "Delete":
             case "Backspace":
                 this.deleteRegions(this.getSelectedRegions());
+                break;
+
+            case "Left":
+            case "ArrowLeft":
+                this.prevPage();
+                break;
+
+            case "Right":
+            case "ArrowRight":
+                this.nextPage();
                 break;
 
             default:
