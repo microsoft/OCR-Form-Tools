@@ -108,7 +108,7 @@ export default class EditorSideBar extends React.Component<IEditorSideBarProps, 
         const selectedAsset = this.props.selectedAsset;
 
         return (
-            <div key={key} style={style}
+            <div key={asset.id} style={style}
                 className={this.getAssetCssClassNames(asset, selectedAsset)}
                 onClick={() => this.onAssetClicked(asset)}>
                 <div className="asset-item-image">

@@ -122,6 +122,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private isUnmount: boolean = false;
 
     public async componentDidMount() {
+        window.addEventListener("focus", this.onFocused);
+
         this.isUnmount = false;
         const projectId = this.props.match.params["projectId"];
         if (this.props.project) {
@@ -135,6 +137,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     public async componentDidUpdate(prevProps: Readonly<IEditorPageProps>) {
+        
         if (this.props.project && this.state.assets.length === 0) {
             await this.loadProjectAssets();
         }
@@ -146,6 +149,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     public componentWillUnmount() {
         this.isUnmount = true;
+        window.removeEventListener("focus", this.onFocused);
     }
 
     public render() {
@@ -538,7 +542,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private loadProjectAssets = async (): Promise<void> => {
-        if (this.loadingProjectAssets || this.state.assets.length > 0) {
+        if (this.loadingProjectAssets) {
             return;
         }
 
@@ -547,6 +551,12 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const rootAssets = _(await this.props.actions.loadAssets(this.props.project))
             .uniqBy((asset) => asset.id)
             .value();
+
+        if (this.state.assets.length === rootAssets.length
+            && this.state.assets.map(asset => asset.id).join(",") === rootAssets.map(asset => asset.id).join(",")) {
+            this.loadingProjectAssets = false;
+            return;
+        }
 
         const lastVisited = rootAssets.find((asset) => asset.id === this.props.project.lastVisitedAssetId);
 
@@ -647,5 +657,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     private onCanvasRunningOCRStatusChanged = (isCanvasRunningOCR: boolean) => {
         this.setState({ isCanvasRunningOCR });
+    }
+
+    private onFocused = () => {
+        this.loadProjectAssets();
     }
 }
