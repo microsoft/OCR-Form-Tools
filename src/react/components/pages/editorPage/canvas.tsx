@@ -381,7 +381,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.updateAssetRegions(updatedRegions);
     }
 
-    private createBoundingBoxVectorFeature = (text, boundingBox, imageExtent, ocrExtent) => {
+    private createBoundingBoxVectorFeature = (text, boundingBox, imageExtent, ocrExtent, page) => {
         const coordinates: any[] = [];
         const polygonPoints: number[] = [];
         const imageWidth = imageExtent[2] - imageExtent[0];
@@ -400,7 +400,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             polygonPoints.push(boundingBox[i + 1] / ocrHeight);
         }
 
-        const featureId = polygonPoints.join(",");
+        const featureId = this.createRegionIdFromBoundingBox(polygonPoints, page);
         const feature = new Feature({
             geometry: new Polygon([coordinates]),
         });
@@ -465,7 +465,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (this.props.hoveredLabel) {
             const label = this.props.hoveredLabel;
             const id = feature.get("id");
-            if (label.value.find((region) => id === region.boundingBoxes[0].join(","))) {
+            if (label.value.find((region) => id === this.createRegionIdFromBoundingBox(region.boundingBoxes[0], region.page))) {
                 this.setFeatureProperty(feature, "highlighted", true);
             }
         } else if (feature.get("highlighted")) {
@@ -913,7 +913,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     if (line.words) {
                         line.words.forEach((word) => {
                             if (this.shouldDisplayOcrWord(word.text)) {
-                                const feature = this.createBoundingBoxVectorFeature(word.text, word.boundingBox, imageExtent, ocrExtent);
+                                const feature = this.createBoundingBoxVectorFeature(word.text, word.boundingBox, imageExtent, ocrExtent, ocr.page);
                                 this.regionOrders[ocr.page - 1][feature.getId()] = order++;
                             }
                         });
@@ -933,7 +933,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 if (line.words) {
                     line.words.forEach((word) => {
                         if (this.shouldDisplayOcrWord(word.text)) {
-                            features.push(this.createBoundingBoxVectorFeature(word.text, word.boundingBox, imageExtent, ocrExtent));
+                            features.push(this.createBoundingBoxVectorFeature(word.text, word.boundingBox, imageExtent, ocrExtent, ocr.page));
                         }
                     });
                 }
@@ -971,7 +971,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
 
         const newRegion = {
-            id: boundingBox.join(","),
+            id: this.createRegionIdFromBoundingBox(boundingBox, pangeNumber),
             type: RegionType.Polygon,
             tags: [tagName],
             boundingBox: {
@@ -1006,5 +1006,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private shouldShowMultiPageIndicator = () => {
         return (this.state.pdfFile !== null || this.state.tiffImages.length !== 0) && this.state.numPages > 1;
+    }
+
+    private createRegionIdFromBoundingBox = (boundingBox: number[], page: number): string => {
+        return boundingBox.join(",") + ":" + page;
     }
 }
