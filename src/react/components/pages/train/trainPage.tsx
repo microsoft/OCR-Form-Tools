@@ -100,7 +100,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                     {currTrainRecord &&
                         <div>
                             <h3> Train Result </h3>
-                            <h5> Model ID: {currTrainRecord.modelInfo.modelId} </h5>
+                            <span> Model ID: {currTrainRecord.modelInfo.modelId} </span>
                         </div>
                     }
                     {this.state.viewType === "tableView" &&
@@ -160,7 +160,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         else {
             // eslint-disable-next-line
             return <a onClick={this.handleTrainClick} className="p-1">
-                <i className="fas fa-train"></i>
+                <i className="fas fa-train">
+                </i>
                 <h6 className="d-inline ml-2"> {strings.train.title} </h6>
             </a>;
         }
