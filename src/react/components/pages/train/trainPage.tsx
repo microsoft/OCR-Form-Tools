@@ -91,7 +91,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     public render() {
-        const trainIcon = this.setIcon();
         const currTrainRecord = this.state.currTrainRecord;
 
         return (
@@ -117,23 +116,33 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 </main>
                 <div className="train-page-menu bg-lighter-1">
                     <div className="condensed-list">
-                        <h6 className="condensed-list-header bg-darker-2 p-2">
-                            <i className="fas fa-cog" />
-                            <span> Train Menu </span>
-                        </h6>
                         <div className="condensed-list-body">
                             <div className="m-3">
-                                <h4> Train New Model </h4>
-                                <button className="btn btn-green">{trainIcon}</button>
-                                {this.renderTrainMessage()}
+                                <h4> Train a new model </h4>
+                                {!this.state.isTraining ? (
+                                    <button className="btn-sm btn-green" onClick={this.handleTrainClick}>
+                                        <span className="p-1">
+                                            <i className="fa fa-train"></i>
+                                            <h6 className="d-inline ml-2"> {strings.train.title} </h6>
+                                        </span>
+                                    </button>
+                                ) : (
+                                    <tr>
+                                        <i className="train-loader" />
+                                        <td className="vertical-center">Training in progress...</td>
+                                    </tr>
+                                )
+                                }
                             </div>
-                            {currTrainRecord &&
-                                <TrainPanel
-                                    currTrainRecord={currTrainRecord}
-                                    viewType={this.state.viewType}
-                                    updateViewTypeCallback={this.handleViewTypeClick}
-                                />
-                            }
+                            <div className={!this.state.isTraining ? "" : "greyOut"}>
+                                {currTrainRecord &&
+                                    <TrainPanel
+                                        currTrainRecord={currTrainRecord}
+                                        viewType={this.state.viewType}
+                                        updateViewTypeCallback={this.handleViewTypeClick}
+                                    />
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -146,36 +155,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                     when={this.state.isTraining}
                     message={"A training operation is currently in progress, are you sure you want to leave?"}
                 />
-            </div>
-        );
-    }
-
-    private setIcon = () => {
-        if (this.state.isTraining) {
-            return <div className="p-1">
-                <i className="fas fa-circle-notch is-spinning"></i>
-                <h6 className="d-inline ml-2"> {strings.train.pleaseWait} </h6>
-            </div>;
-        }
-        else {
-            // eslint-disable-next-line
-            return <a onClick={this.handleTrainClick} className="p-1">
-                <i className="fas fa-train">
-                </i>
-                <h6 className="d-inline ml-2"> {strings.train.title} </h6>
-            </a>;
-        }
-    }
-
-    private renderTrainMessage = () => {
-        return (
-            <div className="train-message">
-                <div className="train-message-header">
-                    <strong className="mr-auto">Train Message</strong>
-                </div>
-                <div className="train-message-body">
-                    {this.state.trainMessage}
-                </div>
             </div>
         );
     }

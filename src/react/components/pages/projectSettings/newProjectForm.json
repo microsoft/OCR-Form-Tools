@@ -17,19 +17,19 @@
             "type": "object"
         },
         "folderPath": {
-            "title": "Folder Path",
+            "title": "Folder path",
             "description": "Subfolder path to your files",
             "type": "string"
         },
         "apiUriBase": {
-            "title": "Form Recognizer Service Uri",
-            "description": "Form Recognizer Service Uri",
+            "title": "Form recognizer service URI",
+            "description": "Form recognizer service URI",
             "type": "string",
             "format": "uri"
         },
         "apiKey": {
-            "title": "API Key",
-            "description": "API Key",
+            "title": "API key",
+            "description": "API key",
             "type": "string"
         },
         "description": {

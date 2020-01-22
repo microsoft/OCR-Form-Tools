@@ -17,7 +17,7 @@ export default class TrainPanel
 
         return (
             <div className="m-3">
-            <h4> Train Record </h4>
+            <h4> Training record </h4>
 
             <button className="btn btn-primary mt-3 d-none">
                 <i className="fas fa-download"></i>

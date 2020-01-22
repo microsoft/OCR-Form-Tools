@@ -17,19 +17,19 @@
             "type": "object"
         },
         "folderPath": {
-            "title": "Folder Path",
+            "title": "Folder path",
             "description": "Subfolder path to your files",
             "type": "string"
         },
         "formRecognizerBackend": {
-            "title": "Form Recognizer Backend",
-            "description": "Form Recognizer Backend",
+            "title": "Form recognizer backend",
+            "description": "Form recognizer backend",
             "type": "string",
             "format": "uri"
         },
         "ocrUriBase": {
-            "title": "OCR Service Uri",
-            "description": "OCR Service Uri",
+            "title": "OCR service URI",
+            "description": "OCR service URI",
             "type": "string",
             "format": "uri"
         },

@@ -8,7 +8,7 @@ import { IAppStrings } from "../strings";
 export const english: IAppStrings = {
     appName: "Visual Object Tagging Tool",
     common: {
-        displayName: "Display Name",
+        displayName: "Display name",
         description: "Description",
         submit: "Submit",
         cancel: "Cancel",
@@ -87,12 +87,12 @@ export const english: IAppStrings = {
     projectSettings: {
         title: "Project Settings",
         securityToken: {
-            title: "Security Token",
+            title: "Security token",
             description: "Used to encrypt sensitive data within project files",
         },
         save: "Save Project",
         sourceConnection: {
-            title: "Source Connection",
+            title: "Source connection",
             description: "Where to load assets from",
         },
         targetConnection: {
