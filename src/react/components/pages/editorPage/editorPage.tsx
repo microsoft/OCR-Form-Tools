@@ -115,11 +115,18 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         hoveredLabel: null,
     };
 
+    private tagInputRef: RefObject<TagInput>;
+
     private loadingProjectAssets: boolean = false;
     private canvas: RefObject<Canvas> = React.createRef();
     private renameTagConfirm: React.RefObject<Confirm> = React.createRef();
     private deleteTagConfirm: React.RefObject<Confirm> = React.createRef();
     private isUnmount: boolean = false;
+
+    constructor(props) {
+        super(props);
+        this.tagInputRef = React.createRef();
+    }
 
     public async componentDidMount() {
         window.addEventListener("focus", this.onFocused);
@@ -209,8 +216,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                         />
                     </div>
                     <div className="editor-page-content" onClick={this.onPageClick}>
-                        <div className="editor-page-content-main">
-                            <div className="editor-page-content-main-body">
+                        <div className="editor-page-content-main" >
+                            <div className="editor-page-content-main-body" onClick = {this.onPageContainerClick}>
                                 {selectedAsset &&
                                     <Canvas
                                         ref={this.canvas}
@@ -245,6 +252,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                 onTagDeleted={this.confirmTagDeleted}
                                 onLabelEnter={this.onLabelEnter}
                                 onLabelLeave={this.onLabelLeave}
+                                ref = {this.tagInputRef}
                             />
                         </div>
                         <Confirm title={strings.editorPage.tags.rename.title}
@@ -280,6 +288,13 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 />
             </div>
         );
+    }
+
+    //call function from child
+    private onPageContainerClick = () => {
+        // workaround: tagInput will not lost focus with olmap,
+        // so we fire the blur event manually here
+        this.tagInputRef.current.triggerNewTagBlur();
     }
 
     private onPageClick = () => {

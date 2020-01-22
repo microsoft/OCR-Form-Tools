@@ -1,4 +1,4 @@
-import React, { KeyboardEvent } from "react";
+import React, { KeyboardEvent, RefObject } from "react";
 import ReactDOM from "react-dom";
 import Align from "rc-align";
 import { randomIntInRange } from "../../../../common/utils";
@@ -81,6 +81,13 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     private tagItemRefs: Map<string, TagInputItem> = new Map<string, TagInputItem>();
     private portalDiv = document.createElement("div");
 
+    private inputRef: RefObject<HTMLInputElement>;
+
+
+    constructor(props) {
+        super(props);
+        this.inputRef = React.createRef();
+    }
 
     public render() {
         return (
@@ -126,8 +133,11 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                                 className="tag-input-box"
                                 type="text"
                                 onKeyDown={this.onAddTagKeyDown}
+                                //Add mouse event
+                                onBlur={this.onAddTagWithBlur} 
                                 placeholder="Add new tag"
                                 autoFocus={true}
+                                ref={this.inputRef}
                             />
                             <i className="tag-input-row-icon fas fa-tag" />
                         </div>
@@ -459,27 +469,45 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             });
         }
     }
-
+    
     private onAddTagKeyDown = (event) => {
+        // Add handle mouse event functionality
         if (event.key === "Enter") {
             // validate and add
-            const newTag: ITag = {
-                name: event.target.value.trim(),
-                color: this.getNextColor(),
-            };
-            if (newTag.name.length && ![...this.state.tags, newTag].containsDuplicates((t) => t.name)) {
-                this.addTag(newTag);
-                event.target.value = "";
-            } else if (!newTag.name.length) {
-                toast.warn(strings.tags.warnings.emptyName);
-            } else {
-                toast.warn(strings.tags.warnings.existingName);
-            }
+            this.creatTagInput(event.target.value.trim());
+            event.target.value = "";
         }
         if (event.key === "Escape") {
             this.setState({
                 addTags: false,
             });
+        }
+    }
+
+    private onAddTagWithBlur = (event) =>{
+        if(event.target.value) {
+            this.creatTagInput(event.target.value.trim());
+            event.target.value = "";
+        }
+    }
+
+    public triggerNewTagBlur = () => {
+        if(this.inputRef.current) {
+            this.inputRef.current.blur();
+        }
+    }
+
+    private creatTagInput = (value) =>{
+        const newTag: ITag = {
+                name: value,
+                color: this.getNextColor(),
+        };
+        if (newTag.name.length && ![...this.state.tags, newTag].containsDuplicates((t) => t.name)) {
+            this.addTag(newTag);
+        } else if (!newTag.name.length) {
+            toast.warn(strings.tags.warnings.emptyName);
+        } else {
+            toast.warn(strings.tags.warnings.existingName);
         }
     }
 
