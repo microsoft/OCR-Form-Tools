@@ -76,7 +76,7 @@ function mapDispatchToProps(dispatch) {
 export default class PredictPage extends React.Component<IPredictPageProps, IPredictPageState> {
     public state: IPredictPageState = {
         analyzeResult: {},
-        fileLabel: "Choose file...",
+        fileLabel: "Browse for a file...",
         predictionLoaded: true,
         currPage: undefined,
         imageUri: null,
@@ -149,36 +149,43 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             <span className="condensed-list-title">Predict</span>
                         </h6>
                         <div className="p-3">
-                            <h5> Upload File </h5>
-                            <div className="input-group mb-3">
-                                <div className="custom-file">
+                            <h5> Upload file </h5>
+                                <div style={{display: "flex", marginBottom: "25px"}}>
                                     <input
                                         type="file"
                                         accept="application/pdf, image/jpeg, image/png, image/tiff"
-                                        className="custom-file-input"
-                                        id="inputGroupFile02"
+                                        id="hiddenInputFile"
                                         ref={this.fileInput}
                                         onChange={this.handleFileChange}
                                         disabled={browseFileDisabled} />
-                                    <label
-                                        className={"custom-file-label " + (browseFileDisabled ? "input-disabled" : "")}
-                                        htmlFor="inputGroupFile02"
-                                        aria-describedby="inputGroupFileAddon02">
-                                        {this.state.fileLabel}
-                                    </label>
-                                </div>
-                                <div className="input-group-append">
+                                    <input 
+                                        type="text" 
+                                        style = {{cursor: (browseFileDisabled ? "default" : "pointer")}} 
+                                        onClick={this.handleDummyInputClick} 
+                                        readOnly={true} 
+                                        className="dummyInputFile" 
+                                        value={this.state.fileLabel}/>
                                     <button
-                                        className={"input-group-text " + (predictDisabled ? "input-disabled" : "")}
-                                        id="inputGroupFileAddon02"
+                                        className={"btn32px " + (browseFileDisabled ? "input-disabled" 
+                                        : "btn-green")}
+                                        onClick={this.handleDummyInputClick}
+                                        disabled={browseFileDisabled}
+                                        style={{marginLeft: "10px", marginRight: "10px"}}>
+                                        Browse
+                                    </button>
+                                    <button
+                                        className={"btn32px " + (predictDisabled ? "input-disabled" 
+                                        : "btn-white")}
                                         onClick={this.handleClick}
                                         disabled={predictDisabled}>
                                         Predict
                                     </button>
                                 </div>
-                            </div>
                             {!this.state.predictionLoaded &&
-                                <i className="fas fa-circle-notch fa-spin" />
+                                    <div className="loading-container">
+                                    <i className="loading-icon" />
+                                    <div className="loading-description">Prediction in progress...</div>
+                                </div>
                             }
                             {Object.keys(predictions).length > 0 &&
                                 <PredictResult
@@ -217,6 +224,10 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 />
             </div>
         );
+    }
+
+    private handleDummyInputClick = () => {
+        document.getElementById("hiddenInputFile").click();
     }
 
     private renderPrevPageButton = () => {

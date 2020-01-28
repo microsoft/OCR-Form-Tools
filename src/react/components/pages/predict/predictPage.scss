@@ -29,17 +29,18 @@
   min-width: 400px;
 }
 
-.custom-file-label {
-  white-space: nowrap;
-  overflow: hidden;
-  &:after {
-    cursor: pointer;
-  }
-}
-
 .input-disabled {
   color: #bbb;
-  &:after {
-    color: #bbb !important;
-  }
+  background-color: white;
+}
+
+.dummyInputFile {
+  color: #bbb;
+  border: 1px;
+  padding: 4px;
+  padding-left: 8px;
+  padding-right: 8px;
+  border-radius: 2px;
+  width: 100%;
+  flex: 1;
 }

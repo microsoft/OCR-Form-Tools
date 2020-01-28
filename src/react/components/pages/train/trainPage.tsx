@@ -120,17 +120,17 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                             <div className="m-3">
                                 <h4> Train a new model </h4>
                                 {!this.state.isTraining ? (
-                                    <button className="btn-sm btn-green" onClick={this.handleTrainClick}>
+                                    <button className="btn32px btn-green" onClick={this.handleTrainClick}>
                                         <span className="p-1">
                                             <i className="fa fa-train"></i>
                                             <h6 className="d-inline ml-2"> {strings.train.title} </h6>
                                         </span>
                                     </button>
                                 ) : (
-                                    <tr>
-                                        <i className="train-loader" />
-                                        <td className="vertical-center">Training in progress...</td>
-                                    </tr>
+                                    <div className="loading-container">
+                                        <i className="loading-icon" />
+                                        <div className="loading-description">Training in progress...</div>
+                                    </div>
                                 )
                                 }
                             </div>

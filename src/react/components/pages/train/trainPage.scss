@@ -52,46 +52,6 @@
     }
 }
 
-.btn-green {
-    background-color: #416100;
-    border-color: #416100;
-    color: #fff;
-    &:hover {
-        background-color: lighten(#416100, 3%);
-    }
-}
-
-.train-loader {
-  margin: 4px;
-  display: inline-block;
-  border: 1px solid #bababa;
-  border-radius: 50%;
-  border-top: 1px solid #4985c9;
-  width: 24px;
-  height: 24px;
-  -webkit-animation: spin 2s linear infinite; /* Safari */
-  animation: spin 2s linear infinite;
-}
-
-.greyOut {
-    opacity: 0.2;
-}
-
-.vertical-center {
-    vertical-align:middle
-}
-
-/* Safari */
-@-webkit-keyframes spin {
-  0% { -webkit-transform: rotate(0deg); }
-  100% { -webkit-transform: rotate(360deg); }
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
 @keyframes spinner {
     to {transform: rotate(360deg);}
 }

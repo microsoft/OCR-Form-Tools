@@ -32,10 +32,10 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                 <div className="prediction-header">
                     <h5 className="prediction-header-result">Result</h5>
                     <button
-                        className="btn btn-green btn-sm"
+                        className="btn32px btn-green"
                         type="button"
                         title="Download JSON"
-                        onClick={this.triggerDownload}> Download Result (JSON) </button>
+                        onClick={this.triggerDownload}> Download result (JSON) </button>
                     <h6 className="prediction-header-confidence"> Confidence </h6>
                 </div>
                 <div className="prediction-header-clear"></div>

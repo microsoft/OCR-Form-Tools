@@ -95,11 +95,17 @@ export default class ConnectionForm extends React.Component<IConnectionFormProps
                 </h3>
                 <div className="m-3">
                     {isBrowser() &&
-                        <div className="alert alert-warning" role="alert">
+                        <div className="alert alert-warning warning" 
+                            role="alert">
                             <i className="fas fa-exclamation-circle mr-1" aria-hidden="true"></i>
                             {strings.formatString(
                                 strings.connections.blobCorsWarning,
-                                <a href="https://aka.ms/blob-cors" target="_blank" rel="noopener noreferrer">{strings.connections.azDocLinkText}</a>)
+                                <a 
+                                    href="https://aka.ms/blob-cors" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer">
+                                    {strings.connections.azDocLinkText}
+                                </a>)
                             }
                         </div>
                     }
@@ -117,10 +123,15 @@ export default class ConnectionForm extends React.Component<IConnectionFormProps
                         onChange={this.onFormChange}
                         onSubmit={(form) => this.props.onSubmit(form.formData)}>
                         <div>
-                            <button className="btn btn-success mr-1" type="submit">{strings.connections.save}</button>
-                            <button className="btn btn-secondary btn-cancel"
+                            <button 
+                                className="btn32px btn-green mr-1" 
+                                type="submit">{strings.connections.save}
+                            </button>
+                            <button 
+                                className="btn32px btn-secondary btn-cancel"
                                 type="button"
-                                onClick={this.onFormCancel}>{strings.common.cancel}</button>
+                                onClick={this.onFormCancel}>{strings.common.cancel}
+                            </button>
                         </div>
                     </Form>
                 </div>
