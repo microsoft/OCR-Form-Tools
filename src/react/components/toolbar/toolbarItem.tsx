@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import React, { Fragment, SyntheticEvent } from "react";
 import { IProject } from "../../../models/applicationState";
 import IProjectActions from "../../../redux/actions/projectActions";

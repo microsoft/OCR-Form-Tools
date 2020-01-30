@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { KeyboardContext, IKeyboardContext, KeyEventType } from "../keyboardManager/keyboardManager";
 import React from "react";
 

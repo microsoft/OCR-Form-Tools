@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { Dispatch, Action } from "redux";
 import { IAppError } from "../../models/applicationState";
 import { createPayloadAction, IPayloadAction, createAction } from "./actionCreators";

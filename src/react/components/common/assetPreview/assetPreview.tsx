@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import React, { SyntheticEvent } from "react";
 import { IAsset, AssetType } from "../../../../models/applicationState";
 import { strings } from "../../../../common/strings";

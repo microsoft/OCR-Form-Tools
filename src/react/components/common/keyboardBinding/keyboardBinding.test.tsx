@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import React from "react";
 import { mount, ReactWrapper } from "enzyme";
 import { KeyboardManager, KeyEventType } from "../keyboardManager/keyboardManager";

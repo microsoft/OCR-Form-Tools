@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import React, { RefObject } from "react";
 import { Button } from "reactstrap";
 import MessageBox, { IMessageBoxProps } from "../messageBox/messageBox";

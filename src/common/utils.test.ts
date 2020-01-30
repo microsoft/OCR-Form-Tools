@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { randomIntInRange, createQueryString, encryptProject,
     decryptProject, normalizeSlashes, encodeFileURI } from "./utils";
 import MockFactory from "./mockFactory";

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import Guard from "./guard";
 import { IProject, ISecurityToken, IProviderOptions, ISecureString } from "../models/applicationState";
 import { encryptObject, decryptObject, encrypt, decrypt } from "./crypto";

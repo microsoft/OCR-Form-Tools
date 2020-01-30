@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import axios, { AxiosResponse } from "axios";
 import HtmlFileReader from "./htmlFileReader";
 import { AssetService } from "../services/assetService";

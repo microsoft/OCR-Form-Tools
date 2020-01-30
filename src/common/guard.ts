@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 export default class Guard {
     /**
      * Validates the string express is not null or empty, otherwise throws an exception

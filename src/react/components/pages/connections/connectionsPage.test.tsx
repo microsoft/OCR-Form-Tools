@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { mount, ReactWrapper } from "enzyme";
 import React from "react";
 import Form from "react-jsonschema-form";
@@ -310,6 +313,9 @@ function createProps(route: string): IConnectionPageProps {
         },
         connections: [],
         actions: (connectionActions as any) as IConnectionActions,
+        appTitleActions: {
+            setTitle(title: string) {}
+        },
     };
 }
 

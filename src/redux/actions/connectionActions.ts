@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { IConnection } from "../../models/applicationState";
 import { ActionTypes } from "./actionTypes";
 import { IPayloadAction, createPayloadAction } from "./actionCreators";

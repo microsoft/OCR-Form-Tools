@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { constants } from "../../common/constants";
 import { ActionTypes } from "../actions/actionTypes";
 import { IConnection } from "../../models/applicationState";

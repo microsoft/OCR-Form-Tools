@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import React from "react";
 import { ISecurityTokenPickerProps, SecurityTokenPicker } from "./securityTokenPicker";
 import { ReactWrapper, mount } from "enzyme";

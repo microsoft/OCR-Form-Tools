@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { Feature, MapBrowserEvent, View } from "ol";
 import { Extent, getCenter } from "ol/extent";
 import { defaults as defaultInteractions, DragPan, DragRotateAndZoom, Interaction } from "ol/interaction.js";

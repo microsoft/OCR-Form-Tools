@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import React from "react";
 import { Provider } from "react-redux";
 import { AnyAction, Store } from "redux";
@@ -95,6 +98,9 @@ describe("App Settings Page", () => {
                 isExact: true,
                 path: `https://localhost:3000/settings`,
                 url: `https://localhost:3000/settings`,
+            },
+            appTitleActions: {
+                setTitle(title: string) {}
             },
         };
     }

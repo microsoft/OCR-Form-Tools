@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import _ from "lodash";
 import { reducer } from "./currentProjectReducer";
 import { IProject, IAssetMetadata, AssetState, ITag } from "../../models/applicationState";

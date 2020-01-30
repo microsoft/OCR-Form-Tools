@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { mount } from "enzyme";
 import React from "react";
 import MockFactory from "../../../common/mockFactory";

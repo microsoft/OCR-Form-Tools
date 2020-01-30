@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { reducer } from "./appErrorReducer";
 import { IAppError, ErrorCode } from "../../models/applicationState";
 import { clearErrorAction, showErrorAction } from "../actions/appErrorActions";

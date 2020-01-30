@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { IAsset, IConnection } from "../../models/applicationState";
 import Guard from "../../common/guard";
 import getHostProcess, { HostProcessType } from "../../common/hostProcess";

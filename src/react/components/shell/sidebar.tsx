@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import React from "react";
 import { NavLink } from "react-router-dom";
 import ConditionalNavLink from "../common/conditionalNavLink/conditionalNavLink";

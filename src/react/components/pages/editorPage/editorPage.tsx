@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import _ from "lodash";
 import React, { RefObject } from "react";
 import { connect } from "react-redux";

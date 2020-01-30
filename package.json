@@ -1,11 +1,11 @@
 {
-    "name": "fott",
+    "name": "oflt",
     "version": "0.1.0",
     "author": {
         "name": "Microsoft",
         "url": "https://github.com/Microsoft/FoTT"
     },
-    "description": "Form Object Tagging Tool (FoTT) - an annotation and labeling tool for forms.",
+    "description": "OCR Form Labeling Tool - an labeling tool for forms.",
     "repository": {
         "type": "git",
         "url": "https://github.com/Microsoft/FoTT.git"

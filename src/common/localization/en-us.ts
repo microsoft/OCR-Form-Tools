@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { IAppStrings } from "../strings";
 
 /*eslint-disable no-template-curly-in-string, no-multi-str*/

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { AssetProviderFactory } from "./providers/storage/assetProviderFactory";
 import { AzureBlobStorage } from "./providers/storage/azureBlobStorage";
 import { StorageProviderFactory } from "./providers/storage/storageProviderFactory";

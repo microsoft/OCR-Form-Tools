@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import React, { MouseEvent } from "react";
 import { ITag, ILabel } from "../../../../models/applicationState";
 import TagInputItemLabel from "./tagInputItemLabel";

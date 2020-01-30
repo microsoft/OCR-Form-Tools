@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { IToolbarItemMetadata, ToolbarItem } from "../../react/components/toolbar/toolbarItem";
 import Guard from "../../common/guard";
 

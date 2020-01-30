@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import React from "react";
 import { ITag } from "../../../../models/applicationState";
 import "./predictResult.scss";

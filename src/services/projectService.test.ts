@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import _ from "lodash";
 import ProjectService, { IProjectService } from "./projectService";
 import MockFactory from "../common/mockFactory";

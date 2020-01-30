@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import Guard from "../../../../common/guard";
 import { KeyEventType } from "./keyboardManager";
 import { IKeyboardBindingProps } from "../keyboardBinding/keyboardBinding";

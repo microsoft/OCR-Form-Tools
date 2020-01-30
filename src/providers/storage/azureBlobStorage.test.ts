@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import MockFactory from "../../common/mockFactory";
 import registerProviders from "../../registerProviders";
 import { AzureBlobStorage } from "./azureBlobStorage";

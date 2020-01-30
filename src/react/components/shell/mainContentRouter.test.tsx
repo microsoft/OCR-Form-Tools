@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { shallow, mount, ReactWrapper } from "enzyme";
 
 import React from "react";

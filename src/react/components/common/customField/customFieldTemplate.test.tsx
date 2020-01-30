@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import React from "react";
 import { FieldTemplateProps, Field } from "react-jsonschema-form";
 import { ReactWrapper, mount } from "enzyme";

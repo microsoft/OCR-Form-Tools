@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import MockFactory from "../mockFactory";
 import registerMixins from "../../registerMixins";
 import { IAsset } from "../../models/applicationState";

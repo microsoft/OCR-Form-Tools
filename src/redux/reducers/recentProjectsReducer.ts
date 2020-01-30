@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { ActionTypes } from "../actions/actionTypes";
 import { IProject } from "../../models/applicationState";
 import { AnyAction } from "../actions/actionCreators";

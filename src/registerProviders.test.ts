@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import registerProviders from "./registerProviders";
 import { StorageProviderFactory } from "./providers/storage/storageProviderFactory";
 import { AssetProviderFactory } from "./providers/storage/assetProviderFactory";

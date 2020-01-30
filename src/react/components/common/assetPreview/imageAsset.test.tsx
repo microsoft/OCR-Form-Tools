@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import React from "react";
 import { IAssetPreviewProps } from "./assetPreview";
 import { ReactWrapper, mount } from "enzyme";

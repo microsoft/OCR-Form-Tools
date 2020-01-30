@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { ToolbarItemFactory } from "./toolbarItemFactory";
 import { IToolbarItemMetadata, ToolbarItemType, ToolbarItem } from "../../react/components/toolbar/toolbarItem";
 import registerToolbar, { ToolbarItemName, ToolbarItemGroup } from "../../registerToolbar";

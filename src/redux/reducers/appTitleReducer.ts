@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { ActionTypes } from "../actions/actionTypes";
 import { AnyAction } from "../actions/actionCreators";
 

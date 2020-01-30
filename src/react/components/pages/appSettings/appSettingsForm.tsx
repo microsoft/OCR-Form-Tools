@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import React from "react";
 import { strings, addLocValues } from "../../../../common/strings";
 import Form, { FormValidation } from "react-jsonschema-form";

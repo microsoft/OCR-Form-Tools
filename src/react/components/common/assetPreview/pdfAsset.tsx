@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import React from "react";
 import { IAssetPreviewProps } from "./assetPreview";
 import * as pdfjsLib from "pdfjs-dist";

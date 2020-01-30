@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { AssetService } from "./assetService";
 import { AssetType, IAssetMetadata, AssetState, IAsset, IProject } from "../models/applicationState";
 import MockFactory from "../common/mockFactory";

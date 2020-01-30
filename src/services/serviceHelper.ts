@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { constants } from "../common/constants";
 import { AppError, ErrorCode } from "../models/applicationState";
 import { delay } from "../common/utils";

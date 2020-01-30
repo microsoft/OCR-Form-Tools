@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import React from "react";
 import Chart from 'chart.js';
 import { ITag } from "../../../../models/applicationState";

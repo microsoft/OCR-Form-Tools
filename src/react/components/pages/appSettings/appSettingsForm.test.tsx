@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import React from "react";
 import { IAppSettingsFormProps, IAppSettingsFormState, AppSettingsForm } from "./appSettingsForm";
 import { ReactWrapper, mount } from "enzyme";

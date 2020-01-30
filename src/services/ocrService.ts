@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import Guard from "../common/guard";
 import { IProject } from "../models/applicationState";
 import { IStorageProvider, StorageProviderFactory } from "../providers/storage/storageProviderFactory";

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { IStorageProvider } from "./storageProviderFactory";
 import { IAsset, AssetType, StorageType, AssetState, AppError } from "../../models/applicationState";
 import { AssetService } from "../../services/assetService";

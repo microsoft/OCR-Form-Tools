@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import React from "react";
 import { appInfo } from "../../../common/appInfo";
 import "./statusBar.scss";

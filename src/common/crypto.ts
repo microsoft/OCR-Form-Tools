@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { enc, lib, AES } from "crypto-js";
 import Guard from "./guard";
 

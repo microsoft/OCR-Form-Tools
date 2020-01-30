@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import React from "react";
 import TagInputItem, { ITagInputItemProps } from "./tagInputItem";
 import MockFactory from "../../../../common/mockFactory";

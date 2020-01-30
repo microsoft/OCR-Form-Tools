@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import createMockStore, { MockStoreEnhanced } from "redux-mock-store";
 import { ActionTypes } from "./actionTypes";
 import * as connectionActions from "./connectionActions";

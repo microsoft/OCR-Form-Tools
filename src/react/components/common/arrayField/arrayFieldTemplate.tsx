@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import React from "react";
 import { ArrayFieldTemplateProps } from "react-jsonschema-form";
 import { strings } from "../../../../common/strings";

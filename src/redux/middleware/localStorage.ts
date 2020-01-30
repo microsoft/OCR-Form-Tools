@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { Middleware, Dispatch, AnyAction, MiddlewareAPI } from "redux";
 import { constants } from "../../common/constants";
 

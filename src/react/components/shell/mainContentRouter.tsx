@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import React from "react";
 import { Switch, Route } from "react-router-dom";
 import HomePage from "../pages/homepage/homePage";

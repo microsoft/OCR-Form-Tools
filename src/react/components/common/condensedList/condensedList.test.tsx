@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 import CondensedList from "./condensedList";

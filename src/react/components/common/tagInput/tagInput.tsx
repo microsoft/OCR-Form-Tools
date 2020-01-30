@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import React, { KeyboardEvent, RefObject } from "react";
 import ReactDOM from "react-dom";
 import Align from "rc-align";

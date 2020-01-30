@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import React, { Fragment } from "react";
 import { FieldTemplateProps } from "react-jsonschema-form";
 

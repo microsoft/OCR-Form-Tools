@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import MD5 from "md5.js";
 import _ from "lodash";
 import Guard from "../common/guard";
