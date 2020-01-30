@@ -148,6 +148,7 @@ export interface IAppStrings {
             moveUp: string;
             moveDown: string;
             delete: string;
+            vertiline: string;
         }
         colors: {
             white: string;

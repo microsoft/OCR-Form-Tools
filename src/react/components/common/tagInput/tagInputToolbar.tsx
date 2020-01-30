@@ -5,6 +5,13 @@ import React, { SyntheticEvent } from "react";
 import { strings } from "../../../../common/strings";
 import { ITag } from "../../../../models/applicationState";
 import "./tagInput.scss";
+import "./tagInputToolBar.scss"
+
+enum Categories {
+    General,
+    Separator,
+    Modifier
+}
 
 /** Properties for tag input toolbar */
 export interface ITagInputToolbarProps {
@@ -27,23 +34,18 @@ export interface ITagInputToolbarProps {
 interface ITagInputToolbarItemProps {
     displayName: string;
     className: string;
-    icon: string;
-    handler: () => void;
+    icon?: string;
+    category?: Categories;
+    handler?: () => void;
     accelerators?: string[];
 }
+
 
 export default class TagInputToolbar extends React.Component<ITagInputToolbarProps> {
     public render() {
         return (
             <div className="tag-input-toolbar">
-                {
-                    this.getToolbarItems().map((itemConfig) =>
-                        <div key={itemConfig.displayName} className={`tag-input-toolbar-item ${itemConfig.className}`}
-                            onClick={(e) => this.onToolbarItemClick(e, itemConfig)}>
-                            <i className={`tag-input-toolbar-icon fas ${itemConfig.icon}`} />
-                        </div>,
-                    )
-                }
+                {this.handleTagIcon()}
             </div>
         );
     }
@@ -59,12 +61,14 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
                 displayName: strings.tags.toolbar.add,
                 className: "plus",
                 icon: "fa-plus-circle",
+                category: Categories.General,
                 handler: this.handleAdd,
             },
             {
                 displayName: strings.tags.toolbar.search,
                 className: "search",
                 icon: "fa-search",
+                category: Categories.General,
                 handler: this.handleSearch,
             },
             // {
@@ -72,32 +76,70 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
             //     className: "lock",
             //     icon: "fa-lock",
             //     handler: this.handleLock,
-            // },
+            // }, 
+            {
+                displayName: strings.tags.toolbar.vertiline,
+                className: "separator",
+                category: Categories.Separator,
+            },
             {
                 displayName: strings.tags.toolbar.edit,
                 className: "edit",
                 icon: "fa-edit",
+                category: Categories.Modifier,
                 handler: this.handleEdit,
             },
             {
                 displayName: strings.tags.toolbar.moveUp,
                 className: "up",
                 icon: "fa-arrow-circle-up",
+                category: Categories.Modifier,
                 handler: this.handleArrowUp,
             },
             {
                 displayName: strings.tags.toolbar.moveDown,
                 className: "down",
                 icon: "fa-arrow-circle-down",
+                category: Categories.Modifier,
                 handler: this.handleArrowDown,
             },
             {
                 displayName: strings.tags.toolbar.delete,
                 className: "delete",
                 icon: "fa-trash",
+                category: Categories.Modifier,
                 handler: this.handleDelete,
             },
         ];
+    }
+
+    
+    private handleTagIcon = () => {
+        const classNames = ["tag-input-toolbar-icon","fas",];
+        if (this.props.selectedTag === null) {
+            classNames.push("tag-input-toolbar-icon-unselected")
+        } 
+        return(
+            this.getToolbarItems().map((itemConfig) => {
+                if (itemConfig.category === Categories.General) {
+                    return <div 
+                                key={itemConfig.displayName} 
+                                className={`tag-input-toolbar-item ${itemConfig.className}`}
+                                onClick={(e) => this.onToolbarItemClick(e, itemConfig)}>
+                                <i className={`tag-input-toolbar-icon fas ${itemConfig.icon}`}/>
+                            </div> 
+                } else if (itemConfig.category === Categories.Separator) {
+                    return <div className="tag-tool-bar-vertical-line"></div>
+                } else if (itemConfig.category === Categories.Modifier) {
+                    return <div 
+                                key={itemConfig.displayName} 
+                                className={`tag-input-toolbar-item ${itemConfig.className}`}
+                                onClick={(e) => this.onToolbarItemClick(e, itemConfig)}>
+                                <i className={`${classNames.join(" ")} ${itemConfig.icon}`} />
+                            </div>
+                }
+            })
+        );
     }
 
     private handleAdd = () => {

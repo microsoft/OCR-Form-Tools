@@ -42,6 +42,7 @@ $tagInputWidth: 250px;
         &-header {
             display: flex;
             flex-direction: row;
+            text-shadow: none;
         }
 
         &-title {
@@ -92,7 +93,9 @@ $tagInputWidth: 250px;
 
     &-name {
         &-body {
+            display: inline-flex;
             flex-grow: 1;
+            align-items: center;
         }
 
         &-editor {
@@ -114,17 +117,19 @@ $tagInputWidth: 250px;
 
         &-text {
             max-width: 195px;
-            display: block;
+            display: inline-block;
             text-overflow: ellipsis;
-            overflow: hidden;
             white-space: nowrap;
+            align-items: center;
+            padding: 0px 0px 3px 0px; 
         }
     }
 
     &-index {
-        flex-basis: 30px;
+        display: inline-flex;
         padding: 0 5px;
         font-weight: 600;
+        align-items: center;
     }
 
     &-item:hover {
@@ -179,4 +184,12 @@ div.github-picker > span > div {
 
 div.circle-picker-container {
     background: #252526;
+}
+
+.tag-index-span {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    text-align: center;
+    line-height: 16px;
 }

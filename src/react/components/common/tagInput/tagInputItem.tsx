@@ -4,6 +4,7 @@
 import React, { MouseEvent } from "react";
 import { ITag, ILabel } from "../../../../models/applicationState";
 import TagInputItemLabel from "./tagInputItemLabel";
+import "./tagInput.scss";
 
 export enum TagEditMode {
     Color = "color",
@@ -159,7 +160,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                     }
                 </div> */}
                 <div className={"tag-index"}>
-                    {(displayIndex !== null) && <span>[{displayIndex}]</span>}
+                    {(displayIndex !== null) && <span className="tag-index-span border border-white rounded-sm ">{displayIndex}</span>}
                 </div>
             </div>
         );
