@@ -1,0 +1,45 @@
+@import '../../../../assets/sass/theme.scss';
+
+.app-homepage {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+    min-height: fit-content;
+
+    &-main {
+        display: flex;
+        flex-grow: 1;
+
+        ul {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            margin: auto;
+            flex-wrap: wrap;
+
+            padding: 0;
+
+            li {
+                list-style-type: none;
+                text-align: center;
+
+                a {
+                    display: inline-block;
+
+                    &.active, &:hover {
+                        color: #fff;
+                        background-color: $lighter-2;
+                        text-decoration: none;
+                    }
+                }
+            }
+        }
+    }
+
+    &-recent {
+        flex-basis: 20vw;
+        min-width: 250px;
+        max-width: 300px;
+    }
+}

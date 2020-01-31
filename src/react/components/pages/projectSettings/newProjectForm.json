@@ -1,0 +1,45 @@
+{
+    "type": "object",
+    "properties": {
+        "name": {
+            "title": "${strings.common.displayName}",
+            "type": "string",
+            "pattern": "^[^\\\\\\\\/:*?\\\\\\\"<>|]*$"
+        },
+        "securityToken": {
+            "title": "${strings.projectSettings.securityToken.title}",
+            "description": "${strings.projectSettings.securityToken.description}",
+            "type": "string"
+        },
+        "sourceConnection": {
+            "title": "${strings.projectSettings.sourceConnection.title}",
+            "description": "${strings.projectSettings.sourceConnection.description}",
+            "type": "object"
+        },
+        "folderPath": {
+            "title": "Folder path",
+            "description": "Subfolder path to your files",
+            "type": "string"
+        },
+        "apiUriBase": {
+            "title": "Form recognizer service URI",
+            "description": "Form recognizer service URI",
+            "type": "string",
+            "format": "uri"
+        },
+        "apiKey": {
+            "title": "API key",
+            "description": "API key",
+            "type": "string"
+        },
+        "description": {
+            "title": "${strings.common.description}",
+            "type": "string"
+        }
+    },
+    "required": [
+        "name",
+        "sourceConnection",
+        "apiUriBase"
+    ]
+}

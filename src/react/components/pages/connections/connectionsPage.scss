@@ -1,0 +1,17 @@
+.app-connections-page {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+    height: 0;
+
+    &-list {
+        flex-basis: 20vw;
+        min-width: 250px;
+        max-width: 300px;
+    }
+
+    &-detail {
+        flex-grow: 1;
+        overflow: auto;
+    }
+}

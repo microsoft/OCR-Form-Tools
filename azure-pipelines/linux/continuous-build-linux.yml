@@ -1,0 +1,43 @@
+# Node.js with React
+# Build a Node.js project that uses React.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+steps:
+- bash: |
+    set -e
+
+    sudo apt-get update
+    sudo apt-get install -y libxkbfile-dev pkg-config libsecret-1-dev libxss1 libgconf-2-4 dbus xvfb libgtk-3-0
+    sudo cp azure-pipelines/linux/xvfb.init /etc/init.d/xvfb
+    sudo chmod +x /etc/init.d/xvfb
+    sudo update-rc.d xvfb defaults
+    sudo service xvfb start
+  displayName: 'Install dependencies'
+
+- task: NodeTool@0
+  inputs:
+    versionSpec: '10.x'
+  displayName: 'Install Node.js'
+
+- bash: |
+    set -e
+
+    export DISPLAY=:99.0
+
+    npm ci  # do a clean install
+    npm run compile
+    npm run test:coverage # run tests and coverage
+  displayName: 'Run tests and coverage'
+
+- bash: |
+    set -e
+
+    token=$(CODECOV_TOKEN)
+    if [[ -z "${token}" ]]; then
+      echo "Need to set CODECOV_TOKEN"
+      exit 1
+    fi
+
+    # https://docs.codecov.io/docs/about-the-codecov-bash-uploader
+    bash <(curl -s https://codecov.io/bash) -t ${token}
+  displayName: 'Upload coverage report'
