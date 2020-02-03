@@ -1,0 +1,13 @@
+FROM node:10 AS build
+WORKDIR /usr/src/app
+ENV PATH /usr/src/app/node_modules/.bin:$PATH
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+FROM nginx:1.16.0-alpine
+WORKDIR /usr/src/app
+COPY --from=build /usr/src/app/run.sh .
+COPY --from=build /usr/src/app/build /usr/share/nginx/html
+EXPOSE 80
+ENTRYPOINT [ "./run.sh" ]

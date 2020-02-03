@@ -1,0 +1,13 @@
+@import '../../../assets/sass/theme.scss';
+
+.help-menu-button {
+    padding: 6px 10px;
+    color: #ccc;
+    display: inline-block;
+
+    &:hover {
+        color: #fff;
+        background-color: $lighter-2;
+        cursor: pointer;
+    }
+}

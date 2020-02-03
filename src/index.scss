@@ -1,0 +1,74 @@
+@import './assets/sass/theme.scss';
+
+body {
+    user-select: none;
+}
+
+#root {
+    overflow: hidden;
+}
+
+input[type=file] {
+    display: none;
+}
+
+/* Let's get this party started */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px $darker-3;
+    background-color: $lighter-1;
+    border-radius: 10px;
+    border-radius: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    border-radius: 10px;
+	background: $lighter-4;
+    box-shadow:  0 0 6px $darker-3;
+}
+::-webkit-scrollbar-thumb:window-inactive {
+	background: $lighter-4;
+}
+
+.form-group, .object-wrapper {
+    margin-bottom: 1rem;
+
+    .field-description {
+        margin-bottom: 0.25rem;
+    }
+
+    &.is-invalid {
+        .invalid-feedback {
+            display: block;
+        }
+
+        .form-control {
+            border: solid 1px #ee5f5b;
+        }
+    }
+
+    &.is-valid {
+        .valid-feedback {
+            display: block;
+        }
+
+        .form-control {
+            border: solid 1px #62c462;
+        }
+    }
+
+    .rc-checkbox {
+        margin-left: 0.5em;
+    }
+
+    .slider-value {
+        font-weight: 500;
+        font-size: 90%;
+    }
+}

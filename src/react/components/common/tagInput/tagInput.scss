@@ -1,0 +1,195 @@
+@import "../../../../index.scss";
+
+$tagInputWidth: 250px;
+
+.tag {
+    &-input {
+        user-select: none;
+        background: $lighter-1;
+        min-width: $tagInputWidth;
+
+        &-text-input-row {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            margin: 2px;
+            background: $darker-2;
+            border: solid 1px $lighter-2;
+            min-height: 2em;
+            padding: 0.25em 0.5em;
+            font-size: 90%;
+
+            input {
+                color: #fff;
+                flex-grow: 1;
+                background: none;
+                border: none;
+
+                &:focus {
+                    outline: none;
+                }
+            }
+
+            input::placeholder {
+                color: #ccc;
+            }
+
+            .tag-input-input-enter {
+                color: #ccc;
+            }
+        }
+
+        &-header {
+            display: flex;
+            flex-direction: row;
+            text-shadow: none;
+        }
+
+        &-title {
+            flex: 1;
+        }
+    }
+
+    &-item-block {
+        margin: 2px 0;
+    }
+
+    &-item {
+        display: flex;
+        flex-direction: row;
+
+        &-selected {
+            .tag-content {
+                color: white;
+                background: $darker-10 !important;
+            }
+        }
+
+        &-applied {
+            .tag-content {
+                color: #fff;
+                font-weight: 600;
+                background: $darker-10 !important;
+            }
+        }
+
+        &-label {
+            display: flex;
+            flex-direction: row;
+            margin-bottom: 5px;
+            padding-left: 3px;
+            font-size: 0.95em;
+        }
+    }
+
+    &-content {
+        flex: 1;
+        background: $darker-15;
+    }
+
+    &-content:hover {
+        background: $darker-8;
+    }
+
+    &-name {
+        &-body {
+            display: inline-flex;
+            flex-grow: 1;
+            align-items: center;
+        }
+
+        &-editor {
+            background: transparent;
+            border: none;
+            color: #fff;
+
+            &:focus {
+                outline: none;
+            }
+        }
+
+        &-container {
+            display: flex;
+            flex-direction: row;
+            min-height: 1.8em;
+            align-items: center;
+        }
+
+        &-text {
+            max-width: 195px;
+            display: inline-block;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            align-items: center;
+            padding: 0px 0px 3px 0px; 
+        }
+    }
+
+    &-index {
+        display: inline-flex;
+        padding: 0 5px;
+        font-weight: 600;
+        align-items: center;
+    }
+
+    &-item:hover {
+        color: #fff;
+        background: $lighter-4;
+        cursor: pointer;
+    }
+
+    &-item-label:hover {
+        color: #fff;
+        background: $lighter-4;
+        cursor: pointer;
+    }
+
+    &-color-edit:hover {
+        background: $darker-1;
+        cursor: pointer;
+    }
+
+    &-color {
+        width: 12px;
+    }
+
+    &-lock-icon {
+        font-size: 90%;
+    }
+
+    &-input {
+        &-color-picker {
+            position: absolute;
+            z-index: 1;
+        }
+
+        &-toolbar {
+            display: flex;
+            flex-direction: row;
+            &-item {
+                color: #ccc;
+                padding: 1px;
+            }
+            &-item:hover {
+                color: white;
+                cursor: pointer;
+            }
+        }
+    }
+}
+
+div.github-picker > span > div {
+    margin: 2px;
+}
+
+div.circle-picker-container {
+    background: #252526;
+}
+
+.tag-index-span {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    text-align: center;
+    line-height: 16px;
+}
