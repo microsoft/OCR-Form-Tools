@@ -154,13 +154,10 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                             </span>
                     }
                 </div>
-                {/* <div className="tag-lock-icon">
-                    {this.props.isLocked &&
-                        <i className="fas fa-lock" />
-                    }
-                </div> */}
                 <div className={"tag-index"}>
-                    {(displayIndex !== null) && <span className="tag-index-span border border-white rounded-sm ">{displayIndex}</span>}
+                    {(displayIndex !== null) &&
+                        <span className="tag-index-span border border-white rounded-sm ">{displayIndex}</span>
+                    }
                 </div>
             </div>
         );

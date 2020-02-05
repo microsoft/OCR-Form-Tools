@@ -27,7 +27,7 @@ export class ImageAsset extends React.Component<IAssetPreviewProps, IImageAssetS
     public async componentDidMount() {
         if (this.props.asset != null) {
             const canvas = await loadImageToCanvas(this.props.asset.path);
-            this.setState({ 
+            this.setState({
                 imageUri: canvas.toDataURL(constants.convertedImageFormat, constants.convertedThumbnailQuality),
             });
         }
@@ -40,7 +40,7 @@ export class ImageAsset extends React.Component<IAssetPreviewProps, IImageAssetS
                 alt={this.props.asset.name}
                 onLoad={this.onLoad}
                 onError={(e) => {
-                    this.props.onError(e)
+                    this.props.onError(e);
                 }}
                 crossOrigin="anonymous" />);
     }

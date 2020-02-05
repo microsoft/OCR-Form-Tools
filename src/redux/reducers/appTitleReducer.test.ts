@@ -8,8 +8,8 @@ import { anyOtherAction } from "../actions/actionCreators";
 describe("AppTitle Reducer", () => {
     let state: string;
 
-    beforeEach( () => {
-        state = "Welcome"
+    beforeEach(() => {
+        state = "Welcome";
     });
 
     it("SetTitle discard previous state and return a title", () => {

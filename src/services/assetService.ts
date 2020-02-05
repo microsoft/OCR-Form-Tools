@@ -51,7 +51,7 @@ export class AssetService {
         fileName = fileName || pathParts[pathParts.length - 1];
         const fileNameParts = fileName.split(".");
 
-        // eslint-disable-next-line 
+        // eslint-disable-next-line
         const extensionParts = fileNameParts[fileNameParts.length - 1].split(/[\?#]/);
         const assetFormat = extensionParts[0];
 
@@ -129,11 +129,11 @@ export class AssetService {
      */
     public async getAssets(): Promise<IAsset[]> {
         const project = this.project;
-        let assets = await this.assetProvider.getAssets();
-        let returnedAssets = assets.map(asset => {
+        const assets = await this.assetProvider.getAssets();
+        const returnedAssets = assets.map((asset) => {
             asset.name = decodeURIComponent(asset.name);
             return asset;
-        }).filter(asset => this.isInExactFolderPath(asset.name, project.folderPath));
+        }).filter((asset) => this.isInExactFolderPath(asset.name, project.folderPath));
 
         return returnedAssets;
     }
@@ -197,7 +197,8 @@ export class AssetService {
                 const pageSet = new Set<number>();
                 for (const valueObj of label.value) {
                     if (pageSet.size !== 0 && !pageSet.has(valueObj.page)) {
-                        const reason = interpolate(strings.errors.sameLabelInDifferentPageError.message, { tagName: label.label });
+                        const reason = interpolate(
+                            strings.errors.sameLabelInDifferentPageError.message, { tagName: label.label });
                         toast.error(reason, { autoClose: false });
                         throw new Error("Invalid label file");
                     }
@@ -205,7 +206,8 @@ export class AssetService {
                     for (const box of valueObj.boundingBoxes) {
                         const hash = [valueObj.page, ...box].join();
                         if (labelHash.has(hash)) {
-                            const reason = interpolate(strings.errors.duplicateBoxInLabelFile.message, { page: valueObj.page });
+                            const reason = interpolate(
+                                strings.errors.duplicateBoxInLabelFile.message, { page: valueObj.page });
                             toast.error(reason, { autoClose: false });
                             throw new Error("Invalid label file");
                         }
@@ -241,7 +243,7 @@ export class AssetService {
     public async deleteTag(tagName: string): Promise<IAssetMetadata[]> {
         const transformer = (tagNames) => tagNames.filter((t) => t !== tagName);
         const labelTransformer = (labelData: ILabelData) => {
-            labelData.labels = labelData.labels.filter(label => label.label !== tagName);
+            labelData.labels = labelData.labels.filter((label) => label.label !== tagName);
             return labelData;
         };
         return await this.getUpdatedAssets(tagName, transformer, labelTransformer);
@@ -254,7 +256,7 @@ export class AssetService {
     public async renameTag(tagName: string, newTagName: string): Promise<IAssetMetadata[]> {
         const transformer = (tags) => tags.map((t) => (t === tagName) ? newTagName : t);
         const labelTransformer = (labelData: ILabelData) => {
-            var field = labelData.labels.find(label => label.label === tagName);
+            const field = labelData.labels.find((label) => label.label === tagName);
             if (field) {
                 field.label = newTagName;
             }
@@ -268,7 +270,10 @@ export class AssetService {
      * @param tagName Name of tag to update within project
      * @param transformer Function that accepts array of tags from a region and returns a modified array of tags
      */
-    private async getUpdatedAssets(tagName: string, transformer: (tags: string[]) => string[], labelTransformer: (label: ILabelData) => ILabelData)
+    private async getUpdatedAssets(
+        tagName: string,
+        transformer: (tags: string[]) => string[],
+        labelTransformer: (label: ILabelData) => ILabelData)
         : Promise<IAssetMetadata[]> {
         // Loop over assets and update if necessary
         const updates = await _.values(this.project.assets).mapAsync(async (asset) => {
@@ -303,7 +308,7 @@ export class AssetService {
         }
 
         if (assetMetadata.labelData && assetMetadata.labelData.labels) {
-            let field = assetMetadata.labelData.labels.find(field => field.label === tagName);
+            const field = assetMetadata.labelData.labels.find((field) => field.label === tagName);
             if (field) {
                 foundTag = true;
                 assetMetadata.labelData = labelTransformer(assetMetadata.labelData);
@@ -312,7 +317,8 @@ export class AssetService {
 
         if (foundTag) {
             assetMetadata.regions = assetMetadata.regions.filter((region) => region.tags.length > 0);
-            assetMetadata.asset.state = _.get(assetMetadata, 'labelData.labels.length') ? AssetState.Tagged : AssetState.Visited;
+            assetMetadata.asset.state = _.get(assetMetadata, "labelData.labels.length")
+                ? AssetState.Tagged : AssetState.Visited;
             return true;
         }
 
@@ -324,7 +330,7 @@ export class AssetService {
             return assetName.lastIndexOf("/") === -1;
         }
 
-        let startsWithFolderPath = assetName.indexOf(`${normalizedPath}/`) === 0;
+        const startsWithFolderPath = assetName.indexOf(`${normalizedPath}/`) === 0;
         return startsWithFolderPath && assetName.lastIndexOf("/") === normalizedPath.length;
     }
 }

@@ -86,7 +86,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
     private inputRef: RefObject<HTMLInputElement>;
 
-
     constructor(props) {
         super(props);
         this.inputRef = React.createRef();
@@ -136,8 +135,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                                 className="tag-input-box"
                                 type="text"
                                 onKeyDown={this.onAddTagKeyDown}
-                                //Add mouse event
-                                onBlur={this.onAddTagWithBlur} 
+                                // Add mouse event
+                                onBlur={this.onAddTagWithBlur}
                                 placeholder="Add new tag"
                                 autoFocus={true}
                                 ref={this.inputRef}
@@ -172,6 +171,12 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             this.setState({
                 selectedTag: null,
             });
+        }
+    }
+
+    public triggerNewTagBlur() {
+        if (this.inputRef.current) {
+            this.inputRef.current.blur();
         }
     }
 
@@ -240,8 +245,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         try {
             this.validateTagLength(tag);
             this.validateTagUniqness(tag, this.state.tags);
-        }
-        catch (error) {
+        } catch (error) {
             toast.warn(error.toString());
             return;
         }
@@ -261,8 +265,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             const tagsWithoutOldTag = this.state.tags.filter((elem) => !this.isNameEqual(elem, tag));
             this.validateTagLength(newTag);
             this.validateTagUniqness(newTag, tagsWithoutOldTag);
-        }
-        catch (error) {
+        } catch (error) {
             toast.warn(error.toString());
             return;
         }
@@ -396,7 +399,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             {
                 tag,
                 index: tags.findIndex((t) => this.isNameEqual(t, tag)),
-                isLocked: this.props.lockedTags && this.props.lockedTags.findIndex((str) => this.isNameEqualTo(tag, str)) > -1,
+                isLocked: this.props.lockedTags
+                    && this.props.lockedTags.findIndex((str) => this.isNameEqualTo(tag, str)) > -1,
                 isBeingEdited: this.state.editingTag && this.isNameEqual(this.state.editingTag, tag),
                 isSelected: this.state.selectedTag && this.isNameEqual(this.state.selectedTag, tag),
                 appliedToSelectedRegions: selectedRegionTagSet.has(tag.name),
@@ -472,7 +476,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             });
         }
     }
-    
+
     private onAddTagKeyDown = (event) => {
         // Add handle mouse event functionality
         if (event.key === "Enter") {
@@ -487,20 +491,14 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         }
     }
 
-    private onAddTagWithBlur = (event) =>{
-        if(event.target.value) {
+    private onAddTagWithBlur = (event: any) => {
+        if (event.target.value) {
             this.creatTagInput(event.target.value.trim());
             event.target.value = "";
         }
     }
 
-    public triggerNewTagBlur = () => {
-        if(this.inputRef.current) {
-            this.inputRef.current.blur();
-        }
-    }
-
-    private creatTagInput = (value) =>{
+    private creatTagInput = (value: any) => {
         const newTag: ITag = {
                 name: value,
                 color: this.getNextColor(),

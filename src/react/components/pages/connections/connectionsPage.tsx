@@ -147,8 +147,7 @@ export default class ConnectionPage extends React.Component<IConnectionPageProps
             toast.success(interpolate(strings.connections.messages.saveSuccess, { connection }));
 
             this.props.history.push("/connections");
-        }
-        catch (error) {
+        } catch (error) {
             alert(error);
         }
     }
