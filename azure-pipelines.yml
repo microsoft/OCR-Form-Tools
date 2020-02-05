@@ -17,5 +17,6 @@ steps:
 
 - script: |
     npm install
+    npm run tslint
     npm run build
   displayName: 'npm install and build'

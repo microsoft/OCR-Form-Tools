@@ -4,7 +4,7 @@
 import React, { SyntheticEvent } from "react";
 import "./condensedList.scss";
 import { Link } from "react-router-dom";
-import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
+import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
 
 /**
  * Properties for Condensed List Component

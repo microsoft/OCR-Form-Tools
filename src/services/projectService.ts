@@ -13,6 +13,8 @@ import { decryptProject, encryptProject } from "../common/utils";
 import packageJson from "../../package.json";
 import { strings, interpolate } from "../common/strings";
 import { toast } from "react-toastify";
+
+// tslint:disable-next-line:no-var-requires
 const tagColors = require("../react/components/common/tagColors.json");
 
 /**
@@ -165,14 +167,16 @@ export default class ProjectService implements IProjectService {
             }
             const tagNameArray = Array.from(tagNameSet);
             if (tagNameArray.containsDuplicates((name) => name)) {
-                const reason = interpolate(strings.errors.duplicateFieldKeyInLabelsFile.message, { labelFileName: strings.projectService.existingLabelFiles });
+                const reason = interpolate(
+                    strings.errors.duplicateFieldKeyInLabelsFile.message,
+                    { labelFileName: strings.projectService.existingLabelFiles });
                 toast.error(reason, { autoClose: false });
                 throw new Error("Invalid label file");
             }
             tagNameArray.forEach((name, index) => {
                 tags.push({
                     name,
-                    color: tagColors[index]
+                    color: tagColors[index],
                 });
             });
             project.tags = tags;

@@ -6,14 +6,14 @@ import { ITag } from "../../../../models/applicationState";
 import "./predictResult.scss";
 
 export interface IPredictResultProps {
-    predictions: { [key: string]: any },
-    analyzeResult: {},
-    page: number,
-    tags: ITag[],
-    downloadResultLabel: string,
-    onPredictionClick?: Function,
-    onPredictionMouseEnter?: Function,
-    onPredictionMouseLeave?: Function,
+    predictions: { [key: string]: any };
+    analyzeResult: {};
+    page: number;
+    tags: ITag[];
+    downloadResultLabel: string;
+    onPredictionClick?: (item: any) => void;
+    onPredictionMouseEnter?: (item: any) => void;
+    onPredictionMouseLeave?: (item: any) => void;
 }
 
 export interface IPredictResultState { }
@@ -100,12 +100,12 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
     private triggerDownload = (): void => {
         const fileURL = window.URL.createObjectURL(
             new Blob([JSON.stringify(this.props.analyzeResult)]));
-        const fileLink = document.createElement('a');
+        const fileLink = document.createElement("a");
         const fileBaseName = this.props.downloadResultLabel.split(".")[0];
         const downloadFileName = "Result-" + fileBaseName + ".json";
 
         fileLink.href = fileURL;
-        fileLink.setAttribute('download', downloadFileName);
+        fileLink.setAttribute("download", downloadFileName);
         document.body.appendChild(fileLink);
         fileLink.click();
     }
@@ -114,19 +114,19 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         return (100 * x).toFixed(1) + "%";
     }
 
-    private onPredictionClick = (prediction) => {
+    private onPredictionClick = (prediction: any) => {
         if (this.props.onPredictionClick) {
             this.props.onPredictionClick(prediction);
         }
     }
 
-    private onPredictionMouseEnter = (prediction) => {
+    private onPredictionMouseEnter = (prediction: any) => {
         if (this.props.onPredictionMouseEnter) {
             this.props.onPredictionMouseEnter(prediction);
         }
     }
 
-    private onPredictionMouseLeave = (prediction) => {
+    private onPredictionMouseLeave = (prediction: any) => {
         if (this.props.onPredictionMouseLeave) {
             this.props.onPredictionMouseLeave(prediction);
         }

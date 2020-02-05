@@ -27,10 +27,14 @@ declare global {
          * Checks for duplicates in an array using a key selector function for each item.
          * @param this The array of items to process
          * @param keySelectorFn The selector function that returns the appropriate key for each item in the array
-         * @param keyNormalizerFn An optional normalization function to apply to each item's key before checking for uniqueness.
-         *                        If none is provided, the default normalization function will be used (trim + lower case).
+         * @param keyNormalizerFn An optional normalization function to apply to each item's key before checking
+         *                        for uniqueness. If none is provided, the default normalization function will be
+         *                        used (trim + lower case).
          */
-        containsDuplicates<T>(this: T[], keySelectorFn: (t: T) => string, keyNormalizerFn?: (s: string) => string): boolean;
+        containsDuplicates<T>(
+            this: T[],
+            keySelectorFn: (t: T) => string,
+            keyNormalizerFn?: (s: string) => string): boolean;
     }
 
     // tslint:disable-next-line:interface-name

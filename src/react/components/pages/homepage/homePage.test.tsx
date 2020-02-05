@@ -169,7 +169,8 @@ describe("Homepage Component", () => {
                 url: `https://localhost:3000/`,
             },
             appTitleActions: {
-                setTitle(title: string) {}
+                // tslint:disable-next-line:no-empty
+                setTitle(title: string) {},
             },
         };
     }

@@ -32,8 +32,8 @@ import { OCRService } from "../../../../services/ocrService";
 import { throttle } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
-import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
-import { Label } from 'office-ui-fabric-react/lib/Label';
+import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
+import { Label } from "office-ui-fabric-react/lib/Label";
 
 /**
  * Properties for Editor Page
@@ -149,7 +149,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     public async componentDidUpdate(prevProps: Readonly<IEditorPageProps>) {
-        
         if (this.props.project && this.state.assets.length === 0) {
             await this.loadProjectAssets();
         }
@@ -181,15 +180,16 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         return (
             <div className="editor-page">
-                {[...Array(10).keys()].map((index) =>
-                    (<KeyboardBinding
-                        displayName={strings.editorPage.tags.hotKey.apply}
-                        key={index}
-                        keyEventType={KeyEventType.KeyDown}
-                        accelerators={[`${index}`]}
-                        icon={"fa-tag"}
-                        handler={this.handleTagHotKey} />)
-                )}
+                {
+                    [...Array(10).keys()].map((index) =>
+                        (<KeyboardBinding
+                            displayName={strings.editorPage.tags.hotKey.apply}
+                            key={index}
+                            keyEventType={KeyEventType.KeyDown}
+                            accelerators={[`${index}`]}
+                            icon={"fa-tag"}
+                            handler={this.handleTagHotKey} />))
+                }
                 <SplitPane split="vertical"
                     defaultSize={this.state.thumbnailSize.width}
                     minSize={175}
@@ -295,13 +295,14 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         );
     }
 
-    //call function from child
+    // call function from child
     private onPageContainerClick = () => {
         // workaround: tagInput will not lost focus with olmap,
         // so we fire the blur event manually here
         this.tagInputRef.current.triggerNewTagBlur();
     }
 
+    // tslint:disable-next-line:no-empty
     private onPageClick = () => {
     }
 
@@ -568,12 +569,12 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         this.loadingProjectAssets = true;
 
-        const rootAssets = _(await this.props.actions.loadAssets(this.props.project))
+        const rootAssets: IAsset[] = _(await this.props.actions.loadAssets(this.props.project))
             .uniqBy((asset) => asset.id)
             .value();
 
         if (this.state.assets.length === rootAssets.length
-            && this.state.assets.map(asset => asset.id).join(",") === rootAssets.map(asset => asset.id).join(",")) {
+            && this.state.assets.map((asset) => asset.id).join(",") === rootAssets.map((asset) => asset.id).join(",")) {
             this.loadingProjectAssets = false;
             return;
         }

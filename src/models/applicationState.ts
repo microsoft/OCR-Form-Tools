@@ -169,7 +169,6 @@ export interface IConnection {
     providerOptions: IProviderOptions | ISecureString;
 }
 
-
 /**
  * @name - Asset
  * @description - Defines an asset within a project

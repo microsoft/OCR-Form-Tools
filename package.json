@@ -49,7 +49,8 @@
         "build": "react-scripts build",
         "react-start": "react-scripts start",
         "test": "react-scripts test --env=jsdom --silent",
-        "eject": "react-scripts eject"
+        "eject": "react-scripts eject",
+        "tslint": "./node_modules/.bin/tslint 'src/**/*.ts*'"
     },
     "eslintConfig": {
         "extends": "react-app"
