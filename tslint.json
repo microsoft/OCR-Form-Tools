@@ -7,15 +7,12 @@
     "rules": {
         "object-literal-sort-keys": false,
         "no-console": false,
+        "no-empty-interface": false,
         "no-shadowed-variable": false,
         "ordered-imports": false,
         "no-string-literal": false,
         "no-bitwise": false,
-        "function-constructor": false,
-        "max-line-length": [
-            true,
-            160
-        ]
+        "function-constructor": false
     },
     "rulesDirectory": []
 }

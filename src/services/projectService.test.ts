@@ -5,7 +5,7 @@ import _ from "lodash";
 import ProjectService, { IProjectService } from "./projectService";
 import MockFactory from "../common/mockFactory";
 import { StorageProviderFactory } from "../providers/storage/storageProviderFactory";
-import { IProject, ISecurityToken, AssetState, } from "../models/applicationState";
+import { IProject, ISecurityToken, AssetState } from "../models/applicationState";
 import { constants } from "../common/constants";
 import { generateKey } from "../common/crypto";
 import { encryptProject, decryptProject } from "../common/utils";

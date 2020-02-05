@@ -170,7 +170,7 @@ export const spanish: IAppStrings = {
             moveDown: "Mover etiqueta hacia abajo",
             moveUp: "Mover etiqueta hacia arriba",
             delete: "Borrar etiqueta",
-            vertiline: "Linea vertical"
+            vertiline: "Linea vertical",
         },
     },
     connections: {

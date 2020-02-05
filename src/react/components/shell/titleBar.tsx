@@ -3,7 +3,7 @@
 
 import React from "react";
 import { connect } from "react-redux";
-import { IApplicationState } from "../../../models/applicationState"
+import { IApplicationState } from "../../../models/applicationState";
 import { PlatformType } from "../../../common/hostProcess";
 import "./titleBar.scss";
 

@@ -4,14 +4,15 @@
 import React from "react";
 
 export interface ITrainRecordProps {
-    accuracies?: object,
-    averageAccuracy: number,
+    accuracies?: object;
+    averageAccuracy: number;
     modelInfo: {
-        modelId: string,
-        createdDateTime: string,
-    },
-};
-export interface ITrainRecordState {};
+        modelId: string;
+        createdDateTime: string;
+    };
+}
+
+export interface ITrainRecordState {}
 
 export default class TrainRecord extends React.Component<ITrainRecordProps, ITrainRecordState> {
     public render() {
@@ -29,11 +30,12 @@ export default class TrainRecord extends React.Component<ITrainRecordProps, ITra
                     </p>
                     <h6> Average accuracy </h6>
                     <p>
-                        {(this.props.averageAccuracy*100).toFixed(2) + '%'}
+                        {(this.props.averageAccuracy * 100).toFixed(2) + "%"}
                     </p>
                     <div className="accuracy-info">
                         <a href="https://aka.ms/form-recognizer/docs/train" target="_blank">
-                            <i className={`ms-Icon ms-Icon--Info`}/><span>Learn more about improving model accuracy.</span>
+                            <i className={"ms-Icon ms-Icon--Info"}/>
+                            <span>Learn more about improving model accuracy.</span>
                         </a>
                     </div>
                 </div>
