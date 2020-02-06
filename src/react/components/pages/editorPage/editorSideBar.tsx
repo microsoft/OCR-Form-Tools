@@ -119,9 +119,7 @@ export default class EditorSideBar extends React.Component<IEditorSideBarProps, 
                     <AssetPreview asset={asset} />
                 </div>
                 <div className="asset-item-metadata">
-                    <span className="asset-filename" title={asset.name}>
-                        {asset.name.slice(asset.name.lastIndexOf("/") + 1, asset.name.length)}
-                    </span>
+                    <span className="asset-filename" title={asset.name}>{asset.name.slice(asset.name.lastIndexOf("/") + 1, asset.name.length)}</span>
                     {asset.size &&
                         <span>
                             {asset.size.width} x {asset.size.height}

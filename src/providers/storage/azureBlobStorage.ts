@@ -43,8 +43,7 @@ export class AzureBlobStorage implements IStorageProvider {
      * @throws - Error if container does not exist or not able to
      * connect to Azure Blob Storage
      */
-    // tslint:disable-next-line:no-empty
-    public async initialize(): Promise<void> {}
+    public async initialize(): Promise<void> { }
 
     /**
      * Reads text from specified blob
@@ -222,6 +221,10 @@ export class AzureBlobStorage implements IStorageProvider {
         return result;
     }
 
+    private isSupportedAssetType(assetType: AssetType) {
+        return assetType === AssetType.Image || assetType === AssetType.TIFF || assetType === AssetType.PDF;
+    }
+
     /**
      *
      * @param url - URL for Azure Blob
@@ -229,10 +232,6 @@ export class AzureBlobStorage implements IStorageProvider {
     public getFileName(url: string) {
         const pathParts = url.split("/");
         return pathParts[pathParts.length - 1].split("?")[0];
-    }
-
-    private isSupportedAssetType(assetType: AssetType) {
-        return assetType === AssetType.Image || assetType === AssetType.TIFF || assetType === AssetType.PDF;
     }
 
     /**

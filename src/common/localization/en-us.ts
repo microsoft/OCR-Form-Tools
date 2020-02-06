@@ -169,7 +169,7 @@ export const english: IAppStrings = {
             moveUp: "Move tag up",
             moveDown: "Move tag down",
             delete: "Delete tag",
-            vertiline: "Vertical line",
+            vertiline: "Vertical line"
         },
     },
     connections: {

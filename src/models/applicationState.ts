@@ -139,6 +139,8 @@ export interface IFileInfo {
 export interface ITag {
     name: string;
     color: string;
+    type: FieldType;
+    format: FieldFormat;
 }
 
 /**
@@ -168,6 +170,7 @@ export interface IConnection {
     providerType: string;
     providerOptions: IProviderOptions | ISecureString;
 }
+
 
 /**
  * @name - Asset
@@ -350,4 +353,34 @@ export interface ISecureString {
 export interface ISecurityToken {
     name: string;
     key: string;
+}
+
+export enum FieldType {
+    String = "string",
+    Number = "number",
+    Date = "date",
+    Time = "time",
+    Integer = "integer",
+}
+
+export enum FieldFormat {
+    NotSpecified = "not-specified",
+    Currency = "currency",
+    Decimal = "decimal",
+    DecimalCommaSeparated = "decimal-comma-seperated",
+    NoWhiteSpaces = "no-whitespaces",
+    Alphanumberic = "alphanumberic",
+    DMY = "dmy",
+    MDY = "mdy",
+    YMD = "ymd",
+}
+
+export interface IField {
+    fieldKey: string;
+    fieldType: FieldType;
+    fieldFormat: FieldFormat;
+}
+
+export interface IFieldInfo{
+    fields: IField[];
 }

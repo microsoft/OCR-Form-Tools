@@ -17,7 +17,7 @@ import RecentProjectItem from "./recentProjectItem";
 import { constants } from "../../../../common/constants";
 import {
     IApplicationState, IConnection, IProject,
-    ErrorCode, AppError, IAppSettings,
+    ErrorCode, AppError, IAppSettings
 } from "../../../../models/applicationState";
 import { StorageProviderFactory } from "../../../../providers/storage/storageProviderFactory";
 import { decryptProject } from "../../../../common/utils";

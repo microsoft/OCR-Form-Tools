@@ -100,8 +100,7 @@ describe("App Settings Page", () => {
                 url: `https://localhost:3000/settings`,
             },
             appTitleActions: {
-                // tslint:disable-next-line:no-empty
-                setTitle(title: string) {},
+                setTitle(title: string) {}
             },
         };
     }

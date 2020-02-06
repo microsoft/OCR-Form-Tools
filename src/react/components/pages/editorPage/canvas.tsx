@@ -25,8 +25,6 @@ import Polygon from "ol/geom/Polygon";
 import HtmlFileReader from "../../../../common/htmlFileReader";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
-import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
-import { Label } from "office-ui-fabric-react/lib/Label";
 
 // temp hack for enabling worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.js`;
@@ -181,8 +179,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 { this.state.ocrStatus !== OcrStatus.done &&
                     <div className="canvas-ocr-loading">
                         <div className="canvas-ocr-loading-spinner">
-                            <Label className="p-0" ></Label>
-                            <Spinner size={SpinnerSize.large} label="Running OCR..." ariaLive="assertive" labelPosition="right"/>
+                            <i className="fas fa-circle-notch fa-spin" />
+                            <span> {this.state.ocrStatus === OcrStatus.loadingFromAzureBlob ? "Loading OCR file" : "Running OCR"}...</span>
                         </div>
                     </div>
                 }
@@ -470,8 +468,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (this.props.hoveredLabel) {
             const label = this.props.hoveredLabel;
             const id = feature.get("id");
-            if (label.value.find((region) =>
-                id === this.createRegionIdFromBoundingBox(region.boundingBoxes[0], region.page))) {
+            if (label.value.find((region) => id === this.createRegionIdFromBoundingBox(region.boundingBoxes[0], region.page))) {
                 this.setFeatureProperty(feature, "highlighted", true);
             }
         } else if (feature.get("highlighted")) {
@@ -621,7 +618,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             imageHeight: tiffImage.height,
             numPages: tiffImages.length,
             currentPage: pageNumber,
-            tiffImages,
+            tiffImages: tiffImages,
         });
     }
 
@@ -669,8 +666,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private nextPage = async () => {
-        if ((this.state.pdfFile !== null || this.state.tiffImages.length !== 0)
-            && this.state.currentPage < this.state.numPages) {
+        if ((this.state.pdfFile !== null || this.state.tiffImages.length !== 0) && this.state.currentPage < this.state.numPages) {
             await this.goToPage(this.state.currentPage + 1);
         }
     }
@@ -906,8 +902,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private buildRegionOrders = () => {
         // Build order index here instead of building it during 'drawOcr' for two reasons.
-        // 1. Build order index for all pages at once. This allow us to support cross page
-        //    tagging if it's supported by FR service.
+        // 1. Build order index for all pages at once. This allow us to support cross page tagging if it's supported by FR service.
         // 2. Avoid rebuilding order index when users switch back and forth between pages.
         const ocrs = this.state.ocr;
         const ocrResults = (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.readResults));
@@ -921,8 +916,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     if (line.words) {
                         line.words.forEach((word) => {
                             if (this.shouldDisplayOcrWord(word.text)) {
-                                const feature = this.createBoundingBoxVectorFeature(
-                                    word.text, word.boundingBox, imageExtent, ocrExtent, ocr.page);
+                                const feature = this.createBoundingBoxVectorFeature(word.text, word.boundingBox, imageExtent, ocrExtent, ocr.page);
                                 this.regionOrders[ocr.page - 1][feature.getId()] = order++;
                             }
                         });
@@ -942,8 +936,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 if (line.words) {
                     line.words.forEach((word) => {
                         if (this.shouldDisplayOcrWord(word.text)) {
-                            features.push(this.createBoundingBoxVectorFeature(
-                                word.text, word.boundingBox, imageExtent, ocrExtent, ocr.page));
+                            features.push(this.createBoundingBoxVectorFeature(word.text, word.boundingBox, imageExtent, ocrExtent, ocr.page));
                         }
                     });
                 }
@@ -1000,7 +993,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private switchToTargetPage = async (targetPage: number) => {
         if (this.state.pdfFile !== null) {
             await this.loadPdfPage(this.state.currentAsset.asset.id, this.state.pdfFile, targetPage);
-        } else if (this.state.tiffImages.length !== 0) {
+        }
+        else if (this.state.tiffImages.length !== 0) {
             this.loadTiffPage(this.state.tiffImages, targetPage);
         }
     }
@@ -1010,8 +1004,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private shouldShowNextPageButton = () => {
-        return (this.state.pdfFile !== null || this.state.tiffImages.length !== 0)
-            && this.state.currentPage !== this.state.numPages;
+        return (this.state.pdfFile !== null || this.state.tiffImages.length !== 0) && this.state.currentPage !== this.state.numPages;
     }
 
     private shouldShowMultiPageIndicator = () => {

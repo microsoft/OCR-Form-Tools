@@ -52,7 +52,7 @@ export class TiffAsset extends React.Component<IAssetPreviewProps, ITiffAsset> {
     private loadTiffPage = (tiffImages, pageNumber) => {
         const tiffImage = tiffImages[pageNumber - 1];
         const canvas = renderTiffToCanvas(tiffImage);
-        this.setState({
+        this.setState({ 
             imageUri: canvas.toDataURL(constants.convertedImageFormat, constants.convertedThumbnailQuality),
         });
 }

@@ -5,12 +5,12 @@ import React from "react";
 import TrainRecord, { ITrainRecordProps } from "./trainRecord";
 
 export interface ITrainPanelProps {
-    currTrainRecord: ITrainRecordProps;
+    currTrainRecord: ITrainRecordProps,
     updateViewTypeCallback: (viewType: "tableView" | "chartView") => void;
     viewType: "chartView" | "tableView";
-}
+};
 
-export interface ITrainPanelState {}
+export interface ITrainPanelState {};
 
 export default class TrainPanel
     extends React.Component<ITrainPanelProps, ITrainPanelState> {
@@ -46,6 +46,6 @@ export default class TrainPanel
                 onClick={() => this.props.updateViewTypeCallback(vt)}>
                     <i className={"fas " + faClass}></i>
                 </button>
-        );
+        )
     }
 }

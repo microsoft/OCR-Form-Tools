@@ -147,7 +147,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 </div>
                 <div className="predict-sidebar bg-lighter-1">
                     <div className="condensed-list">
-                        <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
+                        <h6 className="condensed-list-header bg-darker-2 p-2">
                             <i className="ms-Icon ms-Icon--Insights" />
                             <span className="condensed-list-title">Predict</span>
                         </h6>
@@ -161,15 +161,15 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                         ref={this.fileInput}
                                         onChange={this.handleFileChange}
                                         disabled={browseFileDisabled} />
-                                    <input
-                                        type="text"
-                                        style = {{cursor: (browseFileDisabled ? "default" : "pointer")}}
-                                        onClick={this.handleDummyInputClick}
-                                        readOnly={true}
-                                        className="dummyInputFile"
+                                    <input 
+                                        type="text" 
+                                        style = {{cursor: (browseFileDisabled ? "default" : "pointer")}} 
+                                        onClick={this.handleDummyInputClick} 
+                                        readOnly={true} 
+                                        className="dummyInputFile" 
                                         value={this.state.fileLabel}/>
                                     <button
-                                        className={"btn32px " + (browseFileDisabled ? "input-disabled"
+                                        className={"btn32px " + (browseFileDisabled ? "input-disabled" 
                                         : "btn-green")}
                                         onClick={this.handleDummyInputClick}
                                         disabled={browseFileDisabled}
@@ -177,7 +177,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                         Browse
                                     </button>
                                     <button
-                                        className={"btn32px " + (predictDisabled ? "input-disabled"
+                                        className={"btn32px " + (predictDisabled ? "input-disabled" 
                                         : "btn-white")}
                                         onClick={this.handleClick}
                                         disabled={predictDisabled}>
@@ -364,10 +364,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     private async getPrediction(): Promise<any> {
         const modelID = _.get(this.props.project, "trainRecord.modelInfo.modelId");
         if (!modelID) {
-            throw new AppError(
-                ErrorCode.PredictWithoutTrainForbidden,
-                strings.errors.predictWithoutTrainForbidden.message,
-                strings.errors.predictWithoutTrainForbidden.title);
+            throw new AppError(ErrorCode.PredictWithoutTrainForbidden, strings.errors.predictWithoutTrainForbidden.message, strings.errors.predictWithoutTrainForbidden.title);
         }
         const endpointURL = url.resolve(
             this.props.project.apiUriBase,
@@ -376,8 +373,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const headers = { "Content-Type": this.state.file.type, "cache-control": "no-cache" };
         let response;
         try {
-            response = await ServiceHelper.postWithAutoRetry(
-                endpointURL, this.state.file, { headers }, this.props.project.apiKey as string);
+            response = await ServiceHelper.postWithAutoRetry(endpointURL, this.state.file, { headers }, this.props.project.apiKey as string);
         } catch (err) {
             ServiceHelper.handleServiceError(err);
         }
@@ -386,8 +382,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
         // Make the second REST API call and get the response.
         return this.poll(() =>
-            ServiceHelper.getWithAutoRetry(
-                operationLocation, { headers }, this.props.project.apiKey as string), 120000, 500);
+            ServiceHelper.getWithAutoRetry(operationLocation, { headers }, this.props.project.apiKey as string), 120000, 500);
     }
 
     private loadFile = (file: File) => {
@@ -524,7 +519,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         feature.setProperties({
             color: _.get(tag, "color", "#333333"),
             fieldName: text,
-            isHighlighted,
+            isHighlighted: isHighlighted,
         });
 
         return feature;
@@ -635,7 +630,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
     private setPredictedFieldHighlightStatus = (highlightedField: string) => {
         const features = this.imageMap.getAllFeatures();
-        for (const feature of features) {
+        for (let feature of features) {
             if (feature.get("fieldName").toLocaleLowerCase() === highlightedField.toLocaleLowerCase()) {
                 feature.set("isHighlighted", true);
             } else {

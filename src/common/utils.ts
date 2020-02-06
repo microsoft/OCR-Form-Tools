@@ -6,6 +6,7 @@ import { IProject, ISecurityToken, IProviderOptions, ISecureString } from "../mo
 import { encryptObject, decryptObject, encrypt, decrypt } from "./crypto";
 import UTIF from "utif";
 import HtmlFileReader from "./htmlFileReader";
+import { SASQueryParameters } from "@azure/storage-blob";
 
 /**
  * Generates a random integer in provided range
@@ -62,9 +63,9 @@ export function encodeFileURI(path: string, additionalEncodings?: boolean): stri
     // all other non encoded characters are implicitly supported with no reason to encoding them
     const matchString = /(#|\?)/g;
     const encodings = {
-        // eslint-disable-next-line
+        // eslint-disable-next-line 
         "\#": "%23",
-        // eslint-disable-next-line
+        // eslint-disable-next-line 
         "\?": "%3F",
     };
     const encodedURI = `file:${encodeURI(normalizeSlashes(path))}`;
@@ -200,7 +201,7 @@ export function delay(ms: number) {
 
 export function parseTiffData(tiffData: ArrayBuffer): any[] {
     const tiffImages = UTIF.decode(tiffData);
-    for (const tiffImage of tiffImages) {
+    for (let tiffImage of tiffImages) {
         UTIF.decodeImage(tiffData, tiffImage);
     }
 
@@ -292,4 +293,12 @@ export function renderRotatedImageToCanvas(image: HTMLImageElement, orientation:
     }
     ctx.drawImage(image, 0, 0, width, height);
     return canvas;
+}
+
+export function joinPath(seperator: string, ...paths: string[]) {
+    const leadingSeperator = (paths && paths[0] && paths[0][0] === seperator) ? seperator : "";
+    const joined = paths.join(seperator);
+    const parts = joined.split(seperator);
+    const normalized = parts.filter(p => p && p.trim() !== '').join(seperator);
+    return leadingSeperator + normalized;
 }

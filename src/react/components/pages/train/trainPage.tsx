@@ -123,9 +123,11 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                             <div className="m-3">
                                 <h4> Train a new model </h4>
                                 {!this.state.isTraining ? (
-                                    <button className="btn32px btn-green flex-center" onClick={this.handleTrainClick}>
-                                        <i className="ms-Icon ms-Icon--MachineLearning"></i>
-                                        <h6 className="d-inline ml-2 mb-0"> {strings.train.title} </h6>
+                                    <button className="btn32px btn-green" onClick={this.handleTrainClick}>
+                                        <span className="flex-center">
+                                            <i className="ms-Icon ms-Icon--MachineLearning"></i>
+                                            <h6 className="d-inline ml-2 mb-0"> {strings.train.title} </h6>
+                                        </span>
                                     </button>
                                 ) : (
                                     <div className="loading-container">
@@ -195,11 +197,11 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             await this.props.actions.saveProject(updatedProject);
 
             return trainStatusRes;
-        } catch (errorMessage) {
+        }
+        catch (errorMessage) {
             this.setState({
                 showTrainingFailedWarning: true,
-                trainingFailedMessage: (errorMessage !== undefined && errorMessage.message !== undefined
-                    ? errorMessage.message : errorMessage),
+                trainingFailedMessage: (errorMessage !== undefined && errorMessage.message !== undefined ? errorMessage.message : errorMessage),
             });
         }
     }
@@ -237,10 +239,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         const minimumTimeoutInMs = 300000;  // 5 minutes minimum waiting time  for each traingin process
         const extendedTimeoutInMs = timeoutPerFileInMs * Object.keys(this.props.project.assets || []).length;
         const res = this.poll(() => {
-            return ServiceHelper.getWithAutoRetry(
-                operationLocation,
-                { headers: { "cache-control": "no-cache" } },
-                this.props.project.apiKey as string);
+            return ServiceHelper.getWithAutoRetry(operationLocation, { headers: { "cache-control": "no-cache" } }, this.props.project.apiKey as string);
         }, Math.max(extendedTimeoutInMs, minimumTimeoutInMs), 1000);
 
         return res;
@@ -254,8 +253,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private getTrainMessage = (trainingResult): string => {
-        if (trainingResult !== undefined && trainingResult.modelInfo !== undefined
-            && trainingResult.modelInfo.status === "ready") {
+        if (trainingResult !== undefined && trainingResult.modelInfo !== undefined && trainingResult.modelInfo.status === "ready") {
             return "Trained successfully";
         }
         return "Training failed";
@@ -303,16 +301,16 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             ajax.then((response) => {
                 if (response.data.modelInfo && response.data.modelInfo.status === "ready") {
                     resolve(response.data);
-                } else if (response.data.modelInfo && response.data.modelInfo.status === "invalid") {
-                    const message = _.get(
-                        response,
-                        "data.trainResult.errors[0].message",
-                        "Sorry, we got errors while training the model.");
+                }
+                else if (response.data.modelInfo && response.data.modelInfo.status === "invalid") {
+                    const message = _.get(response, "data.trainResult.errors[0].message", "Sorry, we got errors while training the model.");
                     reject(message);
-                } else if (Number(new Date()) < endTime) {
+                }
+                else if (Number(new Date()) < endTime) {
                     // If the request isn't succeeded and the timeout hasn't elapsed, go again
                     setTimeout(checkSucceeded, interval, resolve, reject);
-                } else {
+                }
+                else {
                     // Didn't succeeded after too much time, reject
                     reject(new Error("Timed out, sorry, it seems the training process took too long."));
                 }

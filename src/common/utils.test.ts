@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import { randomIntInRange, createQueryString, encryptProject,
-    decryptProject, normalizeSlashes, encodeFileURI } from "./utils";
+    decryptProject, normalizeSlashes, encodeFileURI, joinPath } from "./utils";
 import MockFactory from "./mockFactory";
 
 describe("Helper functions", () => {
@@ -69,6 +69,19 @@ describe("Helper functions", () => {
                     "a=1&b=A%20string%20with%20a%20space&c=A%20string%20with%20a%20%23%20and%20a%20%26%20char&d=true",
                 );
         });
+        it( "joins path with seperator", () => {
+            expect(joinPath("/", "", "b", "c")).toEqual("b/c");
+            expect(joinPath("/", "a", "b", "c")).toEqual("a/b/c");
+            expect(joinPath("/", "/a", "b", "c")).toEqual("a/b/c");
+            expect(joinPath("/", "a", "b", "c/")).toEqual("a/b/c");
+            expect(joinPath("/", "a///", "b/", "c/")).toEqual("a/b/c");
+
+            expect(joinPath("\\", "", "b", "c")).toEqual("b\\c");
+            expect(joinPath("\\", "a", "b", "c")).toEqual("a\\b\\c");
+            expect(joinPath("\\", "\\a", "b", "c")).toEqual("\\a\\b\\c");
+            expect(joinPath("\\", "a", "b", "c\\")).toEqual("a\\b\\c");
+            expect(joinPath("\\", "a\\\\", "b\\", "c\\")).toEqual("a\\b\\c");
+        })
     });
 
     describe("Encryption Utils", () => {

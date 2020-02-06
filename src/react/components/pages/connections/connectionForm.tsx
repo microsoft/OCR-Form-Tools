@@ -98,14 +98,14 @@ export default class ConnectionForm extends React.Component<IConnectionFormProps
                 </h3>
                 <div className="m-3">
                     {isBrowser() &&
-                        <div className="alert alert-warning warning"
+                        <div className="alert alert-warning warning" 
                             role="alert">
                             <i className="ms-Icon ms-Icon--WarningSolid mr-1" aria-hidden="true"></i>
                             {strings.formatString(
                                 strings.connections.blobCorsWarning,
-                                <a
-                                    href="https://aka.ms/blob-cors"
-                                    target="_blank"
+                                <a 
+                                    href="https://aka.ms/blob-cors" 
+                                    target="_blank" 
                                     rel="noopener noreferrer">
                                     {strings.connections.azDocLinkText}
                                 </a>)
@@ -126,11 +126,11 @@ export default class ConnectionForm extends React.Component<IConnectionFormProps
                         onChange={this.onFormChange}
                         onSubmit={(form) => this.props.onSubmit(form.formData)}>
                         <div>
-                            <button
-                                className="btn32px btn-green mr-1"
+                            <button 
+                                className="btn32px btn-green mr-1" 
                                 type="submit">{strings.connections.save}
                             </button>
-                            <button
+                            <button 
                                 className="btn32px btn-secondary btn-cancel"
                                 type="button"
                                 onClick={this.onFormCancel}>{strings.common.cancel}
