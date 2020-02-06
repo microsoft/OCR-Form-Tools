@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 
 import React, { RefObject } from "react";
-import { Button } from "reactstrap";
 import MessageBox, { IMessageBoxProps } from "../messageBox/messageBox";
 
 /**
@@ -56,13 +55,14 @@ export default class Alert extends React.Component<IAlertProps, IAlertState> {
                 params={this.state.params}
                 show={this.props.show}
             >
-                <Button
+                <button
+                    className="btn32px btn-info pr-3 pl-3"
                     autoFocus={true}
                     color={this.props.closeButtonColor || "primary"}
                     onClick={this.onCloseClick}
                 >
                     {this.props.closeButtonText || "OK"}
-                </Button>
+                </button>
             </MessageBox>
         );
     }

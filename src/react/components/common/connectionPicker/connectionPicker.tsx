@@ -66,9 +66,11 @@ export class ConnectionPicker extends React.Component<IConnectionPickerProps, IC
                     }
                 </select>
                 <div className="input-group-append">
-                    <button className="btn btn-primary add-connection"
+                    <button className="btn32px btn-primary add-connection"
                         type="button"
-                        onClick={this.createConnection}>Add Connection</button>
+                        onClick={this.createConnection}>
+                    Add Connection
+                    </button>
                 </div>
             </div>
         );
