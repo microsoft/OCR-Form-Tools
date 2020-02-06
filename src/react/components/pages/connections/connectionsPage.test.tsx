@@ -314,8 +314,7 @@ function createProps(route: string): IConnectionPageProps {
         connections: [],
         actions: (connectionActions as any) as IConnectionActions,
         appTitleActions: {
-            // tslint:disable-next-line:no-empty
-            setTitle(title: string) {},
+            setTitle(title: string) {}
         },
     };
 }

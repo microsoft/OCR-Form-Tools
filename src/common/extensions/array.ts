@@ -70,10 +70,7 @@ export async function mapAsync<T, R>(
  * @param keyNormalizerFn An optional normalization function to apply to each item's key before checking for uniqueness.
  *                        If none is provided, the default normalization function will be used (trim + lower case)
  */
-export function containsDuplicates<T>(
-    this: T[],
-    keySelectorFn: (t: T) => string,
-    keyNormalizerFn?: (s: string) => string) {
+export function containsDuplicates<T>(this: T[], keySelectorFn: (t: T) => string, keyNormalizerFn?: (s: string) => string) {
     Guard.null(this);
     Guard.null(keySelectorFn);
     keyNormalizerFn = keyNormalizerFn || ((s: string) => s.trim().toLowerCase());

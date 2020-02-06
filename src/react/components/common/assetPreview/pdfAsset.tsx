@@ -76,7 +76,7 @@ export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState
 
             const renderTask = page.render(renderContext);
             renderTask.promise.then(() => {
-                this.setState({
+                this.setState({ 
                     imageUri: canvas.toDataURL(constants.convertedImageFormat, constants.convertedThumbnailQuality),
                 });
             });

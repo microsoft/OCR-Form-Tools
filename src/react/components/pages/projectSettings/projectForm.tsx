@@ -17,7 +17,6 @@ import { ProtectedInput } from "../../common/protectedInput/protectedInput";
 
 // tslint:disable-next-line:no-var-requires
 const newFormSchema = addLocValues(require("./newProjectForm.json"));
-// tslint:disable-next-line:no-var-requires
 const editFormSchema = addLocValues(require("./editProjectForm.json"));
 // tslint:disable-next-line:no-var-requires
 const uiSchema = addLocValues(require("./projectForm.ui.json"));
@@ -89,7 +88,7 @@ export default class ProjectForm extends React.Component<IProjectFormProps, IPro
             });
         }
         if (prevProps.action !== this.props.action) {
-            switch (this.props.action) {
+            switch(this.props.action) {
                 case ProjectSettingAction.Create:
                     this.setState({formSchema: newFormSchema});
                     break;

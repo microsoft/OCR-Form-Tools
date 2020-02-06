@@ -98,10 +98,7 @@ export default class ServiceHelper {
     private static isTransient = (err) => {
         if (err && err.response) {
             const response = err.response;
-            if (response.status === 429
-                && response.data
-                && response.data.error
-                && response.data.error.code === "1014") {
+            if (response.status === 429 && response.data && response.data.error && response.data.error.code === "1014") {
                 return false;
             }
             return [408, 429, 444, 500, 503, 504].includes(err.response.status);

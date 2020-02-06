@@ -32,8 +32,6 @@ import { OCRService } from "../../../../services/ocrService";
 import { throttle } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
-import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
-import { Label } from "office-ui-fabric-react/lib/Label";
 
 /**
  * Properties for Editor Page
@@ -149,6 +147,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     public async componentDidUpdate(prevProps: Readonly<IEditorPageProps>) {
+
         if (this.props.project && this.state.assets.length === 0) {
             await this.loadProjectAssets();
         }
@@ -180,16 +179,15 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         return (
             <div className="editor-page">
-                {
-                    [...Array(10).keys()].map((index) =>
-                        (<KeyboardBinding
-                            displayName={strings.editorPage.tags.hotKey.apply}
-                            key={index}
-                            keyEventType={KeyEventType.KeyDown}
-                            accelerators={[`${index}`]}
-                            icon={"fa-tag"}
-                            handler={this.handleTagHotKey} />))
-                }
+                {[...Array(10).keys()].map((index) =>
+                    (<KeyboardBinding
+                        displayName={strings.editorPage.tags.hotKey.apply}
+                        key={index}
+                        keyEventType={KeyEventType.KeyDown}
+                        accelerators={[`${index}`]}
+                        icon={"fa-tag"}
+                        handler={this.handleTagHotKey} />),
+                )}
                 <SplitPane split="vertical"
                     defaultSize={this.state.thumbnailSize.width}
                     minSize={175}
@@ -206,9 +204,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                 disabled={this.state.isRunningOCRs}
                             >
                                 {this.state.isRunningOCRs ?
-                                <div>
-                                    <Label className="p-0" ></Label>
-                                    <Spinner size={SpinnerSize.small} label="Running OCR" ariaLive="off" labelPosition="right"/>
+                                    <div>
+                                        <i className="fas fa-circle-notch is-spinning"></i>
+                                        <h6 className="d-inline ml-2">Running OCR</h6>
                                 </div> : "Run OCR on all files" }
                             </button>
                         </div>}
@@ -257,6 +255,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                 onTagDeleted={this.confirmTagDeleted}
                                 onLabelEnter={this.onLabelEnter}
                                 onLabelLeave={this.onLabelLeave}
+                                onTagChanged={this.onTagChanged}
                                 ref = {this.tagInputRef}
                             />
                         </div>
@@ -302,7 +301,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         this.tagInputRef.current.triggerNewTagBlur();
     }
 
-    // tslint:disable-next-line:no-empty
     private onPageClick = () => {
     }
 
@@ -345,17 +343,17 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     /**
      * Open confirm dialog for tag renaming
      */
-    private confirmTagRenamed = (tagName: string, newTagName: string): void => {
-        this.renameTagConfirm.current.open(tagName, newTagName);
+    private confirmTagRenamed = (tag: ITag, newTag: ITag): void => {
+        this.renameTagConfirm.current.open(tag, newTag);
     }
 
     /**
      * Renames tag in assets and project, and saves files
-     * @param tagName Name of tag to be renamed
-     * @param newTagName New name of tag
+     * @param tag Tag to be renamed
+     * @param newTag Tag with the new name
      */
-    private onTagRenamed = async (tagName: string, newTagName: string): Promise<void> => {
-        const assetUpdates = await this.props.actions.updateProjectTag(this.props.project, tagName, newTagName);
+    private onTagRenamed = async (tag: ITag, newTag: ITag): Promise<void> => {
+        const assetUpdates = await this.props.actions.updateProjectTag(this.props.project, tag, newTag);
         const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
 
         if (selectedAsset) {
@@ -517,7 +515,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             ...this.props.project,
             tags,
         };
-
         await this.props.actions.saveProject(project);
     }
 
@@ -569,7 +566,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         this.loadingProjectAssets = true;
 
-        const rootAssets: IAsset[] = _(await this.props.actions.loadAssets(this.props.project))
+        const rootAssets = _(await this.props.actions.loadAssets(this.props.project))
             .uniqBy((asset) => asset.id)
             .value();
 
@@ -682,5 +679,18 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     private onFocused = () => {
         this.loadProjectAssets();
+    }
+
+    private onTagChanged = async (oldTag: ITag, newTag: ITag) => {
+        const assetUpdates = await this.props.actions.updateProjectTag(this.props.project, oldTag, newTag);
+        const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
+
+        if (selectedAsset) {
+            if (selectedAsset) {
+                this.setState({
+                    selectedAsset,
+                });
+            }
+        }
     }
 }

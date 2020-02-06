@@ -118,7 +118,7 @@ export interface IAppStrings {
         training: string;
         pleaseWait: string;
         notTrainedYet: string;
-    };
+    }
     projectMetrics: {
         title: string;
         assetsSectionTitle: string
@@ -516,6 +516,6 @@ export function interpolate(template: string, params: any) {
     const names = Object.keys(params);
     const vals = Object["values"](params);
 
-    // eslint-disable-next-line
+    // eslint-disable-next-line 
     return new Function(...names, `return \`${template}\`;`)(...vals);
 }
