@@ -83,10 +83,15 @@ export class AppSettingsForm extends React.Component<IAppSettingsFormProps, IApp
                         formData={this.state.appSettings}
                         onSubmit={(form) => this.props.onSubmit(form.formData)}>
                         <div>
-                            <button type="submit" className="btn btn-success mr-1">{strings.appSettings.save}</button>
+                            <button
+                                type="submit" 
+                                className="btn32px btn-success mr-1">
+                                {strings.appSettings.save}
+                            </button>
                             <button type="button"
-                                className="btn btn-secondary btn-cancel"
-                                onClick={this.onFormCancel}>{strings.common.cancel}</button>
+                                className="btn32px btn-secondary btn-cancel"
+                                onClick={this.onFormCancel}>{strings.common.cancel}
+                            </button>
                         </div>
                     </Form>
                 </div>
