@@ -50,7 +50,7 @@ export default class App extends React.Component<IAppProps> {
 
         this.state = {
           currentProject: this.props.currentProject,
-        }
+        };
     }
 
     public componentDidCatch(error: Error) {

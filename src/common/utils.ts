@@ -63,9 +63,9 @@ export function encodeFileURI(path: string, additionalEncodings?: boolean): stri
     // all other non encoded characters are implicitly supported with no reason to encoding them
     const matchString = /(#|\?)/g;
     const encodings = {
-        // eslint-disable-next-line 
+        // eslint-disable-next-line
         "\#": "%23",
-        // eslint-disable-next-line 
+        // eslint-disable-next-line
         "\?": "%3F",
     };
     const encodedURI = `file:${encodeURI(normalizeSlashes(path))}`;
@@ -201,7 +201,7 @@ export function delay(ms: number) {
 
 export function parseTiffData(tiffData: ArrayBuffer): any[] {
     const tiffImages = UTIF.decode(tiffData);
-    for (let tiffImage of tiffImages) {
+    for (const tiffImage of tiffImages) {
         UTIF.decodeImage(tiffData, tiffImage);
     }
 

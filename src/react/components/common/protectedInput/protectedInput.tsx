@@ -67,13 +67,13 @@ export class ProtectedInput extends React.Component<IProtectedInputProps, IProte
                 <div className="input-group-append">
                     <button type="button"
                         title={showKey ? "Hide" : "Show"}
-                        className="btn btn-primary btn-visibility"
+                        className="btn32px btn-primary btn-visibility"
                         onClick={this.toggleKeyVisibility}>
                         <i className={showKey ? "ms-Icon ms-Icon--Hide3" : "ms-Icon ms-Icon--View"}></i>
                     </button>
                     <button type="button"
                         title="Copy"
-                        className="btn btn-primary btn-copy"
+                        className="btn32px btn-primary btn-copy"
                         onClick={this.copyKey}>
                         <i className="ms-Icon ms-Icon--Copy"></i>
                     </button>

@@ -23,7 +23,6 @@ import { KeyEventType } from "../react/components/common/keyboardManager/keyboar
 import { IKeyboardRegistrations } from "../react/components/common/keyboardManager/keyboardRegistrationManager";
 
 export default class MockFactory {
-    
     /**
      * Creates sample IAppError
      * @param errorCode The error code to map to the error
@@ -103,7 +102,7 @@ export default class MockFactory {
         return assets;
     }
 
-     /**
+    /**
      * Creates fake IAssetMetadata
      * @param asset Test asset
      */
@@ -604,6 +603,60 @@ export default class MockFactory {
         };
     }
 
+    public static mockElement(assetTestCache: Map<string, IAsset>) {
+        document.createElement = jest.fn((elementType) => {
+            switch (elementType) {
+                case "img":
+                    const mockImage = MockFactory.mockImage(assetTestCache);
+                    return mockImage();
+                case "canvas":
+                    const mockCanvas = MockFactory.mockCanvas();
+                    return mockCanvas();
+            }
+        });
+    }
+
+    public static mockImage(assetTestCache: Map<string, IAsset>) {
+        return jest.fn(() => {
+            const element: any = {
+                naturalWidth: 0,
+                naturalHeight: 0,
+                onload: jest.fn(),
+            };
+
+            setImmediate(() => {
+                const asset = assetTestCache.get(element.src);
+                if (asset) {
+                    element.naturalWidth = asset.size.width;
+                    element.naturalHeight = asset.size.height;
+                }
+
+                element.onload();
+            });
+
+            return element;
+        });
+    }
+
+    public static mockCanvas() {
+        return jest.fn(() => {
+            const canvas: any = {
+                width: 800,
+                height: 600,
+                getContext: jest.fn(() => {
+                    return {
+                        drawImage: jest.fn(),
+                    };
+                }),
+                toBlob: jest.fn((callback) => {
+                    callback(new Blob(["Binary image data"]));
+                }),
+            };
+
+            return canvas;
+        });
+    }
+
     private static pageProps(projectId: string, method: string) {
         return {
             project: null,
@@ -669,60 +722,6 @@ export default class MockFactory {
      */
     private static randomColor(): string {
         return "#" + (Math.random() * 0xFFFFFF << 0).toString(16);
-    }
-
-    public static mockElement(assetTestCache: Map<string, IAsset>) {
-        document.createElement = jest.fn((elementType) => {
-            switch (elementType) {
-                case "img":
-                    const mockImage = MockFactory.mockImage(assetTestCache);
-                    return mockImage();
-                case "canvas":
-                    const mockCanvas = MockFactory.mockCanvas();
-                    return mockCanvas();
-            }
-        });
-    }
-
-    public static mockImage(assetTestCache: Map<string, IAsset>) {
-        return jest.fn(() => {
-            const element: any = {
-                naturalWidth: 0,
-                naturalHeight: 0,
-                onload: jest.fn(),
-            };
-
-            setImmediate(() => {
-                const asset = assetTestCache.get(element.src);
-                if (asset) {
-                    element.naturalWidth = asset.size.width;
-                    element.naturalHeight = asset.size.height;
-                }
-
-                element.onload();
-            });
-
-            return element;
-        });
-    }
-
-    public static mockCanvas() {
-        return jest.fn(() => {
-            const canvas: any = {
-                width: 800,
-                height: 600,
-                getContext: jest.fn(() => {
-                    return {
-                        drawImage: jest.fn(),
-                    };
-                }),
-                toBlob: jest.fn((callback) => {
-                    callback(new Blob(["Binary image data"]));
-                }),
-            };
-
-            return canvas;
-        });
     }
 
     /**

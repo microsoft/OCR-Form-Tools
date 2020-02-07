@@ -189,10 +189,14 @@ export default class ProjectService implements IProjectService {
                 tags.push({
                     name,
                     color: tagColors[index],
+<<<<<<< HEAD
                     // use default type
                     type: FieldType.String,
                     format: FieldFormat.NotSpecified
                 } as ITag);
+=======
+                });
+>>>>>>> m_dummy
             });
             project.tags = tags;
         } catch (err) {

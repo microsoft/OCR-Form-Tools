@@ -7,6 +7,8 @@ import { strings } from "../../../../common/strings";
 import { ImageAsset } from "./imageAsset";
 import { PDFAsset } from "./pdfAsset";
 import { TiffAsset } from "./tiffAsset";
+import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
+import { Label } from "office-ui-fabric-react/lib/Label";
 
 export interface IGenericContentSource {
     width: number;
@@ -100,15 +102,15 @@ export class AssetPreview extends React.Component<IAssetPreviewProps, IAssetPrev
                     {!loaded &&
                         <div className="asset-loading">
                             <div className="asset-loading-spinner">
-                                <i className="fas fa-circle-notch fa-spin" />
+                                <Spinner size={SpinnerSize.small} />
                             </div>
                         </div>
                     }
                     {this.props.asset.isRunningOCR &&
                         <div className="asset-loading">
                             <div className="asset-loading-ocr-spinner">
-                                <i className="fas fa-circle-notch fa-spin" />
-                                <span> Running OCR...</span>
+                                <Label className="p-0" ></Label>
+                                <Spinner size={SpinnerSize.small} label="Running OCR..." ariaLive="off" labelPosition="right"/>
                             </div>
                         </div>
                     }
@@ -127,7 +129,7 @@ export class AssetPreview extends React.Component<IAssetPreviewProps, IAssetPrev
     }
 
     private renderAsset = () => {
-        const { asset, } = this.props;
+        const { asset } = this.props;
         const rootAsset = asset.parent || asset;
 
         switch (asset.type) {

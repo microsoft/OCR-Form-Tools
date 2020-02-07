@@ -4,6 +4,7 @@
 import React, { SyntheticEvent } from "react";
 import "./condensedList.scss";
 import { Link } from "react-router-dom";
+import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
 
 /**
  * Properties for Condensed List Component
@@ -51,7 +52,7 @@ export default class CondensedList extends React.Component<ICondensedListProps> 
                 <div className="condensed-list-body">
                     {(!items) &&
                         <div className="p-3 text-center">
-                            <i className="fas fa-circle-notch fa-spin" />
+                            <Spinner size={SpinnerSize.small} />
                         </div>
                     }
                     {(items && items.length === 0) &&

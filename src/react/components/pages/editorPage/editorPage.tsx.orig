@@ -149,6 +149,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     public async componentDidUpdate(prevProps: Readonly<IEditorPageProps>) {
+<<<<<<< HEAD
+
+=======
+>>>>>>> m_dummy
         if (this.props.project && this.state.assets.length === 0) {
             await this.loadProjectAssets();
         }
@@ -180,6 +184,17 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         return (
             <div className="editor-page">
+<<<<<<< HEAD
+                {[...Array(10).keys()].map((index) =>
+                    (<KeyboardBinding
+                        displayName={strings.editorPage.tags.hotKey.apply}
+                        key={index}
+                        keyEventType={KeyEventType.KeyDown}
+                        accelerators={[`${index}`]}
+                        icon={"fa-tag"}
+                        handler={this.handleTagHotKey} />),
+                )}
+=======
                 {
                     [...Array(10).keys()].map((index) =>
                         (<KeyboardBinding
@@ -190,6 +205,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                             icon={"fa-tag"}
                             handler={this.handleTagHotKey} />))
                 }
+>>>>>>> m_dummy
                 <SplitPane split="vertical"
                     defaultSize={this.state.thumbnailSize.width}
                     minSize={175}

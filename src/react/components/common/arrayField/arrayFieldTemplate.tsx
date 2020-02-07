@@ -10,7 +10,7 @@ export function ArrayFieldTemplate(props: ArrayFieldTemplateProps) {
         <div>
             {props.canAdd &&
                 <div className="array-field-toolbar my-3">
-                    <button type="button" className="btn btn-info" onClick={props.onAddClick}>
+                    <button type="button" className="btn32px btn-info flex-center" onClick={props.onAddClick}>
                         <i className="ms-Icon ms-Icon--AddTo"></i>
                         <span className="ml-1">Add {props.schema.title}</span>
                     </button>
@@ -21,9 +21,10 @@ export function ArrayFieldTemplate(props: ArrayFieldTemplateProps) {
                     {item.children}
                     {item.hasRemove &&
                         <div className="array-item-toolbar">
+                            <label className="labelClose">Delete</label>
                             <button
                                 type="button"
-                                className="btn btn-sm btn-danger"
+                                className="btn32px btn-danger flex-center"
                                 onClick={item.onDropIndexClick(item.index)}>
                                 <i className="ms-Icon ms-Icon--Delete"></i>
                                 <span className="ml-1">{strings.common.delete}</span>

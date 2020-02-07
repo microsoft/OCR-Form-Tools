@@ -121,7 +121,13 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
                                 <i className={`tag-input-toolbar-icon fas ${itemConfig.icon}`}/>
                             </div>);
                 } else if (itemConfig.category === Categories.Separator) {
+<<<<<<< HEAD
+                    return <div
+                                key = {itemConfig.displayName}
+                                className="tag-tool-bar-vertical-line"></div>
+=======
                     return (<div className="tag-tool-bar-vertical-line"></div>);
+>>>>>>> m_dummy
                 } else if (itemConfig.category === Categories.Modifier) {
                     return (<div
                                 key={itemConfig.displayName}

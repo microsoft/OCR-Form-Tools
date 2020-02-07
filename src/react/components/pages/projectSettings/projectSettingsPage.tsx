@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { Redirect } from "react-router"
+import { Redirect } from "react-router";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { RouteComponentProps } from "react-router-dom";
@@ -98,16 +98,6 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
         this.props.appTitleActions.setTitle(strings.projectSettings.title);
     }
 
-    private getProjectSettingAction = (projectId: string): ProjectSettingAction => {
-        if (this.props.match.url === "/projects/create") {
-            return ProjectSettingAction.Create;
-        } else if (projectId) {
-            return ProjectSettingAction.Update;
-        } else {
-            return ProjectSettingAction.Other;
-        }
-    }
-
     public componentDidUpdate(prevProps: Readonly<IProjectSettingsPageProps>) {
         if (prevProps.project !== this.props.project) {
             this.setState({ project: this.props.project });
@@ -119,7 +109,7 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
         return (
             <div className="project-settings-page">
                 <div className="project-settings-page-settings m-3">
-                    <h3>
+                    <h3 className="flex-center">
                         <i className="ms-Icon ms-Icon--DocumentManagement" />
                         <span className="px-2">
                             {strings.projectSettings.title}
@@ -143,6 +133,16 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
         );
     }
 
+    private getProjectSettingAction = (projectId: string): ProjectSettingAction => {
+        if (this.props.match.url === "/projects/create") {
+            return ProjectSettingAction.Create;
+        } else if (projectId) {
+            return ProjectSettingAction.Update;
+        } else {
+            return ProjectSettingAction.Other;
+        }
+    }
+
     private newProjectSetting = (): void => {
         const projectJson = getStorageItem(constants.projectFormTempKey);
         if (projectJson) {
@@ -155,8 +155,7 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
         if (projectToLoad) {
             await this.props.applicationActions.ensureSecurityToken(projectToLoad);
             await this.props.projectActions.loadProject(projectToLoad);
-        }
-        else {
+        } else {
             throw Error("There might be something wrong. We cannot find any project given the project ID.");
         }
     }

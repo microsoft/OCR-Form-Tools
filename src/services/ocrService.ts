@@ -29,7 +29,10 @@ export class OCRService {
      * @param filePath - filepath sent to OCR
      * @param fileName - name of OCR file
      */
-    public async getRecognizedText(filePath: string, fileName: string, onStatusChanged?: (ocrStatus: OcrStatus) => void): Promise<any> {
+    public async getRecognizedText(
+        filePath: string,
+        fileName: string,
+        onStatusChanged?: (ocrStatus: OcrStatus) => void): Promise<any> {
         Guard.empty(filePath);
         Guard.empty(this.project.apiUriBase);
 
