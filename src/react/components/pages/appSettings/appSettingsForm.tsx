@@ -84,7 +84,7 @@ export class AppSettingsForm extends React.Component<IAppSettingsFormProps, IApp
                         onSubmit={(form) => this.props.onSubmit(form.formData)}>
                         <div>
                             <button
-                                type="submit" 
+                                type="submit"
                                 className="btn32px btn-success mr-1">
                                 {strings.appSettings.save}
                             </button>

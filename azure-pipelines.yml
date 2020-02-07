@@ -18,5 +18,11 @@ steps:
 - script: |
     npm install
     npm run tslint
+    if [ $? -ne 0 ]; then
+        exit 1
+    fi
     npm run build
+    if [ $? -ne 0 ]; then
+        exit 1
+    fi
   displayName: 'npm install and build'
