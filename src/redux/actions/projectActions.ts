@@ -12,6 +12,7 @@ import {
     IAsset,
     IAssetMetadata,
     IProject,
+    ITag,
 } from "../../models/applicationState";
 import { createAction, createPayloadAction, IPayloadAction } from "./actionCreators";
 import { appInfo } from "../../common/appInfo";
@@ -27,7 +28,7 @@ export default interface IProjectActions {
     loadAssets(project: IProject): Promise<IAsset[]>;
     loadAssetMetadata(project: IProject, asset: IAsset): Promise<IAssetMetadata>;
     saveAssetMetadata(project: IProject, assetMetadata: IAssetMetadata): Promise<IAssetMetadata>;
-    updateProjectTag(project: IProject, oldTagName: string, newTagName: string): Promise<IAssetMetadata[]>;
+    updateProjectTag(project: IProject, oldTag: ITag, newTag: ITag): Promise<IAssetMetadata[]>;
     deleteProjectTag(project: IProject, tagName): Promise<IAssetMetadata[]>;
 }
 
@@ -172,25 +173,29 @@ export function saveAssetMetadata(
 /**
  * Updates a project and all asset references from oldTagName to newTagName
  * @param project The project to update tags
- * @param oldTagName The old tag name
- * @param newTagName The new tag name
+ * @param oldTag The old tag
+ * @param newTag The new tag
  */
-export function updateProjectTag(project: IProject, oldTagName: string, newTagName: string)
+export function updateProjectTag(project: IProject, oldTag: ITag, newTag: ITag)
     : (dispatch: Dispatch, getState: () => IApplicationState) => Promise<IAssetMetadata[]> {
     return async (dispatch: Dispatch, getState: () => IApplicationState) => {
-        // Find tags to rename
-        const assetService = new AssetService(project);
-        const assetUpdates = await assetService.renameTag(oldTagName, newTagName);
+        let assetUpdates: IAssetMetadata[] = [];
 
-        // Save updated assets
-        await assetUpdates.forEachAsync(async (assetMetadata) => {
-            await saveAssetMetadata(project, assetMetadata)(dispatch);
-        });
+        if (oldTag.name !== newTag.name) {
+            // Find tags to rename
+            const assetService = new AssetService(project);
+            assetUpdates = await assetService.renameTag(oldTag.name, newTag.name);
+
+            // Save updated assets
+            await assetUpdates.forEachAsync(async (assetMetadata) => {
+                await saveAssetMetadata(project, assetMetadata)(dispatch);
+            });
+    }
 
         const currentProject = getState().currentProject;
         const updatedProject = {
             ...currentProject,
-            tags: project.tags.map((t) => (t.name === oldTagName) ? { ...t, name: newTagName } : t),
+            tags: project.tags.map((t) => (t.name === oldTag.name) ? { ...newTag } : t),
         };
 
         // Save updated project tags

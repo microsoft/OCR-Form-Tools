@@ -5,7 +5,7 @@ import {
     AssetState, AssetType, IApplicationState, IAppSettings, IAsset, IAssetMetadata,
     IConnection, IProject, ITag, StorageType, ISecurityToken,
     IAppError, ErrorCode,
-    IRegion, RegionType,
+    IRegion, RegionType, FieldType, FieldFormat,
 } from "../models/applicationState";
 import { IAssetProvider, IAssetProviderRegistrationOptions } from "../providers/storage/assetProviderFactory";
 import { IAzureCloudStorageOptions } from "../providers/storage/azureBlobStorage";
@@ -234,6 +234,8 @@ export default class MockFactory {
         return {
             name: `Tag ${name}`,
             color: MockFactory.randomColor(),
+            type: FieldType.String,
+            format: FieldFormat.NotSpecified,
         };
     }
 

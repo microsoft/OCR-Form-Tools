@@ -1,0 +1,14 @@
+@import "../../../../index.scss";
+
+.dropdown {
+    &-background {
+        background: $darker-15;
+    }
+    &-border{
+        border: 0px;
+    }
+}
+
+.icon-color {
+    color: white;
+}

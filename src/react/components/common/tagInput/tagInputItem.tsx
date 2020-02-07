@@ -4,17 +4,21 @@
 import React, { MouseEvent } from "react";
 import { ITag, ILabel } from "../../../../models/applicationState";
 import TagInputItemLabel from "./tagInputItemLabel";
+import "./tagInputItem.scss";
 import "./tagInput.scss";
 
 export enum TagEditMode {
     Color = "color",
     Name = "name",
+    Dropdown = "inputField",
 }
 
 export interface ITagClickProps {
     ctrlKey?: boolean;
     altKey?: boolean;
+    keyClick?: boolean;
     clickedColor?: boolean;
+    clickedDropDown?: boolean;
 }
 
 /**
@@ -41,6 +45,8 @@ export interface ITagInputItemProps {
     onChange: (oldTag: ITag, newTag: ITag) => void;
     onLabelEnter: (label: ILabel) => void;
     onLabelLeave: (label: ILabel) => void;
+    onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
+    onCallDropDown: () => void;
 }
 
 export interface ITagInputItemState {
@@ -77,6 +83,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                             onClick={this.onNameClick}>
                             {this.getTagContent()}
                         </div>
+                        {this.getDropDownButton()}
                         {
                             this.state.isLocked &&
                             <div></div>
@@ -102,14 +109,32 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         }
     }
 
+    private getDropDownButton = () => {
+        return (
+            <button
+                type ="button"
+                onClick = {this.onInputFieldClick}
+                className = "ms-Icon ms-Icon--ChevronDown dropdown-background dropdown-border icon-color" ></button>
+        );
+    }
+
+    private onInputFieldClick = (e: MouseEvent) => {
+        e.stopPropagation();
+        const ctrlKey = e.ctrlKey || e.metaKey;
+        const keyClick = (e.type === "click");
+        this.setState({
+            tagEditMode: TagEditMode.Dropdown,
+        }, () => this.props.onClick(this.props.tag, { ctrlKey, keyClick, clickedDropDown: true }));
+    }
+
     private onColorClick = (e: MouseEvent) => {
         e.stopPropagation();
 
         const ctrlKey = e.ctrlKey || e.metaKey;
-        const altKey = e.altKey;
+        const keyClick = (e.type === "click");
         this.setState({
             tagEditMode: TagEditMode.Color,
-        }, () => this.props.onClick(this.props.tag, { ctrlKey, altKey, clickedColor: true }));
+        }, () => this.props.onClick(this.props.tag, { ctrlKey, keyClick, clickedColor: true }));
     }
 
     private onNameClick = (e: MouseEvent) => {

@@ -158,7 +158,13 @@ $tagInputWidth: 250px;
     }
 
     &-input {
-        &-color-picker {
+        &-potal {
+            position: absolute;
+            z-index: 1;
+            box-shadow: 0px 5px 10px $darker-5;
+        }
+
+        &-field-dropdown {
             position: absolute;
             z-index: 1;
         }
@@ -192,4 +198,10 @@ div.circle-picker-container {
     display: inline-block;
     text-align: center;
     line-height: 16px;
+}
+
+.field-background-color {
+    background: $darker-1;
+
+    opacity: 1;
 }

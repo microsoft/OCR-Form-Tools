@@ -257,6 +257,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                 onTagDeleted={this.confirmTagDeleted}
                                 onLabelEnter={this.onLabelEnter}
                                 onLabelLeave={this.onLabelLeave}
+                                onTagChanged={this.onTagChanged}
                                 ref = {this.tagInputRef}
                             />
                         </div>
@@ -345,17 +346,17 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     /**
      * Open confirm dialog for tag renaming
      */
-    private confirmTagRenamed = (tagName: string, newTagName: string): void => {
-        this.renameTagConfirm.current.open(tagName, newTagName);
+    private confirmTagRenamed = (tag: ITag, newTag: ITag): void => {
+        this.renameTagConfirm.current.open(tag, newTag);
     }
 
     /**
      * Renames tag in assets and project, and saves files
-     * @param tagName Name of tag to be renamed
-     * @param newTagName New name of tag
+     * @param tag Tag to be renamed
+     * @param newTag Tag with the new name
      */
-    private onTagRenamed = async (tagName: string, newTagName: string): Promise<void> => {
-        const assetUpdates = await this.props.actions.updateProjectTag(this.props.project, tagName, newTagName);
+    private onTagRenamed = async (tag: ITag, newTag: ITag): Promise<void> => {
+        const assetUpdates = await this.props.actions.updateProjectTag(this.props.project, tag, newTag);
         const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
 
         if (selectedAsset) {
@@ -517,7 +518,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             ...this.props.project,
             tags,
         };
-
         await this.props.actions.saveProject(project);
     }
 
@@ -682,5 +682,18 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     private onFocused = () => {
         this.loadProjectAssets();
+    }
+
+    private onTagChanged = async (oldTag: ITag, newTag: ITag) => {
+        const assetUpdates = await this.props.actions.updateProjectTag(this.props.project, oldTag, newTag);
+        const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
+
+        if (selectedAsset) {
+            if (selectedAsset) {
+                this.setState({
+                    selectedAsset,
+                });
+            }
+        }
     }
 }

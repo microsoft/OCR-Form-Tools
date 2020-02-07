@@ -6,10 +6,14 @@ import { StorageProviderFactory, IStorageProvider } from "../providers/storage/s
 import {
     IProject, ITag, ISecurityToken, AppError,
     ErrorCode,
+    FieldType,
+    FieldFormat,
+    IField,
+    IFieldInfo,
 } from "../models/applicationState";
 import Guard from "../common/guard";
 import { constants } from "../common/constants";
-import { decryptProject, encryptProject } from "../common/utils";
+import { decryptProject, encryptProject, joinPath } from "../common/utils";
 import packageJson from "../../package.json";
 import { strings, interpolate } from "../common/strings";
 import { toast } from "react-toastify";
@@ -75,6 +79,14 @@ export default class ProjectService implements IProjectService {
 
         if (!project.tags) {
             await this.getTagsFromPreExistingLabelFiles(project, storageProvider);
+        }
+
+        if (!project.tags) {
+            await this.getTagsFromPreExistingFieldFile(project, storageProvider);
+        }
+
+        if (project.tags) {
+            await this.saveFieldsFile(project, storageProvider);
         }
 
         project = encryptProject(project, securityToken);
@@ -177,11 +189,67 @@ export default class ProjectService implements IProjectService {
                 tags.push({
                     name,
                     color: tagColors[index],
-                });
+                    // use default type
+                    type: FieldType.String,
+                    format: FieldFormat.NotSpecified,
+                } as ITag);
             });
             project.tags = tags;
         } catch (err) {
             project.tags = [];
         }
+    }
+
+    /**
+     * Assign project tags
+     * A new project does not have any tags at the beginning. But it could connect to a blob container
+     * Which contains existing fields .json file. In this case, we'll populate project tags base on this file.
+     * @param project the project we're trying to create
+     * @param storageProvider the storage we're trying to save the project to
+     */
+
+    private async getTagsFromPreExistingFieldFile(project: IProject, storageProvider: IStorageProvider) {
+        const fieldFilePath = joinPath("/", project.folderPath, constants.fieldsFileName);
+        try {
+            const json = await storageProvider.readText(fieldFilePath, true);
+            const fieldInfo = JSON.parse(json) as IFieldInfo;
+            const tags: ITag[] = [];
+            fieldInfo.fields.forEach((field, index) => {
+                tags.push({
+                    name: field.fieldKey,
+                    color: tagColors[index],
+                    type: field.fieldType,
+                    format: field.fieldFormat,
+                } as ITag);
+            });
+            project.tags = tags;
+            toast.dismiss();
+        } catch (err) {
+            if (err instanceof SyntaxError) {
+                const reason = interpolate(strings.errors.invalidJSONFormat.message, {fieldFilePath});
+                toast.error(reason, {autoClose: false});
+            }
+        }
+    }
+
+    /**
+     * Save fields.json
+     * @param project the project we're trying to create
+     * @param storageProvider the storage we're trying to save the project
+     */
+    private async saveFieldsFile(project: IProject, storageProvider: IStorageProvider) {
+        Guard.null(project);
+        Guard.null(project.tags);
+
+        const fieldInfo = {
+            fields: project.tags.map((tag) => ({
+                fieldKey: tag.name,
+                fieldType: tag.type ? tag.type : FieldType.String,
+                fieldFormat: tag.format ? tag.format : FieldFormat.NotSpecified,
+            } as IField)),
+        };
+
+        const fieldFilePath = joinPath("/", project.folderPath, constants.fieldsFileName);
+        await storageProvider.writeText(fieldFilePath, JSON.stringify(fieldInfo, null, 4));
     }
 }
