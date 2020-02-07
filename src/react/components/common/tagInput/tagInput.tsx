@@ -64,8 +64,8 @@ export interface ITagInputState {
     searchQuery: string;
     selectedTag: ITag;
     editingTag: ITag;
-    cportalElement: Element;
-    tportalElement: Element;
+    colorPortalElement: Element;
+    fieldPortalElement: Element;
     editingTagNode: Element;
     showTagSettings: boolean;
 }
@@ -88,8 +88,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         selectedTag: null,
         editingTag: null,
         editingTagNode: null,
-        cportalElement: defaultDOMNode(),
-        tportalElement: defaultDOMNode(),
+        colorPortalElement: defaultDOMNode(),
+        fieldPortalElement: defaultDOMNode(),
         showTagSettings: false,
     };
 
@@ -175,8 +175,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     public componentDidMount() {
         document.body.appendChild(this.portalDiv);
         this.setState({
-            cportalElement: ReactDOM.findDOMNode(this.portalDiv) as Element,
-            tportalElement: ReactDOM.findDOMNode(this.portalDiv) as Element,
+            colorPortalElement: ReactDOM.findDOMNode(this.portalDiv) as Element,
+            fieldPortalElement: ReactDOM.findDOMNode(this.portalDiv) as Element,
         });
     }
 
@@ -349,7 +349,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                                 }
                             </div>
                         </Align>
-                        , this.state.cportalElement)
+                        , this.state.colorPortalElement)
                 }
             </div>
         );
@@ -372,7 +372,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                                 }
                             </div>
                         </Align>
-                        , this.state.tportalElement)}
+                        , this.state.fieldPortalElement)}
             </div>
         );
     }
@@ -567,7 +567,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         }
     }
 
-    private onAddTagWithBlur = (event) => {
+    private onAddTagWithBlur = (event: any) => {
         if (event.target.value) {
             this.creatTagInput(event.target.value.trim());
             event.target.value = "";

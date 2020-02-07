@@ -235,7 +235,7 @@ export default class MockFactory {
             name: `Tag ${name}`,
             color: MockFactory.randomColor(),
             type: FieldType.String,
-            format: FieldFormat.NotSpecified
+            format: FieldFormat.NotSpecified,
         };
     }
 

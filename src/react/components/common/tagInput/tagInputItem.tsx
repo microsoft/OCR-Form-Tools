@@ -56,7 +56,6 @@ export interface ITagInputItemState {
     isLocked: boolean;
     /** Mode of tag editing (text or color) */
     tagEditMode: TagEditMode;
-    // dropdownOpen: boolean;
 }
 
 export default class TagInputItem extends React.Component<ITagInputItemProps, ITagInputItemState> {
@@ -64,12 +63,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         isBeingEdited: false,
         isLocked: false,
         tagEditMode: null,
-        // dropdownOpen: false
     };
-
-    constructor(props) {
-        super(props);
-    }
 
     public render() {
         const style: any = {
@@ -118,16 +112,15 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
     private getDropDownButton = () => {
         return (
             <button
-            type ="button"
-            onClick = {this.onInputFieldClick}
-            className = "ms-Icon ms-Icon--ChevronDown dropdown-background dropdown-border icon-color" ></button>
+                type ="button"
+                onClick = {this.onInputFieldClick}
+                className = "ms-Icon ms-Icon--ChevronDown dropdown-background dropdown-border icon-color" ></button>
         );
     }
 
     private onInputFieldClick = (e: MouseEvent) => {
         e.stopPropagation();
         const ctrlKey = e.ctrlKey || e.metaKey;
-        // const altKey = e.altKey;
         const keyClick = (e.type === "click");
         this.setState({
             tagEditMode: TagEditMode.Dropdown,
@@ -138,7 +131,6 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         e.stopPropagation();
 
         const ctrlKey = e.ctrlKey || e.metaKey;
-        // const altKey = e.altKey;
         const keyClick = (e.type === "click");
         this.setState({
             tagEditMode: TagEditMode.Color,

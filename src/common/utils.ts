@@ -6,7 +6,6 @@ import { IProject, ISecurityToken, IProviderOptions, ISecureString } from "../mo
 import { encryptObject, decryptObject, encrypt, decrypt } from "./crypto";
 import UTIF from "utif";
 import HtmlFileReader from "./htmlFileReader";
-import { SASQueryParameters } from "@azure/storage-blob";
 
 /**
  * Generates a random integer in provided range

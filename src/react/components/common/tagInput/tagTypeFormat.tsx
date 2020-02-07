@@ -90,7 +90,7 @@ export default class TagTypeFormat extends React.Component<ITagTypeFormatProps, 
                                 {
                                     types.map((type) => {
                                         return(
-                                            getTypeListItem(this, type)
+                                            this.getTypeListItem(this, type)
                                         );
                                     })
                                 }
@@ -110,7 +110,7 @@ export default class TagTypeFormat extends React.Component<ITagTypeFormatProps, 
                                 {
                                     formats.map((format) => {
                                         return (
-                                            getFormatListItem(this, format)
+                                            this.getFormatListItem(this, format)
                                         );
                                     })
                                 }
@@ -177,30 +177,29 @@ export default class TagTypeFormat extends React.Component<ITagTypeFormatProps, 
         });
     }
 
-}
-
-function getTypeListItem(props, t) {
+    private getTypeListItem(props, t) {
         return (
             <button type = "button"
-                    key = {t}
-                    onClick = {props.handleTypeChange}
-                    value = {FieldType[t]}
-                    className="list-items list-items-color"
-                    >
-                        {FieldType[t]}
+                key = {t}
+                onClick = {props.handleTypeChange}
+                value = {FieldType[t]}
+                className="list-items list-items-color"
+            >
+                {FieldType[t]}
             </button>
         );
-}
+    }
 
-function getFormatListItem(props, f) {
-    return(
-        <button type = "button"
+    private getFormatListItem(props, f) {
+        return(
+            <button type = "button"
                 key = {f}
                 onClick = {props.handleFormatChange}
                 value = {f}
                 className="list-items list-items-color"
-        >
-            {f}
-        </button>
-    );
+            >
+                {f}
+            </button>
+        );
+    }
 }
