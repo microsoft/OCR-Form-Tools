@@ -396,9 +396,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
     private getFieldAlignConfig = () => {
         const coords = this.getEditingTagCoords();
-        // const isNearBottom = coords && coords.top > (window.innerHeight / 2);
-        // const alignCorner = isNearBottom ? "b" : "t";
-        // const verticalOffset = isNearBottom ? 6 : -6;
         return {
             // Align top right of source node (color picker) with top left of target node (tag row)
             points: ["tr", "cr"],
