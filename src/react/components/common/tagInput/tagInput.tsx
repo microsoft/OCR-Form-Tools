@@ -451,7 +451,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 tag,
                 index: tags.findIndex((t) => this.isNameEqual(t, tag)),
                 isLocked: this.props.lockedTags &&
-                this.props.lockedTags.findIndex((str) => this.isNameEqualTo(tag, str)) > -1,
+                    this.props.lockedTags.findIndex((str) => this.isNameEqualTo(tag, str)) > -1,
                 isBeingEdited: this.state.editingTag && this.isNameEqual(this.state.editingTag, tag),
                 isSelected: this.state.selectedTag && this.isNameEqual(this.state.selectedTag, tag),
                 appliedToSelectedRegions: selectedRegionTagSet.has(tag.name),
