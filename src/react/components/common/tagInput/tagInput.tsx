@@ -321,11 +321,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         if (!tag) {
             return;
         }
-        // if (this.props.onTagDeleted) {
-        //     this.props.onTagDeleted(tag.name);
-        //     return;
-        // }
-
         const index = this.state.tags.indexOf(tag);
         const tags = this.state.tags.filter((t) => !this.isNameEqual(t, tag));
 
@@ -334,11 +329,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             selectedTag: this.getNewSelectedTag(tags, index),
         }, () => this.props.onChange(tags));
         this.props.onTagDeleted(tag.name);
-        // if (this.props.lockedTags.find((str) => this.isNameEqualTo(tag, str))) {
-        //     this.props.onLockedTagsChange(
-        //         this.props.lockedTags.filter((str) => !this.isNameEqualTo(tag, str)),
-        //     );
-        // }
     }
 
     private getColorPickerPortal = () => {
