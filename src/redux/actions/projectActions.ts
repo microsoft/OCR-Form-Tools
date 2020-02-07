@@ -173,8 +173,8 @@ export function saveAssetMetadata(
 /**
  * Updates a project and all asset references from oldTagName to newTagName
  * @param project The project to update tags
- * @param oldTag The old tag 
- * @param newTag The new tag 
+ * @param oldTag The old tag
+ * @param newTag The new tag
  */
 export function updateProjectTag(project: IProject, oldTag: ITag, newTag: ITag)
     : (dispatch: Dispatch, getState: () => IApplicationState) => Promise<IAssetMetadata[]> {

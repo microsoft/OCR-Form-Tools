@@ -1,9 +1,10 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import React from "react";
 import { ITag, FieldType, FieldFormat  } from "../../../../models/applicationState";
 import "./tagTypeFormat.scss";
 import "./tagInputItem.scss";
-import { PaginationLink, Tag } from "reactstrap";
-import ConnectionForm from "../../pages/connections/connectionForm";
 
 /**
  * Properties for Tag Type Format component
@@ -177,28 +178,28 @@ export default class TagTypeFormat extends React.Component<ITagTypeFormatProps, 
         });
     }
 
-    private getTypeListItem(props, t) {
+    private getTypeListItem(props, type) {
         return (
             <button type = "button"
-                key = {t}
+                key = {type}
                 onClick = {props.handleTypeChange}
-                value = {FieldType[t]}
+                value = {FieldType[type]}
                 className="list-items list-items-color"
             >
-                {FieldType[t]}
+                {FieldType[type]}
             </button>
         );
     }
 
-    private getFormatListItem(props, f) {
+    private getFormatListItem(props, format) {
         return(
             <button type = "button"
-                key = {f}
+                key = {format}
                 onClick = {props.handleFormatChange}
-                value = {f}
+                value = {format}
                 className="list-items list-items-color"
             >
-                {f}
+                {format}
             </button>
         );
     }

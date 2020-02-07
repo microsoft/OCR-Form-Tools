@@ -298,6 +298,6 @@ export function joinPath(seperator: string, ...paths: string[]) {
     const leadingSeperator = (paths && paths[0] && paths[0][0] === seperator) ? seperator : "";
     const joined = paths.join(seperator);
     const parts = joined.split(seperator);
-    const normalized = parts.filter(p => p && p.trim() !== '').join(seperator);
+    const normalized = parts.filter((p) => p && p.trim() !== "").join(seperator);
     return leadingSeperator + normalized;
 }

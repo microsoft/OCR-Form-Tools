@@ -11,7 +11,6 @@ import "./tagInput.scss";
 import "../condensedList/condensedList.scss";
 import TagInputItem, { ITagInputItemProps, ITagClickProps } from "./tagInputItem";
 import TagInputToolbar from "./tagInputToolbar";
-import TagSetting from "./tagSettings";
 import { toast } from "react-toastify";
 import { strings } from "../../../../common/strings";
 import TagTypeFormat from "./tagTypeFormat";
@@ -67,7 +66,6 @@ export interface ITagInputState {
     colorPortalElement: Element;
     fieldPortalElement: Element;
     editingTagNode: Element;
-    showTagSettings: boolean;
 }
 
 function defaultDOMNode(): Element {
@@ -90,7 +88,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         editingTagNode: null,
         colorPortalElement: defaultDOMNode(),
         fieldPortalElement: defaultDOMNode(),
-        showTagSettings: false,
     };
 
     private tagItemRefs: Map<string, TagInputItem> = new Map<string, TagInputItem>();
@@ -109,7 +106,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 <h6 className="condensed-list-header tag-input-header bg-darker-2 p-2">
                     <span
                         className="condensed-list-title tag-input-title"
-                        onClick = {this.configTags}
                     >Tags</span>
                     <TagInputToolbar
                         selectedTag={this.state.selectedTag}
@@ -161,14 +157,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                         </div>
                     }
                 </div>
-                {
-                    this.state.showTagSettings &&
-                    <TagSetting
-                        tags={this.state.tags}
-                        onTagChanged={this.props.onTagChanged}
-                        onClose={this.onTagSettingsClosed}
-                        />
-                }
             </div>
         );
     }
@@ -462,7 +450,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             {
                 tag,
                 index: tags.findIndex((t) => this.isNameEqual(t, tag)),
-                isLocked: this.props.lockedTags && this.props.lockedTags.findIndex((str) => this.isNameEqualTo(tag, str)) > -1,
+                isLocked: this.props.lockedTags &&
+                this.props.lockedTags.findIndex((str) => this.isNameEqualTo(tag, str)) > -1,
                 isBeingEdited: this.state.editingTag && this.isNameEqual(this.state.editingTag, tag),
                 isSelected: this.state.selectedTag && this.isNameEqual(this.state.selectedTag, tag),
                 appliedToSelectedRegions: selectedRegionTagSet.has(tag.name),
@@ -629,17 +618,5 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
     private isNameEqualTo = (tag: ITag, str: string) => {
         return tag.name.trim().toLocaleLowerCase() === str.trim().toLocaleLowerCase();
-    }
-
-    private configTags = () => {
-        this.setState({
-            showTagSettings: true,
-        });
-    }
-
-    private onTagSettingsClosed = () => {
-        this.setState({
-            showTagSettings: false,
-        });
     }
 }

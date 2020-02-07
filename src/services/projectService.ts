@@ -191,7 +191,7 @@ export default class ProjectService implements IProjectService {
                     color: tagColors[index],
                     // use default type
                     type: FieldType.String,
-                    format: FieldFormat.NotSpecified
+                    format: FieldFormat.NotSpecified,
                 } as ITag);
             });
             project.tags = tags;
@@ -209,8 +209,8 @@ export default class ProjectService implements IProjectService {
      */
 
     private async getTagsFromPreExistingFieldFile(project: IProject, storageProvider: IStorageProvider) {
-        const fieldFilePath = joinPath('/', project.folderPath, constants.fieldsFileName)
-        try{
+        const fieldFilePath = joinPath("/", project.folderPath, constants.fieldsFileName);
+        try {
             const json = await storageProvider.readText(fieldFilePath, true);
             const fieldInfo = JSON.parse(json) as IFieldInfo;
             const tags: ITag[] = [];
@@ -219,7 +219,7 @@ export default class ProjectService implements IProjectService {
                     name: field.fieldKey,
                     color: tagColors[index],
                     type: field.fieldType,
-                    format: field.fieldFormat
+                    format: field.fieldFormat,
                 } as ITag);
             });
             project.tags = tags;
@@ -233,7 +233,7 @@ export default class ProjectService implements IProjectService {
     }
 
     /**
-     * Save fields.json 
+     * Save fields.json
      * @param project the project we're trying to create
      * @param storageProvider the storage we're trying to save the project
      */
@@ -242,16 +242,14 @@ export default class ProjectService implements IProjectService {
         Guard.null(project.tags);
 
         const fieldInfo = {
-            fields: project.tags.map(tag => ({
+            fields: project.tags.map((tag) => ({
                 fieldKey: tag.name,
                 fieldType: tag.type ? tag.type : FieldType.String,
-                fieldFormat: tag.format ? tag.format : FieldFormat.NotSpecified
-            } as IField))
+                fieldFormat: tag.format ? tag.format : FieldFormat.NotSpecified,
+            } as IField)),
         };
 
-        const fieldFilePath = joinPath('/', project.folderPath, constants.fieldsFileName);
+        const fieldFilePath = joinPath("/", project.folderPath, constants.fieldsFileName);
         await storageProvider.writeText(fieldFilePath, JSON.stringify(fieldInfo, null, 4));
-        
     }
 }
-

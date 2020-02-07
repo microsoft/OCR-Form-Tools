@@ -81,7 +81,7 @@ describe("Helper functions", () => {
             expect(joinPath("\\", "\\a", "b", "c")).toEqual("\\a\\b\\c");
             expect(joinPath("\\", "a", "b", "c\\")).toEqual("a\\b\\c");
             expect(joinPath("\\", "a\\\\", "b\\", "c\\")).toEqual("a\\b\\c");
-        })
+        });
     });
 
     describe("Encryption Utils", () => {
