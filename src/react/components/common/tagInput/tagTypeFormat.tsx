@@ -67,9 +67,6 @@ export default class TagTypeFormat extends React.Component<ITagTypeFormatProps, 
         showFormat: false,
         showType: false,
     };
-    constructor(props) {
-        super(props);
-    }
 
     public render() {
         const tag = this.state.tag;

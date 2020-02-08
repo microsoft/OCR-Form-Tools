@@ -129,6 +129,8 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
                                 onClick={(e) => this.onToolbarItemClick(e, itemConfig)}>
                                 <i className={`${classNames.join(" ")} ${itemConfig.icon}`} />
                             </div>);
+                } else {
+                    throw new Error(`Unsupported item category ${itemConfig.category}`);
                 }
             })
         );

@@ -23,6 +23,15 @@ export interface IAzureCloudStorageOptions {
     oauthToken?: string;
 }
 
+class AzureBlobStorageError extends Error {
+    statusCode: number;
+
+    constructor(statusCode: number) {
+        super();
+        this.statusCode = statusCode;
+    }
+}
+
 /**
  * Storage Provider for Azure Blob Storage
  */
@@ -136,7 +145,7 @@ export class AzureBlobStorage implements IStorageProvider {
                     marker,
                 );
                 if (!listBlobsResponse.segment || !listBlobsResponse.containerName) {
-                    throw { statusCode: 404 };
+                    throw new AzureBlobStorageError(404);
                 }
                 marker = listBlobsResponse.nextMarker;
                 for (const blob of listBlobsResponse.segment.blobItems) {

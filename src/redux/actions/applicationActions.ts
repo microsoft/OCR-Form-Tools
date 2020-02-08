@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Action, Dispatch } from "redux";
+import { Dispatch } from "redux";
 import { ActionTypes } from "./actionTypes";
-import { createPayloadAction, createAction, IPayloadAction } from "./actionCreators";
+import { createPayloadAction, IPayloadAction } from "./actionCreators";
 import { IAppSettings } from "../../models/applicationState";
 import { IProject, IApplicationState } from "../../models/applicationState";
 import { generateKey } from "../../common/crypto";
