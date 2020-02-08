@@ -223,8 +223,8 @@ describe("Project Redux Actions", () => {
 
             const actualUpdatedAssets = await projectActions.updateProjectTag(
                 project,
-                updatedTag.name,
-                expectedTagName,
+                updatedTag,
+                { ...updatedTag, name: expectedTagName },
             )(store.dispatch, store.getState);
 
             const actions = store.getActions();

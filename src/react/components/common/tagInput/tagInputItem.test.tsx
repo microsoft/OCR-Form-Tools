@@ -21,6 +21,7 @@ describe("Tag Input Item", () => {
             onChange: jest.fn(),
             onLabelEnter: jest.fn(),
             onLabelLeave: jest.fn(),
+            onCallDropDown: jest.fn(),
         };
     }
 
