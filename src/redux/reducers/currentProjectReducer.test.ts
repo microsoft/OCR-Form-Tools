@@ -3,7 +3,7 @@
 
 import _ from "lodash";
 import { reducer } from "./currentProjectReducer";
-import { IProject, IAssetMetadata, AssetState, ITag } from "../../models/applicationState";
+import { IProject, IAssetMetadata, AssetState, ITag, FieldType, FieldFormat } from "../../models/applicationState";
 import MockFactory from "../../common/mockFactory";
 import {
     loadProjectAction,
@@ -124,6 +124,8 @@ describe("Current Project Reducer", () => {
         const expectedTag: ITag = {
             name: "NEWTAG",
             color: expect.any(String),
+            type: FieldType.String,
+            format: FieldFormat.NotSpecified,
         };
 
         const assetMetadata = MockFactory.createTestAssetMetadata(

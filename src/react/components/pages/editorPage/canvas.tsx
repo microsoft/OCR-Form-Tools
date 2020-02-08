@@ -886,6 +886,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 orderInfo = { page: pageNumber + 1, order };
                 return true;
             }
+            return false;
         });
 
         return orderInfo;
@@ -929,6 +930,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     }
                 });
             }
+
+            return ocr;
         });
     }
 

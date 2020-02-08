@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { AzureBlobStorageError } from "./azureBlobStorageError";
 import { IStorageProvider } from "./storageProviderFactory";
 import { IAsset, AssetType, StorageType, AssetState, AppError } from "../../models/applicationState";
 import { AssetService } from "../../services/assetService";
@@ -136,7 +137,7 @@ export class AzureBlobStorage implements IStorageProvider {
                     marker,
                 );
                 if (!listBlobsResponse.segment || !listBlobsResponse.containerName) {
-                    throw { statusCode: 404 };
+                    throw new AzureBlobStorageError(404);
                 }
                 marker = listBlobsResponse.nextMarker;
                 for (const blob of listBlobsResponse.segment.blobItems) {

@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Dispatch, Action } from "redux";
-import { createPayloadAction, IPayloadAction, createAction } from "./actionCreators";
+import { Dispatch } from "redux";
+import { createPayloadAction, IPayloadAction } from "./actionCreators";
 import { ActionTypes } from "./actionTypes";
 
 /**
