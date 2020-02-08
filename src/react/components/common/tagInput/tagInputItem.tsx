@@ -59,6 +59,16 @@ export interface ITagInputItemState {
 }
 
 export default class TagInputItem extends React.Component<ITagInputItemProps, ITagInputItemState> {
+
+    public static getNameNode(tagNode: Element): Element | undefined {
+        if (tagNode) {
+            return tagNode.getElementsByClassName(TagInputItem.TAG_NAME_CLASS_NAME)[0];
+        }
+        return undefined;
+    }
+
+    private static TAG_NAME_CLASS_NAME = "tag-item";
+
     public state: ITagInputItemState = {
         isBeingEdited: false,
         isLocked: false,
@@ -148,7 +158,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
     }
 
     private getItemClassName = () => {
-        const classNames = ["tag-item"];
+        const classNames = [TagInputItem.TAG_NAME_CLASS_NAME];
         if (this.props.isSelected) {
             classNames.push("tag-item-selected");
         }
