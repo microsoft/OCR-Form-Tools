@@ -160,6 +160,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             </div>
         );
     }
+
     public componentDidMount() {
         document.body.appendChild(this.portalDiv);
         this.setState({
@@ -324,7 +325,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             <div>
                 {
                     ReactDOM.createPortal(
-                        <Align align={this.getColorAlignConfig()} target={this.getTarget}>
+                        <Align align={this.getColorAlignConfig()} target={this.getEditingTagNode}>
                             <div className="tag-input-potal">
                                 {
                                     this.state.showColorPicker &&
@@ -348,7 +349,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             <div>
                 {
                     ReactDOM.createPortal(
-                        <Align align={this.getFieldAlignConfig()} target={this.getTarget}>
+                        <Align align={this.getFieldAlignConfig()} target={this.getEditingTagNameNode}>
                             <div className="tag-input-potal" style = {{overflow: "hidden"}}>
                                 {
                                     this.state.showDropDown &&
@@ -373,7 +374,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         return {
             // Align top right of source node (color picker) with top left of target node (tag row)
             points: [`${alignCorner}r`, `${alignCorner}l`],
-            // Offset source node by 10px in x and 20px in y
+            // Offset source node by 0px in x and 6px in y
             offset: [0, verticalOffset],
             // Offset targetNode by 30% of target node width in x and 40% of target node height
             // targetOffset: ["30%", "40%"],
@@ -384,10 +385,10 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
     private getFieldAlignConfig = () => {
         return {
-            // Align top right of source node (color picker) with top left of target node (tag row)
-            points: ["tr", "cr"],
-            // Offset source node by 10px in x and 20px in y
-            offset: [0, 3],
+            // Align top right of source node (dropdown) with top left of target node (tag name row)
+            points: ["tr", "br"],
+            // Offset source node by 6px in x and 3px in y
+            offset: [6, 3],
             // Offset targetNode by 30% of target node width in x and 40% of target node height
             // targetOffset: ["30%", "40%"],
             // Auto adjust position when source node is overflowed
@@ -400,8 +401,12 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         return (node) ? node.getBoundingClientRect() : null;
     }
 
-    private getTarget = () => {
+    private getEditingTagNode = () => {
         return this.state.editingTagNode || document;
+    }
+
+    private getEditingTagNameNode = () => {
+        return TagInputItem.getNameNode(this.state.editingTagNode) || document;
     }
 
     private renderTagItems = () => {
