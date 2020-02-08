@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { AzureBlobStorageError } from "./azureBlobStorageError";
 import { IStorageProvider } from "./storageProviderFactory";
 import { IAsset, AssetType, StorageType, AssetState, AppError } from "../../models/applicationState";
 import { AssetService } from "../../services/assetService";
@@ -21,15 +22,6 @@ import { throwUnhandledRejectionForEdge } from "../../react/components/common/er
 export interface IAzureCloudStorageOptions {
     sas?: string;
     oauthToken?: string;
-}
-
-class AzureBlobStorageError extends Error {
-    statusCode: number;
-
-    constructor(statusCode: number) {
-        super();
-        this.statusCode = statusCode;
-    }
 }
 
 /**
