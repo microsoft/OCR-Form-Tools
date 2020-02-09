@@ -81,26 +81,28 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         };
         return (
             <div className={"tag-item-block"}>
-                {
-                    this.props.tag &&
-                    <li className={this.getItemClassName()} style={style}>
-                        <div
-                            className={`tag-color`}
-                            onClick={this.onColorClick}>
-                        </div>
-                        <div
-                            className={"tag-content"}
-                            onClick={this.onNameClick}>
-                            {this.getTagContent()}
-                        </div>
-                        {this.getDropDownButton()}
-                        {
-                            this.state.isLocked &&
-                            <div></div>
-                        }
-                    </li>
-                }
-                {this.renderTagDetail()}
+                <div
+                    className={"tag-color"}
+                    style={style}
+                    onClick={this.onColorClick}>
+                </div>
+                <div className={"tag-item-block-2"}>
+                    {
+                        this.props.tag &&
+                        <li className={this.getItemClassName()} style={style}>
+                            <div
+                                className={"tag-content"}
+                                onClick={this.onNameClick}>
+                                {this.getTagContent()}
+                            </div>
+                            {
+                                this.state.isLocked &&
+                                <div></div>
+                            }
+                        </li>
+                    }
+                    {this.renderTagDetail()}
+                </div>
             </div>
         );
     }
@@ -121,10 +123,10 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
 
     private getDropDownButton = () => {
         return (
-            <button
-                type ="button"
-                onClick = {this.onInputFieldClick}
-                className = "ms-Icon ms-Icon--ChevronDown dropdown-background dropdown-border icon-color" ></button>
+            <span
+                className = "ms-Icon ms-Icon--ChevronDown icon-color pl-2"
+                onClick={this.onInputFieldClick}>
+            </span>
         );
     }
 
@@ -189,10 +191,11 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                             </span>
                     }
                 </div>
-                <div className={"tag-index"}>
+                <div className={"tag-icons-container px-1"}>
                     {(displayIndex !== null) &&
                         <span className="tag-index-span border border-white rounded-sm ">{displayIndex}</span>
                     }
+                    {this.getDropDownButton()}
                 </div>
             </div>
         );
@@ -224,7 +227,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
     }
 
     private getContentClassName = () => {
-        const classNames = ["tag-name-text px-2"];
+        const classNames = ["tag-name-text px-2 pb-1"];
         if (this.state.isBeingEdited && this.state.tagEditMode === TagEditMode.Color) {
             classNames.push(" tag-color-edit");
         }

@@ -16,7 +16,7 @@ export default class TagInputItemLabel extends React.Component<ITagInputItemLabe
     public render() {
         return (
             <li
-                className="tag-item-label"
+                className={"tag-item-label px-2"}
                 onMouseEnter={this.handleMouseEnter}
                 onMouseLeave={this.handleMouseLeave}>
                 {this.props.label.value.map((formRegion: IFormRegion) => formRegion.text).join(" ")}
