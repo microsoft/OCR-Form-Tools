@@ -1,6 +1,7 @@
 @import "../../../../index.scss";
 
 $tagInputWidth: 250px;
+$tagColorWidth: 12px;
 
 .tag {
     &-input {
@@ -51,7 +52,13 @@ $tagInputWidth: 250px;
     }
 
     &-item-block {
+        display: flex;
+        flex-direction: row;
         margin: 2px 0;
+
+        &-2 {
+            min-width: $tagInputWidth - $tagColorWidth;
+        }
     }
 
     &-item {
@@ -121,13 +128,11 @@ $tagInputWidth: 250px;
             text-overflow: ellipsis;
             white-space: nowrap;
             align-items: center;
-            padding: 0px 0px 4px 0px; 
         }
     }
 
-    &-index {
+    &-icons-container {
         display: inline-flex;
-        padding: 0 5px;
         font-weight: 600;
         align-items: center;
     }
@@ -136,6 +141,10 @@ $tagInputWidth: 250px;
         color: #fff;
         background: $lighter-4;
         cursor: pointer;
+    }
+
+    &-item-label {
+        color: #808080;
     }
 
     &-item-label:hover {
@@ -150,7 +159,7 @@ $tagInputWidth: 250px;
     }
 
     &-color {
-        width: 12px;
+        width: $tagColorWidth;
     }
 
     &-lock-icon {

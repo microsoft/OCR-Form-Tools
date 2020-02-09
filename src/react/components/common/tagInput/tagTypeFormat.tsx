@@ -62,6 +62,7 @@ export default class TagTypeFormat extends React.Component<ITagTypeFormatProps, 
                 return [ FieldFormat.NotSpecified ];
         }
     }
+
     public state: ITagFormatState = {
         tag: this.props.tag,
         showFormat: false,
@@ -72,16 +73,17 @@ export default class TagTypeFormat extends React.Component<ITagTypeFormatProps, 
         const tag = this.state.tag;
         const types = Object.keys(FieldType);
         const formats = TagTypeFormat.filterFormat(tag.type);
+        const dropdownIconClass = [
+            "ms-Icon", "ms-Icon--ChevronDown", "field-background-color", "icon-color", "pr-1",
+        ].join(" ");
 
         return (
             <div className = "field-background field-background-color">
                 <div className = "tag-field justify-content-start">
                     <div className = "row-4 tag-field-item">
-                        <div onClick = {this.handleTypeShow} className = "field-background-container">
-                            <span className = "type-selected">{tag.type}</span>
-                            <button
-                                type="button"
-                                className="ms-Icon ms-Icon--ChevronDown field-background-color dropdown-border icon-color"></button>
+                        <div onClick={this.handleTypeShow} className = "field-background-container">
+                            <span className="type-selected">{tag.type}</span>
+                            <span className={dropdownIconClass}></span>
                         </div>
                         <div className = {this.showHideType()}>
                             <ol className = "format-items-list">
@@ -99,9 +101,7 @@ export default class TagTypeFormat extends React.Component<ITagTypeFormatProps, 
                     <div className = "row-4 tag-field-item">
                         <div onClick={this.handleFormatShow} className = "field-background-container">
                             <span>{tag.format}</span>
-                            <button
-                                type="button"
-                                className="ms-Icon ms-Icon--ChevronDown field-background-color dropdown-border icon-color"></button>
+                            <span className={dropdownIconClass}></span>
                          </div>
                         <div className = {this.showHideFormat()}>
                             <ol className = "format-items-list">
