@@ -50,7 +50,8 @@
         "react-start": "react-scripts start",
         "test": "react-scripts test --env=jsdom --silent",
         "eject": "react-scripts eject",
-        "tslint": "./node_modules/.bin/tslint 'src/**/*.ts*'"
+        "tslint": "./node_modules/.bin/tslint 'src/**/*.ts*'",
+        "tslintfix": "./node_modules/.bin/tslint 'src/**/*.ts*' --fix"
     },
     "eslintConfig": {
         "extends": "react-app"

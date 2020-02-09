@@ -12,7 +12,8 @@
         "ordered-imports": false,
         "no-string-literal": false,
         "no-bitwise": false,
-        "function-constructor": false
+        "function-constructor": false,
+        "linebreak-style": [true, "LF"]
     },
     "rulesDirectory": []
 }
