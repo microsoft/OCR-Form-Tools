@@ -4,6 +4,7 @@
 import React, { KeyboardEvent, RefObject } from "react";
 import ReactDOM from "react-dom";
 import Align from "rc-align";
+import { AlignPortal } from "../alignPortal/alignPortal";
 import { randomIntInRange } from "../../../../common/utils";
 import { IRegion, ITag, ILabel, FieldType, FieldFormat } from "../../../../models/applicationState";
 import { ColorPicker } from "../colorPicker";
@@ -13,7 +14,7 @@ import TagInputItem, { ITagInputItemProps, ITagClickProps } from "./tagInputItem
 import TagInputToolbar from "./tagInputToolbar";
 import { toast } from "react-toastify";
 import { strings } from "../../../../common/strings";
-import TagTypeFormat from "./tagTypeFormat";
+import TagContextMenu from "./tagContentMenu";
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../../common/tagColors.json");
 
@@ -63,8 +64,6 @@ export interface ITagInputState {
     searchQuery: string;
     selectedTag: ITag;
     editingTag: ITag;
-    colorPortalElement: Element;
-    fieldPortalElement: Element;
     editingTagNode: Element;
 }
 
@@ -86,12 +85,9 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         selectedTag: null,
         editingTag: null,
         editingTagNode: null,
-        colorPortalElement: defaultDOMNode(),
-        fieldPortalElement: defaultDOMNode(),
     };
 
     private tagItemRefs: Map<string, TagInputItem> = new Map<string, TagInputItem>();
-    private portalDiv = document.createElement("div");
 
     private inputRef: RefObject<HTMLInputElement>;
 
@@ -159,18 +155,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 </div>
             </div>
         );
-    }
-
-    public componentDidMount() {
-        document.body.appendChild(this.portalDiv);
-        this.setState({
-            colorPortalElement: ReactDOM.findDOMNode(this.portalDiv) as Element,
-            fieldPortalElement: ReactDOM.findDOMNode(this.portalDiv) as Element,
-        });
-    }
-
-    public componentWillUnmount() {
-        document.body.removeChild(this.portalDiv);
     }
 
     public componentDidUpdate(prevProps: ITagInputProps) {
@@ -322,48 +306,36 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
     private getColorPickerPortal = () => {
         return (
-            <div>
-                {
-                    ReactDOM.createPortal(
-                        <Align align={this.getColorAlignConfig()} target={this.getEditingTagNode}>
-                            <div className="tag-input-potal">
-                                {
-                                    this.state.showColorPicker &&
-                                    <ColorPicker
-                                        color={this.state.editingTag && this.state.editingTag.color}
-                                        colors={tagColors}
-                                        onEditColor={this.handleColorChange}
-                                        show={this.state.showColorPicker}
-                                    />
-                                }
-                            </div>
-                        </Align>
-                        , this.state.colorPortalElement)
-                }
-            </div>
+            <AlignPortal align={this.getColorAlignConfig()} target={this.getEditingTagNode}>
+                <div className="tag-input-portal">
+                    {
+                        this.state.showColorPicker &&
+                        <ColorPicker
+                            color={this.state.editingTag && this.state.editingTag.color}
+                            colors={tagColors}
+                            onEditColor={this.handleColorChange}
+                            show={this.state.showColorPicker}
+                        />
+                    }
+                </div>
+            </AlignPortal>
         );
     }
 
     private getTagFieldPortal = () => {
         return (
-            <div>
-                {
-                    ReactDOM.createPortal(
-                        <Align align={this.getFieldAlignConfig()} target={this.getEditingTagNameNode}>
-                            <div className="tag-input-potal" style = {{overflow: "hidden"}}>
-                                {
-                                    this.state.showDropDown &&
-                                    <TagTypeFormat
-                                        key={this.state.editingTag.name}
-                                        tag={this.state.editingTag}
-                                        onChange={this.props.onTagChanged}
-                                        />
-                                }
-                            </div>
-                        </Align>
-                        , this.state.fieldPortalElement)
-                }
-            </div>
+            <Align align={this.getFieldAlignConfig()} target={this.getEditingTagNameNode} monitorWindowResize={true}>
+                <div className="tag-input-portal" style = {{overflow: "hidden"}}>
+                    {
+                        this.state.showDropDown &&
+                        <TagContextMenu
+                            key={this.state.editingTag.name}
+                            tag={this.state.editingTag}
+                            onChange={this.props.onTagChanged}
+                            />
+                    }
+                </div>
+            </Align>
         );
     }
 
@@ -384,8 +356,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         return {
             // Align top right of source node (dropdown) with top left of target node (tag name row)
             points: ["tr", "br"],
-            // Offset source node by 6px in x and 3px in y
-            offset: [6, 3],
+            // Offset source node by 0px in x and 3px in y
+            offset: [0, 3],
             // Auto adjust position when source node is overflowed
             overflow: {adjustX: true, adjustY: true},
         };

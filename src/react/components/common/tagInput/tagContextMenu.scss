@@ -33,7 +33,7 @@
 }
 
 .format-list {
-    width: 100%;
+    width: $tagInputWidth - $tagColorWidth;
     border: white 1px;
 }
 
@@ -42,7 +42,7 @@
 }
 
 .format-items-list {
-    width: 100%;
+    width: $tagInputWidth - $tagColorWidth;
     list-style-type: none;
     padding: 0px;
     margin: 0px;
