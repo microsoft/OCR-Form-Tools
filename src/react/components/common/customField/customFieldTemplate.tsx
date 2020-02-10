@@ -33,10 +33,15 @@ export default function CustomFieldTemplate(props: FieldTemplateProps) {
                 </Fragment>
             }
             {children}
-            {schema.type !== "array" && description && <small className="text-muted">{description}</small>}
+            {
+                schema.type !== "array" && description &&
+                <small className="text-muted" tabIndex={0}>
+                    {description}
+                </small>
+            }
             {rawErrors && rawErrors.length > 0 &&
-                <div className="invalid-feedback">
-                    {rawErrors.map((errorMessage, idx) => <div key={idx}>{label} {errorMessage}</div>)}
+                <div className="invalid-feedback" tabIndex={0}>
+                    {rawErrors.map((errorMessage, idx) => <p key={idx}>{label} {errorMessage}</p>)}
                 </div>
             }
         </div>
