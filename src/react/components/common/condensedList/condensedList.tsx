@@ -11,6 +11,7 @@ import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
  * @member title - Title of condensed list
  * @member items - Array of items to be rendered
  * @member newLinkTo - Link for list items
+ * @member newLinkToTitle - Title of newLink
  * @member onClick - Function to call on clicking items
  * @member onDelete - Function to call on deleting items
  * @member Component - Component to be rendered for list items
@@ -20,6 +21,7 @@ interface ICondensedListProps {
     Component: any;
     items: any[];
     newLinkTo?: string;
+    newLinkToTitle?: string;
     onClick?: (item) => void;
     onDelete?: (item) => void;
 }
@@ -37,14 +39,14 @@ export default class CondensedList extends React.Component<ICondensedListProps> 
     }
 
     public render() {
-        const { title, items, newLinkTo, Component } = this.props;
+        const { title, items, newLinkTo, newLinkToTitle, Component } = this.props;
 
         return (
             <div className="condensed-list">
                 <h6 className="condensed-list-header bg-darker-2 p-2">
                     <span>{title}</span>
                     {newLinkTo &&
-                        <Link to={newLinkTo} className="float-right">
+                        <Link to={newLinkTo} className="float-right" title={newLinkToTitle}>
                             <i className="ms-Icon ms-Icon--Add" />
                         </Link>
                     }

@@ -177,6 +177,7 @@ export const english: IAppStrings = {
         details: "Connection Details",
         settings: "Connection Settings",
         instructions: "Please select a connection to edit",
+        new: "New Connection",
         save: "Save Connection",
         messages: {
             saveSuccess: "Successfully saved ${connection.name}",

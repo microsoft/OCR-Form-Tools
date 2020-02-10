@@ -177,6 +177,7 @@ export interface IAppStrings {
         details: string;
         settings: string;
         instructions: string;
+        new: string;
         save: string;
         messages: {
             saveSuccess: string;
