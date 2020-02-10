@@ -7,7 +7,8 @@
 export const constants = {
     version: "pubpreview_1.0",
     projectFormTempKey: "projectForm",
-    projectFileExtension: ".vott",
+    projectFileExtensionOld: ".vott",
+    projectFileExtension: ".proj",
     labelFileExtension: ".labels.json",
     ocrFileExtension: ".ocr.json",
     fieldsFileName: "fields.json",
