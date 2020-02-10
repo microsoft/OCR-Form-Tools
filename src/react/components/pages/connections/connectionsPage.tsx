@@ -94,6 +94,7 @@ export default class ConnectionPage extends React.Component<IConnectionPageProps
                     <CondensedList
                         title={strings.connections.title}
                         newLinkTo={"/connections/create"}
+                        newLinkToTitle={strings.connections.new}
                         onDelete={(connection) => this.confirmDelete.current.open(connection)}
                         Component={ConnectionItem}
                         items={this.props.connections} />

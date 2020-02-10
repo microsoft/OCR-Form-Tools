@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import React from "react";
+import { strings } from "../../../common/strings";
 import "./helpMenu.scss";
 
 export interface IHelpMenuProps {}
@@ -13,7 +14,12 @@ export class HelpMenu extends React.Component<IHelpMenuProps, IHelpMenuState> {
 
     public render() {
         return (
-            <a className={"help-menu-button"} href={this.akaMsLink} target="_blank" rel="noopener noreferrer">
+            <a
+                className={"help-menu-button"}
+                title={strings.titleBar.help}
+                href={this.akaMsLink}
+                target="_blank"
+                rel="noopener noreferrer">
                 <i className="ms-Icon ms-Icon--Help ms-Icon-18px"></i>
             </a>
         );
