@@ -2,24 +2,25 @@
 // Licensed under the MIT license.
 
 import React from "react";
+import { AlignPortal } from "../alignPortal/alignPortal";
 import { ITag, FieldType, FieldFormat  } from "../../../../models/applicationState";
-import "./tagTypeFormat.scss";
+import "./tagContextMenu.scss";
 import "./tagInputItem.scss";
 
 /**
- * Properties for Tag Type Format component
+ * Properties for TagContextMenu
  * @member tag - ITag
  */
-export interface ITagTypeFormatProps {
+export interface ITagContextMenuProps {
     tag: ITag;
     onChange?: (oldTag: ITag, newTag: ITag) => void;
 }
 
 /**
- * State for Tag Type Format
+ * State for TagContextMenu
  * @member tag - ITag
  */
-export interface ITagFormatState {
+export interface ITagContextMenuState {
     tag: ITag;
     showFormat?: boolean;
     showType?: boolean;
@@ -28,7 +29,7 @@ export interface ITagFormatState {
 /**
  * Generic modal that displays a message
  */
-export default class TagTypeFormat extends React.Component<ITagTypeFormatProps, ITagFormatState> {
+export default class TagContextMenu extends React.Component<ITagContextMenuProps, ITagContextMenuState> {
 
     private static filterFormat(type: FieldType): FieldFormat[] {
         switch (type) {
@@ -63,61 +64,85 @@ export default class TagTypeFormat extends React.Component<ITagTypeFormatProps, 
         }
     }
 
-    public state: ITagFormatState = {
+    public state: ITagContextMenuState = {
         tag: this.props.tag,
         showFormat: false,
         showType: false,
     };
 
+    private typeRef = React.createRef<HTMLDivElement>();
+
+    private formatRef = React.createRef<HTMLDivElement>();
+
     public render() {
         const tag = this.state.tag;
         const types = Object.keys(FieldType);
-        const formats = TagTypeFormat.filterFormat(tag.type);
+        const formats = TagContextMenu.filterFormat(tag.type);
         const dropdownIconClass = [
             "ms-Icon", "ms-Icon--ChevronDown", "field-background-color", "icon-color", "pr-1",
         ].join(" ");
+        const align = {
+            // Align top right of source node (dropdown) with top left of target node (tag name row)
+            points: ["tr", "br"],
+            // Offset source node by 0px in x and 3px in y
+            offset: [0, 3],
+            // Auto adjust position when source node is overflowed
+            overflow: {adjustX: true, adjustY: true},
+        };
 
         return (
             <div className = "field-background field-background-color">
                 <div className = "tag-field justify-content-start">
                     <div className = "row-4 tag-field-item">
-                        <div onClick={this.handleTypeShow} className = "field-background-container">
+                        <div
+                            ref={this.typeRef}
+                            className="field-background-container"
+                            onClick={this.handleTypeShow}>
                             <span className="type-selected">{tag.type}</span>
                             <span className={dropdownIconClass}></span>
                         </div>
-                        <div className = {this.showHideType()}>
-                            <ol className = "format-items-list">
-                                {
-                                    types.filter((type) => {
-                                        return FieldType[type] !== tag.type;
-                                    }).map((type) => {
-                                        return(
-                                            this.getTypeListItem(this, type)
-                                        );
-                                    })
-                                }
-                            </ol>
-                        </div>
+                        <AlignPortal align={align} target={() => this.typeRef.current} monitorWindowResize={true}>
+                            {
+                                this.state.showType &&
+                                <div className={["tag-input-portal", "format-list", "format-items-list"].join(" ")}>
+                                    {
+                                        types.filter((type) => {
+                                            return FieldType[type] !== tag.type;
+                                        }).map((type) => {
+                                            return (
+                                                this.getTypeListItem(this, type)
+                                            );
+                                        })
+                                    }
+                                </div>
+                            }
+                        </AlignPortal>
                     </div>
                     <div className = "horizontal-line"></div>
                     <div className = "row-4 tag-field-item">
-                        <div onClick={this.handleFormatShow} className = "field-background-container">
+                        <div
+                            ref={this.formatRef}
+                            className = "field-background-container"
+                            onClick={this.handleFormatShow}>
                             <span>{tag.format}</span>
                             <span className={dropdownIconClass}></span>
                         </div>
-                        <div className = {this.showHideFormat()}>
-                            <ol className = "format-items-list">
-                                {
-                                    formats.filter((format) => {
-                                        return format !== tag.format;
-                                    }).map((format) => {
-                                        return (
-                                            this.getFormatListItem(this, format)
-                                        );
-                                    })
-                                }
-                            </ol>
-                        </div>
+                        <AlignPortal align={align} target={() => this.formatRef.current}>
+                            {
+                                this.state.showFormat &&
+                                <div className = {["tag-input-portal", "format-list", "format-items-list"].join(" ")}>
+                                    {
+                                        formats.filter((format) => {
+                                            return format !== tag.format;
+                                        }).map((format) => {
+                                            return (
+                                                this.getFormatListItem(this, format)
+                                            );
+                                        })
+                                    }
+                                </div>
+                            }
+                        </AlignPortal>
                     </div>
                 </div>
             </div>
@@ -144,25 +169,10 @@ export default class TagTypeFormat extends React.Component<ITagTypeFormatProps, 
         }
     }
 
-    private showHideType = () => {
-        let formatHideClass = ["format-items-hide"];
-        if (this.state.showType) {
-            formatHideClass = [];
-        }
-        return formatHideClass.join(" ");
-    }
-
     private handleFormatShow = (e) => {
         if (e.type === "click") {
-            this.setState({showFormat: !this.state.showFormat, showType: false}); }
+            this.setState({showFormat: !this.state.showFormat, showType: false});
         }
-
-    private showHideFormat = () => {
-        let formatHideClass = ["format-items-hide", "format-list"];
-        if (this.state.showFormat) {
-            formatHideClass = ["format-list"];
-        }
-        return formatHideClass.join(" ");
     }
 
     private handleFormatChange = (event) => {
