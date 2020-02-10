@@ -88,7 +88,9 @@ export default class TagTypeFormat extends React.Component<ITagTypeFormatProps, 
                         <div className = {this.showHideType()}>
                             <ol className = "format-items-list">
                                 {
-                                    types.map((type) => {
+                                    types.filter((type) => {
+                                        return FieldType[type] !== tag.type;
+                                    }).map((type) => {
                                         return(
                                             this.getTypeListItem(this, type)
                                         );
@@ -102,11 +104,13 @@ export default class TagTypeFormat extends React.Component<ITagTypeFormatProps, 
                         <div onClick={this.handleFormatShow} className = "field-background-container">
                             <span>{tag.format}</span>
                             <span className={dropdownIconClass}></span>
-                         </div>
+                        </div>
                         <div className = {this.showHideFormat()}>
                             <ol className = "format-items-list">
                                 {
-                                    formats.map((format) => {
+                                    formats.filter((format) => {
+                                        return format !== tag.format;
+                                    }).map((format) => {
                                         return (
                                             this.getFormatListItem(this, format)
                                         );

@@ -354,14 +354,15 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                                 {
                                     this.state.showDropDown &&
                                     <TagTypeFormat
-                                    key={this.state.editingTag.name}
-                                    tag={this.state.editingTag}
-                                    onChange={this.props.onTagChanged}
-                                    />
+                                        key={this.state.editingTag.name}
+                                        tag={this.state.editingTag}
+                                        onChange={this.props.onTagChanged}
+                                        />
                                 }
                             </div>
                         </Align>
-                        , this.state.fieldPortalElement)}
+                        , this.state.fieldPortalElement)
+                }
             </div>
         );
     }
@@ -376,10 +377,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             points: [`${alignCorner}r`, `${alignCorner}l`],
             // Offset source node by 0px in x and 6px in y
             offset: [0, verticalOffset],
-            // Offset targetNode by 30% of target node width in x and 40% of target node height
-            // targetOffset: ["30%", "40%"],
-            // Auto adjust position when source node is overflowed
-            // overflow: {adjustX: true, adjustY: true}
         };
     }
 
@@ -387,10 +384,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         return {
             // Align top right of source node (dropdown) with top left of target node (tag name row)
             points: ["tr", "br"],
-            // Offset source node by 6px in x and 3px in y
+            // Offset source node by 0px in x and 3px in y
             offset: [6, 3],
-            // Offset targetNode by 30% of target node width in x and 40% of target node height
-            // targetOffset: ["30%", "40%"],
             // Auto adjust position when source node is overflowed
             overflow: {adjustX: true, adjustY: true},
         };
