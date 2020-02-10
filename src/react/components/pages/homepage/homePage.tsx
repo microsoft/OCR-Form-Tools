@@ -144,7 +144,18 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
         const decryptedProject = decryptProject(project, projectToken);
         const storageProvider = StorageProviderFactory.createFromConnection(decryptedProject.sourceConnection);
         try {
-            const projectStr = await storageProvider.readText(`${decryptedProject.name}${constants.projectFileExtension}`);
+            let projectStr: string;
+            try
+            {
+                projectStr = await storageProvider.readText(`${decryptedProject.name}${constants.projectFileExtension}`);
+            } catch (err) {
+                if (err instanceof AppError && err.errorCode === ErrorCode.BlobContainerIONotFound) {
+                    // try old file extension
+                    projectStr = await storageProvider.readText(`${decryptedProject.name}${constants.projectFileExtensionOld}`);
+                } else {
+                    throw err;
+                }
+            }
             const selectedProject = { ...JSON.parse(projectStr), sourceConnection: project.sourceConnection };
             await this.loadSelectedProject(selectedProject);
         } catch (err) {
