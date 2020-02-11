@@ -72,20 +72,17 @@ const redButtonPalette = {
     "neutralPrimary": "#e9ecef ",
     "neutralDark": "#fafbfb",
     "black": "#fcfdfd",
-    "white": "#272B30",
+    "white": "#272B30"
 }
 
 export function getPrimaryWhiteTheme() {
   return createTheme({palette: whiteButtonPalette});
-
 };
 
 export function getPrimaryRedTheme() {
   return createTheme({palette: redButtonPalette});
-
 };
 
 export function getPrimaryGreenTheme() {
   return createTheme({palette: greenButtonPalette});
-
 };
