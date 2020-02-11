@@ -68,7 +68,7 @@ export default class MessageBox extends React.Component<IMessageBoxProps, IMessa
             <Modal className="messagebox-modal"
                 isOpen={this.state.isOpen}
                 onClosed={this.onClosed}>
-                <ModalHeader toggle={this.toggle}>{this.props.title}</ModalHeader>
+                <ModalHeader tag="div" toggle={this.toggle}>{this.props.title}</ModalHeader>
                 <ModalBody>{this.getMessage(this.props.message)}</ModalBody>
                 {!this.props.hideFooter && <ModalFooter onClick={this.onFooterClick}>
                     {this.props.children}
