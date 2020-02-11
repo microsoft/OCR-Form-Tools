@@ -120,6 +120,9 @@ export const spanish: IAppStrings = {
         pleaseWait: "Por favor espera",
         notTrainedYet: "Aún no entrenado",
     },
+    predict: {
+        uploadFile: "Subir archivo",
+    },
     projectMetrics: {
         title: "Métricas del proyecto",
         assetsSectionTitle: "Activos",
