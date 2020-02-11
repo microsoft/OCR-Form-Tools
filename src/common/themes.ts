@@ -50,7 +50,6 @@ const whiteButtonPalette = {
   "white": "#32363C"
 }
 
-
 const redButtonPalette = {
     "themePrimary": "#f2635e",
     "themeLighterAlt": "#0a0404",
@@ -81,15 +80,12 @@ export function getPrimaryWhiteTheme() {
 
 };
 
-
 export function getPrimaryRedTheme() {
   return createTheme({palette: redButtonPalette});
 
 };
 
-
 export function getPrimaryGreenTheme() {
   return createTheme({palette: greenButtonPalette});
 
 };
-
