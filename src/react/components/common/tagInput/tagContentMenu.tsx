@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { AlignPortal } from "../alignPortal/alignPortal";
+import { Align } from "../align/align";
 import { ITag, FieldType, FieldFormat  } from "../../../../models/applicationState";
 import "./tagContextMenu.scss";
 import "./tagInputItem.scss";
@@ -101,7 +101,7 @@ export default class TagContextMenu extends React.Component<ITagContextMenuProps
                             <span className="type-selected">{tag.type}</span>
                             <span className={dropdownIconClass}></span>
                         </div>
-                        <AlignPortal align={align} target={() => this.typeRef.current} monitorWindowResize={true}>
+                        <Align align={align} target={() => this.typeRef.current} monitorWindowResize={true}>
                             {
                                 this.state.showType &&
                                 <div className={["tag-input-portal", "format-list", "format-items-list"].join(" ")}>
@@ -116,7 +116,7 @@ export default class TagContextMenu extends React.Component<ITagContextMenuProps
                                     }
                                 </div>
                             }
-                        </AlignPortal>
+                        </Align>
                     </div>
                     <div className = "horizontal-line"></div>
                     <div className = "row-4 tag-field-item">
@@ -127,7 +127,7 @@ export default class TagContextMenu extends React.Component<ITagContextMenuProps
                             <span>{tag.format}</span>
                             <span className={dropdownIconClass}></span>
                         </div>
-                        <AlignPortal align={align} target={() => this.formatRef.current}>
+                        <Align align={align} target={() => this.formatRef.current}>
                             {
                                 this.state.showFormat &&
                                 <div className = {["tag-input-portal", "format-list", "format-items-list"].join(" ")}>
@@ -142,7 +142,7 @@ export default class TagContextMenu extends React.Component<ITagContextMenuProps
                                     }
                                 </div>
                             }
-                        </AlignPortal>
+                        </Align>
                     </div>
                 </div>
             </div>

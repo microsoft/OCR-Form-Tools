@@ -1,0 +1,15 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+.align {
+    
+    &-portal {
+        position: absolute;
+        z-index: 1;
+
+        &-fixed {
+            position: fixed;
+            z-index: 1000;
+        }
+    }
+}

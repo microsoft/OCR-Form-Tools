@@ -3,8 +3,7 @@
 
 import React, { KeyboardEvent, RefObject } from "react";
 import ReactDOM from "react-dom";
-import Align from "rc-align";
-import { AlignPortal } from "../alignPortal/alignPortal";
+import { Align } from "../align/align";
 import { randomIntInRange } from "../../../../common/utils";
 import { IRegion, ITag, ILabel, FieldType, FieldFormat } from "../../../../models/applicationState";
 import { ColorPicker } from "../colorPicker";
@@ -306,7 +305,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
     private getColorPickerPortal = () => {
         return (
-            <AlignPortal align={this.getColorAlignConfig()} target={this.getEditingTagNode}>
+            <Align align={this.getColorAlignConfig()} target={this.getEditingTagNode}>
                 <div className="tag-input-portal">
                     {
                         this.state.showColorPicker &&
@@ -318,14 +317,14 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                         />
                     }
                 </div>
-            </AlignPortal>
+            </Align>
         );
     }
 
     private getTagFieldPortal = () => {
         return (
             <Align align={this.getFieldAlignConfig()} target={this.getEditingTagNameNode} monitorWindowResize={true}>
-                <div className="tag-input-portal" style = {{overflow: "hidden"}}>
+                <div className="tag-input-portal">
                     {
                         this.state.showDropDown &&
                         <TagContextMenu
