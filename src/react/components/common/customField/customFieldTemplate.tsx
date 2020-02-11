@@ -35,7 +35,7 @@ export default function CustomFieldTemplate(props: FieldTemplateProps) {
             {children}
             {
                 schema.type !== "array" && description &&
-                <small className="text-muted" tabIndex={0}>
+                <small className="text-muted">
                     {description}
                 </small>
             }

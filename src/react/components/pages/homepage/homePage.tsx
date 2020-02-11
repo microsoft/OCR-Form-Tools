@@ -61,11 +61,13 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
         cloudPickerOpen: false,
     };
 
-    private deleteConfirm: React.RefObject<Confirm> = React.createRef();
-    private cloudFilePicker: React.RefObject<CloudFilePicker> = React.createRef();
+    private newProjectRef = React.createRef<HTMLAnchorElement>();
+    private deleteConfirmRef = React.createRef<Confirm>();
+    private cloudFilePickerRef = React.createRef<CloudFilePicker>();
 
     public async componentDidMount() {
         this.props.appTitleActions.setTitle("Welcome");
+        this.newProjectRef.current.focus();
     }
 
     public render() {
@@ -75,9 +77,10 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                     <ul>
                         <li>
                             {/* eslint-disable-next-line */}
-                            <a href="#" onClick={this.createNewProject} className="p-5 new-project">
+                            <a ref={this.newProjectRef}
+                                href="#" onClick={this.createNewProject} className="p-5 new-project">
                                 <i className="ms-Icon ms-Icon--AddTo ms-Icon-9x"></i>
-                                <h6>{strings.homePage.newProject}</h6>
+                                <div>{strings.homePage.newProject}</div>
                             </a>
                         </li>
                         <li>
@@ -85,10 +88,10 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                             {/* eslint-disable-next-line */}
                             <a href="#" onClick={this.handleOpenCloudProjectClick} className="p-5 cloud-open-project">
                                 <i className="ms-Icon ms-Icon--Cloud ms-Icon-9x"></i>
-                                <h6>{strings.homePage.openCloudProject.title}</h6>
+                                <div>{strings.homePage.openCloudProject.title}</div>
                             </a>
                             <CloudFilePicker
-                                ref={this.cloudFilePicker}
+                                ref={this.cloudFilePickerRef}
                                 connections={this.props.connections}
                                 onSubmit={(content) => this.loadSelectedProject(JSON.parse(content))}
                                 fileExtension={constants.projectFileExtension}
@@ -103,11 +106,11 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                             Component={RecentProjectItem}
                             items={this.props.recentProjects}
                             onClick={this.freshLoadSelectedProject}
-                            onDelete={(project) => this.deleteConfirm.current.open(project)} />
+                            onDelete={(project) => this.deleteConfirmRef.current.open(project)} />
                     </div>
                 }
                 <Confirm title="Delete Project"
-                    ref={this.deleteConfirm as any}
+                    ref={this.deleteConfirmRef as any}
                     message={(project: IProject) => `${strings.homePage.deleteProject.confirmation} ${project.name}?`}
                     confirmButtonColor="danger"
                     onConfirm={this.deleteProject} />
@@ -123,7 +126,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
     }
 
     private handleOpenCloudProjectClick = () => {
-        this.cloudFilePicker.current.open();
+        this.cloudFilePickerRef.current.open();
     }
 
     private loadSelectedProject = async (project: IProject) => {

@@ -3,6 +3,8 @@
 
 import React from "react";
 import { NavLink } from "react-router-dom";
+import { IconButton } from "../../common/iconButton/iconButton";
+import { strings } from "../../../../common/strings";
 
 export default function ConnectionItem({ item, onClick, onDelete }) {
     return (
@@ -10,9 +12,11 @@ export default function ConnectionItem({ item, onClick, onDelete }) {
             <NavLink to={`/connections/${item.id}`}>
                 <i className="ms-Icon ms-Icon--Edit"></i>
                 <span className="px-2">{item.name}</span>
-                <div className="float-right delete-btn" onClick={onDelete}>
-                    <i className="ms-Icon ms-Icon--Delete"></i>
-                </div>
+                <IconButton
+                    iconClassName="ms-Icon ms-Icon--Delete"
+                    buttonClassName="float-right delete-btn"
+                    title={strings.common.delete}
+                    onClick={onDelete}/>
             </NavLink>
         </li>
     );

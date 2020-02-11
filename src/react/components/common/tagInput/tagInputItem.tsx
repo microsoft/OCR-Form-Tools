@@ -89,7 +89,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                 <div className={"tag-item-block-2"}>
                     {
                         this.props.tag &&
-                        <li className={this.getItemClassName()} style={style}>
+                        <div className={this.getItemClassName()} style={style}>
                             <div
                                 className={"tag-content"}
                                 onClick={this.onNameClick}>
@@ -99,7 +99,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                                 this.state.isLocked &&
                                 <div></div>
                             }
-                        </li>
+                        </div>
                     }
                     {this.renderTagDetail()}
                 </div>

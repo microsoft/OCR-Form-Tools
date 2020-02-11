@@ -69,6 +69,8 @@ function mapDispatchToProps(dispatch) {
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class TrainPage extends React.Component<ITrainPageProps, ITrainPageState> {
+    private trainRef = React.createRef<HTMLButtonElement>();
+
     constructor(props) {
         super(props);
 
@@ -91,6 +93,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             this.props.appTitleActions.setTitle(project.name);
             this.updateCurrTrainRecord(this.getProjectTrainRecord());
         }
+        this.trainRef.current.focus();
     }
 
     public render() {
@@ -123,7 +126,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                             <div className="m-3">
                                 <h4> Train a new model </h4>
                                 {!this.state.isTraining ? (
-                                    <button className="btn32px btn-green flex-center" onClick={this.handleTrainClick}>
+                                    <button ref={this.trainRef}
+                                        className="btn32px btn-green flex-center" onClick={this.handleTrainClick}>
                                         <i className="ms-Icon ms-Icon--MachineLearning"></i>
                                         <h6 className="d-inline ml-2 mb-0"> {strings.train.title} </h6>
                                     </button>
