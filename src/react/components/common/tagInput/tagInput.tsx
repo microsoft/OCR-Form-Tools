@@ -99,7 +99,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     public render() {
         return (
             <div className="tag-input condensed-list">
-                <h6 className="condensed-list-header tag-input-header bg-darker-2 p-2">
+                <div className="condensed-list-header tag-input-header bg-darker-2 p-2">
                     <span
                         className="condensed-list-title tag-input-title"
                     >Tags</span>
@@ -115,7 +115,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                         onDelete={this.deleteTag}
                         onReorder={this.onReOrder}
                     />
-                </h6>
+                </div>
                 <div className="condensed-list-body">
                     {
                         this.state.searchTags &&
