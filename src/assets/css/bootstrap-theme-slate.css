@@ -5801,6 +5801,8 @@ button.close {
 .modal-title {
   margin-bottom: 0;
   line-height: 1.5;
+  font-size: 1.17rem;
+  font-weight: 500;
 }
 
 .modal-body {
