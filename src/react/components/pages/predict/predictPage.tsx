@@ -188,7 +188,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                         disabled={predictDisabled}
                                         onClick={this.handleClick}
                                     />
-
                                 </div>
                             {!this.state.predictionLoaded &&
                                     <div className="loading-container">
