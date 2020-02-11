@@ -3,8 +3,9 @@
 
 import React from "react";
 import ReactDOM from "react-dom";
-import Align, { AlignProps } from "rc-align";
-import "./alignPortal.scss";
+import { AlignProps } from "rc-align";
+import { Align } from "./align";
+import "./align.scss";
 
 export class AlignPortal extends React.Component<AlignProps> {
 
@@ -13,7 +14,7 @@ export class AlignPortal extends React.Component<AlignProps> {
     constructor(props: AlignProps) {
         super(props);
         this.portalElement = document.createElement("div");
-        this.portalElement.classList.add("align-portal");
+        this.portalElement.classList.add("align-portal-fixed");
     }
 
     public componentDidMount() {
@@ -25,13 +26,9 @@ export class AlignPortal extends React.Component<AlignProps> {
     }
 
     public render() {
-        const { children } = this.props;
         return (
-            children &&
             ReactDOM.createPortal(
-                <Align {...this.props}>
-                    {children}
-                </Align>
+                <Align {...this.props}/>
                 , this.portalElement)
         );
     }

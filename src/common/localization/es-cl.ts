@@ -175,7 +175,7 @@ export const spanish: IAppStrings = {
     },
     connections: {
         title: "Conexiones",
-        new: "",
+        new: "Nueva conexión",
         save: "Guardar Conexión",
         details: "Detalles de Conexión",
         settings: "Configuración de Conexión",
