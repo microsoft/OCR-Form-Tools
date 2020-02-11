@@ -29,6 +29,8 @@ import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
+import { PrimaryButton} from 'office-ui-fabric-react';
+import { getPrimaryGreenTheme, getPrimaryWhiteTheme} from "../../../../common/themes";
 
 export interface IPredictPageProps extends RouteComponentProps, React.Props<PredictPage> {
     recentProjects: IProject[];
@@ -155,6 +157,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             <h5> Upload file </h5>
                                 <div style={{display: "flex", marginBottom: "25px"}}>
                                     <input
+                                        aria-hidden="true"
                                         type="file"
                                         accept="application/pdf, image/jpeg, image/png, image/tiff"
                                         id="hiddenInputFile"
@@ -163,26 +166,29 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                         disabled={browseFileDisabled} />
                                     <input
                                         type="text"
+                                        id="inputPredictFile"
                                         style = {{cursor: (browseFileDisabled ? "default" : "pointer")}}
                                         onClick={this.handleDummyInputClick}
                                         readOnly={true}
                                         className="dummyInputFile"
                                         value={this.state.fileLabel}/>
-                                    <button
-                                        className={"btn32px " + (browseFileDisabled ? "input-disabled"
-                                        : "btn-green")}
-                                        onClick={this.handleDummyInputClick}
-                                        disabled={browseFileDisabled}
-                                        style={{marginLeft: "10px", marginRight: "10px"}}>
-                                        Browse
-                                    </button>
-                                    <button
-                                        className={"btn32px " + (predictDisabled ? "input-disabled"
-                                        : "btn-white")}
+                                    <div className="rlMargin10">
+                                        <PrimaryButton 
+                                            theme={getPrimaryGreenTheme()} 
+                                            text="Browse" 
+                                            allowDisabledFocus 
+                                            disabled={browseFileDisabled} 
+                                            onClick={this.handleDummyInputClick}
+                                        /> 
+                                    </div>
+                                    <PrimaryButton 
+                                        theme={getPrimaryWhiteTheme()}
+                                        text="Predict"
+                                        allowDisabledFocus
+                                        disabled={predictDisabled}
                                         onClick={this.handleClick}
-                                        disabled={predictDisabled}>
-                                        Predict
-                                    </button>
+                                    />
+
                                 </div>
                             {!this.state.predictionLoaded &&
                                     <div className="loading-container">
