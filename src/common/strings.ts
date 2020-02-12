@@ -33,6 +33,7 @@ export interface IAppStrings {
         close: string;
     };
     homePage: {
+        title: string;
         newProject: string;
         openLocalProject: {
             title: string;
@@ -120,6 +121,7 @@ export interface IAppStrings {
         notTrainedYet: string;
     };
     predict: {
+        title: string;
         uploadFile: string;
     };
     projectMetrics: {
@@ -232,6 +234,7 @@ export interface IAppStrings {
         }
     };
     editorPage: {
+        title: string;
         width: string;
         height: string;
         tagged: string;
