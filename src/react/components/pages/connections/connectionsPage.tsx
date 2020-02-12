@@ -55,7 +55,6 @@ function mapDispatchToProps(dispatch) {
  */
 @connect(mapStateToProps, mapDispatchToProps)
 export default class ConnectionPage extends React.Component<IConnectionPageProps, IConnectionPageState> {
-    protected connectionName;
     private confirmDelete: React.RefObject<Confirm>;
 
     constructor(props, context) {
@@ -73,7 +72,6 @@ export default class ConnectionPage extends React.Component<IConnectionPageProps
 
     public async componentDidMount() {
         const connectionId = this.props.match.params["connectionId"];
-
         if (connectionId) {
             this.loadConnection(connectionId);
         }
