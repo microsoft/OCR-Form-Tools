@@ -29,7 +29,7 @@ import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
-import { PrimaryButton} from "office-ui-fabric-react";
+import { PrimaryButton, Spinner, SpinnerSize} from "office-ui-fabric-react";
 import { getPrimaryGreenTheme, getPrimaryWhiteTheme} from "../../../../common/themes";
 
 export interface IPredictPageProps extends RouteComponentProps, React.Props<PredictPage> {
@@ -192,9 +192,13 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                     />
                                 </div>
                             {!this.state.predictionLoaded &&
-                                    <div className="loading-container">
-                                    <i className="loading-icon" />
-                                    <div className="loading-description">Prediction in progress...</div>
+                                <div className="loading-container">
+                                    <Spinner
+                                        label="Prediction in progress..."
+                                        ariaLive="assertive"
+                                        labelPosition="right"
+                                        size={SpinnerSize.large}
+                                    />
                                 </div>
                             }
                             {Object.keys(predictions).length > 0 &&
