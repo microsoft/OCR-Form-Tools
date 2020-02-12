@@ -89,7 +89,7 @@ export abstract class ToolbarItem extends React.Component<IToolbarItemProps> {
                     className={className.join(" ")}
                     title={this.getTitle()}
                     onClick={this.onClick}>
-                    <i className={"fas " + this.props.icon} />
+                    <i className={this.props.icon} />
                 </button>
             </Fragment>
         );
