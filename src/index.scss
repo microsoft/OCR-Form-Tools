@@ -4,6 +4,10 @@ body {
     user-select: none;
 }
 
+body.no-focus-outline :focus {
+    outline: none;
+}
+
 #root {
     overflow: hidden;
 }

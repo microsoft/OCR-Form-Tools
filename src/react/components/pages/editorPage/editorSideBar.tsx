@@ -111,14 +111,14 @@ export default class EditorSideBar extends React.Component<IEditorSideBarProps, 
         const selectedAsset = this.props.selectedAsset;
 
         return (
-            <div key={asset.id} style={style}
+            <div key={asset.id} style={style} role="row"
                 className={this.getAssetCssClassNames(asset, selectedAsset)}
                 onClick={() => this.onAssetClicked(asset)}>
-                <div className="asset-item-image">
+                <div className="asset-item-image" role="gridcell">
                     {this.renderBadges(asset)}
                     <AssetPreview asset={asset} />
                 </div>
-                <div className="asset-item-metadata">
+                <div className="asset-item-metadata" role="rowheader">
                     <span className="asset-filename" title={asset.name}>
                         {asset.name.slice(asset.name.lastIndexOf("/") + 1, asset.name.length)}
                     </span>

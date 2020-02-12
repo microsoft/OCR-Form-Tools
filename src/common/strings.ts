@@ -119,6 +119,9 @@ export interface IAppStrings {
         pleaseWait: string;
         notTrainedYet: string;
     };
+    predict: {
+        uploadFile: string;
+    };
     projectMetrics: {
         title: string;
         assetsSectionTitle: string

@@ -46,7 +46,7 @@ export class TitleBar extends React.Component<ITitleBarProps, ITitleBarState> {
                     </div>
                 }
                 <div className="title-bar-main">{this.props.title || "Welcome"}</div>
-                <div className="title-bar-controls" title = "Help">
+                <div className="title-bar-controls">
                     {this.props.children}
                 </div>
             </div>

@@ -144,7 +144,7 @@ $tagColorWidth: 12px;
     }
 
     &-item-label {
-        color: #808080;
+        color: #A0A0A0;
     }
 
     &-item-label:hover {
@@ -168,8 +168,6 @@ $tagColorWidth: 12px;
 
     &-input {
         &-portal {
-            position: absolute;
-            z-index: 1;
             box-shadow: 0px 5px 10px $darker-5;
         }
 

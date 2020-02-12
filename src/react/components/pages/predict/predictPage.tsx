@@ -154,7 +154,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             <span className="condensed-list-title">Predict</span>
                         </h6>
                         <div className="p-3">
-                            <h5> Upload file </h5>
+                            <h5>{strings.predict.uploadFile}</h5>
                                 <div style={{display: "flex", marginBottom: "25px"}}>
                                     <input
                                         aria-hidden="true"
@@ -171,6 +171,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                         onClick={this.handleDummyInputClick}
                                         readOnly={true}
                                         className="dummyInputFile"
+                                        aria-label={strings.predict.uploadFile}
                                         value={this.state.fileLabel}/>
                                     <div className="rlMargin10">
                                         <PrimaryButton 

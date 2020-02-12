@@ -119,6 +119,9 @@ export const english: IAppStrings = {
         pleaseWait: "Please wait",
         notTrainedYet: "Not trained yet",
     },
+    predict: {
+        uploadFile: "Upload file",
+    },
     projectMetrics: {
         title: "Project Metrics",
         assetsSectionTitle: "Assets",

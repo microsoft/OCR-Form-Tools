@@ -120,6 +120,9 @@ export const spanish: IAppStrings = {
         pleaseWait: "Por favor espera",
         notTrainedYet: "Aún no entrenado",
     },
+    predict: {
+        uploadFile: "Subir archivo",
+    },
     projectMetrics: {
         title: "Métricas del proyecto",
         assetsSectionTitle: "Activos",
@@ -175,7 +178,7 @@ export const spanish: IAppStrings = {
     },
     connections: {
         title: "Conexiones",
-        new: "",
+        new: "Nueva conexión",
         save: "Guardar Conexión",
         details: "Detalles de Conexión",
         settings: "Configuración de Conexión",

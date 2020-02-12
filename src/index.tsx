@@ -21,6 +21,23 @@ registerProviders();
 const defaultState: IApplicationState = initialState;
 const store = createReduxStore(defaultState, true);
 
+let noFocusOutline = true;
+document.body.classList.add("no-focus-outline");
+
+document.body.addEventListener("mousedown", () => {
+    if (!noFocusOutline) {
+        noFocusOutline = true;
+        document.body.classList.add("no-focus-outline");
+    }
+});
+
+document.body.addEventListener("keydown", (event) => {
+    if (event.keyCode === 9 && noFocusOutline) {
+        noFocusOutline = false;
+        document.body.classList.remove("no-focus-outline");
+    }
+});
+
 ReactDOM.render(
     <Provider store={store}>
         <App/>
