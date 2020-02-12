@@ -94,6 +94,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             this.updateCurrTrainRecord(this.getProjectTrainRecord());
         }
         this.trainRef.current.focus();
+        document.title = strings.pageTitle.trainPage;
     }
 
     public render() {

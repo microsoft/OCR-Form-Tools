@@ -15,6 +15,7 @@ import ConnectionForm from "./connectionForm";
 import ConnectionItem from "./connectionItem";
 import "./connectionsPage.scss";
 import { toast } from "react-toastify";
+import ConnectionService from "../../../../services/connectionService";
 
 /**
  * Properties for Connection Page
@@ -54,6 +55,7 @@ function mapDispatchToProps(dispatch) {
  */
 @connect(mapStateToProps, mapDispatchToProps)
 export default class ConnectionPage extends React.Component<IConnectionPageProps, IConnectionPageState> {
+    protected connectionName;
     private confirmDelete: React.RefObject<Confirm>;
 
     constructor(props, context) {
@@ -71,11 +73,13 @@ export default class ConnectionPage extends React.Component<IConnectionPageProps
 
     public async componentDidMount() {
         const connectionId = this.props.match.params["connectionId"];
+
         if (connectionId) {
             this.loadConnection(connectionId);
         }
 
         this.props.appTitleActions.setTitle(strings.connections.title);
+        document.title = strings.pageTitle.connection;
     }
 
     public componentDidUpdate = (prevProps) => {

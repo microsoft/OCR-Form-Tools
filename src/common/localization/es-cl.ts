@@ -573,6 +573,15 @@ export const spanish: IAppStrings = {
             message: "",
         },
     },
+    pageTitle: {
+        homePage: "Página principal - Herramienta de etiquetado de formularios OCR",
+        projectSetting: "Configuración del proyecto - Herramienta de etiquetado de formularios OCR",
+        applicationSetting: "Configuración de la aplicación - Herramienta de etiquetado de formularios OCR",
+        connection: "Conexión - Herramienta de etiquetado de formularios OCR",
+        editorPage: "Página del editor - Herramienta de etiquetado de formularios OCR",
+        trainPage: "página del tren - Herramienta de etiquetado de formularios OCR",
+        predictPage: "Predecir página - Herramienta de etiquetado de formularios OCR",
+    },
 };
 
 /*eslint-enable no-template-curly-in-string, no-multi-str*/

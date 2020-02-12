@@ -106,6 +106,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             await this.props.actions.loadProject(project);
             this.props.appTitleActions.setTitle(project.name);
         }
+        document.title = strings.pageTitle.predictPage;
     }
 
     public componentDidUpdate(prevProps, prevState) {

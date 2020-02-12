@@ -476,6 +476,15 @@ export interface IAppStrings {
         tooManyRequests: IErrorMetadata,
         modelCountLimitExceeded: IErrorMetadata,
     };
+    pageTitle: {
+        homePage: string;
+        projectSetting: string;
+        applicationSetting: string;
+        connection: string;
+        editorPage: string;
+        trainPage: string;
+        predictPage: string;
+    };
 }
 
 interface IErrorMetadata {

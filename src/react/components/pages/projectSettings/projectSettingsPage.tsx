@@ -96,6 +96,7 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
         }
 
         this.props.appTitleActions.setTitle(strings.projectSettings.title);
+        document.title = strings.pageTitle.projectSetting;
     }
 
     public componentDidUpdate(prevProps: Readonly<IProjectSettingsPageProps>) {

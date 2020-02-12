@@ -569,6 +569,15 @@ export const english: IAppStrings = {
             message: "The number of models associated with the given API key has exceeded the maximum allowed value.",
         },
     },
+    pageTitle: {
+        homePage: "Home - OCR Form Labeling Tool",
+        projectSetting: "Project Setting - OCR Form Labeling Tool",
+        applicationSetting: "Application Setting - OCR Form Labeling Tool",
+        connection: "Connection - OCR Form Labeling Tool",
+        editorPage: "Editor Page - OCR Form Labeling Tool",
+        trainPage: "Train Page - OCR Form Labeling Tool",
+        predictPage: "Predict Page - OCR Form Labeling Tool",
+    },
 };
 
 /*eslint-enable no-template-curly-in-string, no-multi-str*/
