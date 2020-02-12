@@ -76,6 +76,7 @@ export default class ConnectionPage extends React.Component<IConnectionPageProps
         }
 
         this.props.appTitleActions.setTitle(strings.connections.title);
+        document.title = strings.connections.title + " - " + strings.appName;
     }
 
     public componentDidUpdate = (prevProps) => {

@@ -68,6 +68,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
     public async componentDidMount() {
         this.props.appTitleActions.setTitle("Welcome");
         this.newProjectRef.current.focus();
+        document.title = strings.homePage.title + " - " + strings.appName;
     }
 
     public render() {
