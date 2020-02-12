@@ -122,7 +122,7 @@ export const spanish: IAppStrings = {
         notTrainedYet: "Aún no entrenado",
     },
     predict: {
-        title: "Predecir Página",
+        title: "Predecir",
         uploadFile: "Subir archivo",
     },
     projectMetrics: {
@@ -239,7 +239,7 @@ export const spanish: IAppStrings = {
         },
     },
     editorPage: {
-        title: "Página del Editor",
+        title: "Editora",
         width: "Anchura",
         height: "Altura",
         tagged: "Etiquetado",
