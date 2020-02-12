@@ -9,7 +9,7 @@ import { IAppStrings } from "../strings";
  * App Strings for Spanish language
  */
 export const spanish: IAppStrings = {
-    appName: "Herramienta Visual de Etiquetado de Objetos",
+    appName: "Herramienta de etiquetado de formularios OCR",
     projectService: {
         existingLabelFiles: "",
     },
@@ -32,6 +32,7 @@ export const spanish: IAppStrings = {
         close: "Cerrar",
     },
     homePage: {
+        title: "Página de Inicio",
         newProject: "Nuevo Proyecto",
         recentProjects: "Proyectos Recientes",
         openLocalProject: {
@@ -121,6 +122,7 @@ export const spanish: IAppStrings = {
         notTrainedYet: "Aún no entrenado",
     },
     predict: {
+        title: "Predecir",
         uploadFile: "Subir archivo",
     },
     projectMetrics: {
@@ -237,6 +239,7 @@ export const spanish: IAppStrings = {
         },
     },
     editorPage: {
+        title: "Editora",
         width: "Anchura",
         height: "Altura",
         tagged: "Etiquetado",

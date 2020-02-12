@@ -9,7 +9,7 @@ import { IAppStrings } from "../strings";
  * App Strings for English language
  */
 export const english: IAppStrings = {
-    appName: "Visual Object Tagging Tool",
+    appName: "OCR Form Labeling Tool",
     common: {
         displayName: "Display name",
         description: "Description",
@@ -32,6 +32,7 @@ export const english: IAppStrings = {
         close: "Close",
     },
     homePage: {
+        title: "Home",
         newProject: "New Project",
         openLocalProject: {
             title: "Open Local Project",
@@ -120,6 +121,7 @@ export const english: IAppStrings = {
         notTrainedYet: "Not trained yet",
     },
     predict: {
+        title: "Predict",
         uploadFile: "Upload file",
     },
     projectMetrics: {
@@ -235,6 +237,7 @@ export const english: IAppStrings = {
         },
     },
     editorPage: {
+        title: "Editor",
         width: "Width",
         height: "Height",
         tagged: "Tagged",

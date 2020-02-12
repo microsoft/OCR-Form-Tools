@@ -59,6 +59,7 @@ export default class AppSettingsPage extends React.Component<IAppSettingsProps> 
 
     public async componentDidMount() {
         this.props.appTitleActions.setTitle(strings.appSettings.title);
+        document.title = strings.appSettings.title + " - " + strings.appName;
     }
 
     public render() {
