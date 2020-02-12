@@ -29,7 +29,7 @@ import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
-import { PrimaryButton} from 'office-ui-fabric-react';
+import { PrimaryButton} from "office-ui-fabric-react";
 import { getPrimaryGreenTheme, getPrimaryWhiteTheme} from "../../../../common/themes";
 
 export interface IPredictPageProps extends RouteComponentProps, React.Props<PredictPage> {
@@ -174,15 +174,15 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                         aria-label={strings.predict.uploadFile}
                                         value={this.state.fileLabel}/>
                                     <div className="rlMargin10">
-                                        <PrimaryButton 
-                                            theme={getPrimaryGreenTheme()} 
-                                            text="Browse" 
-                                            allowDisabledFocus 
-                                            disabled={browseFileDisabled} 
+                                        <PrimaryButton
+                                            theme={getPrimaryGreenTheme()}
+                                            text="Browse"
+                                            allowDisabledFocus
+                                            disabled={browseFileDisabled}
                                             onClick={this.handleDummyInputClick}
-                                        /> 
+                                        />
                                     </div>
-                                    <PrimaryButton 
+                                    <PrimaryButton
                                         theme={getPrimaryWhiteTheme()}
                                         text="Predict"
                                         allowDisabledFocus
