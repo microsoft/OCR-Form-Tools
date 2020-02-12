@@ -9,7 +9,7 @@ import { IAppStrings } from "../strings";
  * App Strings for Spanish language
  */
 export const spanish: IAppStrings = {
-    appName: "Herramienta Visual de Etiquetado de Objetos",
+    appName: "Herramienta de etiquetado de formularios OCR",
     projectService: {
         existingLabelFiles: "",
     },
@@ -32,6 +32,7 @@ export const spanish: IAppStrings = {
         close: "Cerrar",
     },
     homePage: {
+        title: "Página de Inicio",
         newProject: "Nuevo Proyecto",
         recentProjects: "Proyectos Recientes",
         openLocalProject: {
@@ -121,6 +122,7 @@ export const spanish: IAppStrings = {
         notTrainedYet: "Aún no entrenado",
     },
     predict: {
+        title: "Predecir Página",
         uploadFile: "Subir archivo",
     },
     projectMetrics: {
@@ -237,6 +239,7 @@ export const spanish: IAppStrings = {
         },
     },
     editorPage: {
+        title: "Página del Editor",
         width: "Anchura",
         height: "Altura",
         tagged: "Etiquetado",
@@ -572,15 +575,6 @@ export const spanish: IAppStrings = {
             title: "",
             message: "",
         },
-    },
-    pageTitle: {
-        homePage: "Página principal - Herramienta de etiquetado de formularios OCR",
-        projectSetting: "Configuración del proyecto - Herramienta de etiquetado de formularios OCR",
-        applicationSetting: "Configuración de la aplicación - Herramienta de etiquetado de formularios OCR",
-        connection: "Conexión - Herramienta de etiquetado de formularios OCR",
-        editorPage: "Página del editor - Herramienta de etiquetado de formularios OCR",
-        trainPage: "página del tren - Herramienta de etiquetado de formularios OCR",
-        predictPage: "Predecir página - Herramienta de etiquetado de formularios OCR",
     },
 };
 

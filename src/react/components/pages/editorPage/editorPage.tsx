@@ -146,7 +146,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             await this.props.actions.loadProject(project);
             this.props.appTitleActions.setTitle(project.name);
         }
-        document.title = strings.pageTitle.editorPage;
+        document.title = strings.editorPage.title + " - " + strings.appName;
     }
 
     public async componentDidUpdate(prevProps: Readonly<IEditorPageProps>) {

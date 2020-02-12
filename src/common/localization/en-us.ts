@@ -9,7 +9,7 @@ import { IAppStrings } from "../strings";
  * App Strings for English language
  */
 export const english: IAppStrings = {
-    appName: "Visual Object Tagging Tool",
+    appName: "OCR Form Labeling Tool",
     common: {
         displayName: "Display name",
         description: "Description",
@@ -32,6 +32,7 @@ export const english: IAppStrings = {
         close: "Close",
     },
     homePage: {
+        title: "Home",
         newProject: "New Project",
         openLocalProject: {
             title: "Open Local Project",
@@ -120,6 +121,7 @@ export const english: IAppStrings = {
         notTrainedYet: "Not trained yet",
     },
     predict: {
+        title: "Predict Page",
         uploadFile: "Upload file",
     },
     projectMetrics: {
@@ -235,6 +237,7 @@ export const english: IAppStrings = {
         },
     },
     editorPage: {
+        title: "Editor Page",
         width: "Width",
         height: "Height",
         tagged: "Tagged",
@@ -568,15 +571,6 @@ export const english: IAppStrings = {
             title: "Too many models",
             message: "The number of models associated with the given API key has exceeded the maximum allowed value.",
         },
-    },
-    pageTitle: {
-        homePage: "Home - OCR Form Labeling Tool",
-        projectSetting: "Project Setting - OCR Form Labeling Tool",
-        applicationSetting: "Application Setting - OCR Form Labeling Tool",
-        connection: "Connection - OCR Form Labeling Tool",
-        editorPage: "Editor Page - OCR Form Labeling Tool",
-        trainPage: "Train Page - OCR Form Labeling Tool",
-        predictPage: "Predict Page - OCR Form Labeling Tool",
     },
 };
 
