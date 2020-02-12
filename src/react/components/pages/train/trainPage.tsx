@@ -129,7 +129,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                             <div className="m-3">
                                 <h4> Train a new model </h4>
                                 {!this.state.isTraining ? (
-                                    <PrimaryButton 
+                                    <PrimaryButton
                                         theme={getPrimaryGreenTheme()}
                                         componentRef={this.trainRef}
                                         className="flex-center"
