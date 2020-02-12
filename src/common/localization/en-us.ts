@@ -121,7 +121,7 @@ export const english: IAppStrings = {
         notTrainedYet: "Not trained yet",
     },
     predict: {
-        title: "Predict Page",
+        title: "Predict",
         uploadFile: "Upload file",
     },
     projectMetrics: {
@@ -237,7 +237,7 @@ export const english: IAppStrings = {
         },
     },
     editorPage: {
-        title: "Editor Page",
+        title: "Editor",
         width: "Width",
         height: "Height",
         tagged: "Tagged",
