@@ -139,10 +139,10 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                     </PrimaryButton>
                                 ) : (
                                     <div className="loading-container">
-                                        <Spinner 
-                                            label="Training in progress..." 
-                                            ariaLive="assertive" 
-                                            labelPosition="right" 
+                                        <Spinner
+                                            label="Training in progress..."
+                                            ariaLive="assertive"
+                                            labelPosition="right"
                                             size={SpinnerSize.large}
                                         />
                                     </div>
