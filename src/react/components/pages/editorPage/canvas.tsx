@@ -27,7 +27,7 @@ import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../.
 import { constants } from "../../../../common/constants";
 import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
 import { Label } from "office-ui-fabric-react/lib/Label";
-import { IconButton } from "../../common/iconButton/iconButton";
+import { IconButton } from "office-ui-fabric-react/lib/Button";
 
 // temp hack for enabling worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.js`;
@@ -160,18 +160,18 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     onMapReady={this.noOp} />
                 { this.shouldShowPreviousPageButton() &&
                     <IconButton
-                        buttonClassName="toolbar-btn prev"
+                        className="toolbar-btn prev"
                         title="Previous"
-                        iconClassName="ms-Icon ms-Icon--ChevronLeft ms-Icon-18px"
+                        iconProps={{iconName: "ChevronLeft"}}
                         onClick={this.prevPage}
                     />
                 }
                 { this.shouldShowNextPageButton() &&
                     <IconButton
-                        buttonClassName="toolbar-btn next"
+                        className="toolbar-btn next"
                         title="Next"
                         onClick={this.nextPage}
-                        iconClassName="ms-Icon ms-Icon--ChevronRight ms-Icon-18px"
+                        iconProps={{iconName: "ChevronRight"}}
                     />
                 }
                 { this.shouldShowMultiPageIndicator() &&

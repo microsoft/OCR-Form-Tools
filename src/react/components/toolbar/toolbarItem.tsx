@@ -7,7 +7,7 @@ import IProjectActions from "../../../redux/actions/projectActions";
 import { IKeyboardContext, KeyboardContext, KeyEventType } from "../common/keyboardManager/keyboardManager";
 import { KeyboardBinding } from "../common/keyboardBinding/keyboardBinding";
 import { ToolbarItemName, ToolbarItemGroup } from "../../../registerToolbar";
-import { IconButton } from "../common/iconButton/iconButton";
+import { IconButton } from "office-ui-fabric-react";
 
 /**
  * Toolbar Item Metadata
@@ -86,9 +86,9 @@ export abstract class ToolbarItem extends React.Component<IToolbarItemProps> {
                     />
                 }
                 <IconButton
-                    buttonClassName={className.join(" ")}
+                    className={className.join(" ")}
                     title={this.getTitle()}
-                    iconClassName={this.props.icon}
+                    iconProps={{iconName: this.props.icon}}
                     onClick={this.onClick}
                 />
             </Fragment>
@@ -117,7 +117,7 @@ export abstract class ToolbarItem extends React.Component<IToolbarItemProps> {
         return consolidated;
     }
 
-    private onClick = (e: SyntheticEvent | KeyboardEvent) => {
+    private onClick = (e) => {
         e.stopPropagation();
 
         if (this.onItemClick) {
