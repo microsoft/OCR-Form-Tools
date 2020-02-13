@@ -23,6 +23,8 @@ import Alert from "../../common/alert/alert";
 import url from "url";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
+import { PrimaryButton, IButton, Spinner, SpinnerSize} from "office-ui-fabric-react";
+import { getPrimaryGreenTheme} from "../../../../common/themes";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -69,7 +71,7 @@ function mapDispatchToProps(dispatch) {
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class TrainPage extends React.Component<ITrainPageProps, ITrainPageState> {
-    private trainRef = React.createRef<HTMLButtonElement>();
+    private trainRef = React.createRef<IButton>();
 
     constructor(props) {
         super(props);
@@ -127,15 +129,22 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                             <div className="m-3">
                                 <h4> Train a new model </h4>
                                 {!this.state.isTraining ? (
-                                    <button ref={this.trainRef}
-                                        className="btn32px btn-green flex-center" onClick={this.handleTrainClick}>
+                                    <PrimaryButton
+                                        theme={getPrimaryGreenTheme()}
+                                        componentRef={this.trainRef}
+                                        className="flex-center"
+                                        onClick={this.handleTrainClick}>
                                         <i className="ms-Icon ms-Icon--MachineLearning"></i>
                                         <h6 className="d-inline ml-2 mb-0"> {strings.train.title} </h6>
-                                    </button>
+                                    </PrimaryButton>
                                 ) : (
                                     <div className="loading-container">
-                                        <i className="loading-icon" />
-                                        <div className="loading-description">Training in progress...</div>
+                                        <Spinner
+                                            label="Training in progress..."
+                                            ariaLive="assertive"
+                                            labelPosition="right"
+                                            size={SpinnerSize.large}
+                                        />
                                     </div>
                                 )
                                 }

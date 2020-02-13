@@ -2,9 +2,10 @@
 // Licensed under the MIT license.
 
 import React, { SyntheticEvent } from "react";
-import "./condensedList.scss";
 import { Link } from "react-router-dom";
+import { FontIcon } from "office-ui-fabric-react";
 import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
+import "./condensedList.scss";
 
 /**
  * Properties for Condensed List Component
@@ -47,7 +48,7 @@ export default class CondensedList extends React.Component<ICondensedListProps> 
                     <span>{title}</span>
                     {newLinkTo &&
                         <Link to={newLinkTo} className="float-right" title={newLinkToTitle}>
-                            <i className="ms-Icon ms-Icon--Add" />
+                            <FontIcon iconName="Add" />
                         </Link>
                     }
                 </div>
@@ -97,7 +98,7 @@ export function ListItem({ item, onClick }) {
     return (
         <li>
             {/* eslint-disable-next-line */}
-            <a onClick={onClick}>
+            <a className="condensed-list-item" onClick={onClick}>
                 <span className="px-2">{item.name}</span>
             </a>
         </li>
