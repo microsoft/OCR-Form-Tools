@@ -44,6 +44,7 @@ initializeIcons();
 ReactDOM.render(
     <Provider store={store}>
         <App/>
+        <div id="skipto"><a href="#">Skip to home</a></div>
     </Provider>
     , document.getElementById("root"));
 
