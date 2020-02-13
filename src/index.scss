@@ -80,24 +80,29 @@ input[type=file] {
 #skipto a{
     position: absolute;
     right: -10000px;
-    bottom: 0px;
+    top: 0px;
     width: 0px;
     height: 0px;
     overflow: hidden;
     &:focus {
         position: absolute;
-        right: 0px;
-        bottom: 0px;
-        padding: 5px;
-        background-color: #BF1722;
+        left: 50px;
+        top: 2.5px;
+        background-color: #7cbb00;
+        display: flex;
         color: white;
-        border-top: 1px solid white;
-        border-left: 1px solid white;
-        border-top-left-radius: 5px;
-        width: 100px;
-        height: 32px;
-        transition: top 1s ease-in-out;
-        outline: none;
+        font-size: small;
+        text-align: center;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid white;
+        border-radius: 5px;
+        min-width: 100px;
+        min-height: 28px;
+        transition: top .3s ease;
+        //overflow: auto;
+        overflow-y: hidden;
+        outline-color: none;
         z-index: 100;
     }
   }
