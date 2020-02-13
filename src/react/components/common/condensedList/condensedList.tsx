@@ -98,7 +98,7 @@ export function ListItem({ item, onClick }) {
     return (
         <li>
             {/* eslint-disable-next-line */}
-            <a className="item" onClick={onClick}>
+            <a className="condensed-list-item" onClick={onClick}>
                 <span className="px-2">{item.name}</span>
             </a>
         </li>
