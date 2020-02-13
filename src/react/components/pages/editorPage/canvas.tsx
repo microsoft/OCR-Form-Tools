@@ -146,7 +146,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         displayName={"Delete region"}
                         key={"Delete"}
                         keyEventType={KeyEventType.KeyDown}
-                        accelerators={["Delete", "Backspace", "Left", "ArrowLeft", "Right", "ArrowRight"]}
+                        accelerators={["Delete", "Backspace", "Left", "ArrowLeft", "Right", "ArrowRight",
+                            "Select", "d"]}
                         handler={this.handleKeyDown} />
                 <ImageMap
                     ref={(ref) => this.imageMap = ref}
@@ -803,9 +804,19 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 this.nextPage();
                 break;
 
+            case "Select":
+            case "d":
+                this.getNextRegionWithKey();
+                break;
+
             default:
                 break;
         }
+    }
+
+    private getNextRegionWithKey = () => {
+        console.log("this is the keydown");
+        const regionId = this.getSelectedRegions();
     }
 
     private getOcrResultForCurrentPage = (ocr: any): any => {
