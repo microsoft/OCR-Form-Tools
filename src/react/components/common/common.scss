@@ -37,21 +37,6 @@
   border: 0px;
 }
 
-.btn-white {
-  background-color: white;
-  border-color: white;
-  color: black;
-}
-
-.btn-green {
-  background-color: #416100;
-  border-color: #416100;
-  color: white;
-  &:hover {
-      background-color: lighten(#416100, 3%);
-  }
-}
-
 .greyOut {
     opacity: 0.2;
 }

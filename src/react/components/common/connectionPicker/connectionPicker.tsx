@@ -4,6 +4,8 @@
 import React from "react";
 import { IConnection } from "../../../../models/applicationState";
 import { RouteComponentProps, withRouter } from "react-router-dom";
+import { DefaultButton } from "office-ui-fabric-react";
+import { getPrimaryGreyTheme } from "../../../../common/themes";
 
 /**
  * Properties for Connection Picker
@@ -66,11 +68,12 @@ export class ConnectionPicker extends React.Component<IConnectionPickerProps, IC
                     }
                 </select>
                 <div className="input-group-append">
-                    <button className="btn32px btn-primary add-connection"
+                    <DefaultButton
+                        theme={getPrimaryGreyTheme()}
                         type="button"
                         onClick={this.createConnection}>
-                    Add Connection
-                    </button>
+                        Add Connection
+                    </DefaultButton>
                 </div>
             </div>
         );

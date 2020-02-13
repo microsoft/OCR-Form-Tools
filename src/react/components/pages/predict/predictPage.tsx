@@ -31,6 +31,7 @@ import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../.
 import { constants } from "../../../../common/constants";
 import { PrimaryButton, Spinner, SpinnerSize} from "office-ui-fabric-react";
 import { getPrimaryGreenTheme, getPrimaryWhiteTheme} from "../../../../common/themes";
+import { IconButton } from "../../common/iconButton/iconButton";
 
 export interface IPredictPageProps extends RouteComponentProps, React.Props<PredictPage> {
     recentProjects: IProject[];
@@ -256,13 +257,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
         if (this.state.currPage > 1) {
             return (
-                <button
-                    className="toolbar-btn prev"
-                    type="button"
+                <IconButton
+                    buttonClassName="toolbar-btn prev"
                     title="Previous"
-                    onClick={prevPage}>
-                    <i className="ms-Icon ms-Icon--ChevronLeft ms-Icon-18px"></i>
-                </button>
+                    iconClassName="ms-Icon ms-Icon--ChevronLeft ms-Icon-18px"
+                    onClick={prevPage}
+                />
             );
         } else {
             return <div></div>;
@@ -283,13 +283,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
         if (this.state.currPage < numPages) {
             return (
-                <button
-                    className="toolbar-btn next"
-                    type="button"
+                <IconButton
+                    buttonClassName="toolbar-btn next"
                     title="Next"
-                    onClick={nextPage}>
-                    <i className="ms-Icon ms-Icon--ChevronRight ms-Icon-18px"></i>
-                </button>
+                    onClick={nextPage}
+                    iconClassName="ms-Icon ms-Icon--ChevronRight ms-Icon-18px"
+                />
             );
         } else {
             return <div></div>;

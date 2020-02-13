@@ -14,7 +14,7 @@ export default function ConnectionItem({ item, onClick, onDelete }) {
                 <span className="px-2">{item.name}</span>
                 <IconButton
                     iconClassName="ms-Icon ms-Icon--Delete"
-                    buttonClassName="float-right delete-btn"
+                    buttonClassName="float-right"
                     title={strings.common.delete}
                     onClick={onDelete}/>
             </NavLink>

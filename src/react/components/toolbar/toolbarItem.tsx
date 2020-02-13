@@ -7,6 +7,7 @@ import IProjectActions from "../../../redux/actions/projectActions";
 import { IKeyboardContext, KeyboardContext, KeyEventType } from "../common/keyboardManager/keyboardManager";
 import { KeyboardBinding } from "../common/keyboardBinding/keyboardBinding";
 import { ToolbarItemName, ToolbarItemGroup } from "../../../registerToolbar";
+import { IconButton } from "../common/iconButton/iconButton";
 
 /**
  * Toolbar Item Metadata
@@ -72,7 +73,6 @@ export abstract class ToolbarItem extends React.Component<IToolbarItemProps> {
         }
 
         const accelerators = this.props.accelerators;
-
         return (
             <Fragment>
                 {
@@ -85,12 +85,12 @@ export abstract class ToolbarItem extends React.Component<IToolbarItemProps> {
                         keyEventType={KeyEventType.KeyDown}
                     />
                 }
-                <button type="button"
-                    className={className.join(" ")}
+                <IconButton
+                    buttonClassName={className.join(" ")}
                     title={this.getTitle()}
-                    onClick={this.onClick}>
-                    <i className={this.props.icon} />
-                </button>
+                    iconClassName={this.props.icon}
+                    onClick={this.onClick}
+                />
             </Fragment>
         );
     }

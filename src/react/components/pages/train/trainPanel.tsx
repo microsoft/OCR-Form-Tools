@@ -3,6 +3,8 @@
 
 import React from "react";
 import TrainRecord, { ITrainRecordProps } from "./trainRecord";
+import { getPrimaryGreyTheme } from "../../../../common/themes";
+import { PrimaryButton } from "office-ui-fabric-react";
 
 export interface ITrainPanelProps {
     currTrainRecord: ITrainRecordProps;
@@ -21,12 +23,12 @@ export default class TrainPanel
         return (
             <div className="m-3">
             <h4> Training record </h4>
-
-            <button className="btn btn-primary mt-3 d-none">
-                <i className="ms-Icon ms-Icon--Download"></i>
-                <h6 className="d-inline ml-2">Download model zip</h6>
-            </button>
-
+            <PrimaryButton
+                theme={getPrimaryGreyTheme()}
+                className="mt-3 d-none">
+                <i className="ms-Icon ms-Icon--Download mr-2"></i>
+                Download model zip
+            </PrimaryButton>
             {currTrainRecord &&
                 <TrainRecord
                     averageAccuracy={currTrainRecord.averageAccuracy}
