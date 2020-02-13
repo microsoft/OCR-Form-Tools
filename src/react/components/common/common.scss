@@ -9,7 +9,6 @@
 }
 
 .form-row {
-  align-items: center;
   margin: 0;
 
   .object-wrapper {
@@ -91,7 +90,6 @@
 
 .loading-container { 
   display: flex;
-  align-items: center;
 }
 
 .loading-description {
@@ -119,8 +117,4 @@
 
 .rlMargin10 {
   margin: 0px 10px;
-}
-
-.color-white {
-  color: white;
 }

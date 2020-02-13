@@ -12,6 +12,8 @@ import Checkbox from "rc-checkbox";
 import "rc-checkbox/assets/index.css";
 import { CustomWidget } from "../../common/customField/customField";
 import { isBrowser } from "../../../../common/hostProcess";
+import { PrimaryButton} from "office-ui-fabric-react";
+import { getPrimaryGreenTheme, getPrimaryGreyTheme} from "../../../../common/themes";
 // tslint:disable-next-line:no-var-requires
 const formSchema = addLocValues(require("./connectionForm.json"));
 // tslint:disable-next-line:no-var-requires
@@ -126,15 +128,18 @@ export default class ConnectionForm extends React.Component<IConnectionFormProps
                         onChange={this.onFormChange}
                         onSubmit={(form) => this.props.onSubmit(form.formData)}>
                         <div>
-                            <button
-                                className="btn32px btn-green mr-1"
-                                type="submit">{strings.connections.save}
-                            </button>
-                            <button
-                                className="btn32px btn-secondary btn-cancel"
+                            <PrimaryButton
+                                theme={getPrimaryGreenTheme()}
+                                className="mr-2"
+                                type="submit">
+                                {strings.connections.save}
+                            </PrimaryButton>
+                            <PrimaryButton
+                                theme={getPrimaryGreyTheme()}
                                 type="button"
-                                onClick={this.onFormCancel}>{strings.common.cancel}
-                            </button>
+                                onClick={this.onFormCancel}>
+                                {strings.common.cancel}
+                            </PrimaryButton>
                         </div>
                     </Form>
                 </div>

@@ -4,6 +4,8 @@
 import React from "react";
 import { ITag } from "../../../../models/applicationState";
 import "./predictResult.scss";
+import { getPrimaryGreenTheme } from "../../../../common/themes";
+import { PrimaryButton } from "office-ui-fabric-react";
 
 export interface IPredictResultProps {
     predictions: { [key: string]: any };
@@ -34,11 +36,13 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
             <div>
                 <div className="prediction-header">
                     <h5 className="prediction-header-result">Result</h5>
-                    <button
-                        className="btn32px btn-green"
+                    <PrimaryButton
+                        theme={getPrimaryGreenTheme()}
                         type="button"
                         title="Download JSON"
-                        onClick={this.triggerDownload}> Download result (JSON) </button>
+                        onClick={this.triggerDownload}>
+                        Download result (JSON)
+                    </PrimaryButton>
                     <h6 className="prediction-header-confidence"> Confidence </h6>
                 </div>
                 <div className="prediction-header-clear"></div>
