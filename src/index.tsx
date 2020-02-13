@@ -4,6 +4,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
+import { initializeIcons } from "office-ui-fabric-react";
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "../node_modules/@fortawesome/fontawesome-free/css/all.css";
 import "./assets/css/bootstrap-theme-slate.css";
@@ -37,6 +38,8 @@ document.body.addEventListener("keydown", (event) => {
         document.body.classList.remove("no-focus-outline");
     }
 });
+
+initializeIcons();
 
 ReactDOM.render(
     <Provider store={store}>
