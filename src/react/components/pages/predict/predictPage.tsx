@@ -29,7 +29,7 @@ import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
-import { PrimaryButton, Spinner, SpinnerSize} from "office-ui-fabric-react";
+import { PrimaryButton, Spinner, SpinnerSize, IconButton} from "office-ui-fabric-react";
 import { getPrimaryGreenTheme, getPrimaryWhiteTheme} from "../../../../common/themes";
 
 export interface IPredictPageProps extends RouteComponentProps, React.Props<PredictPage> {
@@ -256,13 +256,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
         if (this.state.currPage > 1) {
             return (
-                <button
+                <IconButton
                     className="toolbar-btn prev"
-                    type="button"
                     title="Previous"
-                    onClick={prevPage}>
-                    <i className="ms-Icon ms-Icon--ChevronLeft ms-Icon-18px"></i>
-                </button>
+                    iconProps={{iconName: "ChevronLeft"}}
+                    onClick={prevPage}
+                />
             );
         } else {
             return <div></div>;
@@ -283,13 +282,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
         if (this.state.currPage < numPages) {
             return (
-                <button
+                <IconButton
                     className="toolbar-btn next"
-                    type="button"
                     title="Next"
-                    onClick={nextPage}>
-                    <i className="ms-Icon ms-Icon--ChevronRight ms-Icon-18px"></i>
-                </button>
+                    onClick={nextPage}
+                    iconProps={{iconName: "ChevronRight"}}
+                />
             );
         } else {
             return <div></div>;

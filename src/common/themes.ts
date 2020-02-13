@@ -100,6 +100,31 @@ const greyButtonPalette = {
   white: "#272B30",
 };
 
+const blueButtonPalette = {
+  themePrimary: "#5bc0de",
+  themeLighterAlt: "#040809",
+  themeLighter: "#0f1f23",
+  themeLight: "#1b3943",
+  themeTertiary: "#377385",
+  themeSecondary: "#50a8c3",
+  themeDarkAlt: "#6ac5e1",
+  themeDark: "#7fcee6",
+  themeDarker: "#9edaec",
+  neutralLighterAlt: "#262a2f",
+  neutralLighter: "#262a2e",
+  neutralLight: "#24282c",
+  neutralQuaternaryAlt: "#222529",
+  neutralQuaternary: "#202328",
+  neutralTertiaryAlt: "#1f2226",
+  neutralTertiary: "#f0f2f5",
+  neutralSecondary: "#f2f4f6",
+  neutralPrimaryAlt: "#f5f6f8",
+  neutralPrimary: "#e9ecef",
+  neutralDark: "#fafbfb",
+  black: "#fcfdfd",
+  white: "#272b30",
+};
+
 export function getPrimaryWhiteTheme() {
   return createTheme({palette: whiteButtonPalette});
 }
@@ -114,4 +139,8 @@ export function getPrimaryGreenTheme() {
 
 export function getPrimaryGreyTheme() {
   return createTheme({palette: greyButtonPalette});
+}
+
+export function getPrimaryBlueTheme() {
+  return createTheme({palette: blueButtonPalette});
 }

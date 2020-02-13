@@ -34,6 +34,8 @@ import { constants } from "../../../../common/constants";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
 import { Label } from "office-ui-fabric-react/lib/Label";
+import { PrimaryButton } from "office-ui-fabric-react";
+import { getPrimaryGreenTheme } from "../../../../common/themes";
 
 /**
  * Properties for Editor Page
@@ -200,18 +202,23 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                     onDragFinished={this.onSideBarResizeComplete}>
                     <div className="editor-page-sidebar bg-lighter-1">
                         {needRunOCRButton && <div>
-                            <button
-                                className="btn btn-green editor-page-sidebar-run-ocr"
+                            <PrimaryButton
+                                theme={getPrimaryGreenTheme()}
+                                className="editor-page-sidebar-run-ocr"
                                 type="button"
                                 onClick={this.loadAllOCRs}
-                                disabled={this.state.isRunningOCRs}
-                            >
+                                disabled={this.state.isRunningOCRs}>
                                 {this.state.isRunningOCRs ?
-                                <div>
-                                    <Label className="p-0" ></Label>
-                                    <Spinner size={SpinnerSize.small} label="Running OCR" ariaLive="off" labelPosition="right"/>
-                                </div> : "Run OCR on all files" }
-                            </button>
+                                    <div>
+                                        <Spinner
+                                            size={SpinnerSize.small}
+                                            label="Running OCR"
+                                            ariaLive="off"
+                                            labelPosition="right"
+                                        />
+                                    </div> : "Run OCR on all files"
+                                }
+                            </PrimaryButton>
                         </div>}
                         <EditorSideBar
                             assets={rootAssets}

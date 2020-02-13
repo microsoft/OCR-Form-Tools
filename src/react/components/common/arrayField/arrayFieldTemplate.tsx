@@ -4,16 +4,22 @@
 import React from "react";
 import { ArrayFieldTemplateProps } from "react-jsonschema-form";
 import { strings } from "../../../../common/strings";
+import { PrimaryButton } from "office-ui-fabric-react";
+import { getPrimaryRedTheme, getPrimaryBlueTheme } from "../../../../common/themes";
 
 export function ArrayFieldTemplate(props: ArrayFieldTemplateProps) {
     return (
         <div>
             {props.canAdd &&
                 <div className="array-field-toolbar my-3">
-                    <button type="button" className="btn32px btn-info flex-center" onClick={props.onAddClick}>
-                        <i className="ms-Icon ms-Icon--AddTo"></i>
-                        <span className="ml-1">Add {props.schema.title}</span>
-                    </button>
+                    <PrimaryButton
+                        theme={getPrimaryBlueTheme()}
+                        type="button"
+                        className=""
+                        onClick={props.onAddClick}>
+                        <i className="ms-Icon ms-Icon--AddTo mr-2"></i>
+                        Add {props.schema.title}
+                    </PrimaryButton>
                 </div>
             }
             {props.items.map((item) => {
@@ -22,13 +28,14 @@ export function ArrayFieldTemplate(props: ArrayFieldTemplateProps) {
                     {item.hasRemove &&
                         <div className="array-item-toolbar">
                             <label className="labelClose">Delete</label>
-                            <button
+                            <PrimaryButton
+                                theme={getPrimaryRedTheme()}
                                 type="button"
-                                className="btn32px btn-danger flex-center"
+                                className="flex-center"
                                 onClick={item.onDropIndexClick(item.index)}>
-                                <i className="ms-Icon ms-Icon--Delete"></i>
-                                <span className="ml-1">{strings.common.delete}</span>
-                            </button>
+                                <i className="ms-Icon ms-Icon--Delete mr-2"></i>
+                                {strings.common.delete}
+                            </PrimaryButton>
                         </div>
                     }
                 </div>;
