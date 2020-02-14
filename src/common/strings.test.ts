@@ -52,22 +52,6 @@ describe("Localization tests", () => {
             }
         });
 
-        it("Export Form", () => {
-            for (const language of languages) {
-                const languageJson = getLanguageJson(language);
-                // tslint:disable-next-line:no-var-requires
-                const formJson = require("../react/components/pages/export/exportForm.json");
-                strings.setLanguage(language);
-                const newFormJson = addLocValues(formJson);
-                const formProps = newFormJson.properties;
-                const common = languageJson.common;
-
-                const lExp = languageJson.export;
-
-                expect(formProps.providerType.title).toEqual(common.provider);
-            }
-        });
-
         it("Project Settings Form", () => {
             for (const language of languages) {
                 const languageJson = getLanguageJson(language);
