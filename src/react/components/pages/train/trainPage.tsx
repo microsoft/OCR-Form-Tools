@@ -127,7 +127,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                     <div className="condensed-list">
                         <div className="condensed-list-body">
                             <div className="m-3">
-                                <h4> Train a new model </h4>
+                                <h4 className="text-shadow-none"> Train a new model </h4>
                                 {!this.state.isTraining ? (
                                     <PrimaryButton
                                         theme={getPrimaryGreenTheme()}
@@ -135,7 +135,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                         className="flex-center"
                                         onClick={this.handleTrainClick}>
                                         <i className="ms-Icon ms-Icon--MachineLearning"></i>
-                                        <h6 className="d-inline ml-2 mb-0"> {strings.train.title} </h6>
+                                        <h6 className="d-inline text-shadow-none ml-2 mb-0"> {strings.train.title} </h6>
                                     </PrimaryButton>
                                 ) : (
                                     <div className="loading-container">

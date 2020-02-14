@@ -5,7 +5,7 @@ import React from "react";
 import { ArrayFieldTemplateProps } from "react-jsonschema-form";
 import { strings } from "../../../../common/strings";
 import { PrimaryButton } from "office-ui-fabric-react";
-import { getPrimaryRedTheme, getPrimaryBlueTheme } from "../../../../common/themes";
+import { getPrimaryBlueTheme, getPrimaryGreenTheme } from "../../../../common/themes";
 
 export function ArrayFieldTemplate(props: ArrayFieldTemplateProps) {
     return (
@@ -29,7 +29,7 @@ export function ArrayFieldTemplate(props: ArrayFieldTemplateProps) {
                         <div className="array-item-toolbar">
                             <label className="labelClose">Delete</label>
                             <PrimaryButton
-                                theme={getPrimaryRedTheme()}
+                                theme={getPrimaryGreenTheme()}
                                 type="button"
                                 className="flex-center"
                                 onClick={item.onDropIndexClick(item.index)}>
