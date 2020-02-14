@@ -43,7 +43,6 @@ document.body.addEventListener("keydown", (event) => {
 ReactDOM.render(
     <Provider store={store}>
         <App/>
-        <div id="skipto"><a href="#app-sidebar">Skip to home</a></div>
     </Provider>
     , document.getElementById("root"));
 
