@@ -5,6 +5,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
+import { FontIcon, PrimaryButton, IButton, Spinner, SpinnerSize} from "office-ui-fabric-react";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
@@ -23,7 +24,6 @@ import Alert from "../../common/alert/alert";
 import url from "url";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
-import { PrimaryButton, IButton, Spinner, SpinnerSize} from "office-ui-fabric-react";
 import { getPrimaryGreenTheme} from "../../../../common/themes";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
@@ -134,7 +134,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                         componentRef={this.trainRef}
                                         className="flex-center"
                                         onClick={this.handleTrainClick}>
-                                        <i className="ms-Icon ms-Icon--MachineLearning"></i>
+                                        <FontIcon iconName="MachineLearning" />
                                         <h6 className="d-inline ml-2 mb-0"> {strings.train.title} </h6>
                                     </PrimaryButton>
                                 ) : (

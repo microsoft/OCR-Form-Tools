@@ -75,7 +75,7 @@ export default class App extends React.Component<IAppProps> {
                     <KeyboardManager>
                         <Router history={history}>
                             <div className={`app-shell platform-${platform}`}>
-                                <TitleBar icon="ms-Icon ms-Icon--TagGroup ms-Icon-18px">
+                                <TitleBar icon="TagGroup">
                                     <div className="app-help-menu-icon"><HelpMenu/></div>
                                 </TitleBar>
                                 <div className="app-main">

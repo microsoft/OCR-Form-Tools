@@ -3,6 +3,7 @@
 
 import React from "react";
 import Form, { Widget, IChangeEvent, FormValidation } from "react-jsonschema-form";
+import { FontIcon, PrimaryButton} from "office-ui-fabric-react";
 import { IConnection } from "../../../../models/applicationState";
 import { strings, addLocValues } from "../../../../common/strings";
 import CustomFieldTemplate from "../../common/customField/customFieldTemplate";
@@ -12,7 +13,6 @@ import Checkbox from "rc-checkbox";
 import "rc-checkbox/assets/index.css";
 import { CustomWidget } from "../../common/customField/customField";
 import { isBrowser } from "../../../../common/hostProcess";
-import { PrimaryButton} from "office-ui-fabric-react";
 import { getPrimaryGreenTheme, getPrimaryGreyTheme} from "../../../../common/themes";
 // tslint:disable-next-line:no-var-requires
 const formSchema = addLocValues(require("./connectionForm.json"));
@@ -93,7 +93,7 @@ export default class ConnectionForm extends React.Component<IConnectionFormProps
         return (
             <div className="app-connections-page-detail m-3">
                 <h3>
-                    <i className="ms-Icon ms-Icon--Plug"></i>
+                    <FontIcon iconName="Plug" />
                     <span className="px-2">
                         {strings.connections.settings}
                     </span>
@@ -102,7 +102,7 @@ export default class ConnectionForm extends React.Component<IConnectionFormProps
                     {isBrowser() &&
                         <div className="alert alert-warning warning"
                             role="alert">
-                            <i className="ms-Icon ms-Icon--WarningSolid mr-1" aria-hidden="true"></i>
+                            <FontIcon iconName="WarningSolid" className="mr-1" />
                             {strings.formatString(
                                 strings.connections.blobCorsWarning,
                                 <a

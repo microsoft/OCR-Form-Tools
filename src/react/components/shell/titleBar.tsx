@@ -3,6 +3,7 @@
 
 import React from "react";
 import { connect } from "react-redux";
+import { FontIcon } from "office-ui-fabric-react";
 import { IApplicationState } from "../../../models/applicationState";
 import { PlatformType } from "../../../common/hostProcess";
 import "./titleBar.scss";
@@ -41,7 +42,7 @@ export class TitleBar extends React.Component<ITitleBarProps, ITitleBarState> {
             <div className="title-bar bg-lighter-3">
                 {(this.state.platform === PlatformType.Web) &&
                     <div className="title-bar-icon">
-                        {typeof (this.props.icon) === "string" && <i className={`${this.props.icon}`}></i>}
+                        {typeof (this.props.icon) === "string" && <FontIcon iconName={this.props.icon} />}
                         {typeof (this.props.icon) !== "string" && this.props.icon}
                     </div>
                 }
