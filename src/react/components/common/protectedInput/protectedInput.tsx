@@ -68,6 +68,7 @@ export class ProtectedInput extends React.Component<IProtectedInputProps, IProte
                     onChange={this.onChange} />
                 <div className="input-group-append">
                     <DefaultButton
+                        className="portected-input-margin"
                         theme={getPrimaryGreyTheme()}
                         type="button"
                         title={showKey ? "Hide" : "Show"}

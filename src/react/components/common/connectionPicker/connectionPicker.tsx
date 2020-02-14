@@ -69,6 +69,7 @@ export class ConnectionPicker extends React.Component<IConnectionPickerProps, IC
                 </select>
                 <div className="input-group-append">
                     <DefaultButton
+                        className="connection-picker-button"
                         theme={getPrimaryGreyTheme()}
                         type="button"
                         onClick={this.createConnection}>
