@@ -88,7 +88,7 @@ export default class App extends React.Component<IAppProps> {
                                 <ToastContainer className="frtt-toast-container" />
                             </div>
                         </BrowserRouter>
-                <div id="skipto"><a href="#app-sidebar">{strings.common.skipToSidebar}</a></div>
+                        <div id="skipto"><a href="#app-sidebar">{strings.common.skipToSidebar}</a></div>
                     </KeyboardManager>
                 }
             </Fragment>
