@@ -28,6 +28,7 @@ export function MainContentRouter() {
                 <Route path="/projects/:projectId/train" component={TrainPage} />
                 <Route path="/projects/:projectId/predict" component={PredictPage} />
                 <Route path="/projects/:projectId/settings" component={ProjectSettingsPage} />
+                <Route path="/sidebar" component={HomePage} />
                 <Route component={HomePage} />
             </Switch>
         </div>
