@@ -5,7 +5,6 @@ import React from "react";
 import { ArrayFieldTemplateProps } from "react-jsonschema-form";
 import { FontIcon, PrimaryButton } from "office-ui-fabric-react";
 import { strings } from "../../../../common/strings";
-import { PrimaryButton } from "office-ui-fabric-react";
 import { getPrimaryBlueTheme, getPrimaryGreenTheme } from "../../../../common/themes";
 
 export function ArrayFieldTemplate(props: ArrayFieldTemplateProps) {
