@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import React from "react";
+import { FontIcon } from "office-ui-fabric-react";
 import { strings, addLocValues } from "../../../../common/strings";
 import Form, { FormValidation } from "react-jsonschema-form";
 import { ObjectFieldTemplate } from "../../common/objectField/objectFieldTemplate";
@@ -66,7 +67,7 @@ export class AppSettingsForm extends React.Component<IAppSettingsFormProps, IApp
         return (
             <div className="app-settings-page-form p-3">
                 <h3 className="mb-3 flex-center">
-                    <i className="ms-Icon ms-Icon--Settings"></i>
+                    <FontIcon iconName="Settings" />
                     <span className="px-2">{strings.appSettings.title}</span>
                 </h3>
                 <div className="m-3">

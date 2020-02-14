@@ -3,6 +3,7 @@
 
 import React from "react";
 import { AutoSizer, List } from "react-virtualized";
+import { FontIcon } from "office-ui-fabric-react";
 import { IAsset, AssetState, ISize } from "../../../../models/applicationState";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
 import { strings } from "../../../../common/strings";
@@ -138,14 +139,14 @@ export default class EditorSideBar extends React.Component<IEditorSideBarProps, 
                 return (
                     <span title={strings.editorPage.tagged}
                         className="badge badge-tagged">
-                        <i className="ms-Icon ms-Icon--Tag"></i>
+                        <FontIcon iconName="Tag" />
                     </span>
                 );
             case AssetState.Visited:
                 return (
                     <span title={strings.editorPage.visited}
                         className="badge badge-visited">
-                        <i className="ms-Icon ms-Icon--View"></i>
+                        <FontIcon iconName="View" />
                     </span>
                 );
             default:

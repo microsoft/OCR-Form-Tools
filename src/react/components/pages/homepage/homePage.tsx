@@ -5,6 +5,7 @@ import React, { SyntheticEvent } from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
+import { FontIcon } from "office-ui-fabric-react";
 import { strings, interpolate } from "../../../../common/strings";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
@@ -80,7 +81,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                             {/* eslint-disable-next-line */}
                             <a ref={this.newProjectRef}
                                 href="#" onClick={this.createNewProject} className="p-5 new-project">
-                                <i className="ms-Icon ms-Icon--AddTo ms-Icon-9x"></i>
+                                <FontIcon iconName="AddTo" className="icon-9x" />
                                 <div>{strings.homePage.newProject}</div>
                             </a>
                         </li>
@@ -88,7 +89,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                             {/*Open Cloud Project*/}
                             {/* eslint-disable-next-line */}
                             <a href="#" onClick={this.handleOpenCloudProjectClick} className="p-5 cloud-open-project">
-                                <i className="ms-Icon ms-Icon--Cloud ms-Icon-9x"></i>
+                                <FontIcon iconName="Cloud" className="icon-9x" />
                                 <div>{strings.homePage.openCloudProject.title}</div>
                             </a>
                             <CloudFilePicker

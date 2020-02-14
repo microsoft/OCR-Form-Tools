@@ -2,9 +2,9 @@
 // Licensed under the MIT license.
 
 import React from "react";
+import { FontIcon, PrimaryButton } from "office-ui-fabric-react";
 import TrainRecord, { ITrainRecordProps } from "./trainRecord";
 import { getPrimaryGreyTheme } from "../../../../common/themes";
-import { PrimaryButton } from "office-ui-fabric-react";
 
 export interface ITrainPanelProps {
     currTrainRecord: ITrainRecordProps;
@@ -26,7 +26,7 @@ export default class TrainPanel
             <PrimaryButton
                 theme={getPrimaryGreyTheme()}
                 className="mt-3 d-none">
-                <i className="ms-Icon ms-Icon--Download mr-2"></i>
+                <FontIcon iconName="Download" className="mr-2" />
                 Download model zip
             </PrimaryButton>
             {currTrainRecord &&

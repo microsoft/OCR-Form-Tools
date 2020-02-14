@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import React, { SyntheticEvent } from "react";
+import { FontIcon } from "office-ui-fabric-react";
 import { strings } from "../../../../common/strings";
 import { ITag } from "../../../../models/applicationState";
 import "./tagInput.scss";
@@ -59,14 +60,14 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
             {
                 displayName: strings.tags.toolbar.add,
                 className: "plus",
-                icon: "ms-Icon ms-Icon--Add ms-Icon-1x",
+                icon: "Add",
                 category: Categories.General,
                 handler: this.handleAdd,
             },
             {
                 displayName: strings.tags.toolbar.search,
                 className: "search",
-                icon: "ms-Icon ms-Icon--Search ms-Icon-1x",
+                icon: "Search",
                 category: Categories.General,
                 handler: this.handleSearch,
             },
@@ -78,28 +79,28 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
             {
                 displayName: strings.tags.toolbar.edit,
                 className: "edit",
-                icon: "ms-Icon ms-Icon--Rename ms-Icon-1x",
+                icon: "Rename",
                 category: Categories.Modifier,
                 handler: this.handleEdit,
             },
             {
                 displayName: strings.tags.toolbar.moveUp,
                 className: "up",
-                icon: "ms-Icon ms-Icon--Up ms-Icon-1x",
+                icon: "Up",
                 category: Categories.Modifier,
                 handler: this.handleArrowUp,
             },
             {
                 displayName: strings.tags.toolbar.moveDown,
                 className: "down",
-                icon: "ms-Icon ms-Icon--Down ms-Icon-1x",
+                icon: "Down",
                 category: Categories.Modifier,
                 handler: this.handleArrowDown,
             },
             {
                 displayName: strings.tags.toolbar.delete,
                 className: "delete",
-                icon: "ms-Icon ms-Icon--Delete ms-Icon-1x",
+                icon: "Delete",
                 category: Categories.Modifier,
                 handler: this.handleDelete,
             },
@@ -107,11 +108,13 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
     }
 
     private handleTagIcon = () => {
-        const classNames = ["tag-input-toolbar-icon"];
-
+        const modifierClassNames = ["tag-input-toolbar-icon"];
         if (this.props.selectedTag === null) {
-            classNames.push("tag-input-toolbar-icon-unselected");
+            modifierClassNames.push("tag-input-toolbar-icon-unselected");
         }
+
+        const modifierClassName = modifierClassNames.join(" ");
+
         return(
             this.getToolbarItems().map((itemConfig) => {
                 if (itemConfig.category === Categories.General) {
@@ -119,7 +122,7 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
                                 key={itemConfig.displayName}
                                 className={`tag-input-toolbar-item ${itemConfig.className}`}
                                 onClick={(e) => this.onToolbarItemClick(e, itemConfig)}>
-                                <i className={`tag-input-toolbar-icon ${itemConfig.icon}`}/>
+                                <FontIcon iconName={itemConfig.icon} className="tag-input-toolbar-icon" />
                             </div>);
                 } else if (itemConfig.category === Categories.Separator) {
                     return (<div className="tag-tool-bar-vertical-line" key = {itemConfig.displayName}></div>);
@@ -128,7 +131,7 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
                                 key={itemConfig.displayName}
                                 className={`tag-input-toolbar-item ${itemConfig.className}`}
                                 onClick={(e) => this.onToolbarItemClick(e, itemConfig)}>
-                                <i className={`${classNames.join(" ")} ${itemConfig.icon}`} />
+                                <FontIcon iconName={itemConfig.icon} className={modifierClassName} />
                             </div>);
                 } else {
                     throw new Error(`Unsupported item category ${itemConfig.category}`);
