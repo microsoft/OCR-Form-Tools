@@ -5,6 +5,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
+import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton} from "office-ui-fabric-react";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
@@ -29,7 +30,6 @@ import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
-import { PrimaryButton, Spinner, SpinnerSize, IconButton} from "office-ui-fabric-react";
 import { getPrimaryGreenTheme, getPrimaryWhiteTheme} from "../../../../common/themes";
 
 export interface IPredictPageProps extends RouteComponentProps, React.Props<PredictPage> {
@@ -151,7 +151,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 <div className="predict-sidebar bg-lighter-1">
                     <div className="condensed-list">
                         <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
-                            <i className="ms-Icon ms-Icon--Insights" />
+                            <FontIcon iconName="Insights" />
                             <span className="condensed-list-title">Predict</span>
                         </h6>
                         <div className="p-3">

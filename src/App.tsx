@@ -4,11 +4,10 @@
 import React, { Fragment } from "react";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
-import { Router } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { IAppError, IApplicationState, IProject, ErrorCode } from "./models/applicationState";
-import "./App.scss";
-import "react-toastify/dist/ReactToastify.css";
+import { strings } from "./common/strings";
 import IAppErrorActions, * as appErrorActions from "./redux/actions/appErrorActions";
 import { ErrorHandler } from "./react/components/common/errorHandler/errorHandler";
 import { KeyboardManager } from "./react/components/common/keyboardManager/keyboardManager";
@@ -18,7 +17,8 @@ import { Sidebar } from "./react/components/shell/sidebar";
 import { StatusBar } from "./react/components/shell/statusBar";
 import { StatusBarMetrics } from "./react/components/shell/statusBarMetrics";
 import { TitleBar } from "./react/components/shell/titleBar";
-import history from "./history";
+import "./App.scss";
+import "react-toastify/dist/ReactToastify.css";
 
 interface IAppProps {
     currentProject?: IProject;
@@ -73,9 +73,9 @@ export default class App extends React.Component<IAppProps> {
                 {/* Don't render app contents during a render error */}
                 {(!this.props.appError || this.props.appError.errorCode !== ErrorCode.GenericRenderError) &&
                     <KeyboardManager>
-                        <Router history={history}>
+                        <BrowserRouter>
                             <div className={`app-shell platform-${platform}`}>
-                                <TitleBar icon="ms-Icon ms-Icon--TagGroup ms-Icon-18px">
+                                <TitleBar icon="TagGroup">
                                     <div className="app-help-menu-icon"><HelpMenu/></div>
                                 </TitleBar>
                                 <div className="app-main">
@@ -87,7 +87,8 @@ export default class App extends React.Component<IAppProps> {
                                 </StatusBar>
                                 <ToastContainer className="frtt-toast-container" />
                             </div>
-                        </Router>
+                        </BrowserRouter>
+                        <div id="skipto"><a href="#app-sidebar">{strings.common.skipToSidebar}</a></div>
                     </KeyboardManager>
                 }
             </Fragment>

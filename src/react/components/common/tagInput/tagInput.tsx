@@ -3,6 +3,7 @@
 
 import React, { KeyboardEvent, RefObject } from "react";
 import ReactDOM from "react-dom";
+import { FontIcon } from "office-ui-fabric-react";
 import { Align } from "../align/align";
 import { AlignPortal } from "../align/alignPortal";
 import { randomIntInRange } from "../../../../common/utils";
@@ -128,7 +129,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                                 placeholder="Search tags"
                                 autoFocus={true}
                             />
-                            <i className="ms-Icon ms-Icon--Search" />
+                            <FontIcon iconName="Search" />
                         </div>
                     }
                     {this.getColorPickerPortal()}
@@ -149,7 +150,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                                 autoFocus={true}
                                 ref={this.inputRef}
                             />
-                            <i className="ms-Icon ms-Icon--Tag" />
+                            <FontIcon iconName="Tag" />
                         </div>
                     }
                 </div>

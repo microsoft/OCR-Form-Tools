@@ -6,6 +6,7 @@ import { Redirect } from "react-router";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { RouteComponentProps } from "react-router-dom";
+import { FontIcon } from "office-ui-fabric-react";
 import ProjectForm from "./projectForm";
 import { constants } from "../../../../common/constants";
 import { strings, interpolate } from "../../../../common/strings";
@@ -18,6 +19,7 @@ import "./projectSettingsPage.scss";
 import { ProjectSettingAction } from "./projectSettingAction";
 import ProjectService from "../../../../services/projectService";
 import { getStorageItem, setStorageItem, removeStorageItem } from "../../../../redux/middleware/localStorage";
+
 /**
  * Properties for Project Settings Page
  * @member project - Project being edited
@@ -111,7 +113,7 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
             <div className="project-settings-page">
                 <div className="project-settings-page-settings m-3">
                     <h3 className="flex-center">
-                        <i className="ms-Icon ms-Icon--DocumentManagement" />
+                        <FontIcon iconName="DocumentManagement" />
                         <span className="px-2">
                             {strings.projectSettings.title}
                         </span>

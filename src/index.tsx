@@ -4,7 +4,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
-import { initializeIcons } from "office-ui-fabric-react";
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "../node_modules/@fortawesome/fontawesome-free/css/all.css";
 import "./assets/css/bootstrap-theme-slate.css";
@@ -14,9 +13,11 @@ import * as serviceWorker from "./serviceWorker";
 import createReduxStore from "./redux/store/store";
 import initialState from "./redux/store/initialState";
 import { IApplicationState } from "./models/applicationState";
+import { registerIcons } from "./registerIcons";
 import registerProviders from "./registerProviders";
 import registerMixins from "./registerMixins";
 
+registerIcons();
 registerMixins();
 registerProviders();
 const defaultState: IApplicationState = initialState;
@@ -39,12 +40,9 @@ document.body.addEventListener("keydown", (event) => {
     }
 });
 
-initializeIcons();
-
 ReactDOM.render(
     <Provider store={store}>
         <App/>
-        <div id="skipto"><a href="#">Skip to home</a></div>
     </Provider>
     , document.getElementById("root"));
 

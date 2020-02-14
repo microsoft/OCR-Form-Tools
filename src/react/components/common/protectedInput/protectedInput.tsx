@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { DefaultButton } from "office-ui-fabric-react";
+import { FontIcon, DefaultButton } from "office-ui-fabric-react";
 import { getPrimaryGreyTheme } from "../../../../common/themes";
 
 /**
@@ -73,14 +73,14 @@ export class ProtectedInput extends React.Component<IProtectedInputProps, IProte
                         type="button"
                         title={showKey ? "Hide" : "Show"}
                         onClick={this.toggleKeyVisibility}>
-                        <i className={showKey ? "ms-Icon ms-Icon--Hide3" : "ms-Icon ms-Icon--View"}></i>
+                        <FontIcon iconName={showKey ? "Hide3" : "View"}/>
                     </DefaultButton>
                     <DefaultButton
                         theme={getPrimaryGreyTheme()}
                         type="button"
                         title="Copy"
                         onClick={this.copyKey}>
-                        <i className="ms-Icon ms-Icon--Copy"></i>
+                        <FontIcon iconName="Copy" />
                     </DefaultButton>
                 </div>
             </div>
