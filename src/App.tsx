@@ -73,7 +73,7 @@ export default class App extends React.Component<IAppProps> {
                 {/* Don't render app contents during a render error */}
                 {(!this.props.appError || this.props.appError.errorCode !== ErrorCode.GenericRenderError) &&
                     <KeyboardManager>
-                        <BrowserRouter> 
+                        <BrowserRouter>
                             <div className={`app-shell platform-${platform}`}>
                                 <TitleBar icon="TagGroup">
                                     <div className="app-help-menu-icon"><HelpMenu/></div>
