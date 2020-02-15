@@ -7,8 +7,10 @@
         position: absolute;
         z-index: 1;
 
-        &-fixed {
+        &-sticky {
             position: fixed;
+            position: -webkit-sticky;
+            position: sticky;
             z-index: 1000;
         }
     }

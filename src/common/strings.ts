@@ -155,6 +155,9 @@ export interface IAppStrings {
             moveDown: string;
             delete: string;
             vertiline: string;
+            type: string;
+            format: string;
+            contextualMenu: string;
         }
         colors: {
             white: string;

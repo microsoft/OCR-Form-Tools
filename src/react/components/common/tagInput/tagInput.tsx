@@ -99,11 +99,9 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
     public render() {
         return (
-            <div className="tag-input condensed-list">
-                <div className="condensed-list-header tag-input-header bg-darker-2 p-2">
-                    <span
-                        className="condensed-list-title tag-input-title"
-                    >Tags</span>
+            <div className="tag-input">
+                <div className="tag-input-header p-2">
+                    <span className="tag-input-title">{strings.tags.title}</span>
                     <TagInputToolbar
                         selectedTag={this.state.selectedTag}
                         onAddTags={() => this.setState({ addTags: !this.state.addTags })}
@@ -117,7 +115,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                         onReorder={this.onReOrder}
                     />
                 </div>
-                <div className="condensed-list-body">
+                <div className="tag-input-body">
                     {
                         this.state.searchTags &&
                         <div className="tag-input-text-input-row search-input">
@@ -160,8 +158,14 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
     public componentDidUpdate(prevProps: ITagInputProps) {
         if (prevProps.tags !== this.props.tags) {
+            let selectedTag = this.state.selectedTag;
+            if (selectedTag) {
+                selectedTag = this.props.tags.find((tag) => this.isNameEqual(tag, selectedTag));
+            }
+
             this.setState({
                 tags: this.props.tags,
+                selectedTag,
             });
         }
 
@@ -295,13 +299,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         if (!tag) {
             return;
         }
-        const index = this.state.tags.indexOf(tag);
-        const tags = this.state.tags.filter((t) => !this.isNameEqual(t, tag));
-
-        this.setState({
-            tags,
-            selectedTag: this.getNewSelectedTag(tags, index),
-        }, () => this.props.onChange(tags));
         this.props.onTagDeleted(tag.name);
     }
 
@@ -455,7 +452,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     private onSingleClick = (tag: ITag, clickedColor: boolean, clickedDropDown: boolean) => {
-        const { editingTag } = this.state;
+        const { editingTag, selectedTag } = this.state;
         const newEditingTag = this.state.showDropDown && editingTag && this.isNameEqual(editingTag, tag) ? null : tag;
         this.setState({
             editingTag: newEditingTag,
@@ -464,12 +461,12 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             clickedDropDown,
             showColorPicker: !this.state.showColorPicker && clickedColor,
             showDropDown: !this.state.showDropDown && clickedDropDown,
+            selectedTag: clickedDropDown ? tag : selectedTag,
         });
     }
 
     private handleClick = (tag: ITag, props: ITagClickProps) => {
-        // Lock tags
-        if (props.ctrlKey && this.props.onCtrlTagClick) {
+        if (props.ctrlKey && this.props.onCtrlTagClick) { // Lock tags
             this.props.onCtrlTagClick(tag);
             this.setState({ clickedColor: props.clickedColor, clickedDropDown: props.clickedDropDown });
         } else if (props.altKey) { // Edit tag
@@ -500,10 +497,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 this.props.onTagClick(tag);
             }
         }
-    }
-
-    private getNewSelectedTag = (tags: ITag[], previouIndex: number): ITag => {
-        return (tags.length) ? tags[Math.min(tags.length - 1, previouIndex)] : null;
     }
 
     private onSearchKeyDown = (event: KeyboardEvent): void => {
@@ -588,6 +581,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     private isNameEqual = (t: ITag, u: ITag) => {
         return t.name.trim().toLocaleLowerCase() === u.name.trim().toLocaleLowerCase();
     }
+
     private isNameEqualTo = (tag: ITag, str: string) => {
         return tag.name.trim().toLocaleLowerCase() === str.trim().toLocaleLowerCase();
     }

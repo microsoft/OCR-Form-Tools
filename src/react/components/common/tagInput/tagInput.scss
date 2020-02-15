@@ -1,13 +1,41 @@
-@import "../../../../index.scss";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
 
-$tagInputWidth: 250px;
-$tagColorWidth: 12px;
+@import "../../../../assets/sass/theme.scss";
+@import "./tagInputSize.scss";
 
 .tag {
     &-input {
+        display: flex;
+        flex-grow: 1;
+        flex-direction: column;
         user-select: none;
         background: $lighter-1;
-        min-width: $tagInputWidth;
+        width: $tagInputWidth;
+
+        &-header {
+            display: flex;
+            flex-direction: row;
+            text-shadow: none;
+            font-size: 80%;
+            color: #f1f1f1;
+            background: $darker-2;
+            margin: 0;
+            font-weight: 500;
+            line-height: 1.2;
+        }
+
+        &-title {
+            flex: 1;
+        }
+
+        &-body {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: auto;
+        }
 
         &-text-input-row {
             display: flex;
@@ -39,16 +67,6 @@ $tagColorWidth: 12px;
                 color: #ccc;
             }
         }
-
-        &-header {
-            display: flex;
-            flex-direction: row;
-            text-shadow: none;
-        }
-
-        &-title {
-            flex: 1;
-        }
     }
 
     &-item-block {
@@ -57,7 +75,7 @@ $tagColorWidth: 12px;
         margin: 2px 0;
 
         &-2 {
-            min-width: $tagInputWidth - $tagColorWidth;
+            width: $tagItemWidth;
         }
     }
 
@@ -123,12 +141,16 @@ $tagColorWidth: 12px;
         }
 
         &-text {
-            max-width: 195px;
+            width: $tagTextWidth;
             display: inline-block;
             text-overflow: ellipsis;
             white-space: nowrap;
             align-items: center;
             overflow: hidden;
+
+            &-typed {
+                width: $tagTextLinkedWidth;
+            }
         }
     }
 
@@ -180,15 +202,57 @@ $tagColorWidth: 12px;
         &-toolbar {
             display: flex;
             flex-direction: row;
+
             &-item {
                 color: #ccc;
                 padding: 1px;
             }
+
             &-item:hover {
                 color: white;
                 cursor: pointer;
             }
+
+            &-separator {
+                width: 0.1px;
+                border: 0.5px solid $lighter-2;
+                height: 18px;
+                margin: 0 0.25em
+            }
+
+            &-iconbutton {
+                color: #ccc;
+                width: auto;
+                height: auto;
+                padding: 0 0.25em;
+                background-color: transparent;
+
+                &.active, &:hover {
+                    background-color: transparent;
+                    color: #fff;
+                }
+
+                &-disabled {
+                    i {
+                        color: $lighter-5;
+                    }
+                }
+
+                i {
+                    font-size: 80%;
+                    margin: 0;
+                    padding: 0;
+                }
+            }
         }
+    }
+
+    &-index-span {
+        width: 20px;
+        height: 20px;
+        display: inline-block;
+        text-align: center;
+        line-height: 16px;
     }
 }
 
@@ -198,18 +262,4 @@ div.github-picker > span > div {
 
 div.circle-picker-container {
     background: #252526;
-}
-
-.tag-index-span {
-    width: 20px;
-    height: 20px;
-    display: inline-block;
-    text-align: center;
-    line-height: 16px;
-}
-
-.field-background-color {
-    background: $darker-1;
-
-    opacity: 1;
 }

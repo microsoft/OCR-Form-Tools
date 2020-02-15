@@ -38,7 +38,7 @@ export class ErrorHandler extends React.Component<IErrorHandlerProps> {
         this.registerUnhandledRejectionHandler();
     }
 
-    public componentWillMount() {
+    public componentWillUnmount() {
         window.removeEventListener("error", this.onWindowError);
         this.unregisterUnhandledRejectionHandler();
     }

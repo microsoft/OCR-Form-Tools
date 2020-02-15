@@ -2,10 +2,11 @@
 // Licensed under the MIT license.
 
 import React from "react";
+import { FontIcon } from "office-ui-fabric-react";
 import { Align } from "../align/align";
 import { ITag, FieldType, FieldFormat  } from "../../../../models/applicationState";
+import { strings } from "../../../../common/strings";
 import "./tagContextMenu.scss";
-import "./tagInputItem.scss";
 
 /**
  * Properties for TagContextMenu
@@ -78,9 +79,6 @@ export default class TagContextMenu extends React.Component<ITagContextMenuProps
         const tag = this.state.tag;
         const types = Object.keys(FieldType);
         const formats = TagContextMenu.filterFormat(tag.type);
-        const dropdownIconClass = [
-            "ms-Icon", "ms-Icon--ChevronDown", "field-background-color", "icon-color", "pr-1",
-        ].join(" ");
         const align = {
             // Align top right of source node (dropdown) with top left of target node (tag name row)
             points: ["tr", "br"],
@@ -98,8 +96,9 @@ export default class TagContextMenu extends React.Component<ITagContextMenuProps
                             ref={this.typeRef}
                             className="field-background-container"
                             onClick={this.handleTypeShow}>
-                            <span className="type-selected">{tag.type}</span>
-                            <span className={dropdownIconClass}></span>
+                            <FontIcon iconName="Link" />
+                            <span className="type-selected">{tag.type ? tag.type : strings.tags.toolbar.type}</span>
+                            <FontIcon iconName="ChevronDown" className="pr-1" />
                         </div>
                         <Align align={align} target={() => this.typeRef.current} monitorWindowResize={true}>
                             {
@@ -124,8 +123,9 @@ export default class TagContextMenu extends React.Component<ITagContextMenuProps
                             ref={this.formatRef}
                             className = "field-background-container"
                             onClick={this.handleFormatShow}>
-                            <span>{tag.format}</span>
-                            <span className={dropdownIconClass}></span>
+                            <FontIcon iconName="Link" />
+                            <span>{tag.format ? tag.format : strings.tags.toolbar.format}</span>
+                            <FontIcon iconName="ChevronDown" className="pr-1" />
                         </div>
                         <Align align={align} target={() => this.formatRef.current}>
                             {
@@ -191,10 +191,10 @@ export default class TagContextMenu extends React.Component<ITagContextMenuProps
 
     private getTypeListItem(props, type) {
         return (
-            <button type = "button"
-                key = {type}
-                onClick = {props.handleTypeChange}
-                value = {FieldType[type]}
+            <button type="button"
+                key={type}
+                onClick={props.handleTypeChange}
+                value={FieldType[type]}
                 className="list-items list-items-color"
             >
                 {FieldType[type]}
@@ -204,10 +204,10 @@ export default class TagContextMenu extends React.Component<ITagContextMenuProps
 
     private getFormatListItem(props, format) {
         return(
-            <button type = "button"
-                key = {format}
-                onClick = {props.handleFormatChange}
-                value = {format}
+            <button type="button"
+                key={format}
+                onClick={props.handleFormatChange}
+                value={format}
                 className="list-items list-items-color"
             >
                 {format}

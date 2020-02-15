@@ -177,6 +177,9 @@ export const spanish: IAppStrings = {
             moveUp: "Mover etiqueta hacia arriba",
             delete: "Borrar etiqueta",
             vertiline: "Linea vertical",
+            type: "Seleccione tipo",
+            format: "Seleccionar formato",
+            contextualMenu: "Menú contextual",
         },
     },
     connections: {
