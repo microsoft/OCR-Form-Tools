@@ -820,7 +820,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     setTimeout(() => {
                         this.getRegionWithKey(true);
                         this.pendingFlag = false;
-                    }, 0.5);
+                    }, 1);
                 }
                 break;
 
@@ -831,7 +831,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     setTimeout(() => {
                         this.getRegionWithKey(false);
                         this.pendingFlag = false;
-                    }, 0.5);
+                    }, 1);
                 }
                 break;
 
