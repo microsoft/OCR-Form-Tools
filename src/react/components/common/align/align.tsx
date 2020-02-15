@@ -2,17 +2,17 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import Align_, { AlignProps } from "rc-align";
+import RcAlign, { AlignProps } from "rc-align";
 import "./align.scss";
 
 export function Align(props: AlignProps) {
     const { children } = props;
     return (
         children &&
-        <Align_ {...props}>
+        <RcAlign {...props}>
             <div className="align-portal">
                 {children}
             </div>
-        </Align_>
+        </RcAlign>
     );
 }

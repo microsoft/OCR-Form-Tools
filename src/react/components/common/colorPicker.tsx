@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { GithubPicker, CirclePicker } from "react-color";
+import { GithubPicker } from "react-color";
 
 export interface IColorPickerProps {
     show: boolean;
@@ -28,7 +28,7 @@ export class ColorPicker extends React.Component<IColorPickerProps> {
 
     private GithubPicker = () => {
         return (
-            <div className="color-picker">
+            <div className="color-picker-container">
                 <GithubPicker
                     color={{hex: this.props.color}}
                     onChangeComplete={this.onChange}
@@ -44,21 +44,6 @@ export class ColorPicker extends React.Component<IColorPickerProps> {
                     triangle={"hide"}
                 />
             </div>
-        );
-    }
-
-    private CirclePicker = () => {
-        return (
-            <div className="circle-picker-container">
-                <CirclePicker
-                    width={200}
-                    onChange={this.onChange}
-                    colors={this.props.colors}
-                    hex={this.props.color}
-                    circleSize={25}
-                />
-            </div>
-
         );
     }
 }

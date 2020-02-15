@@ -1,4 +1,8 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 @import "../../../../assets/sass/theme.scss";
+@import "../../common/tagInput/tagInputSize.scss";
 
 .editor-page {
   flex-grow: 1;
@@ -33,7 +37,7 @@
   &-right-sidebar {
     display: flex;
     margin-left: auto;
-    width: 250px;
+    width: $tagInputWidth;
   }
 
   &-content {
@@ -58,28 +62,6 @@
         position: relative;
         overflow: hidden;
         background-color: $darker-5;
-      }
-    }
-
-    .video-react {
-      background-color: #1e2024 !important;
-
-      &-video {
-        position: static;
-        width: 100%;
-        height: calc(100% - 3em);
-      }
-
-      &-control-bar {
-        position: relative;
-
-        &-disabled {
-          background-color: $darker-6;
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          z-index: 3;
-        }
       }
     }
   }
@@ -190,35 +172,6 @@
   }
 }
 
-.video-timeline-container {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-
-  .video-timeline {
-    &-tagged,
-    &-visited {
-      width: 2px;
-      position: absolute;
-      height: 100%;
-      cursor: pointer;
-      opacity: 0.75;
-    }
-
-    &-tagged {
-      background-color: green;
-      z-index: 2;
-    }
-
-    &-visited {
-      background-color: yellow;
-      z-index: 1;
-    }
-  }
-}
-
 #ct-zone {
   position: absolute;
 
@@ -255,34 +208,6 @@
 
 canvas {
   background-color: #1e2024 !important;
-}
-
-.video-react {
-  font-family: inherit;
-
-  &-progress-control * {
-    font-family: inherit;
-  }
-
-  &-fullscreen-control {
-    display: none;
-  }
-
-  &-button:hover {
-    text-shadow: 0 0 18px #fff, 0 0 18px #fff, 0 0 18px #fff;
-  }
-
-  &-progress-holder,
-  &-load-progress,
-  &-play-progress {
-    height: 0.5em !important;
-  }
-
-  &-play-progress {
-    &::before {
-      font-size: 1.2em !important;
-    }
-  }
 }
 
 .asset-error {

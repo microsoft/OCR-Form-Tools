@@ -2,6 +2,9 @@
 // Licensed under the MIT license.
 
 import React, { ReactElement } from "react";
+import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
+import { Label } from "office-ui-fabric-react/lib/Label";
+import { IconButton } from "office-ui-fabric-react/lib/Button";
 import {
     EditorMode, IAssetMetadata,
     IProject, IRegion, RegionType, AssetType, ILabelData, ILabel, ITag, IAsset, IFormRegion,
@@ -17,7 +20,7 @@ import { OCRService, OcrStatus } from "../../../../services/ocrService";
 import { Feature } from "ol";
 import { Extent } from "ol/extent";
 import { KeyboardBinding } from "../../common/keyboardBinding/keyboardBinding";
-import { KeyEventType, KeyboardContext } from "../../common/keyboardManager/keyboardManager";
+import { KeyEventType } from "../../common/keyboardManager/keyboardManager";
 import _ from "lodash";
 import Alert from "../../common/alert/alert";
 import * as pdfjsLib from "pdfjs-dist";
@@ -25,9 +28,6 @@ import Polygon from "ol/geom/Polygon";
 import HtmlFileReader from "../../../../common/htmlFileReader";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
-import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
-import { Label } from "office-ui-fabric-react/lib/Label";
-import { IconButton } from "office-ui-fabric-react/lib/Button";
 
 // temp hack for enabling worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.js`;

@@ -1,12 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { SyntheticEvent } from "react";
-import { FontIcon } from "office-ui-fabric-react";
+import React from "react";
+import { IconButton } from "office-ui-fabric-react";
 import { strings } from "../../../../common/strings";
 import { ITag } from "../../../../models/applicationState";
-import "./tagInput.scss";
-import "./tagInputToolBar.scss";
 
 enum Categories {
     General,
@@ -34,7 +32,6 @@ export interface ITagInputToolbarProps {
 
 interface ITagInputToolbarItemProps {
     displayName: string;
-    className: string;
     icon?: string;
     category?: Categories;
     handler?: () => void;
@@ -45,61 +42,49 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
     public render() {
         return (
             <div className="tag-input-toolbar">
-                {this.handleTagIcon()}
+                {this.renderItems()}
             </div>
         );
-    }
-
-    private onToolbarItemClick = (e: SyntheticEvent, itemConfig: ITagInputToolbarItemProps): void => {
-        e.stopPropagation();
-        itemConfig.handler();
     }
 
     private getToolbarItems = (): ITagInputToolbarItemProps[] => {
         return [
             {
                 displayName: strings.tags.toolbar.add,
-                className: "plus",
                 icon: "Add",
                 category: Categories.General,
                 handler: this.handleAdd,
             },
             {
                 displayName: strings.tags.toolbar.search,
-                className: "search",
                 icon: "Search",
                 category: Categories.General,
                 handler: this.handleSearch,
             },
             {
                 displayName: strings.tags.toolbar.vertiline,
-                className: "separator",
                 category: Categories.Separator,
             },
             {
                 displayName: strings.tags.toolbar.edit,
-                className: "edit",
                 icon: "Rename",
                 category: Categories.Modifier,
                 handler: this.handleEdit,
             },
             {
                 displayName: strings.tags.toolbar.moveUp,
-                className: "up",
                 icon: "Up",
                 category: Categories.Modifier,
                 handler: this.handleArrowUp,
             },
             {
                 displayName: strings.tags.toolbar.moveDown,
-                className: "down",
                 icon: "Down",
                 category: Categories.Modifier,
                 handler: this.handleArrowDown,
             },
             {
                 displayName: strings.tags.toolbar.delete,
-                className: "delete",
                 icon: "Delete",
                 category: Categories.Modifier,
                 handler: this.handleDelete,
@@ -107,10 +92,11 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
         ];
     }
 
-    private handleTagIcon = () => {
-        const modifierClassNames = ["tag-input-toolbar-icon"];
-        if (this.props.selectedTag === null) {
-            modifierClassNames.push("tag-input-toolbar-icon-unselected");
+    private renderItems = () => {
+        const modifierDisabled = !this.props.selectedTag;
+        const modifierClassNames = ["tag-input-toolbar-iconbutton"];
+        if (modifierDisabled) {
+            modifierClassNames.push("tag-input-toolbar-iconbutton-disabled");
         }
 
         const modifierClassName = modifierClassNames.join(" ");
@@ -118,26 +104,38 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
         return(
             this.getToolbarItems().map((itemConfig) => {
                 if (itemConfig.category === Categories.General) {
-                    return (<div
-                                key={itemConfig.displayName}
-                                className={`tag-input-toolbar-item ${itemConfig.className}`}
-                                onClick={(e) => this.onToolbarItemClick(e, itemConfig)}>
-                                <FontIcon iconName={itemConfig.icon} className="tag-input-toolbar-icon" />
-                            </div>);
+                   return (
+                        <IconButton
+                            key={itemConfig.displayName}
+                            title={itemConfig.displayName}
+                            ariaLabel={itemConfig.displayName}
+                            className="tag-input-toolbar-iconbutton"
+                            iconProps={{iconName: itemConfig.icon}}
+                            onClick={(e) => this.onToolbarItemClick(e, itemConfig)} />
+                   );
                 } else if (itemConfig.category === Categories.Separator) {
-                    return (<div className="tag-tool-bar-vertical-line" key = {itemConfig.displayName}></div>);
+                    return (<div className="tag-input-toolbar-separator" key={itemConfig.displayName}></div>);
                 } else if (itemConfig.category === Categories.Modifier) {
-                    return (<div
-                                key={itemConfig.displayName}
-                                className={`tag-input-toolbar-item ${itemConfig.className}`}
-                                onClick={(e) => this.onToolbarItemClick(e, itemConfig)}>
-                                <FontIcon iconName={itemConfig.icon} className={modifierClassName} />
-                            </div>);
+                    return (
+                        <IconButton
+                            key={itemConfig.displayName}
+                            disabled={modifierDisabled}
+                            title={itemConfig.displayName}
+                            ariaLabel={itemConfig.displayName}
+                            className={modifierClassName}
+                            iconProps={{iconName: itemConfig.icon}}
+                            onClick={(e) => this.onToolbarItemClick(e, itemConfig)} />
+                    );
                 } else {
                     throw new Error(`Unsupported item category ${itemConfig.category}`);
                 }
             })
         );
+    }
+
+    private onToolbarItemClick = (e: any, itemConfig: ITagInputToolbarItemProps): void => {
+        e.stopPropagation();
+        itemConfig.handler();
     }
 
     private handleAdd = () => {
@@ -148,23 +146,27 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
         this.props.onSearchTags();
     }
 
-    // private handleLock = () => {
-    //     this.props.onLockTag(this.props.selectedTag);
-    // }
-
     private handleEdit = () => {
-        this.props.onEditTag(this.props.selectedTag);
+        if (this.props.selectedTag) {
+            this.props.onEditTag(this.props.selectedTag);
+        }
     }
 
     private handleArrowUp = () => {
-        this.props.onReorder(this.props.selectedTag, -1);
+        if (this.props.selectedTag) {
+            this.props.onReorder(this.props.selectedTag, -1);
+        }
     }
 
     private handleArrowDown = () => {
-        this.props.onReorder(this.props.selectedTag, 1);
+        if (this.props.selectedTag) {
+            this.props.onReorder(this.props.selectedTag, 1);
+        }
     }
 
     private handleDelete = () => {
-        this.props.onDelete(this.props.selectedTag);
+        if (this.props.selectedTag) {
+            this.props.onDelete(this.props.selectedTag);
+        }
     }
 }

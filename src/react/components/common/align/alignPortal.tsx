@@ -14,7 +14,7 @@ export class AlignPortal extends React.Component<AlignProps> {
     constructor(props: AlignProps) {
         super(props);
         this.portalElement = document.createElement("div");
-        this.portalElement.classList.add("align-portal-fixed");
+        this.portalElement.classList.add("align-portal-sticky");
     }
 
     public componentDidMount() {

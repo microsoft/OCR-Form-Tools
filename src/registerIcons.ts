@@ -17,6 +17,7 @@ export function registerIcons() {
             Edit: "\uE70F",
             Add: "\uE710",
             Settings: "\uE713",
+            Link: "\uE71B",
             Search: "\uE721",
             Up: "\uE74A",
             Down: "\uE74B",

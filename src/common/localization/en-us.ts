@@ -176,6 +176,9 @@ export const english: IAppStrings = {
             moveDown: "Move tag down",
             delete: "Delete tag",
             vertiline: "Vertical line",
+            type: "Select type",
+            format: "Select format",
+            contextualMenu: "Contextual Menu",
         },
     },
     connections: {

@@ -2,10 +2,10 @@
 // Licensed under the MIT license.
 
 import React, { MouseEvent } from "react";
-import { ITag, ILabel } from "../../../../models/applicationState";
+import { FontIcon, IconButton } from "office-ui-fabric-react";
+import { ITag, ILabel, FieldType, FieldFormat } from "../../../../models/applicationState";
+import { strings } from "../../../../common/strings";
 import TagInputItemLabel from "./tagInputItemLabel";
-import "./tagInputItem.scss";
-import "./tagInput.scss";
 
 export enum TagEditMode {
     Color = "color",
@@ -91,7 +91,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                         this.props.tag &&
                         <div className={this.getItemClassName()} style={style}>
                             <div
-                                className={"tag-content"}
+                                className={"tag-content pr-2"}
                                 onClick={this.onNameClick}>
                                 {this.getTagContent()}
                             </div>
@@ -121,22 +121,11 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         }
     }
 
-    private getDropDownButton = () => {
-        return (
-            <span
-                className = "ms-Icon ms-Icon--ChevronDown icon-color pl-2"
-                onClick={this.onInputFieldClick}>
-            </span>
-        );
-    }
-
-    private onInputFieldClick = (e: MouseEvent) => {
+    private onInputFieldClick = (e: any) => {
         e.stopPropagation();
-        const ctrlKey = e.ctrlKey || e.metaKey;
-        const keyClick = (e.type === "click");
         this.setState({
             tagEditMode: TagEditMode.Dropdown,
-        }, () => this.props.onClick(this.props.tag, { ctrlKey, keyClick, clickedDropDown: true }));
+        }, () => this.props.onClick(this.props.tag, { keyClick: true, clickedDropDown: true }));
     }
 
     private onColorClick = (e: MouseEvent) => {
@@ -174,6 +163,10 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         const displayIndex = this.getDisplayIndex();
         return (
             <div className={"tag-name-container"}>
+                {
+                    (this.isTypeOrFormatSpecified()) &&
+                    <FontIcon iconName="Link" className="pl-1" />
+                }
                 <div className="tag-name-body">
                     {
                         (this.state.isBeingEdited && this.state.tagEditMode === TagEditMode.Name)
@@ -191,11 +184,19 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                             </span>
                     }
                 </div>
-                <div className={"tag-icons-container px-1"}>
-                    {(displayIndex !== null) &&
+                <div className={"tag-icons-container"}>
+                    {(displayIndex !== null)
+                        ?
                         <span className="tag-index-span border border-white rounded-sm ">{displayIndex}</span>
+                        :
+                        <span className="tag-index-span"></span>
                     }
-                    {this.getDropDownButton()}
+                    <IconButton
+                        title={strings.tags.toolbar.contextualMenu}
+                        ariaLabel={strings.tags.toolbar.contextualMenu}
+                        className="tag-input-toolbar-iconbutton ml-2"
+                        iconProps={{iconName: "ChevronDown"}}
+                        onClick={this.onInputFieldClick} />
                 </div>
             </div>
         );
@@ -208,8 +209,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                 label={label}
                 onLabelEnter={this.props.onLabelEnter}
                 onLabelLeave={this.props.onLabelLeave}
-            />,
-        );
+            />);
     }
 
     private handleNameEdit = (e) => {
@@ -229,7 +229,10 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
     private getContentClassName = () => {
         const classNames = ["tag-name-text px-2 pb-1"];
         if (this.state.isBeingEdited && this.state.tagEditMode === TagEditMode.Color) {
-            classNames.push(" tag-color-edit");
+            classNames.push("tag-color-edit");
+        }
+        if (this.isTypeOrFormatSpecified()) {
+            classNames.push("tag-name-text-typed");
         }
         return classNames.join(" ");
     }
@@ -238,5 +241,11 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         const index = this.props.index;
         const displayIndex = (index === 9) ? 0 : index + 1;
         return (displayIndex < 10) ? displayIndex : null;
+    }
+
+    private isTypeOrFormatSpecified() {
+        const {tag} = this.props;
+        return (tag.type && tag.type !== FieldType.String) ||
+            (tag.format && tag.format !== FieldFormat.NotSpecified);
     }
 }

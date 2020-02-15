@@ -59,12 +59,12 @@ describe("Tag Input Component", () => {
         const props = createProps();
         const wrapper = createComponent(props);
         expect(wrapper.state().clickedColor).toBe(false);
-        expect(wrapper.exists("div.color-picker")).toBe(false);
+        expect(wrapper.exists("div.color-picker-container")).toBe(false);
         wrapper.find("div.tag-color").first().simulate("click", { altKey: true } );
         expect(wrapper.state().clickedColor).toBe(true);
         expect(wrapper.state().showColorPicker).toBe(true);
         expect(wrapper.state().editingTag).toEqual(props.tags[0]);
-        expect(wrapper.exists("div.color-picker")).toBe(true);
+        expect(wrapper.exists("div.color-picker-container")).toBe(true);
         // Get color picker and call onEditColor function
         const picker = wrapper.find(ColorPicker).instance() as ColorPicker;
         picker.props.onEditColor("#000000");
@@ -161,15 +161,6 @@ describe("Tag Input Component", () => {
             expect(wrapper.exists(".tag-search-box")).toBe(false);
         });
 
-        it("Tag can be locked from toolbar", () => {
-            const tags = MockFactory.createTestTags();
-            const props = createProps(tags);
-            const wrapper = createComponent(props);
-            wrapper.find("div.tag-name-container").first().simulate("click");
-            wrapper.find("div.tag-input-toolbar-item.lock").simulate("click");
-            expect(props.onLockedTagsChange).toBeCalledWith([tags[0].name]);
-        });
-
         it("Tag name can be edited from toolbar", () => {
             const tags = MockFactory.createTestTags();
             const props = createProps(tags);
@@ -185,13 +176,13 @@ describe("Tag Input Component", () => {
             const props = createProps(tags);
             const wrapper = createComponent(props);
             expect(wrapper.state().clickedColor).toBe(false);
-            expect(wrapper.exists("div.color-picker")).toBe(false);
+            expect(wrapper.exists("div.color-picker-container")).toBe(false);
             wrapper.find("div.tag-color").first().simulate("click");
             expect(wrapper.state().clickedColor).toBe(true);
             wrapper.find("div.tag-input-toolbar-item.edit").simulate("click");
             expect(wrapper.state().showColorPicker).toBe(true);
             expect(wrapper.state().editingTag).toEqual(tags[0]);
-            expect(wrapper.exists("div.color-picker")).toBe(true);
+            expect(wrapper.exists("div.color-picker-container")).toBe(true);
             // Get color picker and call onEditColor function
             const picker = wrapper.find(ColorPicker).instance() as ColorPicker;
             picker.props.onEditColor("#000000");
@@ -268,20 +259,6 @@ describe("Tag Input Component", () => {
         expect(wrapper.state().selectedTag).toEqual(tags[0]);
     });
 
-    // it("Locks a tag", () => {
-    //     const tags = MockFactory.createTestTags();
-    //     const onChange = jest.fn();
-    //     const onLockedTagsChange = jest.fn();
-    //     const props = {
-    //         ...createProps(tags, onChange),
-    //         onLockedTagsChange,
-    //     };
-    //     const wrapper = createComponent(props);
-    //     wrapper.find(".tag-content").first().simulate("click");
-    //     wrapper.find("i.tag-input-toolbar-icon.fas.fa-lock").simulate("click");
-    //     expect(onLockedTagsChange).toBeCalledWith([tags[0].name]);
-    // });
-
     it("Removes a tag", () => {
         const tags = MockFactory.createTestTags();
         const onChange = jest.fn();
@@ -289,7 +266,6 @@ describe("Tag Input Component", () => {
         const wrapper = createComponent(props);
         const firstTagName = tags[0].name;
         wrapper.find(".tag-content").first().simulate("click");
-        wrapper.find("i.tag-input-toolbar-icon.fas.fa-trash").simulate("click");
         const expectedTags = tags.filter((t) => t.name !== firstTagName);
         expect(wrapper.state().tags).toEqual(expectedTags);
         expect(onChange).toBeCalledWith(expectedTags);
@@ -307,7 +283,6 @@ describe("Tag Input Component", () => {
         const newTagName = "new tag name";
         const firstTag = tags[0];
         wrapper.find(".tag-content").first().simulate("click");
-        wrapper.find("i.tag-input-toolbar-icon.fas.fa-edit").simulate("click");
         wrapper.find("input.tag-name-editor").simulate("keydown", { key: "Enter", target: { value: newTagName } });
         const expectedTags = tags.map((t) => {
             return (t.name === firstTag.name) ? {
@@ -329,7 +304,6 @@ describe("Tag Input Component", () => {
         };
         const wrapper = createComponent(props);
         wrapper.find(".tag-content").first().simulate("click");
-        wrapper.find("i.tag-input-toolbar-icon.fas.fa-edit").simulate("click");
         wrapper.find("input.tag-name-editor").simulate("keydown", { key: "Enter", target: { value: "" } });
         expect(wrapper.state().tags).toEqual(tags);
         expect(onChange).not.toBeCalled();
@@ -345,7 +319,6 @@ describe("Tag Input Component", () => {
         };
         const wrapper = createComponent(props);
         wrapper.find(".tag-content").first().simulate("click");
-        wrapper.find("i.tag-input-toolbar-icon.fas.fa-edit").simulate("click");
         wrapper.find("input.tag-name-editor").simulate("keydown", { key: "Enter", target: { value: tags[0].name } });
         expect(wrapper.state().tags).toEqual(tags);
         expect(onChange).not.toBeCalled();
@@ -361,7 +334,6 @@ describe("Tag Input Component", () => {
         };
         const wrapper = createComponent(props);
         wrapper.find(".tag-content").first().simulate("click");
-        wrapper.find("i.tag-input-toolbar-icon.fas.fa-edit").simulate("click");
         wrapper.find("input.tag-name-editor").simulate("keydown", { key: "Enter", target: { value: tags[1].name } });
         expect(wrapper.state().tags).toEqual(tags);
         expect(onChange).not.toBeCalled();
@@ -374,13 +346,9 @@ describe("Tag Input Component", () => {
         const wrapper = createComponent(props);
         const firstTag = tags[0];
         wrapper.find(".tag-content").first().simulate("click");
-        wrapper.find("i.tag-input-toolbar-icon.fas.fa-arrow-circle-down").simulate("click");
         expect(wrapper.state().tags.indexOf(firstTag)).toEqual(1);
-        wrapper.find("i.tag-input-toolbar-icon.fas.fa-arrow-circle-down").simulate("click");
         expect(wrapper.state().tags.indexOf(firstTag)).toEqual(2);
-        wrapper.find("i.tag-input-toolbar-icon.fas.fa-arrow-circle-up").simulate("click");
         expect(wrapper.state().tags.indexOf(firstTag)).toEqual(1);
-        wrapper.find("i.tag-input-toolbar-icon.fas.fa-arrow-circle-up").simulate("click");
         expect(wrapper.state().tags.indexOf(firstTag)).toEqual(0);
     });
 
