@@ -105,9 +105,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private applyTagFlag: boolean = false;
 
-    private pendingNext: boolean = false;
-
-    private pendingPrev: boolean = false;
+    private pendingFlag: boolean = false;
 
     public componentDidMount = async () => {
         this.ocrService = new OCRService(this.props.project);
@@ -816,22 +814,22 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
             case "D":
             case "d":
-                if (!this.pendingNext) {
-                    this.pendingNext = true;
+                if (!this.pendingFlag) {
+                    this.pendingFlag = true;
                     setTimeout(() => {
-                        this.getRegionWithKey(keyEvent.key);
-                        this.pendingNext = false;
+                        this.getRegionWithKey(true);
+                        this.pendingFlag = false;
                     }, 0.5);
                 }
                 break;
 
             case "A":
             case "a":
-                if (!this.pendingPrev) {
-                    this.pendingPrev = true;
+                if (!this.pendingFlag) {
+                    this.pendingFlag = true;
                     setTimeout(() => {
-                        this.getRegionWithKey(keyEvent.key);
-                        this.pendingPrev = false;
+                        this.getRegionWithKey(false);
+                        this.pendingFlag = false;
                     }, 0.5);
                 }
                 break;
@@ -841,7 +839,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
     }
 
-    private getRegionWithKey = (key: string) => {
+    private getRegionWithKey = (keyFlag: boolean) => {
         let lastSelectedId;
         const selectedRegion = this.getSelectedRegions();
         const currentPage = this.state.currentPage;
@@ -853,16 +851,16 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.deleteRegionsFromSelectedRegionIds(selectedRegion);
             const removeList = this.state.currentAsset.regions.filter((r) => r.tags.length === 0);
             this.deleteRegionsFromAsset(removeList);
-            if (key === "d" || key === "D") {
+            if (keyFlag) {
                 nextRegionId = this.getNextIdByOrder(lastSelectedId, currentPage);
-            } else if (key === "a" || key === "A") {
+            } else if (!keyFlag) {
                 nextRegionId = this.getPrevIdByOrder(lastSelectedId, currentPage);
             }
         } else if (this.applyTagFlag) {
             lastSelectedId = this.lastKeyBoardRegionId;
-            if (key === "d" || key === "D") {
+            if (keyFlag) {
                 nextRegionId = this.getNextIdByOrder(lastSelectedId, currentPage);
-            } else if (key === "a" || key === "A") {
+            } else if (!keyFlag) {
                 nextRegionId = this.getPrevIdByOrder(lastSelectedId, currentPage);
             }
             this.applyTagFlag = false;
