@@ -3,6 +3,7 @@
 
 import React from "react";
 import _ from "lodash";
+import { FontIcon } from "office-ui-fabric-react";
 import { IProject, AssetState } from "../../../models/applicationState";
 import { strings, interpolate } from "../../../common/strings";
 
@@ -27,19 +28,19 @@ export class StatusBarMetrics extends React.Component<IStatusBarMetricsProps> {
         return (
             <ul>
                 <li title={strings.projectSettings.sourceConnection.title}>
-                    <i className="ms-Icon ms-Icon--PlugConnected"></i>
+                    <FontIcon iconName="PlugConnected" />
                     <span className="metric-source-connection-name">{project.sourceConnection.name}</span>
                 </li>
                 <li title={interpolate(strings.projectMetrics.taggedAssets, { count: taggedAssets.length })}>
-                    <i className="ms-Icon ms-Icon--Tag"></i>
+                    <FontIcon iconName="Tag" />
                     <span className="metric-tagged-asset-count">{taggedAssets.length}</span>
                 </li>
                 <li title={interpolate(strings.projectMetrics.visitedAssets, { count: visitedAssets.length })}>
-                    <i className="ms-Icon ms-Icon--View"></i>
+                    <FontIcon iconName="View" />
                     <span className="metric-visited-asset-count">{visitedAssets.length}</span>
                 </li>
                 <li title={`Total Assets (${projectAssets.length})`}>
-                    <i className="ms-Icon ms-Icon--TextDocument"></i>
+                    <FontIcon iconName="TextDocument" />
                     <span className="metric-asset-count">{projectAssets.length}</span>
                 </li>
             </ul>

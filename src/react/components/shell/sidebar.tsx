@@ -3,6 +3,7 @@
 
 import React from "react";
 import { NavLink } from "react-router-dom";
+import { FontIcon } from "office-ui-fabric-react";
 import ConditionalNavLink from "../common/conditionalNavLink/conditionalNavLink";
 import { strings } from "../../../common/strings";
 
@@ -17,44 +18,44 @@ export function Sidebar({ project }) {
     const projectId = project ? project.id : null;
 
     return (
-        <div className="bg-lighter-2 app-sidebar">
+        <div className="bg-lighter-2 app-sidebar" id="app-sidebar" >
             <ul>
                 <li>
                     <NavLink title={"Home"} to={`/`} exact>
-                        <i className="ms-Icon ms-Icon--Home" aria-hidden="true"></i>
+                        <FontIcon iconName="Home" />
                     </NavLink>
                 </li>
                 <li>
                     <ConditionalNavLink disabled={!projectId}
                         title={strings.tags.editor}
                         to={`/projects/${projectId}/edit`}>
-                        <i className="ms-Icon ms-Icon--Tag" aria-hidden="true"></i>
+                        <FontIcon iconName="Tag" />
                     </ConditionalNavLink>
                 </li>
                <li>
                     <ConditionalNavLink disabled={!projectId}
                         title={strings.train.title}
                         to={`/projects/${projectId}/train`}>
-                        <i className="ms-Icon ms-Icon--MachineLearning" aria-hidden="true"></i>
+                        <FontIcon iconName="MachineLearning" />
                     </ConditionalNavLink>
                 </li>
                 <li>
                     <ConditionalNavLink disabled={!projectId}
                         title={`Predict`}
                         to={`/projects/${projectId}/predict`}>
-                        <i className="ms-Icon ms-Icon--Insights" aria-hidden="true"></i>
+                        <FontIcon iconName="Insights" />
                     </ConditionalNavLink>
                 </li>
                 <li>
                     <ConditionalNavLink disabled={!projectId}
                         title={strings.projectSettings.title}
                         to={`/projects/${projectId}/settings`}>
-                        <i className="ms-Icon ms-Icon--DocumentManagement" aria-hidden="true"></i>
+                        <FontIcon iconName="DocumentManagement" />
                     </ConditionalNavLink>
                 </li>
                 <li>
                     <NavLink title={strings.connections.title} to={`/connections`}>
-                        <i className="ms-Icon ms-Icon--Plug" aria-hidden="true"></i>
+                        <FontIcon iconName="Plug" />
                     </NavLink>
                 </li>
             </ul>
@@ -62,7 +63,7 @@ export function Sidebar({ project }) {
             <ul>
                 <li>
                     <NavLink title={strings.appSettings.title} to={`/settings`}>
-                        <i className="ms-Icon ms-Icon--Settings" aria-hidden="true"></i>
+                        <FontIcon iconName="Settings" />
                     </NavLink>
                 </li>
             </ul>

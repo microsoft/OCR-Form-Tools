@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import React from "react";
+import { FontIcon } from "office-ui-fabric-react";
 import { strings, addLocValues } from "../../../../common/strings";
 import Form, { FormValidation } from "react-jsonschema-form";
 import { ObjectFieldTemplate } from "../../common/objectField/objectFieldTemplate";
@@ -11,6 +12,8 @@ import { IAppSettings } from "../../../../models/applicationState";
 import { ProtectedInput } from "../../common/protectedInput/protectedInput";
 import { CustomField } from "../../common/customField/customField";
 import { generateKey } from "../../../../common/crypto";
+import { PrimaryButton } from "office-ui-fabric-react";
+import { getPrimaryGreenTheme, getPrimaryGreyTheme } from "../../../../common/themes";
 // tslint:disable-next-line:no-var-requires
 const formSchema = addLocValues(require("./appSettingsForm.json"));
 // tslint:disable-next-line:no-var-requires
@@ -64,7 +67,7 @@ export class AppSettingsForm extends React.Component<IAppSettingsFormProps, IApp
         return (
             <div className="app-settings-page-form p-3">
                 <h3 className="mb-3 flex-center">
-                    <i className="ms-Icon ms-Icon--Settings"></i>
+                    <FontIcon iconName="Settings" />
                     <span className="px-2">{strings.appSettings.title}</span>
                 </h3>
                 <div className="m-3">
@@ -83,15 +86,18 @@ export class AppSettingsForm extends React.Component<IAppSettingsFormProps, IApp
                         formData={this.state.appSettings}
                         onSubmit={(form) => this.props.onSubmit(form.formData)}>
                         <div>
-                            <button
-                                type="submit"
-                                className="btn32px btn-success mr-1">
+                            <PrimaryButton
+                                theme={getPrimaryGreenTheme()}
+                                className="mr-2"
+                                type="submit">
                                 {strings.appSettings.save}
-                            </button>
-                            <button type="button"
-                                className="btn32px btn-secondary btn-cancel"
-                                onClick={this.onFormCancel}>{strings.common.cancel}
-                            </button>
+                            </PrimaryButton>
+                            <PrimaryButton
+                                theme={getPrimaryGreyTheme()}
+                                type="button"
+                                onClick={this.onFormCancel}>
+                                {strings.common.cancel}
+                            </PrimaryButton>
                         </div>
                     </Form>
                 </div>

@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import React from "react";
+import { FontIcon } from "office-ui-fabric-react";
 import { appInfo } from "../../../common/appInfo";
 import "./statusBar.scss";
 
@@ -13,7 +14,7 @@ export class StatusBar extends React.Component {
                 <div className="status-bar-version">
                     <ul>
                         <li>
-                            <i className="ms-Icon ms-Icon--BranchMerge"></i>
+                            <FontIcon iconName="BranchMerge" />
                             <span>{appInfo.version}</span>
                         </li>
                     </ul>

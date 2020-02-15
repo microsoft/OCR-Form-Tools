@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import React from "react";
+import { FontIcon } from "office-ui-fabric-react";
 
 export interface ITrainRecordProps {
     accuracies?: object;
@@ -34,7 +35,7 @@ export default class TrainRecord extends React.Component<ITrainRecordProps, ITra
                     </p>
                     <div className="accuracy-info">
                         <a href="https://aka.ms/form-recognizer/docs/train" target="_blank" rel="noopener noreferrer">
-                            <i className={"ms-Icon ms-Icon--Info"}/>
+                            <FontIcon iconName="Info" />
                             <span>Learn more about improving model accuracy.</span>
                         </a>
                     </div>

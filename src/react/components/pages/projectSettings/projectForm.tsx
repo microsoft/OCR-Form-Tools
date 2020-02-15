@@ -14,6 +14,8 @@ import "vott-react/dist/css/tagsInput.css";
 import { IConnectionProviderPickerProps } from "../../common/connectionProviderPicker/connectionProviderPicker";
 import { ProjectSettingAction } from "./projectSettingAction";
 import { ProtectedInput } from "../../common/protectedInput/protectedInput";
+import { PrimaryButton } from "office-ui-fabric-react";
+import { getPrimaryGreenTheme, getPrimaryGreyTheme } from "../../../../common/themes";
 
 // tslint:disable-next-line:no-var-requires
 const newFormSchema = addLocValues(require("./newProjectForm.json"));
@@ -119,10 +121,18 @@ export default class ProjectForm extends React.Component<IProjectFormProps, IPro
                 onChange={this.onFormChange}
                 onSubmit={this.onFormSubmit}>
                 <div>
-                    <button className="btn32px btn-green mr-1" type="submit">{strings.projectSettings.save}</button>
-                    <button className="btn32px btn-secondary btn-cancel"
+                    <PrimaryButton
+                        theme={getPrimaryGreenTheme()}
+                        className="mr-2"
+                        type="submit">
+                        {strings.projectSettings.save}
+                    </PrimaryButton>
+                    <PrimaryButton
+                        theme={getPrimaryGreyTheme()}
                         type="button"
-                        onClick={this.onFormCancel}>{strings.common.cancel}</button>
+                        onClick={this.onFormCancel}>
+                        {strings.common.cancel}
+                    </PrimaryButton>
                 </div>
             </Form>
         );

@@ -9,7 +9,6 @@
 }
 
 .form-row {
-  align-items: center;
   margin: 0;
 
   .object-wrapper {
@@ -35,21 +34,6 @@
   padding-top: 0;
   padding-bottom: 0;
   border: 0px;
-}
-
-.btn-white {
-  background-color: white;
-  border-color: white;
-  color: black;
-}
-
-.btn-green {
-  background-color: #416100;
-  border-color: #416100;
-  color: white;
-  &:hover {
-      background-color: lighten(#416100, 3%);
-  }
 }
 
 .greyOut {
@@ -91,7 +75,6 @@
 
 .loading-container { 
   display: flex;
-  align-items: center;
 }
 
 .loading-description {
@@ -121,6 +104,15 @@
   margin: 0px 10px;
 }
 
-.color-white {
-  color: white;
+.text-shadow-none {
+  text-shadow: none !important;
+}
+
+.portected-input-margin {
+  margin-left: 6px;
+  margin-right: 4px;
+}
+
+.connection-picker-button {
+  margin-left: 6px;
 }

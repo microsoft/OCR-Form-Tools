@@ -3,6 +3,7 @@
 
 import React from "react";
 import Form, { Widget, IChangeEvent, FormValidation } from "react-jsonschema-form";
+import { FontIcon, PrimaryButton} from "office-ui-fabric-react";
 import { IConnection } from "../../../../models/applicationState";
 import { strings, addLocValues } from "../../../../common/strings";
 import CustomFieldTemplate from "../../common/customField/customFieldTemplate";
@@ -12,6 +13,7 @@ import Checkbox from "rc-checkbox";
 import "rc-checkbox/assets/index.css";
 import { CustomWidget } from "../../common/customField/customField";
 import { isBrowser } from "../../../../common/hostProcess";
+import { getPrimaryGreenTheme, getPrimaryGreyTheme} from "../../../../common/themes";
 // tslint:disable-next-line:no-var-requires
 const formSchema = addLocValues(require("./connectionForm.json"));
 // tslint:disable-next-line:no-var-requires
@@ -91,7 +93,7 @@ export default class ConnectionForm extends React.Component<IConnectionFormProps
         return (
             <div className="app-connections-page-detail m-3">
                 <h3>
-                    <i className="ms-Icon ms-Icon--Plug"></i>
+                    <FontIcon iconName="Plug" />
                     <span className="px-2">
                         {strings.connections.settings}
                     </span>
@@ -100,7 +102,7 @@ export default class ConnectionForm extends React.Component<IConnectionFormProps
                     {isBrowser() &&
                         <div className="alert alert-warning warning"
                             role="alert">
-                            <i className="ms-Icon ms-Icon--WarningSolid mr-1" aria-hidden="true"></i>
+                            <FontIcon iconName="WarningSolid" className="mr-1" />
                             {strings.formatString(
                                 strings.connections.blobCorsWarning,
                                 <a
@@ -126,15 +128,18 @@ export default class ConnectionForm extends React.Component<IConnectionFormProps
                         onChange={this.onFormChange}
                         onSubmit={(form) => this.props.onSubmit(form.formData)}>
                         <div>
-                            <button
-                                className="btn32px btn-green mr-1"
-                                type="submit">{strings.connections.save}
-                            </button>
-                            <button
-                                className="btn32px btn-secondary btn-cancel"
+                            <PrimaryButton
+                                theme={getPrimaryGreenTheme()}
+                                className="mr-2"
+                                type="submit">
+                                {strings.connections.save}
+                            </PrimaryButton>
+                            <PrimaryButton
+                                theme={getPrimaryGreyTheme()}
                                 type="button"
-                                onClick={this.onFormCancel}>{strings.common.cancel}
-                            </button>
+                                onClick={this.onFormCancel}>
+                                {strings.common.cancel}
+                            </PrimaryButton>
                         </div>
                     </Form>
                 </div>

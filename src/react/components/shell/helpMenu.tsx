@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import React from "react";
+import { FontIcon } from "office-ui-fabric-react";
 import { strings } from "../../../common/strings";
 import "./helpMenu.scss";
 
@@ -20,7 +21,7 @@ export class HelpMenu extends React.Component<IHelpMenuProps, IHelpMenuState> {
                 href={this.akaMsLink}
                 target="_blank"
                 rel="noopener noreferrer">
-                <i className="ms-Icon ms-Icon--Help ms-Icon-18px"></i>
+                <FontIcon iconName="Help" />
             </a>
         );
     }

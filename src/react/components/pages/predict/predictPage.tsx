@@ -5,6 +5,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
+import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton} from "office-ui-fabric-react";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
@@ -29,7 +30,6 @@ import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
-import { PrimaryButton} from "office-ui-fabric-react";
 import { getPrimaryGreenTheme, getPrimaryWhiteTheme} from "../../../../common/themes";
 
 export interface IPredictPageProps extends RouteComponentProps, React.Props<PredictPage> {
@@ -151,7 +151,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 <div className="predict-sidebar bg-lighter-1">
                     <div className="condensed-list">
                         <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
-                            <i className="ms-Icon ms-Icon--Insights" />
+                            <FontIcon iconName="Insights" />
                             <span className="condensed-list-title">Predict</span>
                         </h6>
                         <div className="p-3">
@@ -192,9 +192,13 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                     />
                                 </div>
                             {!this.state.predictionLoaded &&
-                                    <div className="loading-container">
-                                    <i className="loading-icon" />
-                                    <div className="loading-description">Prediction in progress...</div>
+                                <div className="loading-container">
+                                    <Spinner
+                                        label="Prediction in progress..."
+                                        ariaLive="assertive"
+                                        labelPosition="right"
+                                        size={SpinnerSize.large}
+                                    />
                                 </div>
                             }
                             {Object.keys(predictions).length > 0 &&
@@ -252,13 +256,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
         if (this.state.currPage > 1) {
             return (
-                <button
+                <IconButton
                     className="toolbar-btn prev"
-                    type="button"
                     title="Previous"
-                    onClick={prevPage}>
-                    <i className="ms-Icon ms-Icon--ChevronLeft ms-Icon-18px"></i>
-                </button>
+                    iconProps={{iconName: "ChevronLeft"}}
+                    onClick={prevPage}
+                />
             );
         } else {
             return <div></div>;
@@ -279,13 +282,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
         if (this.state.currPage < numPages) {
             return (
-                <button
+                <IconButton
                     className="toolbar-btn next"
-                    type="button"
                     title="Next"
-                    onClick={nextPage}>
-                    <i className="ms-Icon ms-Icon--ChevronRight ms-Icon-18px"></i>
-                </button>
+                    onClick={nextPage}
+                    iconProps={{iconName: "ChevronRight"}}
+                />
             );
         } else {
             return <div></div>;
