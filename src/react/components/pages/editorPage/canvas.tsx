@@ -825,6 +825,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 }
                 break;
 
+            case "A":
             case "a":
                 if (!this.pendingPrev) {
                     this.pendingPrev = true;
@@ -967,14 +968,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             nextIndex = currentIndex + 1;
         }
         return currentIdList[nextIndex];
-        // const orderInfo = this.getRegionOrder(id);
-        // const orders = this.regionOrderById[currentPage - 1];
-        // const order = orderInfo.order > orders.length - 1 ? 0 : orderInfo.order + 1;
-        // return orders[order];
     }
 
     private getPrevIdByOrder = (id: string, currentPage: number) => {
-        console.log("ddddddddddddddddd");
         const currentIdList = this.regionOrderById[currentPage - 1];
         const currentIndex = currentIdList.indexOf(id);
         let prevIndex;
