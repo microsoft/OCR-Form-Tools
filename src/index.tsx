@@ -13,9 +13,11 @@ import * as serviceWorker from "./serviceWorker";
 import createReduxStore from "./redux/store/store";
 import initialState from "./redux/store/initialState";
 import { IApplicationState } from "./models/applicationState";
+import { registerIcons } from "./registerIcons";
 import registerProviders from "./registerProviders";
 import registerMixins from "./registerMixins";
 
+registerIcons();
 registerMixins();
 registerProviders();
 const defaultState: IApplicationState = initialState;

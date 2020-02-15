@@ -27,6 +27,7 @@ import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../.
 import { constants } from "../../../../common/constants";
 import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
 import { Label } from "office-ui-fabric-react/lib/Label";
+import { IconButton } from "office-ui-fabric-react/lib/Button";
 
 // temp hack for enabling worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.js`;
@@ -169,20 +170,20 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     featureStyler={this.featureStyler}
                     onMapReady={this.noOp} />
                 { this.shouldShowPreviousPageButton() &&
-                    <button className="toolbar-btn prev"
-                            type="button"
-                            title="Previous"
-                            onClick={this.prevPage}>
-                                <i className="ms-Icon ms-Icon--ChevronLeft ms-Icon-18px"></i>
-                    </button>
+                    <IconButton
+                        className="toolbar-btn prev"
+                        title="Previous"
+                        iconProps={{iconName: "ChevronLeft"}}
+                        onClick={this.prevPage}
+                    />
                 }
                 { this.shouldShowNextPageButton() &&
-                    <button className="toolbar-btn next"
-                            type="button"
-                            title="Next"
-                            onClick={this.nextPage}>
-                                <i className="ms-Icon ms-Icon--ChevronRight ms-Icon-18px"></i>
-                    </button>
+                    <IconButton
+                        className="toolbar-btn next"
+                        title="Next"
+                        onClick={this.nextPage}
+                        iconProps={{iconName: "ChevronRight"}}
+                    />
                 }
                 { this.shouldShowMultiPageIndicator() &&
                     <p className="page-number">

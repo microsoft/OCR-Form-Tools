@@ -2,21 +2,23 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { NavLink } from "react-router-dom";
-import { IconButton } from "../../common/iconButton/iconButton";
+import { Link, NavLink } from "react-router-dom";
+import { FontIcon } from "office-ui-fabric-react";
 import { strings } from "../../../../common/strings";
 
 export default function ConnectionItem({ item, onClick, onDelete }) {
     return (
         <li onClick={onClick}>
-            <NavLink to={`/connections/${item.id}`}>
-                <i className="ms-Icon ms-Icon--Edit"></i>
+            <NavLink className="condensed-list-item" to={`/connections/${item.id}`}>
+                <FontIcon iconName="Edit" />
                 <span className="px-2">{item.name}</span>
-                <IconButton
-                    iconClassName="ms-Icon ms-Icon--Delete"
-                    buttonClassName="float-right delete-btn"
+                <Link className="float-right"
+                    to="#"
                     title={strings.common.delete}
-                    onClick={onDelete}/>
+                    aria-label={strings.common.delete}
+                    onClick={onDelete}>
+                    <FontIcon iconName="Delete" />
+                </Link>
             </NavLink>
         </li>
     );

@@ -3,6 +3,8 @@
 
 import React, { RefObject } from "react";
 import MessageBox, { IMessageBoxProps } from "../messageBox/messageBox";
+import { PrimaryButton } from "office-ui-fabric-react";
+import { getPrimaryBlueTheme } from "../../../../common/themes";
 
 /**
  * Properties for Alert Component
@@ -55,14 +57,12 @@ export default class Alert extends React.Component<IAlertProps, IAlertState> {
                 params={this.state.params}
                 show={this.props.show}
             >
-                <button
-                    className="btn32px btn-info pr-3 pl-3"
+                <PrimaryButton
+                    theme={getPrimaryBlueTheme()}
                     autoFocus={true}
-                    color={this.props.closeButtonColor || "primary"}
-                    onClick={this.onCloseClick}
-                >
+                    onClick={this.onCloseClick}>
                     {this.props.closeButtonText || "OK"}
-                </button>
+                </PrimaryButton>
             </MessageBox>
         );
     }
