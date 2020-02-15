@@ -17,7 +17,7 @@ import { OCRService, OcrStatus } from "../../../../services/ocrService";
 import { Feature } from "ol";
 import { Extent } from "ol/extent";
 import { KeyboardBinding } from "../../common/keyboardBinding/keyboardBinding";
-import { KeyEventType } from "../../common/keyboardManager/keyboardManager";
+import { KeyEventType, KeyboardContext } from "../../common/keyboardManager/keyboardManager";
 import _ from "lodash";
 import Alert from "../../common/alert/alert";
 import * as pdfjsLib from "pdfjs-dist";
@@ -99,6 +99,16 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private regionOrders: Array<Record<string, number>> = [];
 
+    private regionOrderById: string[][] = [];
+
+    private lastKeyBoardRegionId: string;
+
+    private applyTagFlag: boolean = false;
+
+    private pendingNext: boolean = false;
+
+    private pendingPrev: boolean = false;
+
     public componentDidMount = async () => {
         this.ocrService = new OCRService(this.props.project);
         const asset = this.state.currentAsset.asset;
@@ -147,7 +157,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         key={"Delete"}
                         keyEventType={KeyEventType.KeyDown}
                         accelerators={["Delete", "Backspace", "Left", "ArrowLeft", "Right", "ArrowRight",
-                            "Select", "d"]}
+                            "D", "d", "A", "a"]}
                         handler={this.handleKeyDown} />
                 <ImageMap
                     ref={(ref) => this.imageMap = ref}
@@ -228,6 +238,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
 
         this.redrawFeatures(this.imageMap.getAllFeatures());
+        this.applyTagFlag = true;
     }
 
     private getSelectedRegions = (): IRegion[] => {
@@ -250,7 +261,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (this.imageMap == null) {
             return;
         }
-
         const allFeatures = this.imageMap.getAllFeatures();
         const regionsNotInFeatures = regions.filter((region) =>
             allFeatures.findIndex((feature) => feature.get("id") === region.id) === -1);
@@ -804,9 +814,25 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 this.nextPage();
                 break;
 
-            case "Select":
+            case "D":
             case "d":
-                this.getNextRegionWithKey();
+                if (!this.pendingNext) {
+                    this.pendingNext = true;
+                    setTimeout(() => {
+                        this.getRegionWithKey(keyEvent.key);
+                        this.pendingNext = false;
+                    }, 0.5);
+                }
+                break;
+
+            case "a":
+                if (!this.pendingPrev) {
+                    this.pendingPrev = true;
+                    setTimeout(() => {
+                        this.getRegionWithKey(keyEvent.key);
+                        this.pendingPrev = false;
+                    }, 0.5);
+                }
                 break;
 
             default:
@@ -814,9 +840,37 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
     }
 
-    private getNextRegionWithKey = () => {
-        console.log("this is the keydown");
-        const regionId = this.getSelectedRegions();
+    private getRegionWithKey = (key: string) => {
+        let lastSelectedId;
+        const selectedRegion = this.getSelectedRegions();
+        const currentPage = this.state.currentPage;
+        let nextRegionId;
+        if (!selectedRegion.length && !this.applyTagFlag) {
+            nextRegionId = this.regionOrderById[this.state.currentPage - 1][0];
+        } else if (!this.applyTagFlag) {
+            lastSelectedId = selectedRegion[selectedRegion.length - 1].id;
+            this.deleteRegionsFromSelectedRegionIds(selectedRegion);
+            const removeList = this.state.currentAsset.regions.filter((r) => r.tags.length === 0);
+            this.deleteRegionsFromAsset(removeList);
+            if (key === "d" || key === "D") {
+                nextRegionId = this.getNextIdByOrder(lastSelectedId, currentPage);
+            } else if (key === "a" || key === "A") {
+                nextRegionId = this.getPrevIdByOrder(lastSelectedId, currentPage);
+            }
+        } else if (this.applyTagFlag) {
+            lastSelectedId = this.lastKeyBoardRegionId;
+            if (key === "d" || key === "D") {
+                nextRegionId = this.getNextIdByOrder(lastSelectedId, currentPage);
+            } else if (key === "a" || key === "A") {
+                nextRegionId = this.getPrevIdByOrder(lastSelectedId, currentPage);
+            }
+            this.applyTagFlag = false;
+        }
+        const allFeatures = this.imageMap.getAllFeatures();
+        const nextFeature = allFeatures.find((f) => f.get("id") === (nextRegionId));
+        const polygon = nextRegionId.split(",").map(parseFloat);
+        this.addToSelectedRegions(nextRegionId, nextFeature.get("text"), polygon);
+        this.lastKeyBoardRegionId = nextRegionId;
     }
 
     private getOcrResultForCurrentPage = (ocr: any): any => {
@@ -903,6 +957,35 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         return orderInfo;
     }
 
+    private getNextIdByOrder = (id: string, currentPage: number) => {
+        const currentIdList = this.regionOrderById[currentPage - 1];
+        const currentIndex = currentIdList.indexOf(id);
+        let nextIndex;
+        if (currentIndex === currentIdList.length - 1) {
+            nextIndex = 0;
+        } else {
+            nextIndex = currentIndex + 1;
+        }
+        return currentIdList[nextIndex];
+        // const orderInfo = this.getRegionOrder(id);
+        // const orders = this.regionOrderById[currentPage - 1];
+        // const order = orderInfo.order > orders.length - 1 ? 0 : orderInfo.order + 1;
+        // return orders[order];
+    }
+
+    private getPrevIdByOrder = (id: string, currentPage: number) => {
+        console.log("ddddddddddddddddd");
+        const currentIdList = this.regionOrderById[currentPage - 1];
+        const currentIndex = currentIdList.indexOf(id);
+        let prevIndex;
+        if (currentIndex === 0) {
+            prevIndex = currentIdList.length - 1;
+        } else {
+            prevIndex = currentIndex - 1;
+        }
+        return currentIdList[prevIndex];
+    }
+
     private compareRegionOrder = (r1, r2) => {
         const order1 = this.getRegionOrder(r1.id);
         const order2 = this.getRegionOrder(r2.id);
@@ -927,6 +1010,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         ocrResults.map((ocr) => {
             const ocrExtent = [0, 0, ocr.width, ocr.height];
             this.regionOrders[ocr.page - 1] = {};
+            this.regionOrderById[ocr.page - 1] = [];
             let order = 0;
             if (ocr.lines) {
                 ocr.lines.forEach((line) => {
@@ -936,6 +1020,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                                 const feature = this.createBoundingBoxVectorFeature(
                                     word.text, word.boundingBox, imageExtent, ocrExtent, ocr.page);
                                 this.regionOrders[ocr.page - 1][feature.getId()] = order++;
+                                this.regionOrderById[ocr.page - 1].push(feature.getId());
                             }
                         });
                     }
