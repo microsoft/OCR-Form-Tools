@@ -3,7 +3,7 @@
 
 import React from "react";
 import { ReactWrapper, mount } from "enzyme";
-import { TagInput, ITagInputProps, ITagInputState } from "./tagInput";
+import { TagInput, TagOperationMode, ITagInputProps, ITagInputState } from "./tagInput";
 import MockFactory from "../../../../common/mockFactory";
 import { ITag } from "../../../../models/applicationState";
 import TagInputItem, { ITagInputItemProps } from "./tagInputItem";
@@ -43,7 +43,7 @@ describe("Tag Input Component", () => {
         const wrapper = createComponent(props);
         wrapper.find(".tag-color").first().simulate("click");
         expect(props.onTagClick).toBeCalledWith(props.tags[0]);
-        expect(wrapper.state().clickedColor).toBe(true);
+        expect(wrapper.state().tagOperation === TagOperationMode.ColorPicker).toBe(true);
         expect(props.onCtrlTagClick).not.toBeCalled();
     });
 
@@ -51,19 +51,18 @@ describe("Tag Input Component", () => {
         const props = createProps();
         const wrapper = createComponent(props);
         wrapper.find("div.tag-name-container").first().simulate("click", { altKey: true } );
-        expect(wrapper.state().editingTag).toEqual(props.tags[0]);
+        expect(wrapper.state().selectedTag).toEqual(props.tags[0]);
         expect(wrapper.exists("input.tag-name-editor")).toBe(true);
     });
 
     it("Edits tag color when alt clicked", () => {
         const props = createProps();
         const wrapper = createComponent(props);
-        expect(wrapper.state().clickedColor).toBe(false);
+        expect(wrapper.state().tagOperation === TagOperationMode.None).toBe(false);
         expect(wrapper.exists("div.color-picker-container")).toBe(false);
         wrapper.find("div.tag-color").first().simulate("click", { altKey: true } );
-        expect(wrapper.state().clickedColor).toBe(true);
-        expect(wrapper.state().showColorPicker).toBe(true);
-        expect(wrapper.state().editingTag).toEqual(props.tags[0]);
+        expect(wrapper.state().tagOperation === TagOperationMode.ColorPicker).toBe(true);
+        expect(wrapper.state().selectedTag).toEqual(props.tags[0]);
         expect(wrapper.exists("div.color-picker-container")).toBe(true);
         // Get color picker and call onEditColor function
         const picker = wrapper.find(ColorPicker).instance() as ColorPicker;
@@ -85,7 +84,7 @@ describe("Tag Input Component", () => {
         const wrapper = createComponent(props);
         wrapper.find(".tag-color").first().simulate("click", { ctrlKey: true });
         expect(props.onCtrlTagClick).toBeCalledWith(props.tags[0]);
-        expect(wrapper.state().clickedColor).toBe(true);
+        expect(wrapper.state().tagOperation === TagOperationMode.ColorPicker).toBe(true);
         expect(props.onTagClick).not.toBeCalled();
     });
 
@@ -167,7 +166,7 @@ describe("Tag Input Component", () => {
             const wrapper = createComponent(props);
             wrapper.find("div.tag-name-container").first().simulate("click");
             wrapper.find("div.tag-input-toolbar-item.edit").simulate("click");
-            expect(wrapper.state().editingTag).toEqual(tags[0]);
+            expect(wrapper.state().selectedTag).toEqual(tags[0]);
             expect(wrapper.exists("input.tag-name-editor")).toBe(true);
         });
 
@@ -175,13 +174,12 @@ describe("Tag Input Component", () => {
             const tags = MockFactory.createTestTags();
             const props = createProps(tags);
             const wrapper = createComponent(props);
-            expect(wrapper.state().clickedColor).toBe(false);
+            expect(wrapper.state().tagOperation === TagOperationMode.None).toBe(false);
             expect(wrapper.exists("div.color-picker-container")).toBe(false);
             wrapper.find("div.tag-color").first().simulate("click");
-            expect(wrapper.state().clickedColor).toBe(true);
+            expect(wrapper.state().tagOperation === TagOperationMode.ColorPicker).toBe(true);
             wrapper.find("div.tag-input-toolbar-item.edit").simulate("click");
-            expect(wrapper.state().showColorPicker).toBe(true);
-            expect(wrapper.state().editingTag).toEqual(tags[0]);
+            expect(wrapper.state().selectedTag).toEqual(tags[0]);
             expect(wrapper.exists("div.color-picker-container")).toBe(true);
             // Get color picker and call onEditColor function
             const picker = wrapper.find(ColorPicker).instance() as ColorPicker;

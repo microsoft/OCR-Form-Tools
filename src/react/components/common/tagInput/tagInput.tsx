@@ -9,7 +9,6 @@ import {
     FontIcon,
     IContextualMenuItem,
     ICustomizations,
-    SelectAllVisibility,
 } from "office-ui-fabric-react";
 import { strings } from "../../../../common/strings";
 import { getDarkTheme } from "../../../../common/themes";
@@ -25,7 +24,7 @@ import { toast } from "react-toastify";
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../../common/tagColors.json");
 
-enum TagOperationMode {
+export enum TagOperationMode {
     None,
     ColorPicker,
     ContextualMenu,
@@ -112,7 +111,6 @@ function filterFormat(type: FieldType): FieldFormat[] {
             return [ FieldFormat.NotSpecified ];
     }
 }
-
 
 export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
@@ -649,9 +647,9 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             } as IContextualMenuItem;
         });
     }
-    
+
     private onTypeSelect = (event: React.MouseEvent<HTMLButtonElement>, item?: IContextualMenuItem): void => {
-        event && event.preventDefault();
+        event.preventDefault();
         const type = item.text as FieldType;
         const tag = this.state.selectedTag;
         if (type === tag.type) {
@@ -660,7 +658,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
         const newTag = {
             ...tag,
-            type: type,
+            type,
             format: FieldFormat.NotSpecified,
         };
 
@@ -670,7 +668,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     private onFormatSelect = (event: React.MouseEvent<HTMLButtonElement>, item?: IContextualMenuItem): void => {
-        event && event.preventDefault();
+        event.preventDefault();
         const format = item.text as FieldFormat;
         const tag = this.state.selectedTag;
         if (format === tag.format) {
@@ -679,7 +677,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
         const newTag = {
             ...tag,
-            format: format
+            format,
         };
 
         if (this.props.onTagChanged) {

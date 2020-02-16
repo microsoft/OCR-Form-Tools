@@ -25,8 +25,6 @@ export interface ITagInputItemProps {
     index: number;
     /** Labels owned by the tag */
     labels: ILabel[];
-    /** Tag is currently changing color */
-    isChangingColor: boolean;
     /** Tag is currently renaming */
     isRenaming: boolean;
     /** Tag is currently locked for application */
@@ -219,9 +217,6 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
 
     private getContentClassName = () => {
         const classNames = ["tag-name-text px-2 pb-1"];
-        if (this.props.isChangingColor) {
-            classNames.push("tag-color-edit");
-        }
         if (this.isTypeOrFormatSpecified()) {
             classNames.push("tag-name-text-typed");
         }
