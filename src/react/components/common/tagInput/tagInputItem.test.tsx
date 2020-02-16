@@ -18,7 +18,7 @@ describe("Tag Input Item", () => {
             isSelected: false,
             appliedToSelectedRegions: false,
             onClick: jest.fn(),
-            onChange: jest.fn(),
+            onRename: jest.fn(),
             onLabelEnter: jest.fn(),
             onLabelLeave: jest.fn(),
         };

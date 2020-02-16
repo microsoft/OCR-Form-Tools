@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { KeyboardEvent, RefObject } from "react";
-import ReactDOM from "react-dom";
+import React, { KeyboardEvent } from "react";
 import {
     ContextualMenu,
     Customizer,
@@ -51,7 +50,7 @@ export interface ITagInputProps {
     /** Function to call on clicking individual tag while holding CTRL key */
     onCtrlTagClick?: (tag: ITag) => void;
     /** Function to call when tag is renamed */
-    onTagRenamed?: (oldTag: ITag, newTag: ITag) => void;
+    onTagRename?: (oldTag: ITag, newTag: ITag, cancelCallback: () => void) => void;
     /** Function to call when tag is deleted */
     onTagDeleted?: (tagName: string) => void;
     /** Always show tag input box */
@@ -73,10 +72,6 @@ export interface ITagInputState {
     searchTags: boolean;
     searchQuery: string;
     selectedTag: ITag;
-}
-
-function defaultDOMNode(): Element {
-    return document.createElement("div");
 }
 
 function filterFormat(type: FieldType): FieldFormat[] {
@@ -112,6 +107,10 @@ function filterFormat(type: FieldType): FieldFormat[] {
     }
 }
 
+function isNameEqual(x: string, y: string) {
+    return x.trim().toLocaleLowerCase() === y.trim().toLocaleLowerCase();
+}
+
 export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
     public state: ITagInputState = {
@@ -131,7 +130,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         if (prevProps.tags !== this.props.tags) {
             let selectedTag = this.state.selectedTag;
             if (selectedTag) {
-                selectedTag = this.props.tags.find((tag) => this.isNameEqual(tag, selectedTag));
+                selectedTag = this.props.tags.find((tag) => isNameEqual(tag.name, selectedTag.name));
             }
 
             this.setState({
@@ -243,8 +242,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             return;
         }
         let lockedTags = [...this.props.lockedTags];
-        if (lockedTags.find((str) => this.isNameEqualTo(tag, str))) {
-            lockedTags = lockedTags.filter((str) => !this.isNameEqualTo(tag, str));
+        if (lockedTags.find((str) => isNameEqual(tag.name, str))) {
+            lockedTags = lockedTags.filter((str) => !isNameEqual(tag.name, str));
         } else {
             lockedTags.push(tag.name);
         }
@@ -271,7 +270,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     private handleColorChange = (color: string) => {
         const tag = this.state.selectedTag;
         const tags = this.state.tags.map((t) => {
-            return (this.isNameEqual(t, tag)) ? {
+            return (isNameEqual(t.name, tag.name)) ? {
                 ...tag,
                 color,
             } : t;
@@ -297,13 +296,26 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         }, () => this.props.onChange(tags));
     }
 
-    private updateTag = (tag: ITag, newTag: ITag) => {
-        if ((this.isNameEqual(tag, newTag)) && tag.color === newTag.color) {
+    private onTagRename = (tag: ITag, name: string, cancelCallback: () => void) => {
+        const cancelRename = () => {
+            cancelCallback();
+            this.setState({
+                tagOperation: TagOperationMode.None,
+            });
+        };
+
+        if (isNameEqual(tag.name, name)) {
+            cancelRename();
             return;
         }
 
+        const newTag = {
+            ...tag,
+            name,
+        };
+
         try {
-            const tagsWithoutOldTag = this.state.tags.filter((elem) => !this.isNameEqual(elem, tag));
+            const tagsWithoutOldTag = this.state.tags.filter((elem) => !isNameEqual(elem.name, tag.name));
             this.validateTagLength(newTag);
             this.validateTagUniqness(newTag, tagsWithoutOldTag);
         } catch (error) {
@@ -311,21 +323,10 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             return;
         }
 
-        const nameChanged = !this.isNameEqual(tag, newTag);
-        if (nameChanged && this.props.onTagRenamed) {
-           this.props.onTagRenamed(tag, newTag);
+        if (this.props.onTagRename) {
+           this.props.onTagRename(tag, newTag, cancelRename);
            return;
         }
-
-        const tags = this.state.tags.map((t) => {
-            return (this.isNameEqual(t, tag)) ? newTag : t;
-        });
-        this.setState({
-            tags,
-            selectedTag: newTag,
-        }, () => {
-            this.props.onChange(tags);
-        });
     }
 
     private deleteTag = (tag: ITag) => {
@@ -392,15 +393,15 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         return tags.map((tag) => (
             {
                 tag,
-                index: tags.findIndex((t) => this.isNameEqual(t, tag)),
+                index: tags.findIndex((t) => isNameEqual(t.name, tag.name)),
                 isLocked: this.props.lockedTags
-                    && this.props.lockedTags.findIndex((str) => this.isNameEqualTo(tag, str)) > -1,
-                isRenaming: selectedTag && this.isNameEqual(selectedTag, tag)
+                    && this.props.lockedTags.findIndex((str) => isNameEqual(tag.name, str)) > -1,
+                isRenaming: selectedTag && isNameEqual(selectedTag.name, tag.name)
                     && tagOperation === TagOperationMode.Rename,
-                isSelected: selectedTag && this.isNameEqual(this.state.selectedTag, tag),
+                isSelected: selectedTag && isNameEqual(selectedTag.name, tag.name),
                 appliedToSelectedRegions: selectedRegionTagSet.has(tag.name),
                 onClick: this.onTagItemClick,
-                onChange: this.updateTag,
+                onRename: this.onTagRename,
             } as ITagInputItemProps
         ));
     }
@@ -427,7 +428,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             });
         } else if (props.clickedDropDown) {
             const { selectedTag } = this.state;
-            const showContextualMenu = !selectedTag || !this.isNameEqual(selectedTag, tag)
+            const showContextualMenu = !selectedTag || !isNameEqual(selectedTag.name, tag.name)
                 || this.state.tagOperation !== TagOperationMode.ContextualMenu;
             const tagOperation = showContextualMenu ? TagOperationMode.ContextualMenu : TagOperationMode.None;
             this.setState({
@@ -444,7 +445,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             });
         } else { // Select tag
             const { selectedTag, tagOperation: oldTagOperation } = this.state;
-            const selected = selectedTag && this.isNameEqual(selectedTag, tag);
+            const selected = selectedTag && isNameEqual(selectedTag.name, tag.name);
             const tagOperation = selected ? oldTagOperation : TagOperationMode.None;
             let deselect = selected && oldTagOperation === TagOperationMode.None;
 
@@ -538,17 +539,9 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     private validateTagUniqness = (tag: ITag, tags: ITag[]) => {
-        if (tags.some((t) => this.isNameEqual(t, tag))) {
+        if (tags.some((t) => isNameEqual(t.name, tag.name))) {
             throw new Error(strings.tags.warnings.existingName);
         }
-    }
-
-    private isNameEqual = (t: ITag, u: ITag) => {
-        return t.name.trim().toLocaleLowerCase() === u.name.trim().toLocaleLowerCase();
-    }
-
-    private isNameEqualTo = (tag: ITag, str: string) => {
-        return tag.name.trim().toLocaleLowerCase() === str.trim().toLocaleLowerCase();
     }
 
     private onHideContextualMenu = () => {
