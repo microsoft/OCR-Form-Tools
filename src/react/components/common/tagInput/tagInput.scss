@@ -191,7 +191,9 @@
 
     &-input {
         &-portal {
+            height: $tagColorPickerHeight;
             box-shadow: 0px 5px 10px $darker-5;
+            overflow: scroll;
         }
 
         &-field-dropdown {

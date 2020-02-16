@@ -124,13 +124,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     };
 
     private tagItemRefs: Map<string, TagInputItem> = new Map<string, TagInputItem>();
-    private inputRef: RefObject<HTMLInputElement>;
-    private colorPickerNode = defaultDOMNode();
-
-    constructor(props) {
-        super(props);
-        this.inputRef = React.createRef();
-    }
+    private headerRef = React.createRef<HTMLDivElement>();
+    private inputRef = React.createRef<HTMLInputElement>();
 
     public componentDidUpdate(prevProps: ITagInputProps) {
         if (prevProps.tags !== this.props.tags) {
@@ -153,7 +148,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     public render() {
-
         const dark: ICustomizations = {
             settings: {
               theme: getDarkTheme(),
@@ -166,7 +160,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
         return (
             <div className="tag-input">
-                <div className="tag-input-header p-2">
+                <div ref={this.headerRef} className="tag-input-header p-2">
                     <span className="tag-input-title">{strings.tags.title}</span>
                     <TagInputToolbar
                         selectedTag={this.state.selectedTag}
@@ -234,11 +228,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         if (this.inputRef.current) {
             this.inputRef.current.blur();
         }
-    }
-
-    private getTagNode = (tag: ITag): Element => {
-        const itemRef = tag ? this.tagItemRefs.get(tag.name) : null;
-        return (itemRef ? ReactDOM.findDOMNode(itemRef) : defaultDOMNode()) as Element;
     }
 
     private onEditTag = (tag: ITag) => {
@@ -350,7 +339,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         const { selectedTag } = this.state;
         const showColorPicker = this.state.tagOperation === TagOperationMode.ColorPicker;
         return (
-            <AlignPortal align={this.getColorAlignConfig()} target={this.getSelectedTagNode}>
+            <AlignPortal align={{points: [ "tr", "tl" ]}} target={() => this.headerRef.current}>
                 <div className="tag-input-portal">
                     {
                         showColorPicker &&
@@ -364,23 +353,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 </div>
             </AlignPortal>
         );
-    }
-
-    private getColorAlignConfig = () => {
-        const coords = this.colorPickerNode.getBoundingClientRect();
-        const isNearBottom = coords && coords.top > (window.innerHeight / 2);
-        const alignCorner = isNearBottom ? "b" : "t";
-        const verticalOffset = isNearBottom ? 6 : -6;
-        return {
-            // Align top right of source node (color picker) with top left of target node (tag row)
-            points: [`${alignCorner}r`, `${alignCorner}l`],
-            // Offset source node by 0px in x and 6px in y
-            offset: [0, verticalOffset],
-        };
-    }
-
-    private getSelectedTagNode = () => {
-        return this.getTagNode(this.state.selectedTag);
     }
 
     private renderTagItems = () => {
@@ -466,9 +438,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             const { selectedTag, tagOperation } = this.state;
             const showColorPicker = tagOperation !== TagOperationMode.ColorPicker;
             const newTagOperation = showColorPicker ? TagOperationMode.ColorPicker : TagOperationMode.None;
-            if (showColorPicker) {
-                this.colorPickerNode = this.getTagNode(tag);
-            }
             this.setState({
                 selectedTag: showColorPicker ? tag : selectedTag,
                 tagOperation: newTagOperation,
