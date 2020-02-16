@@ -35,8 +35,8 @@ export interface ITagInputItemProps {
     appliedToSelectedRegions: boolean;
     /** Function to call upon clicking item */
     onClick: (tag: ITag, props: ITagClickProps) => void;
-    /** Apply updates to tag */
-    onChange: (oldTag: ITag, newTag: ITag) => void;
+    /** Apply new name to tag */
+    onRename: (oldTag: ITag, newName: string, cancelCallback: () => void) => void;
     onLabelEnter: (label: ILabel) => void;
     onLabelLeave: (label: ILabel) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
@@ -58,6 +58,21 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
     };
 
     private itemRef = React.createRef<HTMLDivElement>();
+    private inputElement: HTMLInputElement;
+
+    public componentDidUpdate(prevProps: ITagInputItemProps) {
+        if (prevProps.isRenaming !== this.props.isRenaming) {
+            this.setState({
+                isRenaming: this.props.isRenaming,
+            });
+        }
+
+        if (prevProps.isLocked !== this.props.isLocked) {
+            this.setState({
+                isLocked: this.props.isLocked,
+            });
+        }
+    }
 
     public render() {
         const style: any = {
@@ -93,20 +108,6 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                 </div>
             </div>
         );
-    }
-
-    public componentDidUpdate(prevProps: ITagInputItemProps) {
-        if (prevProps.isRenaming !== this.props.isRenaming) {
-            this.setState({
-                isRenaming: this.props.isRenaming,
-            });
-        }
-
-        if (prevProps.isLocked !== this.props.isLocked) {
-            this.setState({
-                isLocked: this.props.isLocked,
-            });
-        }
     }
 
     public getTagNameRef() {
@@ -161,10 +162,12 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                         this.state.isRenaming
                         ?
                         <input
+                            ref={this.onInputRef}
                             className={`tag-name-editor ${this.getContentClassName()}`}
                             type="text"
                             defaultValue={this.props.tag.name}
-                            onKeyDown={(e) => this.handleNameEdit(e)}
+                            onKeyDown={(e) => this.onInputKeyDown(e)}
+                            onBlur={this.onInputBlur}
                             autoFocus={true}
                         />
                         :
@@ -201,18 +204,38 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
             />);
     }
 
-    private handleNameEdit = (e) => {
+    private onInputRef = (element: HTMLInputElement) => {
+        this.inputElement = element;
+        if (element) {
+            element.select();
+        }
+    }
+
+    private onInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+        this.onRenameTag();
+    }
+
+    private onInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter") {
-            const newTagName = e.target.value.trim();
-            this.props.onChange(this.props.tag, {
-                ...this.props.tag,
-                name: newTagName,
-            });
+            this.onRenameTag();
         } else if (e.key === "Escape") {
             this.setState({
                 isRenaming: false,
             });
         }
+    }
+
+    private onRenameTag() {
+        if (!this.inputElement) {
+            return;
+        }
+        const tag = this.props.tag;
+        const name = this.inputElement.value.trim();
+        this.props.onRename(tag, name, () => {
+            this.setState({
+                isRenaming: false,
+            });
+        });
     }
 
     private getContentClassName = () => {

@@ -126,6 +126,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private loadingProjectAssets: boolean = false;
     private canvas: RefObject<Canvas> = React.createRef();
     private renameTagConfirm: React.RefObject<Confirm> = React.createRef();
+    private renameCanceled: () => void;
     private deleteTagConfirm: React.RefObject<Confirm> = React.createRef();
     private isUnmount: boolean = false;
 
@@ -260,7 +261,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                 onLockedTagsChange={this.onLockedTagsChanged}
                                 onTagClick={this.onTagClicked}
                                 onCtrlTagClick={this.onCtrlTagClicked}
-                                onTagRenamed={this.confirmTagRenamed}
+                                onTagRename={this.confirmTagRename}
                                 onTagDeleted={this.confirmTagDeleted}
                                 onLabelEnter={this.onLabelEnter}
                                 onLabelLeave={this.onLabelLeave}
@@ -272,6 +273,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                             ref={this.renameTagConfirm}
                             message={strings.editorPage.tags.rename.confirmation}
                             confirmButtonColor="danger"
+                            onCancel={this.onTagRenameCanceled}
                             onConfirm={this.onTagRenamed} />
                         <Confirm title={strings.editorPage.tags.delete.title}
                             ref={this.deleteTagConfirm}
@@ -353,7 +355,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     /**
      * Open confirm dialog for tag renaming
      */
-    private confirmTagRenamed = (tag: ITag, newTag: ITag): void => {
+    private confirmTagRename = (tag: ITag, newTag: ITag, cancelCallback: () => void): void => {
+        this.renameCanceled = cancelCallback;
         this.renameTagConfirm.current.open(tag, newTag);
     }
 
@@ -363,6 +366,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      * @param newTag Tag with the new name
      */
     private onTagRenamed = async (tag: ITag, newTag: ITag): Promise<void> => {
+        this.renameCanceled = null;
         const assetUpdates = await this.props.actions.updateProjectTag(this.props.project, tag, newTag);
         const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
 
@@ -370,6 +374,13 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             if (selectedAsset) {
                 this.setState({ selectedAsset });
             }
+        }
+    }
+
+    private onTagRenameCanceled = () => {
+        if (this.renameCanceled) {
+            this.renameCanceled();
+            this.renameCanceled = null;
         }
     }
 
