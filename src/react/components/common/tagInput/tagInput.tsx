@@ -340,7 +340,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         const showColorPicker = this.state.tagOperation === TagOperationMode.ColorPicker;
         return (
             <AlignPortal align={{points: [ "tr", "tl" ]}} target={() => this.headerRef.current}>
-                <div className="tag-input-portal">
+                <div className="tag-input-colorpicker-container">
                     {
                         showColorPicker &&
                         <ColorPicker
