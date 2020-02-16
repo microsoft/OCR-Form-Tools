@@ -19,6 +19,7 @@ export function registerIcons() {
             Settings: "\uE713",
             Link: "\uE71B",
             Search: "\uE721",
+            CheckMark: "\uE73E",
             Up: "\uE74A",
             Down: "\uE74B",
             Delete: "\uE74D",
