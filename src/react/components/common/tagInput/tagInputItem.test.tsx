@@ -13,7 +13,7 @@ describe("Tag Input Item", () => {
             tag: MockFactory.createTestTag(),
             index: 0,
             labels: [],
-            isBeingEdited: false,
+            isRenaming: false,
             isLocked: false,
             isSelected: false,
             appliedToSelectedRegions: false,
@@ -21,7 +21,6 @@ describe("Tag Input Item", () => {
             onChange: jest.fn(),
             onLabelEnter: jest.fn(),
             onLabelLeave: jest.fn(),
-            onCallDropDown: jest.fn(),
         };
     }
 

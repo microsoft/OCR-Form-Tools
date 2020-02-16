@@ -176,13 +176,13 @@
         cursor: pointer;
     }
 
-    &-color-edit:hover {
-        background: $darker-1;
-        cursor: pointer;
-    }
-
     &-color {
         width: $tagColorWidth;
+
+        &-edit:hover {
+            background: $darker-1;
+            cursor: pointer;
+        }
     }
 
     &-lock-icon {
@@ -244,6 +244,10 @@
                     padding: 0;
                 }
             }
+        }
+
+        &-contextual-menu {
+            width: $tagContextualMenuWidth;
         }
     }
 
