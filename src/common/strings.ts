@@ -148,16 +148,17 @@ export interface IAppStrings {
         }
         toolbar: {
             add: string;
-            search: string;
-            lock: string;
-            edit: string;
-            moveUp: string;
-            moveDown: string;
-            delete: string;
-            vertiline: string;
-            type: string;
-            format: string;
             contextualMenu: string;
+            delete: string;
+            edit: string;
+            format: string;
+            lock: string;
+            moveDown: string;
+            moveUp: string;
+            rename: string;
+            search: string;
+            type: string;
+            vertiline: string;
         }
         colors: {
             white: string;

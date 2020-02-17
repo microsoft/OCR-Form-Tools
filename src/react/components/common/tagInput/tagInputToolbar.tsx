@@ -23,7 +23,7 @@ export interface ITagInputToolbarProps {
     /** Function to call when lock tags button is clicked */
     onLockTag: (tag: ITag) => void;
     /** Function to call when edit tag button is clicked */
-    onEditTag: (tag: ITag) => void;
+    onRenameTag: (tag: ITag) => void;
     /** Function to call when delete button is clicked */
     onDelete: (tag: ITag) => void;
     /** Function to call when one of the re-order buttons is clicked */
@@ -66,22 +66,22 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
                 category: Categories.Separator,
             },
             {
-                displayName: strings.tags.toolbar.edit,
+                displayName: strings.tags.toolbar.rename,
                 icon: "Rename",
                 category: Categories.Modifier,
-                handler: this.handleEdit,
+                handler: this.handleRename,
             },
             {
                 displayName: strings.tags.toolbar.moveUp,
                 icon: "Up",
                 category: Categories.Modifier,
-                handler: this.handleArrowUp,
+                handler: this.handleMoveUp,
             },
             {
                 displayName: strings.tags.toolbar.moveDown,
                 icon: "Down",
                 category: Categories.Modifier,
-                handler: this.handleArrowDown,
+                handler: this.handleMoveDown,
             },
             {
                 displayName: strings.tags.toolbar.delete,
@@ -146,19 +146,19 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
         this.props.onSearchTags();
     }
 
-    private handleEdit = () => {
+    private handleRename = () => {
         if (this.props.selectedTag) {
-            this.props.onEditTag(this.props.selectedTag);
+            this.props.onRenameTag(this.props.selectedTag);
         }
     }
 
-    private handleArrowUp = () => {
+    private handleMoveUp = () => {
         if (this.props.selectedTag) {
             this.props.onReorder(this.props.selectedTag, -1);
         }
     }
 
-    private handleArrowDown = () => {
+    private handleMoveDown = () => {
         if (this.props.selectedTag) {
             this.props.onReorder(this.props.selectedTag, 1);
         }

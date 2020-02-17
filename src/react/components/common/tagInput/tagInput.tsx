@@ -4,6 +4,7 @@
 import React, { KeyboardEvent } from "react";
 import {
     ContextualMenu,
+    ContextualMenuItemType,
     Customizer,
     FontIcon,
     IContextualMenuItem,
@@ -22,6 +23,13 @@ import TagInputToolbar from "./tagInputToolbar";
 import { toast } from "react-toastify";
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../../common/tagColors.json");
+
+enum TagMenuItem {
+    Delete = "delete",
+    MoveUp = "moveup",
+    MoveDown = "movedown",
+    Rename = "rename",
+}
 
 export enum TagOperationMode {
     None,
@@ -168,9 +176,9 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                             searchTags: !this.state.searchTags,
                             searchQuery: "",
                         })}
-                        onEditTag={this.onEditTag}
+                        onRenameTag={this.onRenameTag}
                         onLockTag={this.onLockTag}
-                        onDelete={this.deleteTag}
+                        onDelete={this.onDeleteTag}
                         onReorder={this.onReOrder}
                     />
                 </div>
@@ -229,7 +237,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         }
     }
 
-    private onEditTag = (tag: ITag) => {
+    private onRenameTag = (tag: ITag) => {
         const tagOperation = this.state.tagOperation === TagOperationMode.Rename
             ? TagOperationMode.None : TagOperationMode.Rename;
         this.setState({
@@ -329,7 +337,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         }
     }
 
-    private deleteTag = (tag: ITag) => {
+    private onDeleteTag = (tag: ITag) => {
         if (!tag) {
             return;
         }
@@ -575,6 +583,42 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     items: this.getFormatSubMenuItems(),
                 },
             },
+            {
+                key: "divider_1",
+                itemType: ContextualMenuItemType.Divider,
+            },
+            {
+                key: TagMenuItem.Rename,
+                iconProps: {
+                    iconName: "Rename",
+                },
+                text: strings.tags.toolbar.rename,
+                onClick: this.onMenuItemClick,
+            },
+            {
+                key: TagMenuItem.MoveUp,
+                iconProps: {
+                    iconName: "Up",
+                },
+                text: strings.tags.toolbar.moveUp,
+                onClick: this.onMenuItemClick,
+            },
+            {
+                key: TagMenuItem.MoveDown,
+                iconProps: {
+                    iconName: "Down",
+                },
+                text: strings.tags.toolbar.moveDown,
+                onClick: this.onMenuItemClick,
+            },
+            {
+                key: TagMenuItem.Delete,
+                iconProps: {
+                    iconName: "Delete",
+                },
+                text: strings.tags.toolbar.delete,
+                onClick: this.onMenuItemClick,
+            },
         ];
 
         return menuItems;
@@ -644,6 +688,29 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
         if (this.props.onTagChanged) {
             this.props.onTagChanged(tag, newTag);
+        }
+    }
+
+    private onMenuItemClick = (event: React.MouseEvent<HTMLButtonElement>, item?: IContextualMenuItem): void => {
+        event.preventDefault();
+        const tag = this.state.selectedTag;
+        if (!tag) {
+            return;
+        }
+
+        switch (item.key) {
+            case TagMenuItem.MoveDown:
+                this.onReOrder(tag, 1);
+                break;
+            case TagMenuItem.MoveUp:
+                this.onReOrder(tag, -1);
+                break;
+            case TagMenuItem.Rename:
+                this.onRenameTag(tag);
+                break;
+            case TagMenuItem.Delete:
+                this.onDeleteTag(tag);
+                break;
         }
     }
 }
