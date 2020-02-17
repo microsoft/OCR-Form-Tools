@@ -156,7 +156,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         key={"Delete"}
                         keyEventType={KeyEventType.KeyDown}
                         accelerators={["Delete", "Backspace", "Left", "ArrowLeft", "Right", "ArrowRight",
-                            "D", "d", "A", "a"]}
+                            "{", "[", "}", "]"]}
                         handler={this.handleKeyDown} />
                 <ImageMap
                     ref={(ref) => this.imageMap = ref}
@@ -813,8 +813,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 this.nextPage();
                 break;
 
-            case "D":
-            case "d":
+            case "}":
+            case "]":
                 if (!this.pendingFlag) {
                     this.pendingFlag = true;
                     setTimeout(() => {
@@ -824,8 +824,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 }
                 break;
 
-            case "A":
-            case "a":
+            case "{":
+            case "[":
                 if (!this.pendingFlag) {
                     this.pendingFlag = true;
                     setTimeout(() => {
