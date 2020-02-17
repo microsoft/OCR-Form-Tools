@@ -162,7 +162,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             scopedSettings: {},
         };
 
-        const { selectedTag } = this.state;
+        const { selectedTag, tagOperation } = this.state;
         const selectedTagRef = selectedTag ? this.tagItemRefs.get(selectedTag.name).getTagNameRef() : null;
 
         return (
@@ -200,13 +200,15 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     <div className="tag-input-items">
                         {this.renderTagItems()}
                         <Customizer {...dark}>
-                            <ContextualMenu
-                                className="tag-input-contextual-menu"
-                                items={this.getContextualMenuItems()}
-                                hidden={!selectedTagRef || this.state.tagOperation !== TagOperationMode.ContextualMenu}
-                                target={selectedTagRef}
-                                onDismiss={this.onHideContextualMenu}
-                            />
+                            {
+                                tagOperation === TagOperationMode.ContextualMenu && selectedTagRef &&
+                                <ContextualMenu
+                                    className="tag-input-contextual-menu"
+                                    items={this.getContextualMenuItems()}
+                                    target={selectedTagRef}
+                                    onDismiss={this.onHideContextualMenu}
+                                />
+                            }
                         </Customizer>
                         {this.getColorPickerPortal()}
                     </div>
