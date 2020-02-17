@@ -6,6 +6,7 @@ import { FontIcon, IconButton } from "office-ui-fabric-react";
 import { ITag, ILabel, FieldType, FieldFormat } from "../../../../models/applicationState";
 import { strings } from "../../../../common/strings";
 import TagInputItemLabel from "./tagInputItemLabel";
+import { tagIndexKeys } from "./tagIndexKeys";
 
 export interface ITagClickProps {
     ctrlKey?: boolean;
@@ -248,8 +249,10 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
 
     private getDisplayIndex = () => {
         const index = this.props.index;
-        const displayIndex = (index === 9) ? 0 : index + 1;
-        return (displayIndex < 10) ? displayIndex : null;
+        if (index >= 0 && index < tagIndexKeys.length) {
+            return tagIndexKeys[index];
+        }
+        return null;
     }
 
     private isTypeOrFormatSpecified = () => {

@@ -23,6 +23,7 @@ import { AssetPreview } from "../../common/assetPreview/assetPreview";
 import { KeyboardBinding } from "../../common/keyboardBinding/keyboardBinding";
 import { KeyEventType } from "../../common/keyboardManager/keyboardManager";
 import { TagInput } from "../../common/tagInput/tagInput";
+import { tagIndexKeys } from "../../common/tagInput/tagIndexKeys";
 import Canvas from "./canvas";
 import CanvasHelpers from "./canvasHelpers";
 import "./editorPage.scss";
@@ -184,7 +185,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         return (
             <div className="editor-page">
                 {
-                    [...Array(10).keys()].map((index) =>
+                    tagIndexKeys.map((index) =>
                         (<KeyboardBinding
                             displayName={strings.editorPage.tags.hotKey.apply}
                             key={index}
@@ -413,22 +414,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private getTagFromKeyboardEvent = (event: KeyboardEvent): ITag => {
-        let key = parseInt(event.key, 10);
-        if (isNaN(key)) {
-            try {
-                key = parseInt(event.key.split("+")[1], 10);
-            } catch (e) {
-                return;
-            }
-        }
-        let index: number;
+        const index = tagIndexKeys.indexOf(event.key);
         const tags = this.props.project.tags;
-        if (key === 0 && tags.length >= 10) {
-            index = 9;
-        } else if (key < 10) {
-            index = key - 1;
-        }
-        if (index < tags.length) {
+        if (index >= 0 && index < tags.length) {
             return tags[index];
         }
         return null;
