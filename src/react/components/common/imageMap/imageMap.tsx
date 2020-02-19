@@ -3,7 +3,7 @@
 
 import { Feature, MapBrowserEvent, View } from "ol";
 import { Extent, getCenter } from "ol/extent";
-import { defaults as defaultInteractions, DragPan, DragRotateAndZoom, Interaction } from "ol/interaction.js";
+import { defaults as defaultInteractions, DragPan, Interaction } from "ol/interaction.js";
 import ImageLayer from "ol/layer/Image";
 import Layer from "ol/layer/Layer";
 import VectorLayer from "ol/layer/Vector";
@@ -158,7 +158,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.map = new Map({
             controls: [] ,
             interactions: defaultInteractions({ doubleClickZoom: false,
-                pinchRotate: false }).extend([]),
+                pinchRotate: false }),
             target: "map",
             layers: [this.imageLayer, this.vectorLayer],
             view: this.createMapView(projection, this.imageExtent),
