@@ -159,7 +159,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.map = new Map({
             controls: [] ,
             interactions: defaultInteractions({ doubleClickZoom: false,
-                pinchRotate: false }).extend([new DragRotateAndZoom()]),
+                pinchRotate: false }).extend([]),
             target: "map",
             layers: [this.imageLayer, this.vectorLayer],
             view: this.createMapView(projection, this.imageExtent),
