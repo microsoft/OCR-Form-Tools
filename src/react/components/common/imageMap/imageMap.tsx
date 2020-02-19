@@ -14,6 +14,7 @@ import VectorSource from "ol/source/Vector";
 import * as React from "react";
 import "./styles.css";
 import Utils from "./utils";
+import { isControlled } from "office-ui-fabric-react";
 
 interface IImageMapProps {
     imageUri: string;
@@ -30,7 +31,7 @@ interface IImageMapProps {
 }
 
 export class ImageMap extends React.Component<IImageMapProps> {
-    private map: Map;
+    public map: Map;
     private imageLayer: ImageLayer;
     private vectorLayer: VectorLayer;
 
@@ -156,7 +157,9 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.vectorLayer = new VectorLayer(options);
 
         this.map = new Map({
-            interactions: defaultInteractions({ doubleClickZoom: false }).extend([new DragRotateAndZoom()]),
+            controls: [] ,
+            interactions: defaultInteractions({ doubleClickZoom: false,
+                pinchRotate: false }).extend([new DragRotateAndZoom()]),
             target: "map",
             layers: [this.imageLayer, this.vectorLayer],
             view: this.createMapView(projection, this.imageExtent),

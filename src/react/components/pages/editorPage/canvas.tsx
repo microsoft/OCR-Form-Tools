@@ -156,7 +156,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         key={"Delete"}
                         keyEventType={KeyEventType.KeyDown}
                         accelerators={["Delete", "Backspace", "Left", "ArrowLeft", "Right", "ArrowRight",
-                            "{", "[", "}", "]"]}
+                            "{", "[", "}", "]", "+", "-", "/"]}
                         handler={this.handleKeyDown} />
                 <ImageMap
                     ref={(ref) => this.imageMap = ref}
@@ -835,9 +835,36 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 }
                 break;
 
+            case "+":
+                this.handleCanvasZoomIn();
+                break;
+
+            case "-":
+                this.handleCanvasZoomOut();
+                break;
+
+            case "/":
+                this.handleZoomReset();
+                break;
+
             default:
                 break;
         }
+    }
+
+    private handleCanvasZoomIn = () => {
+        const map = this.imageMap.map;
+        map.getView().setZoom(map.getView().getZoom() + 0.3);
+    }
+
+    private handleCanvasZoomOut = () => {
+        const map = this.imageMap.map;
+        map.getView().setZoom(map.getView().getZoom() - 0.3);
+    }
+
+    private handleZoomReset = () => {
+        const map = this.imageMap.map;
+        map.getView().setZoom(0);
     }
 
     private getRegionWithKey = (keyFlag: boolean) => {
