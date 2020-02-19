@@ -201,7 +201,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                     paneStyle={{ display: "flex" }}
                     onChange={this.onSideBarResize}
                     onDragFinished={this.onSideBarResizeComplete}>
-                    <div className="editor-page-sidebar bg-lighter-1">
+                    <div className="editor-page-sidebar bg-lighter-1" tabIndex={0}>
                         {needRunOCRButton && <div>
                             <PrimaryButton
                                 theme={getPrimaryGreenTheme()}

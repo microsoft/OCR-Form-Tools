@@ -112,9 +112,10 @@ export default class EditorSideBar extends React.Component<IEditorSideBarProps, 
         const selectedAsset = this.props.selectedAsset;
 
         return (
-            <div key={asset.id} style={style} role="row"
+            <div key={asset.id} style={style} role="row" tabIndex={0}
                 className={this.getAssetCssClassNames(asset, selectedAsset)}
-                onClick={() => this.onAssetClicked(asset)}>
+                onClick={() => this.onAssetClicked(asset)}
+                onKeyDown={(e) => this.onAssetEnter(e, asset)}>
                 <div className="asset-item-image" role="gridcell">
                     {this.renderBadges(asset)}
                     <AssetPreview asset={asset} />
@@ -131,6 +132,19 @@ export default class EditorSideBar extends React.Component<IEditorSideBarProps, 
                 </div>
             </div>
         );
+    }
+
+    private onAssetEnter = (e: any, asset: IAsset): void => {
+        if (e.key === "Enter") {
+            if (this.props.onBeforeAssetSelected) {
+                if (!this.props.onBeforeAssetSelected()) {
+                    return;
+                }
+            }
+
+            this.selectAsset(asset);
+            this.props.onAssetSelected(asset);
+        }
     }
 
     private renderBadges = (asset: IAsset): JSX.Element => {
