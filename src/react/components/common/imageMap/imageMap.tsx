@@ -14,7 +14,6 @@ import VectorSource from "ol/source/Vector";
 import * as React from "react";
 import "./styles.css";
 import Utils from "./utils";
-import { isControlled } from "office-ui-fabric-react";
 
 interface IImageMapProps {
     imageUri: string;
