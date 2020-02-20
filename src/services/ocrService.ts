@@ -127,7 +127,7 @@ export class OCRService {
         const checkSucceeded = (resolve, reject) => {
             const ajax = func();
             ajax.then((response) => {
-                if (response.data.status === constants.statusCodeSucceeded) {
+                if (response.data.status.toLowerCase() === constants.statusCodeSucceeded) {
                     resolve(response.data);
                 } else if (Number(new Date()) < endTime) {
                     // If the request isn't succeeded and the timeout hasn't elapsed, go again
