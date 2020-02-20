@@ -75,6 +75,44 @@ In the sample labeling tool, projects store your configurations and settings. Cr
 
 ![alt text](docs/images/new-project.png "New Project")
 
+### Label your forms
+
+When you create or open a project, the main tag editor window opens. The tag editor consists of three parts:
+
+* A preview pane that contains a scrollable list of forms from the source connection.
+* The main editor pane that allows you to apply tags.
+* The tags editor pane that allows users to modify, reorder, and delete tags.
+
+#### Identify text elements
+
+Click **Run OCR on all files** on the left pane to get the text layout information for each document. The labeling tool will draw bounding boxes around each text element.
+
+#### Apply labels to text
+
+Next, you'll create labels and apply them to the text elements that you want the model to recognize.
+
+1. First, use the tags editor pane to create the tags (labels) you'd like to identify.
+
+2. In the main editor, click and drag to select one or multiple words from the highlighted text elements. Note: You cannot currently select text that spans across multiple pages.
+
+3. Click on the tag you want to apply, or press corresponding keyboard key. You can only apply one tag to each selected text element, and each tag can only be applied once per page.
+
+Follow the above steps to label five of your forms, and then move on to the next step.
+
+![alt text](docs/images/apply-labels.png "Apply Labels")
+
+#### Keyboard Shortcuts
+
+Labeling tool allows a number of keyboard shortcuts to support accessibility and also sometimes make labeling easier and faster.
+
+Hotkeys of 1 through 0 and all letters are assigned to first 36 tags, after you selected one or multiple words from the highlighted text elements, by pressing these hotkeys, you can label the selected words.
+
+'[' and ']' keys can be used move the selection to the previous or the next word.
+
+'<' and '>' keys can be used go to the previous or the next page in multi-pages documents.
+
+'-', '+' and '/' keys can be used to zoom in/out and reset zoom of editing page.
+
 ## Collaborators
 
 This project is cloned and modified from [VoTT](https://github.com/microsoft/VoTT) project.
