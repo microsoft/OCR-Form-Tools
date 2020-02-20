@@ -32,6 +32,18 @@ Form Labeling Tool requires [NodeJS (>= 10.x, Dubnium) and NPM](https://github.c
 
 First, make sure all the training documents are of the same format. If you have forms in multiple formats, organize them into subfolders based on common format. When you train, you'll need to direct the API to a subfolder.
 
+#### Configure cross-domain resource sharing (CORS)
+
+Enable CORS on your storage account. Select your storage account in the Azure portal and click the **CORS** tab on the left pane. On the bottom line, fill in the following values. Then click **Save** at the top.
+
+* Allowed origins = *
+* Allowed methods = [select all]
+* Allowed headers = *
+* Exposed headers = *
+* Max age = 200
+
+![alt text](docs/images/cors-setup.png "CORS setup")
+
 ### Creating Connections
 
 OCR Form Labeling Tool is a 'Bring Your Own data' (BYOD) application. In this tool, connections are used to configure and manage source (the assets to label) and target (the location to which labels should be exported). The source and target are the same location in OCR Form Labeling Tool. Eventually, they together will be inputs to [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/).
