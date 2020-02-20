@@ -853,18 +853,15 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private handleCanvasZoomIn = () => {
-        const map = this.imageMap.map;
-        map.getView().setZoom(map.getView().getZoom() + 0.3);
+        this.imageMap.zoomIn();
     }
 
     private handleCanvasZoomOut = () => {
-        const map = this.imageMap.map;
-        map.getView().setZoom(map.getView().getZoom() - 0.3);
+        this.imageMap.zoomOut();
     }
 
     private handleZoomReset = () => {
-        const map = this.imageMap.map;
-        map.getView().setZoom(0);
+        this.imageMap.resetZoom();
     }
 
     private getRegionWithKey = (keyFlag: boolean) => {

@@ -30,7 +30,7 @@ interface IImageMapProps {
 }
 
 export class ImageMap extends React.Component<IImageMapProps> {
-    public map: Map;
+    private map: Map;
     private imageLayer: ImageLayer;
     private vectorLayer: VectorLayer;
 
@@ -140,6 +140,18 @@ export class ImageMap extends React.Component<IImageMapProps> {
             features.push(feature);
         });
         return features;
+    }
+
+    public zoomIn = () => {
+        this.map.getView().setZoom(this.map.getView().getZoom() + 0.3);
+    }
+
+    public zoomOut = () => {
+        this.map.getView().setZoom(this.map.getView().getZoom() - 0.3);
+    }
+
+    public resetZoom = () => {
+        this.map.getView().setZoom(0);
     }
 
     private initMap = () => {
