@@ -28,12 +28,22 @@ Form Labeling Tool requires [NodeJS (>= 10.x, Dubnium) and NPM](https://github.c
    ```
 ## Using VoTT
 
+### Set up input data
+
+First, make sure all the training documents are of the same format. If you have forms in multiple formats, organize them into subfolders based on common format. When you train, you'll need to direct the API to a subfolder.
+
+### Creating Connections
+
 OCR Form Labeling Tool is a 'Bring Your Own data' (BYOD) application. In this tool, connections are used to configure and manage source (the assets to label) and target (the location to which labels should be exported). The source and target are the same location in OCR Form Labeling Tool. Eventually, they together will be inputs to [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/).
 Connections can be set up and shared across projects. They use an extensible provider model, so new source/target providers can easily be added.
 
 Currently, both this labeling tool and [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/) only support [Azure Blob Storage](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction).
 
 To create a new connection, click the `New Connections` (plug) icon, in the left hand navigation bar:
+
+![alt text](docs/images/new-connection.jpg "New Connection")
+
+
 
 ## Collaborators
 
