@@ -44,18 +44,36 @@ Enable CORS on your storage account. Select your storage account in the Azure po
 
 ![alt text](docs/images/cors-setup.png "CORS setup")
 
-### Creating Connections
+### Create Connections
 
 OCR Form Labeling Tool is a 'Bring Your Own data' (BYOD) application. In this tool, connections are used to configure and manage source (the assets to label) and target (the location to which labels should be exported). The source and target are the same location in OCR Form Labeling Tool. Eventually, they together will be inputs to [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/).
 Connections can be set up and shared across projects. They use an extensible provider model, so new source/target providers can easily be added.
 
 Currently, both this labeling tool and [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/) only support [Azure Blob Storage](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction).
 
-To create a new connection, click the `New Connections` (plug) icon, in the left hand navigation bar:
+To create a new connection, click the `New Connections` (plug) icon, in the left hand navigation bar.
+
+Fill in the fields with the following values:
+
+* **Display Name** - The connection display name.
+* **Description** - Your project description.
+* **SAS URL** - The shared access signature (SAS) URL of your Azure Blob Storage container. To retrieve the SAS URL, open the Microsoft Azure Storage Explorer, right-click your container, and select Get shared access signature. Set the expiry time to some time after you'll have used the service. Make sure the Read, Write, Delete, and List permissions are checked, and click Create. Then copy the value in the URL section. It should have the form: https://<storage account>.blob.core.windows.net/<container name>?<SAS value>.
 
 ![alt text](docs/images/new-connection.png "New Connection")
 
+### Create a new project
 
+In the sample labeling tool, projects store your configurations and settings. Create a new project and fill in the fields with the following values:
+
+* **Display Name** - the project display name
+* **Security Token** - Some project settings can include sensitive values, such as API keys or other shared secrets. Each project will generate a security token that can be used to encrypt/decrypt sensitive project settings. You can find security tokens in the Application Settings by clicking the gear icon in the lower corner of the left navigation bar.
+* **Source Connection** - The Azure Blob Storage connection you created in the previous step that you would like to use for this project.
+* **Folder Path** - Optional - If your source forms are located in a folder on the blob container, specify the folder name here
+* **Form Recognizer Service Uri** - Your Form Recognizer endpoint URL.
+* **API Key** - Your Form Recognizer subscription key.
+* **Description** - Optional - Project description
+
+![alt text](docs/images/new-project.png "New Project")
 
 ## Collaborators
 
