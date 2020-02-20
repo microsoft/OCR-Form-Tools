@@ -41,7 +41,7 @@ Currently, both this labeling tool and [Form Recognizer](https://docs.microsoft.
 
 To create a new connection, click the `New Connections` (plug) icon, in the left hand navigation bar:
 
-![alt text](docs/images/new-connection.jpg "New Connection")
+![alt text](docs/images/new-connection.png "New Connection")
 
 
 
