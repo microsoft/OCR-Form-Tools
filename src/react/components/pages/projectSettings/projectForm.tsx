@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { RefObject } from "react";
+import React from "react";
 import Form, { FormValidation, ISubmitEvent, IChangeEvent, Widget } from "react-jsonschema-form";
 import { addLocValues, strings } from "../../../../common/strings";
 import { IConnection, IProject, IAppSettings } from "../../../../models/applicationState";

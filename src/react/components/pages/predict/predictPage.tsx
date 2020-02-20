@@ -5,7 +5,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
-import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton, IButton} from "office-ui-fabric-react";
+import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton} from "office-ui-fabric-react";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
@@ -100,7 +100,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     private currPdf: any;
     private tiffImages: any[];
     private imageMap: ImageMap;
-    private predictRef = React.createRef<IButton>();
 
     public async componentDidMount() {
         const projectId = this.props.match.params["projectId"];
@@ -109,7 +108,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             await this.props.actions.loadProject(project);
             this.props.appTitleActions.setTitle(project.name);
         }
-        this.predictRef.current.focus();
         document.title = strings.predict.title + " - " + strings.appName;
     }
 
@@ -180,7 +178,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                         <PrimaryButton
                                             theme={getPrimaryGreenTheme()}
                                             text="Browse"
-                                            componentRef={this.predictRef}
                                             allowDisabledFocus
                                             disabled={browseFileDisabled}
                                             onClick={this.handleDummyInputClick}
