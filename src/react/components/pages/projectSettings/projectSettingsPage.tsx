@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { RefObject } from "react";
+import React from "react";
 import { Redirect } from "react-router";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
@@ -74,8 +74,6 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
         isError: false,
     };
 
-    private projectSettingRef = React.createRef<ProjectForm>();
-
     public async componentDidMount() {
         const projectId = this.props.match.params["projectId"];
         try {
@@ -128,7 +126,6 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
                             onChange={this.onFormChange}
                             onSubmit={this.onFormSubmit}
                             onCancel={this.onFormCancel}
-                            ref={this.projectSettingRef}
                             action={this.state.action} />
                     </div>
                 </div>
