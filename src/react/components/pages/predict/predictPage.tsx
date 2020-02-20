@@ -583,9 +583,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const checkSucceeded = (resolve, reject) => {
             const ajax = func();
             ajax.then((response) => {
-                if (response.data.status === constants.statusCodeSucceeded) {
+                if (response.data.status.toLowerCase() === constants.statusCodeSucceeded) {
                     resolve(response.data);
-                } else if (response.data.status === constants.statusCodeFailed) {
+                } else if (response.data.status.toLowerCase() === constants.statusCodeFailed) {
                     reject(_.get(
                         response,
                         "data.analyzeResult.errors[0].errorMessage",
