@@ -104,7 +104,6 @@ export class ImageMap extends React.Component<IImageMapProps> {
     }
 
     public getFeatureByID = (featureID) => {
-        console.log(featureID);
         return this.vectorLayer.getSource().getFeatureById(featureID);
     }
 
