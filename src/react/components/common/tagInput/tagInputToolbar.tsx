@@ -104,7 +104,7 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
         return(
             this.getToolbarItems().map((itemConfig, index) => {
                 if (itemConfig.category === Categories.General) {
-                   if ( index === 0) {
+                   if (index === 0) {
                         return (
                             <IconButton
                                 key={itemConfig.displayName}
