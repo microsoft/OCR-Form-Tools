@@ -1,13 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React from "react";
+import React, { useEffect } from "react";
 import { ArrayFieldTemplateProps } from "react-jsonschema-form";
 import { FontIcon, PrimaryButton } from "office-ui-fabric-react";
 import { strings } from "../../../../common/strings";
 import { getPrimaryBlueTheme, getPrimaryGreenTheme } from "../../../../common/themes";
 
 export function ArrayFieldTemplate(props: ArrayFieldTemplateProps) {
+    useEffect(() => {
+        document.getElementById("addSecurityToken").focus();
+    });
     return (
         <div>
             {props.canAdd &&
@@ -16,6 +19,8 @@ export function ArrayFieldTemplate(props: ArrayFieldTemplateProps) {
                         theme={getPrimaryBlueTheme()}
                         type="button"
                         className=""
+                        id="addSecurityToken"
+                        autoFocus={true}
                         onClick={props.onAddClick}>
                         <FontIcon iconName = "AddTo" className="mr-2" />
                         Add {props.schema.title}
