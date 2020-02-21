@@ -104,15 +104,28 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
         return(
             this.getToolbarItems().map((itemConfig) => {
                 if (itemConfig.category === Categories.General) {
-                   return (
-                        <IconButton
-                            key={itemConfig.displayName}
-                            title={itemConfig.displayName}
-                            ariaLabel={itemConfig.displayName}
-                            className="tag-input-toolbar-iconbutton"
-                            iconProps={{iconName: itemConfig.icon}}
-                            onClick={(e) => this.onToolbarItemClick(e, itemConfig)} />
-                   );
+                   if ( itemConfig.displayName === strings.tags.toolbar.add) {
+                        return (
+                            <IconButton
+                                key={itemConfig.displayName}
+                                title={itemConfig.displayName}
+                                ariaLabel={itemConfig.displayName}
+                                className="tag-input-toolbar-iconbutton"
+                                iconProps={{iconName: itemConfig.icon}}
+                                autoFocus={true}
+                                onClick={(e) => this.onToolbarItemClick(e, itemConfig)} />
+                        );
+                   } else {
+                        return (
+                            <IconButton
+                                key={itemConfig.displayName}
+                                title={itemConfig.displayName}
+                                ariaLabel={itemConfig.displayName}
+                                className="tag-input-toolbar-iconbutton"
+                                iconProps={{iconName: itemConfig.icon}}
+                                onClick={(e) => this.onToolbarItemClick(e, itemConfig)} />
+                        );
+                   }
                 } else if (itemConfig.category === Categories.Separator) {
                     return (<div className="tag-input-toolbar-separator" key={itemConfig.displayName}></div>);
                 } else if (itemConfig.category === Categories.Modifier) {

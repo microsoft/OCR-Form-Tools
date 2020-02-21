@@ -5,7 +5,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
-import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton} from "office-ui-fabric-react";
+import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton, IButton} from "office-ui-fabric-react";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
@@ -180,6 +180,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                             text="Browse"
                                             allowDisabledFocus
                                             disabled={browseFileDisabled}
+                                            autoFocus={true}
                                             onClick={this.handleDummyInputClick}
                                         />
                                     </div>
