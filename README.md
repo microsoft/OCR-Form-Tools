@@ -10,9 +10,9 @@ OCR Form Labeling Tool is a React + Redux Web application, write in [TypeScript]
 
 Features include:
 
-* The ability to label forms in PDF, JPEG or TIFF formats
-* Train model with labeled data through [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/)
-* Predict a single form with the trained model
+* **Label** forms in PDF, JPEG or TIFF formats
+* **Train** model with labeled data through [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/)
+* **Predict** a single form with the trained model
 
 ## Getting Started
 
@@ -46,7 +46,7 @@ Enable CORS on your storage account. Select your storage account in the Azure po
 
 ### Create Connections
 
-OCR Form Labeling Tool is a 'Bring Your Own data' (BYOD) application. In this tool, connections are used to configure and manage source (the assets to label) and target (the location to which labels should be exported). The source and target are the same location in OCR Form Labeling Tool. Eventually, they together will be inputs to [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/).
+OCR Form Labeling Tool is a 'Bring Your Own data' (BYOD) application. In this tool, connections are used to configure and manage source (the assets to label) and target (the location where labels should be exported). The source and target are the same location in OCR Form Labeling Tool. Eventually, they together will be inputs to [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/).
 Connections can be set up and shared across projects. They use an extensible provider model, so new source/target providers can easily be added.
 
 Currently, both this labeling tool and [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/) only support [Azure Blob Storage](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction).
@@ -57,19 +57,19 @@ Fill in the fields with the following values:
 
 * **Display Name** - The connection display name.
 * **Description** - Your project description.
-* **SAS URL** - The shared access signature (SAS) URL of your Azure Blob Storage container. To retrieve the SAS URL, open the Microsoft Azure Storage Explorer, right-click your container, and select Get shared access signature. Set the expiry time to some time after you'll have used the service. Make sure the Read, Write, Delete, and List permissions are checked, and click Create. Then copy the value in the URL section. It should have the form: https://<storage account>.blob.core.windows.net/<container name>?<SAS value>.
+* **SAS URL** - The shared access signature (SAS) URL of your Azure Blob Storage container. To retrieve the SAS URL, open the Microsoft Azure Storage Explorer, right-click your container (note: not the parent storage node), and select Get shared access signature. Set the expiry time to some time after you'll have used the service. Make sure the Read, Write, Delete, and List permissions are checked, and click Create. Then copy the value in the URL section. It should have such format: https://<storage account>.blob.core.windows.net/<container name>?<SAS value>.
 
 ![alt text](docs/images/new-connection.png "New Connection")
 
 ### Create a new project
 
-In the sample labeling tool, projects store your configurations and settings. Create a new project and fill in the fields with the following values:
+In this labeling tool, a project is used to store your configurations and settings. Create a new project and fill in the fields with the following values:
 
 * **Display Name** - the project display name
 * **Security Token** - Some project settings can include sensitive values, such as API keys or other shared secrets. Each project will generate a security token that can be used to encrypt/decrypt sensitive project settings. You can find security tokens in the Application Settings by clicking the gear icon in the lower corner of the left navigation bar.
-* **Source Connection** - The Azure Blob Storage connection you created in the previous step that you would like to use for this project.
-* **Folder Path** - Optional - If your source forms are located in a folder on the blob container, specify the folder name here
-* **Form Recognizer Service Uri** - Your Form Recognizer endpoint URL.
+* **Source Connection** - The Azure blob storage container connection you created in the previous step that you would like to use for this project.
+* **Folder Path** - Optional - If your source forms are located in a sub-folder on the blob container, specify the folder name here
+* **Form Recognizer Service Uri** - Your Form Recognizer endpoint URL.  It should have such format: https://<your-name>.cognitiveservcices.azure.com. 
 * **API Key** - Your Form Recognizer subscription key.
 * **Description** - Optional - Project description
 
@@ -103,7 +103,7 @@ Follow the above steps to label five of your forms, and then move on to the next
 
 #### Specify tag type and format
 
-You can specify tag type and format with tag contextual menu. The type and format information will be stored in fields.json in the source location. The information will be used in post processing to get better result.
+You can specify tag type and format with tag contextual menu. The type and format information will be stored in fields.json in the source location. The information will be used in post-processing to get better result.
 
 ![alt text](docs/images/specify-tag-type-format.png "Specify Tag Type and Format")
 
