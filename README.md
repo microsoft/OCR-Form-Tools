@@ -101,7 +101,51 @@ Follow the above steps to label five of your forms, and then move on to the next
 
 ![alt text](docs/images/apply-labels.png "Apply Labels")
 
-#### Keyboard Shortcuts
+#### Specify tag type and format
+
+You can specify tag type and format with tag contextual menu. The type and format information will be stored in fields.json in the source location. The information will be used in post processing to get better result.
+
+![alt text](docs/images/specify-tag-type-format.png "Specify Tag Type and Format")
+
+#### Train a custom model
+
+Click the Train icon (the train car) on the left pane to open the Training page. Then click the **Train** button to begin training the model. Once the training process completes, you'll see the following information:
+
+* **Model ID** - The ID of the model that was created and trained. Each training call creates a new model with its own ID. Copy this string to a secure location; you'll need it if you want to do prediction calls through the REST API.
+* **Average Accuracy** - The model's average accuracy. You can improve model accuracy by labeling additional forms and training again to create a new model. We recommend starting by labeling five forms and adding more forms as needed.
+* The list of tags, and the estimated accuracy per tag.
+
+![alt text](docs/images/train-model.png "Train Model")
+
+After training finishes, examine the **Average Accuracy** value. If it's low, you should add more input documents and repeat the steps above. The documents you've already labeled will remain in the project index.
+
+Tip: You can also run the training process with a REST API call. To learn how to do this, see [Train with labels using Python](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/quickstarts/python-labeled-data).
+
+#### Analyze a form ####
+
+Click on the Predict (rectangles) icon on the left to test your model. Upload a form document that you haven't used in the training process. Then click the **Predict** button on the right to get key/value predictions for the form. The tool will apply tags in bounding boxes and will report the confidence of each tag.
+
+![alt text](docs/images/analyze-form.png "Analyze Form")
+
+Tip: You can also run the Analyze API with a REST call. To learn how to do this, see [Train with labels using Python](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/quickstarts/python-labeled-data).
+
+#### Save a project and resume later ####
+
+To resume your project at another time or in another browser, you need to save your project's security token and reenter it later.
+
+##### Get project credentials #####
+
+Go to your project settings page (slider icon) and take note of the security token name. Then go to your application settings (gear icon), which shows all of the security tokens in your current browser instance. Find your project's security token and copy its name and key value to a secure location.
+
+##### Restore project credentials #####
+
+When you want to resume your project, you first need to create a connection to the same blob storage container. Repeat the steps above to do this. Then, go to the application settings page (gear icon) and see if your project's security token is there. If it isn't, add a new security token and copy over your token name and key from the previous step. Then click Save Settings.
+
+##### Resume a project #####
+
+Finally, go to the main page (house icon) and click Open Cloud Project. Then select the blob storage connection, and select your project's .vott file. The application will load all of the project's settings because it has the security token.
+
+#### Keyboard Shortcuts ####
 
 Labeling tool allows a number of keyboard shortcuts to support accessibility and also sometimes make labeling easier and faster.
 
