@@ -201,7 +201,7 @@ export const english: IAppStrings = {
         azDocLinkText: "Azure Documentation.",
         providers: {
             azureBlob: {
-                title: "Azure blob storage",
+                title: "Azure blob container",
                 description: "",
                 accountName: {
                     title: "Account Name",
