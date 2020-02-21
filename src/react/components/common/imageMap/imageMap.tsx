@@ -3,7 +3,7 @@
 
 import { Feature, MapBrowserEvent, View } from "ol";
 import { Extent, getCenter } from "ol/extent";
-import { defaults as defaultInteractions, DragPan, DragRotateAndZoom, Interaction } from "ol/interaction.js";
+import { defaults as defaultInteractions, DragPan, Interaction } from "ol/interaction.js";
 import ImageLayer from "ol/layer/Image";
 import Layer from "ol/layer/Layer";
 import VectorLayer from "ol/layer/Vector";
@@ -142,6 +142,18 @@ export class ImageMap extends React.Component<IImageMapProps> {
         return features;
     }
 
+    public zoomIn = () => {
+        this.map.getView().setZoom(this.map.getView().getZoom() + 0.3);
+    }
+
+    public zoomOut = () => {
+        this.map.getView().setZoom(this.map.getView().getZoom() - 0.3);
+    }
+
+    public resetZoom = () => {
+        this.map.getView().setZoom(0);
+    }
+
     private initMap = () => {
         const projection = this.createProjection(this.imageExtent);
 
@@ -156,7 +168,9 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.vectorLayer = new VectorLayer(options);
 
         this.map = new Map({
-            interactions: defaultInteractions({ doubleClickZoom: false }).extend([new DragRotateAndZoom()]),
+            controls: [] ,
+            interactions: defaultInteractions({ doubleClickZoom: false,
+                pinchRotate: false }),
             target: "map",
             layers: [this.imageLayer, this.vectorLayer],
             view: this.createMapView(projection, this.imageExtent),
