@@ -143,7 +143,7 @@ When you want to resume your project, you first need to create a connection to t
 
 ##### Resume a project #####
 
-Finally, go to the main page (house icon) and click Open Cloud Project. Then select the blob storage connection, and select your project's .vott file. The application will load all of the project's settings because it has the security token.
+Finally, go to the main page (house icon) and click Open Cloud Project. Then select the blob storage connection, and select your project's .proj file. The application will load all of the project's settings because it has the security token.
 
 #### Keyboard Shortcuts ####
 
@@ -156,6 +156,8 @@ Hotkeys of 1 through 0 and all letters are assigned to first 36 tags, after you 
 '<' and '>' keys can be used go to the previous or the next page in multi-pages documents.
 
 '-', '+' and '/' keys can be used to zoom in/out and reset zoom of editing page.
+
+Hold Alt key and click on tag name, user can change the tag's name.
 
 ## Collaborators
 
