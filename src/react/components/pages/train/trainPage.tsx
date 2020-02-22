@@ -71,7 +71,6 @@ function mapDispatchToProps(dispatch) {
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class TrainPage extends React.Component<ITrainPageProps, ITrainPageState> {
-    private trainRef = React.createRef<IButton>();
 
     constructor(props) {
         super(props);
@@ -95,7 +94,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             this.props.appTitleActions.setTitle(project.name);
             this.updateCurrTrainRecord(this.getProjectTrainRecord());
         }
-        this.trainRef.current.focus();
         document.title = strings.train.title + " - " + strings.appName;
     }
 
@@ -131,7 +129,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                 {!this.state.isTraining ? (
                                     <PrimaryButton
                                         theme={getPrimaryGreenTheme()}
-                                        componentRef={this.trainRef}
+                                        autoFocus={true}
                                         className="flex-center"
                                         onClick={this.handleTrainClick}>
                                         <FontIcon iconName="MachineLearning" />

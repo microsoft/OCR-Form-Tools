@@ -78,6 +78,7 @@ export default class ConnectionPage extends React.Component<IConnectionPageProps
 
         this.props.appTitleActions.setTitle(strings.connections.title);
         document.title = strings.connections.title + " - " + strings.appName;
+        document.getElementById("addConnection").focus();
     }
 
     public componentDidUpdate = (prevProps) => {
@@ -87,6 +88,7 @@ export default class ConnectionPage extends React.Component<IConnectionPageProps
         if (prevConnectionId !== newConnectionId) {
             this.loadConnection(newConnectionId);
         }
+        document.getElementById("addConnection").focus();
     }
 
     public render() {
