@@ -42,9 +42,7 @@ describe("Confirm component", () => {
     it("Renders custom button text / colors when properties are set", () => {
         const props: IConfirmProps = {
             ...defaultProps,
-            confirmButtonColor: "success",
             confirmButtonText: "Yes",
-            cancelButtonColor: "danger",
             cancelButtonText: "No",
         };
         const wrapper = createComponent(props);
