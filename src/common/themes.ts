@@ -151,26 +151,33 @@ const darkThemePalette  = {
     accent: "#3a96dd",
 };
 
+const whiteTheme = createTheme({palette: whiteButtonPalette});
+const redTheme = createTheme({palette: redButtonPalette});
+const greenTheme = createTheme({palette: greenButtonPalette});
+const greyTheme = createTheme({palette: greyButtonPalette});
+const blueTheme = createTheme({palette: blueButtonPalette});
+const darkTheme = createTheme({palette: darkThemePalette});
+
 export function getPrimaryWhiteTheme() {
-    return createTheme({palette: whiteButtonPalette});
+    return whiteTheme;
 }
 
 export function getPrimaryRedTheme() {
-    return createTheme({palette: redButtonPalette});
+    return redTheme;
 }
 
 export function getPrimaryGreenTheme() {
-    return createTheme({palette: greenButtonPalette});
+    return greenTheme;
 }
 
 export function getPrimaryGreyTheme() {
-    return createTheme({palette: greyButtonPalette});
+    return greyTheme;
 }
 
 export function getPrimaryBlueTheme() {
-    return createTheme({palette: blueButtonPalette});
+    return blueTheme;
 }
 
 export function getDarkTheme() {
-    return createTheme({palette: darkThemePalette});
+    return darkTheme;
 }

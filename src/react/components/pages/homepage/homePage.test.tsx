@@ -13,7 +13,6 @@ import IProjectActions, * as projectActions from "../../../../redux/actions/proj
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import createReduxStore from "../../../../redux/store/store";
 import CondensedList from "../../common/condensedList/condensedList";
-import Confirm, { IConfirmProps } from "../../common/confirm/confirm";
 import HomePage, { IHomePageProps, IHomePageState } from "./homePage";
 
 jest.mock("../../common/cloudFilePicker/cloudFilePicker");

@@ -218,7 +218,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
 
     private onInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter") {
-            this.onRenameTag();
+            this.inputElement.blur();
         } else if (e.key === "Escape") {
             this.setState({
                 isRenaming: false,
