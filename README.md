@@ -85,7 +85,7 @@ When you create or open a project, the main tag editor window opens. The tag edi
 
 #### Identify text elements and tables
 
-Click **Run OCR on all files** on the left pane to get the text layout information for each document. The labeling tool will draw bounding boxes around each text element and display an icon at the top-left corner of each table. You can click a table's icon to display that table's borders
+Click **Run OCR on all files** on the left pane to get the text layout information for each document. The labeling tool will draw bounding boxes around each text element and display an icon at the top left corner of each table. You can click a table's icon to display that table's identified borders
 
 #### Apply labels to text
 
