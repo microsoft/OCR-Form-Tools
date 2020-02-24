@@ -336,8 +336,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         }
 
         if (this.props.onTagRename) {
-           this.props.onTagRename(tag, newTag, cancelRename);
-           return;
+            this.props.onTagRename(tag, newTag, cancelRename);
+            return;
         }
     }
 
