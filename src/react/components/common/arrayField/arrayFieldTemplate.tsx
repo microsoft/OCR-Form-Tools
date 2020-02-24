@@ -1,16 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ArrayFieldTemplateProps } from "react-jsonschema-form";
 import { FontIcon, PrimaryButton } from "office-ui-fabric-react";
 import { strings } from "../../../../common/strings";
 import { getPrimaryBlueTheme, getPrimaryGreenTheme } from "../../../../common/themes";
 
 export function ArrayFieldTemplate(props: ArrayFieldTemplateProps) {
+    const [focusFlag, setFocusFlag] = useState(false);
+
     useEffect(() => {
-        document.getElementById("addSecurityToken").focus();
+        if (focusFlag) {
+            document.getElementById("addSecurityToken").focus();
+            setFocusFlag(false);
+        }
     });
+
     return (
         <div>
             {props.canAdd &&
@@ -37,7 +43,8 @@ export function ArrayFieldTemplate(props: ArrayFieldTemplateProps) {
                                 theme={getPrimaryGreenTheme()}
                                 type="button"
                                 className="flex-center"
-                                onClick={item.onDropIndexClick(item.index)}>
+                                onClick={item.onDropIndexClick(item.index)}
+                                onClickCapture={() => setFocusFlag(true)}>
                                 <FontIcon iconName="Delete" className="mr-2" />
                                 {strings.common.delete}
                             </PrimaryButton>
