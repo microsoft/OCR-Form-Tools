@@ -7,6 +7,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
 import { FontIcon } from "office-ui-fabric-react";
 import { strings, interpolate } from "../../../../common/strings";
+import { getPrimaryRedTheme } from "../../../../common/themes";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
@@ -118,7 +119,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                 <Confirm title="Delete Project"
                     ref={this.deleteConfirmRef as any}
                     message={(project: IProject) => `${strings.homePage.deleteProject.confirmation} ${project.name}?`}
-                    confirmButtonColor="danger"
+                    confirmButtonTheme={getPrimaryRedTheme()}
                     onConfirm={this.deleteProject} />
             </div>
         );

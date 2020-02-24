@@ -6,6 +6,7 @@ import { connect } from "react-redux";
 import { Route, RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
 import { strings, interpolate } from "../../../../common/strings";
+import { getPrimaryRedTheme } from "../../../../common/themes";
 import { IApplicationState, IConnection } from "../../../../models/applicationState";
 import IConnectionActions, * as connectionActions from "../../../../redux/actions/connectionActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
@@ -107,7 +108,7 @@ export default class ConnectionPage extends React.Component<IConnectionPageProps
                     title="Delete Connection"
                     // tslint:disable-next-line:max-line-length
                     message={(connection: IConnection) => `Are you sure you want to delete the connection '${connection.name}'?`}
-                    confirmButtonColor="danger"
+                    confirmButtonTheme={getPrimaryRedTheme()}
                     onConfirm={(connection) => this.onConnectionDelete(connection)} />
 
                 <Route exact path="/connections" render={(props) =>

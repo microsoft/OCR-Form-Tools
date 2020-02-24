@@ -35,7 +35,7 @@ import { throttle } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
-import { getPrimaryGreenTheme } from "../../../../common/themes";
+import { getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/themes";
 
 /**
  * Properties for Editor Page
@@ -273,13 +273,13 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                         <Confirm title={strings.editorPage.tags.rename.title}
                             ref={this.renameTagConfirm}
                             message={strings.editorPage.tags.rename.confirmation}
-                            confirmButtonColor="danger"
+                            confirmButtonTheme={getPrimaryRedTheme()}
                             onCancel={this.onTagRenameCanceled}
                             onConfirm={this.onTagRenamed} />
                         <Confirm title={strings.editorPage.tags.delete.title}
                             ref={this.deleteTagConfirm}
                             message={strings.editorPage.tags.delete.confirmation}
-                            confirmButtonColor="danger"
+                            confirmButtonTheme={getPrimaryRedTheme()}
                             onConfirm={this.onTagDeleted} />
                     </div>
                 </SplitPane>
