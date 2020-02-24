@@ -85,7 +85,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                         <li>
                             {/* eslint-disable-next-line */}
                             <a ref={this.newProjectRef}
-                                href="#" onClick={this.createNewProject} className="p-5 new-project">
+                                href="#" onClick={this.createNewProject} className="p-5 new-project" role="button">
                                 <FontIcon iconName="AddTo" className="icon-9x" />
                                 <div>{strings.homePage.newProject}</div>
                             </a>
@@ -93,7 +93,8 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                         <li>
                             {/*Open Cloud Project*/}
                             {/* eslint-disable-next-line */}
-                            <a href="#" onClick={this.handleOpenCloudProjectClick} className="p-5 cloud-open-project">
+                            <a href="#" onClick={this.handleOpenCloudProjectClick}
+                                className="p-5 cloud-open-project" role="button">
                                 <FontIcon iconName="Cloud" className="icon-9x" />
                                 <div>{strings.homePage.openCloudProject.title}</div>
                             </a>

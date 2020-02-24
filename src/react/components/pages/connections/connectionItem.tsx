@@ -2,9 +2,10 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { Link, NavLink } from "react-router-dom";
-import { FontIcon } from "office-ui-fabric-react";
+import { NavLink } from "react-router-dom";
+import { FontIcon, IconButton } from "office-ui-fabric-react";
 import { strings } from "../../../../common/strings";
+import "../../../../App.scss";
 
 export default function ConnectionItem({ item, onClick, onDelete }) {
     return (
@@ -12,13 +13,12 @@ export default function ConnectionItem({ item, onClick, onDelete }) {
             <NavLink className="condensed-list-item" to={`/connections/${item.id}`}>
                 <FontIcon iconName="Edit" />
                 <span className="px-2">{item.name}</span>
-                <Link className="float-right"
-                    to="#"
+                <IconButton className="float-right app-delete-button"
                     title={strings.common.delete}
                     aria-label={strings.common.delete}
                     onClick={onDelete}>
-                    <FontIcon iconName="Delete" />
-                </Link>
+                    <FontIcon iconName="Delete" className="app-delete-icon"/>
+                </IconButton>
             </NavLink>
         </li>
     );

@@ -163,3 +163,24 @@
 .form-group label {
     margin-bottom: 4px;
 }
+
+.app-delete-button {
+    display: flex;
+    justify-content: center;
+    align-self: center;
+    color: white;
+    height: 20px;
+    padding: 0px;
+    &:hover {
+        background-color: transparent;
+        color: #e6e4e4;
+    }
+    &:focus {
+        background-color: transparent;
+        color: #e6e4e4;
+    }
+}
+
+.app-delete-icon {
+    height: 18px;
+}
