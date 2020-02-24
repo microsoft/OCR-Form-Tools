@@ -157,7 +157,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         displayName={"Delete region"}
                         key={"Delete"}
                         keyEventType={KeyEventType.KeyDown}
-                        accelerators={["Delete", "Backspace", '<', ',', '>', '.',
+                        accelerators={["Delete", "Backspace", "<", ",", ">", ".",
                             "{", "[", "}", "]", "+", "-", "/", "=", "_", "?"]}
                         handler={this.handleKeyDown} />
                 <ImageMap
