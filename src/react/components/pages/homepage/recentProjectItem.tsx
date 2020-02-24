@@ -2,9 +2,9 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { Link } from "react-router-dom";
-import { FontIcon } from "office-ui-fabric-react";
+import { FontIcon, IconButton } from "office-ui-fabric-react";
 import { strings } from "../../../../common/strings";
+import "../../../../App.scss";
 
 export default function RecentProjectItem({ item, onClick, onDelete }) {
     return (
@@ -13,13 +13,12 @@ export default function RecentProjectItem({ item, onClick, onDelete }) {
             <a className="condensed-list-item" href="#" onClick={onClick}>
                 <FontIcon iconName="OpenFolderHorizontal" />
                 <span className="px-2 ms-Fabric" style={{color: "inherit"}}>{item.name}</span>
-                <Link className="float-right"
-                    to="#"
+                <IconButton className="float-right app-delete-button"
                     title={strings.common.delete}
                     aria-label={strings.common.delete}
                     onClick={onDelete}>
-                    <FontIcon iconName="Delete" />
-                </Link>
+                    <FontIcon iconName="Delete" className="app-delete-icon" />
+                </IconButton>
             </a>
         </li>
     );

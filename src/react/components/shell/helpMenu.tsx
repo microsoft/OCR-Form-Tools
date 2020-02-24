@@ -19,6 +19,7 @@ export class HelpMenu extends React.Component<IHelpMenuProps, IHelpMenuState> {
                 className={"help-menu-button"}
                 title={strings.titleBar.help}
                 href={this.akaMsLink}
+                role="button"
                 target="_blank"
                 rel="noopener noreferrer">
                 <FontIcon iconName="Help" />

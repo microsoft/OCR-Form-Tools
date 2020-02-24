@@ -10,12 +10,9 @@
         font-size: 80%;
         color: #f1f1f1;
         margin: 0;
+        padding: 8px 23px 8px 8px;
         font-weight: 500;
         line-height: 1.2;
-        
-        i {
-            margin-right: 0.5em;
-        }
     }
 
     &-body {
@@ -48,3 +45,4 @@ ul.condensed-list-items {
         }
     }
 }
+
