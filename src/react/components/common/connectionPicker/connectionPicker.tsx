@@ -57,7 +57,8 @@ export class ConnectionPicker extends React.Component<IConnectionPickerProps, IC
 
         return (
             <div className="input-group">
-                <select id={id} value={selectedValue} onChange={this.onChange} className="form-control">
+                <select id={id} value={selectedValue} onChange={this.onChange}
+                    required className="form-control">
                     <option>Select Connection</option>
                     {connections.map((connection) =>
                         <option
