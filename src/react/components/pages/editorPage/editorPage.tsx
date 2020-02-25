@@ -35,7 +35,7 @@ import { throttle } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
-import { getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/themes";
+import { getPrimaryGreenTheme, getPrimaryRedTheme, getPrimaryBlueTheme } from "../../../../common/themes";
 
 /**
  * Properties for Editor Page
@@ -283,16 +283,18 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                             onConfirm={this.onTagDeleted} />
                     </div>
                 </SplitPane>
-                <Alert show={this.state.showInvalidRegionWarning}
+                <Alert
+                    confirmButtonTheme={getPrimaryBlueTheme()}
+                    show={this.state.showInvalidRegionWarning}
                     title={strings.editorPage.messages.enforceTaggedRegions.title}
                     // tslint:disable-next-line:max-line-length
                     message={strings.editorPage.messages.enforceTaggedRegions.description}
-                    closeButtonColor="info"
                     onClose={() => this.setState({ showInvalidRegionWarning: false })} />
-                <Alert show={this.state.isError}
+                <Alert
+                    confirmButtonTheme={getPrimaryBlueTheme()}
+                    show={this.state.isError}
                     title={this.state.errorTitle || "Error"}
                     message={this.state.errorMessage}
-                    closeButtonColor="info"
                     onClose={() => this.setState({
                         isError: false,
                         errorTitle: undefined,
