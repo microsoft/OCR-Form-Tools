@@ -1185,7 +1185,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 }
             });
         }
-        if (ocrPageResults.tables) {
+        if (ocrPageResults && ocrPageResults.tables) {
             ocrPageResults.tables.forEach((table) => {
                 if (table.cells) {
                     const tableBoundingBox = this.getTableBoundingBox(table.cells.map((cell) => cell.boundingBox));
