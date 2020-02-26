@@ -63,6 +63,7 @@ export class ProtectedInput extends React.Component<IProtectedInputProps, IProte
                 <input id={id}
                     type={showKey ? "text" : "password"}
                     readOnly={readOnly}
+                    required
                     className="form-control"
                     value={value}
                     onChange={this.onChange} />
