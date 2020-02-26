@@ -97,6 +97,13 @@ export class ImageMap extends React.Component<IImageMapProps> {
     }
 
     /**
+     * Hide/Display text features
+     */
+    public setTextVisibility = (visible: boolean) => {
+        this.textVectorLayer.setVisibility(visible);
+    }
+
+    /**
      * Add one feature to the map
      */
     public addFeature = (feature: Feature) => {
