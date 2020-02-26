@@ -89,7 +89,7 @@ export default class App extends React.Component<IAppProps> {
                             </div>
                         </BrowserRouter>
                         <div id="skipto">
-                            <a href="#appSidebar" onClick={this.skipToNavHome}>{strings.common.skipToSidebar}</a>
+                            <a href="#navHome" onClick={this.skipToNavHome}>{strings.common.skipToSidebar}</a>
                         </div>
                     </KeyboardManager>
                 }
