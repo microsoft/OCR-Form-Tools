@@ -11,7 +11,7 @@ export default function ConnectionItem({ item, onClick, onDelete }) {
     return (
         <li onClick={onClick}>
             <NavLink className="condensed-list-item" to={`/connections/${item.id}`}
-                aria-label={`${item.name} conection`}>
+                aria-label={`${item.name} connection`}>
                 <FontIcon iconName="Edit" />
                 <span className="px-2">{item.name}</span>
                 <IconButton className="float-right app-delete-button"
