@@ -10,12 +10,12 @@ import "../../../../App.scss";
 export default function ConnectionItem({ item, onClick, onDelete }) {
     return (
         <li onClick={onClick}>
-            <NavLink className="condensed-list-item" to={`/connections/${item.id}`}>
+            <NavLink className="condensed-list-item" to={`/connections/${item.id}`}
+                aria-label={`${item.name} connection`}>
                 <FontIcon iconName="Edit" />
                 <span className="px-2">{item.name}</span>
                 <IconButton className="float-right app-delete-button"
                     title={strings.common.delete}
-                    aria-label={strings.common.delete}
                     onClick={onDelete}>
                     <FontIcon iconName="Delete" className="app-delete-icon"/>
                 </IconButton>
