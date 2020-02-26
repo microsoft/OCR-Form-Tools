@@ -198,15 +198,16 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         </div>
                     </div>
                 }
-                <Alert show={this.state.isError}
+                <Alert
+                    show={this.state.isError}
                     title={this.state.errorTitle || "Error"}
                     message={this.state.errorMessage}
-                    closeButtonColor="info"
                     onClose={() => this.setState({
                         isError: false,
                         errorTitle: undefined,
                         errorMessage: undefined,
-                    })} />
+                    })}
+                />
             </div>
         );
     }

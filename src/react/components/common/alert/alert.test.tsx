@@ -30,7 +30,6 @@ describe("Alert component", () => {
     it("Renders modal when activated", () => {
         const wrapper = createComponent(defaultProps);
 
-        wrapper.instance().open();
         wrapper.update();
 
         expect(wrapper.find(".modal-title").text()).toEqual(defaultProps.title);
@@ -41,12 +40,10 @@ describe("Alert component", () => {
     it("Renders custom button text / colors when properties are set", () => {
         const props: IAlertProps = {
             ...defaultProps,
-            closeButtonColor: "success",
             closeButtonText: "Close",
         };
         const wrapper = createComponent(props);
 
-        wrapper.instance().open();
         wrapper.update();
 
         const buttons = wrapper.find(".modal-footer button");
@@ -58,7 +55,6 @@ describe("Alert component", () => {
         const arg = {value: "test"};
         const wrapper = createComponent(defaultProps);
 
-        wrapper.instance().open(arg);
         wrapper.update();
 
         wrapper.find(".modal-footer button").first().simulate("click");
