@@ -16,7 +16,9 @@ import { IApplicationState } from "./models/applicationState";
 import { registerIcons } from "./registerIcons";
 import registerProviders from "./registerProviders";
 import registerMixins from "./registerMixins";
+import { initializeIcons } from "office-ui-fabric-react";
 
+initializeIcons();
 registerIcons();
 registerMixins();
 registerProviders();
