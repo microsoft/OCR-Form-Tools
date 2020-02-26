@@ -25,7 +25,7 @@ const greenButtonPalette = {
     white: "#32363B",
 };
 
-const commandBarPalette = {
+const darkGreyPalette = {
     themePrimary: "#83B61F",
     themeLighterAlt: "#050701",
     themeLighter: "#151d05",
@@ -182,7 +182,7 @@ const greenTheme = createTheme({palette: greenButtonPalette});
 const greyTheme = createTheme({palette: greyButtonPalette});
 const blueTheme = createTheme({palette: blueButtonPalette});
 const darkTheme = createTheme({palette: darkThemePalette});
-const darkGreyTheme = createTheme({palette: commandBarPalette});
+const darkGreyTheme = createTheme({palette: darkGreyPalette});
 
 export function getPrimaryWhiteTheme() {
     return whiteTheme;
