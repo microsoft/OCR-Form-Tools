@@ -289,7 +289,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                     title={strings.editorPage.messages.enforceTaggedRegions.title}
                     // tslint:disable-next-line:max-line-length
                     message={strings.editorPage.messages.enforceTaggedRegions.description}
-                    onClose={() => this.setState({ showInvalidRegionWarning: false })} />
+                    onClose={() => this.setState({ showInvalidRegionWarning: false })}
+                />
                 <Alert
                     confirmButtonTheme={getPrimaryBlueTheme()}
                     show={this.state.isError}
@@ -299,7 +300,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                         isError: false,
                         errorTitle: undefined,
                         errorMessage: undefined,
-                    })} />
+                    })}
+                />
                 <PreventLeaving
                     when={isRunningOCRs || isCanvasRunningOCR}
                     message={"An OCR operation is currently in progress, are you sure you want to leave?"}

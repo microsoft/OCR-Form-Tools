@@ -223,7 +223,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                         </div>
                     </div>
                 </div>
-                <Alert 
+                <Alert
                     confirmButtonTheme={getPrimaryBlueTheme()}
                     show={this.state.shouldShowAlert}
                     title={this.state.alertTitle}
@@ -233,7 +233,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                         alertTitle: "",
                         alertMessage: "",
                         predictionLoaded: true,
-                    })} />
+                    })}
+                />
                 <PreventLeaving
                     when={this.state.isPredicting}
                     message={"A prediction operation is currently in progress, are you sure you want to leave?"}

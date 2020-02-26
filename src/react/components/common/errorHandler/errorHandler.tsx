@@ -61,7 +61,8 @@ export class ErrorHandler extends React.Component<IErrorHandlerProps> {
                 title={localizedError ? localizedError.title : ""}
                 message={localizedError ? localizedError.message : ""}
                 show={showError}
-                onClose={this.props.onClearError} />
+                onClose={this.props.onClearError}
+            />
         );
     }
 

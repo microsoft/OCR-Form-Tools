@@ -208,7 +208,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         isError: false,
                         errorTitle: undefined,
                         errorMessage: undefined,
-                    })} />
+                    })}
+                />
             </div>
         );
     }

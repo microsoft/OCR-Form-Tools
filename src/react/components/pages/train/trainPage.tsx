@@ -164,7 +164,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                     show={this.state.showTrainingFailedWarning}
                     title="Training Failed"
                     message={this.state.trainingFailedMessage}
-                    onClose={() => this.setState({ showTrainingFailedWarning: false })} />
+                    onClose={() => this.setState({ showTrainingFailedWarning: false })}
+                />
                 <PreventLeaving
                     when={this.state.isTraining}
                     message={"A training operation is currently in progress, are you sure you want to leave?"}
