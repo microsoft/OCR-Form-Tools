@@ -43,6 +43,11 @@ export function registerIcons() {
             PlugConnected: "\uF302",
             Hide3: "\uF6AC",
             WarningSolid: "\uF736",
+            ZoomIn: "\uE8A3",
+            ZoomOut: "\uE71F",
+            TextField: "\uEDC3",
+            Filter: "\uE71C",
+            Table: "\uED86",
         },
     });
 }
