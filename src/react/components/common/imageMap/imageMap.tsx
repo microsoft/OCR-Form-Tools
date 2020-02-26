@@ -24,7 +24,8 @@ interface IImageMapProps {
     featureStyler?: any;
 
     enableFeatureSelection?: boolean;
-    handleFeatureSelect?: (feature: any, isTaggle: boolean) => void;
+    handleTextFeatureSelect?: (feature: any, isTaggle: boolean) => void;
+    handleTableFeatureSelect?: (feature: any, isTaggle: boolean) => void;
 
     onMapReady: () => void;
 }
@@ -32,7 +33,8 @@ interface IImageMapProps {
 export class ImageMap extends React.Component<IImageMapProps> {
     private map: Map;
     private imageLayer: ImageLayer;
-    private vectorLayer: VectorLayer;
+    private textVectorLayer: VectorLayer;
+    private tableVectorLayer: VectorLayer;
 
     private mapElement: HTMLDivElement | null = null;
 
@@ -41,13 +43,18 @@ export class ImageMap extends React.Component<IImageMapProps> {
     private countPointerDown: number = 0;
     private isSwiping: boolean = false;
 
-    private readonly VECTOR_LAYER_NAME = "vectorLayer";
+    private readonly TEXT_VECTOR_LAYER_NAME = "textVectorLayer";
+    private readonly TABLE_VECTOR_LAYER_NAME = "tableVectorLayer";
 
     private ignorePointerMoveEventCount: number = 5;
     private pointerMoveEventCount: number = 0;
 
-    private vectorLayerFilter = {
-        layerFilter: (layer: Layer) => layer.get("name") === this.VECTOR_LAYER_NAME,
+    private textVectorLayerFilter = {
+        layerFilter: (layer: Layer) => layer.get("name") === this.TEXT_VECTOR_LAYER_NAME,
+    };
+
+    private tableVectorLayerFilter = {
+        layerFilter: (layer: Layer) => layer.get("name") === this.TABLE_VECTOR_LAYER_NAME,
     };
 
     constructor(props: IImageMapProps) {
@@ -78,15 +85,30 @@ export class ImageMap extends React.Component<IImageMapProps> {
     /**
      * Add one feature to the map
      */
+    public setTablesVisibility = (visible: boolean) => {
+        this.tableVectorLayer.setVisibility(visible);
+    }
+
+    /**
+     * Add one feature to the map
+     */
     public addFeature = (feature: Feature) => {
-        this.vectorLayer.getSource().addFeature(feature);
+        this.textVectorLayer.getSource().addFeature(feature);
+    }
+
+    public addTableFeature = (feature: Feature) => {
+        this.tableVectorLayer.getSource().addFeature(feature);
     }
 
     /**
      * Add features to the map
      */
     public addFeatures = (features: Feature[]) => {
-        this.vectorLayer.getSource().addFeatures(features);
+        this.textVectorLayer.getSource().addFeatures(features);
+    }
+
+    public addTableFeatures = (features: Feature[]) => {
+        this.tableVectorLayer.getSource().addFeatures(features);
     }
 
     /**
@@ -100,25 +122,29 @@ export class ImageMap extends React.Component<IImageMapProps> {
      * Get all features from the map
      */
     public getAllFeatures = () => {
-        return this.vectorLayer.getSource().getFeatures();
+        return this.textVectorLayer.getSource().getFeatures();
     }
 
     public getFeatureByID = (featureID) => {
-        return this.vectorLayer.getSource().getFeatureById(featureID);
+        return this.textVectorLayer.getSource().getFeatureById(featureID);
+    }
+
+    public getTableFeatureByID = (featureID) => {
+        return this.tableVectorLayer.getSource().getFeatureById(featureID);
     }
 
     /**
      * Remove specific feature object from the map
      */
     public removeFeature = (feature: Feature) => {
-        this.vectorLayer.getSource().removeFeature(feature);
+        this.textVectorLayer.getSource().removeFeature(feature);
     }
 
     /**
      * Remove all features from the map
      */
     public removeAllFeatures = () => {
-        this.vectorLayer.getSource().clear();
+        this.textVectorLayer.getSource().clear();
     }
 
     /**
@@ -140,7 +166,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
      */
     public getFeaturesInExtent = (extent: Extent): Feature[] => {
         const features: Feature[] = [];
-        this.vectorLayer.getSource().forEachFeatureInExtent(extent, (feature) => {
+        this.textVectorLayer.getSource().forEachFeatureInExtent(extent, (feature) => {
             features.push(feature);
         });
         return features;
@@ -165,18 +191,24 @@ export class ImageMap extends React.Component<IImageMapProps> {
             source: this.createImageSource(this.props.imageUri, projection, this.imageExtent),
         });
 
-        const options: any = {};
-        options.name = this.VECTOR_LAYER_NAME;
-        options.style = this.props.featureStyler;
-        options.source = new VectorSource();
-        this.vectorLayer = new VectorLayer(options);
+        const textOptions: any = {};
+        textOptions.name = this.TEXT_VECTOR_LAYER_NAME;
+        textOptions.style = this.props.featureStyler;
+        textOptions.source = new VectorSource();
+        this.textVectorLayer = new VectorLayer(textOptions);
+
+        const tableOptions: any = {};
+        tableOptions.name = this.TABLE_VECTOR_LAYER_NAME;
+        tableOptions.style = this.props.featureStyler;
+        tableOptions.source = new VectorSource();
+        this.tableVectorLayer = new VectorLayer(tableOptions);
 
         this.map = new Map({
             controls: [] ,
             interactions: defaultInteractions({ doubleClickZoom: false,
                 pinchRotate: false }),
             target: "map",
-            layers: [this.imageLayer, this.vectorLayer],
+            layers: [this.imageLayer, this.textVectorLayer, this.tableVectorLayer],
             view: this.createMapView(projection, this.imageExtent),
         });
 
@@ -252,24 +284,37 @@ export class ImageMap extends React.Component<IImageMapProps> {
             return;
         }
 
-        const isPointerOnFeature = this.map.hasFeatureAtPixel(
-            this.map.getEventPixel(event.originalEvent),
-            this.vectorLayerFilter);
+        const eventPixel =  this.map.getEventPixel(event.originalEvent);
 
-        if (isPointerOnFeature && this.props.handleFeatureSelect) {
-            const eventPixel = this.map.getEventPixel(event.originalEvent);
+        const isPointerOnTextFeature = this.map.hasFeatureAtPixel(
+            eventPixel,
+            this.textVectorLayerFilter);
+
+        const isPointerOnTableFeature = this.map.hasFeatureAtPixel(
+            this.map.getEventPixel(event.originalEvent),
+            this.tableVectorLayerFilter);
+
+        if (isPointerOnTextFeature && this.props.handleTextFeatureSelect) {
             this.map.forEachFeatureAtPixel(
                 eventPixel,
                 (feature) => {
-                    if (this.props.handleFeatureSelect) {
-                        this.props.handleFeatureSelect(feature, true /*isTaggle*/);
+                    if (this.props.handleTextFeatureSelect) {
+                        this.props.handleTextFeatureSelect(feature, true /*isTaggle*/);
                     }
                 },
-                this.vectorLayerFilter);
+                this.textVectorLayerFilter);
+        } else if (isPointerOnTableFeature && this.props.handleTableFeatureSelect) {
+            this.map.forEachFeatureAtPixel(
+                eventPixel,
+                (feature) => {
+                    if (this.props.handleTableFeatureSelect) {
+                        this.props.handleTableFeatureSelect(feature, true /*isTaggle*/);
+                    }
+                },
+                this.tableVectorLayerFilter);
         }
-
-        this.setDragPanInteraction(!isPointerOnFeature /*dragPanEnabled*/);
-        this.isSwiping = isPointerOnFeature;
+        this.setDragPanInteraction(!isPointerOnTextFeature /*dragPanEnabled*/);
+        this.isSwiping = isPointerOnTextFeature;
     }
 
     private handlePointerMove = (event: MapBrowserEvent) => {
@@ -284,11 +329,11 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.map.forEachFeatureAtPixel(
             eventPixel,
             (feature) => {
-                if (this.props.handleFeatureSelect) {
-                    this.props.handleFeatureSelect(feature, false /*isTaggle*/);
+                if (this.props.handleTextFeatureSelect) {
+                    this.props.handleTextFeatureSelect(feature, false /*isTaggle*/);
                 }
             },
-            this.vectorLayerFilter);
+            this.textVectorLayerFilter);
     }
 
     private handlePointerUp = () => {
