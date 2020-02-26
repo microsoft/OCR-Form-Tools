@@ -166,7 +166,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     imageWidth={this.state.imageWidth}
                     imageHeight={this.state.imageHeight}
                     enableFeatureSelection={true}
-                    handleFeatureSelect={this.handleFeatureSelect}
+                    handleTextFeatureSelect={this.handleTextFeatureSelect}
+                    handleTableFeatureSelect={this.handleTableFeatureSelect}
                     featureStyler={this.featureStyler}
                     onMapReady={this.noOp} />
                 { this.shouldShowPreviousPageButton() &&
@@ -198,15 +199,16 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         </div>
                     </div>
                 }
-                <Alert show={this.state.isError}
+                <Alert
+                    show={this.state.isError}
                     title={this.state.errorTitle || "Error"}
                     message={this.state.errorMessage}
-                    closeButtonColor="info"
                     onClose={() => this.setState({
                         isError: false,
                         errorTitle: undefined,
                         errorMessage: undefined,
-                    })} />
+                    })}
+                />
             </div>
         );
     }
@@ -580,22 +582,26 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
     }
 
-    private handleFeatureSelect = (feature: Feature, isToggle: boolean = true) => {
+    private handleTextFeatureSelect = (feature: Feature, isToggle: boolean = true) => {
         const regionId = feature.get("id");
-        if (feature.get("type") === "tableBorder") {
-            return;
-        } else if (feature.get("type") === "tableButton") {
-            const tableBorder = this.imageMap.getFeatureByID(feature.get("id") + ":border");
-            tableBorder.set("selected", !tableBorder.get("selected"));
-            feature.set("selected", !feature.get("selected"));
-            return;
-        } else if (isToggle && this.isRegionSelected(regionId)) {
+        if (isToggle && this.isRegionSelected(regionId)) {
             this.removeFromSelectedRegions(regionId);
         } else {
             const polygon = regionId.split(",").map(parseFloat);
             this.addToSelectedRegions(regionId, feature.get("text"), polygon);
         }
         this.redrawFeatures(this.imageMap.getAllFeatures());
+    }
+
+    private handleTableFeatureSelect = (feature: Feature, isToggle: boolean = true) => {
+        if (feature.get("type") === "tableBorder") {
+            return;
+        } else if (feature.get("type") === "tableButton") {
+            const tableBorder = this.imageMap.getTableFeatureByID(feature.get("id") + ":border");
+            tableBorder.set("selected", !tableBorder.get("selected"));
+            feature.set("selected", !feature.get("selected"));
+            return;
+        }
     }
 
     private removeFromSelectedRegions = (regionId: string) => {
@@ -1168,7 +1174,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private drawOcr = () => {
-        const features = [];
+        const textFeatures = [];
+        const tableFeatures = [];
         const ocrReadResults = this.state.ocrForCurrentPage["readResults"];
         const ocrPageResults = this.state.ocrForCurrentPage["pageResults"];
         const imageExtent = this.imageMap.getImageExtent();
@@ -1178,7 +1185,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 if (line.words) {
                     line.words.forEach((word) => {
                         if (this.shouldDisplayOcrWord(word.text)) {
-                            features.push(this.createBoundingBoxVectorFeature(
+                            textFeatures.push(this.createBoundingBoxVectorFeature(
                                 word.text, word.boundingBox, imageExtent, ocrExtent, ocrReadResults.page));
                         }
                     });
@@ -1189,19 +1196,22 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             ocrPageResults.tables.forEach((table) => {
                 if (table.cells) {
                     const tableBoundingBox = this.getTableBoundingBox(table.cells.map((cell) => cell.boundingBox));
-                    const tableFeatures = this.createBoundingBoxVectorTable(
+                    const createdTableFeatures = this.createBoundingBoxVectorTable(
                         tableBoundingBox,
                         imageExtent,
                         ocrExtent,
                         ocrPageResults.page);
-                    features.push(tableFeatures["border"]);
-                    features.push(tableFeatures["button"]);
+                    tableFeatures.push(createdTableFeatures["border"]);
+                    tableFeatures.push(createdTableFeatures["button"]);
                 }
             });
         }
 
-        if (features.length > 0) {
-            this.imageMap.addFeatures(features);
+        if (tableFeatures.length > 0) {
+            this.imageMap.addTableFeatures(tableFeatures);
+        }
+        if (textFeatures.length > 0) {
+            this.imageMap.addFeatures(textFeatures);
         }
     }
 

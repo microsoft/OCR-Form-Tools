@@ -283,21 +283,23 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                             onConfirm={this.onTagDeleted} />
                     </div>
                 </SplitPane>
-                <Alert show={this.state.showInvalidRegionWarning}
+                <Alert
+                    show={this.state.showInvalidRegionWarning}
                     title={strings.editorPage.messages.enforceTaggedRegions.title}
                     // tslint:disable-next-line:max-line-length
                     message={strings.editorPage.messages.enforceTaggedRegions.description}
-                    closeButtonColor="info"
-                    onClose={() => this.setState({ showInvalidRegionWarning: false })} />
-                <Alert show={this.state.isError}
+                    onClose={() => this.setState({ showInvalidRegionWarning: false })}
+                />
+                <Alert
+                    show={this.state.isError}
                     title={this.state.errorTitle || "Error"}
                     message={this.state.errorMessage}
-                    closeButtonColor="info"
                     onClose={() => this.setState({
                         isError: false,
                         errorTitle: undefined,
                         errorMessage: undefined,
-                    })} />
+                    })}
+                />
                 <PreventLeaving
                     when={isRunningOCRs || isCanvasRunningOCR}
                     message={"An OCR operation is currently in progress, are you sure you want to leave?"}
