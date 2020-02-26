@@ -24,7 +24,7 @@ import Alert from "../../common/alert/alert";
 import url from "url";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
-import { getPrimaryGreenTheme} from "../../../../common/themes";
+import { getPrimaryGreenTheme } from "../../../../common/themes";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -159,11 +159,12 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                         </div>
                     </div>
                 </div>
-                <Alert show={this.state.showTrainingFailedWarning}
+                <Alert
+                    show={this.state.showTrainingFailedWarning}
                     title="Training Failed"
                     message={this.state.trainingFailedMessage}
-                    closeButtonColor="info"
-                    onClose={() => this.setState({ showTrainingFailedWarning: false })} />
+                    onClose={() => this.setState({ showTrainingFailedWarning: false })}
+                />
                 <PreventLeaving
                     when={this.state.isTraining}
                     message={"A training operation is currently in progress, are you sure you want to leave?"}
