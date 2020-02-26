@@ -88,10 +88,17 @@ export default class App extends React.Component<IAppProps> {
                                 <ToastContainer className="frtt-toast-container" />
                             </div>
                         </BrowserRouter>
-                        <div id="skipto"><a href="#app-sidebar">{strings.common.skipToSidebar}</a></div>
+                        <div id="skipto">
+                            <a href="#appSidebar" onClick={this.skipToNavHome}>{strings.common.skipToSidebar}</a>
+                        </div>
                     </KeyboardManager>
                 }
             </Fragment>
         );
+    }
+
+    private skipToNavHome = (event: React.MouseEvent<HTMLAnchorElement>) => {
+        event.preventDefault();
+        document.getElementById("navHome").focus();
     }
 }
