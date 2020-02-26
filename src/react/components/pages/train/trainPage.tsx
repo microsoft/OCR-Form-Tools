@@ -24,7 +24,7 @@ import Alert from "../../common/alert/alert";
 import url from "url";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
-import { getPrimaryGreenTheme, getPrimaryBlueTheme} from "../../../../common/themes";
+import { getPrimaryGreenTheme } from "../../../../common/themes";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -160,7 +160,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                     </div>
                 </div>
                 <Alert
-                    confirmButtonTheme={getPrimaryBlueTheme()}
                     show={this.state.showTrainingFailedWarning}
                     title="Training Failed"
                     message={this.state.trainingFailedMessage}

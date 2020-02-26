@@ -3,7 +3,7 @@
 
 import React, { ReactElement } from "react";
 import { MessageFormatHandler } from "../messageBox/messageBox";
-import { getDarkTheme } from "../../../../common/themes";
+import { getDarkTheme, getPrimaryBlueTheme } from "../../../../common/themes";
 import {
     Customizer,
     Dialog,
@@ -76,7 +76,7 @@ export default class Alert extends React.Component<IAlertProps, IAlertState> {
                         >
                         <DialogFooter>
                             <PrimaryButton
-                                theme={confirmButtonTheme}
+                                theme={getPrimaryBlueTheme()}
                                 onClick={this.onCloseClick}
                                 text={this.props.closeButtonText || "OK"}/>
                         </DialogFooter>

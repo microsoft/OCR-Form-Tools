@@ -30,7 +30,7 @@ import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
-import { getPrimaryGreenTheme, getPrimaryWhiteTheme, getPrimaryBlueTheme} from "../../../../common/themes";
+import { getPrimaryGreenTheme, getPrimaryWhiteTheme } from "../../../../common/themes";
 
 export interface IPredictPageProps extends RouteComponentProps, React.Props<PredictPage> {
     recentProjects: IProject[];
@@ -224,7 +224,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     </div>
                 </div>
                 <Alert
-                    confirmButtonTheme={getPrimaryBlueTheme()}
                     show={this.state.shouldShowAlert}
                     title={this.state.alertTitle}
                     message={this.state.alertMessage}

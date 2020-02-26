@@ -6,7 +6,6 @@ import { IAppError, ErrorCode, AppError } from "../../../../models/applicationSt
 import { strings } from "../../../../common/strings";
 import Alert from "../alert/alert";
 import { Env } from "../../../../common/environment";
-import { getPrimaryBlueTheme } from "../../../../common/themes";
 
 /**
  * Component properties for ErrorHandler component
@@ -57,7 +56,6 @@ export class ErrorHandler extends React.Component<IErrorHandlerProps> {
 
         return (
             <Alert
-                confirmButtonTheme={getPrimaryBlueTheme()}
                 title={localizedError ? localizedError.title : ""}
                 message={localizedError ? localizedError.message : ""}
                 show={showError}

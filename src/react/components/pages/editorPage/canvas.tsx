@@ -30,7 +30,6 @@ import Polygon from "ol/geom/Polygon";
 import HtmlFileReader from "../../../../common/htmlFileReader";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
-import { getPrimaryBlueTheme } from "../../../../common/themes";
 
 // temp hack for enabling worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.js`;
@@ -200,7 +199,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     </div>
                 }
                 <Alert
-                    confirmButtonTheme={getPrimaryBlueTheme()}
                     show={this.state.isError}
                     title={this.state.errorTitle || "Error"}
                     message={this.state.errorMessage}
