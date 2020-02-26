@@ -30,6 +30,8 @@ import Polygon from "ol/geom/Polygon";
 import HtmlFileReader from "../../../../common/htmlFileReader";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
+import { ICommandBarItemProps, CommandBar, Customizer, ICustomizations } from "office-ui-fabric-react";
+import { getDarkGreyTheme } from "../../../../common/themes";
 
 // temp hack for enabling worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.js`;
@@ -151,6 +153,59 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     public render = () => {
+
+        const dark: ICustomizations = {
+            settings: {
+              theme: getDarkGreyTheme(),
+            },
+            scopedSettings: {},
+        };
+
+        const commandBarItems: ICommandBarItemProps[] = [
+            {
+              key: "filter",
+              text: "Filter",
+              iconProps: { iconName: "Filter" },
+              subMenuProps: {
+                items: [
+                  {
+                    key: "table",
+                    text: "Table",
+                    iconProps: { iconName: "Table" },
+                    onClick: () => this.imageMap.toggleTableFeatureVisibility(),
+                  },
+                  {
+                    key: "text",
+                    text: "Text",
+                    iconProps: { iconName: "TextField" },
+                    onClick: () => this.imageMap.toggleTextFeatureVisibility(),
+                  },
+                ],
+              },
+            },
+          ];
+
+        const commandBarFarItems: ICommandBarItemProps[] = [
+            {
+                key: "zoomIn",
+                text: "Zoom in",
+                // This needs an ariaLabel since it's icon-only
+                ariaLabel: "Zoom in",
+                iconOnly: true,
+                iconProps: { iconName: "ZoomIn" },
+                onClick: () => this.imageMap.zoomIn(),
+            },
+            {
+                key: "zoomOut",
+                text: "Zoom out",
+                // This needs an ariaLabel since it's icon-only
+                ariaLabel: "Zoom out",
+                iconOnly: true,
+                iconProps: { iconName: "ZoomOut" },
+                onClick: () => this.imageMap.zoomOut(),
+            },
+        ];
+
         return (
             <div style={{ width: "100%", height: "100%" }}>
                 <KeyboardBinding
@@ -160,6 +215,15 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         accelerators={["Delete", "Backspace", "<", ",", ">", ".",
                             "{", "[", "}", "]", "+", "-", "/", "=", "_", "?"]}
                         handler={this.handleKeyDown} />
+
+                <Customizer {...dark}>
+                    <CommandBar
+                        items={commandBarItems}
+                        farItems={commandBarFarItems}
+                        ariaLabel="Use left and right arrow keys to navigate between commands"
+                    />
+                </Customizer>
+
                 <ImageMap
                     ref={(ref) => this.imageMap = ref}
                     imageUri={this.state.imageUri}

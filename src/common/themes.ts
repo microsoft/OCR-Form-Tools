@@ -25,6 +25,31 @@ const greenButtonPalette = {
     white: "#32363B",
 };
 
+const commandBarPalette = {
+    themePrimary: "#83B61F",
+    themeLighterAlt: "#050701",
+    themeLighter: "#151d05",
+    themeLight: "#273609",
+    themeTertiary: "#4f6d12",
+    themeSecondary: "#739f1b",
+    themeDarkAlt: "#8ebc30",
+    themeDark: "#9dc749",
+    themeDarker: "#b4d672",
+    neutralLighterAlt: "#26282d",
+    neutralLighter: "#2d3036",
+    neutralLight: "#3a3d43",
+    neutralQuaternaryAlt: "#42454c",
+    neutralQuaternary: "#484c53",
+    neutralTertiaryAlt: "#646870",
+    neutralTertiary: "#eeeeee",
+    neutralSecondary: "#f1f1f1",
+    neutralPrimaryAlt: "#f4f4f4",
+    neutralPrimary: "#E5E6E6",
+    neutralDark: "#f9f9f9",
+    black: "#fcfcfc",
+    white: "#1E2024",
+  };
+
 const whiteButtonPalette = {
     themePrimary: "white",
     themeLighterAlt: "#767676",
@@ -157,9 +182,14 @@ const greenTheme = createTheme({palette: greenButtonPalette});
 const greyTheme = createTheme({palette: greyButtonPalette});
 const blueTheme = createTheme({palette: blueButtonPalette});
 const darkTheme = createTheme({palette: darkThemePalette});
+const darkGreyTheme = createTheme({palette: commandBarPalette});
 
 export function getPrimaryWhiteTheme() {
     return whiteTheme;
+}
+
+export function getDarkGreyTheme() {
+    return darkGreyTheme;
 }
 
 export function getPrimaryRedTheme() {

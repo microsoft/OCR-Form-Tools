@@ -85,15 +85,15 @@ export class ImageMap extends React.Component<IImageMapProps> {
     /**
      * Hide/Display table features
      */
-    public setTablesVisibility = (visible: boolean) => {
-        this.tableVectorLayer.setVisibility(visible);
+    public toggleTableFeatureVisibility = () => {
+        this.tableVectorLayer.setVisible(!this.tableVectorLayer.getVisible());
     }
 
     /**
      * Hide/Display text features
      */
-    public setTextVisibility = (visible: boolean) => {
-        this.textVectorLayer.setVisibility(visible);
+    public toggleTextFeatureVisibility = () => {
+        this.textVectorLayer.setVisible(!this.textVectorLayer.getVisible());
     }
 
     /**
