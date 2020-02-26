@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { RefObject, ReactElement } from "react";
-import MessageBox, { IMessageBoxProps, MessageFormatHandler } from "../messageBox/messageBox";
-import { getPrimaryBlueTheme, getDarkTheme } from "../../../../common/themes";
+import React, { ReactElement } from "react";
+import { MessageFormatHandler } from "../messageBox/messageBox";
+import { getDarkTheme } from "../../../../common/themes";
 import {
     Customizer,
     Dialog,
@@ -89,7 +89,6 @@ export default class Alert extends React.Component<IAlertProps, IAlertState> {
     private onCloseClick() {
         if (this.props.onClose) {
             this.props.onClose.apply(null, this.state.params);
-
         }
     }
 
