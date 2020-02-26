@@ -19,11 +19,13 @@ import {
  * @member onClose - Function to execute on alert close
  * @member confirmButtonTheme - Theme of 'Confirm' button
  */
-export interface IAlertProps extends IMessageBoxProps {
+export interface IAlertProps {
+    title?: string;
+    message: string | ReactElement<any> | MessageFormatHandler;
     closeButtonText?: string;
-    onClose?: () => void;
     confirmButtonTheme?: ITheme;
     show?: boolean;
+    onClose?: () => void;
 }
 
 /**
@@ -32,7 +34,6 @@ export interface IAlertProps extends IMessageBoxProps {
  */
 export interface IAlertState {
     params: any[];
-    hideDialog: boolean;
 }
 
 /**
@@ -45,10 +46,7 @@ export default class Alert extends React.Component<IAlertProps, IAlertState> {
 
         this.state = {
             params: null,
-            hideDialog: true,
         };
-        this.open = this.open.bind(this);
-        this.close = this.close.bind(this);
         this.onCloseClick = this.onCloseClick.bind(this);
     }
 
@@ -60,52 +58,37 @@ export default class Alert extends React.Component<IAlertProps, IAlertState> {
             scopedSettings: {},
         };
         const confirmButtonTheme = this.props.confirmButtonTheme;
-        const { hideDialog } = this.state;
 
         return (
             <Customizer {...dark}>
-                <Dialog
-                    onDismiss={this.close}
-                    hidden={!this.props.show}
-                    dialogContentProps={{
-                        type: DialogType.normal,
-                        title: this.props.title,
-                        subText: this.getMessage(this.props.message),
-                    }}
-                    modalProps={{
-                        isBlocking: false,
-                    }}
-                    >
-                    <DialogFooter>
-                        <PrimaryButton
-                            theme={confirmButtonTheme}
-                            onClick={this.onCloseClick}
-                            text={this.props.closeButtonText || "OK"}/>
-                    </DialogFooter>
-                </Dialog>
+                {this.props.show &&
+                    <Dialog
+                        onDismiss={this.onCloseClick}
+                        hidden={!this.props.show}
+                        dialogContentProps={{
+                            type: DialogType.normal,
+                            title: this.props.title,
+                            subText: this.getMessage(this.props.message),
+                        }}
+                        modalProps={{
+                            isBlocking: false,
+                        }}
+                        >
+                        <DialogFooter>
+                            <PrimaryButton
+                                theme={confirmButtonTheme}
+                                onClick={this.onCloseClick}
+                                text={this.props.closeButtonText || "OK"}/>
+                        </DialogFooter>
+                    </Dialog>
+                }
             </Customizer>
         );
-    }
-
-    /**
-     * Open Alert dialog
-     * @param params - Arguments to be set in state
-     */
-    public open(...params: any[]): void {
-        this.setState({ params,  hideDialog: false });
-    }
-
-    /**
-     * Close Alert dialog
-     */
-    public close(): void {
-        this.setState({ hideDialog: true });
     }
 
     private onCloseClick() {
         if (this.props.onClose) {
             this.props.onClose.apply(null, this.state.params);
-            this.close();
 
         }
     }
