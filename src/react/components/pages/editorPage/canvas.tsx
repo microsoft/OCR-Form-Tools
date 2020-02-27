@@ -30,8 +30,7 @@ import Polygon from "ol/geom/Polygon";
 import HtmlFileReader from "../../../../common/htmlFileReader";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
-import { ICommandBarItemProps, CommandBar, Customizer, ICustomizations } from "office-ui-fabric-react";
-import { getDarkGreyTheme } from "../../../../common/themes";
+import { CanvasCommandBar } from "./CanvasCommandBar";
 
 // temp hack for enabling worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.js`;
@@ -64,6 +63,7 @@ export interface ICanvasState {
     errorTitle?: string;
     errorMessage: string;
     ocrStatus: OcrStatus;
+    layers: any;
 }
 
 interface IRegionOrder {
@@ -94,6 +94,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         isError: false,
         errorMessage: undefined,
         ocrStatus: OcrStatus.done,
+        layers: {text: true, tables: true},
     };
 
     private imageMap: ImageMap;
@@ -135,6 +136,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 pdfFile: null,
                 imageUri: null,
                 tiffImages: [],
+                layers: { tables : true, text: true },
             }, async () => {
                 const asset = this.state.currentAsset.asset;
                 await this.loadImage();
@@ -154,58 +156,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     public render = () => {
 
-        const dark: ICustomizations = {
-            settings: {
-              theme: getDarkGreyTheme(),
-            },
-            scopedSettings: {},
-        };
-
-        const commandBarItems: ICommandBarItemProps[] = [
-            {
-              key: "layers",
-              text: "Layers",
-              iconProps: { iconName: "MapLayers" },
-              subMenuProps: {
-                items: [
-                  {
-                    key: "table",
-                    text: "Table",
-                    iconProps: { iconName: "Table" },
-                    onClick: () => this.imageMap.toggleTableFeatureVisibility(),
-                  },
-                  {
-                    key: "text",
-                    text: "Text",
-                    iconProps: { iconName: "TextField" },
-                    onClick: () => this.imageMap.toggleTextFeatureVisibility(),
-                  },
-                ],
-              },
-            },
-          ];
-
-        const commandBarFarItems: ICommandBarItemProps[] = [
-            {
-                key: "zoomOut",
-                text: "Zoom out",
-                // This needs an ariaLabel since it's icon-only
-                ariaLabel: "Zoom out",
-                iconOnly: true,
-                iconProps: { iconName: "ZoomOut" },
-                onClick: () => this.imageMap.zoomOut(),
-            },
-            {
-                key: "zoomIn",
-                text: "Zoom in",
-                // This needs an ariaLabel since it's icon-only
-                ariaLabel: "Zoom in",
-                iconOnly: true,
-                iconProps: { iconName: "ZoomIn" },
-                onClick: () => this.imageMap.zoomIn(),
-            },
-        ];
-
         return (
             <div style={{ width: "100%", height: "100%" }}>
                 <KeyboardBinding
@@ -214,16 +164,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         keyEventType={KeyEventType.KeyDown}
                         accelerators={["Delete", "Backspace", "<", ",", ">", ".",
                             "{", "[", "}", "]", "+", "-", "/", "=", "_", "?"]}
-                        handler={this.handleKeyDown} />
-
-                <Customizer {...dark}>
-                    <CommandBar
-                        items={commandBarItems}
-                        farItems={commandBarFarItems}
-                        ariaLabel="Use left and right arrow keys to navigate between commands"
-                    />
-                </Customizer>
-
+                        handler={this.handleKeyDown} 
+                />
+                <CanvasCommandBar
+                    handleLayerChange={this.handleLayerChange}
+                    handleZoomIn={this.handleCanvasZoomIn}
+                    handleZoomOut={this.handleCanvasZoomOut}
+                    layers={this.state.layers}
+                />
                 <ImageMap
                     ref={(ref) => this.imageMap = ref}
                     imageUri={this.state.imageUri}
@@ -234,7 +182,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleTableFeatureSelect={this.handleTableFeatureSelect}
                     featureStyler={this.featureStyler}
                     tableFeatureStyler={this.tableFeatureStyler}
-                    onMapReady={this.noOp} />
+                    onMapReady={this.noOp} 
+                />
                 { this.shouldShowPreviousPageButton() &&
                     <IconButton
                         className="toolbar-btn prev"
@@ -1349,5 +1298,21 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private createRegionIdFromBoundingBox = (boundingBox: number[], page: number): string => {
         return boundingBox.join(",") + ":" + page;
+    }
+
+    private handleLayerChange = async (layer: string) => {
+        switch (layer) {
+            case "text":
+                this.imageMap.toggleTextFeatureVisibility();
+                break;
+            case "tables":
+                this.imageMap.toggleTableFeatureVisibility();
+                break;
+        }
+        const newLayers = Object.assign({}, this.state.layers);
+        newLayers[layer] = !newLayers[layer];
+        this.setState({
+            layers : newLayers,
+        });
     }
 }
