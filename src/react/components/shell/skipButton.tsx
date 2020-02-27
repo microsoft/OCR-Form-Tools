@@ -33,6 +33,8 @@ export class SkipButton extends React.Component<ISkipButtonProps> {
         }
 
         const items = element.querySelectorAll("*");
+        // items has no Symbol.iterator
+        // tslint:disable-next-line:prefer-for-of
         for (let i = 0; i < items.length; ++i) {
             const item = items[i] as HTMLElement;
             item.focus();
