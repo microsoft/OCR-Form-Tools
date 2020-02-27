@@ -24,6 +24,7 @@ import {
 import { StorageProviderFactory } from "../../../../providers/storage/storageProviderFactory";
 import { decryptProject } from "../../../../common/utils";
 import { toast } from "react-toastify";
+import { SkipButton } from "../../shell/skipButton";
 
 export interface IHomePageProps extends RouteComponentProps, React.Props<HomePage> {
     recentProjects: IProject[];
@@ -79,12 +80,13 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
 
     public render() {
         return (
-            <div className="app-homepage">
+            <div className="app-homepage" id="pageHome">
                 <div className="app-homepage-main">
                     <ul>
                         <li>
                             {/* eslint-disable-next-line */}
                             <a ref={this.newProjectRef}
+                                id="home_newProject"
                                 href="#" onClick={this.createNewProject} className="p-5 new-project" role="button">
                                 <FontIcon iconName="AddTo" className="icon-9x" />
                                 <div>{strings.homePage.newProject}</div>
@@ -122,6 +124,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                     message={(project: IProject) => `${strings.homePage.deleteProject.confirmation} ${project.name}?`}
                     confirmButtonTheme={getPrimaryRedTheme()}
                     onConfirm={this.deleteProject} />
+                <SkipButton skipTo="pageHome">{strings.common.skipToMainContent}</SkipButton>
             </div>
         );
     }

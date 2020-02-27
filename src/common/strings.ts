@@ -21,6 +21,7 @@ export interface IAppStrings {
         provider: string;
         homePage: string;
         reload: string;
+        skipToMainContent: string;
         skipToSidebar: string;
     };
     projectService: {

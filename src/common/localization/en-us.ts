@@ -20,6 +20,7 @@ export const english: IAppStrings = {
         provider: "Provider",
         homePage: "Home Page",
         reload: "Reload",
+        skipToMainContent: "Skip to main content",
         skipToSidebar: "Skip to sidebar",
     },
     projectService: {
