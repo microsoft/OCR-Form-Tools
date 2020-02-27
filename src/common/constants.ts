@@ -21,7 +21,6 @@ export const constants = {
     convertedImageFormat: "image/jpeg",
     convertedImageQuality: 0.7,
     convertedThumbnailQuality: 0.2,
-    skipTop: "top",
 
     apiModelsPath: "/formrecognizer/v2.0-preview/custom/models",
 };

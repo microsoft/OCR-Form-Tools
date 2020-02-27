@@ -20,7 +20,6 @@ import { TitleBar } from "./react/components/shell/titleBar";
 import { SkipButton } from "./react/components/shell/skipButton";
 import "./App.scss";
 import "react-toastify/dist/ReactToastify.css";
-import { constants } from "./common/constants";
 
 interface IAppProps {
     currentProject?: IProject;
