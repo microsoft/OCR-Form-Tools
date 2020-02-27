@@ -64,6 +64,7 @@ export class ProtectedInput extends React.Component<IProtectedInputProps, IProte
                     type={showKey ? "text" : "password"}
                     readOnly={readOnly}
                     required
+                    autoComplete="new-password"
                     className="form-control"
                     value={value}
                     onChange={this.onChange} />
