@@ -233,6 +233,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleTextFeatureSelect={this.handleTextFeatureSelect}
                     handleTableFeatureSelect={this.handleTableFeatureSelect}
                     featureStyler={this.featureStyler}
+                    tableFeatureStyler={this.tableFeatureStyler}
                     onMapReady={this.noOp} />
                 { this.shouldShowPreviousPageButton() &&
                     <IconButton
@@ -539,7 +540,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         return tableFeatures;
     }
 
-    private featureStyler = (feature) => {
+    private tableFeatureStyler = (feature) => {
         if (feature.get("type") === "tableBorder") {
             if (feature.get("selected")) {
                 return new Style({
@@ -587,7 +588,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 });
             }
 
-        } else {
+        }
+    }
+
+    private featureStyler = (feature) => {
+
             const regionId = feature.get("id");
             const tag: ITag = this.getTagFromRegionId(regionId);
             // Selected
@@ -624,7 +629,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     }),
                 });
             }
-        }
+
     }
 
     private setFeatureProperty = (feature, propertyName, propertyValue, forced: boolean = false) => {
