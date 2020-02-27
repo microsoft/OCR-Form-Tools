@@ -48,6 +48,7 @@ export function registerIcons() {
             TextField: "\uEDC3",
             Filter: "\uE71C",
             Table: "\uED86",
+            MapLayers: "\uE81E",
         },
     });
 }
