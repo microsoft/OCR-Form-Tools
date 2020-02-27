@@ -163,9 +163,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
         const commandBarItems: ICommandBarItemProps[] = [
             {
-              key: "filter",
-              text: "Filter",
-              iconProps: { iconName: "Filter" },
+              key: "layers",
+              text: "Layers",
+              iconProps: { iconName: "MapLayers" },
               subMenuProps: {
                 items: [
                   {
@@ -187,15 +187,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
         const commandBarFarItems: ICommandBarItemProps[] = [
             {
-                key: "zoomIn",
-                text: "Zoom in",
-                // This needs an ariaLabel since it's icon-only
-                ariaLabel: "Zoom in",
-                iconOnly: true,
-                iconProps: { iconName: "ZoomIn" },
-                onClick: () => this.imageMap.zoomIn(),
-            },
-            {
                 key: "zoomOut",
                 text: "Zoom out",
                 // This needs an ariaLabel since it's icon-only
@@ -203,6 +194,15 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 iconOnly: true,
                 iconProps: { iconName: "ZoomOut" },
                 onClick: () => this.imageMap.zoomOut(),
+            },
+            {
+                key: "zoomIn",
+                text: "Zoom in",
+                // This needs an ariaLabel since it's icon-only
+                ariaLabel: "Zoom in",
+                iconOnly: true,
+                iconProps: { iconName: "ZoomIn" },
+                onClick: () => this.imageMap.zoomIn(),
             },
         ];
 
