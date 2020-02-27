@@ -22,6 +22,7 @@ interface IImageMapProps {
     imageAngle?: number;
 
     featureStyler?: any;
+    tableFeatureStyler?: any;
 
     enableFeatureSelection?: boolean;
     handleTextFeatureSelect?: (feature: any, isTaggle: boolean) => void;
@@ -83,10 +84,17 @@ export class ImageMap extends React.Component<IImageMapProps> {
     }
 
     /**
-     * Add one feature to the map
+     * Hide/Display table features
      */
-    public setTablesVisibility = (visible: boolean) => {
-        this.tableVectorLayer.setVisibility(visible);
+    public toggleTableFeatureVisibility = () => {
+        this.tableVectorLayer.setVisible(!this.tableVectorLayer.getVisible());
+    }
+
+    /**
+     * Hide/Display text features
+     */
+    public toggleTextFeatureVisibility = () => {
+        this.textVectorLayer.setVisible(!this.textVectorLayer.getVisible());
     }
 
     /**
@@ -199,7 +207,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
         const tableOptions: any = {};
         tableOptions.name = this.TABLE_VECTOR_LAYER_NAME;
-        tableOptions.style = this.props.featureStyler;
+        tableOptions.style = this.props.tableFeatureStyler;
         tableOptions.source = new VectorSource();
         this.tableVectorLayer = new VectorLayer(tableOptions);
 

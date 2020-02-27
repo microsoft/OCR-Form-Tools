@@ -18,10 +18,10 @@ export function Sidebar({ project }) {
     const projectId = project ? project.id : null;
 
     return (
-        <div className="bg-lighter-2 app-sidebar" id="app-sidebar" >
+        <div className="bg-lighter-2 app-sidebar">
             <ul>
                 <li>
-                    <NavLink title={"Home"} to={`/`} exact role="button">
+                    <NavLink title={"Home"} to={`/`} exact role="button" id="navHome">
                         <FontIcon iconName="Home" />
                     </NavLink>
                 </li>
