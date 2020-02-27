@@ -164,7 +164,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         keyEventType={KeyEventType.KeyDown}
                         accelerators={["Delete", "Backspace", "<", ",", ">", ".",
                             "{", "[", "}", "]", "+", "-", "/", "=", "_", "?"]}
-                        handler={this.handleKeyDown} 
+                        handler={this.handleKeyDown}
                 />
                 <CanvasCommandBar
                     handleLayerChange={this.handleLayerChange}
@@ -182,7 +182,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleTableFeatureSelect={this.handleTableFeatureSelect}
                     featureStyler={this.featureStyler}
                     tableFeatureStyler={this.tableFeatureStyler}
-                    onMapReady={this.noOp} 
+                    onMapReady={this.noOp}
                 />
                 { this.shouldShowPreviousPageButton() &&
                     <IconButton
