@@ -25,6 +25,7 @@ import url from "url";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
 import { getPrimaryGreenTheme } from "../../../../common/themes";
+import { SkipButton } from "../../shell/skipButton";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -101,7 +102,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         const currTrainRecord = this.state.currTrainRecord;
 
         return (
-            <div className="train-page">
+            <div className="train-page" id="pageTrain">
                 <main className="train-page-main">
                     {currTrainRecord &&
                         <div>
@@ -128,6 +129,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                 <h4 className="text-shadow-none"> Train a new model </h4>
                                 {!this.state.isTraining ? (
                                     <PrimaryButton
+                                        id="train_trainButton"
                                         theme={getPrimaryGreenTheme()}
                                         autoFocus={true}
                                         className="flex-center"
@@ -169,6 +171,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                     when={this.state.isTraining}
                     message={"A training operation is currently in progress, are you sure you want to leave?"}
                 />
+                <SkipButton skipTo="pageTrain">{strings.common.skipToMainContent}</SkipButton>
             </div>
         );
     }

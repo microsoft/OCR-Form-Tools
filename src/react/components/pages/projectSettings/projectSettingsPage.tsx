@@ -19,6 +19,7 @@ import "./projectSettingsPage.scss";
 import { ProjectSettingAction } from "./projectSettingAction";
 import ProjectService from "../../../../services/projectService";
 import { getStorageItem, setStorageItem, removeStorageItem } from "../../../../redux/middleware/localStorage";
+import { SkipButton } from "../../shell/skipButton";
 
 /**
  * Properties for Project Settings Page
@@ -110,7 +111,7 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
     // Hide ProjectMetrics for private-preview
     public render() {
         return (
-            <div className="project-settings-page">
+            <div className="project-settings-page" id="pageProjectSettings">
                 <div className="project-settings-page-settings m-3">
                     <h3 className="flex-center">
                         <FontIcon iconName="DocumentManagement" />
@@ -129,6 +130,7 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
                             action={this.state.action} />
                     </div>
                 </div>
+                <SkipButton skipTo="pageProjectSettings">{strings.common.skipToMainContent}</SkipButton>
                 {this.state.isError &&
                     <Redirect to="/" />
                 }
