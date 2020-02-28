@@ -31,6 +31,7 @@ import ServiceHelper from "../../../../services/serviceHelper";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import { getPrimaryGreenTheme, getPrimaryWhiteTheme } from "../../../../common/themes";
+import { SkipButton } from "../../shell/skipButton";
 
 export interface IPredictPageProps extends RouteComponentProps, React.Props<PredictPage> {
     recentProjects: IProject[];
@@ -142,7 +143,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
 
         return (
-            <div className="predict">
+            <div className="predict" id="pagePredict">
                 <div className="predict-main">
                     {this.state.file && this.state.imageUri && this.renderImageMap()}
                     {this.renderPrevPageButton()}
@@ -238,6 +239,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     when={this.state.isPredicting}
                     message={"A prediction operation is currently in progress, are you sure you want to leave?"}
                 />
+                <SkipButton skipTo="pagePredict">{strings.common.skipToMainContent}</SkipButton>
             </div>
         );
     }
