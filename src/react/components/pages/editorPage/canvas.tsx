@@ -644,9 +644,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             return;
         } else if (this.getIndexOfCurrentRegions(regionId) !== -1) {
             selectedRegion = this.state.currentAsset.regions.find((region) => region.id === regionId);
-
+            const regionSet = [selectedRegion];
+            const selectedSet = this.getSelectedRegions();
+            console.log(selectedSet);
             // Explicitly set pageNumber in order to fix incorrect page number
             selectedRegion.pageNumber = this.state.currentPage;
+            this.addRegionsToAsset(regionSet);
+            this.addRegionsToImageMap(regionSet.filter((regionSet) =>
+                regionSet.pageNumber === this.state.currentPage));
         } else {
             const regionBoundingBox = this.convertToRegionBoundingBox(polygon);
             const regionPoints = this.convertToRegionPoints(polygon);
