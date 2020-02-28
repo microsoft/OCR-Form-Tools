@@ -77,7 +77,7 @@ input[type=file] {
     }
 }
 
-#skipto a {
+.skip-button a {
     position: absolute;
     right: -10000px;
     top: 0px;
@@ -85,9 +85,9 @@ input[type=file] {
     height: 0px;
     overflow: hidden;
     &:focus {
-        position: absolute;
+        position: fixed;
         left: 50px;
-        top: 2.5px;
+        top: 2px;
         background-color: #7cbb00;
         display: flex;
         color: white;
@@ -96,7 +96,7 @@ input[type=file] {
         justify-content: center;
         border: 1px solid white;
         border-radius: 5px;
-        min-width: 100px;
+        min-width: 200px;
         min-height: 28px;
         transition: top .3s ease;
         overflow: auto;

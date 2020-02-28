@@ -17,6 +17,7 @@ import { Sidebar } from "./react/components/shell/sidebar";
 import { StatusBar } from "./react/components/shell/statusBar";
 import { StatusBarMetrics } from "./react/components/shell/statusBarMetrics";
 import { TitleBar } from "./react/components/shell/titleBar";
+import { SkipButton } from "./react/components/shell/skipButton";
 import "./App.scss";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -88,17 +89,10 @@ export default class App extends React.Component<IAppProps> {
                                 <ToastContainer className="frtt-toast-container" />
                             </div>
                         </BrowserRouter>
-                        <div id="skipto">
-                            <a href="#navHome" onClick={this.skipToNavHome}>{strings.common.skipToSidebar}</a>
-                        </div>
+                        <SkipButton skipTo="appSidebar">{strings.common.skipToSidebar}</SkipButton>
                     </KeyboardManager>
                 }
             </Fragment>
         );
-    }
-
-    private skipToNavHome = (event: React.MouseEvent<HTMLAnchorElement>) => {
-        event.preventDefault();
-        document.getElementById("navHome").focus();
     }
 }

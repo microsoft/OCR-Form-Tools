@@ -36,6 +36,7 @@ import { constants } from "../../../../common/constants";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
 import { getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/themes";
+import { SkipButton } from "../../shell/skipButton";
 
 /**
  * Properties for Editor Page
@@ -183,7 +184,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
 
         return (
-            <div className="editor-page">
+            <div className="editor-page" id="pageEditor">
                 {
                     tagIndexKeys.map((index) =>
                         (<KeyboardBinding
@@ -304,6 +305,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                     when={isRunningOCRs || isCanvasRunningOCR}
                     message={"An OCR operation is currently in progress, are you sure you want to leave?"}
                 />
+                <SkipButton skipTo = "pageEditor">{strings.common.skipToMainContent}</SkipButton>
             </div>
         );
     }

@@ -23,6 +23,7 @@ export const spanish: IAppStrings = {
         provider: "Proveedor",
         homePage: "Página de Inicio",
         reload: "Recargar",
+        skipToMainContent: "Saltar al contenido principal",
         skipToSidebar: "Saltar a la barra lateral",
     },
     titleBar: {

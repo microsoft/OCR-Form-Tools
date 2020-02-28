@@ -12,6 +12,7 @@ import { strings } from "../../../../common/strings";
 import { AppSettingsForm } from "./appSettingsForm";
 import { RouteComponentProps } from "react-router-dom";
 import { toast } from "react-toastify";
+import { SkipButton } from "../../shell/skipButton";
 
 /**
  * Props for App Settings Page
@@ -64,11 +65,12 @@ export default class AppSettingsPage extends React.Component<IAppSettingsProps> 
 
     public render() {
         return (
-            <div className="app-settings-page">
+            <div className="app-settings-page" id="pageAppSettings">
                 <AppSettingsForm
                     appSettings={this.props.appSettings}
                     onSubmit={this.onFormSubmit}
                     onCancel={this.onFormCancel} />
+                <SkipButton skipTo="pageAppSettings">{strings.common.skipToMainContent}</SkipButton>
             </div>
         );
     }
