@@ -320,7 +320,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private deleteRegionsFromSelectedRegionIds = (regions: IRegion[]) => {
         regions.forEach((region) => {
-            const regionIndex = this.getIndexOfSelectedRegionIds(region.id);
+            const regionIndex = this.getIndexOfSelectedRegionIndex(region.id);
             if (regionIndex >= 0) {
                 this.selectedRegionIds.splice(regionIndex, 1);
             }
@@ -623,13 +623,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private removeFromSelectedRegions = (regionId: string) => {
-        const iRegionId = this.getIndexOfSelectedRegionIds(regionId);
+        const iRegionId = this.getIndexOfSelectedRegionIndex(regionId);
         if (iRegionId >= 0) {
-            const region = this.getSelectedRegions()[iRegionId];
+            const region = this.getSelectedRegions().find((r) => r.id === regionId);
             if (region && region.tags && region.tags.length === 0 ) {
                 this.onRegionDelete(regionId);
             }
-
             this.selectedRegionIds.splice(iRegionId, 1);
             if (this.props.onSelectedRegionsChanged) {
                 this.props.onSelectedRegionsChanged(this.getSelectedRegions());
@@ -647,7 +646,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const regionSet = [selectedRegion];
             // Explicitly set pageNumber in order to fix incorrect page number
             selectedRegion.pageNumber = this.state.currentPage;
-            this.addRegionsToAsset(regionSet);
             this.addRegionsToImageMap(regionSet.filter((regionSet) =>
                 regionSet.pageNumber === this.state.currentPage));
         } else {
@@ -670,10 +668,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private isRegionSelected = (regionId: string) => {
-        return this.getIndexOfSelectedRegionIds(regionId) !== -1;
+        return this.getIndexOfSelectedRegionIndex(regionId) !== -1;
     }
 
-    private getIndexOfSelectedRegionIds = (regionId: string) => {
+    private getIndexOfSelectedRegionIndex = (regionId: string) => {
         return this.selectedRegionIds.findIndex((id) => id === regionId);
     }
 
