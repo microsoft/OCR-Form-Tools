@@ -646,7 +646,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             selectedRegion = this.state.currentAsset.regions.find((region) => region.id === regionId);
             const regionSet = [selectedRegion];
             const selectedSet = this.getSelectedRegions();
-            console.log(selectedSet);
             // Explicitly set pageNumber in order to fix incorrect page number
             selectedRegion.pageNumber = this.state.currentPage;
             this.addRegionsToAsset(regionSet);
