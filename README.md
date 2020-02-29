@@ -89,11 +89,11 @@ Click **Run OCR on all files** on the left pane to get the text layout informati
 
 #### Apply labels to text
 
-Next, you'll create labels and apply them to the text elements that you want the model to recognize.  There are many key/value pairs in a document you would like to train a model to extrac,  the first step is to label the value of the key/value pair.  For example, you see text Total: 34.99 in a form, and you would like to label the value (34.99),  so that AI model could be trained to extract such information on similar forms. 
+Next, you'll create labels and apply them to the text elements that you want the model to recognize.  There are many key/value pairs in a document you would like to train a model to extract,  the first step is to label the value of the key/value pair.  For example, you see text `Charge: 1002.00` in a form, and you would like to label the value (1002.00),  so that AI model could be trained to extract such information on similar forms. 
 
 1. First, use the tags editor pane to create the tags (labels) you'd like to identify, e.g, "Cost". 
 
-2. In the main editor, click and drag to select one or multiple words from the highlighted text elements. Note: You cannot currently select text that spans across multiple pages.  e.g., "34.99". 
+2. In the main editor, click and drag to select one or multiple words from the highlighted text elements. Note: You cannot currently select text that spans across multiple pages.  e.g., "1002.00". 
 
 3. Click on the tag you want to apply, or press corresponding keyboard key. You can only apply one tag to each selected text element, and each tag can only be applied once per page.
 
