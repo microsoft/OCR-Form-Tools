@@ -2,17 +2,17 @@
 
 [![Build Status](https://dev.azure.com/msazure/Cognitive%20Services/_apis/build/status/microsoft.OCR-Form-Tools?branchName=master)](https://dev.azure.com/msazure/Cognitive%20Services/_build/latest?definitionId=118293&branchName=master)
 
-An open source labeling tool for [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/)
+An open source labeling tool for [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/), part of the Form OCR Test Toolset (FOTT). 
 
-The purpose of this repo is to allow customers to better understand our labeling tool,  provide feedback, and make customer-specific changes to meet their unique needs.  Microsoft Azure Form Recognizer team will update the source code periodically.  If you would like to contribute, please check the contributing section.
+The purpose of this repo is to allow customers to test various tools when working with Microsoft Forms and OCR services.  Currently, Labeling tool is the first tool we present here.  Users could provide feedback, and make customer-specific changes to meet their unique needs.  Microsoft Azure Form Recognizer team will update the source code periodically.  If you would like to contribute, please check the contributing section.
 
-OCR Form Labeling Tool is a React + Redux Web application, written in [TypeScript](https://github.com/Microsoft/TypeScript). This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+FOTT's Labeling Tool is a React + Redux Web application, written in [TypeScript](https://github.com/Microsoft/TypeScript). This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).  
 
-Features include:
+Current Features of Labeling Tool:
 
-* **Label** forms in PDF, JPEG or TIFF formats
+* **Label** forms in PDF, JPEG or TIFF formats. 
 * **Train** model with labeled data through [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/)
-* **Predict** a single form with the trained model
+* **Predict** a single form with the trained model, to extract key/value predictions for the form. 
 
 ## Getting Started
 
@@ -49,7 +49,7 @@ Enable CORS on your storage account. Select your storage account in the Azure po
 OCR Form Labeling Tool is a 'Bring Your Own data' (BYOD) application. In this tool, connections are used to configure and manage source (the assets to label) and target (the location where labels should be exported). The source and target are the same location in OCR Form Labeling Tool. Eventually, they together will be inputs to [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/).
 Connections can be set up and shared across projects. They use an extensible provider model, so new source/target providers can easily be added.
 
-Currently, both this labeling tool and [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/) only support [Azure Blob Storage](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction).
+Currently, both this labeling tool and [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/) only support [Azure blob storage](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction).
 
 To create a new connection, click the `New Connections` (plug) icon, in the left hand navigation bar.
 
@@ -57,7 +57,7 @@ Fill in the fields with the following values:
 
 * **Display Name** - The connection display name.
 * **Description** - Your project description.
-* **SAS URL** - The shared access signature (SAS) URL of your Azure Blob Storage container. To retrieve the SAS URL, open the Microsoft Azure Storage Explorer, right-click your container (note: not the parent storage node), and select Get shared access signature. Set the expiry time to some time after you'll have used the service. Make sure the Read, Write, Delete, and List permissions are checked, and click Create. Then copy the value in the URL section. It should have such format: https://<storage account>.blob.core.windows.net/<container name>?<SAS value>.
+* **SAS URL** - The shared access signature (SAS) URL of your Azure blob storage container. To retrieve the SAS URL, open the Microsoft Azure Storage Explorer, right-click your container (note: not the parent storage node), and select Get shared access signature. Set the expiry time to some time after you'll have used the service. Make sure the Read, Write, Delete, and List permissions are checked, and click Create. Then copy the value in the URL section. It should have such format: https://<storage account>.blob.core.windows.net/<container name>?<SAS value>.
 
 ![alt text](docs/images/new-connection.png "New Connection")
 
@@ -80,7 +80,7 @@ In this labeling tool, a project is used to store your configurations and settin
 When you create or open a project, the main tag editor window opens. The tag editor consists of three parts:
 
 * A preview pane that contains a scrollable list of forms from the source connection.
-* The main editor pane that allows you to apply tags.
+* The main editor pane that allows you to label text by applying tags.
 * The tags editor pane that allows users to modify, reorder, and delete tags.
 
 #### Identify text elements and tables
@@ -89,11 +89,11 @@ Click **Run OCR on all files** on the left pane to get the text layout informati
 
 #### Apply labels to text
 
-Next, you'll create labels and apply them to the text elements that you want the model to recognize.
+Next, you'll create labels and apply them to the text elements that you want the model to recognize.  There are many key/value pairs in a document you would like to train a model to extrac,  the first step is to label the value of the key/value pair.  For example, you see text Total: 34.99 in a form, and you would like to label the value (34.99),  so that AI model could be trained to extract such information on similar forms. 
 
-1. First, use the tags editor pane to create the tags (labels) you'd like to identify.
+1. First, use the tags editor pane to create the tags (labels) you'd like to identify, e.g, "Cost". 
 
-2. In the main editor, click and drag to select one or multiple words from the highlighted text elements. Note: You cannot currently select text that spans across multiple pages.
+2. In the main editor, click and drag to select one or multiple words from the highlighted text elements. Note: You cannot currently select text that spans across multiple pages.  e.g., "34.99". 
 
 3. Click on the tag you want to apply, or press corresponding keyboard key. You can only apply one tag to each selected text element, and each tag can only be applied once per page.
 
