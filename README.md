@@ -93,9 +93,9 @@ Next, you'll create labels and apply them to the text elements that you want the
 
 1. First, use the tags editor pane to create the tags (labels) you'd like to identify, e.g, "Cost". 
 
-2. In the main editor, click and drag to select one or multiple words from the highlighted text elements. Note: You cannot currently select text that spans across multiple pages.  e.g., "1002.00". 
+2. In the main editor, click and drag to select one or multiple words from the highlighted text elements. e.g., "1002.00". Note: You cannot currently select text that spans across multiple pages.   
 
-3. Click on the tag you want to apply, or press corresponding keyboard key. You can only apply one tag to each selected text element, and each tag can only be applied once per page.
+3. Click on the tag you want to apply, or press corresponding keyboard key (e.g., key '1' for the first tag). You can only apply one tag to each selected text element, and each tag can only be applied once per page.
 
 Follow the above steps to label five of your forms, and then move on to the next step.
 
