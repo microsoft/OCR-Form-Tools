@@ -643,11 +643,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             return;
         } else if (this.getIndexOfCurrentRegions(regionId) !== -1) {
             selectedRegion = this.state.currentAsset.regions.find((region) => region.id === regionId);
-            const regionSet = [selectedRegion];
             // Explicitly set pageNumber in order to fix incorrect page number
             selectedRegion.pageNumber = this.state.currentPage;
-            this.addRegionsToImageMap(regionSet.filter((regionSet) =>
-                regionSet.pageNumber === this.state.currentPage));
+
         } else {
             const regionBoundingBox = this.convertToRegionBoundingBox(polygon);
             const regionPoints = this.convertToRegionPoints(polygon);
@@ -1009,7 +1007,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (!selectedRegion.length && !this.applyTagFlag) {
             nextRegionId = this.regionOrderById[this.state.currentPage - 1][0];
         } else if (!this.applyTagFlag) {
-            lastSelectedId = selectedRegion[selectedRegion.length - 1].id;
+            lastSelectedId = selectedRegion.find((r) =>
+                r.id === this.selectedRegionIds[this.selectedRegionIds.length - 1]).id;
             this.deleteRegionsFromSelectedRegionIds(selectedRegion);
             const removeList = this.state.currentAsset.regions.filter((r) => r.tags.length === 0);
             this.deleteRegionsFromAsset(removeList);
@@ -1031,6 +1030,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const nextFeature = allFeatures.find((f) => f.get("id") === (nextRegionId));
         const polygon = nextRegionId.split(",").map(parseFloat);
         this.addToSelectedRegions(nextRegionId, nextFeature.get("text"), polygon);
+        this.redrawFeatures(allFeatures);
         this.lastKeyBoardRegionId = nextRegionId;
     }
 
