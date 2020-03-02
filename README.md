@@ -57,7 +57,7 @@ Fill in the fields with the following values:
 
 * **Display Name** - The connection display name.
 * **Description** - Your project description.
-* **SAS URL** - The shared access signature (SAS) URL of your Azure blob storage container. To retrieve the SAS URL, open the Microsoft Azure Storage Explorer, right-click your container (note: not the parent storage node), and select Get shared access signature. Set the expiry time to some time after you'll have used the service. Make sure the Read, Write, Delete, and List permissions are checked, and click Create. Then copy the value in the URL section. It should have such format: https://<storage account>.blob.core.windows.net/<container name>?<SAS value>.
+* **SAS URL** - The shared access signature (SAS) URL of your Azure blob storage container. To retrieve the SAS URL, open the Microsoft Azure Storage Explorer, right-click your container (note: not the parent storage node), and select Get shared access signature. Set the expiry time to some time after you'll have used the service. Make sure the Read, Write, Delete, and List permissions are checked, and click Create. Then copy the value in the URL section. It should have such format: https://&lt;storage account&gt;.blob.core.windows.net/&lt;container name&gt;?&lt;SAS value&gt;.
 
 ![alt text](docs/images/new-connection.png "New Connection")
 
@@ -69,7 +69,7 @@ In this labeling tool, a project is used to store your configurations and settin
 * **Security Token** - Some project settings can include sensitive values, such as API keys or other shared secrets. Each project will generate a security token that can be used to encrypt/decrypt sensitive project settings. You can find security tokens in the Application Settings by clicking the gear icon in the lower corner of the left navigation bar.
 * **Source Connection** - The Azure blob storage container connection you created in the previous step that you would like to use for this project.
 * **Folder Path** - Optional - If your source forms are located in a sub-folder on the blob container, specify the folder name here
-* **Form Recognizer Service Uri** - Your Form Recognizer endpoint URL.  It should have such format: https://<your-name>.cognitiveservcices.azure.com. 
+* **Form Recognizer Service Uri** - Your Form Recognizer endpoint URL.  It should have such format: https://&lt;your-name&gt;.cognitiveservcices.azure.com. 
 * **API Key** - Your Form Recognizer subscription key.
 * **Description** - Optional - Project description
 
