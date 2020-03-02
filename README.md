@@ -26,6 +26,12 @@ Form Labeling Tool requires [NodeJS (>= 10.x, Dubnium) and NPM](https://github.c
     npm run build
     npm run react-start
    ```
+### Run as web application
+
+Using a modern Web browser, FOTT can be loaded from: https://fott.azurewebsites.net/
+
+Note: The site is for testing purpose only.
+
 ## Using labeling tool
 
 ### Set up input data
