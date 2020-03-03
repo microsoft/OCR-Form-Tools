@@ -196,8 +196,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             {!this.state.predictionLoaded &&
                                 <div className="loading-container">
                                     <Spinner
+                                        role="alert"
                                         label="Prediction in progress..."
-                                        ariaLive="assertive"
                                         labelPosition="right"
                                         size={SpinnerSize.large}
                                     />
