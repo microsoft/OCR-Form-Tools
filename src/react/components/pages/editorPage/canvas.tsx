@@ -31,6 +31,7 @@ import HtmlFileReader from "../../../../common/htmlFileReader";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./CanvasCommandBar";
+import { TooltipHost, ITooltipHostStyles } from "office-ui-fabric-react";
 
 // temp hack for enabling worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.js`;
@@ -64,6 +65,7 @@ export interface ICanvasState {
     errorMessage: string;
     ocrStatus: OcrStatus;
     layers: any;
+    tableIconTooltip: any;
 }
 
 interface IRegionOrder {
@@ -95,6 +97,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         errorMessage: undefined,
         ocrStatus: OcrStatus.done,
         layers: {text: true, tables: true},
+        tableIconTooltip: { display: "none", width: 0, height: 0, top: 0, left: 0},
     };
 
     private imageMap: ImageMap;
@@ -155,7 +158,16 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     public render = () => {
-
+        const hostStyles: Partial<ITooltipHostStyles> = {
+            root: {
+                position: "absolute",
+                top: this.state.tableIconTooltip.top,
+                left: this.state.tableIconTooltip.left,
+                width: this.state.tableIconTooltip.width,
+                height: this.state.tableIconTooltip.height,
+                display: this.state.tableIconTooltip.display,
+            },
+        };
         return (
             <div style={{ width: "100%", height: "100%" }}>
                 <KeyboardBinding
@@ -182,8 +194,19 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleTableFeatureSelect={this.handleTableFeatureSelect}
                     featureStyler={this.featureStyler}
                     tableFeatureStyler={this.tableFeatureStyler}
+                    tableIconFeatureStyler={this.tableIconFeatureStyler}
+                    tableIconBorderFeatureStyler={this.tableIconBorderFeatureStyler}
                     onMapReady={this.noOp}
+                    handleTableToolTipChange={this.handleTableToolTipChange}
                 />
+                <TooltipHost
+                    content={"rows: " + this.state.tableIconTooltip.rows +
+                             " columns: " + this.state.tableIconTooltip.columns}
+                    id="tableInfo"
+                    styles={hostStyles}
+                >
+                    <div aria-describedby="tableInfo" className="tooltip-container"/>
+                </TooltipHost>
                 { this.shouldShowPreviousPageButton() &&
                     <IconButton
                         className="toolbar-btn prev"
@@ -449,7 +472,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         return feature;
     }
 
-    private createBoundingBoxVectorTable = (boundingBox, imageExtent, ocrExtent, page) => {
+    private createBoundingBoxVectorTable = (boundingBox, imageExtent, ocrExtent, page, rows, columns) => {
         const coordinates: any[] = [];
         const polygonPoints: number[] = [];
         const imageWidth = imageExtent[2] - imageExtent[0];
@@ -468,6 +491,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             polygonPoints.push(boundingBox[i + 1] / ocrHeight);
         }
         const tableID = this.createRegionIdFromBoundingBox(polygonPoints, page);
+        const buttonBorderID = tableID + ":buttonBorder";
         const tableBorderID = tableID + ":border";
         const tableFeatures = {};
         tableFeatures["border"] = new Feature({
@@ -478,66 +502,65 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             type: "tableBorder",
         });
         tableFeatures["button"] = new Feature({
-            geometry: new Point([coordinates[0][0] - 7, coordinates[0][1] - 4]),
+            geometry: new Point([coordinates[0][0] - 6.5, coordinates[0][1] - 4.5]),
             id: tableID,
             selected: false,
-            boundingbox: boundingBox,
             type: "tableButton",
         });
+
+        const iconTR = [coordinates[0][0] - 5, coordinates[0][1] ];
+        const iconTL = [iconTR[0] - 31.5, iconTR[1]];
+        const iconBL = [iconTR[0] , iconTR[1] - 29.5];
+        const iconBR = [iconTR[0] - 31.5, iconTR[1] - 29.5];
+
+        tableFeatures["buttonBorder"] = new Feature({
+            geometry: new Polygon([[iconTR, iconTL, iconBR, iconBL]]),
+            id: tableBorderID,
+            type: "buttonBorder",
+            rows,
+            columns,
+        });
+
         tableFeatures["border"].setId(tableBorderID);
         tableFeatures["button"].setId(tableID);
+        tableFeatures["buttonBorder"].setId(buttonBorderID);
         return tableFeatures;
     }
 
-    private tableFeatureStyler = (feature) => {
-        if (feature.get("type") === "tableBorder") {
-            if (feature.get("selected")) {
-                return new Style({
-                    stroke: new Stroke({
-                        color: "black",
-                        lineDash: [6, 6],
-                        width: 2,
-                    }),
-                    fill: new Fill({
-                        color: "rgba(217, 217, 217, 0.1)",
-                    }),
-                });
+    private tableIconBorderFeatureStyler = (feature, resolution) => {
+        return new Style({
+            stroke: new Stroke({
+                width: 0,
+            }),
+            fill: new Fill({
+                color: "rgba(217, 217, 217, 0)",
+            }),
+        });
+    }
 
-            } else {
-                return new Style({
-                    stroke: new Stroke({
-                        width: 0.1,
-                    }),
-                    fill: new Fill({
-                        color: "rgba(255, 255, 255, 0)",
-                    }),
-                });
-            }
-        } else if (feature.get("type") === "tableButton") {
-            if (!feature.get("selected")) {
-                return new Style({
-                    image: new Icon({
-                        scale: 0.5,
-                        opacity: 0.45,
-                        anchor: [.95, 0.15],
-                        anchorXUnits: "fraction",
-                        anchorYUnits: "fraction",
-                        src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAAmCAYAAABZNrIjAAABhUlEQVRYR+1YQaqCUBQ9BYZOWkHQyEELSAJbQM7cQiMxmjTXkQtwEomjttAsF6AguoAGjQRX0CRRsI/yg/hlqV8w4b3xfe8ezn3nHN7rKYpy8zwP37o4jkNPkqSbaZrfihGSJHUQ5G63w2QyaZ3V0+mE1WqV43hi0rZt8DzfOkjHcTCfzzsMcr1eYzQatc5kGIbYbrevmWwd3QsA3VR3mXE/jiIT2WKxAEVRhUNIkgSWZSETQ7aq9qil7r/K03UdDMMUgrxer9hsNrgHRhkH+be6CcjfeRAmX13Mxu/k8XjEdDp9a5e+70MQhLxmuVxC0zTQNF24J4oiqKqK/X6f11Tt0U2fJIlTkwFi5nfiGld3ncgisVj3+UCyu0x2z2YzDIfDt2ZxuVzgum5eMx6PwbIs+v1+4Z40TXE+nxEEQV5TtQdJnJre/bTtickynwOPD3dRFCHLMgaDQSGmOI5hGAYOh0NeU7UHSRySOJ/+goiZlzHzqsprRd1NeVuT53Qncbrwsf8D9suXe5WWs/YAAAAASUVORK5CYII=",
-                    }),
-                });
-            } else {
-                return new Style({
-                    image: new Icon({
-                        scale: 0.5,
-                        anchor: [.95, 0.15],
-                        anchorXUnits: "fraction",
-                        anchorYUnits: "fraction",
-                        src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAAmCAYAAABZNrIjAAABhUlEQVRYR+1YQaqCUBQ9BYZOWkHQyEELSAJbQM7cQiMxmjTXkQtwEomjttAsF6AguoAGjQRX0CRRsI/yg/hlqV8w4b3xfe8ezn3nHN7rKYpy8zwP37o4jkNPkqSbaZrfihGSJHUQ5G63w2QyaZ3V0+mE1WqV43hi0rZt8DzfOkjHcTCfzzsMcr1eYzQatc5kGIbYbrevmWwd3QsA3VR3mXE/jiIT2WKxAEVRhUNIkgSWZSETQ7aq9qil7r/K03UdDMMUgrxer9hsNrgHRhkH+be6CcjfeRAmX13Mxu/k8XjEdDp9a5e+70MQhLxmuVxC0zTQNF24J4oiqKqK/X6f11Tt0U2fJIlTkwFi5nfiGld3ncgisVj3+UCyu0x2z2YzDIfDt2ZxuVzgum5eMx6PwbIs+v1+4Z40TXE+nxEEQV5TtQdJnJre/bTtickynwOPD3dRFCHLMgaDQSGmOI5hGAYOh0NeU7UHSRySOJ/+goiZlzHzqsprRd1NeVuT53Qncbrwsf8D9suXe5WWs/YAAAAASUVORK5CYII=",
-                    }),
-                });
-            }
+    private tableIconFeatureStyler = (feature, resolution) => {
+        return new Style({
+            image: new Icon({
+                scale: this.imageMap.getResolutionForCurrentZoom() / resolution,
+                anchor: [.95, 0.15],
+                anchorXUnits: "fraction",
+                anchorYUnits: "fraction",
+                src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAAmCAYAAABZNrIjAAABhUlEQVRYR+1YQaqCUBQ9BYZOWkHQyEELSAJbQM7cQiMxmjTXkQtwEomjttAsF6AguoAGjQRX0CRRsI/yg/hlqV8w4b3xfe8ezn3nHN7rKYpy8zwP37o4jkNPkqSbaZrfihGSJHUQ5G63w2QyaZ3V0+mE1WqV43hi0rZt8DzfOkjHcTCfzzsMcr1eYzQatc5kGIbYbrevmWwd3QsA3VR3mXE/jiIT2WKxAEVRhUNIkgSWZSETQ7aq9qil7r/K03UdDMMUgrxer9hsNrgHRhkH+be6CcjfeRAmX13Mxu/k8XjEdDp9a5e+70MQhLxmuVxC0zTQNF24J4oiqKqK/X6f11Tt0U2fJIlTkwFi5nfiGld3ncgisVj3+UCyu0x2z2YzDIfDt2ZxuVzgum5eMx6PwbIs+v1+4Z40TXE+nxEEQV5TtQdJnJre/bTtickynwOPD3dRFCHLMgaDQSGmOI5hGAYOh0NeU7UHSRySOJ/+goiZlzHzqsprRd1NeVuT53Qncbrwsf8D9suXe5WWs/YAAAAASUVORK5CYII=",
+            }),
+        });
+    }
 
-        }
+    private tableFeatureStyler = (feature, resolution) => {
+        return new Style({
+            stroke: new Stroke({
+                color: "black",
+                lineDash: [2, 6],
+                width: 2,
+            }),
+            fill: new Fill({
+                color: "rgba(217, 217, 217, 0.1)",
+            }),
+        });
     }
 
     private featureStyler = (feature) => {
@@ -612,14 +635,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private handleTableFeatureSelect = (feature: Feature, isToggle: boolean = true) => {
-        if (feature.get("type") === "tableBorder") {
-            return;
-        } else if (feature.get("type") === "tableButton") {
-            const tableBorder = this.imageMap.getTableFeatureByID(feature.get("id") + ":border");
-            tableBorder.set("selected", !tableBorder.get("selected"));
-            feature.set("selected", !feature.get("selected"));
-            return;
-        }
+
+        const tableBorder = this.imageMap.getTableFeatureByID(feature.get("id") + ":border");
+        tableBorder.set("selected", !tableBorder.get("selected"));
+        feature.set("selected", !feature.get("selected"));
+        return;
+        
     }
 
     private removeFromSelectedRegions = (regionId: string) => {
@@ -1195,6 +1216,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private drawOcr = () => {
         const textFeatures = [];
         const tableFeatures = [];
+        const tableIconFeatures = [];
+        const tableIconBorderFeatures = [];
         const ocrReadResults = this.state.ocrForCurrentPage["readResults"];
         const ocrPageResults = this.state.ocrForCurrentPage["pageResults"];
         const imageExtent = this.imageMap.getImageExtent();
@@ -1213,21 +1236,24 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
         if (ocrPageResults && ocrPageResults.tables) {
             ocrPageResults.tables.forEach((table) => {
-                if (table.cells) {
+                if (table.cells && table.columns && table.rows) {
                     const tableBoundingBox = this.getTableBoundingBox(table.cells.map((cell) => cell.boundingBox));
                     const createdTableFeatures = this.createBoundingBoxVectorTable(
                         tableBoundingBox,
                         imageExtent,
                         ocrExtent,
-                        ocrPageResults.page);
+                        ocrPageResults.page, table.rows, table.columns);
                     tableFeatures.push(createdTableFeatures["border"]);
-                    tableFeatures.push(createdTableFeatures["button"]);
+                    tableIconFeatures.push(createdTableFeatures["button"]);
+                    tableIconBorderFeatures.push(createdTableFeatures["buttonBorder"]);
                 }
             });
         }
 
         if (tableFeatures.length > 0) {
             this.imageMap.addTableFeatures(tableFeatures);
+            this.imageMap.addTableIconFeatures(tableIconFeatures);
+            this.imageMap.addTableIconBorderFeatures(tableIconBorderFeatures);
         }
         if (textFeatures.length > 0) {
             this.imageMap.addFeatures(textFeatures);
@@ -1314,6 +1340,22 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         newLayers[layer] = !newLayers[layer];
         this.setState({
             layers : newLayers,
+        });
+    }
+
+    private handleTableToolTipChange = async (display: string, width: number, height: number, top: number,
+                                              left: number, rows: number, columns: number) => {
+        const newTableIconTooltip = {
+        display,
+            width,
+            height,
+            top,
+            left,
+            rows,
+            columns,
+        };
+        this.setState({
+            tableIconTooltip : newTableIconTooltip,
         });
     }
 }
