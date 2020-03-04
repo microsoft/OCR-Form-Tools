@@ -397,7 +397,6 @@ export class ImageMap extends React.Component<IImageMapProps> {
                 if (features.length > 0) {
                     const feature = features[0];
                     if (feature && this.props.hoveringFeature !== feature.get("id")) {
-                        console.log(this.map.getEventCoordinate(event.originalEvent));
                         const geometry = feature.getGeometry();
                         const coordinates = geometry.getCoordinates();
                         if (coordinates && coordinates.length > 0) {
