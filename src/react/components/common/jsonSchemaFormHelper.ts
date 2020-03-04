@@ -3,10 +3,12 @@
 
 function backFillAriaLabelledBy(id: string) {
     const element = document.getElementById(id);
-    if (element) {
-        if (!element.hasAttribute("aria-labelledby")) {
+    if (element && !element.hasAttribute("aria-labelledby")) {
+        const errorId = `${id}_errors`;
+        const errorElemt = document.getElementById(`${id}_errors`);
+        if (errorElemt) {
             const ariaAttrNode = document.createAttribute("aria-labelledby");
-            ariaAttrNode.value = `${id}_errors`;
+            ariaAttrNode.value = errorId;
             element.setAttributeNode(ariaAttrNode);
         }
     }
@@ -14,7 +16,7 @@ function backFillAriaLabelledBy(id: string) {
 
 function getPropertiesIds(properties: any) {
     const Ids: string[] = [];
-    Object.keys(properties).forEach((item) => Ids.push(`root_${item}`));
+    Object.keys(properties).map((item) => Ids.push(`root_${item}`));
     return Ids;
 }
 
