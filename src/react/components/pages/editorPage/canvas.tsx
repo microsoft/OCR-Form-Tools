@@ -66,6 +66,7 @@ export interface ICanvasState {
     ocrStatus: OcrStatus;
     layers: any;
     tableIconTooltip: any;
+    hoveringFeature: string;
 }
 
 interface IRegionOrder {
@@ -98,6 +99,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         ocrStatus: OcrStatus.done,
         layers: {text: true, tables: true},
         tableIconTooltip: { display: "none", width: 0, height: 0, top: 0, left: 0},
+        hoveringFeature: null,
     };
 
     private imageMap: ImageMap;
@@ -191,13 +193,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     imageHeight={this.state.imageHeight}
                     enableFeatureSelection={true}
                     handleTextFeatureSelect={this.handleTextFeatureSelect}
-                    handleTableFeatureSelect={this.handleTableFeatureSelect}
                     featureStyler={this.featureStyler}
-                    tableFeatureStyler={this.tableFeatureStyler}
+                    tableBorderFeatureStyler={this.tableBorderFeatureStyler}
                     tableIconFeatureStyler={this.tableIconFeatureStyler}
                     tableIconBorderFeatureStyler={this.tableIconBorderFeatureStyler}
                     onMapReady={this.noOp}
                     handleTableToolTipChange={this.handleTableToolTipChange}
+                    hoveringFeature={this.state.hoveringFeature}
                 />
                 <TooltipHost
                     content={"rows: " + this.state.tableIconTooltip.rows +
@@ -205,7 +207,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     id="tableInfo"
                     styles={hostStyles}
                 >
-                    <div aria-describedby="tableInfo" className="tooltip-container"/>
+                    <div
+                        aria-describedby="tableInfo"
+                        className="tooltip-container"
+                        onClick={this.handleTableIconFeatureSelect}
+                    />
                 </TooltipHost>
                 { this.shouldShowPreviousPageButton() &&
                     <IconButton
@@ -491,21 +497,17 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             polygonPoints.push(boundingBox[i + 1] / ocrHeight);
         }
         const tableID = this.createRegionIdFromBoundingBox(polygonPoints, page);
-        const buttonBorderID = tableID + ":buttonBorder";
-        const tableBorderID = tableID + ":border";
         const tableFeatures = {};
         tableFeatures["border"] = new Feature({
             geometry: new Polygon([coordinates]),
-            id: tableBorderID,
-            selected: false,
+            id: tableID,
+            state: "rest",
             boundingbox: boundingBox,
-            type: "tableBorder",
         });
-        tableFeatures["button"] = new Feature({
+        tableFeatures["icon"] = new Feature({
             geometry: new Point([coordinates[0][0] - 6.5, coordinates[0][1] - 4.5]),
             id: tableID,
-            selected: false,
-            type: "tableButton",
+            state: "rest",
         });
 
         const iconTR = [coordinates[0][0] - 5, coordinates[0][1] ];
@@ -513,24 +515,24 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const iconBL = [iconTR[0] , iconTR[1] - 29.5];
         const iconBR = [iconTR[0] - 31.5, iconTR[1] - 29.5];
 
-        tableFeatures["buttonBorder"] = new Feature({
+        tableFeatures["iconBorder"] = new Feature({
             geometry: new Polygon([[iconTR, iconTL, iconBR, iconBL]]),
-            id: tableBorderID,
-            type: "buttonBorder",
+            id: tableID,
             rows,
             columns,
         });
 
-        tableFeatures["border"].setId(tableBorderID);
-        tableFeatures["button"].setId(tableID);
-        tableFeatures["buttonBorder"].setId(buttonBorderID);
+        tableFeatures["border"].setId(tableID);
+        tableFeatures["icon"].setId(tableID);
+        tableFeatures["iconBorder"].setId(tableID);
         return tableFeatures;
     }
 
-    private tableIconBorderFeatureStyler = (feature, resolution) => {
+    private tableIconBorderFeatureStyler = (feature) => {
         return new Style({
             stroke: new Stroke({
                 width: 0,
+                color: "transparent",
             }),
             fill: new Fill({
                 color: "rgba(217, 217, 217, 0)",
@@ -539,28 +541,65 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private tableIconFeatureStyler = (feature, resolution) => {
-        return new Style({
-            image: new Icon({
-                scale: this.imageMap.getResolutionForCurrentZoom() / resolution,
-                anchor: [.95, 0.15],
-                anchorXUnits: "fraction",
-                anchorYUnits: "fraction",
-                src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAAmCAYAAABZNrIjAAABhUlEQVRYR+1YQaqCUBQ9BYZOWkHQyEELSAJbQM7cQiMxmjTXkQtwEomjttAsF6AguoAGjQRX0CRRsI/yg/hlqV8w4b3xfe8ezn3nHN7rKYpy8zwP37o4jkNPkqSbaZrfihGSJHUQ5G63w2QyaZ3V0+mE1WqV43hi0rZt8DzfOkjHcTCfzzsMcr1eYzQatc5kGIbYbrevmWwd3QsA3VR3mXE/jiIT2WKxAEVRhUNIkgSWZSETQ7aq9qil7r/K03UdDMMUgrxer9hsNrgHRhkH+be6CcjfeRAmX13Mxu/k8XjEdDp9a5e+70MQhLxmuVxC0zTQNF24J4oiqKqK/X6f11Tt0U2fJIlTkwFi5nfiGld3ncgisVj3+UCyu0x2z2YzDIfDt2ZxuVzgum5eMx6PwbIs+v1+4Z40TXE+nxEEQV5TtQdJnJre/bTtickynwOPD3dRFCHLMgaDQSGmOI5hGAYOh0NeU7UHSRySOJ/+goiZlzHzqsprRd1NeVuT53Qncbrwsf8D9suXe5WWs/YAAAAASUVORK5CYII=",
-            }),
-        });
+        if (feature.get("state") === "rest") {
+            return new Style({
+                image: new Icon({
+                    opacity: 0.3,
+                    scale: this.imageMap.getResolutionForCurrentZoom() / resolution,
+                    anchor: [.95, 0.15],
+                    anchorXUnits: "fraction",
+                    anchorYUnits: "fraction",
+                    src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAAmCAYAAABZNrIjAAABhUlEQVRYR+1YQaqCUBQ9BYZOWkHQyEELSAJbQM7cQiMxmjTXkQtwEomjttAsF6AguoAGjQRX0CRRsI/yg/hlqV8w4b3xfe8ezn3nHN7rKYpy8zwP37o4jkNPkqSbaZrfihGSJHUQ5G63w2QyaZ3V0+mE1WqV43hi0rZt8DzfOkjHcTCfzzsMcr1eYzQatc5kGIbYbrevmWwd3QsA3VR3mXE/jiIT2WKxAEVRhUNIkgSWZSETQ7aq9qil7r/K03UdDMMUgrxer9hsNrgHRhkH+be6CcjfeRAmX13Mxu/k8XjEdDp9a5e+70MQhLxmuVxC0zTQNF24J4oiqKqK/X6f11Tt0U2fJIlTkwFi5nfiGld3ncgisVj3+UCyu0x2z2YzDIfDt2ZxuVzgum5eMx6PwbIs+v1+4Z40TXE+nxEEQV5TtQdJnJre/bTtickynwOPD3dRFCHLMgaDQSGmOI5hGAYOh0NeU7UHSRySOJ/+goiZlzHzqsprRd1NeVuT53Qncbrwsf8D9suXe5WWs/YAAAAASUVORK5CYII=",
+                }),
+            });
+        } else {
+            return new Style({
+                image: new Icon({
+                    opacity: 1,
+                    scale: this.imageMap.getResolutionForCurrentZoom() / resolution,
+                    anchor: [.95, 0.15],
+                    anchorXUnits: "fraction",
+                    anchorYUnits: "fraction",
+                    src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAAmCAYAAABZNrIjAAABhUlEQVRYR+1YQaqCUBQ9BYZOWkHQyEELSAJbQM7cQiMxmjTXkQtwEomjttAsF6AguoAGjQRX0CRRsI/yg/hlqV8w4b3xfe8ezn3nHN7rKYpy8zwP37o4jkNPkqSbaZrfihGSJHUQ5G63w2QyaZ3V0+mE1WqV43hi0rZt8DzfOkjHcTCfzzsMcr1eYzQatc5kGIbYbrevmWwd3QsA3VR3mXE/jiIT2WKxAEVRhUNIkgSWZSETQ7aq9qil7r/K03UdDMMUgrxer9hsNrgHRhkH+be6CcjfeRAmX13Mxu/k8XjEdDp9a5e+70MQhLxmuVxC0zTQNF24J4oiqKqK/X6f11Tt0U2fJIlTkwFi5nfiGld3ncgisVj3+UCyu0x2z2YzDIfDt2ZxuVzgum5eMx6PwbIs+v1+4Z40TXE+nxEEQV5TtQdJnJre/bTtickynwOPD3dRFCHLMgaDQSGmOI5hGAYOh0NeU7UHSRySOJ/+goiZlzHzqsprRd1NeVuT53Qncbrwsf8D9suXe5WWs/YAAAAASUVORK5CYII=",
+                }),
+            });
+        }
     }
 
-    private tableFeatureStyler = (feature, resolution) => {
-        return new Style({
-            stroke: new Stroke({
-                color: "black",
-                lineDash: [2, 6],
-                width: 2,
-            }),
-            fill: new Fill({
-                color: "rgba(217, 217, 217, 0.1)",
-            }),
-        });
+    private tableBorderFeatureStyler = (feature, resolution) => {
+        if (feature.get("state") === "rest") {
+            return new Style({
+                stroke: new Stroke({
+                    color: "transparent",
+                }),
+                fill: new Fill({
+                    color: "transparent",
+                }),
+            });
+        } else if (feature.get("state") === "hovering") {
+            return new Style({
+                stroke: new Stroke({
+                    opacity: 0.75,
+                    color: "black",
+                    lineDash: [2, 6],
+                    width: 0.75,
+                }),
+                fill: new Fill({
+                    color: "rgba(217, 217, 217, 0.1)",
+                }),
+            });
+        } else {
+            return new Style({
+                stroke: new Stroke({
+                    color: "black",
+                    lineDash: [2, 6],
+                    width: 2,
+                }),
+                fill: new Fill({
+                    color: "rgba(217, 217, 217, 0.1)",
+                }),
+            });
+        }
     }
 
     private featureStyler = (feature) => {
@@ -634,13 +673,17 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.redrawFeatures(this.imageMap.getAllFeatures());
     }
 
-    private handleTableFeatureSelect = (feature: Feature, isToggle: boolean = true) => {
-
-        const tableBorder = this.imageMap.getTableFeatureByID(feature.get("id") + ":border");
-        tableBorder.set("selected", !tableBorder.get("selected"));
-        feature.set("selected", !feature.get("selected"));
-        return;
-        
+    private handleTableIconFeatureSelect = () => {
+        if (this.state.hoveringFeature != null) {
+            const tableState = this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).get("state");
+            if (tableState === "hovering") {
+                this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).set("state", "selected");
+                this.imageMap.getTableIconFeatureByID(this.state.hoveringFeature).set("state", "selected");
+            } else {
+                this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).set("state", "hovering");
+                this.imageMap.getTableIconFeatureByID(this.state.hoveringFeature).set("state", "hovering");
+            }
+        }
     }
 
     private removeFromSelectedRegions = (regionId: string) => {
@@ -1215,7 +1258,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private drawOcr = () => {
         const textFeatures = [];
-        const tableFeatures = [];
+        const tableBorderFeatures = [];
         const tableIconFeatures = [];
         const tableIconBorderFeatures = [];
         const ocrReadResults = this.state.ocrForCurrentPage["readResults"];
@@ -1243,15 +1286,16 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         imageExtent,
                         ocrExtent,
                         ocrPageResults.page, table.rows, table.columns);
-                    tableFeatures.push(createdTableFeatures["border"]);
-                    tableIconFeatures.push(createdTableFeatures["button"]);
-                    tableIconBorderFeatures.push(createdTableFeatures["buttonBorder"]);
+                    tableBorderFeatures.push(createdTableFeatures["border"]);
+                    tableIconFeatures.push(createdTableFeatures["icon"]);
+                    tableIconBorderFeatures.push(createdTableFeatures["iconBorder"]);
                 }
             });
         }
 
-        if (tableFeatures.length > 0) {
-            this.imageMap.addTableFeatures(tableFeatures);
+        if (tableBorderFeatures.length > 0 && tableBorderFeatures.length === tableIconFeatures.length
+            && tableBorderFeatures.length === tableIconBorderFeatures.length) {
+            this.imageMap.addTableBorderFeatures(tableBorderFeatures);
             this.imageMap.addTableIconFeatures(tableIconFeatures);
             this.imageMap.addTableIconBorderFeatures(tableIconBorderFeatures);
         }
@@ -1344,8 +1388,16 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private handleTableToolTipChange = async (display: string, width: number, height: number, top: number,
-                                              left: number, rows: number, columns: number) => {
-        const newTableIconTooltip = {
+                                              left: number, rows: number, columns: number, featureID: string) => {
+    if (featureID !== null && this.imageMap.getTableBorderFeatureByID(featureID).get("state") !== "selected") {
+        this.imageMap.getTableBorderFeatureByID(featureID).set("state", "hovering");
+        this.imageMap.getTableIconFeatureByID(featureID).set("state", "hovering");
+    } else if (featureID === null && this.state.hoveringFeature &&
+               this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).get("state") !== "selected") {
+        this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).set("state", "rest");
+        this.imageMap.getTableIconFeatureByID(this.state.hoveringFeature).set("state", "rest");
+    }
+    const newTableIconTooltip = {
         display,
             width,
             height,
@@ -1354,8 +1406,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             rows,
             columns,
         };
-        this.setState({
+    this.setState({
             tableIconTooltip : newTableIconTooltip,
+            hoveringFeature: featureID,
         });
     }
 }
