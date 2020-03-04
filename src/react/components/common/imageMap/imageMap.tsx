@@ -199,6 +199,9 @@ export class ImageMap extends React.Component<IImageMapProps> {
      * Remove all features from the map
      */
     public removeAllFeatures = () => {
+        if (this.props.handleTableToolTipChange) {
+            this.props.handleTableToolTipChange("none", 0, 0, 0, 0, 0, 0, null);
+        }
         this.textVectorLayer.getSource().clear();
         this.tableBorderVectorLayer.getSource().clear();
         this.tableIconVectorLayer.getSource().clear();
