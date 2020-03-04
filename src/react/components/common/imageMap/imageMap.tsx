@@ -63,14 +63,6 @@ export class ImageMap extends React.Component<IImageMapProps> {
         layerFilter: (layer: Layer) => layer.get("name") === this.TEXT_VECTOR_LAYER_NAME,
     };
 
-    private tableBorderVectorLayerFilter = {
-        layerFilter: (layer: Layer) => layer.get("name") === this.TABLE_BORDER_VECTOR_LAYER_NAME,
-    };
-
-    private tableIconVectorLayerFilter = {
-        layerFilter: (layer: Layer) => layer.get("name") === this.TABLE_ICON_VECTOR_LAYER_NAME,
-    };
-
     private tableIconBorderVectorLayerFilter = {
         layerFilter: (layer: Layer) => layer.get("name") === this.TABLE_ICON_BORDER_VECTOR_LAYER_NAME,
     };
