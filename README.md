@@ -28,6 +28,10 @@ Form Labeling Tool requires [NodeJS (>= 10.x, Dubnium) and NPM](https://github.c
     npm run react-start
    ```
 
+### Set up this tool with Docker
+
+Please see instructions [here](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/quickstarts/label-tool#set-up-the-sample-labeling-tool)
+
 ### Run as web application
 
 Using a modern Web browser, FOTT can be loaded from: https://fott.azurewebsites.net/
