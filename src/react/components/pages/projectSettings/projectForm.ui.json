@@ -1,6 +1,7 @@
 {
     "name": {
-        "ui:autofocus": true
+        "ui:autofocus": true,
+        "ui:field":"name"
     },
     "securityToken": {
         "ui:field": "securityToken"
