@@ -23,6 +23,7 @@ export default function CustomFieldTemplate(props: FieldTemplateProps) {
     } else {
         classNames.push("is-valid");
     }
+
     return (
         <div className={classNames.join(" ")}>
             { /* Render label for non-objects except for when an object has defined a ui:field template */}

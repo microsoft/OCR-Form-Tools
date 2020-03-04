@@ -80,7 +80,6 @@ export default class ProjectForm extends React.Component<IProjectFormProps, IPro
         this.onFormCancel = this.onFormCancel.bind(this);
         this.onFormValidate = this.onFormValidate.bind(this);
     }
-
     /**
      * Updates state if project from properties has changed
      * @param prevProps - previously set properties
