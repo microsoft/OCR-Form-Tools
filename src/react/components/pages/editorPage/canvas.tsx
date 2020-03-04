@@ -545,7 +545,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             return new Style({
                 image: new Icon({
                     opacity: 0.3,
-                    scale: this.imageMap.getResolutionForCurrentZoom() / resolution,
+                    scale: this.imageMap.getResolutionForZoom(3) / resolution,
                     anchor: [.95, 0.15],
                     anchorXUnits: "fraction",
                     anchorYUnits: "fraction",
@@ -556,7 +556,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             return new Style({
                 image: new Icon({
                     opacity: 1,
-                    scale: this.imageMap.getResolutionForCurrentZoom() / resolution,
+                    scale: this.imageMap.getResolutionForZoom(3) / resolution,
                     anchor: [.95, 0.15],
                     anchorXUnits: "fraction",
                     anchorYUnits: "fraction",

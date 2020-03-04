@@ -109,8 +109,8 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.tableIconBorderVectorLayer.setVisible(!this.tableIconBorderVectorLayer.getVisible());
     }
 
-    public getResolutionForCurrentZoom = () => {
-        return this.map.getView().getResolutionForZoom(3);
+    public getResolutionForZoom = (zoom: number) => {
+        return this.map.getView().getResolutionForZoom(zoom);
     }
 
     /**
