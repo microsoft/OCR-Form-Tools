@@ -22,17 +22,17 @@ interface IImageMapProps {
     imageAngle?: number;
 
     featureStyler?: any;
-    tableFeatureStyler?: any;
+    tableBorderFeatureStyler?: any;
     tableIconFeatureStyler?: any;
     tableIconBorderFeatureStyler?: any;
 
     enableFeatureSelection?: boolean;
     handleTextFeatureSelect?: (feature: any, isTaggle: boolean) => void;
-    handleTableFeatureSelect?: (feature: any, isTaggle: boolean) => void;
+    hoveringFeature?: string;
 
     onMapReady: () => void;
     handleTableToolTipChange?: (display: string, width: number, height: number, top: number,
-                                left: number, rows: number, columns: number) => void;
+                                left: number, rows: number, columns: number, featureID: string) => void;
 
 }
 
@@ -40,7 +40,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
     private map: Map;
     private imageLayer: ImageLayer;
     private textVectorLayer: VectorLayer;
-    private tableVectorLayer: VectorLayer;
+    private tableBorderVectorLayer: VectorLayer;
     private tableIconVectorLayer: VectorLayer;
     private tableIconBorderVectorLayer: VectorLayer;
 
@@ -52,7 +52,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
     private isSwiping: boolean = false;
 
     private readonly TEXT_VECTOR_LAYER_NAME = "textVectorLayer";
-    private readonly TABLE_VECTOR_LAYER_NAME = "tableVectorLayer";
+    private readonly TABLE_BORDER_VECTOR_LAYER_NAME = "tableBorderVectorLayer";
     private readonly TABLE_ICON_VECTOR_LAYER_NAME = "tableIconVectorLayer";
     private readonly TABLE_ICON_BORDER_VECTOR_LAYER_NAME = "tableIconBorderVectorLayer";
 
@@ -63,8 +63,8 @@ export class ImageMap extends React.Component<IImageMapProps> {
         layerFilter: (layer: Layer) => layer.get("name") === this.TEXT_VECTOR_LAYER_NAME,
     };
 
-    private tableVectorLayerFilter = {
-        layerFilter: (layer: Layer) => layer.get("name") === this.TABLE_VECTOR_LAYER_NAME,
+    private tableBorderVectorLayerFilter = {
+        layerFilter: (layer: Layer) => layer.get("name") === this.TABLE_BORDER_VECTOR_LAYER_NAME,
     };
 
     private tableIconVectorLayerFilter = {
@@ -104,7 +104,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
      * Hide/Display table features
      */
     public toggleTableFeatureVisibility = () => {
-        this.tableVectorLayer.setVisible(!this.tableVectorLayer.getVisible());
+        this.tableBorderVectorLayer.setVisible(!this.tableBorderVectorLayer.getVisible());
         this.tableIconVectorLayer.setVisible(!this.tableIconVectorLayer.getVisible());
         this.tableIconBorderVectorLayer.setVisible(!this.tableIconBorderVectorLayer.getVisible());
     }
@@ -127,8 +127,8 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.textVectorLayer.getSource().addFeature(feature);
     }
 
-    public addTableFeature = (feature: Feature) => {
-        this.tableVectorLayer.getSource().addFeature(feature);
+    public addTableBorderFeature = (feature: Feature) => {
+        this.tableBorderVectorLayer.getSource().addFeature(feature);
     }
 
     public addTableIconFeature = (feature: Feature) => {
@@ -146,8 +146,8 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.textVectorLayer.getSource().addFeatures(features);
     }
 
-    public addTableFeatures = (features: Feature[]) => {
-        this.tableVectorLayer.getSource().addFeatures(features);
+    public addTableBorderFeatures = (features: Feature[]) => {
+        this.tableBorderVectorLayer.getSource().addFeatures(features);
     }
 
     public addTableIconFeatures = (features: Feature[]) => {
@@ -176,8 +176,8 @@ export class ImageMap extends React.Component<IImageMapProps> {
         return this.textVectorLayer.getSource().getFeatureById(featureID);
     }
 
-    public getTableFeatureByID = (featureID) => {
-        return this.tableVectorLayer.getSource().getFeatureById(featureID);
+    public getTableBorderFeatureByID = (featureID) => {
+        return this.tableBorderVectorLayer.getSource().getFeatureById(featureID);
     }
 
     public getTableIconFeatureByID = (featureID) => {
@@ -200,6 +200,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
      */
     public removeAllFeatures = () => {
         this.textVectorLayer.getSource().clear();
+        this.tableBorderVectorLayer.getSource().clear();
+        this.tableIconVectorLayer.getSource().clear();
+        this.tableIconBorderVectorLayer.getSource().clear();
+
     }
 
     /**
@@ -252,11 +256,11 @@ export class ImageMap extends React.Component<IImageMapProps> {
         textOptions.source = new VectorSource();
         this.textVectorLayer = new VectorLayer(textOptions);
 
-        const tableOptions: any = {};
-        tableOptions.name = this.TABLE_VECTOR_LAYER_NAME;
-        tableOptions.style = this.props.tableFeatureStyler;
-        tableOptions.source = new VectorSource();
-        this.tableVectorLayer = new VectorLayer(tableOptions);
+        const tableBorderOptions: any = {};
+        tableBorderOptions.name = this.TABLE_BORDER_VECTOR_LAYER_NAME;
+        tableBorderOptions.style = this.props.tableBorderFeatureStyler;
+        tableBorderOptions.source = new VectorSource();
+        this.tableBorderVectorLayer = new VectorLayer(tableBorderOptions);
 
         const tableIconOptions: any = {};
         tableIconOptions.name = this.TABLE_ICON_VECTOR_LAYER_NAME;
@@ -280,7 +284,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
             layers: [
                 this.imageLayer,
                 this.textVectorLayer,
-                this.tableVectorLayer,
+                this.tableBorderVectorLayer,
                 this.tableIconVectorLayer,
                 this.tableIconBorderVectorLayer,
             ],
@@ -366,10 +370,6 @@ export class ImageMap extends React.Component<IImageMapProps> {
             eventPixel,
             this.textVectorLayerFilter);
 
-        const isPointerOnTableFeature = this.map.hasFeatureAtPixel(
-            eventPixel,
-            this.tableIconVectorLayerFilter);
-
         if (isPointerOnTextFeature && this.props.handleTextFeatureSelect) {
             this.map.forEachFeatureAtPixel(
                 eventPixel,
@@ -379,51 +379,50 @@ export class ImageMap extends React.Component<IImageMapProps> {
                     }
                 },
                 this.textVectorLayerFilter);
-        } else if (isPointerOnTableFeature && this.props.handleTableFeatureSelect) {
-            this.map.forEachFeatureAtPixel(
-                eventPixel,
-                (feature) => {
-                    if (this.props.handleTableFeatureSelect) {
-                        this.props.handleTableFeatureSelect(feature, true /*isTaggle*/);
-                    }
-                },
-                this.tableIconVectorLayerFilter);
         }
         this.setDragPanInteraction(!isPointerOnTextFeature /*dragPanEnabled*/);
         this.isSwiping = isPointerOnTextFeature;
     }
 
     private handlePointerMoveOnTableIcon = (event: MapBrowserEvent) => {
-        const eventPixel = this.map.getEventPixel(event.originalEvent);
-        const isPointerOnTableIconFeature = this.map.hasFeatureAtPixel(eventPixel, this.tableIconBorderVectorLayerFilter);
-        if (isPointerOnTableIconFeature) {
-            this.map.forEachFeatureAtPixel( eventPixel, (feature) => {
-                if (feature.get("type") == "buttonBorder" && this.props.handleTableToolTipChange) {
-                    console.log(this.map.getEventCoordinate(event.originalEvent));
-                    const geometry = feature.getGeometry();
-                    const coordinates = geometry.getCoordinates();
-                    if (coordinates && coordinates.length > 0) {
-                        const pixels = [];
-                        pixels.push(this.map.getPixelFromCoordinate(coordinates[0][0]));
-                        pixels.push(this.map.getPixelFromCoordinate(coordinates[0][1]));
-                        pixels.push(this.map.getPixelFromCoordinate(coordinates[0][2]));
-                        pixels.push(this.map.getPixelFromCoordinate(coordinates[0][3]));
-                        const flattenedLines = [].concat(...pixels);
-                        const xAxisValues = flattenedLines.filter((value, index) => index % 2 === 0);
-                        const yAxisValues = flattenedLines.filter((value, index) => index % 2 === 1);
-                        const left = Math.min(...xAxisValues);
-                        const top = Math.min(...yAxisValues);
-                        const right = Math.max(...xAxisValues);
-                        const bottom = Math.max(...yAxisValues);
-                        const width = right - left;
-                        const height = bottom - top;
-                        this.props.handleTableToolTipChange("block", width + 2, height + 2, top + 43, left - 1,
-                                                            feature.get("rows"), feature.get("columns"));
+        if (this.props.handleTableToolTipChange) {
+            const eventPixel = this.map.getEventPixel(event.originalEvent);
+            const isPointerOnTableIconFeature = this.map.hasFeatureAtPixel(eventPixel,
+                                                                           this.tableIconBorderVectorLayerFilter);
+            if (isPointerOnTableIconFeature) {
+                const features = this.map.getFeaturesAtPixel( eventPixel, this.tableIconBorderVectorLayerFilter);
+                if (features.length > 0) {
+                    const feature = features[0];
+                    if (feature && this.props.hoveringFeature !== feature.get("id")) {
+                        console.log(this.map.getEventCoordinate(event.originalEvent));
+                        const geometry = feature.getGeometry();
+                        const coordinates = geometry.getCoordinates();
+                        if (coordinates && coordinates.length > 0) {
+                            const pixels = [];
+                            pixels.push(this.map.getPixelFromCoordinate(coordinates[0][0]));
+                            pixels.push(this.map.getPixelFromCoordinate(coordinates[0][1]));
+                            pixels.push(this.map.getPixelFromCoordinate(coordinates[0][2]));
+                            pixels.push(this.map.getPixelFromCoordinate(coordinates[0][3]));
+                            const flattenedLines = [].concat(...pixels);
+                            const xAxisValues = flattenedLines.filter((value, index) => index % 2 === 0);
+                            const yAxisValues = flattenedLines.filter((value, index) => index % 2 === 1);
+                            const left = Math.min(...xAxisValues);
+                            const top = Math.min(...yAxisValues);
+                            const right = Math.max(...xAxisValues);
+                            const bottom = Math.max(...yAxisValues);
+                            const width = right - left;
+                            const height = bottom - top;
+                            this.props.handleTableToolTipChange("block", width + 2, height + 2, top + 43, left - 1,
+                                                                feature.get("rows"), feature.get("columns"),
+                                                                feature.get("id"));
+                        }
                     }
                 }
-            }, this.tableIconBorderVectorLayerFilter);
-        } else {
-            this.props.handleTableToolTipChange("none", 0, 0, 0, 0, 0, 0);
+            } else {
+                if (this.props.hoveringFeature !== null) {
+                    this.props.handleTableToolTipChange("none", 0, 0, 0, 0, 0, 0, null);
+                }
+            }
         }
     }
 
