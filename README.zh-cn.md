@@ -127,7 +127,7 @@ OCR 表格标注工具是一个 'Bring Your Own data' (BYOD) 应用。在这个�
 
 ![alt text](docs/images/train-model.png "Train Model")
 
-当训练结束，检查平均准确率。如果太低了，你应该添加更多的输入文档，并重复上述步骤。哪些你已经标注的文档仍留在项目的索引里。
+当训练结束，检查平均准确率。如果太低了，你应该添加更多的输入文档，并重复上述标注步骤。那些你已经标注过的文档仍留在项目的索引里。
 
 提示：你也可以调用 REST API 来运行训练过程。可以从这里学习如何调用训练 REST API：[Train with labels using Python](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/quickstarts/python-labeled-data).
 
