@@ -36,7 +36,7 @@ FOTT 的标注工具是一个由 React + Redux 开发的 Web 应用程序， 该
 
 使用一个现代浏览器，可以直接加载并运行 FOTT 工具：https://fott.azurewebsites.net/
 
-**注意： 该网站只是为了测试服务**
+**注意： 该网站只是为了临时测试目的**
 
 ## 使用标注工具( Using labeling tool )
 
