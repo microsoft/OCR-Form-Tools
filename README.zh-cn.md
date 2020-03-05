@@ -60,7 +60,7 @@ FOTT 的标注工具是一个由 React + Redux 开发的 Web 应用程序， 该
 
 ### 创建连接( Create Connections )
 
-OCR 表单标注工具是一个 'Bring Your Own data' (BYOD) 应用。在这个工具里，`连接(Connection)`被用来配置和管理`源(Source)`（被标注的资源）和`目标(Target)`（标注应该被导出的位置）。`源(Source)`和`目标(Target)`在 OCR 表单标注工具里是同一个位置。最后，它们都被输入到 [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/) 里。可以配置为多个项目共享的`连接(Connection)`。`连接(Connection)`被设计成一个可扩展的提供者(provider)模型，因此可以很容易添加新的`源(Source)`/`目标(Target)`提供者。
+OCR 表单标注工具是一个 'Bring Your Own data' (BYOD) 应用。在这个工具里，`连接(Connection)`被用来配置和管理`源(Source)`（被标注的资源）和`目标(Target)`（标注应该被导出的位置）。`源(Source)`和`目标(Target)`在 OCR 表单标注工具里是同一个位置。最后，它们都被输入到 [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/) 里。可以配置为多个项目共享的`连接(Connection)`。`连接(Connection)`被设计成一个可扩展的提供者(provider)模型，因此可以很容易添加新的`源(Source)`/`目标(Target)`提供者。
 
 目前，标注工具和 [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/) 都只支持一种存储： [Azure blob storage](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction).
 
