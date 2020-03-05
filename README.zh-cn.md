@@ -137,7 +137,7 @@ OCR 表格标注工具是一个 'Bring Your Own data' (BYOD) 应用。在这个�
 
 ![alt text](docs/images/analyze-form.png "Analyze Form")
 
-提示：你也可以调用 REST API 来分析。可以从这里学习如何调用分析 REST API：[Train with labels using Python](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/quickstarts/python-labeled-data).
+提示：你也可以调用 REST API 来分析文档。可以从这里学习如何调用分析 REST API：[Train with labels using Python](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/quickstarts/python-labeled-data).
 
 #### 保存项目并随时重启（Save a project and resume later） ####
 
