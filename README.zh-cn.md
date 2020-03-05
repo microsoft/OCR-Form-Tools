@@ -1,8 +1,8 @@
-# OCR 表格标注工具( OCR Form Labeling Tool )
+# OCR 表单标注工具( OCR Form Labeling Tool )
 
 [![编译状态](https://dev.azure.com/msazure/Cognitive%20Services/_apis/build/status/microsoft.OCR-Form-Tools?branchName=master)](https://dev.azure.com/msazure/Cognitive%20Services/_build/latest?definitionId=118293&branchName=master)
 
-这是一个开源的表格标记工具，该工具是为[Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/)项目而开发的，Form Recognizer 是表格ORC测试工具集 (Form OCR Test Toolset, FOTT) 的一部分。
+这是一个开源的表单标记工具，该工具是为[Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/)项目而开发的，Form Recognizer 是表单ORC测试工具集 (Form OCR Test Toolset, FOTT) 的一部分。
 
 本仓库的目的是开发并维护和微软表单识别和OCR服务相关的多种工具。目前，表单标注工具是首个发布到本仓库的工具。用户可以提供反馈并根据自己的需求做定制化改动。微软Azure表单识别团队将定期更新源代码。如果你希望参与此项目，请参考下文的参与贡献一节。
 
@@ -10,15 +10,15 @@ FOTT 的标注工具是一个由 React + Redux 开发的 Web 应用程序， 该
 
 当前标注工具具有下面这些特性：
 
-* **标注** PDF、JPEG、TIFF等文档格式里的表格。 
+* **标注** PDF、JPEG、TIFF等文档格式里的表单。 
 * 通过 [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/) 和标注数据来 **训练** 模型。
-* 使用训练模型**预测**上述文档里的单张表格，进而从中提取表格里的 key/value 数据。 
+* 使用训练模型**预测**上述文档里的单张表单，进而从中提取表单里的 key/value 数据。 
 
 ## 开始( Getting Started )
 
 ### 从源码编译并运行( Build and run from source )
 
-表格标注工具依赖 [NodeJS (>= 10.x, Dubnium) 和 NPM](https://github.com/nodejs/Release) 环境。
+表单标注工具依赖 [NodeJS (>= 10.x, Dubnium) 和 NPM](https://github.com/nodejs/Release) 环境。
 
    ```bash
     git clone https://github.com/Microsoft/OCR-Form-Tools.git
@@ -60,7 +60,7 @@ FOTT 的标注工具是一个由 React + Redux 开发的 Web 应用程序， 该
 
 ### 创建连接( Create Connections )
 
-OCR 表格标注工具是一个 'Bring Your Own data' (BYOD) 应用。在这个工具里，`连接(Connection)`被用来配置和管理`源(Source)`（被标注的资源）和`目标(Target)`（标注应该被导出的位置）。`源(Source)`和`目标(Target)`在 OCR 表格标注工具里是同一个位置。最后，它们都被输入到 [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/) 里。可以配置为多个项目共享的`连接(Connection)`。`连接(Connection)`被设计成一个可扩展的提供者(provider)模型，因此可以很容易添加新的`源(Source)`/`目标(Target)`提供者。
+OCR 表单标注工具是一个 'Bring Your Own data' (BYOD) 应用。在这个工具里，`连接(Connection)`被用来配置和管理`源(Source)`（被标注的资源）和`目标(Target)`（标注应该被导出的位置）。`源(Source)`和`目标(Target)`在 OCR 表单标注工具里是同一个位置。最后，它们都被输入到 [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/) 里。可以配置为多个项目共享的`连接(Connection)`。`连接(Connection)`被设计成一个可扩展的提供者(provider)模型，因此可以很容易添加新的`源(Source)`/`目标(Target)`提供者。
 
 目前，标注工具和 [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/) 都只支持一种存储： [Azure blob storage](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction).
 
@@ -80,34 +80,34 @@ OCR 表格标注工具是一个 'Bring Your Own data' (BYOD) 应用。在这个�
 * **Display Name** - 项目名字
 * **Security Token** - 一些项目设置可能包含敏感值，例如 API 密钥或其他共享密钥。每个项目都会生成一个安全令牌用以加密/解密项目敏感设置。你可以通过点击左侧导航栏下角的齿轮图标，打开应用设置查看安全令牌。
 * **Source Connection** - 在上一个步骤创建的用以本项目的Azure二进制对象存储容器连接。
-* **Folder Path** - 可选 - 如果你的表格数据放二进制容器的在子目录下，在这里指定对应的文件夹名字。
+* **Folder Path** - 可选 - 如果你的表单数据放二进制容器的在子目录下，在这里指定对应的文件夹名字。
 * **Form Recognizer Service Uri** - 你的 Form Recognizer 终端URL。格式应该是：https://&lt;your-name&gt;.cognitiveservcices.azure.com
 * **API Key** - 你的 Form Recognizer 订阅密钥。
 * **Description** - 可选 - 项目描述。
 
 ![alt text](docs/images/new-project.png "New Project")
 
-### 标注你的表格( Label your forms )
+### 标注你的表单( Label your forms )
 
 当你创建或打开一个项目，主标签(tag)编辑窗口会自动打开。标签编辑器包含了三个部分：
 
-* 预览面板，显示了源连接里的表格列表，可以拖动滚动条浏览。
+* 预览面板，显示了源连接里的表单列表，可以拖动滚动条浏览。
 * 主编辑面板，允许你为文本添加标注。
 * 标注编辑面板，允许你修改、排列或删除标注。
 
-#### 识别文本元素和表格( Identify text elements and tables )
+#### 识别文本元素和表单( Identify text elements and tables )
 
-点击左侧面板的 **Run OCR on all files** 获取每个文档的文本布局信息。标注工具将绘制出围绕每个文本元素的轮廓边框，并在每个表格的左上角显示一个图标。当你点击表格图标，就会显示出该表格的识别边框。
+点击左侧面板的 **Run OCR on all files** 获取每个文档的文本布局信息。标注工具将绘制出围绕每个文本元素的轮廓边框，并在每个表单的左上角显示一个图标。当你点击表单图标，就会显示出该表单的识别边框。
 
 #### 在文本中标注标签( Apply labels to text )
 
-下一步，你将创建标注并在文本元素上应用以获得你想要的识别模型。文档里有很多 key/value ， 你希望训练模型来提取它们，第一步是标注这些 key/value. 例如，你看到了表格里的 `Charge: 1002.00` ，你可能希望标注值是` (1002.00)`，让AI模型会被训练出来，用以提取类似的表格信息。
+下一步，你将创建标注并在文本元素上应用以获得你想要的识别模型。文档里有很多 key/value ， 你希望训练模型来提取它们，第一步是标注这些 key/value. 例如，你看到了表单里的 `Charge: 1002.00` ，你可能希望标注值是` (1002.00)`，让AI模型会被训练出来，用以提取类似的表单信息。
 
 1. 首先，使用标注编辑器面板创建你希望识别的标注，例如 "Cost".
 2. 在主编辑器面板，从高亮文本元素里点击并拖动一个或多个单词。例如： "1002.00". 注意：目前不能选择跨越多页的文本。
 3. 点击哪些你希望使用的标注，或者按下对应的键（例如，数字键'1'表示第1个标注）。你只能为每个选中的文本元素应用一个标注，并且每个标注只能在一个页面里被使用一次。
 
-按照上面的步骤标注五个你的表格，然后进入到下一个步骤。
+按照上面的步骤标注五个你的表单，然后进入到下一个步骤。
 
 ![alt text](docs/images/apply-labels.png "Apply Labels")
 
@@ -121,8 +121,8 @@ OCR 表格标注工具是一个 'Bring Your Own data' (BYOD) 应用。在这个�
 
 点击左侧面板的训练图标，打开训练页面。然后点击**Train**按钮开始训练模型。一旦训练结束，你会看到如下的信息：
 
-* **Model ID** - 被创建和训练的模型的唯一ID。每次训练调用，都会创建一个新的模型并拥有独立的ID。请拷贝这个ID对应的字符串到安全的位置保存。如果你希望通过 REST API 来预测表格数据，将会需要对应模型的ID。
-* **Average Accuracy** - 模型的平均精度。你可以通过标注更多的表格数据，并重新训练一个模型来提高精度。我们建议从5张表格开始标注训练，然后按需增加。
+* **Model ID** - 被创建和训练的模型的唯一ID。每次训练调用，都会创建一个新的模型并拥有独立的ID。请拷贝这个ID对应的字符串到安全的位置保存。如果你希望通过 REST API 来预测表单数据，将会需要对应模型的ID。
+* **Average Accuracy** - 模型的平均精度。你可以通过标注更多的表单数据，并重新训练一个模型来提高精度。我们建议从5张表单开始标注训练，然后按需增加。
 * 标注列表，以及每个标注
 
 ![alt text](docs/images/train-model.png "Train Model")
@@ -131,9 +131,9 @@ OCR 表格标注工具是一个 'Bring Your Own data' (BYOD) 应用。在这个�
 
 提示：你也可以调用 REST API 来运行训练过程。可以从这里学习如何调用训练 REST API：[Train with labels using Python](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/quickstarts/python-labeled-data).
 
-#### 分析一个表格( Analyze a form ) ####
+#### 分析一个表单( Analyze a form ) ####
 
-点击左侧的预测图标，测试你的模型。上传一个没有被用来训练的表格文档。然后点击右侧的**Predict**按钮来获得该表格文档的 key/value 预测。预测工具会在表格边框上使用标签，并显示每个标注的可选值。
+点击左侧的预测图标，测试你的模型。上传一个没有被用来训练的表单文档。然后点击右侧的**Predict**按钮来获得该表单文档的 key/value 预测。预测工具会在表单边框上使用标签，并显示每个标注的信心指数。
 
 ![alt text](docs/images/analyze-form.png "Analyze Form")
 
@@ -175,6 +175,6 @@ OCR 表格标注工具是一个 'Bring Your Own data' (BYOD) 应用。在这个�
 
 ## 参与贡献( Contributing )
 
-有很多方式可以给 OCR 表格标注工具提交贡献 -- 请参考[贡献指南](CONTRIBUTING.md).
+有很多方式可以给 OCR 表单标注工具提交贡献 -- 请参考[贡献指南](CONTRIBUTING.md).
 
 本项目遵守[微软开源行为准则(Microsoft Open Source Code of Conduct)](https://opensource.microsoft.com/codeofconduct/). 更需信息请参考[行为准则常见问题解答(Code of Conduct FAQ)](https://opensource.microsoft.com/codeofconduct/faq/) 或者联系 [opencode@microsoft.com](mailto:opencode@microsoft.com) 查看任何其他问题和意见。
