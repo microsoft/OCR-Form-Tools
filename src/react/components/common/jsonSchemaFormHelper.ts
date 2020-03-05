@@ -5,8 +5,8 @@ function backFillAriaLabelledBy(id: string) {
     const element = document.getElementById(id);
     if (element && !element.hasAttribute("aria-labelledby")) {
         const errorId = `${id}_errors`;
-        const errorElemt = document.getElementById(errorId);
-        if (errorElemt) {
+        const errorElement = document.getElementById(errorId);
+        if (errorElement) {
             const ariaAttrNode = document.createAttribute("aria-labelledby");
             ariaAttrNode.value = errorId;
             element.setAttributeNode(ariaAttrNode);
