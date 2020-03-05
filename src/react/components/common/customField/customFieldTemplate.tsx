@@ -1,11 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect } from "react";
 import { FieldTemplateProps } from "react-jsonschema-form";
+import { backFillAriaLabelledBy } from "../jsonSchemaFormHelper";
 
 export default function CustomFieldTemplate(props: FieldTemplateProps) {
     const { id, label, required, description, rawErrors, schema, uiSchema, children } = props;
+    useEffect(() => {
+        backFillAriaLabelledBy(id);
+    });
+
     const classNames = [];
     if (props.schema.type === "object") {
         classNames.push("object-wrapper");
@@ -40,7 +45,7 @@ export default function CustomFieldTemplate(props: FieldTemplateProps) {
                 </small>
             }
             {rawErrors && rawErrors.length > 0 &&
-                <div className="invalid-feedback" tabIndex={0}>
+                <div className="invalid-feedback" id={id + "_errors"}>
                     {rawErrors.map((errorMessage, idx) => <p key={idx}>{label} {errorMessage}</p>)}
                 </div>
             }
