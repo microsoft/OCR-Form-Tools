@@ -13,7 +13,7 @@ import {
 } from "../models/applicationState";
 import Guard from "../common/guard";
 import { constants } from "../common/constants";
-import { decryptProject, encryptProject, joinPath } from "../common/utils";
+import { decryptProject, encryptProject, joinPath, patch } from "../common/utils";
 import packageJson from "../../package.json";
 import { strings, interpolate } from "../common/strings";
 import { toast } from "react-toastify";
@@ -79,14 +79,16 @@ export default class ProjectService implements IProjectService {
 
         if (!project.tags) {
             await this.getTagsFromPreExistingLabelFiles(project, storageProvider);
-        }
-
-        if (!project.tags) {
             await this.getTagsFromPreExistingFieldFile(project, storageProvider);
         }
 
         if (project.tags) {
             await this.saveFieldsFile(project, storageProvider);
+        }
+
+        // Ensure tags is always initialized to an array
+        if (!project.tags) {
+            project.tags = [];
         }
 
         project = encryptProject(project, securityToken);
@@ -173,7 +175,7 @@ export default class ProjectService implements IProjectService {
                         const content = JSON.parse(await storageProvider.readText(blob));
                         content.labels.forEach((label) => tagNameSet.add(label.label));
                     } catch (err) {
-                        console.error(err);
+                        // ignore err
                     }
                 }
             }
@@ -196,7 +198,7 @@ export default class ProjectService implements IProjectService {
             });
             project.tags = tags;
         } catch (err) {
-            project.tags = [];
+            // ignore err
         }
     }
 
@@ -222,7 +224,11 @@ export default class ProjectService implements IProjectService {
                     format: field.fieldFormat,
                 } as ITag);
             });
-            project.tags = tags;
+            if (project.tags) {
+                project.tags = patch(project.tags, tags, "name", ["type", "format"]);
+            } else {
+                project.tags = tags;
+            }
             toast.dismiss();
         } catch (err) {
             if (err instanceof SyntaxError) {
