@@ -301,3 +301,15 @@ export function joinPath(seperator: string, ...paths: string[]) {
     const normalized = parts.filter((p) => p && p.trim() !== "").join(seperator);
     return leadingSeperator + normalized;
 }
+
+export function patch<T, K extends keyof T>(data: T[], diff: T[], key: K, properties: K[]): T[] {
+    return data.map((item) => {
+        const change = diff.find((i) => i[key] === item[key]);
+        if (change) {
+            const update = {...item};
+            properties.forEach((p) => update[p] = change[p]);
+            return update;
+        }
+        return item;
+    });
+}
