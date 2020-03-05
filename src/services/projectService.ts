@@ -43,11 +43,15 @@ export default class ProjectService implements IProjectService {
      * @param project The project JSON to load
      * @param securityToken The security token used to decrypt sensitive project settings
      */
-    public load(project: IProject, securityToken: ISecurityToken): Promise<IProject> {
+    public async load(project: IProject, securityToken: ISecurityToken): Promise<IProject> {
         Guard.null(project);
 
         try {
             const loadedProject = decryptProject(project, securityToken);
+
+            const storageProvider = StorageProviderFactory.createFromConnection(loadedProject.sourceConnection);
+            await this.getTagsFromPreExistingLabelFiles(loadedProject, storageProvider);
+            await this.getTagsFromPreExistingFieldFile(loadedProject, storageProvider);
 
             // Ensure tags is always initialized to an array
             if (!loadedProject.tags) {
@@ -196,7 +200,11 @@ export default class ProjectService implements IProjectService {
                     format: FieldFormat.NotSpecified,
                 } as ITag);
             });
-            project.tags = tags;
+            if (project.tags) {
+                project.tags = patch(tags, project.tags, "name", ["color"]);
+            } else {
+                project.tags = tags;
+            }
         } catch (err) {
             // ignore err
         }
