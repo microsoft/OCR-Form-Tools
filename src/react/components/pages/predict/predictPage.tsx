@@ -197,7 +197,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             {!this.state.predictionLoaded &&
                                 <div className="loading-container">
                                     <Spinner
-                                        id="predict-spinner"
+                                    
                                         label={strings.predict.inProgress}
                                         ariaLive="assertive"
                                         labelPosition="right"
