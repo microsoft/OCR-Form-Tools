@@ -39,6 +39,7 @@
         "reactstrap": "^8.2.0",
         "redux": "^4.0.4",
         "redux-thunk": "^2.3.0",
+        "serialize-javascript": "^3.0.0",
         "shortid": "^2.2.15",
         "utif": "^3.1.0",
         "vott-react": "^0.2.12"
