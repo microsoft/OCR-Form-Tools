@@ -34,8 +34,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
 
         return (
             <div>
-                <div className="prediction-header">
-                    <h5 className="prediction-header-result">Result</h5>
+                <div className="prediction-download">
                     <PrimaryButton
                         theme={getPrimaryGreenTheme()}
                         type="button"
@@ -43,6 +42,9 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                         onClick={this.triggerDownload}>
                         Download result (JSON)
                     </PrimaryButton>
+                </div>
+                <div className="prediction-header">
+                    <h5 className="prediction-header-result">Result</h5>
                     <h6 className="prediction-header-confidence"> Confidence </h6>
                 </div>
                 <div className="prediction-header-clear"></div>

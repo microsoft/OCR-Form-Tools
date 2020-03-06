@@ -133,11 +133,15 @@
     }
 }
 
+.prediction-download {
+    text-align: center;
+}
+
 .prediction-header {
     margin-bottom: 5px;
 
     display: grid;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: auto auto;
     align-content: end;
 }
 
