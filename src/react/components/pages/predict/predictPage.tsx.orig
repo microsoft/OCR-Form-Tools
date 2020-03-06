@@ -135,6 +135,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 this.setPredictedFieldHighlightStatus(this.state.highlightedField);
             }
         }
+        if (!this.state.predictionLoaded) {
+            const element = document.getElementById("predictButton");
+            const att = document.createAttribute("aria-labelledby");
+            att.value = "predictSpinner";
+            element.setAttributeNode(att);
+        }
     }
 
     public render() {
@@ -186,6 +192,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                         />
                                     </div>
                                     <PrimaryButton
+                                        id="predictButton"
                                         theme={getPrimaryWhiteTheme()}
                                         text="Predict"
                                         aria-label={!this.state.predictionLoaded ? strings.predict.inProgress : ""}
@@ -197,8 +204,14 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             {!this.state.predictionLoaded &&
                                 <div className="loading-container">
                                     <Spinner
+<<<<<<< HEAD
+                                        id="predict-spinner"
                                         label={strings.predict.inProgress}
                                         ariaLive="assertive"
+=======
+                                        id="predictSpinner"
+                                        label="Prediction in progress..."
+>>>>>>> 55a9a93c2ef9d5454f34a811075d87b9ce3e5d59
                                         labelPosition="right"
                                         size={SpinnerSize.large}
                                     />
