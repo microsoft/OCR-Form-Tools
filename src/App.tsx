@@ -86,7 +86,7 @@ export default class App extends React.Component<IAppProps> {
                                 <StatusBar>
                                     <StatusBarMetrics project={this.props.currentProject} />
                                 </StatusBar>
-                                <ToastContainer className="frtt-toast-container" />
+                                <ToastContainer className="frtt-toast-container" role="alert"/>
                             </div>
                         </BrowserRouter>
                         <SkipButton skipTo="appSidebar">{strings.common.skipToSidebar}</SkipButton>
