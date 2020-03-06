@@ -178,3 +178,7 @@ OCR 表单标注工具是一个 'Bring Your Own data' (BYOD) 应用。在这个�
 有很多方式可以给 OCR 表单标注工具提交贡献 -- 请参考[贡献指南](CONTRIBUTING.md).
 
 本项目遵守[微软开源行为准则(Microsoft Open Source Code of Conduct)](https://opensource.microsoft.com/codeofconduct/). 更需信息请参考[行为准则常见问题解答(Code of Conduct FAQ)](https://opensource.microsoft.com/codeofconduct/faq/) 或者联系 [opencode@microsoft.com](mailto:opencode@microsoft.com) 查看任何其他问题和意见。
+
+
+[English Version](https://github.com/microsoft/OCR-Form-Tools/blob/master/README.md) 
+
