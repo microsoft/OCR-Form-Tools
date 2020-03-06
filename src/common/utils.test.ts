@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import { randomIntInRange, createQueryString, encryptProject,
-    decryptProject, normalizeSlashes, encodeFileURI, joinPath } from "./utils";
+    decryptProject, normalizeSlashes, encodeFileURI, joinPath, patch } from "./utils";
 import MockFactory from "./mockFactory";
 
 describe("Helper functions", () => {
@@ -69,7 +69,7 @@ describe("Helper functions", () => {
                     "a=1&b=A%20string%20with%20a%20space&c=A%20string%20with%20a%20%23%20and%20a%20%26%20char&d=true",
                 );
         });
-        it( "joins path with seperator", () => {
+        it("Joins path with seperator", () => {
             expect(joinPath("/", "", "b", "c")).toEqual("b/c");
             expect(joinPath("/", "a", "b", "c")).toEqual("a/b/c");
             expect(joinPath("/", "/a", "b", "c")).toEqual("a/b/c");
@@ -81,6 +81,51 @@ describe("Helper functions", () => {
             expect(joinPath("\\", "\\a", "b", "c")).toEqual("\\a\\b\\c");
             expect(joinPath("\\", "a", "b", "c\\")).toEqual("a\\b\\c");
             expect(joinPath("\\", "a\\\\", "b\\", "c\\")).toEqual("a\\b\\c");
+        });
+        it("Patches tag", () => {
+            interface ITag {
+                name: string;
+                type: string;
+                format: string;
+            }
+
+            const tags: ITag[] = [
+                {
+                    name: "tag1",
+                    type: "type1",
+                    format: "format1",
+                },
+                {
+                    name: "tag2",
+                    type: "type2",
+                    format: "format2",
+                },
+                {
+                    name: "tag3",
+                    type: "type3",
+                    format: "format3",
+                },
+            ];
+
+            const diff: ITag[] = [
+                {
+                    name: "tag1",
+                    type: "typeA",
+                    format: "formatA",
+                },
+                {
+                    name: "tag3",
+                    type: "typeB",
+                    format: "formatB",
+                },
+            ];
+            const update = patch(tags, diff, "name", ["type", "format"]);
+            expect(update[0].type).toEqual("typeA");
+            expect(update[1].type).toEqual("type2");
+            expect(update[2].type).toEqual("typeB");
+            expect(update[0].format).toEqual("formatA");
+            expect(update[1].format).toEqual("format2");
+            expect(update[2].format).toEqual("formatB");
         });
     });
 

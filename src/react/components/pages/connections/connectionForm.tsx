@@ -14,6 +14,7 @@ import "rc-checkbox/assets/index.css";
 import { CustomWidget } from "../../common/customField/customField";
 import { isBrowser } from "../../../../common/hostProcess";
 import { getPrimaryGreenTheme, getPrimaryGreyTheme} from "../../../../common/themes";
+import { backFillAriaLabelledBy, getPropertiesIds } from "../../common/jsonSchemaFormHelper";
 // tslint:disable-next-line:no-var-requires
 const formSchema = addLocValues(require("./connectionForm.json"));
 // tslint:disable-next-line:no-var-requires
@@ -81,6 +82,10 @@ export default class ConnectionForm extends React.Component<IConnectionFormProps
         if (this.props.connection) {
             this.bindForm(this.props.connection);
         }
+        const connectionFormIds = getPropertiesIds(this.state.formSchema.properties);
+        connectionFormIds.forEach((id) => {
+            backFillAriaLabelledBy(id);
+        });
     }
 
     public componentDidUpdate(prevProps: IConnectionFormProps) {
