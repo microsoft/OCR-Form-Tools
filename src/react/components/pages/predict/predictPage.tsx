@@ -188,6 +188,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                     <PrimaryButton
                                         theme={getPrimaryWhiteTheme()}
                                         text="Predict"
+                                        aria-label={!this.state.predictionLoaded ? strings.predict.inProgress : ""}
                                         allowDisabledFocus
                                         disabled={predictDisabled}
                                         onClick={this.handleClick}
@@ -196,7 +197,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             {!this.state.predictionLoaded &&
                                 <div className="loading-container">
                                     <Spinner
-                                        label="Prediction in progress..."
+                                        id="predict-spinner"
+                                        label={strings.predict.inProgress}
                                         ariaLive="assertive"
                                         labelPosition="right"
                                         size={SpinnerSize.large}

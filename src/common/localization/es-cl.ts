@@ -126,6 +126,7 @@ export const spanish: IAppStrings = {
     predict: {
         title: "Predecir",
         uploadFile: "Subir archivo",
+        inProgress: "Predicción en progreso ...",
     },
     projectMetrics: {
         title: "Métricas del proyecto",

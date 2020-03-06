@@ -125,6 +125,7 @@ export interface IAppStrings {
     predict: {
         title: string;
         uploadFile: string;
+        inProgress: string;
     };
     projectMetrics: {
         title: string;
