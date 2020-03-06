@@ -26,11 +26,13 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         const tagsDisplayOrder = tags.map((tag) => tag.name);
         for (const name of Object.keys(predictions)) {
             const prediction = predictions[name];
-            prediction.fieldName = name;
-            prediction.displayOrder = tagsDisplayOrder.indexOf(name);
+            if (prediction != null) {
+                prediction.fieldName = name;
+                prediction.displayOrder = tagsDisplayOrder.indexOf(name);
+            }
         }
         // not sure if we decide to filter item by the page
-        const items = Object.values(predictions).sort((p1, p2) => p1.displayOrder - p2.displayOrder);
+        const items = Object.values(predictions).filter(Boolean).sort((p1, p2) => p1.displayOrder - p2.displayOrder);
 
         return (
             <div>
