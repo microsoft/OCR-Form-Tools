@@ -473,7 +473,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
         fileReader.onload = (e: any) => {
             const typedArray = new Uint8Array(e.target.result);
-            const loadingTask = pdfjsLib.getDocument({typedArray, cMapUrl, cMapPacked: true}).promise;
+            const loadingTask = pdfjsLib.getDocument({data: typedArray, cMapUrl, cMapPacked: true});
             loadingTask.promise.then((pdf) => {
                 this.currPdf = pdf;
                 this.loadPdfPage(pdf, this.state.currPage);
