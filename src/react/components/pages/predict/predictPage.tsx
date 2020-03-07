@@ -33,6 +33,8 @@ import { constants } from "../../../../common/constants";
 import { getPrimaryGreenTheme, getPrimaryWhiteTheme } from "../../../../common/themes";
 import { SkipButton } from "../../shell/skipButton";
 
+const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
+
 export interface IPredictPageProps extends RouteComponentProps, React.Props<PredictPage> {
     recentProjects: IProject[];
     connections: IConnection[];
@@ -471,7 +473,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
         fileReader.onload = (e: any) => {
             const typedArray = new Uint8Array(e.target.result);
-            const loadingTask = pdfjsLib.getDocument(typedArray);
+            const loadingTask = pdfjsLib.getDocument({typedArray, cMapUrl, cMapPacked: true}).promise;
             loadingTask.promise.then((pdf) => {
                 this.currPdf = pdf;
                 this.loadPdfPage(pdf, this.state.currPage);
