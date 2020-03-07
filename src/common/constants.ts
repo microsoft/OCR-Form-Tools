@@ -23,4 +23,12 @@ export const constants = {
     convertedThumbnailQuality: 0.2,
 
     apiModelsPath: "/formrecognizer/v2.0-preview/custom/models",
+
+    pdfjsWorkerSrc(version: string) {
+        return `//fotts.azureedge.net/npm/pdfjs-dist/${version}/pdf.worker.js`;
+    },
+
+    pdfjsCMapUrl(version: string) {
+        return `//fotts.azureedge.net/npm/pdfjs-dist/${version}/cmaps/`;
+    },
 };

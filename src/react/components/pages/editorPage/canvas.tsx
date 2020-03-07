@@ -33,8 +33,8 @@ import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./CanvasCommandBar";
 import { TooltipHost, ITooltipHostStyles } from "office-ui-fabric-react";
 
-// temp hack for enabling worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.js`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
+const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
 
 export interface ICanvasProps extends React.Props<Canvas> {
     selectedAsset: IAssetMetadata;
@@ -822,7 +822,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private loadPdfFile = async (assetId, url) => {
         try {
-            const pdf = await pdfjsLib.getDocument(url).promise;
+            const pdf = await pdfjsLib.getDocument({url, cMapUrl, cMapPacked: true}).promise;
             // Fetch current page
             if (assetId === this.state.currentAsset.asset.id) {
                 await this.loadPdfPage(assetId, pdf, this.state.currentPage);

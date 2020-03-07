@@ -7,7 +7,7 @@ import * as pdfjsLib from "pdfjs-dist";
 import { constants } from "../../../../common/constants";
 
 // temp hack for enabling worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.js`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 
 export interface IPDFAssetState {
     imageUri: string;
