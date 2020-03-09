@@ -49,10 +49,6 @@ export default class ProjectService implements IProjectService {
         try {
             const loadedProject = decryptProject(project, securityToken);
 
-            const storageProvider = StorageProviderFactory.createFromConnection(loadedProject.sourceConnection);
-            await this.getTagsFromPreExistingLabelFiles(loadedProject, storageProvider);
-            await this.getTagsFromPreExistingFieldFile(loadedProject, storageProvider);
-
             // Ensure tags is always initialized to an array
             if (!loadedProject.tags) {
                 loadedProject.tags = [];
