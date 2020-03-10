@@ -194,6 +194,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     enableFeatureSelection={true}
                     handleTextFeatureSelect={this.handleTextFeatureSelect}
                     featureStyler={this.featureStyler}
+                    checkboxFeatureStyler={this.checkboxFeatureStyler}
                     tableBorderFeatureStyler={this.tableBorderFeatureStyler}
                     tableIconFeatureStyler={this.tableIconFeatureStyler}
                     tableIconBorderFeatureStyler={this.tableIconBorderFeatureStyler}
@@ -540,6 +541,18 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         });
     }
 
+    private checkboxFeatureStyler = (feature) => {
+        // Unselected
+        return new Style({
+            stroke: new Stroke({
+                color: "#FFC0CB",
+                width: 1,
+            }),
+            fill: new Fill({
+                color: "rgba(255, 192, 203, 0.2)",
+            }),
+        });
+    }
     private tableIconFeatureStyler = (feature, resolution) => {
         if (feature.get("state") === "rest") {
             return new Style({
@@ -566,7 +579,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
     }
 
-    private tableBorderFeatureStyler = (feature, resolution) => {
+    private tableBorderFeatureStyler = (feature) => {
         if (feature.get("state") === "rest") {
             return new Style({
                 stroke: new Stroke({
@@ -640,7 +653,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     }),
                 });
             }
-
     }
 
     private setFeatureProperty = (feature, propertyName, propertyValue, forced: boolean = false) => {
@@ -1261,6 +1273,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const tableBorderFeatures = [];
         const tableIconFeatures = [];
         const tableIconBorderFeatures = [];
+        const checkboxFeatures = [];
         const ocrReadResults = this.state.ocrForCurrentPage["readResults"];
         const ocrPageResults = this.state.ocrForCurrentPage["pageResults"];
         const imageExtent = this.imageMap.getImageExtent();
@@ -1293,6 +1306,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             });
         }
 
+        if (ocrPageResults && ocrPageResults.checkboxes) {
+            ocrPageResults.checkboxes.forEach((checkbox) => {
+                console.log(checkbox);
+                checkboxFeatures.push(this.createBoundingBoxVectorFeature(
+                    checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, ocrPageResults.page));
+            });
+        }
+
         if (tableBorderFeatures.length > 0 && tableBorderFeatures.length === tableIconFeatures.length
             && tableBorderFeatures.length === tableIconBorderFeatures.length) {
             this.imageMap.addTableBorderFeatures(tableBorderFeatures);
@@ -1301,6 +1322,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
         if (textFeatures.length > 0) {
             this.imageMap.addFeatures(textFeatures);
+        }
+        if (checkboxFeatures.length > 0) {
+            this.imageMap.addCheckboxFeatures(checkboxFeatures);
         }
     }
 

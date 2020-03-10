@@ -25,6 +25,7 @@ interface IImageMapProps {
     tableBorderFeatureStyler?: any;
     tableIconFeatureStyler?: any;
     tableIconBorderFeatureStyler?: any;
+    checkboxFeatureStyler?: any;
 
     enableFeatureSelection?: boolean;
     handleTextFeatureSelect?: (feature: any, isTaggle: boolean) => void;
@@ -43,6 +44,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
     private tableBorderVectorLayer: VectorLayer;
     private tableIconVectorLayer: VectorLayer;
     private tableIconBorderVectorLayer: VectorLayer;
+    private checkboxVectorLayer: VectorLayer;
 
     private mapElement: HTMLDivElement | null = null;
 
@@ -55,12 +57,17 @@ export class ImageMap extends React.Component<IImageMapProps> {
     private readonly TABLE_BORDER_VECTOR_LAYER_NAME = "tableBorderVectorLayer";
     private readonly TABLE_ICON_VECTOR_LAYER_NAME = "tableIconVectorLayer";
     private readonly TABLE_ICON_BORDER_VECTOR_LAYER_NAME = "tableIconBorderVectorLayer";
+    private readonly CHECKBOX_VECTOR_LAYER_NAME = "checkboxBorderVectorLayer";
 
     private ignorePointerMoveEventCount: number = 5;
     private pointerMoveEventCount: number = 0;
 
     private textVectorLayerFilter = {
         layerFilter: (layer: Layer) => layer.get("name") === this.TEXT_VECTOR_LAYER_NAME,
+    };
+
+    private checkboxLayerFilter = {
+        layerFilter: (layer: Layer) => layer.get("name") === this.CHECKBOX_VECTOR_LAYER_NAME,
     };
 
     private tableIconBorderVectorLayerFilter = {
@@ -119,6 +126,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.textVectorLayer.getSource().addFeature(feature);
     }
 
+    public addCheckboxFeature = (feature: Feature) => {
+        this.checkboxVectorLayer.getSource().addFeature(feature);
+    }
+
     public addTableBorderFeature = (feature: Feature) => {
         this.tableBorderVectorLayer.getSource().addFeature(feature);
     }
@@ -136,6 +147,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
      */
     public addFeatures = (features: Feature[]) => {
         this.textVectorLayer.getSource().addFeatures(features);
+    }
+
+    public addCheckboxFeatures = (features: Feature[]) => {
+        this.checkboxVectorLayer.getSource().addFeatures(features);
     }
 
     public addTableBorderFeatures = (features: Feature[]) => {
@@ -166,6 +181,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
     public getFeatureByID = (featureID) => {
         return this.textVectorLayer.getSource().getFeatureById(featureID);
+    }
+
+    public getCheckboxFeatureByID = (featureID) => {
+        return this.checkboxVectorLayer.getSource().getFeatureById(featureID);
     }
 
     public getTableBorderFeatureByID = (featureID) => {
@@ -271,6 +290,12 @@ export class ImageMap extends React.Component<IImageMapProps> {
         tableIconBorderOptions.source = new VectorSource();
         this.tableIconBorderVectorLayer = new VectorLayer(tableIconBorderOptions);
 
+        const checkboxOptions: any = {};
+        checkboxOptions.name = this.CHECKBOX_VECTOR_LAYER_NAME;
+        checkboxOptions.style = this.props.checkboxFeatureStyler;
+        checkboxOptions.source = new VectorSource();
+        this.checkboxVectorLayer = new VectorLayer(checkboxOptions);
+
         this.map = new Map({
             controls: [] ,
             interactions: defaultInteractions({ doubleClickZoom: false,
@@ -282,6 +307,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
                 this.tableBorderVectorLayer,
                 this.tableIconVectorLayer,
                 this.tableIconBorderVectorLayer,
+                this.checkboxVectorLayer,
             ],
             view: this.createMapView(projection, this.imageExtent),
         });
