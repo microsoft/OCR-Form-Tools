@@ -97,7 +97,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         isError: false,
         errorMessage: undefined,
         ocrStatus: OcrStatus.done,
-        layers: {text: true, tables: true},
+        layers: {text: true, tables: true, checkboxes: true},
         tableIconTooltip: { display: "none", width: 0, height: 0, top: 0, left: 0},
         hoveringFeature: null,
     };
@@ -141,7 +141,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 pdfFile: null,
                 imageUri: null,
                 tiffImages: [],
-                layers: { tables : true, text: true },
+                layers: { tables : true, text: true, checkboxes: true },
             }, async () => {
                 const asset = this.state.currentAsset.asset;
                 await this.loadImage();
@@ -1402,6 +1402,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 break;
             case "tables":
                 this.imageMap.toggleTableFeatureVisibility();
+                break;
+            case "checkboxes":
+                this.imageMap.toggleCheckboxFeatureVisibility();
                 break;
         }
         const newLayers = Object.assign({}, this.state.layers);
