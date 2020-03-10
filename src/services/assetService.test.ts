@@ -12,9 +12,9 @@ import registerMixins from "../registerMixins";
 
 describe("Asset Service", () => {
     describe("Static Methods", () => {
-        it("creates an asset from a file path", () => {
+        it("creates an asset from a file path", async () => {
             const path = "C:\\dir1\\dir2\\asset1.jpg";
-            const asset = AssetService.createAssetFromFilePath(path);
+            const asset = await AssetService.createAssetFromFilePath(path);
 
             expect(asset).not.toBeNull();
             expect(asset.id).toEqual(expect.any(String));
@@ -24,9 +24,9 @@ describe("Asset Service", () => {
             expect(asset.format).toEqual("jpg");
         });
 
-        it("creates an asset from an encoded file", () => {
+        it("creates an asset from an encoded file", async () => {
             const path = "C:\\dir1\\dir2\\asset%201.jpg";
-            const asset = AssetService.createAssetFromFilePath(path);
+            const asset = await AssetService.createAssetFromFilePath(path);
 
             expect(asset).not.toBeNull();
             expect(asset.id).toEqual(expect.any(String));
@@ -36,9 +36,9 @@ describe("Asset Service", () => {
             expect(asset.format).toEqual("jpg");
         });
 
-        it("creates an asset from a http source", () => {
+        it("creates an asset from a http source", async () => {
             const path = "http://my.server.com/asset1.jpg";
-            const asset = AssetService.createAssetFromFilePath(path);
+            const asset = await AssetService.createAssetFromFilePath(path);
 
             expect(asset).not.toBeNull();
             expect(asset.id).toEqual(expect.any(String));
@@ -48,27 +48,27 @@ describe("Asset Service", () => {
             expect(asset.format).toEqual("jpg");
         });
 
-        it("detects an image asset by common file extension", () => {
+        it("detects an image asset by common file extension", async () => {
             const path = "C:\\dir1\\dir2\\asset1.png";
-            const asset = AssetService.createAssetFromFilePath(path);
+            const asset = await AssetService.createAssetFromFilePath(path);
             expect(asset.type).toEqual(AssetType.Image);
         });
 
-        it("detects an asset as unkonwn if it doesn't match well known file extensions", () => {
+        it("detects an asset as unkonwn if it doesn't match well known file extensions", async () => {
             const path = "C:\\dir1\\dir2\\asset1.docx";
-            const asset = AssetService.createAssetFromFilePath(path);
+            const asset = await AssetService.createAssetFromFilePath(path);
             expect(asset.type).toEqual(AssetType.Unknown);
         });
 
-        it("detects an asset in case asset name contains other file extension in the middle", () => {
+        it("detects an asset in case asset name contains other file extension in the middle", async () => {
             const path = "C:\\dir1\\dir2\\asset1.docx.jpg";
-            const asset = AssetService.createAssetFromFilePath(path);
+            const asset = await AssetService.createAssetFromFilePath(path);
             expect(asset.type).toEqual(AssetType.Image);
         });
 
-        it("detects an asset in case asset name contains other file extension in the middle", () => {
+        it("detects an asset in case asset name contains other file extension in the middle", async () => {
             const path = "C:\\dir1\\dir2\\asset1.jpg.docx";
-            const asset = AssetService.createAssetFromFilePath(path);
+            const asset = await AssetService.createAssetFromFilePath(path);
             expect(asset.type).toEqual(AssetType.Unknown);
         });
     });

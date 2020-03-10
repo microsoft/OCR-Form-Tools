@@ -83,16 +83,16 @@ export function normalizeSlashes(path: string): string {
  * @param project The project to encrypt
  * @param securityToken The security token used to encrypt the project
  */
-export function encryptProject(project: IProject, securityToken: ISecurityToken): IProject {
+export async function encryptProject(project: IProject, securityToken: ISecurityToken) {
     const encrypted: IProject = {
         ...project,
         sourceConnection: { ...project.sourceConnection },
     };
 
     encrypted.sourceConnection.providerOptions =
-        encryptProviderOptions(project.sourceConnection.providerOptions, securityToken.key);
+        await encryptProviderOptions(project.sourceConnection.providerOptions, securityToken.key);
 
-    encrypted.apiKey = encryptString(project.apiKey, securityToken.key);
+    encrypted.apiKey = await encryptString(project.apiKey, securityToken.key);
 
     return encrypted;
 }
@@ -102,21 +102,21 @@ export function encryptProject(project: IProject, securityToken: ISecurityToken)
  * @param project The project to decrypt
  * @param securityToken The security token used to decrypt the project
  */
-export function decryptProject(project: IProject, securityToken: ISecurityToken): IProject {
+export async function decryptProject(project: IProject, securityToken: ISecurityToken) {
     const decrypted: IProject = {
         ...project,
         sourceConnection: { ...project.sourceConnection },
     };
 
     decrypted.sourceConnection.providerOptions =
-        decryptProviderOptions(decrypted.sourceConnection.providerOptions, securityToken.key);
+        await decryptProviderOptions(decrypted.sourceConnection.providerOptions, securityToken.key);
 
-    decrypted.apiKey = decryptString(project.apiKey, securityToken.key);
+    decrypted.apiKey = await decryptString(project.apiKey, securityToken.key);
 
     return decrypted;
 }
 
-function encryptProviderOptions(providerOptions: IProviderOptions | ISecureString, secret: string): ISecureString {
+async function encryptProviderOptions(providerOptions: IProviderOptions | ISecureString, secret: string) {
     if (!providerOptions) {
         return null;
     }
@@ -126,20 +126,22 @@ function encryptProviderOptions(providerOptions: IProviderOptions | ISecureStrin
     }
 
     return {
-        encrypted: encryptObject(providerOptions, secret),
-    };
+        encrypted: await encryptObject(providerOptions, secret),
+    } as ISecureString;
 }
 
-function decryptProviderOptions<T = IProviderOptions>(providerOptions: IProviderOptions | ISecureString, secret): T {
+async function decryptProviderOptions<T = IProviderOptions>(
+    providerOptions: IProviderOptions | ISecureString,
+    secret: string) {
     const secureString = providerOptions as ISecureString;
     if (!(secureString && secureString.encrypted)) {
         return providerOptions as T;
     }
 
-    return decryptObject(providerOptions.encrypted, secret) as T;
+    return await decryptObject(providerOptions.encrypted, secret) as T;
 }
 
-function encryptString(str: string | ISecureString, secret: string): ISecureString {
+async function encryptString(str: string | ISecureString, secret: string) {
     if (!str) {
         return undefined;
     }
@@ -150,17 +152,17 @@ function encryptString(str: string | ISecureString, secret: string): ISecureStri
     }
 
     return {
-        encrypted: encrypt(str as string, secret),
-    };
+        encrypted: await encrypt(str as string, secret),
+    } as ISecureString;
 }
 
-function decryptString(str: string | ISecureString, secret): string {
+async function decryptString(str: string | ISecureString, secret) {
     const secureString = str as ISecureString;
     if (!(secureString && secureString.encrypted)) {
         return str as string;
     }
 
-    return decrypt(secureString.encrypted, secret) as string;
+    return await decrypt(secureString.encrypted, secret) as string;
 }
 
 export async function throttle<T>(max: number, arr: T[], worker: (payload: T) => Promise<any>) {

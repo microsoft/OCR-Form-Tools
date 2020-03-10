@@ -133,15 +133,15 @@ describe("Helper functions", () => {
         const testProject = MockFactory.createTestProject("TestProject");
         const securityToken = MockFactory.createSecurityToken("TestProject");
 
-        it("encrypt project does not double encrypt project", () => {
-            const encryptedProject = encryptProject(testProject, securityToken);
-            const doubleEncryptedProject = encryptProject(encryptedProject, securityToken);
+        it("encrypt project does not double encrypt project", async () => {
+            const encryptedProject = await encryptProject(testProject, securityToken);
+            const doubleEncryptedProject = await encryptProject(encryptedProject, securityToken);
 
             expect(encryptedProject).toEqual(doubleEncryptedProject);
         });
 
-        it("decrypt project does not attempt to decrypt already decrtyped data", () => {
-            const decryptedProject = decryptProject(testProject, securityToken);
+        it("decrypt project does not attempt to decrypt already decrtyped data", async () => {
+            const decryptedProject = await decryptProject(testProject, securityToken);
 
             expect(decryptedProject).toEqual(testProject);
         });
