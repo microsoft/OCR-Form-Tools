@@ -55,6 +55,10 @@
       "unicode": "E721"
     },
     {
+      "name": "CheckboxComposite",
+      "unicode": "E73A"
+    },
+    {
       "name": "CheckMark",
       "unicode": "E73E"
     },
