@@ -36,7 +36,7 @@ describe("Project Service", () => {
     });
 
     it("Load decrypts any project settings using the specified key", async () => {
-        const encryptedProject = encryptProject(testProject, securityToken);
+        const encryptedProject = await encryptProject(testProject, securityToken);
         const decryptedProject = await projectSerivce.load(encryptedProject, securityToken);
 
         expect(decryptedProject).toEqual(testProject);

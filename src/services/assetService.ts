@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import MD5 from "md5.js";
 import _ from "lodash";
 import Guard from "../common/guard";
 import {
@@ -14,6 +13,7 @@ import { constants } from "../common/constants";
 import { appInfo } from "../common/appInfo";
 import { encodeFileURI } from "../common/utils";
 import { strings, interpolate } from "../common/strings";
+import { sha256Hash } from "../common/crypto";
 import { toast } from "react-toastify";
 
 /**
@@ -26,7 +26,7 @@ export class AssetService {
      * @param filePath - filepath of asset
      * @param fileName - name of asset
      */
-    public static createAssetFromFilePath(filePath: string, fileName?: string): IAsset {
+    public static async createAssetFromFilePath(filePath: string, fileName?: string): Promise<IAsset> {
         Guard.empty(filePath);
 
         const normalizedPath = filePath.toLowerCase();
@@ -40,14 +40,9 @@ export class AssetService {
             filePath = encodeFileURI(filePath, true);
         }
 
-        const md5Hash = new MD5().update(filePath).digest("hex");
-
+        const hash = await sha256Hash(filePath);
         // eslint-disable-next-line
         const pathParts = filePath.split(/[\\\/]/);
-        // Example filename: video.mp4#t=5
-        // fileNameParts[0] = "video"
-        // fileNameParts[1] = "mp4"
-        // fileNameParts[2] = "t=5"
         fileName = fileName || pathParts[pathParts.length - 1];
         const fileNameParts = fileName.split(".");
 
@@ -58,7 +53,7 @@ export class AssetService {
         const assetType = this.getAssetType(assetFormat);
 
         return {
-            id: md5Hash,
+            id: hash,
             format: assetFormat,
             state: AssetState.NotVisited,
             type: assetType,
