@@ -133,24 +133,33 @@
     }
 }
 
-.prediction-download {
+.prediction-header {
     text-align: center;
 }
 
-.prediction-header {
-    margin-bottom: 5px;
+.prediction-header-result {
+    display: inline;
+    vertical-align: middle;
+    padding-right: 8px;
+}
 
+.prediction-header-download {
+    vertical-align: middle;
+}
+
+.prediction-field-header {
+    margin-bottom: 5px;
     display: grid;
     grid-template-columns: auto auto;
     align-content: end;
 }
 
-.prediction-header-result {
+.prediction-field-header-field {
     margin-bottom: 0px;
     align-self: center;
 }
 
-.prediction-header-confidence {
+.prediction-field-header-confidence {
     margin-bottom: 0px;
     justify-self: end;
     align-self: center;
