@@ -7,7 +7,7 @@ import { Label } from "office-ui-fabric-react/lib/Label";
 import { IconButton } from "office-ui-fabric-react/lib/Button";
 import {
     EditorMode, IAssetMetadata,
-    IProject, IRegion, RegionType, AssetType, ILabelData, ILabel, ITag, IAsset, IFormRegion,
+    IProject, IRegion, RegionType, AssetType, ILabelData, ILabel, ITag, IAsset, IFormRegion, LabelCategory,
 } from "../../../../models/applicationState";
 import CanvasHelpers from "./canvasHelpers";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
@@ -157,8 +157,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (this.props.hoveredLabel !== prevProps.hoveredLabel) {
             this.imageMap.getAllFeatures().map(this.updateHighlightStatus);
         }
-
-        console.log(this.state.currentAsset.regions);
     }
 
     public render = () => {
@@ -194,7 +192,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     imageWidth={this.state.imageWidth}
                     imageHeight={this.state.imageHeight}
                     enableFeatureSelection={true}
-                    handleTextFeatureSelect={this.handleTextFeatureSelect}
+                    handleFeatureSelect={this.handleFeatureSelect}
                     featureStyler={this.featureStyler}
                     checkboxFeatureStyler={this.checkboxFeatureStyler}
                     tableBorderFeatureStyler={this.tableBorderFeatureStyler}
@@ -566,7 +564,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private checkboxFeatureStyler = (feature) => {
 
-
         const regionId = feature.get("id");
         const tag: ITag = this.getTagFromRegionId(regionId);
         // Selected
@@ -725,7 +722,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
     }
 
-    private handleTextFeatureSelect = (feature: Feature, isToggle: boolean = true, layer: string) => {
+    private handleFeatureSelect = (feature: Feature, isToggle: boolean = true, layer: LabelCategory) => {
         const regionId = feature.get("id");
         if (isToggle && this.isRegionSelected(regionId)) {
             this.removeFromSelectedRegions(regionId);
@@ -764,7 +761,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
     }
 
-    private addToSelectedRegions = (regionId: string, text: string, polygon: number[], layer: string) => {
+    private addToSelectedRegions = (regionId: string, text: string, polygon: number[], layer: LabelCategory) => {
         let selectedRegion;
         if (this.isRegionSelected(regionId)) {
             // skip if it's already existed in selected regions
@@ -777,29 +774,16 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         } else {
             const regionBoundingBox = this.convertToRegionBoundingBox(polygon);
             const regionPoints = this.convertToRegionPoints(polygon);
-            if (layer === "text") {
-                selectedRegion = {
-                    id: regionId,
-                    type: RegionType.Polygon,
-                    tags: [],
-                    boundingBox: regionBoundingBox,
-                    points: regionPoints,
-                    value: text,
-                    category: 0,
-                    pageNumber: this.state.currentPage,
-                };
-            } else if (layer === "checkbox") {
-                selectedRegion = {
-                    id: regionId,
-                    type: RegionType.Polygon,
-                    tags: [],
-                    boundingBox: regionBoundingBox,
-                    points: regionPoints,
-                    value: text,
-                    category: 1,
-                    pageNumber: this.state.currentPage,
-                };
-            }
+            selectedRegion = {
+                id: regionId,
+                type: RegionType.Polygon,
+                tags: [],
+                boundingBox: regionBoundingBox,
+                points: regionPoints,
+                value: text,
+                category: layer,
+                pageNumber: this.state.currentPage,
+            };
             this.addRegions([selectedRegion]);
         }
 
@@ -1008,10 +992,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             labels: [],
         };
 
-        // const fieldNames = Array.from(new Set(regions
-        //     .map((region) => region.tags[0])))
-        //     .filter((name) => name !== undefined);
-
         const fieldNames = [];
 
         regions.forEach((r) => {
@@ -1183,7 +1163,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const allFeatures = this.imageMap.getAllFeatures();
         const nextFeature = allFeatures.find((f) => f.get("id") === (nextRegionId));
         const polygon = nextRegionId.split(",").map(parseFloat);
-        this.addToSelectedRegions(nextRegionId, nextFeature.get("text"), polygon, "text");
+        this.addToSelectedRegions(nextRegionId, nextFeature.get("text"), polygon, LabelCategory.Text);
         this.redrawFeatures(allFeatures);
         this.lastKeyBoardRegionId = nextRegionId;
     }

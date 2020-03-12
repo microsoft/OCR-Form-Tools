@@ -14,6 +14,7 @@ import VectorSource from "ol/source/Vector";
 import * as React from "react";
 import "./styles.css";
 import Utils from "./utils";
+import { LabelCategory } from "../../../../models/applicationState";
 
 interface IImageMapProps {
     imageUri: string;
@@ -28,7 +29,7 @@ interface IImageMapProps {
     checkboxFeatureStyler?: any;
 
     enableFeatureSelection?: boolean;
-    handleTextFeatureSelect?: (feature: any, isTaggle: boolean, layer: string) => void;
+    handleFeatureSelect?: (feature: any, isTaggle: boolean, layer: LabelCategory) => void;
     hoveringFeature?: string;
 
     onMapReady: () => void;
@@ -399,12 +400,12 @@ export class ImageMap extends React.Component<IImageMapProps> {
             eventPixel,
             this.textVectorLayerFilter);
 
-        if (isPointerOnTextFeature && this.props.handleTextFeatureSelect) {
+        if (isPointerOnTextFeature && this.props.handleFeatureSelect) {
             this.map.forEachFeatureAtPixel(
                 eventPixel,
                 (feature) => {
-                    if (this.props.handleTextFeatureSelect) {
-                        this.props.handleTextFeatureSelect(feature, true /*isTaggle*/, "text");
+                    if (this.props.handleFeatureSelect) {
+                        this.props.handleFeatureSelect(feature, true /*isToggle*/, LabelCategory.Text);
                     }
                 },
                 this.textVectorLayerFilter);
@@ -414,12 +415,12 @@ export class ImageMap extends React.Component<IImageMapProps> {
             eventPixel,
             this.checkboxLayerFilter);
 
-        if (isPointerOnCheckboxFeature && this.props.handleTextFeatureSelect) {
+        if (isPointerOnCheckboxFeature && this.props.handleFeatureSelect) {
             this.map.forEachFeatureAtPixel(
                 eventPixel,
                 (feature) => {
-                    if (this.props.handleTextFeatureSelect) {
-                        this.props.handleTextFeatureSelect(feature, true /*isTaggle*/, "checkbox");
+                    if (this.props.handleFeatureSelect) {
+                        this.props.handleFeatureSelect(feature, true /*isToggle*/, LabelCategory.Checkbox);
                     }
                 },
                 this.checkboxLayerFilter);
@@ -481,8 +482,8 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.map.forEachFeatureAtPixel(
             eventPixel,
             (feature) => {
-                if (this.props.handleTextFeatureSelect) {
-                    this.props.handleTextFeatureSelect(feature, false /*isTaggle*/, "text");
+                if (this.props.handleFeatureSelect) {
+                    this.props.handleFeatureSelect(feature, false /*isTaggle*/, LabelCategory.Text);
                 }
             },
             this.textVectorLayerFilter);
