@@ -309,8 +309,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (this.imageMap == null) {
             return;
         }
-        const textRegions = regions.filter((r) => r.category === 0);
-        const checkboxRegions = regions.filter((r) => r.category === 1);
+        const textRegions = regions.filter((r) => r.category === LabelCategory.Text);
+        const checkboxRegions = regions.filter((r) => r.category === LabelCategory.Checkbox);
         const allFeatures = this.imageMap.getAllFeatures();
         const regionsNotInFeatures = textRegions.filter((region) =>
             allFeatures.findIndex((feature) => feature.get("id") === region.id) === -1);
@@ -380,8 +380,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             return;
         }
 
-        const textRegions = regions.filter((r) => r.category === 0);
-        const checkboxRegions = regions.filter((r) => r.category === 1);
+        const textRegions = regions.filter((r) => r.category === LabelCategory.Text);
+        const checkboxRegions = regions.filter((r) => r.category === LabelCategory.Checkbox);
 
         const allFeatures = this.imageMap.getAllFeatures();
         const selectedFeatures = allFeatures
