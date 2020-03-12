@@ -74,6 +74,24 @@ interface IRegionOrder {
     order: number;
 }
 
+function hexToRgba(color: string, a: number) {
+    const hex = color.replace("#", "");
+    let r = 255;
+    let g = 255;
+    let b = 255;
+    if (hex.length === 3) {
+        r = parseInt(hex.slice(0, 1).repeat(2), 16);
+        g = parseInt(hex.slice(1, 2).repeat(2), 16);
+        b = parseInt(hex.slice(2, 3).repeat(2), 16);
+    } else if (hex.length === 6) {
+        r = parseInt(hex.slice(0, 2), 16);
+        g = parseInt(hex.slice(2, 4), 16);
+        b = parseInt(hex.slice(4, 6), 16);
+    }
+
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
+}
+
 export default class Canvas extends React.Component<ICanvasProps, ICanvasState> {
     public static defaultProps: ICanvasProps = {
         editorMode: EditorMode.Select,
@@ -618,14 +636,19 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     }),
                 });
             } else if (tag != null) {
+                const highlighted = feature.get("highlighted");
+                let color = "rgba(255, 255, 255, 0)";
+                if (highlighted) {
+                    color = hexToRgba(tag.color, 0.3);
+                }
                 // Already tagged
                 return new Style({
                     stroke: new Stroke({
                         color: tag.color,
-                        width: feature.get("highlighted") ? 4 : 2,
+                        width: highlighted ? 4 : 2,
                     }),
                     fill: new Fill({
-                        color: "rgba(255, 255, 255, 0)",
+                        color,
                     }),
                 });
             } else {
