@@ -109,6 +109,13 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.tableIconBorderVectorLayer.setVisible(!this.tableIconBorderVectorLayer.getVisible());
     }
 
+    /**
+     * Hide/Display checkbox features
+     */
+    public toggleCheckboxFeatureVisibility = () => {
+        this.checkboxVectorLayer.setVisible(!this.checkboxVectorLayer.getVisible());
+    }
+
     public getResolutionForZoom = (zoom: number) => {
         return this.map.getView().getResolutionForZoom(zoom);
     }
