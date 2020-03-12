@@ -639,7 +639,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 const highlighted = feature.get("highlighted");
                 let color = "rgba(255, 255, 255, 0)";
                 if (highlighted) {
-                    color = hexToRgba(tag.color, 0.3)
+                    color = hexToRgba(tag.color, 0.3);
                 }
                 // Already tagged
                 return new Style({
