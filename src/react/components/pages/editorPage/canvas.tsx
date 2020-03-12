@@ -7,7 +7,7 @@ import { Label } from "office-ui-fabric-react/lib/Label";
 import { IconButton } from "office-ui-fabric-react/lib/Button";
 import {
     EditorMode, IAssetMetadata,
-    IProject, IRegion, RegionType, AssetType, ILabelData, ILabel, ITag, IAsset, IFormRegion,
+    IProject, IRegion, RegionType, AssetType, ILabelData, ILabel, ITag, IAsset, IFormRegion, LabelCategory,
 } from "../../../../models/applicationState";
 import CanvasHelpers from "./canvasHelpers";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
@@ -192,7 +192,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     imageWidth={this.state.imageWidth}
                     imageHeight={this.state.imageHeight}
                     enableFeatureSelection={true}
-                    handleTextFeatureSelect={this.handleTextFeatureSelect}
+                    handleFeatureSelect={this.handleFeatureSelect}
                     featureStyler={this.featureStyler}
                     checkboxFeatureStyler={this.checkboxFeatureStyler}
                     tableBorderFeatureStyler={this.tableBorderFeatureStyler}
@@ -285,6 +285,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
 
         this.redrawFeatures(this.imageMap.getAllFeatures());
+        this.redrawFeatures(this.imageMap.getAllCheckboxFeatures());
         this.applyTagFlag = true;
     }
 
@@ -308,12 +309,22 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (this.imageMap == null) {
             return;
         }
+        const textRegions = regions.filter((r) => r.category === LabelCategory.Text);
+        const checkboxRegions = regions.filter((r) => r.category === LabelCategory.Checkbox);
         const allFeatures = this.imageMap.getAllFeatures();
-        const regionsNotInFeatures = regions.filter((region) =>
+        const regionsNotInFeatures = textRegions.filter((region) =>
             allFeatures.findIndex((feature) => feature.get("id") === region.id) === -1);
         const imageExtent = this.imageMap.getImageExtent();
         const featuresToAdd = regionsNotInFeatures.map((region) => this.convertRegionToFeature(region, imageExtent));
         this.imageMap.addFeatures(featuresToAdd);
+
+        const allCheckboxFeatures = this.imageMap.getAllCheckboxFeatures();
+        const regionsNotInCheckboxFeatures = checkboxRegions.filter((region) =>
+            allCheckboxFeatures.findIndex((feature) => feature.get("id") === region.id) === -1);
+        const checkboxImageExtent = this.imageMap.getImageExtent();
+        const checkboxFeaturesToAdd = regionsNotInCheckboxFeatures.map((region) =>
+            this.convertRegionToFeature(region, checkboxImageExtent));
+        this.imageMap.addCheckboxFeatures(checkboxFeaturesToAdd);
     }
 
     private convertRegionToFeature = (region: IRegion, imageExtent: Extent, isOcrProposal: boolean = false) => {
@@ -369,12 +380,22 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             return;
         }
 
+        const textRegions = regions.filter((r) => r.category === LabelCategory.Text);
+        const checkboxRegions = regions.filter((r) => r.category === LabelCategory.Checkbox);
+
         const allFeatures = this.imageMap.getAllFeatures();
         const selectedFeatures = allFeatures
             .filter((feature) => !feature.get("isOcrProposal"))
-            .filter((feature) => regions.findIndex((region) => region.id === feature.get("id")) !== -1);
+            .filter((feature) => textRegions.findIndex((region) => region.id === feature.get("id")) !== -1);
         selectedFeatures.map(this.imageMap.removeFeature);
+
+        const allCheckboxFeatures = this.imageMap.getAllCheckboxFeatures();
+        const SelectedCheckboxFeatures = allCheckboxFeatures.filter((f) => !f.get("isOcrProposal"))
+            .filter((f) => checkboxRegions.findIndex((r) => r.id === f.get("id")) !== -1);
+        SelectedCheckboxFeatures.map(this.imageMap.removeCheckboxFeature);
+
         this.redrawFeatures(this.imageMap.getAllFeatures());
+        this.redrawFeatures(this.imageMap.getAllCheckboxFeatures());
     }
 
     /**
@@ -542,16 +563,43 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private checkboxFeatureStyler = (feature) => {
-        // Unselected
-        return new Style({
-            stroke: new Stroke({
-                color: "#FFC0CB",
-                width: 1,
-            }),
-            fill: new Fill({
-                color: "rgba(255, 192, 203, 0.2)",
-            }),
-        });
+
+        const regionId = feature.get("id");
+        const tag: ITag = this.getTagFromRegionId(regionId);
+        // Selected
+        if (this.isRegionSelected(regionId)) {
+            return new Style({
+                stroke: new Stroke({
+                    color: "#FFC0CB",
+                    width: 1,
+                }),
+                fill: new Fill({
+                    color: "rgba(255, 192, 203, 0.5)",
+                }),
+            });
+        } else if (tag != null) {
+            // Already tagged
+            return new Style({
+                stroke: new Stroke({
+                    color: tag.color,
+                    width: feature.get("highlighted") ? 4 : 2,
+                }),
+                fill: new Fill({
+                    color: "rgba(255, 255, 255, 0)",
+                }),
+            });
+        } else {
+            // Unselected
+            return new Style({
+                stroke: new Stroke({
+                    color: "#FFC0CB",
+                    width: 1,
+                }),
+                fill: new Fill({
+                    color: "rgba(255, 192, 203, 0.2)",
+                }),
+            });
+        }
     }
     private tableIconFeatureStyler = (feature, resolution) => {
         if (feature.get("state") === "rest") {
@@ -674,15 +722,16 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
     }
 
-    private handleTextFeatureSelect = (feature: Feature, isToggle: boolean = true) => {
+    private handleFeatureSelect = (feature: Feature, isToggle: boolean = true, layer: LabelCategory) => {
         const regionId = feature.get("id");
         if (isToggle && this.isRegionSelected(regionId)) {
             this.removeFromSelectedRegions(regionId);
         } else {
             const polygon = regionId.split(",").map(parseFloat);
-            this.addToSelectedRegions(regionId, feature.get("text"), polygon);
+            this.addToSelectedRegions(regionId, feature.get("text"), polygon, layer);
         }
         this.redrawFeatures(this.imageMap.getAllFeatures());
+        this.redrawFeatures(this.imageMap.getAllCheckboxFeatures());
     }
 
     private handleTableIconFeatureSelect = () => {
@@ -712,7 +761,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
     }
 
-    private addToSelectedRegions = (regionId: string, text: string, polygon: number[]) => {
+    private addToSelectedRegions = (regionId: string, text: string, polygon: number[], layer: LabelCategory) => {
         let selectedRegion;
         if (this.isRegionSelected(regionId)) {
             // skip if it's already existed in selected regions
@@ -732,6 +781,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 boundingBox: regionBoundingBox,
                 points: regionPoints,
                 value: text,
+                category: layer,
                 pageNumber: this.state.currentPage,
             };
             this.addRegions([selectedRegion]);
@@ -942,18 +992,26 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             labels: [],
         };
 
-        const fieldNames = Array.from(new Set(regions
-            .map((region) => region.tags[0])))
-            .filter((name) => name !== undefined);
+        const fieldNames = [];
+
+        regions.forEach((r) => {
+            if (r.tags[0] !== undefined &&
+                (fieldNames.find((t) => t.value === r.tags[0])) === undefined) {
+                    fieldNames.push({
+                        value: r.tags[0],
+                        category: r.category,
+                    });
+            }
+        });
 
         fieldNames.forEach((fieldName) => {
             const label: ILabel = {
-                    label: fieldName,
+                    label: fieldName.value,
                     key: null,
                     value: [],
+                    category: fieldName.category,
             };
-
-            const regionsToConvert = regions.filter((region) => region.tags.indexOf(fieldName) !== -1);
+            const regionsToConvert = regions.filter((region) => region.tags.indexOf(fieldName.value) !== -1);
             regionsToConvert.forEach((region) => {
                 const boundingBox = region.id.split(",").map(parseFloat);
                 label.value.push({
@@ -1105,7 +1163,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const allFeatures = this.imageMap.getAllFeatures();
         const nextFeature = allFeatures.find((f) => f.get("id") === (nextRegionId));
         const polygon = nextRegionId.split(",").map(parseFloat);
-        this.addToSelectedRegions(nextRegionId, nextFeature.get("text"), polygon);
+        this.addToSelectedRegions(nextRegionId, nextFeature.get("text"), polygon, LabelCategory.Text);
         this.redrawFeatures(allFeatures);
         this.lastKeyBoardRegionId = nextRegionId;
     }
@@ -1308,7 +1366,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
         if (ocrPageResults && ocrPageResults.checkboxes) {
             ocrPageResults.checkboxes.forEach((checkbox) => {
-                console.log(checkbox);
                 checkboxFeatures.push(this.createBoundingBoxVectorFeature(
                     checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, ocrPageResults.page));
             });

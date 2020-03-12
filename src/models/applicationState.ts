@@ -231,6 +231,7 @@ export interface ISize {
 export interface IRegion {
     id: string;
     type: RegionType;
+    category: LabelCategory;
     tags: string[];
     points?: IPoint[];
     boundingBox?: IBoundingBox;
@@ -253,8 +254,14 @@ export interface ILabelData {
  */
 export interface ILabel {
     label: string;
+    category: LabelCategory;
     key?: IFormRegion[];
     value: IFormRegion[];
+}
+
+export enum LabelCategory {
+    Text,
+    Checkbox,
 }
 
 /**
