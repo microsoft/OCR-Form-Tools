@@ -442,6 +442,7 @@ export default class MockFactory {
             tags,
             type: RegionType.Rectangle,
             pageNumber: 1,
+            category: 0,
         };
     }
 
