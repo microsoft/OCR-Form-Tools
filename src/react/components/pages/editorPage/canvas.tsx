@@ -157,6 +157,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (this.props.hoveredLabel !== prevProps.hoveredLabel) {
             this.imageMap.getAllFeatures().map(this.updateHighlightStatus);
         }
+
+        console.log(this.state.currentAsset.regions);
     }
 
     public render = () => {
@@ -574,7 +576,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     width: 1,
                 }),
                 fill: new Fill({
-                    color: "rgba(255, 192, 203, 0.5)",
+                    color: "rgb(255, 105, 180, 0.5)",
                 }),
             });
         } else if (tag != null) {
@@ -784,6 +786,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 category: layer,
                 pageNumber: this.state.currentPage,
             };
+            const selectedRegions = this.getSelectedRegions();
+            const diffCategoryRegions = selectedRegions.filter((r) => r.category !== layer);
+            diffCategoryRegions.forEach((r) => this.removeFromSelectedRegions(r.id));
             this.addRegions([selectedRegion]);
         }
 
