@@ -1348,7 +1348,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 ocr.checkboxes.forEach((checkbox) => {
                     const checkboxFeature = this.createBoundingBoxVectorFeature(
                         checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, this.state.currentPage);
-                    console.log(checkboxFeature.getId());
                     this.regionOrders[ocr.page - 1][checkboxFeature.getId()] = order++;
                     this.regionOrderById[ocr.page - 1].push(checkboxFeature.getId());
                 });
