@@ -574,7 +574,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     width: 1,
                 }),
                 fill: new Fill({
-                    color: "rgba(255, 192, 203, 0.5)",
+                    color: "rgb(255, 105, 180, 0.5)",
                 }),
             });
         } else if (tag != null) {
@@ -784,6 +784,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 category: layer,
                 pageNumber: this.state.currentPage,
             };
+            const selectedRegions = this.getSelectedRegions();
+            const diffCategoryRegions = selectedRegions.filter((r) => r.category !== layer);
+            diffCategoryRegions.forEach((r) => this.removeFromSelectedRegions(r.id));
             this.addRegions([selectedRegion]);
         }
 
@@ -1162,9 +1165,20 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
         const allFeatures = this.imageMap.getAllFeatures();
         const nextFeature = allFeatures.find((f) => f.get("id") === (nextRegionId));
-        const polygon = nextRegionId.split(",").map(parseFloat);
-        this.addToSelectedRegions(nextRegionId, nextFeature.get("text"), polygon, LabelCategory.Text);
-        this.redrawFeatures(allFeatures);
+        if (nextFeature) {
+            const polygon = nextRegionId.split(",").map(parseFloat);
+            this.addToSelectedRegions(nextRegionId, nextFeature.get("text"), polygon, LabelCategory.Text);
+            this.redrawFeatures(allFeatures);
+        }
+
+        const allCheckboxFeature = this.imageMap.getAllCheckboxFeatures();
+        const nextCheckboxFeature = allCheckboxFeature.find((f) => f.get("id") === (nextRegionId));
+        if (nextCheckboxFeature) {
+            const polygon = nextRegionId.split(",").map(parseFloat);
+            this.addToSelectedRegions(nextRegionId, nextCheckboxFeature.get("text"), polygon, LabelCategory.Checkbox);
+            this.redrawFeatures(allCheckboxFeature);
+        }
+
         this.lastKeyBoardRegionId = nextRegionId;
     }
 
@@ -1321,8 +1335,23 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     }
                 });
             }
-
+            this.addCheckboxToRegionOrder(order, imageExtent, ocrExtent);
             return ocr;
+        });
+    }
+
+    private addCheckboxToRegionOrder = (order: number, imageExtent: number[], ocrExtent: any[]) => {
+        const ocrs = this.state.ocr;
+        const ocrPageResults =  (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.pageResults));
+        ocrPageResults.map((ocr) => {
+            if (ocr.checkboxes) {
+                ocr.checkboxes.forEach((checkbox) => {
+                    const checkboxFeature = this.createBoundingBoxVectorFeature(
+                        checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, this.state.currentPage);
+                    this.regionOrders[ocr.page - 1][checkboxFeature.getId()] = order++;
+                    this.regionOrderById[ocr.page - 1].push(checkboxFeature.getId());
+                });
+            }
         });
     }
 
