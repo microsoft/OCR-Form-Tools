@@ -1292,8 +1292,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         } else {
             prevIndex = currentIndex - 1;
         }
-        console.log(prevIndex);
-        console.log(currentIdList[prevIndex]);
         return currentIdList[prevIndex];
     }
 
