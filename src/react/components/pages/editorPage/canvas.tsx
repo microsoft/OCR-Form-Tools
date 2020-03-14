@@ -157,8 +157,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (this.props.hoveredLabel !== prevProps.hoveredLabel) {
             this.imageMap.getAllFeatures().map(this.updateHighlightStatus);
         }
-
-        console.log(this.state.currentAsset.regions);
     }
 
     public render = () => {
@@ -1167,9 +1165,20 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
         const allFeatures = this.imageMap.getAllFeatures();
         const nextFeature = allFeatures.find((f) => f.get("id") === (nextRegionId));
-        const polygon = nextRegionId.split(",").map(parseFloat);
-        this.addToSelectedRegions(nextRegionId, nextFeature.get("text"), polygon, LabelCategory.Text);
-        this.redrawFeatures(allFeatures);
+        if (nextFeature) {
+            const polygon = nextRegionId.split(",").map(parseFloat);
+            this.addToSelectedRegions(nextRegionId, nextFeature.get("text"), polygon, LabelCategory.Text);
+            this.redrawFeatures(allFeatures);
+        }
+
+        const allCheckboxFeature = this.imageMap.getAllCheckboxFeatures();
+        const nextCheckboxFeature = allCheckboxFeature.find((f) => f.get("id") === (nextRegionId));
+        if (nextCheckboxFeature) {
+            const polygon = nextRegionId.split(",").map(parseFloat);
+            this.addToSelectedRegions(nextRegionId, nextCheckboxFeature.get("text"), polygon, LabelCategory.Checkbox);
+            this.redrawFeatures(allCheckboxFeature);
+        }
+
         this.lastKeyBoardRegionId = nextRegionId;
     }
 
@@ -1283,6 +1292,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         } else {
             prevIndex = currentIndex - 1;
         }
+        console.log(prevIndex);
+        console.log(currentIdList[prevIndex]);
         return currentIdList[prevIndex];
     }
 
@@ -1326,8 +1337,24 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     }
                 });
             }
-
+            this.addCheckboxToRegionOrder(order, imageExtent, ocrExtent);
             return ocr;
+        });
+    }
+
+    private addCheckboxToRegionOrder = (order: number, imageExtent: number[], ocrExtent: any[]) => {
+        const ocrs = this.state.ocr;
+        const ocrPageResults =  (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.pageResults));
+        ocrPageResults.map((ocr) => {
+            if (ocr.checkboxes) {
+                ocr.checkboxes.forEach((checkbox) => {
+                    const checkboxFeature = this.createBoundingBoxVectorFeature(
+                        checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, this.state.currentPage);
+                    console.log(checkboxFeature.getId());
+                    this.regionOrders[ocr.page - 1][checkboxFeature.getId()] = order++;
+                    this.regionOrderById[ocr.page - 1].push(checkboxFeature.getId());
+                });
+            }
         });
     }
 
