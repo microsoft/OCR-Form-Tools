@@ -278,7 +278,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             tagCategory = (this.state.currentAsset.regions.find((r) =>
             r.tags.find((t) => t === tag)).category);
         }
-        console.log(tagCategory);
 
         const transformer: (tags: string[], tag: string) => string[] = CanvasHelpers.setSingleTag;
         for (const selectedRegion of selectedRegions) {
