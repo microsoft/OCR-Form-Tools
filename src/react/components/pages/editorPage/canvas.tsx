@@ -1497,7 +1497,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         newLayers[layer] = !newLayers[layer];
         this.setState({
             layers : newLayers,
-        }, () => console.log(this.state.layers));
+        });
     }
 
     private handleTableToolTipChange = async (display: string, width: number, height: number, top: number,
