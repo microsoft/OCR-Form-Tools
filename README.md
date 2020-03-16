@@ -8,7 +8,7 @@ The purpose of this repo is to allow customers to test various tools when workin
 
 FOTT's Labeling Tool is a React + Redux Web application, written in [TypeScript](https://github.com/Microsoft/TypeScript). This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).  
 
-Current Features of Labeling Tool:(you can view a short demo [here](https://youtu.be/GRGs18lZJ1E?t=462))
+Current Features of Labeling Tool: (you can view a short demo [here](https://youtu.be/GRGs18lZJ1E?t=462))
 
 * **Label** forms in PDF, JPEG or TIFF formats. 
 * **Train** model with labeled data through [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/)
