@@ -82,6 +82,7 @@
         "@types/react-toastify": "^4.1.0",
         "@types/reactstrap": "^8.2.0",
         "@types/redux-logger": "^3.0.7",
+        "acorn": "^7.1.1",
         "enzyme": "^3.10.0",
         "enzyme-adapter-react-16": "^1.15.1",
         "eslint-utils": "^1.4.3",
@@ -94,9 +95,7 @@
         "redux-mock-store": "^1.5.4",
         "ts-loader": "^6.2.1",
         "tslint": "^5.20.1",
-        "typescript": "3.5.1",
-        "webpack-cli": "^3.3.10",
-        "webpack-merge": "^4.2.2"
+        "typescript": "^3.8.2"
     },
     "engines": {
         "node": ">=10.14.2",
