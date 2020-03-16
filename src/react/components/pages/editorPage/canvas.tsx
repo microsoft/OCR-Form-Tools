@@ -272,9 +272,19 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             return;
         }
 
+        let tagCategory;
+        if (this.state.currentAsset.regions.find((r) =>
+        r.tags.find((t) => t === tag)) !== undefined) {
+            tagCategory = (this.state.currentAsset.regions.find((r) =>
+            r.tags.find((t) => t === tag)).category);
+        }
+        console.log(tagCategory);
+
         const transformer: (tags: string[], tag: string) => string[] = CanvasHelpers.setSingleTag;
         for (const selectedRegion of selectedRegions) {
-            selectedRegion.tags = transformer(selectedRegion.tags, tag);
+            if (selectedRegion.category === tagCategory || tagCategory === undefined) {
+                selectedRegion.tags = transformer(selectedRegion.tags, tag);
+            }
         }
 
         this.updateRegions(selectedRegions);
@@ -978,7 +988,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         if (formRegion.boundingBoxes) {
                             formRegion.boundingBoxes.forEach((boundingBox, boundingBoxIndex) => {
                                 const text = this.getBoundingBoxTextFromRegion(formRegion, boundingBoxIndex);
-                                regions.push(this.createRegion(boundingBox, text, label.label, formRegion.page));
+                                regions.push(this.createRegion(boundingBox,
+                                    text, label.label, formRegion.page, label.category));
                             });
                         }
                     });
@@ -1348,7 +1359,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 ocr.checkboxes.forEach((checkbox) => {
                     const checkboxFeature = this.createBoundingBoxVectorFeature(
                         checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, this.state.currentPage);
-                    console.log(checkboxFeature.getId());
                     this.regionOrders[ocr.page - 1][checkboxFeature.getId()] = order++;
                     this.regionOrderById[ocr.page - 1].push(checkboxFeature.getId());
                 });
@@ -1424,7 +1434,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         features.forEach((feature) => feature.changed());
     }
 
-    private createRegion(boundingBox: number[], text: string, tagName: string, pangeNumber: number) {
+    private createRegion(boundingBox: number[], text: string, tagName: string,
+                         pangeNumber: number, labelCategory: LabelCategory) {
         const xAxisValues = boundingBox.filter((value, index) => index % 2 === 0);
         const yAxisValues = boundingBox.filter((value, index) => index % 2 === 1);
         const left = Math.min(...xAxisValues);
@@ -1452,6 +1463,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             },
             points,
             value: text,
+            category: labelCategory,
             pageNumber: pangeNumber,
         };
         return newRegion;
