@@ -309,7 +309,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (this.imageMap == null) {
             return;
         }
-        const textRegions = regions.filter((r) => r.category === LabelCategory.Text);
+        const textRegions = regions.filter((r) => r.category === LabelCategory.Text || r.category === undefined);
         const checkboxRegions = regions.filter((r) => r.category === LabelCategory.Checkbox);
         const allFeatures = this.imageMap.getAllFeatures();
         const regionsNotInFeatures = textRegions.filter((region) =>
