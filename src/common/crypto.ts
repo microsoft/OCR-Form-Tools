@@ -202,7 +202,7 @@ function encodeUtf8(utf8: string) {
             bytes[++pos] = (0x2 << 6) | (point & 0x3f);
         }
     }
-    return bytes.subarray(0, pos + 1).buffer;
+    return bytes.subarray(0, pos + 1);
 }
 
 function decodeUtf8(buffer: ArrayBuffer) {
