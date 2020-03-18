@@ -35,29 +35,6 @@ export interface IAppError {
 }
 
 /**
- * Enum of supported error codes
- */
-export enum ErrorCode {
-    // Note that the value of the enum is in camelCase while
-    // the enum key is in Pascal casing
-    Unknown = "unknown",
-    GenericRenderError = "genericRenderError",
-    ProjectInvalidJson = "projectInvalidJson",
-    ProjectInvalidSecurityToken = "projectInvalidSecurityToken",
-    ProjectDuplicateName = "projectDuplicateName",
-    SecurityTokenNotFound = "securityTokenNotFound",
-    OverloadedKeyBinding = "overloadedKeyBinding",
-    BlobContainerIONotFound = "blobContainerIONotFound",
-    BlobContainerIOForbidden = "blobContainerIOForbidden",
-    PredictWithoutTrainForbidden = "predictWithoutTrainForbidden",
-    ModelNotFound = "modelNotFound",
-    ModelCountLimitExceeded = "modelCountLimitExceeded",
-    HttpStatusUnauthorized = "unauthorized",
-    HttpStatusNotFound = "notFound",
-    HttpStatusTooManyRequests = "tooManyRequests",
-}
-
-/**
  * Base application error
  */
 export class AppError extends Error implements IAppError {
@@ -141,17 +118,6 @@ export interface ITag {
     color: string;
     type: FieldType;
     format: FieldFormat;
-}
-
-/**
- * @enum LOCAL - Local storage type
- * @enum CLOUD - Cloud storage type
- * @enum OTHER - Any other storage type
- */
-export enum StorageType {
-    Local = "local",
-    Cloud = "cloud",
-    Other = "other",
 }
 
 /**
@@ -259,11 +225,6 @@ export interface ILabel {
     value: IFormRegion[];
 }
 
-export enum LabelCategory {
-    Text,
-    Checkbox,
-}
-
 /**
  * @name - IFormRegion
  * @description - Defines a region which consumed by FormRecognizer
@@ -298,6 +259,59 @@ export interface IBoundingBox {
 export interface IPoint {
     x: number;
     y: number;
+}
+
+export interface ISecureString {
+    encrypted: string;
+}
+
+export interface ISecurityToken {
+    name: string;
+    key: string;
+}
+
+export interface IField {
+    fieldKey: string;
+    fieldType: FieldType;
+    fieldFormat: FieldFormat;
+}
+
+export interface IFieldInfo {
+    fields: IField[];
+}
+
+/**
+ * Enum of supported error codes
+ */
+export enum ErrorCode {
+    // Note that the value of the enum is in camelCase while
+    // the enum key is in Pascal casing
+    Unknown = "unknown",
+    GenericRenderError = "genericRenderError",
+    ProjectInvalidJson = "projectInvalidJson",
+    ProjectInvalidSecurityToken = "projectInvalidSecurityToken",
+    ProjectDuplicateName = "projectDuplicateName",
+    SecurityTokenNotFound = "securityTokenNotFound",
+    OverloadedKeyBinding = "overloadedKeyBinding",
+    BlobContainerIONotFound = "blobContainerIONotFound",
+    BlobContainerIOForbidden = "blobContainerIOForbidden",
+    PredictWithoutTrainForbidden = "predictWithoutTrainForbidden",
+    ModelNotFound = "modelNotFound",
+    ModelCountLimitExceeded = "modelCountLimitExceeded",
+    HttpStatusUnauthorized = "unauthorized",
+    HttpStatusNotFound = "notFound",
+    HttpStatusTooManyRequests = "tooManyRequests",
+}
+
+/**
+ * @enum LOCAL - Local storage type
+ * @enum CLOUD - Cloud storage type
+ * @enum OTHER - Any other storage type
+ */
+export enum StorageType {
+    Local = "local",
+    Cloud = "cloud",
+    Other = "other",
 }
 
 /**
@@ -352,15 +366,6 @@ export enum EditorMode {
     None = "NONE",
 }
 
-export interface ISecureString {
-    encrypted: string;
-}
-
-export interface ISecurityToken {
-    name: string;
-    key: string;
-}
-
 export enum FieldType {
     String = "string",
     Number = "number",
@@ -381,12 +386,7 @@ export enum FieldFormat {
     YMD = "ymd",
 }
 
-export interface IField {
-    fieldKey: string;
-    fieldType: FieldType;
-    fieldFormat: FieldFormat;
-}
-
-export interface IFieldInfo {
-    fields: IField[];
+export enum LabelCategory {
+    Text = "text",
+    Checkbox = "checkbox",
 }
