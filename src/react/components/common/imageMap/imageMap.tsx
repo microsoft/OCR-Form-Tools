@@ -420,7 +420,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
         const isPointerOnCheckboxFeature = this.map.hasFeatureAtPixel(
             eventPixel,
-            this.checkboxVectorLayer);
+            this.checkboxLayerFilter);
 
         if (isPointerOnCheckboxFeature && this.props.handleFeatureSelect) {
             this.map.forEachFeatureAtPixel(
