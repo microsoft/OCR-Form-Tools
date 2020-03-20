@@ -404,16 +404,20 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             return;
         }
 
+        const textRegions = regions.filter((r) => r.category === RegionCategory.Text);
+        const checkboxRegions = regions.filter((r) => r.category === RegionCategory.Checkbox);
+
         const allFeatures = this.imageMap.getAllFeatures();
         const selectedFeatures = allFeatures
             .filter((feature) => !feature.get("isOcrProposal"))
-            .filter((feature) => regions.findIndex((region) => region.id === feature.get("id")) !== -1);
+            .filter((feature) => textRegions.findIndex((region) => region.id === feature.get("id")) !== -1);
         selectedFeatures.map(this.imageMap.removeFeature);
 
         const allCheckboxFeatures = this.imageMap.getAllCheckboxFeatures();
-        const selectdCheckboxFeature = allCheckboxFeatures
+        const selectdCheckboxFeatures = allCheckboxFeatures
             .filter((feature) => !feature.get("isOcrProposal"))
-            .filter((feature) => regions.findIndex((region) => region.id === feature.get("id")));
+            .filter((feature) => checkboxRegions.findIndex((region) => region.id === feature.get("id")));
+        selectdCheckboxFeatures.map(this.imageMap.removeCheckboxFeature);
 
         this.redrawFeatures(this.imageMap.getAllFeatures());
         this.redrawFeatures(this.imageMap.getAllCheckboxFeatures());
@@ -1023,18 +1027,26 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             labels: [],
         };
 
-        const fieldNames = Array.from(new Set(regions
-            .map((region) => region.tags[0])))
-            .filter((name) => name !== undefined);
+        const fieldNames = [];
+
+        regions.forEach((r) => {
+            if (r.tags[0] !== undefined &&
+                (fieldNames.find((t) => t.value === r.tags[0])) === undefined) {
+                    fieldNames.push({
+                        value: r.tags[0],
+                        category: r.category,
+                    });
+            }
+        });
 
         fieldNames.forEach((fieldName) => {
             const label: ILabel = {
-                    label: fieldName,
+                    label: fieldName.value,
                     key: null,
                     value: [],
+                    category: fieldName.category,
             };
-
-            const regionsToConvert = regions.filter((region) => region.tags.indexOf(fieldName) !== -1);
+            const regionsToConvert = regions.filter((region) => region.tags.indexOf(fieldName.value) !== -1);
             regionsToConvert.forEach((region) => {
                 const boundingBox = region.id.split(",").map(parseFloat);
                 label.value.push({

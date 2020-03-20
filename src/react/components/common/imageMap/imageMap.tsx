@@ -218,6 +218,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.textVectorLayer.getSource().removeFeature(feature);
     }
 
+    public removeCheckboxFeature = (feature: Feature) => {
+        this.checkboxVectorLayer.getSource().removeFeature(feature);
+    }
+
     /**
      * Remove all features from the map
      */
