@@ -584,7 +584,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     width: 1,
                 }),
                 fill: new Fill({
-                    color: "rgba(255, 192, 203, 0.5)",
+                    color: "rgba(255, 105, 180, 0.5)",
                 }),
             });
         } else if (tag != null) {
