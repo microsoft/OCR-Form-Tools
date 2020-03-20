@@ -784,6 +784,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             selectedRegion = this.state.currentAsset.regions.find((region) => region.id === regionId);
             // Explicitly set pageNumber in order to fix incorrect page number
             selectedRegion.pageNumber = this.state.currentPage;
+            this.removeDifferentSelectedRegion(regionCategory);
 
         } else {
             const regionBoundingBox = this.convertToRegionBoundingBox(polygon);
@@ -798,11 +799,18 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 value: text,
                 pageNumber: this.state.currentPage,
             };
+            this.removeDifferentSelectedRegion(regionCategory);
             this.addRegions([selectedRegion]);
         }
 
         this.selectedRegionIds.push(regionId);
         this.onRegionSelected(regionId, false);
+    }
+
+    private removeDifferentSelectedRegion = (category: RegionCategory) => {
+        const selectedRegions = this.getSelectedRegions();
+        const diffCategoryRegions = selectedRegions.filter((r) => r.category !== category);
+        diffCategoryRegions.forEach((r) => this.removeFromSelectedRegions(r.id));
     }
 
     private isRegionSelected = (regionId: string) => {
