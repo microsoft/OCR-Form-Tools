@@ -7,7 +7,9 @@ import { Label } from "office-ui-fabric-react/lib/Label";
 import { IconButton } from "office-ui-fabric-react/lib/Button";
 import {
     EditorMode, IAssetMetadata,
-    IProject, IRegion, RegionType, AssetType, ILabelData, ILabel, ITag, IAsset, IFormRegion, RegionCategory,
+    IProject, IRegion, RegionType,
+    AssetType, ILabelData, ILabel,
+    ITag, IAsset, IFormRegion, RegionCategory, FieldType, FieldFormat,
 } from "../../../../models/applicationState";
 import CanvasHelpers from "./canvasHelpers";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
@@ -47,6 +49,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onSelectedRegionsChanged?: (regions: IRegion[]) => void;
     onCanvasRendered?: (canvas: HTMLCanvasElement) => void;
     onRunningOCRStatusChanged?: (isRunning: boolean) => void;
+    onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
 }
 
 export interface ICanvasState {
@@ -274,6 +277,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
 
         const transformer: (tags: string[], tag: string) => string[] = CanvasHelpers.setSingleTag;
+        const inputTag = this.props.project.tags.filter((t) => t.name === tag);
+
         for (const selectedRegion of selectedRegions) {
             selectedRegion.tags = transformer(selectedRegion.tags, tag);
         }
@@ -285,9 +290,25 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.props.onSelectedRegionsChanged([]);
         }
 
+        if ((selectedRegions.find((r) => r.category !== selectedRegions[0].category))
+            === undefined) {
+                if (selectedRegions[0].category === RegionCategory.Checkbox) {
+                    this.setTagType(inputTag[0]);
+                }
+        }
+
         this.redrawFeatures(this.imageMap.getAllFeatures());
         this.redrawFeatures(this.imageMap.getAllCheckboxFeatures());
         this.applyTagFlag = true;
+    }
+
+    private setTagType = (tagInput: ITag) => {
+        const newTag = {
+            ...tagInput,
+            type : FieldType.Checkbox,
+            format : FieldFormat.NotSpecified,
+        };
+        this.props.onTagChanged(tagInput, newTag);
     }
 
     private getSelectedRegions = (): IRegion[] => {
@@ -772,7 +793,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             selectedRegion = this.state.currentAsset.regions.find((region) => region.id === regionId);
             // Explicitly set pageNumber in order to fix incorrect page number
             selectedRegion.pageNumber = this.state.currentPage;
-            this.removeDifferentSelectedRegion(regionCategory);
+            // this.removeDifferentSelectedRegion(regionCategory);
 
         } else {
             const regionBoundingBox = this.convertToRegionBoundingBox(polygon);
@@ -787,7 +808,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 value: text,
                 pageNumber: this.state.currentPage,
             };
-            this.removeDifferentSelectedRegion(regionCategory);
+            // this.removeDifferentSelectedRegion(regionCategory);
             this.addRegions([selectedRegion]);
         }
 
@@ -795,11 +816,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.onRegionSelected(regionId, false);
     }
 
-    private removeDifferentSelectedRegion = (category: RegionCategory) => {
-        const selectedRegions = this.getSelectedRegions();
-        const diffCategoryRegions = selectedRegions.filter((r) => r.category !== category);
-        diffCategoryRegions.forEach((r) => this.removeFromSelectedRegions(r.id));
-    }
+    // private removeDifferentSelectedRegion = (category: RegionCategory) => {
+    //     const selectedRegions = this.getSelectedRegions();
+    //     const diffCategoryRegions = selectedRegions.filter((r) => r.category !== category);
+    //     diffCategoryRegions.forEach((r) => this.removeFromSelectedRegions(r.id));
+    // }
 
     private isRegionSelected = (regionId: string) => {
         return this.getIndexOfSelectedRegionIndex(regionId) !== -1;
