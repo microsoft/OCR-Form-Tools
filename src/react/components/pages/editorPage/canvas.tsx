@@ -416,7 +416,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const allCheckboxFeatures = this.imageMap.getAllCheckboxFeatures();
         const selectdCheckboxFeatures = allCheckboxFeatures
             .filter((feature) => !feature.get("isOcrProposal"))
-            .filter((feature) => checkboxRegions.findIndex((region) => region.id === feature.get("id")));
+            .filter((feature) => checkboxRegions.findIndex((region) => region.id === feature.get("id")) !== -1);
         selectdCheckboxFeatures.map(this.imageMap.removeCheckboxFeature);
 
         this.redrawFeatures(this.imageMap.getAllFeatures());
