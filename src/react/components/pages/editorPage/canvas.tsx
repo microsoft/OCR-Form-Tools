@@ -289,12 +289,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (this.props.onSelectedRegionsChanged) {
             this.props.onSelectedRegionsChanged([]);
         }
-
-        if ((selectedRegions.find((r) => r.category !== selectedRegions[0].category))
+        if (selectedRegions.find((r) => r.category !== selectedRegions[0].category)
             === undefined) {
-                if (selectedRegions[0].category === RegionCategory.Checkbox) {
-                    this.setTagType(inputTag[0]);
-                }
+            if (selectedRegions[0].category === RegionCategory.Checkbox) {
+                this.setTagType(inputTag[0]);
+            }
         }
 
         this.redrawFeatures(this.imageMap.getAllFeatures());
@@ -1461,11 +1460,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 y: boundingBox[i + 1],
             });
         }
-        const regionTag = this.props.project.tags.filter((tag) => tag.name === tagName);
+        const regionTag = this.props.project.tags.find((tag) => tag.name === tagName);
         const newRegion = {
             id: this.createRegionIdFromBoundingBox(boundingBox, pangeNumber),
             type: RegionType.Polygon,
-            category: regionTag[0].type !== "checkbox" ? RegionCategory.Text : RegionCategory.Checkbox,
+            category: regionTag.type !== "checkbox" ? RegionCategory.Text : RegionCategory.Checkbox,
             tags: [tagName],
             boundingBox: {
                 height: bottom - top,
