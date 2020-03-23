@@ -1462,7 +1462,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const newRegion = {
             id: this.createRegionIdFromBoundingBox(boundingBox, pangeNumber),
             type: RegionType.Polygon,
-            category: regionTag.type !== "checkbox" ? RegionCategory.Text : FieldType.Checkbox,
+            category: regionTag.type !== FieldType.Checkbox ? RegionCategory.Text : RegionCategory.Checkbox,
             tags: [tagName],
             boundingBox: {
                 height: bottom - top,
