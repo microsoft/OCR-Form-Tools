@@ -95,20 +95,12 @@ function filterFormat(type: FieldType): FieldFormat[] {
                 FieldFormat.NotSpecified,
                 FieldFormat.Currency,
             ];
-        case FieldType.Integer:
-            return [
-                FieldFormat.NotSpecified,
-            ];
         case FieldType.Date:
             return [
                 FieldFormat.NotSpecified,
                 FieldFormat.DMY,
                 FieldFormat.MDY,
                 FieldFormat.YMD,
-            ];
-        case FieldType.Time:
-            return [
-                FieldFormat.NotSpecified,
             ];
         default:
             return [ FieldFormat.NotSpecified ];

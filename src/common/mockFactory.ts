@@ -5,7 +5,7 @@ import {
     AssetState, AssetType, IApplicationState, IAppSettings, IAsset, IAssetMetadata,
     IConnection, IProject, ITag, StorageType, ISecurityToken,
     IAppError, ErrorCode,
-    IRegion, RegionType, FieldType, FieldFormat, LabelCategory,
+    IRegion, RegionType, FieldType, FieldFormat, RegionCategory,
 } from "../models/applicationState";
 import { IAssetProvider, IAssetProviderRegistrationOptions } from "../providers/storage/assetProviderFactory";
 import { IAzureCloudStorageOptions } from "../providers/storage/azureBlobStorage";
@@ -442,7 +442,7 @@ export default class MockFactory {
             tags,
             type: RegionType.Rectangle,
             pageNumber: 1,
-            category: LabelCategory.Text,
+            category: RegionCategory.Text,
         };
     }
 

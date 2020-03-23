@@ -14,7 +14,7 @@ import VectorSource from "ol/source/Vector";
 import * as React from "react";
 import "./styles.css";
 import Utils from "./utils";
-import { LabelCategory } from "../../../../models/applicationState";
+import { RegionCategory } from "../../../../models/applicationState";
 
 interface IImageMapProps {
     imageUri: string;
@@ -29,7 +29,7 @@ interface IImageMapProps {
     checkboxFeatureStyler?: any;
 
     enableFeatureSelection?: boolean;
-    handleFeatureSelect?: (feature: any, isTaggle: boolean, layer: LabelCategory) => void;
+    handleFeatureSelect?: (feature: any, isTaggle: boolean, category: RegionCategory) => void;
     hoveringFeature?: string;
 
     onMapReady: () => void;
@@ -412,7 +412,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
                 eventPixel,
                 (feature) => {
                     if (this.props.handleFeatureSelect) {
-                        this.props.handleFeatureSelect(feature, true /*isToggle*/, LabelCategory.Text);
+                        this.props.handleFeatureSelect(feature, true /*isTaggle*/, RegionCategory.Text);
                     }
                 },
                 this.textVectorLayerFilter);
@@ -427,11 +427,13 @@ export class ImageMap extends React.Component<IImageMapProps> {
                 eventPixel,
                 (feature) => {
                     if (this.props.handleFeatureSelect) {
-                        this.props.handleFeatureSelect(feature, true /*isToggle*/, LabelCategory.Checkbox);
+                        this.props.handleFeatureSelect(feature, true, RegionCategory.Checkbox);
                     }
                 },
-                this.checkboxLayerFilter);
+                this.checkboxLayerFilter,
+            );
         }
+
         this.setDragPanInteraction(!isPointerOnTextFeature /*dragPanEnabled*/);
         this.isSwiping = isPointerOnTextFeature;
     }
@@ -490,7 +492,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
             eventPixel,
             (feature) => {
                 if (this.props.handleFeatureSelect) {
-                    this.props.handleFeatureSelect(feature, false /*isTaggle*/, LabelCategory.Text);
+                    this.props.handleFeatureSelect(feature, false /*isTaggle*/, RegionCategory.Text);
                 }
             },
             this.textVectorLayerFilter);

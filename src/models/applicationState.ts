@@ -35,29 +35,6 @@ export interface IAppError {
 }
 
 /**
- * Enum of supported error codes
- */
-export enum ErrorCode {
-    // Note that the value of the enum is in camelCase while
-    // the enum key is in Pascal casing
-    Unknown = "unknown",
-    GenericRenderError = "genericRenderError",
-    ProjectInvalidJson = "projectInvalidJson",
-    ProjectInvalidSecurityToken = "projectInvalidSecurityToken",
-    ProjectDuplicateName = "projectDuplicateName",
-    SecurityTokenNotFound = "securityTokenNotFound",
-    OverloadedKeyBinding = "overloadedKeyBinding",
-    BlobContainerIONotFound = "blobContainerIONotFound",
-    BlobContainerIOForbidden = "blobContainerIOForbidden",
-    PredictWithoutTrainForbidden = "predictWithoutTrainForbidden",
-    ModelNotFound = "modelNotFound",
-    ModelCountLimitExceeded = "modelCountLimitExceeded",
-    HttpStatusUnauthorized = "unauthorized",
-    HttpStatusNotFound = "notFound",
-    HttpStatusTooManyRequests = "tooManyRequests",
-}
-
-/**
  * Base application error
  */
 export class AppError extends Error implements IAppError {
@@ -144,17 +121,6 @@ export interface ITag {
 }
 
 /**
- * @enum LOCAL - Local storage type
- * @enum CLOUD - Cloud storage type
- * @enum OTHER - Any other storage type
- */
-export enum StorageType {
-    Local = "local",
-    Cloud = "cloud",
-    Other = "other",
-}
-
-/**
  * @name - Connection
  * @description - Defines a reusable data source definition for projects
  * @member id - Unique identifier for connection
@@ -231,7 +197,7 @@ export interface ISize {
 export interface IRegion {
     id: string;
     type: RegionType;
-    category: LabelCategory;
+    category: RegionCategory;
     tags: string[];
     points?: IPoint[];
     boundingBox?: IBoundingBox;
@@ -300,6 +266,59 @@ export interface IPoint {
     y: number;
 }
 
+export interface ISecureString {
+    encrypted: string;
+}
+
+export interface ISecurityToken {
+    name: string;
+    key: string;
+}
+
+export interface IField {
+    fieldKey: string;
+    fieldType: FieldType;
+    fieldFormat: FieldFormat;
+}
+
+export interface IFieldInfo {
+    fields: IField[];
+}
+
+/**
+ * Enum of supported error codes
+ */
+export enum ErrorCode {
+    // Note that the value of the enum is in camelCase while
+    // the enum key is in Pascal casing
+    Unknown = "unknown",
+    GenericRenderError = "genericRenderError",
+    ProjectInvalidJson = "projectInvalidJson",
+    ProjectInvalidSecurityToken = "projectInvalidSecurityToken",
+    ProjectDuplicateName = "projectDuplicateName",
+    SecurityTokenNotFound = "securityTokenNotFound",
+    OverloadedKeyBinding = "overloadedKeyBinding",
+    BlobContainerIONotFound = "blobContainerIONotFound",
+    BlobContainerIOForbidden = "blobContainerIOForbidden",
+    PredictWithoutTrainForbidden = "predictWithoutTrainForbidden",
+    ModelNotFound = "modelNotFound",
+    ModelCountLimitExceeded = "modelCountLimitExceeded",
+    HttpStatusUnauthorized = "unauthorized",
+    HttpStatusNotFound = "notFound",
+    HttpStatusTooManyRequests = "tooManyRequests",
+}
+
+/**
+ * @enum LOCAL - Local storage type
+ * @enum CLOUD - Cloud storage type
+ * @enum OTHER - Any other storage type
+ */
+export enum StorageType {
+    Local = "local",
+    Cloud = "cloud",
+    Other = "other",
+}
+
 /**
  * @name - Asset Type
  * @description - Defines the type of asset within a project
@@ -352,21 +371,13 @@ export enum EditorMode {
     None = "NONE",
 }
 
-export interface ISecureString {
-    encrypted: string;
-}
-
-export interface ISecurityToken {
-    name: string;
-    key: string;
-}
-
 export enum FieldType {
     String = "string",
     Number = "number",
     Date = "date",
     Time = "time",
     Integer = "integer",
+    Checkbox = "checkbox",
 }
 
 export enum FieldFormat {
@@ -381,12 +392,7 @@ export enum FieldFormat {
     YMD = "ymd",
 }
 
-export interface IField {
-    fieldKey: string;
-    fieldType: FieldType;
-    fieldFormat: FieldFormat;
-}
-
-export interface IFieldInfo {
-    fields: IField[];
+export enum RegionCategory {
+    Text = "text",
+    Checkbox = "checkbox",
 }
