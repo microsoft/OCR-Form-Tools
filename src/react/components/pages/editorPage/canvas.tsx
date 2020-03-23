@@ -291,7 +291,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
         if (selectedRegions.find((r) => r.category !== selectedRegions[0].category)
             === undefined) {
-            if (selectedRegions[0].category === RegionCategory.Checkbox) {
+            if (selectedRegions[0].category === RegionCategory.Checkbox && selectedRegions.length === 1) {
                 this.setTagType(inputTag[0], FieldType.Checkbox);
             }
         }
