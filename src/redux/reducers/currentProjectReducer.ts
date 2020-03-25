@@ -30,8 +30,17 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
                 return state;
             }
 
+            const tagsToCreate: ITag[] = [];
+            action.payload.labelData.labels.forEach((label) => {
+                tagsToCreate.push({
+                    name: label.label,
+                    color: tagColors[tagsToCreate.length % tagColors.length],
+                } as ITag);
+            });
+
             return {
                 ...state,
+                tags: tagsToCreate,
                 lastVisitedAssetId: action.payload.asset.id,
             };
         case ActionTypes.LOAD_PROJECT_ASSETS_SUCCESS:
