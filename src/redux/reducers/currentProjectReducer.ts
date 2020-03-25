@@ -29,14 +29,18 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
             if (!state) {
                 return state;
             }
-
             if (action.payload.labelData) {
-                const tagsToCreate: ITag[] = [];
+                const tagsToCreate: ITag[] = state.tags ? [...state.tags] : [];
+                // if (!state.tags || state.tags.length === 0 ||
+                //     !state.tags.find((projectTag) => tag === projectTag.name)) {
                 action.payload.labelData.labels.forEach((label) => {
-                    tagsToCreate.push({
-                        name: label.label,
-                        color: tagColors[tagsToCreate.length % tagColors.length],
-                    } as ITag);
+                    if (!state.tags || state.tags.length === 0 ||
+                        !state.tags.find((projectTag) => label.label === projectTag.name)) {
+                        tagsToCreate.push({
+                            name: label.label,
+                            color: tagColors[tagsToCreate.length % tagColors.length],
+                        } as ITag);
+                    }
                 });
                 return {
                     ...state,
