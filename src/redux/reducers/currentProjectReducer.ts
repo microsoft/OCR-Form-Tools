@@ -31,8 +31,6 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
             }
             if (action.payload.labelData) {
                 const tagsToCreate: ITag[] = state.tags ? [...state.tags] : [];
-                // if (!state.tags || state.tags.length === 0 ||
-                //     !state.tags.find((projectTag) => tag === projectTag.name)) {
                 action.payload.labelData.labels.forEach((label) => {
                     if (!state.tags || state.tags.length === 0 ||
                         !state.tags.find((projectTag) => label.label === projectTag.name)) {
