@@ -220,14 +220,8 @@ export interface ILabelData {
  */
 export interface ILabel {
     label: string;
-    category: LabelCategory;
     key?: IFormRegion[];
     value: IFormRegion[];
-}
-
-export enum LabelCategory {
-    Text,
-    Checkbox,
 }
 
 /**
