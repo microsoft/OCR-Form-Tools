@@ -1033,7 +1033,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     label: fieldName.value,
                     key: null,
                     value: [],
-                    category: fieldName.category,
             };
             const regionsToConvert = regions.filter((region) => region.tags.indexOf(fieldName.value) !== -1);
             regionsToConvert.forEach((region) => {
