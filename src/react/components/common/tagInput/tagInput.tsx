@@ -87,7 +87,7 @@ function filterFormat(type: FieldType): FieldFormat[] {
         case FieldType.String:
             return [
                 FieldFormat.NotSpecified,
-                FieldFormat.Alphanumberic,
+                FieldFormat.Alphanumeric,
                 FieldFormat.NoWhiteSpaces,
             ];
         case FieldType.Number:
