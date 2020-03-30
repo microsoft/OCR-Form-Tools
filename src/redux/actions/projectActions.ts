@@ -16,6 +16,7 @@ import {
 } from "../../models/applicationState";
 import { createAction, createPayloadAction, IPayloadAction } from "./actionCreators";
 import { appInfo } from "../../common/appInfo";
+import { StorageProviderFactory } from "../../providers/storage/storageProviderFactory";
 
 /**
  * Actions to be performed in relation to projects
@@ -30,6 +31,7 @@ export default interface IProjectActions {
     saveAssetMetadata(project: IProject, assetMetadata: IAssetMetadata): Promise<IAssetMetadata>;
     updateProjectTag(project: IProject, oldTag: ITag, newTag: ITag): Promise<IAssetMetadata[]>;
     deleteProjectTag(project: IProject, tagName): Promise<IAssetMetadata[]>;
+    updateProjectTagsFromFiles(project: IProject): Promise<void>;
 }
 
 /**
@@ -85,6 +87,18 @@ export function saveProject(project: IProject)
         await loadProject(savedProject)(dispatch, getState);
 
         return savedProject;
+    };
+}
+
+export function updateProjectTagsFromFiles(project: IProject)
+    : (dispatch: Dispatch, getState: () => IApplicationState) => Promise<void> {
+    return async (dispatch: Dispatch, getState: () => IApplicationState) => {
+        const projectCopy = Object.assign({}, project);
+        const projectService = new ProjectService();
+        const storageProvider = StorageProviderFactory.createFromConnection(project.sourceConnection);
+        await projectService.getTagsFromPreExistingFieldFile(projectCopy, storageProvider);
+        await projectService.getTagsFromPreExistingLabelFiles(projectCopy, storageProvider);
+        dispatch(updateProjectTagsFromFilesAction(projectCopy));
     };
 }
 
@@ -244,6 +258,10 @@ export interface ILoadProjectAction extends IPayloadAction<string, IProject> {
     type: ActionTypes.LOAD_PROJECT_SUCCESS;
 }
 
+export interface IUpdateProjectTagsFromFilesAction extends IPayloadAction<string, IProject> {
+    type: ActionTypes.UPDATE_PROJECT_TAGS_FROM_FILES_SUCCESS;
+}
+
 /**
  * Close project action type
  */
@@ -336,6 +354,9 @@ export const saveAssetMetadataAction =
  */
 export const updateProjectTagAction =
     createPayloadAction<IUpdateProjectTagAction>(ActionTypes.UPDATE_PROJECT_TAG_SUCCESS);
+
+export const updateProjectTagsFromFilesAction =
+    createPayloadAction<IUpdateProjectTagsFromFilesAction>(ActionTypes.UPDATE_PROJECT_TAGS_FROM_FILES_SUCCESS);
 /**
  * Instance of Delete project tag action
  */

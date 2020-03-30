@@ -31,6 +31,8 @@ export interface IProjectService {
     save(project: IProject, securityToken: ISecurityToken): Promise<IProject>;
     delete(project: IProject): Promise<void>;
     isDuplicate(project: IProject, projectList: IProject[]): boolean;
+    getTagsFromPreExistingLabelFiles(project: IProject, storageProvider: IStorageProvider);
+    getTagsFromPreExistingFieldFile(project: IProject, storageProvider: IStorageProvider);
 }
 
 /**
@@ -161,7 +163,7 @@ export default class ProjectService implements IProjectService {
      * @param project the project we're trying to create
      * @param storageProvider the storage we're trying to save the project to
      */
-    private async getTagsFromPreExistingLabelFiles(project: IProject, storageProvider: IStorageProvider) {
+    public async getTagsFromPreExistingLabelFiles(project: IProject, storageProvider: IStorageProvider) {
         const tags: ITag[] = [];
         const tagNameSet = new Set<string>();
         try {
@@ -197,7 +199,8 @@ export default class ProjectService implements IProjectService {
                 } as ITag);
             });
             if (project.tags) {
-                project.tags = patch(tags, project.tags, "name", ["color"]);
+                const newTags = tags.filter((fileTag) => !project.tags.find((tag) => fileTag.name === tag.name ));
+                project.tags = [...project.tags, ...newTags];
             } else {
                 project.tags = tags;
             }
@@ -214,7 +217,7 @@ export default class ProjectService implements IProjectService {
      * @param storageProvider the storage we're trying to save the project to
      */
 
-    private async getTagsFromPreExistingFieldFile(project: IProject, storageProvider: IStorageProvider) {
+    public async getTagsFromPreExistingFieldFile(project: IProject, storageProvider: IStorageProvider) {
         const fieldFilePath = joinPath("/", project.folderPath, constants.fieldsFileName);
         try {
             const json = await storageProvider.readText(fieldFilePath, true);
@@ -230,6 +233,8 @@ export default class ProjectService implements IProjectService {
             });
             if (project.tags) {
                 project.tags = patch(project.tags, tags, "name", ["type", "format"]);
+                const newTags = tags.filter((fileTag) => !project.tags.find((tag) => fileTag.name === tag.name ));
+                project.tags = [...project.tags, ...newTags];
             } else {
                 project.tags = tags;
             }
