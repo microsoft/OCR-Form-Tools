@@ -93,12 +93,14 @@ export function saveProject(project: IProject)
 export function updateProjectTagsFromFiles(project: IProject)
     : (dispatch: Dispatch, getState: () => IApplicationState) => Promise<void> {
     return async (dispatch: Dispatch, getState: () => IApplicationState) => {
-        const projectCopy = Object.assign({}, project);
+        const updatedProject = Object.assign({}, project);
+        updatedProject.tags = [];
         const projectService = new ProjectService();
         const storageProvider = StorageProviderFactory.createFromConnection(project.sourceConnection);
-        await projectService.getTagsFromPreExistingFieldFile(projectCopy, storageProvider);
-        await projectService.getTagsFromPreExistingLabelFiles(projectCopy, storageProvider);
-        dispatch(updateProjectTagsFromFilesAction(projectCopy));
+        await projectService.getTagsFromPreExistingFieldFile(updatedProject, storageProvider);
+        await projectService.getTagsFromPreExistingLabelFiles(updatedProject, storageProvider);
+        await projectService.setColorsForUpdatedTags(project, updatedProject);
+        dispatch(updateProjectTagsFromFilesAction(updatedProject));
     };
 }
 

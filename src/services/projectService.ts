@@ -13,7 +13,7 @@ import {
 } from "../models/applicationState";
 import Guard from "../common/guard";
 import { constants } from "../common/constants";
-import { decryptProject, encryptProject, joinPath, patch } from "../common/utils";
+import { decryptProject, encryptProject, joinPath, patch, getNextColor } from "../common/utils";
 import packageJson from "../../package.json";
 import { strings, interpolate } from "../common/strings";
 import { toast } from "react-toastify";
@@ -31,8 +31,9 @@ export interface IProjectService {
     save(project: IProject, securityToken: ISecurityToken): Promise<IProject>;
     delete(project: IProject): Promise<void>;
     isDuplicate(project: IProject, projectList: IProject[]): boolean;
-    getTagsFromPreExistingLabelFiles(project: IProject, storageProvider: IStorageProvider);
-    getTagsFromPreExistingFieldFile(project: IProject, storageProvider: IStorageProvider);
+    getTagsFromPreExistingLabelFiles(project: IProject, storageProvider: IStorageProvider): Promise<void>;
+    getTagsFromPreExistingFieldFile(project: IProject, storageProvider: IStorageProvider): Promise<void>;
+    setColorsForUpdatedTags(oldProject: IProject, updatedProject: IProject): Promise<void>;
 }
 
 /**
@@ -199,8 +200,7 @@ export default class ProjectService implements IProjectService {
                 } as ITag);
             });
             if (project.tags) {
-                const newTags = tags.filter((fileTag) => !project.tags.find((tag) => fileTag.name === tag.name ));
-                project.tags = [...project.tags, ...newTags];
+                this.addMissingTags(project, tags);
             } else {
                 project.tags = tags;
             }
@@ -233,8 +233,7 @@ export default class ProjectService implements IProjectService {
             });
             if (project.tags) {
                 project.tags = patch(project.tags, tags, "name", ["type", "format"]);
-                const newTags = tags.filter((fileTag) => !project.tags.find((tag) => fileTag.name === tag.name ));
-                project.tags = [...project.tags, ...newTags];
+                this.addMissingTags(project, tags);
             } else {
                 project.tags = tags;
             }
@@ -245,6 +244,29 @@ export default class ProjectService implements IProjectService {
                 toast.error(reason, {autoClose: false});
             }
         }
+    }
+
+    public async setColorsForUpdatedTags(oldProject: IProject, updatedProject: IProject) {
+        let updatedTags: ITag[] = [];
+        const newTags: ITag[] = [];
+        updatedProject.tags.forEach((updatedTag) => {
+            if (!oldProject.tags.find((oldTag) => updatedTag.name === oldTag.name )) {
+                newTags.push(updatedTag);
+            } else {
+                updatedTags.push(updatedTag);
+            }
+        });
+        updatedTags = patch(updatedTags, oldProject.tags, "name", ["color"]);
+        newTags.forEach((newTag) => {
+            newTag.color = getNextColor(updatedTags);
+            updatedTags.push(newTag);
+        });
+        updatedProject.tags = updatedTags;
+    }
+
+    private addMissingTags(project: IProject, tags: ITag[]) {
+        const missingTags = tags.filter((fileTag) => !project.tags.find((tag) => fileTag.name === tag.name ));
+        project.tags = [...project.tags, ...missingTags];
     }
 
     /**
