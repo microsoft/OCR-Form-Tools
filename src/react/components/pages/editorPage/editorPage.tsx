@@ -566,6 +566,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             console.warn("Error computing asset size");
         }
 
+        await this.props.actions.updateProjectTagsFromFiles(this.props.project);
+
         this.setState({
             selectedAsset: assetMetadata,
         }, async () => {

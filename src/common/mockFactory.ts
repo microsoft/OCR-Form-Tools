@@ -466,6 +466,7 @@ export default class MockFactory {
      */
     public static projectActions(): IProjectActions {
         return {
+            updateProjectTagsFromFiles: jest.fn(() => Promise.resolve()),
             loadProject: jest.fn(() => Promise.resolve()),
             saveProject: jest.fn(() => Promise.resolve()),
             deleteProject: jest.fn(() => Promise.resolve()),
