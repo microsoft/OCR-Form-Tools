@@ -54,7 +54,7 @@ export default class ProjectService implements IProjectService {
             if (!loadedProject.tags) {
                 loadedProject.tags = [];
             } else {
-                this.updateProjectTagsFromFiles(loadedProject);
+                await this.updateProjectTagsFromFiles(loadedProject);
             }
 
             return Promise.resolve({ ...loadedProject });
@@ -80,7 +80,7 @@ export default class ProjectService implements IProjectService {
 
         const storageProvider = StorageProviderFactory.createFromConnection(project.sourceConnection);
 
-        this.updateProjectTagsFromFiles(project);
+        await this.updateProjectTagsFromFiles(project);
 
         if (project.tags) {
             await this.saveFieldsFile(project, storageProvider);
