@@ -207,7 +207,7 @@ export default class ProjectService implements IProjectService {
                 } as ITag);
             });
             if (project.tags) {
-                this.addMissingTags(project, tags);
+                await this.addMissingTags(project, tags);
             } else {
                 project.tags = tags;
             }
@@ -240,7 +240,7 @@ export default class ProjectService implements IProjectService {
             });
             if (project.tags) {
                 project.tags = patch(project.tags, tags, "name", ["type", "format"]);
-                this.addMissingTags(project, tags);
+                await this.addMissingTags(project, tags);
             } else {
                 project.tags = tags;
             }
@@ -271,7 +271,7 @@ export default class ProjectService implements IProjectService {
         updatedProject.tags = existingTags;
     }
 
-    private addMissingTags(project: IProject, tags: ITag[]) {
+    private async addMissingTags(project: IProject, tags: ITag[]) {
         const missingTags = tags.filter((fileTag) => !project.tags.find((tag) => fileTag.name === tag.name ));
         project.tags = [...project.tags, ...missingTags];
     }
