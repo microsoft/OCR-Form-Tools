@@ -16,7 +16,6 @@ import {
 } from "../../models/applicationState";
 import { createAction, createPayloadAction, IPayloadAction } from "./actionCreators";
 import { appInfo } from "../../common/appInfo";
-import { StorageProviderFactory } from "../../providers/storage/storageProviderFactory";
 
 /**
  * Actions to be performed in relation to projects
@@ -90,16 +89,10 @@ export function saveProject(project: IProject)
     };
 }
 
-export function updateProjectTagsFromFiles(project: IProject)
-    : (dispatch: Dispatch, getState: () => IApplicationState) => Promise<void> {
-    return async (dispatch: Dispatch, getState: () => IApplicationState) => {
-        const updatedProject = Object.assign({}, project);
-        updatedProject.tags = [];
+export function updateProjectTagsFromFiles(project: IProject): (dispatch: Dispatch) => Promise<void> {
+    return async (dispatch: Dispatch) => {
         const projectService = new ProjectService();
-        const storageProvider = StorageProviderFactory.createFromConnection(project.sourceConnection);
-        await projectService.getTagsFromPreExistingFieldFile(updatedProject, storageProvider);
-        await projectService.getTagsFromPreExistingLabelFiles(updatedProject, storageProvider);
-        await projectService.setColorsForUpdatedTags(project, updatedProject);
+        const updatedProject = await projectService.updateProjectTagsFromFiles(project);
         dispatch(updateProjectTagsFromFilesAction(updatedProject));
     };
 }

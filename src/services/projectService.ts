@@ -31,9 +31,7 @@ export interface IProjectService {
     save(project: IProject, securityToken: ISecurityToken): Promise<IProject>;
     delete(project: IProject): Promise<void>;
     isDuplicate(project: IProject, projectList: IProject[]): boolean;
-    getTagsFromPreExistingLabelFiles(project: IProject, storageProvider: IStorageProvider): Promise<void>;
-    getTagsFromPreExistingFieldFile(project: IProject, storageProvider: IStorageProvider): Promise<void>;
-    setColorsForUpdatedTags(oldProject: IProject, updatedProject: IProject): Promise<void>;
+    updateProjectTagsFromFiles(oldProject: IProject): Promise<IProject>;
 }
 
 /**
@@ -55,6 +53,8 @@ export default class ProjectService implements IProjectService {
             // Ensure tags is always initialized to an array
             if (!loadedProject.tags) {
                 loadedProject.tags = [];
+            } else {
+                this.updateProjectTagsFromFiles(loadedProject);
             }
 
             return Promise.resolve({ ...loadedProject });
@@ -80,10 +80,7 @@ export default class ProjectService implements IProjectService {
 
         const storageProvider = StorageProviderFactory.createFromConnection(project.sourceConnection);
 
-        if (!project.tags) {
-            await this.getTagsFromPreExistingLabelFiles(project, storageProvider);
-            await this.getTagsFromPreExistingFieldFile(project, storageProvider);
-        }
+        this.updateProjectTagsFromFiles(project);
 
         if (project.tags) {
             await this.saveFieldsFile(project, storageProvider);
@@ -157,6 +154,16 @@ export default class ProjectService implements IProjectService {
         return false;
     }
 
+    public async updateProjectTagsFromFiles(project: IProject): Promise<IProject> {
+        const updatedProject = Object.assign({}, project);
+        updatedProject.tags = [];
+        const storageProvider = StorageProviderFactory.createFromConnection(project.sourceConnection);
+        await this.getTagsFromPreExistingFieldFile(updatedProject, storageProvider);
+        await this.getTagsFromPreExistingLabelFiles(updatedProject, storageProvider);
+        await this.setColorsForUpdatedTags(project, updatedProject);
+        return updatedProject;
+    }
+
     /**
      * Assign project tags.
      * A new project doesn't have any tags at the beginning. But it could connect to a blob container
@@ -164,7 +171,7 @@ export default class ProjectService implements IProjectService {
      * @param project the project we're trying to create
      * @param storageProvider the storage we're trying to save the project to
      */
-    public async getTagsFromPreExistingLabelFiles(project: IProject, storageProvider: IStorageProvider) {
+    private async getTagsFromPreExistingLabelFiles(project: IProject, storageProvider: IStorageProvider) {
         const tags: ITag[] = [];
         const tagNameSet = new Set<string>();
         try {
@@ -217,7 +224,7 @@ export default class ProjectService implements IProjectService {
      * @param storageProvider the storage we're trying to save the project to
      */
 
-    public async getTagsFromPreExistingFieldFile(project: IProject, storageProvider: IStorageProvider) {
+    private async getTagsFromPreExistingFieldFile(project: IProject, storageProvider: IStorageProvider) {
         const fieldFilePath = joinPath("/", project.folderPath, constants.fieldsFileName);
         try {
             const json = await storageProvider.readText(fieldFilePath, true);
@@ -246,7 +253,7 @@ export default class ProjectService implements IProjectService {
         }
     }
 
-    public async setColorsForUpdatedTags(oldProject: IProject, updatedProject: IProject) {
+    private async setColorsForUpdatedTags(oldProject: IProject, updatedProject: IProject) {
         let existingTags: ITag[] = [];
         const newTags: ITag[] = [];
         updatedProject.tags.forEach((updatedTag) => {
