@@ -247,21 +247,21 @@ export default class ProjectService implements IProjectService {
     }
 
     public async setColorsForUpdatedTags(oldProject: IProject, updatedProject: IProject) {
-        let updatedTags: ITag[] = [];
+        let existingTags: ITag[] = [];
         const newTags: ITag[] = [];
         updatedProject.tags.forEach((updatedTag) => {
             if (!oldProject.tags.find((oldTag) => updatedTag.name === oldTag.name )) {
                 newTags.push(updatedTag);
             } else {
-                updatedTags.push(updatedTag);
+                existingTags.push(updatedTag);
             }
         });
-        updatedTags = patch(updatedTags, oldProject.tags, "name", ["color"]);
+        existingTags = patch(existingTags, oldProject.tags, "name", ["color"]);
         newTags.forEach((newTag) => {
-            newTag.color = getNextColor(updatedTags);
-            updatedTags.push(newTag);
+            newTag.color = getNextColor(existingTags);
+            existingTags.push(newTag);
         });
-        updatedProject.tags = updatedTags;
+        updatedProject.tags = existingTags;
     }
 
     private addMissingTags(project: IProject, tags: ITag[]) {
