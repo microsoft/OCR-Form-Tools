@@ -414,7 +414,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const selectedFeatures = allFeatures
             .filter((feature) => !feature.get("isOcrProposal"))
             .filter((feature) => textRegions.findIndex((region) => region.id === feature.get("id")) !== -1);
-        selectedFeatures.map((this.imageMap.removeFeature));
+        selectedFeatures.map(this.imageMap.removeFeature);
 
         const allCheckboxFeatures = this.imageMap.getAllCheckboxFeatures();
         const selectdCheckboxFeatures = allCheckboxFeatures
@@ -1279,7 +1279,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.state.currentAsset.labelData != null) {
             const regionsFromLabelData = this.convertLabelDataToRegions(this.state.currentAsset.labelData);
             if (regionsFromLabelData.length > 0) {
-                //this.addRegions(regionsFromLabelData);
                 this.addRegionsToAsset(regionsFromLabelData);
                 this.addLabelledDataToLayer(regionsFromLabelData.filter(
                     (region) => region.pageNumber === this.state.currentPage));
