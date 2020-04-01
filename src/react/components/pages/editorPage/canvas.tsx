@@ -652,6 +652,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private labbelledFeatureStyler = (feature) => {
         const regionId = feature.get("id");
+        const selectedRegion = this.state.currentAsset.regions.find((region) => region.id === regionId);
+        console.log(selectedRegion.category);
         const tag: ITag = this.getTagFromRegionId(regionId);
         // Selected
         if (this.isRegionSelected(regionId)) {
@@ -661,7 +663,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     width: feature.get("highlighted") ? 4 : 2,
                 }),
                 fill: new Fill({
-                    color: "rgba(0, 0, 128, 0.6)",
+                    color: selectedRegion.category === RegionCategory.Text ? "rgba(110, 255, 80, 0.4)" :
+                        "rgba(255, 105, 180, 0.5)",
                 }),
             });
         } else if (tag != null) {
@@ -782,6 +785,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             }
         }
         this.redrawFeatures(this.imageMap.getAllLabelledFeatures());
+        this.redrawFeatures(this.imageMap.getAllFeatures());
+        this.redrawFeatures(this.imageMap.getAllCheckboxFeatures());
     }
 
     private handleTableIconFeatureSelect = () => {
