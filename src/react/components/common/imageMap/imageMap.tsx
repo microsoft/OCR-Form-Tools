@@ -27,11 +27,11 @@ interface IImageMapProps {
     tableIconFeatureStyler?: any;
     tableIconBorderFeatureStyler?: any;
     checkboxFeatureStyler?: any;
-    labbeledFeatureStyler?: any;
+    labelFeatureStyler?: any;
 
     enableFeatureSelection?: boolean;
     handleFeatureSelect?: (feature: any, isTaggle: boolean, category: RegionCategory) => void;
-    handleLabelledFeatureSelect?: (feature: any, isTaggle: boolean) => void;
+    handleLabelFeatureSelect?: (feature: any, isTaggle: boolean) => void;
     hoveringFeature?: string;
 
     onMapReady: () => void;
@@ -48,7 +48,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
     private tableIconVectorLayer: VectorLayer;
     private tableIconBorderVectorLayer: VectorLayer;
     private checkboxVectorLayer: VectorLayer;
-    private labelledVectorLayer: VectorLayer;
+    private labelVectorLayer: VectorLayer;
 
     private mapElement: HTMLDivElement | null = null;
 
@@ -62,7 +62,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
     private readonly TABLE_ICON_VECTOR_LAYER_NAME = "tableIconVectorLayer";
     private readonly TABLE_ICON_BORDER_VECTOR_LAYER_NAME = "tableIconBorderVectorLayer";
     private readonly CHECKBOX_VECTOR_LAYER_NAME = "checkboxBorderVectorLayer";
-    private readonly LABELLED_VECTOR_LAYER_NAME = "labelledVectorLayer";
+    private readonly LABEL_VECTOR_LAYER_NAME = "labelledVectorLayer";
 
     private ignorePointerMoveEventCount: number = 5;
     private pointerMoveEventCount: number = 0;
@@ -79,8 +79,8 @@ export class ImageMap extends React.Component<IImageMapProps> {
         layerFilter: (layer: Layer) => layer.get("name") === this.TABLE_ICON_BORDER_VECTOR_LAYER_NAME,
     };
 
-    private labelledVectorLayerFilter = {
-        layerFilter: (layer: Layer) => layer.get("name") === this.LABELLED_VECTOR_LAYER_NAME,
+    private labelVectorLayerFilter = {
+        layerFilter: (layer: Layer) => layer.get("name") === this.LABEL_VECTOR_LAYER_NAME,
     };
 
     constructor(props: IImageMapProps) {
@@ -117,8 +117,8 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.tableIconBorderVectorLayer.setVisible(!this.tableIconBorderVectorLayer.getVisible());
     }
 
-    public toggleLabelledFeatureVisibility = () => {
-        this.labelledVectorLayer.setVisible(!this.labelledVectorLayer.getVisible());
+    public toggleLabelFeatureVisibility = () => {
+        this.labelVectorLayer.setVisible(!this.labelVectorLayer.getVisible());
     }
 
     /**
@@ -150,8 +150,8 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.checkboxVectorLayer.getSource().addFeature(feature);
     }
 
-    public addLabelledFeature = (feature: Feature) => {
-        this.labelledVectorLayer.getSource().addFeature(feature);
+    public addLabelFeature = (feature: Feature) => {
+        this.labelVectorLayer.getSource().addFeature(feature);
     }
 
     public addTableBorderFeature = (feature: Feature) => {
@@ -177,8 +177,8 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.checkboxVectorLayer.getSource().addFeatures(features);
     }
 
-    public addLabelledFeatures = (features: Feature[]) => {
-        this.labelledVectorLayer.getSource().addFeatures(features);
+    public addLabelFeatures = (features: Feature[]) => {
+        this.labelVectorLayer.getSource().addFeatures(features);
     }
 
     public addTableBorderFeatures = (features: Feature[]) => {
@@ -211,8 +211,8 @@ export class ImageMap extends React.Component<IImageMapProps> {
         return this.checkboxVectorLayer.getSource().getFeatures();
     }
 
-    public getAllLabelledFeatures = () => {
-        return this.labelledVectorLayer.getSource().getFeatures();
+    public getAllLabelFeatures = () => {
+        return this.labelVectorLayer.getSource().getFeatures();
     }
 
     public getFeatureByID = (featureID) => {
@@ -246,8 +246,8 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.checkboxVectorLayer.getSource().removeFeature(feature);
     }
 
-    public removeLabelledFeature = (feature: Feature) => {
-        this.labelledVectorLayer.getSource().removeFeature(feature);
+    public removeLabelFeature = (feature: Feature) => {
+        this.labelVectorLayer.getSource().removeFeature(feature);
     }
 
     /**
@@ -262,7 +262,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.tableIconVectorLayer.getSource().clear();
         this.tableIconBorderVectorLayer.getSource().clear();
         this.checkboxVectorLayer.getSource().clear();
-        this.labelledVectorLayer.getSource().clear();
+        this.labelVectorLayer.getSource().clear();
     }
 
     /**
@@ -341,11 +341,11 @@ export class ImageMap extends React.Component<IImageMapProps> {
         checkboxOptions.source = new VectorSource();
         this.checkboxVectorLayer = new VectorLayer(checkboxOptions);
 
-        const labelledOptions: any = {};
-        labelledOptions.name = this.LABELLED_VECTOR_LAYER_NAME;
-        labelledOptions.style = this.props.labbeledFeatureStyler;
-        labelledOptions.source = new VectorSource();
-        this.labelledVectorLayer = new VectorLayer(labelledOptions);
+        const labelOptions: any = {};
+        labelOptions.name = this.LABEL_VECTOR_LAYER_NAME;
+        labelOptions.style = this.props.labelFeatureStyler;
+        labelOptions.source = new VectorSource();
+        this.labelVectorLayer = new VectorLayer(labelOptions);
 
         this.map = new Map({
             controls: [] ,
@@ -359,7 +359,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
                 this.tableIconVectorLayer,
                 this.tableIconBorderVectorLayer,
                 this.checkboxVectorLayer,
-                this.labelledVectorLayer,
+                this.labelVectorLayer,
             ],
             view: this.createMapView(projection, this.imageExtent),
         });
@@ -442,18 +442,18 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
         const isPointerOnLabelledFeature = this.map.hasFeatureAtPixel(
             eventPixel,
-            this.labelledVectorLayerFilter);
+            this.labelVectorLayerFilter);
 
-        if (isPointerOnLabelledFeature && this.props.handleLabelledFeatureSelect) {
+        if (isPointerOnLabelledFeature && this.props.handleLabelFeatureSelect) {
             this.map.forEachFeatureAtPixel(
                 eventPixel,
                 (feature) => {
-                    if (this.props.handleLabelledFeatureSelect && !selectFlag) {
-                        this.props.handleLabelledFeatureSelect(feature, true);
+                    if (this.props.handleLabelFeatureSelect && !selectFlag) {
+                        this.props.handleLabelFeatureSelect(feature, true);
                         selectFlag = true;
                     }
                 },
-                this.labelledVectorLayerFilter,
+                this.labelVectorLayerFilter,
             );
         }
 

@@ -154,7 +154,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         } else if (this.isLabelDataChanged(this.props, prevProps)) {
             this.redrawFeatures(this.imageMap.getAllFeatures());
             this.redrawFeatures(this.imageMap.getAllCheckboxFeatures());
-            this.redrawFeatures(this.imageMap.getAllLabelledFeatures());
+            this.redrawFeatures(this.imageMap.getAllLabelFeatures());
             const newRegions = this.convertLabelDataToRegions(this.props.selectedAsset.labelData);
             this.updateAssetRegions(newRegions);
         }
@@ -198,10 +198,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     imageHeight={this.state.imageHeight}
                     enableFeatureSelection={true}
                     handleFeatureSelect={this.handleFeatureSelect}
-                    handleLabelledFeatureSelect={this.handleLabelledFeatureSelect}
+                    handleLabelFeatureSelect={this.handleLabelFeatureSelect}
                     featureStyler={this.featureStyler}
                     checkboxFeatureStyler={this.checkboxFeatureStyler}
-                    labbeledFeatureStyler={this.labbelledFeatureStyler}
+                    labelFeatureStyler={this.labelFeatureStyler}
                     tableBorderFeatureStyler={this.tableBorderFeatureStyler}
                     tableIconFeatureStyler={this.tableIconFeatureStyler}
                     tableIconBorderFeatureStyler={this.tableIconBorderFeatureStyler}
@@ -301,7 +301,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
         this.redrawFeatures(this.imageMap.getAllFeatures());
         this.redrawFeatures(this.imageMap.getAllCheckboxFeatures());
-        this.redrawFeatures(this.imageMap.getAllLabelledFeatures());
+        this.redrawFeatures(this.imageMap.getAllLabelFeatures());
         this.applyTagFlag = true;
     }
 
@@ -422,14 +422,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             .filter((feature) => checkboxRegions.findIndex((region) => region.id === feature.get("id")) !== -1);
         selectdCheckboxFeatures.map(this.imageMap.removeCheckboxFeature);
 
-        const getAllLabelledFeatures = this.imageMap.getAllLabelledFeatures();
+        const getAllLabelledFeatures = this.imageMap.getAllLabelFeatures();
         const selectedLabelledFeatures = getAllLabelledFeatures
             .filter((feature) => regions.findIndex((region) => region.id === feature.get("id")) !== -1);
-        selectedLabelledFeatures.map((feature) => this.imageMap.removeLabelledFeature(feature));
+        selectedLabelledFeatures.map((feature) => this.imageMap.removeLabelFeature(feature));
 
         this.redrawFeatures(this.imageMap.getAllFeatures());
         this.redrawFeatures(this.imageMap.getAllCheckboxFeatures());
-        this.redrawFeatures(this.imageMap.getAllLabelledFeatures());
+        this.redrawFeatures(this.imageMap.getAllLabelFeatures());
     }
 
     /**
@@ -650,7 +650,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
     }
 
-    private labbelledFeatureStyler = (feature) => {
+    private labelFeatureStyler = (feature) => {
         const regionId = feature.get("id");
         const selectedRegion = this.state.currentAsset.regions.find((region) => region.id === regionId);
         console.log(selectedRegion.category);
@@ -774,7 +774,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.redrawFeatures(this.imageMap.getAllCheckboxFeatures());
     }
 
-    private handleLabelledFeatureSelect = (feature: Feature, isToggle: boolean = true) => {
+    private handleLabelFeatureSelect = (feature: Feature, isToggle: boolean = true) => {
         const regionId = feature.get("id");
         if (isToggle && this.isRegionSelected(regionId)) {
             this.removeFromSelectedRegions(regionId);
@@ -784,7 +784,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 this.onRegionSelected(regionId, false);
             }
         }
-        this.redrawFeatures(this.imageMap.getAllLabelledFeatures());
+        this.redrawFeatures(this.imageMap.getAllLabelFeatures());
         this.redrawFeatures(this.imageMap.getAllFeatures());
         this.redrawFeatures(this.imageMap.getAllCheckboxFeatures());
     }
@@ -1298,7 +1298,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
         const imageExtent = this.imageMap.getImageExtent();
         const featuresToAdd = regions.map((region) => this.convertRegionToFeature(region, imageExtent));
-        this.imageMap.addLabelledFeatures(featuresToAdd);
+        this.imageMap.addLabelFeatures(featuresToAdd);
 
     }
 
@@ -1560,7 +1560,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 this.imageMap.toggleCheckboxFeatureVisibility();
                 break;
             case "label":
-                this.imageMap.toggleLabelledFeatureVisibility();
+                this.imageMap.toggleLabelFeatureVisibility();
                 break;
         }
         const newLayers = Object.assign({}, this.state.layers);
