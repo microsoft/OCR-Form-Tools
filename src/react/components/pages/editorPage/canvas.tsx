@@ -652,7 +652,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private labelFeatureStyler = (feature) => {
         const regionId = feature.get("id");
         const selectedRegion = this.state.currentAsset.regions.find((region) => region.id === regionId);
-        console.log(selectedRegion.category);
         const tag: ITag = this.getTagFromRegionId(regionId);
         // Selected
         if (this.isRegionSelected(regionId)) {
@@ -674,7 +673,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     width: feature.get("highlighted") ? 4 : 2,
                 }),
                 fill: new Fill({
-                    color: "rgba( 255, 255, 255, 0)",
+                    color: "rgba(255, 255, 255, 0)",
                 }),
             });
         }

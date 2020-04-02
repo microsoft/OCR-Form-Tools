@@ -437,7 +437,6 @@ export class ImageMap extends React.Component<IImageMapProps> {
         }
 
         const eventPixel =  this.map.getEventPixel(event.originalEvent);
-        let selectFlag = false;
 
         const isPointerOnLabelledFeature = this.map.hasFeatureAtPixel(
             eventPixel,
@@ -447,13 +446,13 @@ export class ImageMap extends React.Component<IImageMapProps> {
             this.map.forEachFeatureAtPixel(
                 eventPixel,
                 (feature) => {
-                    if (this.props.handleFeatureSelect && !selectFlag) {
+                    if (this.props.handleFeatureSelect) {
                         this.props.handleFeatureSelect(feature, true, RegionCategory.Label);
-                        selectFlag = true;
                     }
                 },
                 this.labelVectorLayerFilter,
             );
+            return;
         }
 
         const isPointerOnTextFeature = this.map.hasFeatureAtPixel(
@@ -464,12 +463,14 @@ export class ImageMap extends React.Component<IImageMapProps> {
             this.map.forEachFeatureAtPixel(
                 eventPixel,
                 (feature) => {
-                    if (this.props.handleFeatureSelect && !selectFlag) {
+                    if (this.props.handleFeatureSelect) {
                         this.props.handleFeatureSelect(feature, true /*isTaggle*/, RegionCategory.Text);
-                        selectFlag = true;
                     }
                 },
                 this.textVectorLayerFilter);
+            this.setDragPanInteraction(!isPointerOnTextFeature /*dragPanEnabled*/);
+            this.isSwiping = isPointerOnTextFeature;
+            return;
         }
 
         const isPointerOnCheckboxFeature = this.map.hasFeatureAtPixel(
@@ -480,16 +481,13 @@ export class ImageMap extends React.Component<IImageMapProps> {
             this.map.forEachFeatureAtPixel(
                 eventPixel,
                 (feature) => {
-                    if (this.props.handleFeatureSelect && !selectFlag) {
+                    if (this.props.handleFeatureSelect) {
                         this.props.handleFeatureSelect(feature, true, RegionCategory.Checkbox);
                     }
                 },
                 this.checkboxLayerFilter,
             );
         }
-
-        this.setDragPanInteraction(!isPointerOnTextFeature /*dragPanEnabled*/);
-        this.isSwiping = isPointerOnTextFeature;
     }
 
     private handlePointerMoveOnTableIcon = (event: MapBrowserEvent) => {
