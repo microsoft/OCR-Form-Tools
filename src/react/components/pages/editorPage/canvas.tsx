@@ -198,7 +198,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     imageHeight={this.state.imageHeight}
                     enableFeatureSelection={true}
                     handleFeatureSelect={this.handleFeatureSelect}
-                    handleLabelFeatureSelect={this.handleLabelFeatureSelect}
                     featureStyler={this.featureStyler}
                     checkboxFeatureStyler={this.checkboxFeatureStyler}
                     labelFeatureStyler={this.labelFeatureStyler}
@@ -770,24 +769,25 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const polygon = regionId.split(",").map(parseFloat);
             this.addToSelectedRegions(regionId, feature.get("text"), polygon, category);
         }
-        this.redrawFeatures(this.imageMap.getAllFeatures());
-        this.redrawFeatures(this.imageMap.getAllCheckboxFeatures());
-    }
-
-    private handleLabelFeatureSelect = (feature: Feature, isToggle: boolean = true) => {
-        const regionId = feature.get("id");
-        if (isToggle && this.isRegionSelected(regionId)) {
-            this.removeFromSelectedRegions(regionId);
-        } else {
-            if (!this.selectedRegionIds.includes(regionId)) {
-                this.selectedRegionIds.push(regionId);
-                this.onRegionSelected(regionId, false);
-            }
-        }
         this.redrawFeatures(this.imageMap.getAllLabelFeatures());
         this.redrawFeatures(this.imageMap.getAllFeatures());
         this.redrawFeatures(this.imageMap.getAllCheckboxFeatures());
     }
+
+    // private handleLabelFeatureSelect = (feature: Feature, isToggle: boolean = true) => {
+    //     const regionId = feature.get("id");
+    //     if (isToggle && this.isRegionSelected(regionId)) {
+    //         this.removeFromSelectedRegions(regionId);
+    //     } else {
+    //         if (!this.selectedRegionIds.includes(regionId)) {
+    //             this.selectedRegionIds.push(regionId);
+    //             this.onRegionSelected(regionId, false);
+    //         }
+    //     }
+    //     this.redrawFeatures(this.imageMap.getAllLabelFeatures());
+    //     this.redrawFeatures(this.imageMap.getAllFeatures());
+    //     this.redrawFeatures(this.imageMap.getAllCheckboxFeatures());
+    // }
 
     private handleTableIconFeatureSelect = () => {
         if (this.state.hoveringFeature != null) {
@@ -829,7 +829,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             // Explicitly set pageNumber in order to fix incorrect page number
             selectedRegion.pageNumber = this.state.currentPage;
 
-        } else {
+        } else if (regionCategory === RegionCategory.Label) {
+            if (this.selectedRegionIds.includes(regionId)) {
+                return;
+            }
+        }  else {
             const regionBoundingBox = this.convertToRegionBoundingBox(polygon);
             const regionPoints = this.convertToRegionPoints(polygon);
             selectedRegion = {

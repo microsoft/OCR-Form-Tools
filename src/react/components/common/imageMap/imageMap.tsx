@@ -31,7 +31,6 @@ interface IImageMapProps {
 
     enableFeatureSelection?: boolean;
     handleFeatureSelect?: (feature: any, isTaggle: boolean, category: RegionCategory) => void;
-    handleLabelFeatureSelect?: (feature: any, isTaggle: boolean) => void;
     hoveringFeature?: string;
 
     onMapReady: () => void;
@@ -444,12 +443,12 @@ export class ImageMap extends React.Component<IImageMapProps> {
             eventPixel,
             this.labelVectorLayerFilter);
 
-        if (isPointerOnLabelledFeature && this.props.handleLabelFeatureSelect) {
+        if (isPointerOnLabelledFeature && this.props.handleFeatureSelect) {
             this.map.forEachFeatureAtPixel(
                 eventPixel,
                 (feature) => {
-                    if (this.props.handleLabelFeatureSelect && !selectFlag) {
-                        this.props.handleLabelFeatureSelect(feature, true);
+                    if (this.props.handleFeatureSelect && !selectFlag) {
+                        this.props.handleFeatureSelect(feature, true, RegionCategory.Label);
                         selectFlag = true;
                     }
                 },
