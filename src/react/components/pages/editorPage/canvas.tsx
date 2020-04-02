@@ -774,21 +774,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.redrawFeatures(this.imageMap.getAllCheckboxFeatures());
     }
 
-    // private handleLabelFeatureSelect = (feature: Feature, isToggle: boolean = true) => {
-    //     const regionId = feature.get("id");
-    //     if (isToggle && this.isRegionSelected(regionId)) {
-    //         this.removeFromSelectedRegions(regionId);
-    //     } else {
-    //         if (!this.selectedRegionIds.includes(regionId)) {
-    //             this.selectedRegionIds.push(regionId);
-    //             this.onRegionSelected(regionId, false);
-    //         }
-    //     }
-    //     this.redrawFeatures(this.imageMap.getAllLabelFeatures());
-    //     this.redrawFeatures(this.imageMap.getAllFeatures());
-    //     this.redrawFeatures(this.imageMap.getAllCheckboxFeatures());
-    // }
-
     private handleTableIconFeatureSelect = () => {
         if (this.state.hoveringFeature != null) {
             const tableState = this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).get("state");
