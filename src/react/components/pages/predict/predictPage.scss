@@ -44,3 +44,22 @@
   width: 100%;
   flex: 1;
 }
+
+.seperator {
+  margin: 20px 10px;
+  position: relative;
+  background-color: inherit;
+  width: 45%;
+  display: inline-block;
+}
+
+.seperator:before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  border-top: 1px solid white;
+  background: white;
+  width: 100%;
+  transform: translateY(-50%);
+}
