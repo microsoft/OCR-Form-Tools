@@ -772,7 +772,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.redrawFeatures(this.imageMap.getAllLabelFeatures());
         this.redrawFeatures(this.imageMap.getAllFeatures());
         this.redrawFeatures(this.imageMap.getAllCheckboxFeatures());
-        console.log(this.state.currentAsset.regions);
     }
 
     private handleMultiSelection = (regionId: any, category: FeatureCategory) => {
