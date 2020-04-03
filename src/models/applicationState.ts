@@ -389,4 +389,5 @@ export enum FieldFormat {
 export enum RegionCategory {
     Text = "text",
     Checkbox = "checkbox",
+    Label = "label",
 }
