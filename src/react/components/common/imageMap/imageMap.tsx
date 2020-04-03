@@ -444,12 +444,11 @@ export class ImageMap extends React.Component<IImageMapProps> {
             this.map.forEachFeatureAtPixel(
                 eventPixel,
                 (feature) => {
-                    this.props.handleFeatureSelect(feature, true, filter[1]);
+                    this.props.handleFeatureSelect(feature, true, filter.category);
                 },
-                filter[0],
+                filter.layerfilter,
             );
         }
-
         const isPixelOnFeature = !!filter;
         this.setDragPanInteraction(!isPixelOnFeature /*dragPanEnabled*/);
         this.isSwiping = isPixelOnFeature;
@@ -460,19 +459,28 @@ export class ImageMap extends React.Component<IImageMapProps> {
             eventPixel,
             this.labelVectorLayerFilter);
         if (isPointerOnLabelledFeature) {
-            return [this.labelVectorLayerFilter, RegionCategory.Label];
+            return {
+                layerfilter: this.labelVectorLayerFilter,
+                category: RegionCategory.Label,
+            };
         }
         const isPointerOnCheckboxFeature = this.map.hasFeatureAtPixel(
             eventPixel,
             this.checkboxLayerFilter);
         if (isPointerOnCheckboxFeature) {
-            return [this.checkboxLayerFilter, RegionCategory.Checkbox];
+            return {
+                layerfilter: this.checkboxLayerFilter,
+                category: RegionCategory.Checkbox,
+            };
         }
         const isPointerOnTextFeature = this.map.hasFeatureAtPixel(
             eventPixel,
             this.textVectorLayerFilter);
         if (isPointerOnTextFeature) {
-            return [this.textVectorLayer, RegionCategory.Text];
+            return {
+                layerfilter : this.textVectorLayerFilter,
+                category: RegionCategory.Text,
+            };
         }
         return null;
     }
