@@ -782,8 +782,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             .find((r) => r.id === regionId).category === FeatureCategory.Checkbox)) {
                 selectedRegions.map((region) => this.removeFromSelectedRegions(region.id));
         } else if (category === FeatureCategory.Text ||
-            (category === FeatureCategory.Label && this.state.currentAsset.regions)
-            .find((r) => r.id === regionId).category === FeatureCategory.Text) {
+            (category === FeatureCategory.Label && this.state.currentAsset.regions
+            .find((r) => r.id === regionId).category === FeatureCategory.Text)) {
                 selectedRegions.filter((region) => region.category === FeatureCategory.Checkbox)
                     .map((region) => this.removeFromSelectedRegions(region.id));
             }
