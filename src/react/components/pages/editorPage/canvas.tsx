@@ -786,7 +786,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             .find((r) => r.id === regionId).category === FeatureCategory.Text)) {
                 selectedRegions.filter((region) => region.category === FeatureCategory.Checkbox)
                     .map((region) => this.removeFromSelectedRegions(region.id));
-            }
+        }
     }
 
     private handleTableIconFeatureSelect = () => {
