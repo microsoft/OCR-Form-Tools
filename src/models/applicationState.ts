@@ -197,7 +197,7 @@ export interface ISize {
 export interface IRegion {
     id: string;
     type: RegionType;
-    category: RegionCategory;
+    category: FeatureCategory;
     tags: string[];
     points?: IPoint[];
     boundingBox?: IBoundingBox;
@@ -386,7 +386,8 @@ export enum FieldFormat {
     YMD = "ymd",
 }
 
-export enum RegionCategory {
+export enum FeatureCategory {
     Text = "text",
     Checkbox = "checkbox",
+    Label = "label",
 }
