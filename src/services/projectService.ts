@@ -254,8 +254,7 @@ export default class ProjectService implements IProjectService {
     }
 
     private async setColorsForUpdatedTags(oldProject: IProject, updatedProject: IProject) {
-        if (!oldProject.tags || oldProject.tags.length === 0)
-        {
+        if (!oldProject.tags || oldProject.tags.length === 0) {
             return;
         }
 
