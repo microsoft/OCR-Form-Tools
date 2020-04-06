@@ -153,7 +153,9 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
     private getTagContent = () => {
         const displayIndex = this.getDisplayIndex();
         return (
-            <div className={"tag-name-container"}>
+            <div className={"tag-name-container"}
+                onMouseEnter={this.handleMouseEnter}
+                onMouseLeave={this.handleMouseLeave}>
                 {
                     (this.isTypeOrFormatSpecified()) &&
                     <FontIcon iconName="Link" className="pl-1" />
@@ -259,5 +261,19 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         const {tag} = this.props;
         return (tag.type && tag.type !== FieldType.String) ||
             (tag.format && tag.format !== FieldFormat.NotSpecified);
+    }
+
+    private handleMouseEnter = () => {
+        const { labels } = this.props;
+        if (labels.length > 0) {
+            this.props.onLabelEnter(labels[0]);
+        }
+    }
+
+    private handleMouseLeave = () => {
+        const { labels } = this.props;
+        if (labels.length > 0) {
+            this.props.onLabelLeave(labels[0]);
+        }
     }
 }

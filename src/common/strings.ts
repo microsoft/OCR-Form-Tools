@@ -126,6 +126,7 @@ export interface IAppStrings {
         title: string;
         uploadFile: string;
         inProgress: string;
+        downloadScript: string;
     };
     projectMetrics: {
         title: string;

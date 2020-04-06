@@ -380,7 +380,7 @@ export enum FieldFormat {
     Decimal = "decimal",
     DecimalCommaSeparated = "decimal-comma-seperated",
     NoWhiteSpaces = "no-whitespaces",
-    Alphanumberic = "alphanumberic",
+    Alphanumeric = "alphanumeric",
     DMY = "dmy",
     MDY = "mdy",
     YMD = "ymd",

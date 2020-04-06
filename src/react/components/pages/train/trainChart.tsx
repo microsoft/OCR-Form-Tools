@@ -45,7 +45,6 @@ export default class TrainChart
     }
 
     private chartData = (): object => {
-        console.log(this.props.projectTags);
         return {
             labels: this.getLabels(),
             datasets: [{

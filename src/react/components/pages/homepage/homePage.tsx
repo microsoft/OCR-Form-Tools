@@ -155,7 +155,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
         }
 
         // Load project from storage provider to keep the project in latest state
-        const decryptedProject = decryptProject(project, projectToken);
+        const decryptedProject = await decryptProject(project, projectToken);
         const storageProvider = StorageProviderFactory.createFromConnection(decryptedProject.sourceConnection);
         try {
             let projectStr: string;
