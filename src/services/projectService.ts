@@ -254,6 +254,11 @@ export default class ProjectService implements IProjectService {
     }
 
     private async setColorsForUpdatedTags(oldProject: IProject, updatedProject: IProject) {
+        if (!oldProject.tags || oldProject.tags.length === 0)
+        {
+            return;
+        }
+
         let existingTags: ITag[] = [];
         const newTags: ITag[] = [];
         updatedProject.tags.forEach((updatedTag) => {
