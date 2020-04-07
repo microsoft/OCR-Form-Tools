@@ -159,7 +159,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             <span className="condensed-list-title">Predict</span>
                         </h6>
                         <div className="p-3">
-                            <h5>
+                            {/* <h5>
                                 {strings.predict.downloadScript}
                             </h5>
                             <PrimaryButton
@@ -173,7 +173,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                 <div className="seperator"/>
                                 or
                                 <div className="seperator"/>
-                            </div>
+                            </div> */}
                             <h5>
                                 {strings.predict.uploadFile}
                             </h5>
