@@ -183,7 +183,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private handleTrainClick = () => {
-        console.log(this.state.isTraining);
         this.setState({
             isTraining: true,
             trainMessage: strings.train.training,
@@ -201,7 +200,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 trainMessage: err.message,
             });
         });
-        console.log(this.state.isTraining);
     }
 
     private handleViewTypeClick = (viewType: "tableView" | "chartView"): void => {
