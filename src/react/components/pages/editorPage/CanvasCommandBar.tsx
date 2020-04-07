@@ -8,6 +8,8 @@ interface ICanvasCommandBarProps {
     handleZoomOut: () => void;
     handleLayerChange: (layer: string) => void;
     layers: any;
+    hasCheckbox: boolean;
+    hasTable: boolean;
 }
 
 export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> = (props) => {
@@ -37,6 +39,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                 key: "table",
                 text: "Tables",
                 canCheck: true,
+                hidden: !props.hasTable,
                 iconProps: { iconName: "Table" },
                 isChecked: props.layers["tables"],
                 onClick: () => props.handleLayerChange("tables"),
@@ -45,6 +48,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                 key: "checkboxes",
                 text: "Checkboxes",
                 canCheck: true,
+                hidden: !props.hasCheckbox,
                 iconProps: { iconName: "CheckboxComposite" },
                 isChecked: props.layers["checkboxes"],
                 onClick: () => props.handleLayerChange("checkboxes"),

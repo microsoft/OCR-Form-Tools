@@ -139,6 +139,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private pendingFlag: boolean = false;
 
+    private hasCheckbox: boolean = false;
+
+    private hasTable: boolean = false;
+
     public componentDidMount = async () => {
         this.ocrService = new OCRService(this.props.project);
         const asset = this.state.currentAsset.asset;
@@ -208,6 +212,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleZoomIn={this.handleCanvasZoomIn}
                     handleZoomOut={this.handleCanvasZoomOut}
                     layers={this.state.layers}
+                    hasCheckbox={this.hasCheckbox}
+                    hasTable={this.hasTable}
                 />
                 <ImageMap
                     ref={(ref) => this.imageMap = ref}
@@ -1497,12 +1503,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.imageMap.addTableBorderFeatures(tableBorderFeatures);
             this.imageMap.addTableIconFeatures(tableIconFeatures);
             this.imageMap.addTableIconBorderFeatures(tableIconBorderFeatures);
+            this.hasTable = true;
         }
         if (textFeatures.length > 0) {
             this.imageMap.addFeatures(textFeatures);
         }
         if (checkboxFeatures.length > 0) {
             this.imageMap.addCheckboxFeatures(checkboxFeatures);
+            this.hasCheckbox = true;
         }
     }
 
