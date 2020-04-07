@@ -122,6 +122,7 @@ export const spanish: IAppStrings = {
         training: "Entrenamiento",
         pleaseWait: "Por favor espera",
         notTrainedYet: "Aún no entrenado",
+        backEndNotAvailable: "La función de casilla de verificación funcionará en la versión futura del servicio de reconocimiento de formularios, manténgase atento.",
     },
     predict: {
         title: "Predecir",

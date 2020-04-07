@@ -127,6 +127,12 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                         <div className="condensed-list-body">
                             <div className="m-3">
                                 <h4 className="text-shadow-none"> Train a new model </h4>
+                                <div className="alert alert-warning warning train-notification">
+                                    <FontIcon iconName="WarningSolid"></FontIcon>
+                                    <span className="train-notification-text">
+                                        {strings.train.backEndNotAvailable}
+                                    </span>
+                                </div>
                                 {!this.state.isTraining ? (
                                     <PrimaryButton
                                         id="train_trainButton"
@@ -177,6 +183,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private handleTrainClick = () => {
+        console.log(this.state.isTraining);
         this.setState({
             isTraining: true,
             trainMessage: strings.train.training,
@@ -194,6 +201,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 trainMessage: err.message,
             });
         });
+        console.log(this.state.isTraining);
     }
 
     private handleViewTypeClick = (viewType: "tableView" | "chartView"): void => {

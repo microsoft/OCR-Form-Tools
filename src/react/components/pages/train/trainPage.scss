@@ -67,3 +67,11 @@
         margin-left: 6px;
     }
 }
+
+.train-notification {
+    font-size: smaller;
+    padding: 10px 20px;
+    &-text {
+        padding-left:4px;
+    }
+}
