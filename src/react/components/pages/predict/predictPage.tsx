@@ -32,6 +32,7 @@ import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../.
 import { constants } from "../../../../common/constants";
 import { getPrimaryGreenTheme, getPrimaryWhiteTheme } from "../../../../common/themes";
 import { SkipButton } from "../../shell/skipButton";
+import axios from "axios";
 
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
 
@@ -154,48 +155,65 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 <div className="predict-sidebar bg-lighter-1">
                     <div className="condensed-list">
                         <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
-                            <FontIcon iconName="Insights" />
+                            <FontIcon className="mr-1" iconName="Insights" />
                             <span className="condensed-list-title">Predict</span>
                         </h6>
                         <div className="p-3">
-                            <h5>{strings.predict.uploadFile}</h5>
-                                <div style={{display: "flex", marginBottom: "25px"}}>
-                                    <input
-                                        aria-hidden="true"
-                                        type="file"
-                                        accept="application/pdf, image/jpeg, image/png, image/tiff"
-                                        id="hiddenInputFile"
-                                        ref={this.fileInput}
-                                        onChange={this.handleFileChange}
-                                        disabled={browseFileDisabled} />
-                                    <input
-                                        type="text"
-                                        id="inputPredictFile"
-                                        style = {{cursor: (browseFileDisabled ? "default" : "pointer")}}
-                                        onClick={this.handleDummyInputClick}
-                                        readOnly={true}
-                                        className="dummyInputFile"
-                                        aria-label={strings.predict.uploadFile}
-                                        value={this.state.fileLabel}/>
-                                    <div className="rlMargin10">
-                                        <PrimaryButton
-                                            theme={getPrimaryGreenTheme()}
-                                            text="Browse"
-                                            allowDisabledFocus
-                                            disabled={browseFileDisabled}
-                                            autoFocus={true}
-                                            onClick={this.handleDummyInputClick}
-                                        />
-                                    </div>
+                            <h5>
+                                {strings.predict.downloadScript}
+                            </h5>
+                            <PrimaryButton
+                                theme={getPrimaryGreenTheme()}
+                                text="Download python script"
+                                allowDisabledFocus
+                                autoFocus={true}
+                                onClick={this.handleDownloadClick}
+                            />
+                            <div className="alight-vertical-center mt-2">
+                                <div className="seperator"/>
+                                or
+                                <div className="seperator"/>
+                            </div>
+                            <h5>
+                                {strings.predict.uploadFile}
+                            </h5>
+                            <div style={{display: "flex", marginBottom: "25px"}}>
+                                <input
+                                    aria-hidden="true"
+                                    type="file"
+                                    accept="application/pdf, image/jpeg, image/png, image/tiff"
+                                    id="hiddenInputFile"
+                                    ref={this.fileInput}
+                                    onChange={this.handleFileChange}
+                                    disabled={browseFileDisabled} />
+                                <input
+                                    type="text"
+                                    id="inputPredictFile"
+                                    style = {{cursor: (browseFileDisabled ? "default" : "pointer")}}
+                                    onClick={this.handleDummyInputClick}
+                                    readOnly={true}
+                                    className="dummyInputFile"
+                                    aria-label={strings.predict.uploadFile}
+                                    value={this.state.fileLabel}/>
+                                <div className="rlMargin10">
                                     <PrimaryButton
-                                        theme={getPrimaryWhiteTheme()}
-                                        text="Predict"
-                                        aria-label={!this.state.predictionLoaded ? strings.predict.inProgress : ""}
+                                        theme={getPrimaryGreenTheme()}
+                                        text="Browse"
                                         allowDisabledFocus
-                                        disabled={predictDisabled}
-                                        onClick={this.handleClick}
+                                        disabled={browseFileDisabled}
+                                        autoFocus={true}
+                                        onClick={this.handleDummyInputClick}
                                     />
                                 </div>
+                                <PrimaryButton
+                                    theme={getPrimaryWhiteTheme()}
+                                    text="Predict"
+                                    aria-label={!this.state.predictionLoaded ? strings.predict.inProgress : ""}
+                                    allowDisabledFocus
+                                    disabled={predictDisabled}
+                                    onClick={this.handleClick}
+                                />
+                            </div>
                             {!this.state.predictionLoaded &&
                                 <div className="loading-container">
                                     <Spinner
@@ -375,6 +393,63 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         }
 
         return 1;
+    }
+
+    private handleDownloadClick = () => {
+        this.triggerDownload();
+    }
+
+    private async triggerDownload(): Promise<any> {
+        axios.get("/analyze.py").then((response) => {
+            const modelID = _.get(this.props.project, "trainRecord.modelInfo.modelId") as string;
+            if (!modelID) {
+                throw new AppError(
+                    ErrorCode.PredictWithoutTrainForbidden,
+                    strings.errors.predictWithoutTrainForbidden.message,
+                    strings.errors.predictWithoutTrainForbidden.title);
+            }
+            const endpointURL = this.props.project.apiUriBase as string;
+            const apiKey = this.props.project.apiKey as string;
+            const analyzeScript = response.data.replace(/<endpoint>|<subsription_key>|<model_id>/gi,
+                (matched: string) => {
+                switch (matched) {
+                    case "<endpoint>":
+                        return endpointURL;
+                    case "<subsription_key>":
+                        return apiKey;
+                    case "<model_id>":
+                        return modelID;
+                }
+            });
+            const fileURL = window.URL.createObjectURL(
+                new Blob([analyzeScript]));
+            const fileLink = document.createElement("a");
+            const fileBaseName = "analysis";
+            const downloadFileName = fileBaseName + modelID.substring(0, 4) + ".py";
+
+            fileLink.href = fileURL;
+            fileLink.setAttribute("download", downloadFileName);
+            document.body.appendChild(fileLink);
+            fileLink.click();
+
+        }).catch((error) => {
+            let alertMessage = "";
+            if (error.response) {
+                alertMessage = error.response.data;
+            } else if (error.errorCode === ErrorCode.PredictWithoutTrainForbidden) {
+                alertMessage = strings.errors.predictWithoutTrainForbidden.message;
+            } else if (error.errorCode === ErrorCode.ModelNotFound) {
+                alertMessage = error.message;
+            } else {
+                alertMessage = interpolate(strings.errors.endpointConnectionError.message, { endpoint: "form recognizer backend URL" });
+            }
+            this.setState({
+                shouldShowAlert: true,
+                alertTitle: "Download failed",
+                alertMessage,
+                isPredicting: false,
+            });
+        });
     }
 
     private async getPrediction(): Promise<any> {

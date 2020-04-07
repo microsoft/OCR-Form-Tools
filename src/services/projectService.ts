@@ -48,7 +48,7 @@ export default class ProjectService implements IProjectService {
         Guard.null(project);
 
         try {
-            const loadedProject = decryptProject(project, securityToken);
+            const loadedProject = await decryptProject(project, securityToken);
 
             // Ensure tags is always initialized to an array
             if (!loadedProject.tags) {
@@ -91,7 +91,7 @@ export default class ProjectService implements IProjectService {
             project.tags = [];
         }
 
-        project = encryptProject(project, securityToken);
+        project = await encryptProject(project, securityToken);
 
         await storageProvider.writeText(
             `${project.name}${constants.projectFileExtension}`,
@@ -254,6 +254,10 @@ export default class ProjectService implements IProjectService {
     }
 
     private async setColorsForUpdatedTags(oldProject: IProject, updatedProject: IProject) {
+        if (!oldProject.tags || oldProject.tags.length === 0) {
+            return;
+        }
+
         let existingTags: ITag[] = [];
         const newTags: ITag[] = [];
         updatedProject.tags.forEach((updatedTag) => {

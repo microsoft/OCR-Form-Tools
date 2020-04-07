@@ -21,44 +21,45 @@ describe("Crypto", () => {
         }
     });
 
-    it("encrypts & decrypts a value with correct key matches", () => {
+    it("encrypts & decrypts a value with correct key matches", async () => {
         const expected = "Hello, I am a string";
         const secret = generateKey();
 
-        const encrypted = encrypt(expected, secret);
-        const decrypted = decrypt(encrypted, secret);
+        const encrypted = await encrypt(expected, secret);
+        const decrypted = await decrypt(encrypted, secret);
 
         expect(expected).toEqual(decrypted);
     });
 
-    it("encrypts & decrypts a value with incorrect key does not match", () => {
+    it("encrypts & decrypts a value with incorrect key does not match", async () => {
         const expected = "Hello, I am a string";
         const encryptKey = generateKey();
         const decryptKey = "some random key";
 
         try {
-            const encrypted = encrypt(expected, encryptKey);
-            const decrypted = decrypt(encrypted, decryptKey);
+            const encrypted = await encrypt(expected, encryptKey);
+            const decrypted = await decrypt(encrypted, decryptKey);
             expect(expected).not.toEqual(decrypted);
         } catch (e) {
             expect(e.message).toEqual("Error decrypting data - Malformed UTF-8 data");
         }
     });
 
-    it("encrypts the same value multiple times generates different encrypted data which can both be decrypted", () => {
+    it("encrypts the same value multiple times generates different encrypted data which can both be decrypted",
+    async () => {
         const expected = "Hello, I am a string";
         const secret = generateKey();
 
         // Encryption using a random IV which generates different
         // encrypted values that are still compatibile with the secret
-        const encrypted1 = encrypt(expected, secret);
-        const encrypted2 = encrypt(expected, secret);
+        const encrypted1 = await encrypt(expected, secret);
+        const encrypted2 = await encrypt(expected, secret);
 
         expect(encrypted1).not.toEqual(encrypted2);
 
         // Both encrypted values can still be decrypted with the same secret
-        const decrypted1 = decrypt(encrypted1, secret);
-        const decrypted2 = decrypt(encrypted2, secret);
+        const decrypted1 = await decrypt(encrypted1, secret);
+        const decrypted2 = await decrypt(encrypted2, secret);
 
         expect(decrypted1).toEqual(decrypted2);
     });
@@ -66,10 +67,10 @@ describe("Crypto", () => {
     it("encryption fails with malformed message", () => {
         const secret = generateKey();
 
-        expect(() => decrypt("ABC123XYZSDAFASDFS23453", secret)).toThrowError();
+        expect(async () => await decrypt("ABC123XYZSDAFASDFS23453", secret)).toThrowError();
     });
 
-    it("encrypts and decrypts a javascript object", () => {
+    it("encrypts and decrypts a javascript object", async () => {
         const secret = generateKey();
         const original = {
             firstName: "John",
@@ -78,13 +79,13 @@ describe("Crypto", () => {
             age: 30,
         };
 
-        const encrypted = encryptObject(original, secret);
-        const decrypted = decryptObject(encrypted, secret);
+        const encrypted = await encryptObject(original, secret);
+        const decrypted = await decryptObject(encrypted, secret);
 
         expect(original).toEqual(decrypted);
     });
 
-    it("decrypt object fails with invalid key", () => {
+    it("decrypt object fails with invalid key", async () => {
         const key1 = generateKey();
         const key2 = generateKey();
         const original = {
@@ -94,7 +95,7 @@ describe("Crypto", () => {
             age: 30,
         };
 
-        const encrypted = encryptObject(original, key1);
-        expect(() => decryptObject(encrypted, key2)).toThrowError();
+        const encrypted = await encryptObject(original, key1);
+        expect(async () => await decryptObject(encrypted, key2)).toThrowError();
     });
 });

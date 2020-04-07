@@ -127,6 +127,7 @@ export const english: IAppStrings = {
         title: "Predict",
         uploadFile: "Upload file",
         inProgress: "Prediction in progress...",
+        downloadScript: "Use script",
     },
     projectMetrics: {
         title: "Project Metrics",

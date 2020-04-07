@@ -204,7 +204,7 @@ export class AzureBlobStorage implements IStorageProvider {
         const result: IAsset[] = [];
         for (const file of files) {
             const url = this.getUrl(file);
-            const asset = AssetService.createAssetFromFilePath(url, this.getFileName(url));
+            const asset = await AssetService.createAssetFromFilePath(url, this.getFileName(url));
             if (this.isSupportedAssetType(asset.type)) {
                 const labelFileName = decodeURIComponent(`${asset.name}${constants.labelFileExtension}`);
                 const ocrFileName = decodeURIComponent(`${asset.name}${constants.ocrFileExtension}`);

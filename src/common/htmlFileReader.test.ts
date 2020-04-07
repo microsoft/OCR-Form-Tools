@@ -29,7 +29,7 @@ describe("Html File Reader", () => {
     });
 
     it("Loads attributes for an image asset", async () => {
-        const imageAsset = AssetService.createAssetFromFilePath("https://server.com/image.jpg");
+        const imageAsset = await AssetService.createAssetFromFilePath("https://server.com/image.jpg");
         imageAsset.size = {
             width: 1920,
             height: 1080,
@@ -44,7 +44,7 @@ describe("Html File Reader", () => {
 
     describe("Download asset binaries", () => {
         it("Downloads a blob from the asset path", async () => {
-            const asset = AssetService.createAssetFromFilePath("https://server.com/image.jpg");
+            const asset = await AssetService.createAssetFromFilePath("https://server.com/image.jpg");
             axios.get = jest.fn((url, config) => {
                 return Promise.resolve<AxiosResponse>({
                     config,
@@ -62,7 +62,7 @@ describe("Html File Reader", () => {
         });
 
         it("Rejects the promise when request receives non 200 result", async () => {
-            const asset = AssetService.createAssetFromFilePath("https://server.com/image.jpg");
+            const asset = await AssetService.createAssetFromFilePath("https://server.com/image.jpg");
             axios.get = jest.fn((url, config) => {
                 return Promise.resolve<AxiosResponse>({
                     config,
@@ -92,7 +92,7 @@ describe("Html File Reader", () => {
         });
 
         it("Downloads a byte array from the asset path", async () => {
-            const asset = AssetService.createAssetFromFilePath("https://server.com/image.jpg");
+            const asset = await AssetService.createAssetFromFilePath("https://server.com/image.jpg");
             const result = await HtmlFileReader.getAssetArray(asset);
             expect(result).not.toBeNull();
             expect(result).toBeInstanceOf(ArrayBuffer);
@@ -100,7 +100,7 @@ describe("Html File Reader", () => {
         });
 
         it("Test non valid asset type", async () => {
-            const imageAsset = AssetService.createAssetFromFilePath("https://server.com/image.notsupported");
+            const imageAsset = await AssetService.createAssetFromFilePath("https://server.com/image.notsupported");
             try {
                 const result = await HtmlFileReader.readAssetAttributes(imageAsset);
             } catch (error) {
