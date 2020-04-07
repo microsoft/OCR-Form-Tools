@@ -121,6 +121,7 @@ export interface IAppStrings {
         training: string;
         pleaseWait: string;
         notTrainedYet: string;
+        backEndNotAvailable: string;
     };
     predict: {
         title: string;

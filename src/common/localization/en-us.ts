@@ -121,6 +121,7 @@ export const english: IAppStrings = {
         training: "Training",
         pleaseWait: "Please wait",
         notTrainedYet: "Not trained yet",
+        backEndNotAvailable: "Checkbox feature will work in future version of Form Recognizer service, please stay tuned.",
     },
     predict: {
         title: "Predict",
