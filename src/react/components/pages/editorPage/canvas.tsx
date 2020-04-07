@@ -1403,11 +1403,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         // 2. Avoid rebuilding order index when users switch back and forth between pages.
         const ocrs = this.state.ocr;
         const ocrReadResults = (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.readResults));
+        const ocrPageResults =  (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.pageResults));
         const imageExtent = this.imageMap.getImageExtent();
         ocrReadResults.map((ocr) => {
             const ocrExtent = [0, 0, ocr.width, ocr.height];
-            this.regionOrders[ocr.page - 1] = {};
-            this.regionOrderById[ocr.page - 1] = [];
+            const pageIndex = ocr.page - 1;
+            this.regionOrders[pageIndex] = {};
+            this.regionOrderById[pageIndex] = [];
             let order = 0;
             if (ocr.lines) {
                 ocr.lines.forEach((line) => {
@@ -1416,30 +1418,32 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                             if (this.shouldDisplayOcrWord(word.text)) {
                                 const feature = this.createBoundingBoxVectorFeature(
                                     word.text, word.boundingBox, imageExtent, ocrExtent, ocr.page);
-                                this.regionOrders[ocr.page - 1][feature.getId()] = order++;
-                                this.regionOrderById[ocr.page - 1].push(feature.getId());
+                                this.regionOrders[pageIndex][feature.getId()] = order++;
+                                this.regionOrderById[pageIndex].push(feature.getId());
                             }
                         });
                     }
                 });
             }
-            this.addCheckboxToRegionOrder(order, imageExtent, ocrExtent);
+            const checkboxes = ocrPageResults && ocrPageResults[pageIndex] && ocrPageResults[pageIndex].checkboxes;
+            if (checkboxes) {
+                this.addCheckboxToRegionOrder(checkboxes, pageIndex, order, imageExtent, ocrExtent);
+            }
             return ocr;
         });
     }
 
-    private addCheckboxToRegionOrder = (order: number, imageExtent: number[], ocrExtent: any[]) => {
-        const ocrs = this.state.ocr;
-        const ocrPageResults =  (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.pageResults));
-        ocrPageResults.map((ocr) => {
-            if (ocr.checkboxes) {
-                ocr.checkboxes.forEach((checkbox) => {
-                    const checkboxFeature = this.createBoundingBoxVectorFeature(
-                        checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, this.state.currentPage);
-                    this.regionOrders[ocr.page - 1][checkboxFeature.getId()] = order++;
-                    this.regionOrderById[ocr.page - 1].push(checkboxFeature.getId());
-                });
-            }
+    private addCheckboxToRegionOrder = (
+        checkboxes: any[],
+        pageIndex: number,
+        order: number,
+        imageExtent: number[],
+        ocrExtent: any[]) => {
+        checkboxes.forEach((checkbox) => {
+            const checkboxFeature = this.createBoundingBoxVectorFeature(
+                checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, this.state.currentPage);
+            this.regionOrders[pageIndex][checkboxFeature.getId()] = order++;
+            this.regionOrderById[pageIndex].push(checkboxFeature.getId());
         });
     }
 
