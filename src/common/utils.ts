@@ -2,10 +2,12 @@
 // Licensed under the MIT license.
 
 import Guard from "./guard";
-import { IProject, ISecurityToken, IProviderOptions, ISecureString } from "../models/applicationState";
+import { IProject, ISecurityToken, IProviderOptions, ISecureString, ITag } from "../models/applicationState";
 import { encryptObject, decryptObject, encrypt, decrypt } from "./crypto";
 import UTIF from "utif";
 import HtmlFileReader from "./htmlFileReader";
+// tslint:disable-next-line:no-var-requires
+const tagColors = require("../react/components/common/tagColors.json");
 
 /**
  * Generates a random integer in provided range
@@ -314,4 +316,22 @@ export function patch<T, K extends keyof T>(data: T[], diff: T[], key: K, proper
         }
         return item;
     });
+}
+
+export function getNextColor(tags: ITag[]) {
+
+    for (const color of tagColors) {
+        let vacancy = true;
+        for (const tag of tags) {
+            if (color.toLowerCase() === tag.color.toLowerCase()) {
+                vacancy = false;
+                break;
+            }
+        }
+        if (vacancy) {
+            return color;
+        }
+    }
+
+    return tagColors[randomIntInRange(0, tagColors.length - 1)];
 }

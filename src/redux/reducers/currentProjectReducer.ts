@@ -81,6 +81,13 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
                 ...state,
                 assets: updatedAssets,
             };
+
+        case ActionTypes.UPDATE_PROJECT_TAGS_FROM_FILES_SUCCESS:
+            return {
+                ...state,
+                tags: action.payload.tags,
+            };
+
         case ActionTypes.SAVE_CONNECTION_SUCCESS:
             if (!state) {
                 return state;

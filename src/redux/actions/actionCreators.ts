@@ -20,6 +20,7 @@ import {
     ISaveAssetMetadataAction,
     ILoadAssetMetadataAction,
     IDeleteProjectAction,
+    IUpdateProjectTagsFromFilesAction,
 } from "./projectActions";
 import {
     IShowAppErrorAction,
@@ -89,4 +90,5 @@ export type AnyAction = IOtherAction |
     ILoadAssetMetadataAction |
     IShowAppErrorAction |
     IClearErrorAction |
+    IUpdateProjectTagsFromFilesAction |
     ISetTitleAction;

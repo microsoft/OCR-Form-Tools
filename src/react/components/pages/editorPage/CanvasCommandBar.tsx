@@ -26,6 +26,14 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
           subMenuProps: {
             items: [
               {
+                key: "text",
+                text: "Text",
+                canCheck: true,
+                iconProps: { iconName: "TextField" },
+                isChecked: props.layers["text"],
+                onClick: () => props.handleLayerChange("text"),
+              },
+              {
                 key: "table",
                 text: "Tables",
                 canCheck: true,
@@ -34,12 +42,20 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                 onClick: () => props.handleLayerChange("tables"),
               },
               {
-                key: "text",
-                text: "Text",
+                key: "checkboxes",
+                text: "Checkboxes",
                 canCheck: true,
-                iconProps: { iconName: "TextField" },
-                isChecked: props.layers["text"],
-                onClick: () => props.handleLayerChange("text"),
+                iconProps: { iconName: "CheckboxComposite" },
+                isChecked: props.layers["checkboxes"],
+                onClick: () => props.handleLayerChange("checkboxes"),
+              },
+              {
+                key: "Label",
+                text: "Label",
+                canCheck: true,
+                iconProps: { iconName: "LabelComposite" },
+                isChecked: props.layers["label"],
+                onClick: () => props.handleLayerChange("label"),
               },
             ],
           },
