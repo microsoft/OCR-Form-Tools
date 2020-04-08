@@ -170,11 +170,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 this.loadLabelData(asset);
             });
         } else if (this.isLabelDataChanged(this.props, prevProps)) {
-            this.redrawFeatures(this.imageMap.getAllFeatures());
-            this.redrawFeatures(this.imageMap.getAllCheckboxFeatures());
-            this.redrawFeatures(this.imageMap.getAllLabelFeatures());
             const newRegions = this.convertLabelDataToRegions(this.props.selectedAsset.labelData);
             this.updateAssetRegions(newRegions);
+            this.redrawAllFeatures();
         }
 
         if (this.props.hoveredLabel !== prevProps.hoveredLabel) {
@@ -316,9 +314,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.setTagType(inputTag[0], FieldType.Checkbox);
         }
 
-        this.redrawFeatures(this.imageMap.getAllFeatures());
-        this.redrawFeatures(this.imageMap.getAllCheckboxFeatures());
-        this.redrawFeatures(this.imageMap.getAllLabelFeatures());
+        this.redrawAllFeatures();
         this.applyTagFlag = true;
     }
 
@@ -444,9 +440,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             .filter((feature) => regions.findIndex((region) => region.id === feature.get("id")) !== -1);
         selectedLabelledFeatures.map((feature) => this.imageMap.removeLabelFeature(feature));
 
-        this.redrawFeatures(this.imageMap.getAllFeatures());
-        this.redrawFeatures(this.imageMap.getAllCheckboxFeatures());
-        this.redrawFeatures(this.imageMap.getAllLabelFeatures());
+        this.redrawAllFeatures();
     }
 
     /**
@@ -788,9 +782,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const polygon = regionId.split(",").map(parseFloat);
             this.addToSelectedRegions(regionId, feature.get("text"), polygon, category);
         }
-        this.redrawFeatures(this.imageMap.getAllLabelFeatures());
-        this.redrawFeatures(this.imageMap.getAllFeatures());
-        this.redrawFeatures(this.imageMap.getAllCheckboxFeatures());
+        this.redrawAllFeatures();
     }
 
     private handleMultiSelection = (regionId: any, category: FeatureCategory) => {
@@ -1599,26 +1591,32 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private handleTableToolTipChange = async (display: string, width: number, height: number, top: number,
                                               left: number, rows: number, columns: number, featureID: string) => {
-    if (featureID !== null && this.imageMap.getTableBorderFeatureByID(featureID).get("state") !== "selected") {
-        this.imageMap.getTableBorderFeatureByID(featureID).set("state", "hovering");
-        this.imageMap.getTableIconFeatureByID(featureID).set("state", "hovering");
-    } else if (featureID === null && this.state.hoveringFeature &&
-               this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).get("state") !== "selected") {
-        this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).set("state", "rest");
-        this.imageMap.getTableIconFeatureByID(this.state.hoveringFeature).set("state", "rest");
+        if (featureID !== null && this.imageMap.getTableBorderFeatureByID(featureID).get("state") !== "selected") {
+            this.imageMap.getTableBorderFeatureByID(featureID).set("state", "hovering");
+            this.imageMap.getTableIconFeatureByID(featureID).set("state", "hovering");
+        } else if (featureID === null && this.state.hoveringFeature &&
+                this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).get("state") !== "selected") {
+            this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).set("state", "rest");
+            this.imageMap.getTableIconFeatureByID(this.state.hoveringFeature).set("state", "rest");
+        }
+        const newTableIconTooltip = {
+            display,
+                width,
+                height,
+                top,
+                left,
+                rows,
+                columns,
+            };
+        this.setState({
+                tableIconTooltip : newTableIconTooltip,
+                hoveringFeature: featureID,
+            });
     }
-    const newTableIconTooltip = {
-        display,
-            width,
-            height,
-            top,
-            left,
-            rows,
-            columns,
-        };
-    this.setState({
-            tableIconTooltip : newTableIconTooltip,
-            hoveringFeature: featureID,
-        });
+
+    private redrawAllFeatures = () => {
+        this.redrawFeatures(this.imageMap.getAllFeatures());
+        this.redrawFeatures(this.imageMap.getAllCheckboxFeatures());
+        this.redrawFeatures(this.imageMap.getAllLabelFeatures());
     }
 }
