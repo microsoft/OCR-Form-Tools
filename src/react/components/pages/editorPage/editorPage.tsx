@@ -491,7 +491,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             }
         }
 
-        await this.props.actions.saveProject(this.props.project);
+        await this.props.actions.saveProject(this.props.project, false);
 
         // Find and update the root asset in the internal state
         // This forces the root assets that are displayed in the sidebar to
@@ -529,7 +529,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             ...this.props.project,
             tags,
         };
-        await this.props.actions.saveProject(project);
+        await this.props.actions.saveProject(project, true);
     }
 
     private onLockedTagsChanged = (lockedTags: string[]) => {
