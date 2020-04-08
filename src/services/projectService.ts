@@ -53,8 +53,6 @@ export default class ProjectService implements IProjectService {
             // Ensure tags is always initialized to an array
             if (!loadedProject.tags) {
                 loadedProject.tags = [];
-            } else {
-                await this.updateProjectTagsFromFiles(loadedProject);
             }
 
             return Promise.resolve({ ...loadedProject });
@@ -80,7 +78,9 @@ export default class ProjectService implements IProjectService {
 
         const storageProvider = StorageProviderFactory.createFromConnection(project.sourceConnection);
 
-        await this.updateProjectTagsFromFiles(project);
+        if (!project.tags) {
+            project = await this.updateProjectTagsFromFiles(project);
+        }
 
         if (project.tags) {
             await this.saveFieldsFile(project, storageProvider);
