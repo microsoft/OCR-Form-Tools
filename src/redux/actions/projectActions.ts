@@ -30,7 +30,7 @@ export default interface IProjectActions {
     saveAssetMetadata(project: IProject, assetMetadata: IAssetMetadata): Promise<IAssetMetadata>;
     updateProjectTag(project: IProject, oldTag: ITag, newTag: ITag): Promise<IAssetMetadata[]>;
     deleteProjectTag(project: IProject, tagName): Promise<IAssetMetadata[]>;
-    updateProjectTagsFromFiles(project: IProject): Promise<void>;
+    updateProjectTagsFromFiles(project: IProject, asset?: string): Promise<void>;
 }
 
 /**
@@ -89,10 +89,10 @@ export function saveProject(project: IProject)
     };
 }
 
-export function updateProjectTagsFromFiles(project: IProject): (dispatch: Dispatch) => Promise<void> {
+export function updateProjectTagsFromFiles(project: IProject, asset?: string): (dispatch: Dispatch) => Promise<void> {
     return async (dispatch: Dispatch) => {
         const projectService = new ProjectService();
-        const updatedProject = await projectService.updateProjectTagsFromFiles(project);
+        const updatedProject = await projectService.updateProjectTagsFromFiles(project, asset);
         dispatch(updateProjectTagsFromFilesAction(updatedProject));
     };
 }

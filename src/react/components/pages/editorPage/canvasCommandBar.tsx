@@ -43,7 +43,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
               },
               {
                 key: "checkboxes",
-                text: "Checkboxes",
+                text: "Checkboxes (Preview)",
                 canCheck: true,
                 iconProps: { iconName: "CheckboxComposite" },
                 isChecked: props.layers["checkboxes"],
