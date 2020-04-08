@@ -534,7 +534,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
 
         const assetMetadata = await this.props.actions.loadAssetMetadata(this.props.project, asset);
-        await this.props.actions.updateProjectTagsFromFiles(this.props.project);
+        await this.props.actions.updateProjectTagsFromFiles(this.props.project, asset.name);
 
         try {
             if (!assetMetadata.asset.size) {

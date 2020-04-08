@@ -154,12 +154,12 @@ export default class ProjectService implements IProjectService {
         return false;
     }
 
-    public async updateProjectTagsFromFiles(project: IProject): Promise<IProject> {
+    public async updateProjectTagsFromFiles(project: IProject, asset?: string): Promise<IProject> {
         const updatedProject = Object.assign({}, project);
         updatedProject.tags = [];
         const storageProvider = StorageProviderFactory.createFromConnection(project.sourceConnection);
         await this.getTagsFromPreExistingFieldFile(updatedProject, storageProvider);
-        await this.getTagsFromPreExistingLabelFiles(updatedProject, storageProvider);
+        await this.getTagsFromPreExistingLabelFiles(updatedProject, storageProvider, asset);
         await this.setColorsForUpdatedTags(project, updatedProject);
         return updatedProject;
     }
@@ -170,20 +170,31 @@ export default class ProjectService implements IProjectService {
      * which contains existing label files. In this case, we'll populate project tags based on these files.
      * @param project the project we're trying to create
      * @param storageProvider the storage we're trying to save the project to
+     * @param asset the asset to get tags from
      */
-    private async getTagsFromPreExistingLabelFiles(project: IProject, storageProvider: IStorageProvider) {
+    private async getTagsFromPreExistingLabelFiles(
+        project: IProject,
+        storageProvider: IStorageProvider,
+        asset?: string) {
         const tags: ITag[] = [];
         const tagNameSet = new Set<string>();
         try {
             const blobs = new Set<string>(await storageProvider.listFiles());
+            const assetLabel = asset ? asset + constants.labelFileExtension : undefined;
+            console.log(assetLabel);
             for (const blob of blobs) {
                 const blobFolderPath = blob.substr(0, blob.lastIndexOf("/"));
                 if (blobFolderPath === project.folderPath
                     && blob.endsWith(constants.labelFileExtension)
                     && blobs.has(blob.substr(0, blob.length - constants.labelFileExtension.length))) {
                     try {
-                        const content = JSON.parse(await storageProvider.readText(blob));
-                        content.labels.forEach((label) => tagNameSet.add(label.label));
+                        if (!assetLabel || assetLabel === blob) {
+                            const content = JSON.parse(await storageProvider.readText(blob));
+                            content.labels.forEach((label) => tagNameSet.add(label.label));
+                        }
+                        if (assetLabel && assetLabel === blob) {
+                            break;
+                        }
                     } catch (err) {
                         // ignore err
                     }
