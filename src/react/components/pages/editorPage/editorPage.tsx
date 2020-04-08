@@ -150,6 +150,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             await this.props.actions.loadProject(project);
             this.props.appTitleActions.setTitle(project.name);
         }
+        await this.props.actions.updateProjectTagsFromFiles(this.props.project);
         document.title = strings.editorPage.title + " - " + strings.appName;
     }
 
@@ -534,7 +535,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
 
         const assetMetadata = await this.props.actions.loadAssetMetadata(this.props.project, asset);
-        await this.props.actions.updateProjectTagsFromFiles(this.props.project);
 
         try {
             if (!assetMetadata.asset.size) {
