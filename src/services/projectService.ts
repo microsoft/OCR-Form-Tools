@@ -181,7 +181,6 @@ export default class ProjectService implements IProjectService {
         try {
             const blobs = new Set<string>(await storageProvider.listFiles());
             const assetLabel = asset ? asset + constants.labelFileExtension : undefined;
-            console.log(assetLabel);
             for (const blob of blobs) {
                 const blobFolderPath = blob.substr(0, blob.lastIndexOf("/"));
                 if (blobFolderPath === project.folderPath
