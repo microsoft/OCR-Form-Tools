@@ -156,7 +156,6 @@ export interface IAsset {
     size: ISize;
     format?: string;
     timestamp?: number;
-    parent?: IAsset;
     predicted?: boolean;
     ocr?: any;
     isRunningOCR?: boolean;

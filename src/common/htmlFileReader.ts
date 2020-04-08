@@ -98,49 +98,6 @@ export default class HtmlFileReader {
         return await new Response(blob).arrayBuffer();
     }
 
-    /**
-     * Extracts the specified image frame from a video asset
-     * @param asset The asset video frame to retrieve from the parent video
-     */
-    public static async getAssetFrameImage(asset: IAsset): Promise<Blob> {
-        return new Promise<Blob>((resolve, reject) => {
-            const cachingEnabled = false;
-            let refresh = !cachingEnabled;
-            let video: HTMLVideoElement = this.videoAssetFiles[asset.parent.name];
-
-            // Ensure the asset name includes jpg file extension
-            if (!asset.name.toLowerCase().endsWith(".jpg")) {
-                asset.name += ".jpg";
-            }
-
-            if (!video) {
-                video = document.createElement("video");
-                if (cachingEnabled) {
-                    this.videoAssetFiles[asset.parent.name] = video;
-                    refresh = true;
-                }
-            }
-
-            video.onloadedmetadata = () => {
-                video.currentTime = asset.timestamp;
-            };
-            video.onseeked = () => {
-                const canvas = document.createElement("canvas");
-                canvas.height = video.videoHeight;
-                canvas.width = video.videoWidth;
-                const ctx = canvas.getContext("2d");
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                canvas.toBlob(resolve);
-            };
-            video.onerror = reject;
-            if (refresh) {
-                video.src = asset.parent.path;
-            } else {
-                video.currentTime = asset.timestamp;
-            }
-        });
-    }
-
     public static readImageAttributes(url: string): Promise<{ width: number, height: number }> {
         return new Promise((resolve, reject) => {
             const image = document.createElement("img") as HTMLImageElement;

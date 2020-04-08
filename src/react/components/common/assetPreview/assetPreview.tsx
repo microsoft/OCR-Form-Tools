@@ -130,23 +130,22 @@ export class AssetPreview extends React.Component<IAssetPreviewProps, IAssetPrev
 
     private renderAsset = () => {
         const { asset } = this.props;
-        const rootAsset = asset.parent || asset;
 
         switch (asset.type) {
             case AssetType.Image:
-                return <ImageAsset asset={rootAsset}
+                return <ImageAsset asset={asset}
                     onLoaded={this.onAssetLoad}
                     onError={this.onError}
                     onActivated={this.props.onActivated}
                     onDeactivated={this.props.onDeactivated} />;
             case AssetType.TIFF:
-                return <TiffAsset asset={rootAsset}
+                return <TiffAsset asset={asset}
                     onLoaded={this.onAssetLoad}
                     onError={this.onError}
                     onActivated={this.props.onActivated}
                     onDeactivated={this.props.onDeactivated} />;
             case AssetType.PDF:
-                return <PDFAsset asset={rootAsset}
+                return <PDFAsset asset={asset}
                     onLoaded={this.onAssetLoad}
                     onError={this.onError}
                     onActivated={this.props.onActivated}

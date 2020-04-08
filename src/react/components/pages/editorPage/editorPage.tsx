@@ -171,7 +171,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     public render() {
         const { project } = this.props;
         const { assets, selectedAsset, isRunningOCRs, isCanvasRunningOCR } = this.state;
-        const rootAssets = assets.filter((asset) => !asset.parent);
 
         const labels = (selectedAsset &&
             selectedAsset.labelData &&
@@ -223,7 +222,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                             </PrimaryButton>
                         </div>}
                         <EditorSideBar
-                            assets={rootAssets}
+                            assets={assets}
                             selectedAsset={selectedAsset ? selectedAsset.asset : null}
                             onBeforeAssetSelected={this.onBeforeAssetSelected}
                             onAssetSelected={this.selectAsset}
@@ -454,9 +453,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         const initialState = assetMetadata.asset.state;
 
-        // The root asset can either be the actual asset being edited (ex: VideoFrame) or the top level / root
-        // asset selected from the side bar (image/video).
-        const rootAsset = { ...(assetMetadata.asset.parent || assetMetadata.asset) };
+        const asset = { ...assetMetadata.asset };
 
         if (this.isTaggableAssetType(assetMetadata.asset)) {
             assetMetadata.asset.state = _.get(assetMetadata, "labelData.labels.length", 0) > 0 ?
@@ -464,23 +461,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 AssetState.Visited;
         } else if (assetMetadata.asset.state === AssetState.NotVisited) {
             assetMetadata.asset.state = AssetState.Visited;
-        }
-
-        // Update root asset if not already in the "Tagged" state
-        // This is primarily used in the case where a Video Frame is being edited.
-        // We want to ensure that in this case the root video asset state is accurately
-        // updated to match that state of the asset.
-        if (rootAsset.id === assetMetadata.asset.id) {
-            rootAsset.state = assetMetadata.asset.state;
-        } else {
-            const rootAssetMetadata = await this.props.actions.loadAssetMetadata(this.props.project, rootAsset);
-
-            if (rootAssetMetadata.asset.state !== AssetState.Tagged) {
-                rootAssetMetadata.asset.state = assetMetadata.asset.state;
-                await this.props.actions.saveAssetMetadata(this.props.project, rootAssetMetadata);
-            }
-
-            rootAsset.state = rootAssetMetadata.asset.state;
         }
 
         // Only update asset metadata if state changes or is different
@@ -491,16 +471,14 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             }
         }
 
-        await this.props.actions.saveProject(this.props.project);
-
         // Find and update the root asset in the internal state
         // This forces the root assets that are displayed in the sidebar to
         // accurately show their correct state (not-visited, visited or tagged)
         const assets = [...this.state.assets];
-        const assetIndex = assets.findIndex((asset) => asset.id === rootAsset.id);
+        const assetIndex = assets.findIndex((a) => a.id === asset.id);
         if (assetIndex > -1) {
             assets[assetIndex] = {
-                ...rootAsset,
+                ...asset,
             };
         }
 
@@ -508,7 +486,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         // Workaround for if component is unmounted
         if (!this.isUnmount) {
-            this.props.appTitleActions.setTitle(`${this.props.project.name} - [ ${rootAsset.name} ]`);
+            this.props.appTitleActions.setTitle(`${this.props.project.name} - [ ${asset.name} ]`);
         }
     }
 
@@ -556,6 +534,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
 
         const assetMetadata = await this.props.actions.loadAssetMetadata(this.props.project, asset);
+        await this.props.actions.updateProjectTagsFromFiles(this.props.project);
 
         try {
             if (!assetMetadata.asset.size) {
@@ -566,12 +545,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             console.warn("Error computing asset size");
         }
 
-        await this.props.actions.updateProjectTagsFromFiles(this.props.project);
-
         this.setState({
             selectedAsset: assetMetadata,
         }, async () => {
             await this.onAssetMetadataChanged(assetMetadata);
+            await this.props.actions.saveProject(this.props.project);
         });
     }
 
