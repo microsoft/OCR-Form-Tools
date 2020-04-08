@@ -128,7 +128,11 @@ export class ImageMap extends React.Component<IImageMapProps> {
     }
 
     public getResolutionForZoom = (zoom: number) => {
-        return this.map.getView().getResolutionForZoom(zoom);
+        if (this.map && this.map.getView()) {
+            return this.map.getView().getResolutionForZoom(zoom);
+        } else {
+            return null;
+        }
     }
 
     /**
