@@ -223,7 +223,6 @@ export default class ProjectService implements IProjectService {
             }
         } catch (err) {
             // ignore err
-            console.log("test");
         }
     }
 
