@@ -214,7 +214,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             const updatedProject = this.buildUpdatedProject(
                 this.parseTrainResult(trainStatusRes),
             );
-            await this.props.actions.saveProject(updatedProject);
+            await this.props.actions.saveProject(updatedProject, false, false);
 
             return trainStatusRes;
         } catch (errorMessage) {
