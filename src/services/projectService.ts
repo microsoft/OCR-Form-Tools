@@ -67,7 +67,7 @@ export default class ProjectService implements IProjectService {
      * @param project - Project to save
      * @param securityToken - Security Token to encrypt
      */
-    public async save(project: IProject, securityToken: ISecurityToken, saveTags: boolean): Promise<IProject> {
+    public async save(project: IProject, securityToken: ISecurityToken, saveTags?: boolean): Promise<IProject> {
         Guard.null(project);
 
         project.version = packageJson.version;
