@@ -79,6 +79,8 @@ export interface IEditorPageState {
     isValid: boolean;
     /** Whether the show invalid region warning alert should display */
     showInvalidRegionWarning: boolean;
+    /** Show tags when loaded */
+    tagsLoaded: boolean;
     /** The currently hovered TagInputItemLabel */
     hoveredLabel: ILabel;
     /** Whether the task for loading all OCRs is running */
@@ -120,6 +122,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         thumbnailSize: { width: 175, height: 155 },
         isValid: true,
         showInvalidRegionWarning: false,
+        tagsLoaded: false,
         hoveredLabel: null,
     };
 
@@ -149,6 +152,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             const project = this.props.recentProjects.find((project) => project.id === projectId);
             await this.props.actions.loadProject(project);
             this.props.appTitleActions.setTitle(project.name);
+            await this.props.actions.updateProjectTagsFromFiles(this.props.project);
+            this.setState({ tagsLoaded: true });
+            await this.props.actions.saveProject(this.props.project, false, false);
         }
         document.title = strings.editorPage.title + " - " + strings.appName;
     }
@@ -259,6 +265,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                         </div>
                         <div className="editor-page-right-sidebar">
                             <TagInput
+                                tagsLoaded={this.state.tagsLoaded}
                                 tags={this.props.project.tags}
                                 lockedTags={this.state.lockedTags}
                                 selectedRegions={this.state.selectedRegions}
@@ -511,7 +518,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             ...this.props.project,
             tags,
         };
-        await this.props.actions.saveProject(project);
+        await this.props.actions.saveProject(project, true, false);
     }
 
     private onLockedTagsChanged = (lockedTags: string[]) => {
@@ -552,7 +559,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             selectedAsset: assetMetadata,
         }, async () => {
             await this.onAssetMetadataChanged(assetMetadata);
-            await this.props.actions.saveProject(this.props.project);
+            await this.props.actions.saveProject(this.props.project, false, false);
         });
     }
 
@@ -578,6 +585,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         this.setState({
             assets: rootAssets,
         }, async () => {
+            await this.props.actions.updateProjectTagsFromFiles(this.props.project);
+            this.setState({ tagsLoaded: true });
+            await this.props.actions.saveProject(this.props.project, false, false);
             if (rootAssets.length > 0) {
                 await this.selectAsset(lastVisited ? lastVisited : rootAssets[0]);
             }

@@ -22,7 +22,7 @@ import { appInfo } from "../../common/appInfo";
  */
 export default interface IProjectActions {
     loadProject(project: IProject): Promise<IProject>;
-    saveProject(project: IProject): Promise<IProject>;
+    saveProject(project: IProject, saveTags?: boolean, updateTagsFromFiles?: boolean): Promise<IProject>;
     deleteProject(project: IProject): Promise<void>;
     closeProject(): void;
     loadAssets(project: IProject): Promise<IAsset[]>;
@@ -61,7 +61,7 @@ export function loadProject(project: IProject):
  * Dispatches Save Project action and resolves with IProject
  * @param project - Project to save
  */
-export function saveProject(project: IProject)
+export function saveProject(project: IProject, saveTags?: boolean, updateTagsFromFiles?: boolean)
     : (dispatch: Dispatch, getState: () => IApplicationState) => Promise<IProject> {
     return async (dispatch: Dispatch, getState: () => IApplicationState) => {
         const appState = getState();
@@ -79,7 +79,7 @@ export function saveProject(project: IProject)
             throw new AppError(ErrorCode.SecurityTokenNotFound, "Security Token Not Found");
         }
 
-        const savedProject = await projectService.save(project, projectToken);
+        const savedProject = await projectService.save(project, projectToken, saveTags, updateTagsFromFiles);
         dispatch(saveProjectAction(savedProject));
 
         // Reload project after save actions
@@ -208,7 +208,7 @@ export function updateProjectTag(project: IProject, oldTag: ITag, newTag: ITag)
         };
 
         // Save updated project tags
-        await saveProject(updatedProject)(dispatch, getState);
+        await saveProject(updatedProject, true, false)(dispatch, getState);
         dispatch(updateProjectTagAction(updatedProject));
 
         return assetUpdates;
@@ -239,7 +239,7 @@ export function deleteProjectTag(project: IProject, tagName)
         };
 
         // Save updated project tags
-        await saveProject(updatedProject)(dispatch, getState);
+        await saveProject(updatedProject, true, false)(dispatch, getState);
         dispatch(deleteProjectTagAction(updatedProject));
 
         return assetUpdates;
