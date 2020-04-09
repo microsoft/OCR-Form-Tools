@@ -78,17 +78,12 @@ export default class ProjectService implements IProjectService {
 
         const storageProvider = StorageProviderFactory.createFromConnection(project.sourceConnection);
 
-        if (!project.tags && saveTags) {
+        if (!project.tags) {
             project = await this.updateProjectTagsFromFiles(project);
         }
 
         if (project.tags && saveTags) {
             await this.saveFieldsFile(project, storageProvider);
-        }
-
-        // Ensure tags is always initialized to an array
-        if (!project.tags) {
-            project.tags = [];
         }
 
         project = await encryptProject(project, securityToken);
