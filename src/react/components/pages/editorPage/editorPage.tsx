@@ -162,8 +162,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     public async componentDidUpdate(prevProps: Readonly<IEditorPageProps>) {
         const {project} = this.props;
 
-        await this.props.actions.updateProjectTagsFromFiles(project);
-
         if (project && this.state.assets.length === 0) {
             await this.loadProjectAssets();
         }
