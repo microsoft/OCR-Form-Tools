@@ -28,7 +28,7 @@ const tagColors = require("../react/components/common/tagColors.json");
  */
 export interface IProjectService {
     load(project: IProject, securityToken: ISecurityToken): Promise<IProject>;
-    save(project: IProject, securityToken: ISecurityToken, saveTags: boolean): Promise<IProject>;
+    save(project: IProject, securityToken: ISecurityToken, saveTags?: boolean): Promise<IProject>;
     delete(project: IProject): Promise<void>;
     isDuplicate(project: IProject, projectList: IProject[]): boolean;
     updateProjectTagsFromFiles(oldProject: IProject): Promise<IProject>;

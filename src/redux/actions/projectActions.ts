@@ -22,7 +22,7 @@ import { appInfo } from "../../common/appInfo";
  */
 export default interface IProjectActions {
     loadProject(project: IProject): Promise<IProject>;
-    saveProject(project: IProject, saveTags: boolean): Promise<IProject>;
+    saveProject(project: IProject, saveTags?: boolean): Promise<IProject>;
     deleteProject(project: IProject): Promise<void>;
     closeProject(): void;
     loadAssets(project: IProject): Promise<IAsset[]>;
