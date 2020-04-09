@@ -9,6 +9,8 @@ import {
     FontIcon,
     IContextualMenuItem,
     ICustomizations,
+    Spinner,
+    SpinnerSize,
 } from "office-ui-fabric-react";
 import { strings } from "../../../../common/strings";
 import { getDarkTheme } from "../../../../common/themes";
@@ -51,6 +53,8 @@ export interface ITagInputProps {
     lockedTags?: string[];
     /** Updates to locked tags */
     onLockedTagsChange?: (locked: string[]) => void;
+    /** Show tags when loaded */
+    tagsLoaded: boolean;
     /** Place holder for input text box */
     placeHolder?: string;
     /** Function to call on clicking individual tag */
@@ -174,55 +178,60 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                         onReorder={this.onReOrder}
                     />
                 </div>
-                <div className="tag-input-body-container">
-                    <div className="tag-input-body">
-                        {
-                            this.state.searchTags &&
-                            <div className="tag-input-text-input-row search-input">
-                                <input
-                                    className="tag-search-box"
-                                    type="text"
-                                    onKeyDown={this.onSearchKeyDown}
-                                    onChange={(e) => this.setState({ searchQuery: e.target.value })}
-                                    placeholder="Search tags"
-                                    autoFocus={true}
-                                />
-                                <FontIcon iconName="Search" />
-                            </div>
-                        }
-                        <div className="tag-input-items">
-                            {this.renderTagItems()}
-                            <Customizer {...dark}>
-                                {
-                                    tagOperation === TagOperationMode.ContextualMenu && selectedTagRef &&
-                                    <ContextualMenu
-                                        className="tag-input-contextual-menu"
-                                        items={this.getContextualMenuItems()}
-                                        target={selectedTagRef}
-                                        onDismiss={this.onHideContextualMenu}
+                {
+                    this.props.tagsLoaded ?
+                    <div className="tag-input-body-container">
+                        <div className="tag-input-body">
+                            {
+                                this.state.searchTags &&
+                                <div className="tag-input-text-input-row search-input">
+                                    <input
+                                        className="tag-search-box"
+                                        type="text"
+                                        onKeyDown={this.onSearchKeyDown}
+                                        onChange={(e) => this.setState({ searchQuery: e.target.value })}
+                                        placeholder="Search tags"
+                                        autoFocus={true}
                                     />
-                                }
-                            </Customizer>
-                            {this.getColorPickerPortal()}
-                        </div>
-                        {
-                            this.state.addTags &&
-                            <div className="tag-input-text-input-row new-tag-input">
-                                <input
-                                    className="tag-input-box"
-                                    type="text"
-                                    onKeyDown={this.onAddTagKeyDown}
-                                    // Add mouse event
-                                    onBlur={this.onAddTagWithBlur}
-                                    placeholder="Add new tag"
-                                    autoFocus={true}
-                                    ref={this.inputRef}
-                                />
-                                <FontIcon iconName="Tag" />
+                                    <FontIcon iconName="Search" />
+                                </div>
+                            }
+                            <div className="tag-input-items">
+                                {this.renderTagItems()}
+                                <Customizer {...dark}>
+                                    {
+                                        tagOperation === TagOperationMode.ContextualMenu && selectedTagRef &&
+                                        <ContextualMenu
+                                            className="tag-input-contextual-menu"
+                                            items={this.getContextualMenuItems()}
+                                            target={selectedTagRef}
+                                            onDismiss={this.onHideContextualMenu}
+                                        />
+                                    }
+                                </Customizer>
+                                {this.getColorPickerPortal()}
                             </div>
-                        }
+                            {
+                                this.state.addTags &&
+                                <div className="tag-input-text-input-row new-tag-input">
+                                    <input
+                                        className="tag-input-box"
+                                        type="text"
+                                        onKeyDown={this.onAddTagKeyDown}
+                                        // Add mouse event
+                                        onBlur={this.onAddTagWithBlur}
+                                        placeholder="Add new tag"
+                                        autoFocus={true}
+                                        ref={this.inputRef}
+                                    />
+                                    <FontIcon iconName="Tag" />
+                                </div>
+                            }
+                        </div>
                     </div>
-                </div>
+                    :
+                    <Spinner className="loading-tag" size={SpinnerSize.large}/>
+                }
             </div>
         );
     }
