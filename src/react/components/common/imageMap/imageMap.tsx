@@ -268,6 +268,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.labelVectorLayer.getSource().clear();
     }
 
+    public removeAllLabelFeatures = () => {
+        this.labelVectorLayer.getSource().clear();
+    }
+
     /**
      * Remove interaction from the map
      */

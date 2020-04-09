@@ -681,11 +681,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
 
         if (selectedAsset) {
-            if (selectedAsset) {
-                this.setState({
-                    selectedAsset,
-                });
-            }
+            this.setState({
+                selectedAsset,
+            });
         }
     }
 }
