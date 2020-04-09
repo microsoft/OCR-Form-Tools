@@ -61,7 +61,7 @@ export function loadProject(project: IProject):
  * Dispatches Save Project action and resolves with IProject
  * @param project - Project to save
  */
-export function saveProject(project: IProject, saveTags: boolean)
+export function saveProject(project: IProject, saveTags?: boolean)
     : (dispatch: Dispatch, getState: () => IApplicationState) => Promise<IProject> {
     return async (dispatch: Dispatch, getState: () => IApplicationState) => {
         const appState = getState();
