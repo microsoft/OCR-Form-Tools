@@ -152,9 +152,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             const project = this.props.recentProjects.find((project) => project.id === projectId);
             await this.props.actions.loadProject(project);
             this.props.appTitleActions.setTitle(project.name);
-            await this.props.actions.updateProjectTagsFromFiles(this.props.project).then(() => {
-                this.setState({ tagsLoaded: true });
-            });
+            await this.props.actions.updateProjectTagsFromFiles(this.props.project);
+            this.setState({ tagsLoaded: true });
             await this.props.actions.saveProject(this.props.project, false);
         }
         document.title = strings.editorPage.title + " - " + strings.appName;
@@ -582,9 +581,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         this.setState({
             assets: rootAssets,
         }, async () => {
-            await this.props.actions.updateProjectTagsFromFiles(this.props.project).then(() => {
-                this.setState({ tagsLoaded: true });
-            });
+            await this.props.actions.updateProjectTagsFromFiles(this.props.project);
+            this.setState({ tagsLoaded: true });
             await this.props.actions.saveProject(this.props.project, false);
             if (rootAssets.length > 0) {
                 await this.selectAsset(lastVisited ? lastVisited : rootAssets[0]);
