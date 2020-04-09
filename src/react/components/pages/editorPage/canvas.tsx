@@ -455,6 +455,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             regions,
             labelData,
         };
+        if (this.imageMap) {
+            this.imageMap.removeAllLabelFeatures();
+            this.addLabelledDataToLayer(regions.filter(
+                (region) => region.tags[0] !== undefined &&
+                region.pageNumber === this.state.currentPage));
+        }
         this.setState({
             currentAsset,
         }, () => {
@@ -1300,8 +1306,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const regionsFromLabelData = this.convertLabelDataToRegions(this.state.currentAsset.labelData);
             if (regionsFromLabelData.length > 0) {
                 this.addRegionsToAsset(regionsFromLabelData);
-                this.addLabelledDataToLayer(regionsFromLabelData.filter(
-                    (region) => region.pageNumber === this.state.currentPage));
             }
         }
     }
