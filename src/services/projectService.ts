@@ -28,7 +28,8 @@ const tagColors = require("../react/components/common/tagColors.json");
  */
 export interface IProjectService {
     load(project: IProject, securityToken: ISecurityToken): Promise<IProject>;
-    save(project: IProject, securityToken: ISecurityToken, saveTags?: boolean): Promise<IProject>;
+    save(project: IProject, securityToken: ISecurityToken, saveTags?: boolean,
+         updateTagsFromFiles?: boolean): Promise<IProject>;
     delete(project: IProject): Promise<void>;
     isDuplicate(project: IProject, projectList: IProject[]): boolean;
     updateProjectTagsFromFiles(oldProject: IProject): Promise<IProject>;
@@ -67,7 +68,8 @@ export default class ProjectService implements IProjectService {
      * @param project - Project to save
      * @param securityToken - Security Token to encrypt
      */
-    public async save(project: IProject, securityToken: ISecurityToken, saveTags?: boolean): Promise<IProject> {
+    public async save(project: IProject, securityToken: ISecurityToken, saveTags?: boolean,
+                      updateTagsFromFiles?: boolean): Promise<IProject> {
         Guard.null(project);
 
         project.version = packageJson.version;
@@ -78,7 +80,7 @@ export default class ProjectService implements IProjectService {
 
         const storageProvider = StorageProviderFactory.createFromConnection(project.sourceConnection);
 
-        if (!project.tags) {
+        if (updateTagsFromFiles || !project.tags) {
             project = await this.updateProjectTagsFromFiles(project);
         }
 

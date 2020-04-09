@@ -154,7 +154,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             this.props.appTitleActions.setTitle(project.name);
             await this.props.actions.updateProjectTagsFromFiles(this.props.project);
             this.setState({ tagsLoaded: true });
-            await this.props.actions.saveProject(this.props.project, false);
+            await this.props.actions.saveProject(this.props.project, false, false);
         }
         document.title = strings.editorPage.title + " - " + strings.appName;
     }
@@ -514,7 +514,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             ...this.props.project,
             tags,
         };
-        await this.props.actions.saveProject(project, true);
+        await this.props.actions.saveProject(project, true, false);
     }
 
     private onLockedTagsChanged = (lockedTags: string[]) => {
@@ -555,7 +555,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             selectedAsset: assetMetadata,
         }, async () => {
             await this.onAssetMetadataChanged(assetMetadata);
-            await this.props.actions.saveProject(this.props.project, false);
+            await this.props.actions.saveProject(this.props.project, false, false);
         });
     }
 
@@ -583,7 +583,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }, async () => {
             await this.props.actions.updateProjectTagsFromFiles(this.props.project);
             this.setState({ tagsLoaded: true });
-            await this.props.actions.saveProject(this.props.project, false);
+            await this.props.actions.saveProject(this.props.project, false, false);
             if (rootAssets.length > 0) {
                 await this.selectAsset(lastVisited ? lastVisited : rootAssets[0]);
             }
