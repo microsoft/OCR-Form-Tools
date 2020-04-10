@@ -87,6 +87,7 @@
         "enzyme-adapter-react-16": "^1.15.1",
         "eslint-utils": "^1.4.3",
         "jquery": "^3.4.1",
+        "kind-of": "^6.0.3",
         "minimist": "^1.2.2",
         "node-sass": "^4.13.0",
         "pdfjs-dist": "2.3.200",
