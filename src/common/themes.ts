@@ -199,7 +199,7 @@ const greenWithWhiteBackgroundPalette = {
     neutralDark: "#201f1e",
     black: "#000000",
     white: "#ffffff",
-  }
+  };
 
 const whiteTheme = createTheme({palette: whiteButtonPalette});
 const redTheme = createTheme({palette: redButtonPalette});

@@ -152,13 +152,13 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const browseFileDisabled: boolean = !this.state.predictionLoaded;
         const predictDisabled: boolean = !this.state.predictionLoaded || !this.state.file;
         const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
-        const fetchDisabled: boolean = !this.state.predictionLoaded || this.state.isFetching || 
+        const fetchDisabled: boolean = !this.state.predictionLoaded || this.state.isFetching ||
                                        !this.state.hasInputedURL || this.state.fileURL.length == 0;
 
         const sourceOptions: IDropdownOption[] = [
-            { key: 'sourceHeader', text: 'Source', itemType: DropdownMenuItemType.Header },
-            { key: 'localFile', text: 'Local File' },
-            { key: 'url', text: 'URL' },
+            { key: "sourceHeader", text: "Source", itemType: DropdownMenuItemType.Header },
+            { key: "localFile", text: "Local File" },
+            { key: "url", text: "URL" },
         ];
 
         return (
@@ -202,25 +202,31 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                 disabled={this.state.isPredicting || this.state.isFetching}
                                 onChange={this.selectSource}
                             />
-                            { this.state.sourceOption == "localFile" &&
-
-                            <div style={{display: "flex", flexDirection: "row", justifyContent: "space-between", marginBottom: "25px"}}>
-                                <input
-                                    aria-hidden="true"
-                                    type="file"
-                                    accept="application/pdf, image/jpeg, image/png, image/tiff"
-                                    id="hiddenInputFile"
-                                    ref={this.fileInput}
-                                    onChange={this.handleFileChange}
-                                    disabled={browseFileDisabled} />
-                                <TextField
-                                    theme={getGreenWithWhiteBackgroundTheme()}
-                                    style = {{cursor: (browseFileDisabled ? "default" : "pointer")}}
-                                    onClick={this.handleDummyInputClick}
-                                    readOnly={true}
-                                    aria-label={strings.predict.uploadFile}
-                                    value={this.state.fileLabel}/>
-                                <div className="rlMargin10">
+                            { this.state.sourceOption === "localFile" &&
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        marginBottom: "25px",
+                                    }}
+                                >
+                                    <input
+                                        aria-hidden="true"
+                                        type="file"
+                                        accept="application/pdf, image/jpeg, image/png, image/tiff"
+                                        id="hiddenInputFile"
+                                        ref={this.fileInput}
+                                        onChange={this.handleFileChange}
+                                        disabled={browseFileDisabled}
+                                    />
+                                    <TextField
+                                        theme={getGreenWithWhiteBackgroundTheme()}
+                                        style = {{cursor: (browseFileDisabled ? "default" : "pointer")}}
+                                        onClick={this.handleDummyInputClick}
+                                        readOnly={true}
+                                        aria-label={strings.predict.uploadFile}
+                                        value={this.state.fileLabel}
+                                    />
                                     <PrimaryButton
                                         theme={getPrimaryGreenTheme()}
                                         text="Browse"
@@ -229,38 +235,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                         autoFocus={true}
                                         onClick={this.handleDummyInputClick}
                                     />
-                                </div>
-                                <PrimaryButton
-                                    theme={getPrimaryWhiteTheme()}
-                                    text="Predict"
-                                    aria-label={!this.state.predictionLoaded ? strings.predict.inProgress : ""}
-                                    allowDisabledFocus
-                                    disabled={predictDisabled}
-                                    onClick={this.handleClick}
-                                />
-                            </div>
-                            }
-                            { this.state.sourceOption == "url" &&
-                                <div style={{display: "flex", justifyContent: "space-between", marginBottom: "25px"}}>
-                                    <TextField
-                                    theme={getGreenWithWhiteBackgroundTheme()}
-                                    onFocus={this.removeText}
-                                    defaultValue={"tersdt"}
-                                        onChange={this.getFileURL}
-                                        aria-label={strings.predict.uploadFile}
-                                        value={this.state.fileURL}
-                                        readOnly={this.state.isFetching || this.state.isPredicting}
-                                    />
-                                    <div>
-                                        <PrimaryButton
-                                            theme={getPrimaryGreenTheme()}
-                                            text="Fetch"
-                                            allowDisabledFocus
-                                            disabled={fetchDisabled}
-                                            autoFocus={true}
-                                            onClick={this.getFileFromURL}
-                                        />
-                                    </div >
                                     <PrimaryButton
                                         theme={getPrimaryWhiteTheme()}
                                         text="Predict"
@@ -271,7 +245,41 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                     />
                                 </div>
                             }
-
+                            { this.state.sourceOption === "url" &&
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        marginBottom: "25px",
+                                    }}
+                                >
+                                    <TextField
+                                        theme={getGreenWithWhiteBackgroundTheme()}
+                                        onFocus={this.removeText}
+                                        defaultValue={"tersdt"}
+                                        onChange={this.getFileURL}
+                                        aria-label={strings.predict.uploadFile}
+                                        value={this.state.fileURL}
+                                        readOnly={this.state.isFetching || this.state.isPredicting}
+                                    />
+                                    <PrimaryButton
+                                        theme={getPrimaryGreenTheme()}
+                                        text="Fetch"
+                                        allowDisabledFocus
+                                        disabled={fetchDisabled}
+                                        autoFocus={true}
+                                        onClick={this.getFileFromURL}
+                                    />
+                                    <PrimaryButton
+                                        theme={getPrimaryWhiteTheme()}
+                                        text="Predict"
+                                        aria-label={!this.state.predictionLoaded ? strings.predict.inProgress : ""}
+                                        allowDisabledFocus
+                                        disabled={predictDisabled}
+                                        onClick={this.handleClick}
+                                    />
+                                </div>
+                            }
                             {this.state.isFetching &&
                                 <div className="loading-container">
                                     <Spinner
@@ -342,7 +350,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         if (!this.state.hasInputedURL) {
             this.setState({fileURL: ""});
             this.setState({hasInputedURL: true});
-        } 
+        }
     }
 
     private getFileURL = (event) => {
@@ -351,9 +359,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
     private getFileFromURL = () => {
         this.setState({isFetching: true});
-        fetch(this.state.fileURL, { headers: {"Accept": "application/pdf, image/jpeg, image/png, image/tiff"},})
+        fetch(this.state.fileURL, { headers: {Accept: "application/pdf, image/jpeg, image/png, image/tiff"}})
          .then((response) => {
-            if(!response.ok) {
+            if (!response.ok) {
                 this.setState({
                     isFetching: false,
                     shouldShowAlert: true,
@@ -364,7 +372,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 return;
             }
             const contentType = response.headers.get("Content-Type");
-            if(![ "application/pdf", "image/jpeg", "image/png", "image/tiff"].includes(contentType)) {
+            if (![ "application/pdf", "image/jpeg", "image/png", "image/tiff"].includes(contentType)) {
                 this.setState({
                     isFetching: false,
                     shouldShowAlert: true,
@@ -384,7 +392,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     currPage: 1,
                     analyzeResult: {},
                     fileChanged: true,
-                    file: file,
+                    file,
                     predictRun: false,
                 }, () => {
                     if (this.imageMap) {
@@ -413,7 +421,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private selectSource = (event, option) => {
-        this.setState({sourceOption: option.key})
+        this.setState({sourceOption: option.key});
     }
 
     private renderPrevPageButton = () => {
