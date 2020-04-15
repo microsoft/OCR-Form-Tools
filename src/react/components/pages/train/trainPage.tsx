@@ -96,7 +96,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
             this.props.appTitleActions.setTitle(project.name);
 
-            this.getCheckboxInProjectTags(project);
+            this.showCheckboxPreview(project);
             this.updateCurrTrainRecord(this.getProjectTrainRecord());
         }
         document.title = strings.train.title + " - " + strings.appName;
@@ -131,7 +131,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                         <div className="condensed-list-body">
                             <div className="m-3">
                                 <h4 className="text-shadow-none"> Train a new model </h4>
-                                {this.state.hasCheckbox && this.state.currTrainRecord &&
+                                {this.state.hasCheckbox &&
                                     <div className="alert alert-warning warning train-notification">
                                         <FontIcon iconName="WarningSolid"></FontIcon>
                                         <span className="train-notification-text">
@@ -349,7 +349,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         return new Promise(checkSucceeded);
     }
 
-    private getCheckboxInProjectTags = (project: IProject) => {
+    private showCheckboxPreview = (project: IProject) => {
         if (project.tags.find((t) => t.type === FieldType.Checkbox)) {
             this.setState({
                 hasCheckbox: true,
