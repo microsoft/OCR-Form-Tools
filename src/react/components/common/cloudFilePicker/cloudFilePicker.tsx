@@ -196,7 +196,7 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
     private async fileList(connection: IConnection) {
         const storageProvider = StorageProviderFactory.createFromConnection(connection);
         const files = await storageProvider.listFiles(
-            connection.providerOptions["containerName"],
+            "", // root folder
             this.props.fileExtension);
         const fileItems = [];
         for (let i = 0; i < files.length; i++) {

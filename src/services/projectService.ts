@@ -141,7 +141,7 @@ export default class ProjectService implements IProjectService {
 
     public async isProjectNameAlreadyUsed(project: IProject): Promise<boolean> {
         const storageProvider = StorageProviderFactory.createFromConnection(project.sourceConnection);
-        const fileList = await storageProvider.listFiles(null/*folderPath*/, constants.projectFileExtension/*ext*/);
+        const fileList = await storageProvider.listFiles("", constants.projectFileExtension/*ext*/);
         for (const fileName of fileList) {
             if (fileName === `${project.name}${constants.projectFileExtension}`) {
                 return true;
@@ -176,7 +176,7 @@ export default class ProjectService implements IProjectService {
         const tags: ITag[] = [];
         const tagNameSet = new Set<string>();
         try {
-            const blobs = new Set<string>(await storageProvider.listFiles());
+            const blobs = new Set<string>(await storageProvider.listFiles(project.folderPath));
             const assetLabel = asset ? asset + constants.labelFileExtension : undefined;
             for (const blob of blobs) {
                 const blobFolderPath = blob.substr(0, blob.lastIndexOf("/"));
