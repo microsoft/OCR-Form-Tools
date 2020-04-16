@@ -126,16 +126,25 @@ export class AzureBlobStorage implements IStorageProvider {
      * @param ext - Extension of files to filter on when retrieving files
      * from container
      */
-    public async listFiles(path: string, ext?: string): Promise<string[]> {
+    public async listFiles(path?: string, ext?: string): Promise<string[]> {
         try {
             const result: string[] = [];
             let marker;
             const containerURL = new ContainerURL(this.options.sas, StorageURL.newPipeline(this.getCredential()));
             do {
-                const listBlobsResponse = await containerURL.listBlobFlatSegment(
-                    Aborter.none,
-                    marker,
-                );
+                const pathIsString = typeof path === "string";
+                if (pathIsString && path.length > 0 && path[path.length - 1] !== "/") {
+                    path += "/";
+                }
+                const listBlobsResponse = pathIsString
+                    ? await containerURL.listBlobHierarchySegment(
+                        Aborter.none,
+                        "/",
+                        marker,
+                        { prefix: path })
+                    : await containerURL.listBlobFlatSegment(
+                        Aborter.none,
+                        marker);
                 if (!listBlobsResponse.segment || !listBlobsResponse.containerName) {
                     throw new AzureBlobStorageError(404);
                 }
@@ -199,8 +208,8 @@ export class AzureBlobStorage implements IStorageProvider {
     /**
      * Retrieves assets from Azure Blob Storage container
      */
-    public async getAssets(): Promise<IAsset[]> {
-        const files: string[] = await this.listFiles(null/*folderPath*/);
+    public async getAssets(folderPath?: string): Promise<IAsset[]> {
+        const files: string[] = await this.listFiles(folderPath);
         const result: IAsset[] = [];
         for (const file of files) {
             const url = this.getUrl(file);

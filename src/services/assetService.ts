@@ -123,12 +123,12 @@ export class AssetService {
      * Get assets from provider
      */
     public async getAssets(): Promise<IAsset[]> {
-        const project = this.project;
-        const assets = await this.assetProvider.getAssets();
+        const folderPath = this.project.folderPath;
+        const assets = await this.assetProvider.getAssets(folderPath);
         const returnedAssets = assets.map((asset) => {
             asset.name = decodeURIComponent(asset.name);
             return asset;
-        }).filter((asset) => this.isInExactFolderPath(asset.name, project.folderPath));
+        }).filter((asset) => this.isInExactFolderPath(asset.name, folderPath));
 
         return returnedAssets;
     }
