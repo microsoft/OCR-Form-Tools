@@ -10,7 +10,7 @@ import IProjectActions, * as projectActions from "../../../../redux/actions/proj
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import {
-    IApplicationState, IConnection, IProject, IAppSettings,
+    IApplicationState, IConnection, IProject, IAppSettings, FieldType,
 } from "../../../../models/applicationState";
 import TrainChart from "./trainChart";
 import TrainPanel from "./trainPanel";
@@ -44,6 +44,7 @@ export interface ITrainPageState {
     viewType: "chartView" | "tableView";
     showTrainingFailedWarning: boolean;
     trainingFailedMessage: string;
+    hasCheckbox: boolean;
 }
 
 interface ITrainApiResponse {
@@ -83,6 +84,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             viewType: "tableView",
             showTrainingFailedWarning: false,
             trainingFailedMessage: "",
+            hasCheckbox: false,
         };
     }
 
@@ -93,6 +95,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             await this.props.actions.loadProject(project);
 
             this.props.appTitleActions.setTitle(project.name);
+
+            this.showCheckboxPreview(project);
             this.updateCurrTrainRecord(this.getProjectTrainRecord());
         }
         document.title = strings.train.title + " - " + strings.appName;
@@ -127,12 +131,13 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                         <div className="condensed-list-body">
                             <div className="m-3">
                                 <h4 className="text-shadow-none"> Train a new model </h4>
-                                <div className="alert alert-warning warning train-notification">
-                                    <FontIcon iconName="WarningSolid"></FontIcon>
-                                    <span className="train-notification-text">
-                                        {strings.train.backEndNotAvailable}
-                                    </span>
-                                </div>
+                                {this.state.hasCheckbox &&
+                                    <div className="alert alert-warning warning train-notification">
+                                        <FontIcon iconName="WarningSolid"></FontIcon>
+                                        <span className="train-notification-text">
+                                            {strings.train.backEndNotAvailable}
+                                        </span>
+                                    </div>}
                                 {!this.state.isTraining ? (
                                     <PrimaryButton
                                         id="train_trainButton"
@@ -342,5 +347,13 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         };
 
         return new Promise(checkSucceeded);
+    }
+
+    private showCheckboxPreview = (project: IProject) => {
+        if (project.tags.find((t) => t.type === FieldType.Checkbox)) {
+            this.setState({
+                hasCheckbox: true,
+            });
+        }
     }
 }
