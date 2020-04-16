@@ -176,6 +176,31 @@ const darkThemePalette  = {
     accent: "#3a96dd",
 };
 
+const greenWithWhiteBackgroundPalette = {
+    themePrimary: "#78ad0e",
+    themeLighterAlt: "#f9fcf2",
+    themeLighter: "#e6f2ce",
+    themeLight: "#d1e7a7",
+    themeTertiary: "#a8ce5c",
+    themeSecondary: "#86b723",
+    themeDarkAlt: "#6c9c0c",
+    themeDark: "#5b840b",
+    themeDarker: "#436108",
+    neutralLighterAlt: "#faf9f8",
+    neutralLighter: "#f3f2f1",
+    neutralLight: "#edebe9",
+    neutralQuaternaryAlt: "#e1dfdd",
+    neutralQuaternary: "#d0d0d0",
+    neutralTertiaryAlt: "#c8c6c4",
+    neutralTertiary: "#a19f9d",
+    neutralSecondary: "#605e5c",
+    neutralPrimaryAlt: "#3b3a39",
+    neutralPrimary: "#323130",
+    neutralDark: "#201f1e",
+    black: "#000000",
+    white: "#ffffff",
+  };
+
 const whiteTheme = createTheme({palette: whiteButtonPalette});
 const redTheme = createTheme({palette: redButtonPalette});
 const greenTheme = createTheme({palette: greenButtonPalette});
@@ -183,6 +208,7 @@ const greyTheme = createTheme({palette: greyButtonPalette});
 const blueTheme = createTheme({palette: blueButtonPalette});
 const darkTheme = createTheme({palette: darkThemePalette});
 const darkGreyTheme = createTheme({palette: darkGreyPalette});
+const greenWithWhiteBackgroundTheme = createTheme({palette: greenWithWhiteBackgroundPalette});
 
 export function getPrimaryWhiteTheme() {
     return whiteTheme;
@@ -210,4 +236,8 @@ export function getPrimaryBlueTheme() {
 
 export function getDarkTheme() {
     return darkTheme;
+}
+
+export function getGreenWithWhiteBackgroundTheme() {
+    return greenWithWhiteBackgroundTheme;
 }

@@ -107,6 +107,7 @@
 
 .loading-container { 
   display: flex;
+  margin-bottom: 20px;
 }
 
 .loading-description {
@@ -151,4 +152,27 @@
 
 .color-picker-container {
   overflow: auto;
+}
+
+.container-space-between {
+  display: flex;
+  justify-content: space-between;
+}
+
+.keep-button-80px {
+  max-width: 80px;
+}
+
+.container-items-end {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.container-items-center {
+  display: flex;
+  align-items: center;
+}
+
+.align-self-end {
+  align-self: flex-end;
 }

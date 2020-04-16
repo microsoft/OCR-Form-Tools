@@ -36,20 +36,20 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
 
         return (
             <div>
-                <div className="prediction-header">
-                    <h5 className="prediction-header-result">Result:</h5>
+                <div className="container-items-center container-space-between results-container">
+                    <h5 className="results-header">Prediction results</h5>
                     <PrimaryButton
-                        className="prediction-header-download"
+                        className="align-self-end keep-button-80px"
                         theme={getPrimaryGreenTheme()}
-                        type="button"
-                        title="Download JSON"
-                        onClick={this.triggerDownload}>
-                        Download result (JSON)
-                    </PrimaryButton>
+                        text="Download"
+                        allowDisabledFocus
+                        autoFocus={true}
+                        onClick={this.triggerDownload}
+                    />
                 </div>
                 <div className="prediction-field-header">
-                    <h6 className="prediction-field-header-field"> Field </h6>
-                    <h6 className="prediction-field-header-confidence"> Confidence </h6>
+                    <h6 className="prediction-field-header-field"> Page # / Field name / Value</h6>
+                    <h6 className="prediction-field-header-confidence"> Confidence %</h6>
                 </div>
                 <div className="prediction-header-clear"></div>
 
@@ -60,6 +60,8 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
 
     private renderItem = (item: any, key: any) => {
         const style: any = {
+            marginLeft: "0px",
+            marginRight: "0px",
             background: this.getTagColor(item.fieldName),
         };
         return (
@@ -69,7 +71,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                 onMouseLeave={() => this.onPredictionMouseLeave(item)}>
                 <li className="predictiontag-item" style={style}>
                     <div className={"predictiontag-color"}>
-                        <span>P. {item.page}</span>
+                        <span>{item.page}</span>
                     </div>
                     <div className={"predictiontag-content"}>
                         {this.getPredictionTagContent(item)}
