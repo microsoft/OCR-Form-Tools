@@ -128,6 +128,8 @@ export interface IAppStrings {
         uploadFile: string;
         inProgress: string;
         downloadScript: string;
+        defaultLocalFileInput: string;
+        defaultURLInput: string;
     };
     projectMetrics: {
         title: string;

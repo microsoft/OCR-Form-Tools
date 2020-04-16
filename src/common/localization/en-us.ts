@@ -125,9 +125,11 @@ export const english: IAppStrings = {
     },
     predict: {
         title: "Predict",
-        uploadFile: "Upload file",
+        uploadFile: "Upload image and run prediction",
         inProgress: "Prediction in progress...",
         downloadScript: "Use script",
+        defaultLocalFileInput: "Browse for a file...",
+        defaultURLInput: "Paste or type URL...",
     },
     projectMetrics: {
         title: "Project Metrics",

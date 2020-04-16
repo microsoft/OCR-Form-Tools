@@ -129,6 +129,8 @@ export const spanish: IAppStrings = {
         uploadFile: "Subir archivo",
         inProgress: "Predicción en progreso ...",
         downloadScript: "Usar script",
+        defaultLocalFileInput: "Busca un archivo...",
+        defaultURLInput: "Pegar o escribir URL...",
     },
     projectMetrics: {
         title: "Métricas del proyecto",
