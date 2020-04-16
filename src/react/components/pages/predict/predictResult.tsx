@@ -36,7 +36,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
 
         return (
             <div>
-                <div className="container-items-center container-space-between results-container"> 
+                <div className="container-items-center container-space-between results-container">
                     <h5 className="results-header">Prediction results</h5>
                     <PrimaryButton
                         className="align-self-end keep-button-80px"

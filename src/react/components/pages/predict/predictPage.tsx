@@ -5,7 +5,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
-import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton, TextField, IDropdownOption, Dropdown, IIconProps} from "office-ui-fabric-react";
+import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton, TextField, IDropdownOption, Dropdown} from "office-ui-fabric-react";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
@@ -30,7 +30,8 @@ import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
-import { getPrimaryGreenTheme, getPrimaryWhiteTheme, getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
+import { getPrimaryGreenTheme, getPrimaryWhiteTheme,
+         getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
 import { SkipButton } from "../../shell/skipButton";
 import axios from "axios";
 
@@ -156,8 +157,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const predictDisabled: boolean = !this.state.predictionLoaded || !this.state.file;
         const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
         const fetchDisabled: boolean = !this.state.predictionLoaded || this.state.isFetching ||
-                                        this.state.inputedFileURL.length == 0 || 
-                                        this.state.inputedFileURL == strings.predict.defaultURLInput;
+                                        this.state.inputedFileURL.length === 0 ||
+                                        this.state.inputedFileURL === strings.predict.defaultURLInput;
 
         const sourceOptions: IDropdownOption[] = [
             { key: "localFile", text: "Local file" },
@@ -339,7 +340,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private removeDefaultInputedFileURL = () => {
-        if (this.state.inputedFileURL == strings.predict.defaultURLInput) {
+        if (this.state.inputedFileURL === strings.predict.defaultURLInput) {
             this.setState({inputedFileURL: ""});
         }
     }
@@ -413,9 +414,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private selectSource = (event, option) => {
-        if(option.key != this.state.sourceOption) {
+        if (option.key !== this.state.sourceOption) {
             this.setState({
-                sourceOption: option.key, 
+                sourceOption: option.key,
                 inputedFileURL: strings.predict.defaultURLInput,
                 inputedLocalFile: strings.predict.defaultLocalFileInput,
                 fileLabel: "",
@@ -641,12 +642,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         );
         let headers;
         let body;
-        if(this.state.sourceOption == "localFile") {
+        if (this.state.sourceOption === "localFile") {
             headers = { "Content-Type": this.state.file.type, "cache-control": "no-cache" };
             body = this.state.file;
         } else {
             headers = { "Content-Type": "application/json", "cache-control": "no-cache" };
-            body = { "source": this.state.fetchedFileURL };          
+            body = { source: this.state.fetchedFileURL };
         }
         let response;
         try {
