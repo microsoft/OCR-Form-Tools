@@ -42,7 +42,7 @@ Using a modern Web browser, FOTT can be loaded from: https://fott.azurewebsites.
 
 ### Set up input data
 
-First, make sure all the training documents are of the same format. If you have forms in multiple formats, organize them into subfolders based on common format. When you train, you'll need to direct the API to a subfolder.
+To go thru a complete label-train-analyze scenario, you need a set of at least six forms of the same type. You will label five forms to train a model and one form to test the model.  You could upload the [sample files](https://go.microsoft.com/fwlink/?linkid=2090451) to the root of a blob storage container in an Azure Storage account.  For advanced scenarios where there are forms in quite different formats, you could organize them into subfolders based on similar format. When you set up your project to train a model from one format, you need to specify a subfolder in the project setting page. 
 
 #### Configure cross-domain resource sharing (CORS)
 
