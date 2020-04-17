@@ -93,7 +93,9 @@ export function updateProjectTagsFromFiles(project: IProject, asset?: string): (
     return async (dispatch: Dispatch) => {
         const projectService = new ProjectService();
         const updatedProject = await projectService.updateProjectTagsFromFiles(project, asset);
-        dispatch(updateProjectTagsFromFilesAction(updatedProject));
+        if (updatedProject !== project) {
+            dispatch(updateProjectTagsFromFilesAction(updatedProject));
+        }
     };
 }
 
@@ -139,10 +141,26 @@ export function loadAssets(project: IProject): (dispatch: Dispatch) => Promise<I
     return async (dispatch: Dispatch) => {
         const assetService = new AssetService(project);
         const assets = await assetService.getAssets();
-        dispatch(loadProjectAssetsAction(assets));
+        if (!areAssetsEqual(assets, project.assets)) {
+            dispatch(loadProjectAssetsAction(assets));
+        }
 
         return assets;
     };
+}
+
+function areAssetsEqual(assets: IAsset[], projectAssets: { [index: string]: IAsset }) : boolean {
+    const keys = Object.keys(projectAssets || {});
+    if (assets.length !== keys.length) {
+        return false;
+    }
+
+    const assetsMap = {};
+    assets.forEach((asset) => {
+        assetsMap[asset.id] = asset;
+    });
+
+    return JSON.stringify(assetsMap) === JSON.stringify(projectAssets);
 }
 
 /**
@@ -199,7 +217,7 @@ export function updateProjectTag(project: IProject, oldTag: ITag, newTag: ITag)
             await assetUpdates.forEachAsync(async (assetMetadata) => {
                 await saveAssetMetadata(project, assetMetadata)(dispatch);
             });
-    }
+        }
 
         const currentProject = getState().currentProject;
         const updatedProject = {
