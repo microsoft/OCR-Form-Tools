@@ -135,7 +135,7 @@ Tip: You can also run the training process with a REST API call. To learn how to
 
 #### Analyze a form ####
 
-Click on the Predict icon on the left to test your model. Upload a form document that you haven't used in the training process. Then click the **Predict** button on the right to get key/value predictions for the form. The tool will apply tags in bounding boxes and will report the confidence of each tag.
+Click on the Predict icon on the left to test your model. Upload a form document that you haven't used in the training process. Then click the **Predict** button on the right to get key/value predictions for the form. The tool will highlight fields and its bounding boxes and will report the confidence of each value.
 
 ![alt text](docs/images/analyze-form.png "Analyze Form")
 
