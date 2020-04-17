@@ -170,7 +170,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 this.loadLabelData(asset);
             });
         } else if (this.isLabelDataChanged(this.props, prevProps)
-            || (prevProps.project && this.needUpdateAssetRegionsFromTags(prevProps.project.tags, this.props.project.tags))) {
+            || (prevProps.project
+                && this.needUpdateAssetRegionsFromTags(prevProps.project.tags, this.props.project.tags))) {
             const newRegions = this.convertLabelDataToRegions(this.props.selectedAsset.labelData);
             this.updateAssetRegions(newRegions);
             this.redrawAllFeatures();
@@ -1634,7 +1635,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
 
         // add/delete tag
-        if (prevTags.length != tags.length) {
+        if (prevTags.length !== tags.length) {
             return false;
         }
 
@@ -1652,7 +1653,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const types = {};
         tags.forEach((tag) => types[tag.name] = tag.type);
 
-        for (let name of names) {
+        for (const name of names) {
             const prevType = prevTypes[name];
             const type = types[name];
             if (prevType !== type
@@ -1660,7 +1661,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 // some tag change between checkbox and text
                 return true;
             }
-        };
+        }
 
         return false;
     }

@@ -149,7 +149,7 @@ export function loadAssets(project: IProject): (dispatch: Dispatch) => Promise<I
     };
 }
 
-function areAssetsEqual(assets: IAsset[], projectAssets: { [index: string]: IAsset }) : boolean {
+function areAssetsEqual(assets: IAsset[], projectAssets: { [index: string]: IAsset }): boolean {
     const keys = Object.keys(projectAssets || {});
     if (assets.length !== keys.length) {
         return false;
