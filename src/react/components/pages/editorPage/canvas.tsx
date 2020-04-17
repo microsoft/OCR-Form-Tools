@@ -314,6 +314,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.setTagType(inputTag[0], FieldType.Checkbox);
         }
 
+        this.redrawAllFeatures();
         this.applyTagFlag = true;
     }
 
