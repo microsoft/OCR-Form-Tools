@@ -176,7 +176,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
 
         if (this.props.hoveredLabel !== prevProps.hoveredLabel) {
-            this.imageMap.getAllFeatures().map(this.updateHighlightStatus);
+            this.imageMap.getAllLabelFeatures().map(this.updateHighlightStatus);
         }
     }
 
