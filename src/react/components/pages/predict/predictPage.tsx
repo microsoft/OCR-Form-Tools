@@ -358,7 +358,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     isFetching: false,
                     shouldShowAlert: true,
                     alertTitle: "Failed to fetch",
-                    alertMessage: response.status.toString(),
+                    alertMessage: response.status.toString() + " " + response.statusText,
                     isPredicting: false,
                 });
                 return;
@@ -407,7 +407,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 isFetching: false,
                 shouldShowAlert: true,
                 alertTitle: "Fetch failed",
-                alertMessage: "Couldn't fetch file",
+                alertMessage: "Network error or Cross-Origin Resource Sharing (CORS) is not configured server-side",
             });
             return;
         });
