@@ -932,8 +932,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     ocr,
                     ocrForCurrentPage: this.getOcrResultForCurrentPage(ocr),
                 }, () => {
-                    this.buildRegionOrders();
-                    this.drawOcr();
+                    if (asset.id === this.state.currentAsset.asset.id) {
+                        this.buildRegionOrders();
+                        this.drawOcr();
+                    }
                 });
             }
         } catch (error) {
