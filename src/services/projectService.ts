@@ -158,7 +158,11 @@ export default class ProjectService implements IProjectService {
         await this.getTagsFromPreExistingFieldFile(updatedProject, storageProvider);
         await this.getTagsFromPreExistingLabelFiles(updatedProject, storageProvider, asset);
         await this.setColorsForUpdatedTags(project, updatedProject);
-        return updatedProject;
+        if (JSON.stringify(updatedProject.tags) === JSON.stringify(project.tags)) {
+            return project;
+        } else {
+            return updatedProject;
+        }
     }
 
     /**

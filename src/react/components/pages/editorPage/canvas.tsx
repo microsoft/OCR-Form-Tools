@@ -169,7 +169,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 await this.loadOcr();
                 this.loadLabelData(asset);
             });
-        } else if (this.isLabelDataChanged(this.props, prevProps)) {
+        } else if (this.isLabelDataChanged(this.props, prevProps)
+            || (prevProps.project && prevProps.project.tags !== this.props.project.tags)) {
             const newRegions = this.convertLabelDataToRegions(this.props.selectedAsset.labelData);
             this.updateAssetRegions(newRegions);
             this.redrawAllFeatures();
@@ -308,23 +309,24 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.props.onSelectedRegionsChanged([]);
         }
 
-        this.addLabelledDataToLayer(selectedRegions);
-
         if (selectedRegions.length === 1 && selectedRegions[0].category === FeatureCategory.Checkbox) {
             this.setTagType(inputTag[0], FieldType.Checkbox);
         }
 
-        this.redrawAllFeatures();
         this.applyTagFlag = true;
     }
 
-    private setTagType = (tagInput: ITag, fieldType: FieldType) => {
+    private setTagType = (tag: ITag, fieldType: FieldType) => {
+        if (tag.type === fieldType) {
+            return;
+        }
+
         const newTag = {
-            ...tagInput,
+            ...tag,
             type : fieldType,
             format : FieldFormat.NotSpecified,
         };
-        this.props.onTagChanged(tagInput, newTag);
+        this.props.onTagChanged(tag, newTag);
     }
 
     private getSelectedRegions = (): IRegion[] => {
