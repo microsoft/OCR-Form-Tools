@@ -220,8 +220,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                 }
                                 { this.state.sourceOption === "localFile" &&
                                     <TextField
+                                        className="mr-2 ml-2"
                                         theme={getGreenWithWhiteBackgroundTheme()}
-                                        style = {{cursor: (browseFileDisabled ? "default" : "pointer")}}
+                                        style={{cursor: (browseFileDisabled ? "default" : "pointer")}}
                                         onClick={this.handleDummyInputClick}
                                         readOnly={true}
                                         aria-label={strings.predict.uploadFile}
@@ -242,6 +243,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                 }
                                 { this.state.sourceOption === "url" &&
                                     <TextField
+                                        className="mr-2 ml-2"
                                         theme={getGreenWithWhiteBackgroundTheme()}
                                         onFocus={this.removeDefaultInputedFileURL}
                                         onChange={this.setInputedFileURL}
