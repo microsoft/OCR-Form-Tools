@@ -169,7 +169,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 await this.loadOcr();
                 this.loadLabelData(asset);
             });
-        } else if (this.isLabelDataChanged(this.props, prevProps)) {
+        } else if (this.isLabelDataChanged(this.props, prevProps)
+            || (prevProps.project
+                && this.needUpdateAssetRegionsFromTags(prevProps.project.tags, this.props.project.tags))) {
             const newRegions = this.convertLabelDataToRegions(this.props.selectedAsset.labelData);
             this.updateAssetRegions(newRegions);
             this.redrawAllFeatures();
@@ -308,8 +310,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.props.onSelectedRegionsChanged([]);
         }
 
-        this.addLabelledDataToLayer(selectedRegions);
-
         if (selectedRegions.length === 1 && selectedRegions[0].category === FeatureCategory.Checkbox) {
             this.setTagType(inputTag[0], FieldType.Checkbox);
         }
@@ -318,13 +318,17 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.applyTagFlag = true;
     }
 
-    private setTagType = (tagInput: ITag, fieldType: FieldType) => {
+    private setTagType = (tag: ITag, fieldType: FieldType) => {
+        if (tag.type === fieldType) {
+            return;
+        }
+
         const newTag = {
-            ...tagInput,
+            ...tag,
             type : fieldType,
             format : FieldFormat.NotSpecified,
         };
-        this.props.onTagChanged(tagInput, newTag);
+        this.props.onTagChanged(tag, newTag);
     }
 
     private getSelectedRegions = (): IRegion[] => {
@@ -929,8 +933,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     ocr,
                     ocrForCurrentPage: this.getOcrResultForCurrentPage(ocr),
                 }, () => {
-                    this.buildRegionOrders();
-                    this.drawOcr();
+                    if (asset.id === this.state.currentAsset.asset.id) {
+                        this.buildRegionOrders();
+                        this.drawOcr();
+                    }
                 });
             }
         } catch (error) {
@@ -1527,11 +1533,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 y: boundingBox[i + 1],
             });
         }
-        const regionTag = this.props.project.tags.find((tag) => tag.name === tagName);
+        const tag = this.props.project.tags.find((tag) => tag.name === tagName);
+
         const newRegion = {
             id: this.createRegionIdFromBoundingBox(boundingBox, pangeNumber),
             type: RegionType.Polygon,
-            category: regionTag.type !== FieldType.Checkbox ? FeatureCategory.Text : FeatureCategory.Checkbox,
+            category: tag.type === FieldType.Checkbox ? FeatureCategory.Checkbox : FeatureCategory.Text,
             tags: [tagName],
             boundingBox: {
                 height: bottom - top,
@@ -1622,5 +1629,43 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.redrawFeatures(this.imageMap.getAllFeatures());
         this.redrawFeatures(this.imageMap.getAllCheckboxFeatures());
         this.redrawFeatures(this.imageMap.getAllLabelFeatures());
+    }
+
+    private needUpdateAssetRegionsFromTags = (prevTags: ITag[], tags: ITag[]) => {
+        // nothing change
+        if (prevTags === tags) {
+            return false;
+        }
+
+        // add/delete tag
+        if (prevTags.length !== tags.length) {
+            return false;
+        }
+
+        const prevNames = prevTags.map((tag) => tag.name).sort();
+        const names = tags.map((tag) => tag.name).sort();
+
+        // rename
+        if (JSON.stringify(prevNames) !== JSON.stringify(names)) {
+            return false;
+        }
+
+        const prevTypes = {};
+        prevTags.forEach((tag) => prevTypes[tag.name] = tag.type);
+
+        const types = {};
+        tags.forEach((tag) => types[tag.name] = tag.type);
+
+        for (const name of names) {
+            const prevType = prevTypes[name];
+            const type = types[name];
+            if (prevType !== type
+                && (prevType === FieldType.Checkbox || type === FieldType.Checkbox)) {
+                // some tag change between checkbox and text
+                return true;
+            }
+        }
+
+        return false;
     }
 }
