@@ -683,14 +683,19 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 }),
             });
         } else if (tag != null) {
+            const highlighted = feature.get("highlighted");
+            let color = "rgb(255, 255, 255, 0)";
+            if (highlighted) {
+                color = hexToRgba(tag.color, 0.3);
+            }
             // Already tagged
             return new Style({
                 stroke: new Stroke({
                     color: tag.color,
-                    width: feature.get("highlighted") ? 4 : 2,
+                    width: highlighted ? 4 : 2,
                 }),
                 fill: new Fill({
-                    color: "rgba(255, 255, 255, 0)",
+                    color,
                 }),
             });
         }
