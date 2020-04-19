@@ -152,22 +152,17 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             const project = this.props.recentProjects.find((project) => project.id === projectId);
             await this.props.actions.loadProject(project);
             this.props.appTitleActions.setTitle(project.name);
-            await this.props.actions.updateProjectTagsFromFiles(this.props.project);
-            this.setState({ tagsLoaded: true });
-            await this.props.actions.saveProject(this.props.project, false, false);
         }
         document.title = strings.editorPage.title + " - " + strings.appName;
     }
 
     public async componentDidUpdate(prevProps: Readonly<IEditorPageProps>) {
-        const {project} = this.props;
-
-        if (project && this.state.assets.length === 0) {
-            await this.loadProjectAssets();
-        }
-
-        if (project && prevProps.project && project.tags !== prevProps.project.tags) {
-            this.updateRootAssets();
+        if (this.props.project) {
+            if (this.state.assets.length === 0) {
+                await this.loadProjectAssets();
+            } else {
+                this.updateAssetsState();
+            }
         }
     }
 
@@ -568,26 +563,25 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         this.loadingProjectAssets = true;
 
-        const rootAssets: IAsset[] = _(await this.props.actions.loadAssets(this.props.project))
+        const assets: IAsset[] = _(await this.props.actions.loadAssets(this.props.project))
             .uniqBy((asset) => asset.id)
             .value();
 
-        if (this.state.assets.length === rootAssets.length
-            && this.state.assets.map((asset) => asset.id).join(",") === rootAssets.map((asset) => asset.id).join(",")) {
+        if (this.state.assets.length === assets.length
+            && JSON.stringify(this.state.assets) === JSON.stringify(assets)) {
             this.loadingProjectAssets = false;
             return;
         }
 
-        const lastVisited = rootAssets.find((asset) => asset.id === this.props.project.lastVisitedAssetId);
+        const lastVisited = assets.find((asset) => asset.id === this.props.project.lastVisitedAssetId);
 
         this.setState({
-            assets: rootAssets,
+            assets,
         }, async () => {
-            await this.props.actions.updateProjectTagsFromFiles(this.props.project);
+            await this.props.actions.saveProject(this.props.project, false, true);
             this.setState({ tagsLoaded: true });
-            await this.props.actions.saveProject(this.props.project, false, false);
-            if (rootAssets.length > 0) {
-                await this.selectAsset(lastVisited ? lastVisited : rootAssets[0]);
+            if (assets.length > 0) {
+                await this.selectAsset(lastVisited ? lastVisited : assets[0]);
             }
             this.loadingProjectAssets = false;
         });
@@ -658,16 +652,22 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     /**
      * Updates the root asset list from the project assets
      */
-    private updateRootAssets = () => {
+    private updateAssetsState = () => {
         const updatedAssets = [...this.state.assets];
+        let needUpdate = false;
         updatedAssets.forEach((asset) => {
             const projectAsset = _.get(this.props, "project.assets[asset.id]", null);
             if (projectAsset) {
-                asset.state = projectAsset.state;
+                if (asset.state !== projectAsset.state) {
+                    needUpdate = true;
+                    asset.state = projectAsset.state;
+                }
             }
         });
 
-        this.setState({ assets: updatedAssets });
+        if (needUpdate) {
+            this.setState({ assets: updatedAssets });
+        }
     }
 
     private onLabelEnter = (label: ILabel) => {
