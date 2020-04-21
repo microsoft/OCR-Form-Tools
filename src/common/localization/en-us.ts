@@ -132,7 +132,7 @@ export const english: IAppStrings = {
         defaultURLInput: "Paste or type URL...",
     },
     receipts: {
-        title: "Receipts",
+        title: "Receipts (preview)",
     },
     projectMetrics: {
         title: "Project Metrics",

@@ -222,7 +222,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     <div className="condensed-list">
                         <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
                             <FontIcon className="mr-1" iconName="Insights" />
-                            <span>Predict {this.props.receiptMode ? " receipt" : ""}</span>
+                            <span>Predict {this.props.receiptMode ? " receipts (preview)" : ""}</span>
                         </h6>
                         <div className="p-3">
                             {/* <h5>
@@ -243,7 +243,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             {this.props.receiptMode &&
                                 <div>
                                     <h5>
-                                        Service config
+                                        Service configuration
                                     </h5>
                                     <div style={{marginBottom: "3px"}}>Receipt recognizer service URI</div>
                                     <TextField

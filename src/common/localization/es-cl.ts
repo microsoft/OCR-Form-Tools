@@ -133,7 +133,7 @@ export const spanish: IAppStrings = {
         defaultURLInput: "Pegar o escribir URL...",
     },
     receipts: {
-        title: "Ingresos",
+        title: "Ingresos (avance)",
     },
     projectMetrics: {
         title: "Métricas del proyecto",
