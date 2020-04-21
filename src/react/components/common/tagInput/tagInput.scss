@@ -11,7 +11,7 @@
         flex-direction: column;
         user-select: none;
         background: $lighter-1;
-        width: $tagInputWidth;
+        //min-width: $tagInputWidth;
 
         &-header {
             display: flex;
@@ -34,9 +34,10 @@
             display: flex;
             flex-direction: column;
             position: relative;
-            width: $tagInputWidth;
+            //min-width: $tagInputWidth;
 
             &-container {
+                height: 404px;
                 overflow-x: visible;
                 overflow-y: auto;
             };
@@ -80,7 +81,8 @@
         margin: 2px 0;
 
         &-2 {
-            width: $tagItemWidth;
+            width: 100%;
+            //min-width: $tagItemWidth;
         }
     }
 
@@ -126,6 +128,7 @@
             display: inline-flex;
             flex-grow: 1;
             align-items: center;
+            overflow: hidden;
         }
 
         &-editor {
@@ -151,7 +154,6 @@
             text-overflow: ellipsis;
             white-space: nowrap;
             align-items: center;
-            overflow: hidden;
 
             &-typed {
                 width: $tagTextLinkedWidth;
@@ -162,6 +164,7 @@
     &-icons-container {
         display: inline-flex;
         font-weight: 600;
+        margin-left: 5px;
         align-items: center;
     }
 
