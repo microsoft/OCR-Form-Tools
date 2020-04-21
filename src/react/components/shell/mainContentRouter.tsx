@@ -27,6 +27,7 @@ export function MainContentRouter() {
                 <Route path="/projects/create" component={ProjectSettingsPage} />
                 <Route path="/projects/:projectId/train" component={TrainPage} />
                 <Route path="/projects/:projectId/predict" component={PredictPage} />
+                <Route path="/receipts" render={(props) => <PredictPage {...props} receiptMode={true} />}/>
                 <Route path="/projects/:projectId/settings" component={ProjectSettingsPage} />
                 <Route component={HomePage} />
             </Switch>

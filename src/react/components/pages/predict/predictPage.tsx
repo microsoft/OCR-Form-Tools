@@ -5,13 +5,14 @@ import React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
-import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton, TextField, IDropdownOption, Dropdown} from "office-ui-fabric-react";
+import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton, TextField, IDropdownOption,
+         Dropdown, DefaultButton} from "office-ui-fabric-react";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import "./predictPage.scss";
 import {
-    IApplicationState, IConnection, IProject, IAppSettings, AppError, ErrorCode,
+    IApplicationState, IConnection, IProject, IAppSettings, AppError, ErrorCode, ITag, FieldFormat, FieldType,
 } from "../../../../models/applicationState";
 import { ImageMap } from "../../common/imageMap/imageMap";
 import Style from "ol/style/Style";
@@ -31,23 +32,32 @@ import ServiceHelper from "../../../../services/serviceHelper";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import { getPrimaryGreenTheme, getPrimaryWhiteTheme,
-         getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
+         getGreenWithWhiteBackgroundTheme,
+         getPrimaryGreyTheme} from "../../../../common/themes";
 import { SkipButton } from "../../shell/skipButton";
 import axios from "axios";
 
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
 
+// tslint:disable-next-line:no-var-requires
+const tagColors = require("../../common/tagColors.json");
+
 export interface IPredictPageProps extends RouteComponentProps, React.Props<PredictPage> {
-    recentProjects: IProject[];
-    connections: IConnection[];
-    appSettings: IAppSettings;
-    project: IProject;
-    actions: IProjectActions;
-    applicationActions: IApplicationActions;
-    appTitleActions: IAppTitleActions;
+    recentProjects?: IProject[];
+    connections?: IConnection[];
+    appSettings?: IAppSettings;
+    project?: IProject;
+    actions?: IProjectActions;
+    applicationActions?: IApplicationActions;
+    appTitleActions?: IAppTitleActions;
+    receiptMode?: boolean;
 }
 
 export interface IPredictPageState {
+    receiptTags?: ITag[];
+    showInputedAPIKey: boolean;
+    inputedAPIKey?: string;
+    inputedServiceURI?: string;
     inputedLocalFile: string;
     sourceOption: string;
     isFetching: boolean;
@@ -90,6 +100,10 @@ function mapDispatchToProps(dispatch) {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class PredictPage extends React.Component<IPredictPageProps, IPredictPageState> {
     public state: IPredictPageState = {
+        receiptTags: null,
+        showInputedAPIKey: false,
+        inputedAPIKey: "",
+        inputedServiceURI: "",
         sourceOption: "localFile",
         isFetching: false,
         fetchedFileURL: "",
@@ -117,16 +131,46 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     private imageMap: ImageMap;
 
     public async componentDidMount() {
-        const projectId = this.props.match.params["projectId"];
-        if (projectId) {
-            const project = this.props.recentProjects.find((project) => project.id === projectId);
-            await this.props.actions.loadProject(project);
-            this.props.appTitleActions.setTitle(project.name);
+        if (!this.props.receiptMode) {
+            const projectId = this.props.match.params["projectId"];
+            if (projectId) {
+                const project = this.props.recentProjects.find((project) => project.id === projectId);
+                await this.props.actions.loadProject(project);
+                this.props.appTitleActions.setTitle(project.name);
+            }
         }
         document.title = strings.predict.title + " - " + strings.appName;
     }
 
     public componentDidUpdate(prevProps, prevState) {
+        if (prevProps.receiptMode !== this.props.receiptMode) {
+            this.setState({
+                file: undefined,
+                showInputedAPIKey: false,
+                inputedAPIKey: "",
+                inputedServiceURI: "",
+                sourceOption: "localFile",
+                isFetching: false,
+                fetchedFileURL: "",
+                inputedFileURL: strings.predict.defaultURLInput,
+                inputedLocalFile: strings.predict.defaultLocalFileInput,
+                analyzeResult: {},
+                fileLabel: "",
+                predictionLoaded: true,
+                currPage: undefined,
+                imageUri: null,
+                imageWidth: 0,
+                imageHeight: 0,
+                shouldShowAlert: false,
+                alertTitle: "",
+                alertMessage: "",
+                fileChanged: false,
+                predictRun: false,
+                isPredicting: false,
+                highlightedField: "",
+            });
+            this.fileInput.current.value = "";
+        }
         if (this.state.file) {
             if (this.state.fileChanged) {
                 this.currPdf = null;
@@ -152,8 +196,10 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     public render() {
-        const browseFileDisabled: boolean = !this.state.predictionLoaded;
-        const urlInputDisabled: boolean = !this.state.predictionLoaded || this.state.isFetching;
+        const uploadImageDisabled = this.props.receiptMode && (this.state.inputedServiceURI.length === 0 ||
+                                    this.state.inputedAPIKey.length === 0);
+        const browseFileDisabled: boolean = !this.state.predictionLoaded || uploadImageDisabled;
+        const urlInputDisabled: boolean = !this.state.predictionLoaded || this.state.isFetching || uploadImageDisabled;
         const predictDisabled: boolean = !this.state.predictionLoaded || !this.state.file;
         const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
         const fetchDisabled: boolean = !this.state.predictionLoaded || this.state.isFetching ||
@@ -176,7 +222,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     <div className="condensed-list">
                         <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
                             <FontIcon className="mr-1" iconName="Insights" />
-                            <span>Analyze</span>
+                            <span>Predict {this.props.receiptMode ? " receipt" : ""}</span>
                         </h6>
                         <div className="p-3">
                             {/* <h5>
@@ -194,6 +240,48 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                 or
                                 <div className="seperator"/>
                             </div> */}
+                            {this.props.receiptMode &&
+                                <div>
+                                    <h5>
+                                        Service config
+                                    </h5>
+                                    <div style={{marginBottom: "3px"}}>Receipt recognizer service URI</div>
+                                    <TextField
+                                        className="mb-1"
+                                        theme={getGreenWithWhiteBackgroundTheme()}
+                                        value={this.state.inputedServiceURI}
+                                        onChange={this.setInputedServiceURI}
+                                        disabled={this.state.isPredicting}
+                                    />
+                                    <div style={{marginBottom: "3px"}}>API key</div>
+                                    <div className="apikeyContainer">
+                                        <TextField
+                                            className="apikey"
+                                            theme={getGreenWithWhiteBackgroundTheme()}
+                                            type={this.state.showInputedAPIKey ? "text" : "password"}
+                                            value={this.state.inputedAPIKey}
+                                            onChange={this.setInputedAPIKey}
+                                            disabled={this.state.isPredicting}
+                                        />
+                                        <DefaultButton
+                                            className="portected-input-margin"
+                                            theme={getPrimaryGreyTheme()}
+                                            title={this.state.showInputedAPIKey ? "Hide" : "Show"}
+                                            onClick={this.toggleAPIKeyVisibility}
+                                        >
+                                            <FontIcon iconName={this.state.showInputedAPIKey ? "Hide3" : "View"}/>
+                                        </DefaultButton>
+                                        <DefaultButton
+                                            theme={getPrimaryGreyTheme()}
+                                            type="button"
+                                            title="Copy"
+                                            onClick={this.copyKey}
+                                        >
+                                            <FontIcon iconName="Copy" />
+                                        </DefaultButton>
+                                    </div>
+                                </div>
+                            }
                             <h5>
                                 {strings.predict.uploadFile}
                             </h5>
@@ -204,7 +292,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                     defaultSelectedKey={this.state.sourceOption}
                                     selectedKey={this.state.sourceOption}
                                     options={sourceOptions}
-                                    disabled={this.state.isPredicting || this.state.isFetching}
+                                    disabled={this.state.isPredicting || this.state.isFetching || uploadImageDisabled}
                                     onChange={this.selectSource}
                                 />
                                 { this.state.sourceOption === "localFile" &&
@@ -301,7 +389,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                     predictions={predictions}
                                     analyzeResult={this.state.analyzeResult}
                                     page={this.state.currPage}
-                                    tags={this.props.project.tags}
+                                    tags={this.props.receiptMode ? this.state.receiptTags : this.props.project.tags}
                                     downloadResultLabel={this.state.fileLabel}
                                     onPredictionClick={this.onPredictionClick}
                                     onPredictionMouseEnter={this.onPredictionMouseEnter}
@@ -335,6 +423,44 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 <SkipButton skipTo="pagePredict">{strings.common.skipToMainContent}</SkipButton>
             </div>
         );
+    }
+
+    private getTagsForReceiptResults(predictions) {
+        const receiptTags: ITag[] = [];
+        Object.keys(predictions).forEach((key, index) => {
+            receiptTags.push({
+                name: key,
+                color: tagColors[index],
+                // use default type
+                type: FieldType.String,
+                format: FieldFormat.NotSpecified,
+            } as ITag);
+        });
+        this.setState({
+            receiptTags,
+        });
+        return receiptTags;
+    }
+
+    private async copyKey() {
+        const clipboard = (navigator as any).clipboard;
+        if (clipboard && clipboard.writeText && typeof clipboard.writeText === "function") {
+            await clipboard.writeText(this.state.inputedAPIKey);
+        }
+    }
+
+    private toggleAPIKeyVisibility = () => {
+        this.setState({
+            showInputedAPIKey: !this.state.showInputedAPIKey,
+        });
+    }
+
+    private setInputedServiceURI = (event) => {
+        this.setState({inputedServiceURI: event.target.value});
+    }
+
+    private setInputedAPIKey = (event) => {
+        this.setState({inputedAPIKey: event.target.value});
     }
 
     private handleDummyInputClick = () => {
@@ -535,7 +661,14 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         this.setState({ predictionLoaded: false, isPredicting: true });
         this.getPrediction()
             .then((result) => {
+                let receiptTags = null;
+                if (this.props.receiptMode) {
+                    receiptTags = this.getTagsForReceiptResults(
+                        this.getPredictionsFromAnalyzeResult(result),
+                    );
+                }
                 this.setState({
+                    receiptTags,
                     analyzeResult: result,
                     predictionLoaded: true,
                     predictRun: true,
@@ -631,17 +764,28 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private async getPrediction(): Promise<any> {
-        const modelID = _.get(this.props.project, "trainRecord.modelInfo.modelId");
-        if (!modelID) {
-            throw new AppError(
-                ErrorCode.PredictWithoutTrainForbidden,
-                strings.errors.predictWithoutTrainForbidden.message,
-                strings.errors.predictWithoutTrainForbidden.title);
+        let endpointURL;
+        let apiKey;
+        if (this.props.receiptMode) {
+            endpointURL = url.resolve(
+                this.state.inputedServiceURI,
+                `${constants.apiPrebuildPath}/receipt/analyze?includeTextDetails=true`,
+            );
+            apiKey = this.state.inputedAPIKey;
+        } else {
+            const modelID = _.get(this.props.project, "trainRecord.modelInfo.modelId");
+            if (!modelID) {
+                throw new AppError(
+                    ErrorCode.PredictWithoutTrainForbidden,
+                    strings.errors.predictWithoutTrainForbidden.message,
+                    strings.errors.predictWithoutTrainForbidden.title);
+            }
+            endpointURL = url.resolve(
+                this.props.project.apiUriBase,
+                `${constants.apiModelsPath}/${modelID}/analyze?includeTextDetails=true`,
+            );
+            apiKey = this.props.project.apiKey;
         }
-        const endpointURL = url.resolve(
-            this.props.project.apiUriBase,
-            `${constants.apiModelsPath}/${modelID}/analyze?includeTextDetails=true`,
-        );
         let headers;
         let body;
         if (this.state.sourceOption === "localFile") {
@@ -654,7 +798,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         let response;
         try {
             response = await ServiceHelper.postWithAutoRetry(
-                endpointURL, body, { headers }, this.props.project.apiKey as string);
+                endpointURL, body, { headers }, apiKey as string);
         } catch (err) {
             ServiceHelper.handleServiceError(err);
         }
@@ -664,7 +808,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         // Make the second REST API call and get the response.
         return this.poll(() =>
             ServiceHelper.getWithAutoRetry(
-                operationLocation, { headers }, this.props.project.apiKey as string), 120000, 500);
+                operationLocation, { headers }, apiKey as string), 120000, 500);
     }
 
     private loadFile = (file: File) => {
@@ -796,7 +940,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const feature = new Feature({
             geometry: new Polygon([coordinates]),
         });
-        const tag = this.props.project.tags.find((tag) => tag.name.toLocaleLowerCase() === text.toLocaleLowerCase());
+        let tag;
+        if (this.props.receiptMode) {
+            tag = this.state.receiptTags.find((tag) => tag.name.toLocaleLowerCase() === text.toLocaleLowerCase());
+        } else {
+            tag = this.props.project.tags.find((tag) => tag.name.toLocaleLowerCase() === text.toLocaleLowerCase());
+        }
         const isHighlighted = (text.toLocaleLowerCase() === this.state.highlightedField.toLocaleLowerCase());
         feature.setProperties({
             color: _.get(tag, "color", "#333333"),
@@ -872,7 +1021,30 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private getPredictionsFromAnalyzeResult(analyzeResult: any) {
-        return _.get(analyzeResult, "analyzeResult.documentResults[0].fields", {});
+        if (this.props.receiptMode && analyzeResult) {
+            const predictions = _.get(analyzeResult, "analyzeResult.documentResults[0].fields", {});
+            const predictionsCopy = Object.assign({}, predictions);
+            delete predictionsCopy.ReceiptType;
+            if (!predictionsCopy.Items) {
+                return predictionsCopy;
+            }
+            if (!predictionsCopy.Items.valueArray || Object.keys(predictionsCopy.Items).length === 0) {
+                delete predictionsCopy.Items;
+                return predictionsCopy;
+            }
+            predictionsCopy.Items.valueArray.forEach((item, index) => {
+                const itemName = "Item " + (index + 1);
+                predictionsCopy[itemName] = item.valueObject.Name;
+                if (item.valueObject.TotalPrice) {
+                    predictionsCopy[itemName + " price"] = item.valueObject.TotalPrice;
+                }
+            });
+            delete predictionsCopy.Items;
+            return predictionsCopy;
+
+        } else {
+            return _.get(analyzeResult, "analyzeResult.documentResults[0].fields", {});
+        }
     }
 
     private getOcrFromAnalyzeResult(analyzeResult: any) {

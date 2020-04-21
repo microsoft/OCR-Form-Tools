@@ -54,6 +54,11 @@ export function Sidebar({ project }) {
                     </ConditionalNavLink>
                 </li>
                 <li>
+                    <NavLink title={strings.receipts.title} to={`/receipts`} role="button">
+                        <FontIcon iconName="KeyPhraseExtraction" />
+                    </NavLink>
+                </li>
+                <li>
                     <NavLink title={strings.connections.title} to={`/connections`} role="button">
                         <FontIcon iconName="Plug" />
                     </NavLink>

@@ -131,6 +131,9 @@ export interface IAppStrings {
         defaultLocalFileInput: string;
         defaultURLInput: string;
     };
+    receipts: {
+        title: string;
+    };
     projectMetrics: {
         title: string;
         assetsSectionTitle: string

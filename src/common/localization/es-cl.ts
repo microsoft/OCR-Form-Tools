@@ -132,6 +132,9 @@ export const spanish: IAppStrings = {
         defaultLocalFileInput: "Busca un archivo...",
         defaultURLInput: "Pegar o escribir URL...",
     },
+    receipts: {
+        title: "Ingresos",
+    },
     projectMetrics: {
         title: "Métricas del proyecto",
         assetsSectionTitle: "Activos",
