@@ -445,6 +445,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
         }
 
         const eventPixel =  this.map.getEventPixel(event.originalEvent);
+        console.log(eventPixel);
 
         const filter = this.getLayerFilterAtPixel(eventPixel);
 

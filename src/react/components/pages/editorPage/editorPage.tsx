@@ -237,7 +237,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                             primary = "second"
                             maxSize = {600}
                             minSize = {290}
-                            paneStyle = {{height: "100%"}}>
+                            paneStyle = {{height: "100%"}}
+                            resizerStyle = {{width: "3px", margin: "0px 1px", border: "0", background: "transparent"}}
+                            onDragFinished = {() => this.canvas.current.forceUpdate()}>
                             <div className="editor-page-content-main" >
                                 <div className="editor-page-content-main-body" onClick = {this.onPageContainerClick}>
                                     {selectedAsset &&
@@ -279,18 +281,18 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     onTagChanged={this.onTagChanged}
                                     ref = {this.tagInputRef}
                                 />
-                            </div>
-                            <Confirm title={strings.editorPage.tags.rename.title}
+                                <Confirm title={strings.editorPage.tags.rename.title}
                                 ref={this.renameTagConfirm}
                                 message={strings.editorPage.tags.rename.confirmation}
                                 confirmButtonTheme={getPrimaryRedTheme()}
                                 onCancel={this.onTagRenameCanceled}
                                 onConfirm={this.onTagRenamed} />
-                            <Confirm title={strings.editorPage.tags.delete.title}
-                                ref={this.deleteTagConfirm}
-                                message={strings.editorPage.tags.delete.confirmation}
-                                confirmButtonTheme={getPrimaryRedTheme()}
-                                onConfirm={this.onTagDeleted} />
+                                <Confirm title={strings.editorPage.tags.delete.title}
+                                    ref={this.deleteTagConfirm}
+                                    message={strings.editorPage.tags.delete.confirmation}
+                                    confirmButtonTheme={getPrimaryRedTheme()}
+                                    onConfirm={this.onTagDeleted} />
+                            </div>
                         </SplitPane>
                     </div>
                 </SplitPane>
@@ -403,7 +405,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      * Open Confirm dialog for tag deletion
      */
     private confirmTagDeleted = (tagName: string): void => {
-        console.log(this.deleteTagConfirm.current);
         this.deleteTagConfirm.current.open(tagName);
     }
 
