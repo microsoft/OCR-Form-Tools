@@ -29,7 +29,7 @@ export interface IAssetPreviewProps {
     /** Specifies whether the asset controls are enabled */
     controlsEnabled?: boolean;
     /** Event handler that fires when the asset has been loaded */
-    onLoaded?: (ContentSource: ContentSource) => void;
+    onLoaded?: (asset: IAsset, contentSource: ContentSource) => void;
     /** Event handler that fires when the asset has been activated (ex. Video resumes playing) */
     onActivated?: (contentSource: ContentSource) => void;
     /** Event handler that fires when the asset has been deactivated (ex. Canvas tools takes over) */
@@ -159,12 +159,12 @@ export class AssetPreview extends React.Component<IAssetPreviewProps, IAssetPrev
      * Internal event handler for when the referenced asset has been loaded
      * @param contentSource The visual HTML element of the asset (img/video tag)
      */
-    private onAssetLoad = (contentSource: ContentSource) => {
+    private onAssetLoad = (asset: IAsset, contentSource: ContentSource) => {
         this.setState({
             loaded: true,
         }, () => {
             if (this.props.onLoaded) {
-                this.props.onLoaded(contentSource);
+                this.props.onLoaded(this.props.asset,contentSource);
             }
         });
     }

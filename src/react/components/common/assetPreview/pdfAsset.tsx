@@ -5,6 +5,9 @@ import React from "react";
 import { IAssetPreviewProps } from "./assetPreview";
 import * as pdfjsLib from "pdfjs-dist";
 import { constants } from "../../../../common/constants";
+import utils from "../imageMap/utils";
+import {resizeCanvas} from "../../../../common/utils";
+import {IAsset} from "../../../../models/applicationState";
 
 // temp hack for enabling worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
@@ -29,7 +32,13 @@ export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState
 
     public componentDidMount() {
         if (this.props.asset != null) {
-            this.loadPdfFile(this.props.asset.path);
+            if (this.props.asset.cachedImage) {
+                this.setState({
+                    imageUri: this.props.asset.cachedImage,
+                });
+            } else {
+                this.loadPdfFile(this.props.asset.path);
+            }
         }
     }
 
@@ -76,8 +85,9 @@ export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState
 
             const renderTask = page.render(renderContext);
             renderTask.promise.then(() => {
+                const thumbnails = resizeCanvas(canvas, 240, 240).toDataURL(constants.convertedImageFormat, constants.convertedThumbnailQuality);
                 this.setState({
-                    imageUri: canvas.toDataURL(constants.convertedImageFormat, constants.convertedThumbnailQuality),
+                    imageUri: thumbnails,
                 });
             });
           });
@@ -85,7 +95,7 @@ export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState
 
     private onLoad = () => {
         if (this.props.onLoaded) {
-            this.props.onLoaded(this.image.current);
+            this.props.onLoaded(this.props.asset, this.image.current);
         }
         if (this.props.onActivated) {
             this.props.onActivated(this.image.current);
