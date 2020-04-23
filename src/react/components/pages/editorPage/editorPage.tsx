@@ -239,7 +239,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                             minSize = {290}
                             paneStyle = {{height: "100%"}}
                             resizerStyle = {{width: "5px", margin: "0px", border: "2px", background: "transparent"}}
-                            onDragFinished = {() => this.updateCanvas()}>
+                            onDragFinished = {() => this.resizeCanvas()}>
                             <div className="editor-page-content-main" >
                                 <div className="editor-page-content-main-body" onClick = {this.onPageContainerClick}>
                                     {selectedAsset &&
@@ -705,9 +705,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
     }
 
-    private updateCanvas = () => {
+    private resizeCanvas = () => {
         if (this.canvas.current) {
-            this.canvas.current.updateAssert();
+            this.canvas.current.updateSize();
         }
     }
 }

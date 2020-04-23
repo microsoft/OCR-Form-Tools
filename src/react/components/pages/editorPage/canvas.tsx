@@ -281,7 +281,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         );
     }
 
-    public updateAssert() {
+    public updateSize() {
         this.imageMap.updateSize();
     }
 
