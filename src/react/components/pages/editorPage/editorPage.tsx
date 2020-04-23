@@ -237,7 +237,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                             primary = "second"
                             maxSize = {625}
                             minSize = {290}
-                            paneStyle = {{height: "100%"}}
+                            pane1Style = {{height: "100%"}}
+                            pane2Style = {{height: "auto"}}
                             resizerStyle = {{width: "5px", margin: "0px", border: "2px", background: "transparent"}}
                             onDragFinished = {() => this.resizeCanvas()}>
                             <div className="editor-page-content-main" >
