@@ -279,6 +279,13 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.map.removeInteraction(interaction);
     }
 
+    public updateSize = () => {
+        if (this.map) {
+            this.map.updateSize();
+        }
+
+    }
+
     /**
      * Get the image extent (left, top, right, bottom)
      */
@@ -445,7 +452,6 @@ export class ImageMap extends React.Component<IImageMapProps> {
         }
 
         const eventPixel =  this.map.getEventPixel(event.originalEvent);
-        console.log(eventPixel);
 
         const filter = this.getLayerFilterAtPixel(eventPixel);
 

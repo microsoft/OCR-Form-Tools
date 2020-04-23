@@ -235,11 +235,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                     <div className="editor-page-content" onClick={this.onPageClick}>
                         <SplitPane split = "vertical"
                             primary = "second"
-                            maxSize = {600}
+                            maxSize = {625}
                             minSize = {290}
                             paneStyle = {{height: "100%"}}
-                            resizerStyle = {{width: "3px", margin: "0px 1px", border: "0", background: "transparent"}}
-                            onDragFinished = {() => this.canvas.current.forceUpdate()}>
+                            resizerStyle = {{width: "5px", margin: "0px", border: "2px", background: "transparent"}}
+                            onDragFinished = {() => this.updateCanvas()}>
                             <div className="editor-page-content-main" >
                                 <div className="editor-page-content-main-body" onClick = {this.onPageContainerClick}>
                                     {selectedAsset &&
@@ -702,6 +702,12 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             this.setState({
                 selectedAsset,
             });
+        }
+    }
+
+    private updateCanvas = () => {
+        if (this.canvas.current) {
+            this.canvas.current.updateAssert();
         }
     }
 }
