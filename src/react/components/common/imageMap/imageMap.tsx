@@ -279,6 +279,13 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.map.removeInteraction(interaction);
     }
 
+    public updateSize = () => {
+        if (this.map) {
+            this.map.updateSize();
+        }
+
+    }
+
     /**
      * Get the image extent (left, top, right, bottom)
      */

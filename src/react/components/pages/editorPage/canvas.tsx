@@ -281,6 +281,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         );
     }
 
+    public updateSize() {
+        this.imageMap.updateSize();
+    }
+
     /**
      * Toggles tag on all selected regions
      * @param selectedTag Tag name
