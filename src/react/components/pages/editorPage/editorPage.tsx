@@ -233,59 +233,68 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                         />
                     </div>
                     <div className="editor-page-content" onClick={this.onPageClick}>
-                        <div className="editor-page-content-main" >
-                            <div className="editor-page-content-main-body" onClick = {this.onPageContainerClick}>
-                                {selectedAsset &&
-                                    <Canvas
-                                        ref={this.canvas}
-                                        selectedAsset={this.state.selectedAsset}
-                                        onAssetMetadataChanged={this.onAssetMetadataChanged}
-                                        onCanvasRendered={this.onCanvasRendered}
-                                        onSelectedRegionsChanged={this.onSelectedRegionsChanged}
-                                        onRunningOCRStatusChanged={this.onCanvasRunningOCRStatusChanged}
-                                        onTagChanged={this.onTagChanged}
-                                        editorMode={this.state.editorMode}
-                                        project={this.props.project}
-                                        lockedTags={this.state.lockedTags}
-                                        hoveredLabel={this.state.hoveredLabel}>
-                                        <AssetPreview
-                                            controlsEnabled={this.state.isValid}
-                                            onBeforeAssetChanged={this.onBeforeAssetSelected}
-                                            asset={this.state.selectedAsset.asset} />
-                                    </Canvas>
-                                }
+                        <SplitPane split = "vertical"
+                            primary = "second"
+                            maxSize = {625}
+                            minSize = {290}
+                            pane1Style = {{height: "100%"}}
+                            pane2Style = {{height: "auto"}}
+                            resizerStyle = {{width: "5px", margin: "0px", border: "2px", background: "transparent"}}
+                            onDragFinished = {() => this.resizeCanvas()}>
+                            <div className="editor-page-content-main" >
+                                <div className="editor-page-content-main-body" onClick = {this.onPageContainerClick}>
+                                    {selectedAsset &&
+                                        <Canvas
+                                            ref={this.canvas}
+                                            selectedAsset={this.state.selectedAsset}
+                                            onAssetMetadataChanged={this.onAssetMetadataChanged}
+                                            onCanvasRendered={this.onCanvasRendered}
+                                            onSelectedRegionsChanged={this.onSelectedRegionsChanged}
+                                            onRunningOCRStatusChanged={this.onCanvasRunningOCRStatusChanged}
+                                            onTagChanged={this.onTagChanged}
+                                            editorMode={this.state.editorMode}
+                                            project={this.props.project}
+                                            lockedTags={this.state.lockedTags}
+                                            hoveredLabel={this.state.hoveredLabel}>
+                                            <AssetPreview
+                                                controlsEnabled={this.state.isValid}
+                                                onBeforeAssetChanged={this.onBeforeAssetSelected}
+                                                asset={this.state.selectedAsset.asset} />
+                                        </Canvas>
+                                    }
+                                </div>
                             </div>
-                        </div>
-                        <div className="editor-page-right-sidebar">
-                            <TagInput
-                                tagsLoaded={this.state.tagsLoaded}
-                                tags={this.props.project.tags}
-                                lockedTags={this.state.lockedTags}
-                                selectedRegions={this.state.selectedRegions}
-                                labels={labels}
-                                onChange={this.onTagsChanged}
-                                onLockedTagsChange={this.onLockedTagsChanged}
-                                onTagClick={this.onTagClicked}
-                                onCtrlTagClick={this.onCtrlTagClicked}
-                                onTagRename={this.confirmTagRename}
-                                onTagDeleted={this.confirmTagDeleted}
-                                onLabelEnter={this.onLabelEnter}
-                                onLabelLeave={this.onLabelLeave}
-                                onTagChanged={this.onTagChanged}
-                                ref = {this.tagInputRef}
-                            />
-                        </div>
-                        <Confirm title={strings.editorPage.tags.rename.title}
-                            ref={this.renameTagConfirm}
-                            message={strings.editorPage.tags.rename.confirmation}
-                            confirmButtonTheme={getPrimaryRedTheme()}
-                            onCancel={this.onTagRenameCanceled}
-                            onConfirm={this.onTagRenamed} />
-                        <Confirm title={strings.editorPage.tags.delete.title}
-                            ref={this.deleteTagConfirm}
-                            message={strings.editorPage.tags.delete.confirmation}
-                            confirmButtonTheme={getPrimaryRedTheme()}
-                            onConfirm={this.onTagDeleted} />
+                            <div className="editor-page-right-sidebar">
+                                <TagInput
+                                    tagsLoaded={this.state.tagsLoaded}
+                                    tags={this.props.project.tags}
+                                    lockedTags={this.state.lockedTags}
+                                    selectedRegions={this.state.selectedRegions}
+                                    labels={labels}
+                                    onChange={this.onTagsChanged}
+                                    onLockedTagsChange={this.onLockedTagsChanged}
+                                    onTagClick={this.onTagClicked}
+                                    onCtrlTagClick={this.onCtrlTagClicked}
+                                    onTagRename={this.confirmTagRename}
+                                    onTagDeleted={this.confirmTagDeleted}
+                                    onLabelEnter={this.onLabelEnter}
+                                    onLabelLeave={this.onLabelLeave}
+                                    onTagChanged={this.onTagChanged}
+                                    ref = {this.tagInputRef}
+                                />
+                                <Confirm title={strings.editorPage.tags.rename.title}
+                                ref={this.renameTagConfirm}
+                                message={strings.editorPage.tags.rename.confirmation}
+                                confirmButtonTheme={getPrimaryRedTheme()}
+                                onCancel={this.onTagRenameCanceled}
+                                onConfirm={this.onTagRenamed} />
+                                <Confirm title={strings.editorPage.tags.delete.title}
+                                    ref={this.deleteTagConfirm}
+                                    message={strings.editorPage.tags.delete.confirmation}
+                                    confirmButtonTheme={getPrimaryRedTheme()}
+                                    onConfirm={this.onTagDeleted} />
+                            </div>
+                        </SplitPane>
                     </div>
                 </SplitPane>
                 <Alert
@@ -694,6 +703,12 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             this.setState({
                 selectedAsset,
             });
+        }
+    }
+
+    private resizeCanvas = () => {
+        if (this.canvas.current) {
+            this.canvas.current.updateSize();
         }
     }
 }
