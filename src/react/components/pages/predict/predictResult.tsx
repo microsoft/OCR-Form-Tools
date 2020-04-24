@@ -109,9 +109,31 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         );
     }
 
+    // Helper: Sanitize the results of prediction in order to align it with API from the service
+    private sanitizeData = (result): {} => {
+        if (result.documents) {
+            const fields: {} = result.documentResults[0].fields;
+            // tslint:disable-next-line: forin
+            for (const i in fields) {
+                const obj = fields[i];
+                if (obj !== null) {
+                    if (obj.hasOwnProperty("displayOrder")) {
+                        delete obj.displayOrder;
+                    }
+                    if (obj.hasOwnProperty("fieldName")) {
+                        delete obj.fieldName;
+                    }
+                }
+            }
+        }
+        console.log("sanitized data:", result);
+        return result;
+    }
+
     private triggerDownload = (): void => {
-        const fileURL = window.URL.createObjectURL(
-            new Blob([JSON.stringify(this.props.analyzeResult)]));
+        const { analyzeResult } = this.props;
+        const predictionData = JSON.stringify(this.sanitizeData(analyzeResult));
+        const fileURL = window.URL.createObjectURL(new Blob([predictionData]));
         const fileLink = document.createElement("a");
         const fileBaseName = this.props.downloadResultLabel.split(".")[0];
         const downloadFileName = "Result-" + fileBaseName + ".json";
