@@ -227,8 +227,7 @@ export async function loadImageToCanvas(imageUrl: string): Promise<HTMLCanvasEle
     return new Promise((resolve, reject) => {
         const img: HTMLImageElement = document.createElement("img");
         img.onload = async () => {
-            const orientation = await HtmlFileReader.readImageOrientation(img);
-            const rotatedImage = renderRotatedImageToCanvas(img, orientation);
+            const rotatedImage = renderRotatedImageToCanvas(img, 0);
             resolve(rotatedImage);
         };
         img.crossOrigin = "anonymous";
