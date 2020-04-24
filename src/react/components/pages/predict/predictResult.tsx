@@ -108,7 +108,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
             </div>
         );
     }
-
+    //start of commit
     // Helper: Sanitize the results of prediction in order to align it with API from the service
     private sanitizeData = (result): {} => {
         if (result.documents) {
@@ -134,6 +134,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         const { analyzeResult } = this.props;
         const predictionData = JSON.stringify(this.sanitizeData(analyzeResult));
         const fileURL = window.URL.createObjectURL(new Blob([predictionData]));
+        // end of commit 
         const fileLink = document.createElement("a");
         const fileBaseName = this.props.downloadResultLabel.split(".")[0];
         const downloadFileName = "Result-" + fileBaseName + ".json";
