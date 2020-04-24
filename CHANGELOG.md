@@ -1,4 +1,7 @@
 # FoTT Changelog
+## 2.0.0-51c02cc (04-20-2020)
+* fix: scrollbar fix when page size changes
+* fix: Add split pane to fix too long tag name is invisible in right sidebar
 ## 2.0.0-202fb2f (04-20-2020)
 * perf: improve assets loading performance and fix some bugs
 ## 2.0.0-bce554e (04-16-2020)
