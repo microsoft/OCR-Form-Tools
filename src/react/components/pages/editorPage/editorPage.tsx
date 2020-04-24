@@ -240,7 +240,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                             pane1Style = {{height: "100%"}}
                             pane2Style = {{height: "auto"}}
                             resizerStyle = {{width: "5px", margin: "0px", border: "2px", background: "transparent"}}
-                            onDragFinished = {() => this.resizeCanvas()}>
+                            onChange = {() => this.resizeCanvas()}>
                             <div className="editor-page-content-main" >
                                 <div className="editor-page-content-main-body" onClick = {this.onPageContainerClick}>
                                     {selectedAsset &&
