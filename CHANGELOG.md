@@ -1,4 +1,6 @@
 # FoTT Changelog
+## 2.0.0-595a512 (04-24-2020)
+* fix: align rotated picture asset with OCR result
 ## 2.0.0-51c02cc (04-20-2020)
 * fix: scrollbar fix when page size changes
 * fix: Add split pane to fix too long tag name is invisible in right sidebar
