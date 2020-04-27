@@ -108,33 +108,29 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
             </div>
         );
     }
-    //start of commit (test)
-    // Helper: Sanitize the results of prediction in order to align it with API from the service
-    private sanitizeData = (result): {} => {
-        if (result.documents) {
-            const fields: {} = result.documentResults[0].fields;
-            // tslint:disable-next-line: forin
-            for (const i in fields) {
-                const obj = fields[i];
-                if (obj !== null) {
-                    if (obj.hasOwnProperty("displayOrder")) {
-                        delete obj.displayOrder;
+
+    // Helper: Sanitizes the results of prediction in order to align it with API from the service
+    private sanitizeData = (data: any): void => {
+        if (data.hasOwnProperty("analyzeResult")) {
+            const fields: {} = data.analyzeResult.documentResults[0].fields;
+            for (const key in fields) {
+                if (fields[key] !== null) {
+                    if (fields[key].hasOwnProperty("displayOrder")) {
+                        delete fields[key].displayOrder;
                     }
-                    if (obj.hasOwnProperty("fieldName")) {
-                        delete obj.fieldName;
+                    if (fields[key].hasOwnProperty("fieldName")) {
+                        delete fields[key].fieldName;
                     }
                 }
             }
         }
-        console.log("sanitized data:", result);
-        return result;
+        return data;
     }
 
     private triggerDownload = (): void => {
         const { analyzeResult } = this.props;
         const predictionData = JSON.stringify(this.sanitizeData(analyzeResult));
         const fileURL = window.URL.createObjectURL(new Blob([predictionData]));
-        // end of commit
         const fileLink = document.createElement("a");
         const fileBaseName = this.props.downloadResultLabel.split(".")[0];
         const downloadFileName = "Result-" + fileBaseName + ".json";
