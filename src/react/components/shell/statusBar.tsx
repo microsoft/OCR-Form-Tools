@@ -15,7 +15,7 @@ export class StatusBar extends React.Component {
                     <ul>
                         <li>
                             <FontIcon iconName="BranchMerge" />
-                            <span>{appInfo.version}-b481f37</span>
+                            <span>{appInfo.version}-595a512</span>
                         </li>
                     </ul>
                 </div>
