@@ -117,7 +117,8 @@ export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState
                     this.releaseMemoryUsedByPDF();
                     return;
                 }
-                const thumbnails = resizeCanvas(this.canvas, 240, 240).toDataURL(constants.convertedImageFormat, constants.convertedThumbnailQuality);
+                const thumbnails = resizeCanvas(this.canvas, 240, 240).toDataURL(constants.convertedImageFormat,
+                                                                                 constants.convertedThumbnailQuality);
                 this.setState({
                     imageUri: thumbnails,
                 }, () => {

@@ -5,7 +5,7 @@ import React from "react";
 import { AutoSizer, List } from "react-virtualized";
 import { FontIcon } from "office-ui-fabric-react";
 import { IAsset, AssetState, ISize } from "../../../../models/applicationState";
-import {AssetPreview,ContentSource,IGenericContentSource} from "../../common/assetPreview/assetPreview";
+import {AssetPreview, ContentSource} from "../../common/assetPreview/assetPreview";
 import { strings } from "../../../../common/strings";
 
 /**

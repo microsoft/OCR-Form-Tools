@@ -19,7 +19,7 @@ import {
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
-import {AssetPreview, ContentSource, IGenericContentSource} from "../../common/assetPreview/assetPreview";
+import {AssetPreview, ContentSource} from "../../common/assetPreview/assetPreview";
 import { KeyboardBinding } from "../../common/keyboardBinding/keyboardBinding";
 import { KeyEventType } from "../../common/keyboardManager/keyboardManager";
 import { TagInput } from "../../common/tagInput/tagInput";
@@ -504,17 +504,17 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
     }
 
-    private onAssetLoaded = (asset:IAsset,contentSource:ContentSource)=>{
+    private onAssetLoaded = (asset: IAsset, contentSource: ContentSource) => {
         const assets = [...this.state.assets];
         const assetIndex = assets.findIndex((item) => item.id === asset.id);
         if (assetIndex > -1) {
             const assets = [...this.state.assets];
-            let item = {...assets[assetIndex]};
+            const item = {...assets[assetIndex]};
             item.cachedImage = (contentSource as HTMLImageElement).src;
             assets[assetIndex] = item;
             this.setState({assets});
         }
-    };
+    }
 
     /**
      * Raised when the asset binary has been painted onto the canvas tools rendering canvas

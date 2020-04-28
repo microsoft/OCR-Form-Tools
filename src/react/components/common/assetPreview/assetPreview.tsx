@@ -164,7 +164,7 @@ export class AssetPreview extends React.Component<IAssetPreviewProps, IAssetPrev
             loaded: true,
         }, () => {
             if (this.props.onLoaded) {
-                this.props.onLoaded(this.props.asset,contentSource);
+                this.props.onLoaded(this.props.asset, contentSource);
             }
         });
     }
