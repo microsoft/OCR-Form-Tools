@@ -6,7 +6,7 @@ import { ReactWrapper, mount } from "enzyme";
 import { AssetPreview, IAssetPreviewProps, IAssetPreviewState } from "./assetPreview";
 import MockFactory from "../../../../common/mockFactory";
 import { ImageAsset } from "./imageAsset";
-import { AssetType } from "../../../../models/applicationState";
+import { AssetType, IAsset } from "../../../../models/applicationState";
 
 describe("Asset Preview Component", () => {
     let wrapper: ReactWrapper<IAssetPreviewProps, IAssetPreviewState> = null;
@@ -90,7 +90,8 @@ describe("Asset Preview Component", () => {
 
     it("raises asset loaded handler when image asset loading is complete", () => {
         wrapper = createComponent();
-        wrapper.find(ImageAsset).props().onLoaded(document.createElement("img"));
+        wrapper.find(ImageAsset).props().onLoaded(MockFactory.createTestAsset() as IAsset,
+                                                  document.createElement("img"));
         wrapper.update();
 
         expect(onLoadedHandler).toBeCalledWith(expect.any(HTMLImageElement));
@@ -152,7 +153,8 @@ describe("Asset Preview Component", () => {
 
     it("updates loaded/error flags when asset changes", () => {
         wrapper = createComponent();
-        wrapper.find(ImageAsset).props().onLoaded(document.createElement("img"));
+        wrapper.find(ImageAsset).props().onLoaded(MockFactory.createTestAsset() as IAsset,
+                                                  document.createElement("img"));
 
         expect(wrapper.state()).toEqual({
             loaded: true,
