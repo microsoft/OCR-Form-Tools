@@ -159,6 +159,7 @@ export interface IAsset {
     predicted?: boolean;
     ocr?: any;
     isRunningOCR?: boolean;
+    cachedImage?: string;
 }
 
 /**

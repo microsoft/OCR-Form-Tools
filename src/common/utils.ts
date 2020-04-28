@@ -236,6 +236,18 @@ export async function loadImageToCanvas(imageUrl: string): Promise<HTMLCanvasEle
     });
 }
 
+export function resizeCanvas(canvas: HTMLCanvasElement, maxWidth: number, maxHeight: number) {
+    const widthRatio = (canvas.width > maxWidth) ? maxWidth / canvas.width : 1;
+    const heightRatio = (canvas.height > maxHeight) ? maxHeight / canvas.height : 1;
+    const ratio = Math.min(widthRatio, heightRatio);
+    const canvasCopy = document.createElement("canvas");
+    const copyContext = canvasCopy.getContext("2d");
+    canvasCopy.width = canvas.width * ratio;
+    canvasCopy.height = canvas.height * ratio;
+    copyContext.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvasCopy.width, canvasCopy.height);
+    return canvasCopy;
+}
+
 export function renderRotatedImageToCanvas(image: HTMLImageElement, orientation: number): HTMLCanvasElement {
     const width = image.width;
     const height = image.height;
