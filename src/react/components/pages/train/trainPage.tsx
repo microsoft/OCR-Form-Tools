@@ -350,7 +350,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private showCheckboxPreview = (project: IProject) => {
-        if (project.tags.find((t) => t.type === FieldType.Checkbox)) {
+        if (project.tags.find((t) => t.type === FieldType.SelectionMark)) {
             this.setState({
                 hasCheckbox: true,
             });

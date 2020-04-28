@@ -370,7 +370,7 @@ export enum FieldType {
     Date = "date",
     Time = "time",
     Integer = "integer",
-    Checkbox = "checkbox",
+    SelectionMark = "selection mark",
 }
 
 export enum FieldFormat {
