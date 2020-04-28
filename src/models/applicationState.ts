@@ -160,7 +160,6 @@ export interface IAsset {
     ocr?: any;
     isRunningOCR?: boolean;
     cachedImage?: string;
-
 }
 
 /**

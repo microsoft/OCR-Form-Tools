@@ -72,7 +72,7 @@ describe("Editor Canvas", () => {
 
         // Simulate an image loading asset preview
         const image = document.createElement("img");
-        wrapper.find(AssetPreview).props().onLoaded(image);
+        wrapper.find(AssetPreview).props().onLoaded(MockFactory.createTestAsset() as IAsset, image);
         wrapper.find(AssetPreview).props().onDeactivated(image);
         wrapper.update();
 
@@ -103,7 +103,7 @@ describe("Editor Canvas", () => {
     it("canvas is updated when asset loads", () => {
         const wrapper = createComponent();
         const img = document.createElement("img");
-        wrapper.find(AssetPreview).props().onLoaded(img);
+        wrapper.find(AssetPreview).props().onLoaded(MockFactory.createTestAsset() as IAsset, img);
         wrapper.find(AssetPreview).props().onDeactivated(img);
 
         // expect(wrapper.instance().editor.addContentSource).toBeCalledWith(expect.any(HTMLImageElement));
@@ -150,7 +150,7 @@ describe("Editor Canvas", () => {
 
         wrapper.setProps({ selectedAsset: assetMetadata });
         const img = document.createElement("img");
-        wrapper.find(AssetPreview).props().onLoaded(img);
+        wrapper.find(AssetPreview).props().onLoaded(MockFactory.createTestAsset() as IAsset, img);
         wrapper.find(AssetPreview).props().onActivated(img);
         wrapper.find(AssetPreview).props().onDeactivated(img);
 

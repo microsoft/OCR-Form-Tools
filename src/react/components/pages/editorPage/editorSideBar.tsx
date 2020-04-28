@@ -19,7 +19,7 @@ export interface IEditorSideBarProps {
     assets: IAsset[];
     onAssetSelected: (asset: IAsset) => void;
     onBeforeAssetSelected?: () => boolean;
-    onAssetLoaded: (asset: IAsset, ContentSource: ContentSource) => void;
+    onAssetLoaded?: (asset: IAsset, ContentSource: ContentSource) => void;
     selectedAsset?: IAsset;
     thumbnailSize?: ISize;
 }
