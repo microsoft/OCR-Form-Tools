@@ -1,4 +1,6 @@
 # FoTT Changelog
+## 2.0.0-f068866 (04-28-2020)
+* perf: cache images, reduce canvas size, and fix memory leak for asset preview 
 ## 2.0.0-595a512 (04-24-2020)
 * fix: align rotated picture asset with OCR result
 ## 2.0.0-51c02cc (04-20-2020)
