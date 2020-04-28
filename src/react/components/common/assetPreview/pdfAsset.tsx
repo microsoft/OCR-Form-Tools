@@ -159,7 +159,7 @@ export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState
             if (!this.page.pendingCleanup) {
                 this.page.cleanup();
             }
-            if(!this.page.destroyed) {
+            if (!this.page.destroyed) {
                 this.page.destroy();
             }
             this.page = null;
