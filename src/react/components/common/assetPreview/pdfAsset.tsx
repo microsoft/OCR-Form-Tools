@@ -26,9 +26,11 @@ export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState
     private renderTask;
     private canvas;
     private loadingTask;
+    private unmounted;
 
     constructor(props: IAssetPreviewProps) {
         super(props);
+        this.unmounted = false;
         this.page = null;
         this.pdf = null;
         this.renderTask = null;
@@ -40,7 +42,7 @@ export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState
     }
 
     public componentWillUnmount() {
-        this.releaseMemoryUsedByPDF();
+        this.unmounted = true;
     }
 
     public componentDidMount() {
@@ -67,9 +69,16 @@ export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState
     }
 
     private loadPdfFile = (url) => {
+        if (this.unmounted) {
+            return;
+        }
         this.loadingTask = pdfjsLib.getDocument(url);
         this.loadingTask.promise.then((pdf) => {
             this.pdf = pdf;
+            if (this.unmounted) {
+                this.releaseMemoryUsedByPDF();
+                return;
+            }
             // Fetch the first page
             this.loadPdfPage(pdf, 1 /*pageNumber*/);
         }, (reason) => {
@@ -98,19 +107,26 @@ export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState
                 canvasContext: context,
                 viewport,
             };
-
+            if (this.unmounted) {
+                this.releaseMemoryUsedByPDF();
+                return;
+            }
             this.renderTask = page.render(renderContext);
             this.renderTask.promise.then(() => {
+                if (this.unmounted) {
+                    this.releaseMemoryUsedByPDF();
+                    return;
+                }
                 const thumbnails = resizeCanvas(this.canvas, 240, 240).toDataURL(constants.convertedImageFormat, constants.convertedThumbnailQuality);
                 this.setState({
                     imageUri: thumbnails,
                 }, () => {
                     this.releaseMemoryUsedByPDF();
                 });
-            }).catch((err) => {
+            }).catch(() => {
                 this.releaseMemoryUsedByPDF();
             });
-        }).catch((err) => {
+        }).catch(() => {
             this.releaseMemoryUsedByPDF();
         });
     }
@@ -128,12 +144,11 @@ export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState
     }
 
     private releaseMemoryUsedByPDF() {
-        if (this.pdf) {
-            this.pdf.cleanup();
-            if (!this.pdf.destroyed) {
-                this.pdf.destroy();
+        if (this.loadingTask) {
+            if (!this.loadingTask.destroyed) {
+                this.loadingTask.destroy();
             }
-            this.pdf = null;
+            this.loadingTask = null;
         }
         if (this.renderTask) {
             this.renderTask.cancel();
@@ -148,11 +163,12 @@ export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState
             }
             this.page = null;
         }
-        if (this.loadingTask) {
-            if (!this.loadingTask.destroyed) {
-                this.loadingTask.destroy();
+        if (this.pdf) {
+            if (!this.pdf.destroyed) {
+                this.pdf.cleanup();
+                this.pdf.destroy();
             }
-            this.loadingTask = null;
+            this.pdf = null;
         }
         if (this.canvas) {
             delete this.canvas;
