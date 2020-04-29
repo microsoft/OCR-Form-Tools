@@ -668,7 +668,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         if (this.props.onTagChanged) {
             this.props.onTagChanged(tag, newTag);
         }
-        console.log("type has changed!", type);
     }
 
     // #182 type change
