@@ -614,15 +614,26 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         const tag = this.state.selectedTag;
         const types = Object.values(FieldType);
 
-        return types.map((type) => {
-            return {
-                key: type,
-                text: type,
+        if (tag.type === "checkbox") {
+            return [{
+                key: tag.type,
+                text: tag.type,
                 canCheck: true,
-                isChecked: type === tag.type,
+                isChecked: true,
                 onClick: this.onTypeSelect,
-            } as IContextualMenuItem;
-        });
+            } as IContextualMenuItem];
+        } else {
+            return types.map((type) => {
+                console.log("type:", type);
+                return {
+                    key: type,
+                    text: type,
+                    canCheck: true,
+                    isChecked: type === tag.type,
+                    onClick: this.onTypeSelect,
+                } as IContextualMenuItem;
+            });
+        }
     }
 
     private getFormatSubMenuItems = (): IContextualMenuItem[] => {
@@ -657,8 +668,10 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         if (this.props.onTagChanged) {
             this.props.onTagChanged(tag, newTag);
         }
+        console.log("type has changed!", type);
     }
 
+    // #182 type change
     private onFormatSelect = (event: React.MouseEvent<HTMLButtonElement>, item?: IContextualMenuItem): void => {
         event.preventDefault();
         const format = item.text as FieldFormat;
