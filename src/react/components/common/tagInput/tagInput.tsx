@@ -624,7 +624,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 onClick: this.onTypeSelect,
             } as IContextualMenuItem];
         } else {
-            return types.filter(((type) => type !== "checkbox"))
+            return types.filter((type) => type !== "checkbox")
                 .map((type) => {
                 return {
                     key: type,
