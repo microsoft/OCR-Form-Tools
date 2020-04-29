@@ -612,7 +612,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
     private getTypeSubMenuItems = (): IContextualMenuItem[] => {
         const tag = this.state.selectedTag;
-        let types = Object.values(FieldType);
+        const types = Object.values(FieldType);
 
         if (tag.type === "checkbox") {
 
