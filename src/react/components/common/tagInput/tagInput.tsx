@@ -670,7 +670,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         }
     }
 
-    // #182 type change
     private onFormatSelect = (event: React.MouseEvent<HTMLButtonElement>, item?: IContextualMenuItem): void => {
         event.preventDefault();
         const format = item.text as FieldFormat;
