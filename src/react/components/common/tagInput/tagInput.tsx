@@ -431,6 +431,11 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         return result;
     }
 
+    // helper
+    private isCheckbox = (item: string): boolean => {
+        return item === "checkbox";
+    }
+
     private onTagItemClick = (tag: ITag, props: ITagClickProps) => {
         if (props.ctrlKey && this.props.onCtrlTagClick) { // Lock tags
             this.props.onCtrlTagClick(tag);
@@ -463,18 +468,42 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             let deselect = selected && oldTagOperation === TagOperationMode.None;
 
             // Only fire click event if a region is selected
-            if (this.props.selectedRegions &&
-                this.props.selectedRegions.length > 0 &&
-                this.props.onTagClick) {
-                deselect = false;
-                this.props.onTagClick(tag);
+            const { selectedRegions, onTagClick } = this.props;
+            if (selectedRegions && selectedRegions.length && onTagClick) {
+                if (this.isCheckbox(selectedRegions[0].category) && this.isCheckbox(tag.type)) {
+                    onTagClick(tag);
+                    deselect = false;
+                    this.props.onTagChanged(tag, {
+                        ...tag,
+                        assigned: true,
+                    });
+                } else if (!this.isCheckbox(selectedRegions[0].category) && !this.isCheckbox(tag.type)) {
+                    onTagClick(tag);
+                    deselect = false;
+                    this.props.onTagChanged(tag, {
+                        ...tag,
+                        assigned: true,
+                    });
+                } else {
+                    // If this is a new tag without type yet
+                    if (tag.assigned === false) {
+                        onTagClick(tag);
+                        deselect = false;
+                        this.props.onTagChanged(tag, {
+                            ...tag,
+                            assigned: true,
+                        });
+                        return;
+                    }
+                    toast.warn(strings.tags.warnings.notCompatibleTagType);
+                    return;
+                }
             }
 
             this.setState({
                 selectedTag: deselect ? null : tag,
                 tagOperation,
             });
-
        }
     }
 
@@ -509,10 +538,11 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
     private creatTagInput = (value: any) => {
         const newTag: ITag = {
-                name: value,
-                color: getNextColor(this.state.tags),
-                type: FieldType.String,
-                format: FieldFormat.NotSpecified,
+            name: value,
+            color: getNextColor(this.state.tags),
+            type: FieldType.String,
+            format: FieldFormat.NotSpecified,
+            assigned: false,
         };
         if (newTag.name.length && ![...this.state.tags, newTag].containsDuplicates((t) => t.name)) {
             this.addTag(newTag);
@@ -613,9 +643,38 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     private getTypeSubMenuItems = (): IContextualMenuItem[] => {
         const tag = this.state.selectedTag;
         const types = Object.values(FieldType);
+        // If it's an old existing tag (before 'assigned' been introduced) -> update tag to new format
+        if (tag && tag.assigned === undefined) {
+            const newTag = {
+                ...tag,
+                assigned: true,
+            };
+            this.props.onTagChanged(tag, newTag);
+            types.map((type) => {
+                return {
+                    key: type,
+                    text: type,
+                    canCheck: true,
+                    isChecked: type === tag.type,
+                    onClick: this.onTypeSelect,
+                } as IContextualMenuItem;
+            });
+        }
+        // New tag - user can assign any type
+        if (tag.assigned === false) {
+            // console.log("tag assigned: ", tag.assigned);
+            return types.map((type) => {
+                return {
+                    key: type,
+                    text: type,
+                    canCheck: true,
+                    isChecked: type === tag.type,
+                    onClick: this.onTypeSelect,
+                } as IContextualMenuItem;
+            });
+        }
 
         if (tag.type === "checkbox") {
-
             return [{
                 key: tag.type,
                 text: tag.type,
@@ -626,14 +685,14 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         } else {
             return types.filter((type) => type !== "checkbox")
                 .map((type) => {
-                return {
-                    key: type,
-                    text: type,
-                    canCheck: true,
-                    isChecked: type === tag.type,
-                    onClick: this.onTypeSelect,
-                } as IContextualMenuItem;
-            });
+                    return {
+                        key: type,
+                        text: type,
+                        canCheck: true,
+                        isChecked: type === tag.type,
+                        onClick: this.onTypeSelect,
+                    } as IContextualMenuItem;
+                });
         }
     }
 
@@ -664,6 +723,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             ...tag,
             type,
             format: FieldFormat.NotSpecified,
+            assigned: true,
         };
 
         if (this.props.onTagChanged) {

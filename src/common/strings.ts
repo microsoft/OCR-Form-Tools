@@ -186,6 +186,7 @@ export interface IAppStrings {
             existingName: string;
             emptyName: string;
             unknownTagName: string;
+            notCompatibleTagType: string;
         }
     };
     connections: {

@@ -173,6 +173,7 @@ export const spanish: IAppStrings = {
             existingName: "Nombre de etiqueta ya existe. Elige otro nombre",
             emptyName: "El nombre de etiqueta no puede ser vacío",
             unknownTagName: "Desconocido",
+            notCompatibleTagType: "El tipo de etiqueta no es compatible con esta función",
         },
         toolbar: {
             add: "Agregar nueva etiqueta",
