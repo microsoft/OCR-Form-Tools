@@ -126,6 +126,7 @@ describe("Current Project Reducer", () => {
             color: expect.any(String),
             type: FieldType.String,
             format: FieldFormat.NotSpecified,
+            assigned: false,
         };
 
         const assetMetadata = MockFactory.createTestAssetMetadata(
