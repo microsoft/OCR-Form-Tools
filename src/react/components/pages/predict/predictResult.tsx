@@ -79,7 +79,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                     </div>
                 </li>
                 <li className={postProcessedValue ? "predictiontag-item-label mt-0" : "predictiontag-item-label mt-0 mb-1"}>
-                    {postProcessedValue ? "text: " + item.text : item.text}
+                    {postProcessedValue ? "Text: " + item.text : item.text}
                 </li>
                 {postProcessedValue &&
                     <li className="predictiontag-item-label mb-1">
