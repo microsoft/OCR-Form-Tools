@@ -179,23 +179,23 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         let valueType;
         switch (predictionType) {
             case "string":
-                valueType = "valueString";
+                valueType = "String";
                 postProcessedValue =  prediction.valueString;
                 break;
             case "date":
-                valueType = "valueDate";
+                valueType = "Date";
                 postProcessedValue =  prediction.valueDate;
                 break;
             case "number":
-                valueType = "valueNumber";
+                valueType = "Number";
                 postProcessedValue =  prediction.valueNumber.toString();
                 break;
             case "integer":
-                valueType = "valueInteger";
+                valueType = "Integer";
                 postProcessedValue =  prediction.valueInteger.toString();
                 break;
             case "time":
-                valueType = "valueTime";
+                valueType = "Time";
                 postProcessedValue =  prediction.valueTime;
                 break;
             default:
