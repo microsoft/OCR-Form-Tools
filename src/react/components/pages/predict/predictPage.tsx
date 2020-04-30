@@ -268,7 +268,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                     <PrimaryButton
                                         theme={getPrimaryWhiteTheme()}
                                         iconProps={{ iconName: "Insights" }}
-                                        text="Run prediction"
+                                        text="Run analysis"
                                         aria-label={!this.state.predictionLoaded ? strings.predict.inProgress : ""}
                                         allowDisabledFocus
                                         disabled={predictDisabled}
