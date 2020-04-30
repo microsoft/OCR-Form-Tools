@@ -79,7 +79,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                     </div>
                 </li>
                 <li className={postProcessedValue ? "predictiontag-item-label mt-0" : "predictiontag-item-label mt-0 mb-1"}>
-                    {postProcessedValue ? "Text: " + item.text : item.text}
+                    {postProcessedValue ? "text: " + item.text : item.text}
                 </li>
                 {postProcessedValue &&
                     <li className="predictiontag-item-label mb-1">
@@ -179,23 +179,23 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         let valueType;
         switch (predictionType) {
             case "string":
-                valueType = "String";
+                valueType = "valueString";
                 postProcessedValue =  prediction.valueString;
                 break;
             case "date":
-                valueType = "Date";
+                valueType = "valueDate";
                 postProcessedValue =  prediction.valueDate;
                 break;
             case "number":
-                valueType = "Number";
+                valueType = "valueNumber";
                 postProcessedValue =  prediction.valueNumber.toString();
                 break;
             case "integer":
-                valueType = "Integer";
+                valueType = "valueInteger";
                 postProcessedValue =  prediction.valueInteger.toString();
                 break;
             case "time":
-                valueType = "Time";
+                valueType = "valueTime";
                 postProcessedValue =  prediction.valueTime;
                 break;
             default:
