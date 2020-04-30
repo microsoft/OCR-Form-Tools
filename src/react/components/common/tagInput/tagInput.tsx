@@ -470,14 +470,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             // Only fire click event if a region is selected
             const { selectedRegions, onTagClick } = this.props;
             if (selectedRegions && selectedRegions.length && onTagClick) {
-                if (this.isCheckbox(selectedRegions[0].category) && this.isCheckbox(tag.type)) {
-                    onTagClick(tag);
-                    deselect = false;
-                    this.props.onTagChanged(tag, {
-                        ...tag,
-                        assigned: true,
-                    });
-                } else if (!this.isCheckbox(selectedRegions[0].category) && !this.isCheckbox(tag.type)) {
+                if ((this.isCheckbox(selectedRegions[0].category) && this.isCheckbox(tag.type)) ||
+                    (!this.isCheckbox(selectedRegions[0].category) && !this.isCheckbox(tag.type))) {
                     onTagClick(tag);
                     deselect = false;
                     this.props.onTagChanged(tag, {
