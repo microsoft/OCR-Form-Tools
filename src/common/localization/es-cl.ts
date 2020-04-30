@@ -125,9 +125,9 @@ export const spanish: IAppStrings = {
         backEndNotAvailable: "La función de casilla de verificación funcionará en la versión futura del servicio de reconocimiento de formularios, manténgase atento.",
     },
     predict: {
-        title: "Predecir",
-        uploadFile: "Subir archivo",
-        inProgress: "Predicción en progreso ...",
+        title: "Analizar",
+        uploadFile: "Cargar archivo y ejecutar análisis",
+        inProgress: "Análisis en curso...",
         downloadScript: "Usar script",
         defaultLocalFileInput: "Busca un archivo...",
         defaultURLInput: "Pegar o escribir URL...",
