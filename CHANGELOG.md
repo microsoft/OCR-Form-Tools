@@ -1,4 +1,4 @@
-# FoTT Changelog
+# FoTT Changelog (04-30-2020)
 ## 2.0.0-f3e42f6
 * feat: display post-processed value in analyzed results ([#229](https://github.com/microsoft/OCR-Form-Tools/commit/f3e42f6e8e9e934f1a241921dbe4a1e8d311bb46))
 ## 2.0.0-f068866 (04-28-2020)
