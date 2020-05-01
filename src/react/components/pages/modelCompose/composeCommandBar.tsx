@@ -11,12 +11,6 @@ interface IModelComposeCommandBarProps {
 export const ModelComposeCommandBar: React.FunctionComponent<IModelComposeCommandBarProps> = (props) => {
 
     const commandBarItems: ICommandBarItemProps[] = [
-        {
-          key: "",
-          text: "",
-          iconProps: { iconName: "" },
-          iconOnly: true,
-        },
     ];
 
     const commandBarFarItems: ICommandBarItemProps[] = [

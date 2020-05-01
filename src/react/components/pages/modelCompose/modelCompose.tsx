@@ -12,7 +12,6 @@ import ServiceHelper from "../../../../services/serviceHelper";
 import { IColumn,
          Fabric,
          DetailsList,
-         MarqueeSelection,
          Selection, SelectionMode,
          DetailsListLayoutMode, Customizer,
          ICustomizations } from "office-ui-fabric-react";
@@ -175,18 +174,16 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                             handleCompose={this.onComposeClick}
                             />
                     </div>
-                    <MarqueeSelection selection={this.selection}>
-                        <DetailsList
-                            items = {modelList}
-                            compact={isCompactMode}
-                            columns={columns}
-                            selectionMode={SelectionMode.multiple}
-                            layoutMode={DetailsListLayoutMode.justified}
-                            isHeaderVisible={true}
-                            selection={this.selection}
-                            selectionPreservedOnEmptyClick={true}>
+                    <DetailsList
+                        items = {modelList}
+                        compact={isCompactMode}
+                        columns={columns}
+                        selectionMode={SelectionMode.multiple}
+                        layoutMode={DetailsListLayoutMode.justified}
+                        isHeaderVisible={true}
+                        selection={this.selection}
+                        selectionPreservedOnEmptyClick={true}>
                     </DetailsList>
-                    </MarqueeSelection>
                 </Customizer>
             </Fabric>
         );
