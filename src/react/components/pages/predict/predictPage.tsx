@@ -853,8 +853,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             ajax.then((response) => {
                 if (response.data.status.toLowerCase() === constants.statusCodeSucceeded) {
                     resolve(response.data);
-                         // prediction response from API
-                         console.log("raw data", JSON.parse(response.request.response));
+                    // prediction response from API
+                    console.log("raw data", JSON.parse(response.request.response));
                 } else if (response.data.status.toLowerCase() === constants.statusCodeFailed) {
                     reject(_.get(
                         response,

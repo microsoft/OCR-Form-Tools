@@ -10,6 +10,7 @@ import ConnectionPage from "../pages/connections/connectionsPage";
 import EditorPage from "../pages/editorPage/editorPage";
 import PredictPage from "../pages/predict/predictPage";
 import ProjectSettingsPage from "../pages/projectSettings/projectSettingsPage";
+import ModelComposePage from "../pages/modelCompose/modelCompose";
 
 /**
  * @name - Main Content Router
@@ -25,6 +26,7 @@ export function MainContentRouter() {
                 <Route path="/connections" exact component={ConnectionPage} />
                 <Route path="/projects/:projectId/edit" component={EditorPage} />
                 <Route path="/projects/create" component={ProjectSettingsPage} />
+                <Route path="/projects/:projectId/modelcompose" component={ModelComposePage} />
                 <Route path="/projects/:projectId/train" component={TrainPage} />
                 <Route path="/projects/:projectId/predict" component={PredictPage} />
                 <Route path="/projects/:projectId/settings" component={ProjectSettingsPage} />
