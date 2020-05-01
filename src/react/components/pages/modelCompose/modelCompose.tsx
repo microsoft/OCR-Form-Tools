@@ -155,7 +155,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     public componentDidUpdate() {
-        this.selection.getSelection().map((s) => console.log(s));
+        //this.selection.getSelection().map((s) => console.log(s));
     }
 
     public render() {
@@ -273,6 +273,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
     private onComposeClick = () => {
         console.log("compose click");
+        this.selection.getSelection().map((s) => console.log(s));
     }
 
 }
