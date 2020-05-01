@@ -84,6 +84,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 isRowHeader: true,
                 isSorted: true,
                 isSortedDescending: false,
+                onColumnClick: this.handleColumnClick,
                 onRender: (model: IModel) => {
                 return <span>{model.modelId}</span>;
                 },
@@ -105,7 +106,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 minWidth: 200,
                 isResizable: false,
                 onColumnClick: this.handleColumnClick,
-                data: "date",
                 onRender: (model: IModel) => {
                     return <span>{new Date(model.createdDateTime).toLocaleString()}</span>;
                 },
@@ -234,9 +234,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 newCol.isSortedDescending = true;
             }
         });
-        console.log(this.state.modelList);
         const newList = this.copyAndSort(modelList, currColumn.fieldName!, currColumn.isSortedDescending);
-        console.log(newList);
         this.setState({
             columns: newColumns,
             modelList: newList,
@@ -250,15 +248,15 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             .sort((a, b): number => {
                 if (isSortedDescending) {
                     if ((new Date(a.createdDateTime)).getTime() < (new Date(b.createdDateTime)).getTime()) {
-                        return -1;
-                    } else {
                         return 1;
+                    } else {
+                        return -1;
                     }
                 } else {
                     if ((new Date(a.createdDateTime)).getTime() > (new Date(b.createdDateTime)).getTime()) {
-                        return -1;
-                    } else {
                         return 1;
+                    } else {
+                        return -1;
                     }
                 }
             }));

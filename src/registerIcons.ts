@@ -39,6 +39,8 @@ export function registerIcons() {
             Info: "\uE946",
             AddTo: "\uECC8",
             OpenFolderHorizontal: "\uED25",
+            SortUp: "\uEE68",
+            SortDown: "\uEE69",
             DocumentManagement: "\uEFFC",
             TextDocument: "\uF029",
             BranchMerge: "\uF295",

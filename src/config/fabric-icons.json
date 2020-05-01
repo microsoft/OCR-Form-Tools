@@ -147,6 +147,14 @@
       "unicode": "EDC3"
     },
     {
+      "name": "SortUp",
+      "unicode": "EE68"
+    },
+    {
+      "name": "SortDown",
+      "unicode": "EE69"
+    },
+    {
       "name": "DocumentManagement",
       "unicode": "EFFC"
     },
