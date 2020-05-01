@@ -21,6 +21,13 @@ import { toast } from "react-toastify";
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../react/components/common/tagColors.json");
 
+function normalizeFieldType(type: string): string {
+    if (type === "checkbox") {
+        return FieldType.SelectionMark;
+    }
+    return type;
+}
+
 /**
  * Functions required for a project service
  * @member save - Save a project
@@ -245,7 +252,7 @@ export default class ProjectService implements IProjectService {
                 tags.push({
                     name: field.fieldKey,
                     color: tagColors[index],
-                    type: field.fieldType,
+                    type: normalizeFieldType(field.fieldType),
                     format: field.fieldFormat,
                 } as ITag);
             });

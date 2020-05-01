@@ -315,7 +315,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
 
         if (selectedRegions.length === 1 && selectedRegions[0].category === FeatureCategory.Checkbox) {
-            this.setTagType(inputTag[0], FieldType.Checkbox);
+            this.setTagType(inputTag[0], FieldType.SelectionMark);
         }
 
         this.redrawAllFeatures();
@@ -1547,7 +1547,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const newRegion = {
             id: this.createRegionIdFromBoundingBox(boundingBox, pangeNumber),
             type: RegionType.Polygon,
-            category: tag.type === FieldType.Checkbox ? FeatureCategory.Checkbox : FeatureCategory.Text,
+            category: tag.type === FieldType.SelectionMark ? FeatureCategory.Checkbox : FeatureCategory.Text,
             tags: [tagName],
             boundingBox: {
                 height: bottom - top,
@@ -1669,7 +1669,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const prevType = prevTypes[name];
             const type = types[name];
             if (prevType !== type
-                && (prevType === FieldType.Checkbox || type === FieldType.Checkbox)) {
+                && (prevType === FieldType.SelectionMark || type === FieldType.SelectionMark)) {
                 // some tag change between checkbox and text
                 return true;
             }

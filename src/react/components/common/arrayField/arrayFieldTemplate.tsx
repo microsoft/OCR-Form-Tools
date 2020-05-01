@@ -15,7 +15,7 @@ export function ArrayFieldTemplate(props: ArrayFieldTemplateProps) {
             document.getElementById("addSecurityToken").focus();
             setFocusFlag(false);
         }
-    });
+    }, [focusFlag]);
 
     return (
         <div>

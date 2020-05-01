@@ -89,7 +89,7 @@
         "jquery": "^3.5.0",
         "kind-of": "^6.0.3",
         "minimist": "^1.2.2",
-        "node-sass": "^4.13.0",
+        "node-sass": "^4.14.0",
         "pdfjs-dist": "2.3.200",
         "react-scripts": "3.1.2",
         "redux-immutable-state-invariant": "^2.1.0",

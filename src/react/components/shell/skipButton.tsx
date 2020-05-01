@@ -9,10 +9,6 @@ export interface ISkipButtonProps {
 
 export class SkipButton extends React.Component<ISkipButtonProps> {
 
-    constructor(props: ISkipButtonProps) {
-        super(props);
-    }
-
     public render() {
         return (
             <div className="skip-button">
