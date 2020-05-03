@@ -40,6 +40,7 @@ export interface IProjectService {
     delete(project: IProject): Promise<void>;
     isDuplicate(project: IProject, projectList: IProject[]): boolean;
     updateProjectTagsFromFiles(oldProject: IProject): Promise<IProject>;
+    updateTagLabelCounts(oldProject: IProject, assetLabelCountDifference: []): Promise<IProject>;
 }
 
 /**
@@ -172,6 +173,29 @@ export default class ProjectService implements IProjectService {
         }
     }
 
+    public async updateTagLabelCounts(project: IProject,  assetLabelCountDifference: any): Promise<IProject> {
+        const updatedProject = Object.assign({}, project);
+        const tags: ITag[] = [];
+        updatedProject.tags.forEach((tag) => {
+            if (assetLabelCountDifference[tag.name]) {
+                tags.push({
+                    ...tag,
+                    labelsCount: tag.labelsCount + assetLabelCountDifference[tag.name],
+                } as ITag);
+            } else {
+                tags.push({
+                    ...tag,
+                } as ITag);
+            }
+        });
+        updatedProject.tags = tags;
+        if (JSON.stringify(updatedProject.tags) === JSON.stringify(project.tags)) {
+            return project;
+        } else {
+            return updatedProject;
+        }
+    }
+
     /**
      * Assign project tags.
      * A new project doesn't have any tags at the beginning. But it could connect to a blob container
@@ -186,6 +210,7 @@ export default class ProjectService implements IProjectService {
         asset?: string) {
         const tags: ITag[] = [];
         const tagNameSet = new Set<string>();
+        const tagLabelCount = {};
         try {
             const blobs = new Set<string>(await storageProvider.listFiles(project.folderPath));
             const assetLabel = asset ? asset + constants.labelFileExtension : undefined;
@@ -197,7 +222,14 @@ export default class ProjectService implements IProjectService {
                     try {
                         if (!assetLabel || assetLabel === blob) {
                             const content = JSON.parse(await storageProvider.readText(blob));
-                            content.labels.forEach((label) => tagNameSet.add(label.label));
+                            content.labels.forEach((label) => {
+                                tagNameSet.add(label.label);
+                                if (tagLabelCount[label.label]) {
+                                    tagLabelCount[label.label] += label.value.length;
+                                } else {
+                                    tagLabelCount[label.label] = label.value.length;
+                                }
+                            });
                         }
                         if (assetLabel && assetLabel === blob) {
                             break;
@@ -222,10 +254,11 @@ export default class ProjectService implements IProjectService {
                     // use default type
                     type: FieldType.String,
                     format: FieldFormat.NotSpecified,
+                    labelsCount: tagLabelCount[name],
                 } as ITag);
             });
             if (project.tags) {
-                await this.addMissingTags(project, tags);
+                await this.addMissingTagsAndUpdateLabelCount(project, tags, tagLabelCount);
             } else {
                 project.tags = tags;
             }
@@ -254,11 +287,12 @@ export default class ProjectService implements IProjectService {
                     color: tagColors[index],
                     type: normalizeFieldType(field.fieldType),
                     format: field.fieldFormat,
+                    labelsCount: 0,
                 } as ITag);
             });
             if (project.tags) {
                 project.tags = patch(project.tags, tags, "name", ["type", "format"]);
-                await this.addMissingTags(project, tags);
+                await this.addMissingTagsAndUpdateLabelCount(project, tags);
             } else {
                 project.tags = tags;
             }
@@ -293,8 +327,18 @@ export default class ProjectService implements IProjectService {
         updatedProject.tags = existingTags;
     }
 
-    private async addMissingTags(project: IProject, tags: ITag[]) {
-        const missingTags = tags.filter((fileTag) => !project.tags.find((tag) => fileTag.name === tag.name ));
+    private async addMissingTagsAndUpdateLabelCount(project: IProject, tags: ITag[], tagLabelCount?: any) {
+        const missingTags = tags.filter((fileTag) => {
+            const foundExistingTag = project.tags.find((tag) => fileTag.name === tag.name );
+            if (!foundExistingTag) {
+                return true;
+            } else {
+                if (tagLabelCount) {
+                    foundExistingTag.labelsCount =  tagLabelCount[foundExistingTag.name];
+                }
+                return false;
+            }
+        });
         project.tags = [...project.tags, ...missingTags];
     }
 

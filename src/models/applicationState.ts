@@ -118,6 +118,7 @@ export interface ITag {
     color: string;
     type: FieldType;
     format: FieldFormat;
+    labelsCount?: number;
 }
 
 /**

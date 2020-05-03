@@ -22,6 +22,7 @@ import {
     IDeleteProjectAction,
     IUpdateProjectTagAction,
     IUpdateProjectTagsFromFilesAction,
+    IUpdateTagLabelCounts,
 } from "./projectActions";
 import {
     IShowAppErrorAction,
@@ -93,4 +94,5 @@ export type AnyAction = IOtherAction |
     IClearErrorAction |
     IUpdateProjectTagAction |
     IUpdateProjectTagsFromFilesAction |
+    IUpdateTagLabelCounts |
     ISetTitleAction;

@@ -479,6 +479,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         // Only update asset metadata if state changes or is different
         if (initialState !== assetMetadata.asset.state || this.state.selectedAsset !== assetMetadata) {
+            if (this.state.selectedAsset.labelData && this.state.selectedAsset.labelData.labels &&
+                assetMetadata.labelData && assetMetadata.labelData.labels) {
+                this.updateTagLabelCounts(assetMetadata);
+            }
             await this.props.actions.saveAssetMetadata(this.props.project, assetMetadata);
             if (this.props.project.lastVisitedAssetId === assetMetadata.asset.id) {
                 this.setState({selectedAsset: assetMetadata});
@@ -724,5 +728,20 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         if (this.canvas.current) {
             this.canvas.current.updateSize();
         }
+    }
+
+    private async updateTagLabelCounts(assetMetadata: IAssetMetadata) {
+        const assetLabelCountDifference = {};
+        assetMetadata.labelData.labels.forEach((label) => {
+            assetLabelCountDifference[label.label] = label.value.length;
+        });
+        this.state.selectedAsset.labelData.labels.forEach((label) => {
+            if (assetLabelCountDifference[label.label]) {
+                assetLabelCountDifference[label.label] -= label.value.length;
+            } else {
+                assetLabelCountDifference[label.label] = -(label.value.length);
+            }
+        });
+        await this.props.actions.updateTagLabelCounts(this.props.project, assetLabelCountDifference);
     }
 }
