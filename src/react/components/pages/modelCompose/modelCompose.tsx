@@ -161,6 +161,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     public componentDidUpdate(prevProps, prevState) {
         if ( prevState.isComposing === true &&
                 prevState.isComposing !== this.state.isComposing) {
+            this.selection.setAllSelected(false);
             if (this.props.project) {
                 console.log("reget model");
                 this.getModelList();
@@ -302,7 +303,5 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 isComposing: false,
         });
         }, 5000);
-        this.selection.setAllSelected(false);
-        console.log("compose is end");
     }
 }
