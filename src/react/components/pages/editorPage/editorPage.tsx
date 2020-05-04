@@ -199,8 +199,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 }
                 <SplitPane split="vertical"
                     defaultSize={this.state.thumbnailSize.width}
-                    minSize={175}
-                    maxSize={175}
+                    minSize={150}
+                    maxSize={325}
                     paneStyle={{ display: "flex" }}
                     onChange={this.onSideBarResize}
                     onDragFinished={this.onSideBarResizeComplete}>
