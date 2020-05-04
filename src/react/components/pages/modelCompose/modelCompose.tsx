@@ -14,10 +14,12 @@ import { IColumn,
          DetailsList,
          Selection, SelectionMode,
          DetailsListLayoutMode, Customizer,
-         ICustomizations } from "office-ui-fabric-react";
+         ICustomizations,
+         Spinner,
+         SpinnerSize} from "office-ui-fabric-react";
 import "./modelCompose.scss";
 import { strings } from "../../../../common/strings";
-import { getDarkGreyTheme, getDarkTheme } from "../../../../common/themes";
+import { getDarkGreyTheme, getDefaultDarkTheme } from "../../../../common/themes";
 import { ModelComposeCommandBar } from "./composeCommandBar";
 import { bindActionCreators } from "redux";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -40,6 +42,7 @@ export interface IModelComposePageState {
     selectionDetails: string;
     isModalSelection: boolean;
     isCompactMode: boolean;
+    isComposing: boolean;
 }
 
 export interface IModel {
@@ -93,7 +96,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 name: "Status",
                 fieldName: "status",
                 minWidth: 100,
-                isResizable: false,
+                isResizable: true,
+                onColumnClick: this.handleColumnClick,
                 onRender: (model: IModel) => {
                 return (<span>{model.status}</span>);
                 },
@@ -103,7 +107,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 name: "Create Date Time",
                 fieldName: "createdatetime",
                 minWidth: 200,
-                isResizable: false,
+                isResizable: true,
                 onColumnClick: this.handleColumnClick,
                 onRender: (model: IModel) => {
                     return <span>{new Date(model.createdDateTime).toLocaleString()}</span>;
@@ -114,7 +118,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 name: "Last Updated Date Time",
                 fieldName: "lastupdateddatetime",
                 minWidth: 200,
-                isResizable: false,
+                isResizable: true,
                 onColumnClick: this.handleColumnClick,
                 onRender: (model: IModel) => {
                     return (<span>{new Date(model.lastUpdatedDateTime).toLocaleString()}</span>);
@@ -128,6 +132,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             selectionDetails: this.handleSelection(),
             isModalSelection: false,
             isCompactMode: false,
+            isComposing: false,
         };
 
         this.selection = new Selection({
@@ -153,7 +158,14 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         document.title = "Model compose page - " + strings.appName;
     }
 
-    public componentDidUpdate() {
+    public componentDidUpdate(prevProps, prevState) {
+        if ( prevState.isComposing === true &&
+                prevState.isComposing !== this.state.isComposing) {
+            if (this.props.project) {
+                console.log("reget model");
+                this.getModelList();
+            }
+        }
         //this.selection.getSelection().map((s) => console.log(s));
     }
 
@@ -174,6 +186,13 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                             handleCompose={this.onComposeClick}
                             />
                     </div>
+                    {this.state.isComposing ?
+                    <Spinner
+                        label="Model is composing in our backend, please wait..."
+                        className="compose-spinner"
+                        theme={getDefaultDarkTheme()}
+                        size={SpinnerSize.large}>
+                    </Spinner> :
                     <DetailsList
                         items = {modelList}
                         compact={isCompactMode}
@@ -184,6 +203,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                         selection={this.selection}
                         selectionPreservedOnEmptyClick={true}>
                     </DetailsList>
+                    }
                 </Customizer>
             </Fabric>
         );
@@ -269,8 +289,20 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     private onComposeClick = () => {
-        console.log("compose click");
         this.selection.getSelection().map((s) => console.log(s));
+        this.setState({
+            isComposing: true,
+        });
+        this.handleModelCompose();
     }
 
+    private handleModelCompose = () => {
+        setTimeout( () => {
+            this.setState({
+                isComposing: false,
+        });
+        }, 5000);
+        this.selection.setAllSelected(false);
+        console.log("compose is end");
+    }
 }
