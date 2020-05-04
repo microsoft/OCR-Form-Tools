@@ -31,7 +31,7 @@ export default interface IProjectActions {
     updateProjectTag(project: IProject, oldTag: ITag, newTag: ITag): Promise<IAssetMetadata[]>;
     deleteProjectTag(project: IProject, tagName): Promise<IAssetMetadata[]>;
     updateProjectTagsFromFiles(project: IProject, asset?: string): Promise<void>;
-    updateTagdocumentCounts(project: IProject, assetdocumentCountDifference: any): Promise<void>;
+    updateTagDocumentCount(project: IProject, assetdocumentCountDifference: any): Promise<void>;
 }
 
 /**
@@ -100,13 +100,13 @@ export function updateProjectTagsFromFiles(project: IProject, asset?: string): (
     };
 }
 
-export function updateTagdocumentCounts(project: IProject,
+export function updateTagDocumentCount(project: IProject,
                                         assetdocumentCountDifference: any): (dispatch: Dispatch) => Promise<void> {
     return async (dispatch: Dispatch) => {
         const projectService = new ProjectService();
-        const updatedProject = await projectService.updateTagdocumentCounts(project, assetdocumentCountDifference);
+        const updatedProject = await projectService.updateTagDocumentCount(project, assetdocumentCountDifference);
         if (updatedProject !== project) {
-            dispatch(updateTagdocumentCountsAction(updatedProject));
+            dispatch(updateTagDocumentCountAction(updatedProject));
         }
     };
 }
@@ -287,7 +287,7 @@ export interface IUpdateProjectTagsFromFilesAction extends IPayloadAction<string
     type: ActionTypes.UPDATE_PROJECT_TAGS_FROM_FILES_SUCCESS;
 }
 
-export interface IUpdateTagdocumentCounts extends IPayloadAction<string, IProject> {
+export interface IUpdateTagDocumentCount extends IPayloadAction<string, IProject> {
     type: ActionTypes.UPDATE_TAG_LABEL_COUNTS_SUCCESS;
 }
 
@@ -387,8 +387,8 @@ export const updateProjectTagAction =
 export const updateProjectTagsFromFilesAction =
     createPayloadAction<IUpdateProjectTagsFromFilesAction>(ActionTypes.UPDATE_PROJECT_TAGS_FROM_FILES_SUCCESS);
 
-export const updateTagdocumentCountsAction =
-    createPayloadAction<IUpdateTagdocumentCounts>(ActionTypes.UPDATE_TAG_LABEL_COUNTS_SUCCESS);
+export const updateTagDocumentCountAction =
+    createPayloadAction<IUpdateTagDocumentCount>(ActionTypes.UPDATE_TAG_LABEL_COUNTS_SUCCESS);
 
 /**
  * Instance of Delete project tag action

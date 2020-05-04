@@ -40,7 +40,7 @@ export interface IProjectService {
     delete(project: IProject): Promise<void>;
     isDuplicate(project: IProject, projectList: IProject[]): boolean;
     updateProjectTagsFromFiles(oldProject: IProject): Promise<IProject>;
-    updateTagdocumentCounts(oldProject: IProject, assetdocumentCountDifference: []): Promise<IProject>;
+    updateTagDocumentCount(oldProject: IProject, assetdocumentCountDifference: []): Promise<IProject>;
 }
 
 /**
@@ -173,7 +173,7 @@ export default class ProjectService implements IProjectService {
         }
     }
 
-    public async updateTagdocumentCounts(project: IProject,  assetdocumentCountDifference: any): Promise<IProject> {
+    public async updateTagDocumentCount(project: IProject,  assetdocumentCountDifference: any): Promise<IProject> {
         const updatedProject = Object.assign({}, project);
         const tags: ITag[] = [];
         updatedProject.tags.forEach((tag) => {
