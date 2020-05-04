@@ -101,7 +101,7 @@ export function updateProjectTagsFromFiles(project: IProject, asset?: string): (
 }
 
 export function updateTagDocumentCount(project: IProject,
-                                        assetDocumentCountDifference: any): (dispatch: Dispatch) => Promise<void> {
+                                       assetDocumentCountDifference: any): (dispatch: Dispatch) => Promise<void> {
     return async (dispatch: Dispatch) => {
         const projectService = new ProjectService();
         const updatedProject = await projectService.updateTagDocumentCount(project, assetDocumentCountDifference);
