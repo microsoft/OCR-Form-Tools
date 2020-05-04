@@ -163,11 +163,9 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 prevState.isComposing !== this.state.isComposing) {
             this.selection.setAllSelected(false);
             if (this.props.project) {
-                console.log("reget model");
                 this.getModelList();
             }
         }
-        //this.selection.getSelection().map((s) => console.log(s));
     }
 
     public render() {
@@ -285,8 +283,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     private handleSelection = (): string => {
-        console.log("In selection");
-        return "item selects";
+        console.log("handle selection");
+        return "item selected";
     }
 
     private onComposeClick = () => {
