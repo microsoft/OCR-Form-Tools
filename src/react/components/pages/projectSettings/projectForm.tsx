@@ -205,10 +205,11 @@ export default class ProjectForm extends React.Component<IProjectFormProps, IPro
     private onFormSubmit(args: ISubmitEvent<IProject>) {
         const project: IProject = {
             ...args.formData,
+            name: args.formData.name.replace(/\s+/g, " ").trim(),
             sourceConnection: args.formData.sourceConnection,
             folderPath: this.normalizeFolderPath(args.formData.folderPath),
+            apiUriBase: args.formData.apiUriBase.trim(),
         };
-        project.name = project.name.replace(/\s+/g, " ").trim();
         this.props.onSubmit(project);
     }
 
