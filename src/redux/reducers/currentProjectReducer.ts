@@ -69,6 +69,27 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
                 }
             });
 
+            // ! here
+            // updates labels per document (need to implement global labelCount)
+            newTags.forEach((item, index) => {
+                newTags[index] = Object.assign({}, item);
+            });
+            newTags.forEach((tag) => {
+                const labelList = action.payload.labelData.labels;
+                if (labelList.find((label) => label.label === tag.name)) {
+                    // const isEmptyForAll = true;
+                    if (tag.isEmpty) {
+                        tag.isEmpty = false;
+                        updateTags = true;
+                    }
+                } else {
+                    if (!tag.isEmpty) {
+                        tag.isEmpty = true;
+                        updateTags = true;
+                    }
+                }
+            });
+
             if (updateTags) {
                 return {
                     ...state,

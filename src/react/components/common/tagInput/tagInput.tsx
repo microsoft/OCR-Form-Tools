@@ -470,25 +470,22 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             // Only fire click event if a region is selected
             const { selectedRegions, onTagClick } = this.props;
             if (selectedRegions && selectedRegions.length && onTagClick) {
-                if ((this.isCheckbox(selectedRegions[0].category) && this.isCheckbox(tag.type)) ||
-                    (!this.isCheckbox(selectedRegions[0].category) && !this.isCheckbox(tag.type))) {
+                if (this.isCheckbox(selectedRegions[0].category) && this.isCheckbox(tag.type)) {
                     onTagClick(tag);
                     deselect = false;
                     this.props.onTagChanged(tag, {
                         ...tag,
-                        assigned: true,
+                        isEmpty: false,
+                    });
+                } else if (!this.isCheckbox(selectedRegions[0].category) && !this.isCheckbox(tag.type)) {
+                    onTagClick(tag);
+                    deselect = false;
+                    this.props.onTagChanged(tag, {
+                        ...tag,
+                        isEmpty: false,
                     });
                 } else {
-                    // If this is a new tag without type yet
-                    if (tag.assigned === false) {
-                        onTagClick(tag);
-                        deselect = false;
-                        this.props.onTagChanged(tag, {
-                            ...tag,
-                            assigned: true,
-                        });
-                        return;
-                    }
+
                     toast.warn(strings.tags.warnings.notCompatibleTagType);
                     return;
                 }
@@ -536,7 +533,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             color: getNextColor(this.state.tags),
             type: FieldType.String,
             format: FieldFormat.NotSpecified,
-            assigned: false,
+            isEmpty: true,
         };
         if (newTag.name.length && ![...this.state.tags, newTag].containsDuplicates((t) => t.name)) {
             this.addTag(newTag);
@@ -633,52 +630,16 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
         return menuItems;
     }
-
+    // ! here
     private getTypeSubMenuItems = (): IContextualMenuItem[] => {
         const tag = this.state.selectedTag;
         const types = Object.values(FieldType);
-        // If it's an old existing tag (before 'assigned' been introduced) -> update tag to new format
-        if (tag && tag.assigned === undefined) {
-            const newTag = {
-                ...tag,
-                assigned: true,
-            };
-            this.props.onTagChanged(tag, newTag);
-            types.map((type) => {
-                return {
-                    key: type,
-                    text: type,
-                    canCheck: true,
-                    isChecked: type === tag.type,
-                    onClick: this.onTypeSelect,
-                } as IContextualMenuItem;
-            });
-        }
-        // New tag - user can assign any type
-        if (tag.assigned === false) {
-            // console.log("tag assigned: ", tag.assigned);
-            return types.map((type) => {
-                return {
-                    key: type,
-                    text: type,
-                    canCheck: true,
-                    isChecked: type === tag.type,
-                    onClick: this.onTypeSelect,
-                } as IContextualMenuItem;
-            });
-        }
+        console.table(tag);
 
-        if (tag.type === "checkbox") {
-            return [{
-                key: tag.type,
-                text: tag.type,
-                canCheck: true,
-                isChecked: true,
-                onClick: this.onTypeSelect,
-            } as IContextualMenuItem];
-        } else {
-            return types.filter((type) => type !== "checkbox")
-                .map((type) => {
+        if (tag && tag.isEmpty) {
+            // Empty tag - user can assign any type
+            if (tag.format === "not-specified") {
+                return types.map((type) => {
                     return {
                         key: type,
                         text: type,
@@ -687,6 +648,58 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                         onClick: this.onTypeSelect,
                     } as IContextualMenuItem;
                 });
+            } else {
+                // Do we want to do something different here?
+
+                return types.map((type) => {
+                    return {
+                        key: type,
+                        text: type,
+                        canCheck: true,
+                        isChecked: type === tag.type,
+                        onClick: this.onTypeSelect,
+                    } as IContextualMenuItem;
+                });
+            }
+        }
+        if (tag && !tag.isEmpty) {
+            if (tag.type === "checkbox") {
+                return types.map((type) => {
+                    return (type === "checkbox") ?
+                        {
+                            key: type,
+                            text: type,
+                            canCheck: true,
+                            isChecked: type === tag.type,
+                            onClick: this.onTypeSelect,
+                        } as IContextualMenuItem : {
+                            key: type,
+                            text: type,
+                            canCheck: false,
+                            isChecked: type === tag.type,
+                            onClick: this.onTypeSelect,
+                            disabled: true,
+                        } as IContextualMenuItem;
+                });
+            } else {
+                return types.map((type) => {
+                    return (type !== "checkbox") ?
+                        {
+                            key: type,
+                            text: type,
+                            canCheck: true,
+                            isChecked: type === tag.type,
+                            onClick: this.onTypeSelect,
+                        } as IContextualMenuItem : {
+                            key: type,
+                            text: type,
+                            canCheck: true,
+                            isChecked: type === tag.type,
+                            onClick: this.onTypeSelect,
+                            disabled: true,
+                        } as IContextualMenuItem;
+                });
+            }
         }
     }
 
@@ -717,7 +730,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             ...tag,
             type,
             format: FieldFormat.NotSpecified,
-            assigned: true,
         };
 
         if (this.props.onTagChanged) {

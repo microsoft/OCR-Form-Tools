@@ -215,13 +215,16 @@ export default class ProjectService implements IProjectService {
                     // use default type
                     type: FieldType.String,
                     format: FieldFormat.NotSpecified,
+                    isEmpty: false,
                 } as ITag);
             });
             if (project.tags) {
+                project.tags = patch(project.tags, tags, "name", ["isEmpty"]);
                 await this.addMissingTags(project, tags);
             } else {
                 project.tags = tags;
             }
+            // console.table(project.tags, ["name", "type", "isEmpty"]);
         } catch (err) {
             // ignore err
         }
@@ -247,10 +250,12 @@ export default class ProjectService implements IProjectService {
                     color: tagColors[index],
                     type: field.fieldType,
                     format: field.fieldFormat,
+                    isEmpty: false,
                 } as ITag);
             });
             if (project.tags) {
-                project.tags = patch(project.tags, tags, "name", ["type", "format"]);
+                project.tags = patch(project.tags, tags, "name", ["type", "format", "isEmpty"]);
+                // console.table(project.tags);
                 await this.addMissingTags(project, tags);
             } else {
                 project.tags = tags;
@@ -291,6 +296,7 @@ export default class ProjectService implements IProjectService {
         project.tags = [...project.tags, ...missingTags];
     }
 
+    // private async getAllTagsInProjectCount(project: IProject, tags: ITag[]) {}
     /**
      * Save fields.json
      * @param project the project we're trying to create

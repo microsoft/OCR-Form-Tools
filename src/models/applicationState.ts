@@ -118,7 +118,7 @@ export interface ITag {
     color: string;
     type: FieldType;
     format: FieldFormat;
-    assigned: boolean;
+    isEmpty: boolean;
 }
 
 /**
