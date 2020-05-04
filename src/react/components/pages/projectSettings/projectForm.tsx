@@ -178,7 +178,9 @@ export default class ProjectForm extends React.Component<IProjectFormProps, IPro
         if (project.apiUriBase && errors.apiUriBase) {
             const urlRegex = new RegExp(/^(https?:\/\/)([\w\-])+\.([a-zA-Z]{2,63})/);
             if (urlRegex.test(project.apiUriBase)) {
-                if ((project.apiUriBase.match(/\//g) || []).length > 2) {
+                if ((project.apiUriBase.match(/\//g) || []).length > 2 ||
+                    (project.apiUriBase.match(/\?/g) || []).length > 0 ||
+                    (project.apiUriBase.match(/#/g) || []).length > 0) {
                     errors.apiUriBase.addError("should contain only protocol and domain name");
                 }
             } else {
