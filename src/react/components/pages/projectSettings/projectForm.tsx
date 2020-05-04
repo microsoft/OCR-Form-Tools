@@ -175,6 +175,16 @@ export default class ProjectForm extends React.Component<IProjectFormProps, IPro
             Object.keys(project.sourceConnection).length === 0) {
             errors.sourceConnection.addError("is a required property");
         }
+        if (project.apiUriBase && errors.apiUriBase) {
+            const urlRegex = new RegExp(/^(https?:\/\/)([\w\-])+\.([a-zA-Z]{2,63})/);
+            if (urlRegex.test(project.apiUriBase)) {
+                if ((project.apiUriBase.match(/\//g) || []).length > 2) {
+                    errors.apiUriBase.addError("should contain only protocol and domain name");
+                }
+            } else {
+                errors.apiUriBase.addError("should match URI format");
+            }
+        }
 
         if (this.state.classNames.indexOf("was-validated") === -1) {
             this.setState({
