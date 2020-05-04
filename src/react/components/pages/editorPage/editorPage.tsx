@@ -481,7 +481,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         if (initialState !== assetMetadata.asset.state || this.state.selectedAsset !== assetMetadata) {
             if (this.state.selectedAsset.labelData && this.state.selectedAsset.labelData.labels &&
                 assetMetadata.labelData && assetMetadata.labelData.labels) {
-                this.updateTagLabelCounts(assetMetadata);
+                this.updateTagdocumentCounts(assetMetadata);
             }
             await this.props.actions.saveAssetMetadata(this.props.project, assetMetadata);
             if (this.props.project.lastVisitedAssetId === assetMetadata.asset.id) {
@@ -730,18 +730,26 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
     }
 
-    private async updateTagLabelCounts(assetMetadata: IAssetMetadata) {
-        const assetLabelCountDifference = {};
+    private async updateTagdocumentCounts(assetMetadata: IAssetMetadata) {
+        const assetdocumentCountDifference = {};
+        const updatedAssetLabels = {};
+        const currentAssetLabels = {};
         assetMetadata.labelData.labels.forEach((label) => {
-            assetLabelCountDifference[label.label] = label.value.length;
+            updatedAssetLabels[label.label] = true;
         });
         this.state.selectedAsset.labelData.labels.forEach((label) => {
-            if (assetLabelCountDifference[label.label]) {
-                assetLabelCountDifference[label.label] -= label.value.length;
-            } else {
-                assetLabelCountDifference[label.label] = -(label.value.length);
+            currentAssetLabels[label.label] = true;
+        });
+        Object.keys(currentAssetLabels).forEach((label) => {
+            if (!updatedAssetLabels[label]) {
+                assetdocumentCountDifference[label] = -1;
             }
         });
-        await this.props.actions.updateTagLabelCounts(this.props.project, assetLabelCountDifference);
+        Object.keys(updatedAssetLabels).forEach((label) => {
+            if (!currentAssetLabels[label]) {
+                assetdocumentCountDifference[label] = 1;
+            }
+        });
+        await this.props.actions.updateTagdocumentCounts(this.props.project, assetdocumentCountDifference);
     }
 }

@@ -40,7 +40,7 @@ export interface IProjectService {
     delete(project: IProject): Promise<void>;
     isDuplicate(project: IProject, projectList: IProject[]): boolean;
     updateProjectTagsFromFiles(oldProject: IProject): Promise<IProject>;
-    updateTagLabelCounts(oldProject: IProject, assetLabelCountDifference: []): Promise<IProject>;
+    updateTagdocumentCounts(oldProject: IProject, assetdocumentCountDifference: []): Promise<IProject>;
 }
 
 /**
@@ -173,14 +173,14 @@ export default class ProjectService implements IProjectService {
         }
     }
 
-    public async updateTagLabelCounts(project: IProject,  assetLabelCountDifference: any): Promise<IProject> {
+    public async updateTagdocumentCounts(project: IProject,  assetdocumentCountDifference: any): Promise<IProject> {
         const updatedProject = Object.assign({}, project);
         const tags: ITag[] = [];
         updatedProject.tags.forEach((tag) => {
-            if (assetLabelCountDifference[tag.name]) {
+            if (assetdocumentCountDifference[tag.name]) {
                 tags.push({
                     ...tag,
-                    labelsCount: tag.labelsCount + assetLabelCountDifference[tag.name],
+                    documentCount: tag.documentCount + assetdocumentCountDifference[tag.name],
                 } as ITag);
             } else {
                 tags.push({
@@ -210,7 +210,7 @@ export default class ProjectService implements IProjectService {
         asset?: string) {
         const tags: ITag[] = [];
         const tagNameSet = new Set<string>();
-        const tagLabelCount = {};
+        const tagdocumentCount = {};
         try {
             const blobs = new Set<string>(await storageProvider.listFiles(project.folderPath));
             const assetLabel = asset ? asset + constants.labelFileExtension : undefined;
@@ -224,10 +224,10 @@ export default class ProjectService implements IProjectService {
                             const content = JSON.parse(await storageProvider.readText(blob));
                             content.labels.forEach((label) => {
                                 tagNameSet.add(label.label);
-                                if (tagLabelCount[label.label]) {
-                                    tagLabelCount[label.label] += label.value.length;
+                                if (tagdocumentCount[label.label]) {
+                                    tagdocumentCount[label.label] += 1;
                                 } else {
-                                    tagLabelCount[label.label] = label.value.length;
+                                    tagdocumentCount[label.label] = 1;
                                 }
                             });
                         }
@@ -254,11 +254,11 @@ export default class ProjectService implements IProjectService {
                     // use default type
                     type: FieldType.String,
                     format: FieldFormat.NotSpecified,
-                    labelsCount: tagLabelCount[name],
+                    documentCount: tagdocumentCount[name],
                 } as ITag);
             });
             if (project.tags) {
-                await this.addMissingTagsAndUpdateLabelCount(project, tags, tagLabelCount);
+                await this.addMissingTagsAndUpdatedocumentCount(project, tags, tagdocumentCount);
             } else {
                 project.tags = tags;
             }
@@ -287,12 +287,12 @@ export default class ProjectService implements IProjectService {
                     color: tagColors[index],
                     type: normalizeFieldType(field.fieldType),
                     format: field.fieldFormat,
-                    labelsCount: 0,
+                    documentCount: 0,
                 } as ITag);
             });
             if (project.tags) {
                 project.tags = patch(project.tags, tags, "name", ["type", "format"]);
-                await this.addMissingTagsAndUpdateLabelCount(project, tags);
+                await this.addMissingTagsAndUpdatedocumentCount(project, tags);
             } else {
                 project.tags = tags;
             }
@@ -327,14 +327,14 @@ export default class ProjectService implements IProjectService {
         updatedProject.tags = existingTags;
     }
 
-    private async addMissingTagsAndUpdateLabelCount(project: IProject, tags: ITag[], tagLabelCount?: any) {
+    private async addMissingTagsAndUpdatedocumentCount(project: IProject, tags: ITag[], tagdocumentCount?: any) {
         const missingTags = tags.filter((fileTag) => {
             const foundExistingTag = project.tags.find((tag) => fileTag.name === tag.name );
             if (!foundExistingTag) {
                 return true;
             } else {
-                if (tagLabelCount) {
-                    foundExistingTag.labelsCount =  tagLabelCount[foundExistingTag.name];
+                if (tagdocumentCount) {
+                    foundExistingTag.documentCount =  tagdocumentCount[foundExistingTag.name];
                 }
                 return false;
             }
