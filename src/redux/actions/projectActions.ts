@@ -31,7 +31,7 @@ export default interface IProjectActions {
     updateProjectTag(project: IProject, oldTag: ITag, newTag: ITag): Promise<IAssetMetadata[]>;
     deleteProjectTag(project: IProject, tagName): Promise<IAssetMetadata[]>;
     updateProjectTagsFromFiles(project: IProject, asset?: string): Promise<void>;
-    updateTagDocumentCount(project: IProject, assetdocumentCountDifference: any): Promise<void>;
+    updateTagDocumentCount(project: IProject, assetDocumentCountDifference: any): Promise<void>;
 }
 
 /**
@@ -101,10 +101,10 @@ export function updateProjectTagsFromFiles(project: IProject, asset?: string): (
 }
 
 export function updateTagDocumentCount(project: IProject,
-                                        assetdocumentCountDifference: any): (dispatch: Dispatch) => Promise<void> {
+                                        assetDocumentCountDifference: any): (dispatch: Dispatch) => Promise<void> {
     return async (dispatch: Dispatch) => {
         const projectService = new ProjectService();
-        const updatedProject = await projectService.updateTagDocumentCount(project, assetdocumentCountDifference);
+        const updatedProject = await projectService.updateTagDocumentCount(project, assetDocumentCountDifference);
         if (updatedProject !== project) {
             dispatch(updateTagDocumentCountAction(updatedProject));
         }

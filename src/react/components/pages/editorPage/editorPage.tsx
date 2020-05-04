@@ -731,7 +731,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private async updateTagDocumentCount(assetMetadata: IAssetMetadata) {
-        const assetdocumentCountDifference = {};
+        const assetDocumentCountDifference = {};
         const updatedAssetLabels = {};
         const currentAssetLabels = {};
         assetMetadata.labelData.labels.forEach((label) => {
@@ -742,14 +742,14 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         });
         Object.keys(currentAssetLabels).forEach((label) => {
             if (!updatedAssetLabels[label]) {
-                assetdocumentCountDifference[label] = -1;
+                assetDocumentCountDifference[label] = -1;
             }
         });
         Object.keys(updatedAssetLabels).forEach((label) => {
             if (!currentAssetLabels[label]) {
-                assetdocumentCountDifference[label] = 1;
+                assetDocumentCountDifference[label] = 1;
             }
         });
-        await this.props.actions.updateTagDocumentCount(this.props.project, assetdocumentCountDifference);
+        await this.props.actions.updateTagDocumentCount(this.props.project, assetDocumentCountDifference);
     }
 }
