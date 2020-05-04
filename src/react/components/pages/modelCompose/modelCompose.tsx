@@ -187,7 +187,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     </div>
                     {this.state.isComposing ?
                     <Spinner
-                        label="Model is composing in our backend, please wait..."
+                        label="Model is composing, please wait..."
                         className="compose-spinner"
                         theme={getDefaultDarkTheme()}
                         size={SpinnerSize.large}>
