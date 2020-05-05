@@ -472,16 +472,13 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             if (selectedRegions && selectedRegions.length && onTagClick) {
                 const { category } = selectedRegions[0];
                 const { format, type, documentCount } = tag;
-                switch (true) {
-                    case this.isSelectionMark(category) && this.isSelectionMark(type):
-                    case !this.isSelectionMark(category) && !this.isSelectionMark(type):
-                    case documentCount === 0 && type === FieldType.String && format === FieldFormat.NotSpecified:
+                const tagCatagory = this.getTagCatagory(type);
+                if (tagCatagory === category ||
+                    (documentCount === 0 && type === FieldType.String && format === FieldFormat.NotSpecified)) {
                         onTagClick(tag);
                         deselect = false;
-                        break;
-                    default:
-                        toast.warn(strings.tags.warnings.notCompatibleTagType);
-                        break;
+                } else {
+                    toast.warn(strings.tags.warnings.notCompatibleTagType);
                 }
             }
             this.setState({
@@ -489,6 +486,15 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 tagOperation,
             });
 
+        }
+    }
+
+    private getTagCatagory = (tagType: string) => {
+        switch (tagType) {
+            case FieldType.SelectionMark:
+                return "checkbox";
+            default:
+                return "text";
         }
     }
 
