@@ -513,6 +513,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 color: getNextColor(this.state.tags),
                 type: FieldType.String,
                 format: FieldFormat.NotSpecified,
+                documentCount: 0,
         };
         if (newTag.name.length && ![...this.state.tags, newTag].containsDuplicates((t) => t.name)) {
             this.addTag(newTag);
