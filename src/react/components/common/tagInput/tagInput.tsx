@@ -472,7 +472,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             if (selectedRegions && selectedRegions.length && onTagClick) {
                 if ((this.isSelectionMark(selectedRegions[0].category) && this.isSelectionMark(tag.type))
                     || (!this.isSelectionMark(selectedRegions[0].category) && !this.isSelectionMark(tag.type))
-                    || (tag.documentCount === 0 && tag.type === "string" && tag.format === "not-specified")) {
+                    || (tag.documentCount === 0 && tag.type === FieldType.String
+                        && tag.format === FieldFormat.NotSpecified)) {
                     onTagClick(tag);
                     deselect = false;
                 } else {
@@ -625,10 +626,9 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     private getTypeSubMenuItems = (): IContextualMenuItem[] => {
         const tag = this.state.selectedTag;
         const types = Object.values(FieldType);
-        console.table(tag);
         if (tag && tag.documentCount === 0) {
             // Free tag - user can assign any type
-            if (tag.format === "not-specified") {
+            if (tag.format === FieldFormat.NotSpecified) {
                 return types.map((type) => {
                     return {
                         key: type,
@@ -653,9 +653,9 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         }
         // Non-empty tag
         if (tag && tag.documentCount > 0) {
-            if (tag.type === "selectionMark") {
+            if (tag.type === FieldType.SelectionMark) {
                 return types.map((type) => {
-                    return (type === "selectionMark") ?
+                    return (type === FieldType.SelectionMark) ?
                         {
                             key: type,
                             text: type,
@@ -673,7 +673,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 });
             } else {
                 return types.map((type) => {
-                    return (type !== "selectionMark") ?
+                    return (type !== FieldType.SelectionMark) ?
                         {
                             key: type,
                             text: type,
