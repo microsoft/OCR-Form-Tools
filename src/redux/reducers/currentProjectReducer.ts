@@ -105,6 +105,7 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
 
         case ActionTypes.UPDATE_PROJECT_TAG_SUCCESS:
         case ActionTypes.UPDATE_PROJECT_TAGS_FROM_FILES_SUCCESS:
+        case ActionTypes.UPDATE_TAG_LABEL_COUNTS_SUCCESS:
             return {
                 ...state,
                 tags: action.payload.tags,

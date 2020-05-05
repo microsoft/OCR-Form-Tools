@@ -5,7 +5,7 @@ import Guard from "./guard";
 import { IProject, ISecurityToken, IProviderOptions, ISecureString, ITag } from "../models/applicationState";
 import { encryptObject, decryptObject, encrypt, decrypt } from "./crypto";
 import UTIF from "utif";
-import HtmlFileReader from "./htmlFileReader";
+
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../react/components/common/tagColors.json");
 
@@ -234,6 +234,18 @@ export async function loadImageToCanvas(imageUrl: string): Promise<HTMLCanvasEle
         img.onerror = reject;
         img.src = imageUrl;
     });
+}
+
+export function resizeCanvas(canvas: HTMLCanvasElement, maxWidth: number, maxHeight: number) {
+    const widthRatio = (canvas.width > maxWidth) ? maxWidth / canvas.width : 1;
+    const heightRatio = (canvas.height > maxHeight) ? maxHeight / canvas.height : 1;
+    const ratio = Math.min(widthRatio, heightRatio);
+    const canvasCopy = document.createElement("canvas");
+    const copyContext = canvasCopy.getContext("2d");
+    canvasCopy.width = canvas.width * ratio;
+    canvasCopy.height = canvas.height * ratio;
+    copyContext.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvasCopy.width, canvasCopy.height);
+    return canvasCopy;
 }
 
 export function renderRotatedImageToCanvas(image: HTMLImageElement, orientation: number): HTMLCanvasElement {

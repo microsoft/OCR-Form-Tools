@@ -19,7 +19,7 @@ import {
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
-import { AssetPreview } from "../../common/assetPreview/assetPreview";
+import {AssetPreview, ContentSource} from "../../common/assetPreview/assetPreview";
 import { KeyboardBinding } from "../../common/keyboardBinding/keyboardBinding";
 import { KeyEventType } from "../../common/keyboardManager/keyboardManager";
 import { TagInput } from "../../common/tagInput/tagInput";
@@ -199,8 +199,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 }
                 <SplitPane split="vertical"
                     defaultSize={this.state.thumbnailSize.width}
-                    minSize={175}
-                    maxSize={175}
+                    minSize={150}
+                    maxSize={325}
                     paneStyle={{ display: "flex" }}
                     onChange={this.onSideBarResize}
                     onDragFinished={this.onSideBarResizeComplete}>
@@ -229,6 +229,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                             selectedAsset={selectedAsset ? selectedAsset.asset : null}
                             onBeforeAssetSelected={this.onBeforeAssetSelected}
                             onAssetSelected={this.selectAsset}
+                            onAssetLoaded={this.onAssetLoaded}
                             thumbnailSize={this.state.thumbnailSize}
                         />
                     </div>
@@ -478,6 +479,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         // Only update asset metadata if state changes or is different
         if (initialState !== assetMetadata.asset.state || this.state.selectedAsset !== assetMetadata) {
+            if (this.state.selectedAsset.labelData && this.state.selectedAsset.labelData.labels &&
+                assetMetadata.labelData && assetMetadata.labelData.labels) {
+                this.updatedAssetMetadata(assetMetadata);
+            }
             await this.props.actions.saveAssetMetadata(this.props.project, assetMetadata);
             if (this.props.project.lastVisitedAssetId === assetMetadata.asset.id) {
                 this.setState({selectedAsset: assetMetadata});
@@ -500,6 +505,18 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         // Workaround for if component is unmounted
         if (!this.isUnmount) {
             this.props.appTitleActions.setTitle(`${this.props.project.name} - [ ${asset.name} ]`);
+        }
+    }
+
+    private onAssetLoaded = (asset: IAsset, contentSource: ContentSource) => {
+        const assets = [...this.state.assets];
+        const assetIndex = assets.findIndex((item) => item.id === asset.id);
+        if (assetIndex > -1) {
+            const assets = [...this.state.assets];
+            const item = {...assets[assetIndex]};
+            item.cachedImage = (contentSource as HTMLImageElement).src;
+            assets[assetIndex] = item;
+            this.setState({assets});
         }
     }
 
@@ -579,6 +596,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         if (this.state.assets.length === assets.length
             && JSON.stringify(this.state.assets) === JSON.stringify(assets)) {
             this.loadingProjectAssets = false;
+            this.setState({ tagsLoaded: true });
             return;
         }
 
@@ -710,5 +728,28 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         if (this.canvas.current) {
             this.canvas.current.updateSize();
         }
+    }
+
+    private async updatedAssetMetadata(assetMetadata: IAssetMetadata) {
+        const assetDocumentCountDifference = {};
+        const updatedAssetLabels = {};
+        const currentAssetLabels = {};
+        assetMetadata.labelData.labels.forEach((label) => {
+            updatedAssetLabels[label.label] = true;
+        });
+        this.state.selectedAsset.labelData.labels.forEach((label) => {
+            currentAssetLabels[label.label] = true;
+        });
+        Object.keys(currentAssetLabels).forEach((label) => {
+            if (!updatedAssetLabels[label]) {
+                assetDocumentCountDifference[label] = -1;
+            }
+        });
+        Object.keys(updatedAssetLabels).forEach((label) => {
+            if (!currentAssetLabels[label]) {
+                assetDocumentCountDifference[label] = 1;
+            }
+        });
+        await this.props.actions.updatedAssetMetadata(this.props.project, assetDocumentCountDifference);
     }
 }

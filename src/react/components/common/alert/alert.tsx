@@ -57,7 +57,6 @@ export default class Alert extends React.Component<IAlertProps, IAlertState> {
             },
             scopedSettings: {},
         };
-        const confirmButtonTheme = this.props.confirmButtonTheme;
 
         return (
             <Customizer {...dark}>
