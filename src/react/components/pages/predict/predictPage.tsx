@@ -159,6 +159,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 this.imageMap.removeAllFeatures();
                 this.drawPredictionResult();
             }
+            if (this.props.project) {
+                this.getModelList();
+            }
 
             if (prevState.highlightedField !== this.state.highlightedField) {
                 this.setPredictedFieldHighlightStatus(this.state.highlightedField);
@@ -219,18 +222,13 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                 {strings.predict.uploadFile}
                             </h5>
                             {/* <div style={{marginBottom: "3px"}}>Model source</div>
-                                {this.state.modelList.length !== 0 ?
-                                    <Dropdown
-                                        className="modelDropDown"
-                                        defaultSelectedKey={this.state.modelOption}
-                                        selectedKey={this.state.modelOption}
-                                        options={modelOptions}
-                                        onChange={this.selectModel}
-                                    /> : <Dropdown
-                                            defaultSelectedKey= ""
-                                            selectedKey= ""
-                                            options={modelOptions}/>
-                                } */}
+                                <Dropdown
+                                    className="modelDropDown"
+                                    defaultSelectedKey={this.state.modelOption}
+                                    selectedKey={this.state.modelOption}
+                                    options={modelOptions}
+                                    onChange={this.selectModel}
+                                /> */}
                             <div style={{marginBottom: "3px"}}>Image source</div>
                             <div className="container-space-between">
                                 <Dropdown
@@ -961,22 +959,17 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         try {
             const res = await this.getReponse();
             const modelList = res.data.modelList;
-            const modelID = _.get(this.props.project, "trainRecord.modelInfo.modelId");
-            if (modelID) {
+            const trainedId = this.props.project.trainRecord !== undefined
+                ? this.props.project.trainRecord.modelInfo.modelId : "";
+            console.log(trainedId);
+            this.setState({
+                modelList,
+            }, () => {
                 this.setState({
-                    modelList,
-                    modelOption: modelID,
+                    modelOption: trainedId.length !== 0 ? trainedId : this.state.modelList[0].modelId,
                 });
-            } else {
-                this.setState({
-                    modelList,
-                }, () => {
-                    this.setState({
-                        modelOption: this.state.modelList[0].modelId,
-                    });
-                });
-            }
-        } catch (error) {
+            });
+            } catch (error) {
             console.log(error);
         }
     }
