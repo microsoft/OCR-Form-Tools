@@ -481,7 +481,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         if (initialState !== assetMetadata.asset.state || this.state.selectedAsset !== assetMetadata) {
             if (this.state.selectedAsset.labelData && this.state.selectedAsset.labelData.labels &&
                 assetMetadata.labelData && assetMetadata.labelData.labels) {
-                this.updateTagDocumentCount(assetMetadata);
+                this.updatedAssetMetadata(assetMetadata);
             }
             await this.props.actions.saveAssetMetadata(this.props.project, assetMetadata);
             if (this.props.project.lastVisitedAssetId === assetMetadata.asset.id) {
@@ -730,7 +730,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
     }
 
-    private async updateTagDocumentCount(assetMetadata: IAssetMetadata) {
+    private async updatedAssetMetadata(assetMetadata: IAssetMetadata) {
         const assetDocumentCountDifference = {};
         const updatedAssetLabels = {};
         const currentAssetLabels = {};
@@ -750,6 +750,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 assetDocumentCountDifference[label] = 1;
             }
         });
-        await this.props.actions.updateTagDocumentCount(this.props.project, assetDocumentCountDifference);
+        await this.props.actions.updatedAssetMetadata(this.props.project, assetDocumentCountDifference);
     }
 }

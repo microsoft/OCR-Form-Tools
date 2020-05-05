@@ -31,7 +31,7 @@ export default interface IProjectActions {
     updateProjectTag(project: IProject, oldTag: ITag, newTag: ITag): Promise<IAssetMetadata[]>;
     deleteProjectTag(project: IProject, tagName): Promise<IAssetMetadata[]>;
     updateProjectTagsFromFiles(project: IProject, asset?: string): Promise<void>;
-    updateTagDocumentCount(project: IProject, assetDocumentCountDifference: any): Promise<void>;
+    updatedAssetMetadata(project: IProject, assetDocumentCountDifference: any): Promise<void>;
 }
 
 /**
@@ -100,13 +100,13 @@ export function updateProjectTagsFromFiles(project: IProject, asset?: string): (
     };
 }
 
-export function updateTagDocumentCount(project: IProject,
+export function updatedAssetMetadata(project: IProject,
                                        assetDocumentCountDifference: any): (dispatch: Dispatch) => Promise<void> {
     return async (dispatch: Dispatch) => {
         const projectService = new ProjectService();
-        const updatedProject = await projectService.updateTagDocumentCount(project, assetDocumentCountDifference);
+        const updatedProject = await projectService.updatedAssetMetadata(project, assetDocumentCountDifference);
         if (updatedProject !== project) {
-            dispatch(updateTagDocumentCountAction(updatedProject));
+            dispatch(updatedAssetMetadataAction(updatedProject));
         }
     };
 }
@@ -387,7 +387,7 @@ export const updateProjectTagAction =
 export const updateProjectTagsFromFilesAction =
     createPayloadAction<IUpdateProjectTagsFromFilesAction>(ActionTypes.UPDATE_PROJECT_TAGS_FROM_FILES_SUCCESS);
 
-export const updateTagDocumentCountAction =
+export const updatedAssetMetadataAction =
     createPayloadAction<IUpdateTagDocumentCount>(ActionTypes.UPDATE_TAG_LABEL_COUNTS_SUCCESS);
 
 /**
