@@ -39,13 +39,13 @@ export function Sidebar({ project }) {
                         <FontIcon iconName="MachineLearning" />
                     </ConditionalNavLink>
                 </li>
-                <li>
+                {/* <li>
                     <ConditionalNavLink disabled={!projectId}
                         title={`Model Compose`}
                         to={`/projects/${projectId}/modelcompose`}>
                         <FontIcon iconName="Edit"/>
                     </ConditionalNavLink>
-                </li>
+                </li> */}
                 <li>
                     <ConditionalNavLink disabled={!projectId}
                         title={`Predict`}

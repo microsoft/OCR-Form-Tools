@@ -182,7 +182,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
         const modelOptions: IDropdownOption[] = [];
 
-        this.state.modelList.forEach((m) => modelOptions.push({
+        this.state.modelList.filter((m) => m.status === "ready").forEach((m) => modelOptions.push({
             key: `${m.modelId}`, text: `${m.modelId}`},
         ));
 
@@ -218,7 +218,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             <h5>
                                 {strings.predict.uploadFile}
                             </h5>
-                            <div style={{marginBottom: "3px"}}>Model source</div>
+                            {/* <div style={{marginBottom: "3px"}}>Model source</div>
                                 {this.state.modelList.length !== 0 ?
                                     <Dropdown
                                         className="modelDropDown"
@@ -230,7 +230,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                             defaultSelectedKey= ""
                                             selectedKey= ""
                                             options={modelOptions}/>
-                                }
+                                } */}
                             <div style={{marginBottom: "3px"}}>Image source</div>
                             <div className="container-space-between">
                                 <Dropdown
@@ -961,11 +961,21 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         try {
             const res = await this.getReponse();
             const modelList = res.data.modelList;
-            this.setState({
-                modelList,
-            }, () => {this.setState({
-                modelOption: this.state.modelList[0].modelId,
-            }); });
+            const modelID = _.get(this.props.project, "trainRecord.modelInfo.modelId");
+            if (modelID) {
+                this.setState({
+                    modelList,
+                    modelOption: modelID,
+                });
+            } else {
+                this.setState({
+                    modelList,
+                }, () => {
+                    this.setState({
+                        modelOption: this.state.modelList[0].modelId,
+                    });
+                });
+            }
         } catch (error) {
             console.log(error);
         }
@@ -989,7 +999,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private selectModel = (event, option) => {
-        console.log("this is selecting model");
+        console.log("Selecting model");
         if (option.key !== this.state.sourceOption) {
             this.setState({
                 modelOption: option.key,
