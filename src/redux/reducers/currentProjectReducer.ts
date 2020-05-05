@@ -69,7 +69,6 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
                 }
             });
 
-
             if (updateTags) {
                 return {
                     ...state,
