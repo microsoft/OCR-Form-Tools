@@ -5,7 +5,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
-import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton, TextField, IDropdownOption, Dropdown} from "office-ui-fabric-react";
+import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton, TextField, IDropdownOption, Dropdown, thProperties} from "office-ui-fabric-react";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
@@ -68,6 +68,15 @@ export interface IPredictPageState {
     isPredicting: boolean;
     file?: File;
     highlightedField: string;
+    modelList: IModel[];
+    modelOption: string;
+}
+
+export interface IModel {
+    modelId: string;
+    createdDateTime: string;
+    lastUpdatedDateTime: string;
+    status: string;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -109,6 +118,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         predictRun: false,
         isPredicting: false,
         highlightedField: "",
+        modelList: [],
+        modelOption: "",
     };
 
     private fileInput: React.RefObject<HTMLInputElement> = React.createRef();
@@ -122,6 +133,10 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             const project = this.props.recentProjects.find((project) => project.id === projectId);
             await this.props.actions.loadProject(project);
             this.props.appTitleActions.setTitle(project.name);
+        }
+
+        if (this.props.project) {
+            this.getModelList();
         }
         document.title = strings.predict.title + " - " + strings.appName;
     }
@@ -165,6 +180,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             { key: "url", text: "URL" },
         ];
 
+        const modelOptions: IDropdownOption[] = [];
+
+        this.state.modelList.forEach((m) => modelOptions.push({
+            key: `${m.modelId}`, text: `${m.modelId}`},
+        ));
+
         return (
             <div className="predict" id="pagePredict">
                 <div className="predict-main">
@@ -197,6 +218,19 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             <h5>
                                 {strings.predict.uploadFile}
                             </h5>
+                            <div style={{marginBottom: "3px"}}>Model source</div>
+                                {this.state.modelList.length !== 0 ?
+                                    <Dropdown
+                                        className="modelDropDown"
+                                        defaultSelectedKey={this.state.modelOption}
+                                        selectedKey={this.state.modelOption}
+                                        options={modelOptions}
+                                        onChange={this.selectModel}
+                                    /> : <Dropdown
+                                            defaultSelectedKey= ""
+                                            selectedKey= ""
+                                            options={modelOptions}/>
+                                }
                             <div style={{marginBottom: "3px"}}>Image source</div>
                             <div className="container-space-between">
                                 <Dropdown
@@ -920,6 +954,46 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             } else {
                 feature.set("isHighlighted", false);
             }
+        }
+    }
+
+    private getModelList = async () => {
+        try {
+            const res = await this.getReponse();
+            const modelList = res.data.modelList;
+            this.setState({
+                modelList,
+            }, () => {this.setState({
+                modelOption: this.state.modelList[0].modelId,
+            }); });
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    private async getReponse() {
+        const baseURL = url.resolve(
+            this.props.project.apiUriBase,
+            constants.apiModelsPath,
+        );
+
+        try {
+            return await ServiceHelper.getWithAutoRetry(
+                baseURL,
+                {},
+                this.props.project.apiKey as string,
+            );
+        } catch (err) {
+            ServiceHelper.handleServiceError(err);
+        }
+    }
+
+    private selectModel = (event, option) => {
+        console.log("this is selecting model");
+        if (option.key !== this.state.sourceOption) {
+            this.setState({
+                modelOption: option.key,
+            });
         }
     }
 }
