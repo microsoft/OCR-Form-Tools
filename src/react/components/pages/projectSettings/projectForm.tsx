@@ -176,11 +176,10 @@ export default class ProjectForm extends React.Component<IProjectFormProps, IPro
             errors.sourceConnection.addError("is a required property");
         }
         if (project.apiUriBase && errors.apiUriBase) {
-            const urlRegex = new RegExp(/^(https?:\/\/)([\w\-])+\.([a-zA-Z]{2,63})/);
+            const urlRegex = new RegExp(/^(\s*)?(https?:\/\/)/);
             if (urlRegex.test(project.apiUriBase)) {
-                if ((project.apiUriBase.match(/\//g) || []).length > 2 ||
-                    (project.apiUriBase.match(/\?/g) || []).length > 0 ||
-                    (project.apiUriBase.match(/#/g) || []).length > 0) {
+                const urlRegexOnlyProtocalAndDomain = new RegExp(/^(\s*)?(https?:\/\/)([^\s\/])+(\/)?(\s*)?$/);
+                if (!urlRegexOnlyProtocalAndDomain.test(project.apiUriBase)) {
                     errors.apiUriBase.addError("should contain only protocol and domain name");
                 }
             } else {
@@ -206,10 +205,11 @@ export default class ProjectForm extends React.Component<IProjectFormProps, IPro
     private onFormSubmit(args: ISubmitEvent<IProject>) {
         const project: IProject = {
             ...args.formData,
+            name: args.formData.name.replace(/\s+/g, " ").trim(),
             sourceConnection: args.formData.sourceConnection,
             folderPath: this.normalizeFolderPath(args.formData.folderPath),
+            apiUriBase: args.formData.apiUriBase.trim(),
         };
-        project.name = project.name.replace(/\s+/g, " ").trim();
         this.props.onSubmit(project);
     }
 
