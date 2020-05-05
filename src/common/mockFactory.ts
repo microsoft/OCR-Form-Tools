@@ -236,7 +236,6 @@ export default class MockFactory {
             color: MockFactory.randomColor(),
             type: FieldType.String,
             format: FieldFormat.NotSpecified,
-            isEmpty: false,
         };
     }
 

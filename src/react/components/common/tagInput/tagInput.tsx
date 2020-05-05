@@ -432,8 +432,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     // helper
-    private isCheckbox = (item: string): boolean => {
-        return item === "checkbox";
+    private isSelectionMark = (item: string): boolean => {
+        return (item === "selectionMark" || item === "checkbox");
     }
 
     private onTagItemClick = (tag: ITag, props: ITagClickProps) => {
@@ -470,22 +470,14 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             // Only fire click event if a region is selected
             const { selectedRegions, onTagClick } = this.props;
             if (selectedRegions && selectedRegions.length && onTagClick) {
-                if (this.isCheckbox(selectedRegions[0].category) && this.isCheckbox(tag.type)) {
+                if ((this.isSelectionMark(selectedRegions[0].category) && this.isSelectionMark(tag.type))
+                    || (!this.isSelectionMark(selectedRegions[0].category) && !this.isSelectionMark(tag.type))) {
                     onTagClick(tag);
                     deselect = false;
-                    this.props.onTagChanged(tag, {
-                        ...tag,
-                        isEmpty: false,
-                    });
-                } else if (!this.isCheckbox(selectedRegions[0].category) && !this.isCheckbox(tag.type)) {
+                } else if (tag.documentCount === 0 && tag.type === "string" && tag.format === "not-specified") {
                     onTagClick(tag);
                     deselect = false;
-                    this.props.onTagChanged(tag, {
-                        ...tag,
-                        isEmpty: false,
-                    });
                 } else {
-
                     toast.warn(strings.tags.warnings.notCompatibleTagType);
                     return;
                 }
@@ -495,7 +487,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 selectedTag: deselect ? null : tag,
                 tagOperation,
             });
-       }
+
+        }
     }
 
     private onSearchKeyDown = (event: KeyboardEvent): void => {
@@ -630,14 +623,12 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
         return menuItems;
     }
-    // ! here
+
     private getTypeSubMenuItems = (): IContextualMenuItem[] => {
         const tag = this.state.selectedTag;
         const types = Object.values(FieldType);
-        console.table(tag);
-
-        if (tag && tag.isEmpty) {
-            // Empty tag - user can assign any type
+        if (tag && tag.documentCount === 0) {
+            // Free tag - user can assign any type
             if (tag.format === "not-specified") {
                 return types.map((type) => {
                     return {
@@ -649,8 +640,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     } as IContextualMenuItem;
                 });
             } else {
-                // Do we want to do something different here?
-
+                // Not-free tag. Do we want to do something different here?
                 return types.map((type) => {
                     return {
                         key: type,
@@ -662,10 +652,11 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 });
             }
         }
-        if (tag && !tag.isEmpty) {
-            if (tag.type === "checkbox") {
+        // Non-empty tag
+        if (tag && tag.documentCount > 0) {
+            if (tag.type === "selectionMark") {
                 return types.map((type) => {
-                    return (type === "checkbox") ?
+                    return (type === "selectionMark") ?
                         {
                             key: type,
                             text: type,
@@ -676,14 +667,14 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                             key: type,
                             text: type,
                             canCheck: false,
-                            isChecked: type === tag.type,
+                            isChecked: false,
                             onClick: this.onTypeSelect,
                             disabled: true,
                         } as IContextualMenuItem;
                 });
             } else {
                 return types.map((type) => {
-                    return (type !== "checkbox") ?
+                    return (type !== "selectionMark") ?
                         {
                             key: type,
                             text: type,
@@ -693,8 +684,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                         } as IContextualMenuItem : {
                             key: type,
                             text: type,
-                            canCheck: true,
-                            isChecked: type === tag.type,
+                            canCheck: false,
+                            isChecked: false,
                             onClick: this.onTypeSelect,
                             disabled: true,
                         } as IContextualMenuItem;
