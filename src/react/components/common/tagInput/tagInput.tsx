@@ -471,10 +471,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             const { selectedRegions, onTagClick } = this.props;
             if (selectedRegions && selectedRegions.length && onTagClick) {
                 if ((this.isSelectionMark(selectedRegions[0].category) && this.isSelectionMark(tag.type))
-                    || (!this.isSelectionMark(selectedRegions[0].category) && !this.isSelectionMark(tag.type))) {
-                    onTagClick(tag);
-                    deselect = false;
-                } else if (tag.documentCount === 0 && tag.type === "string" && tag.format === "not-specified") {
+                    || (!this.isSelectionMark(selectedRegions[0].category) && !this.isSelectionMark(tag.type))
+                    || (tag.documentCount === 0 && tag.type === "string" && tag.format === "not-specified")) {
                     onTagClick(tag);
                     deselect = false;
                 } else {
@@ -627,6 +625,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     private getTypeSubMenuItems = (): IContextualMenuItem[] => {
         const tag = this.state.selectedTag;
         const types = Object.values(FieldType);
+        console.table(tag);
         if (tag && tag.documentCount === 0) {
             // Free tag - user can assign any type
             if (tag.format === "not-specified") {
