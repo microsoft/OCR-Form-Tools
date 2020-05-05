@@ -470,18 +470,20 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             // Only fire click event if a region is selected
             const { selectedRegions, onTagClick } = this.props;
             if (selectedRegions && selectedRegions.length && onTagClick) {
-                if ((this.isSelectionMark(selectedRegions[0].category) && this.isSelectionMark(tag.type))
-                    || (!this.isSelectionMark(selectedRegions[0].category) && !this.isSelectionMark(tag.type))
-                    || (tag.documentCount === 0 && tag.type === FieldType.String
-                        && tag.format === FieldFormat.NotSpecified)) {
-                    onTagClick(tag);
-                    deselect = false;
-                } else {
-                    toast.warn(strings.tags.warnings.notCompatibleTagType);
-                    return;
+                const { category } = selectedRegions[0];
+                const { format, type, documentCount } = tag;
+                switch (true) {
+                    case this.isSelectionMark(category) && this.isSelectionMark(type):
+                    case !this.isSelectionMark(category) && !this.isSelectionMark(type):
+                    case documentCount === 0 && type === FieldType.String && format === FieldFormat.NotSpecified:
+                        onTagClick(tag);
+                        deselect = false;
+                        break;
+                    default:
+                        toast.warn(strings.tags.warnings.notCompatibleTagType);
+                        break;
                 }
             }
-
             this.setState({
                 selectedTag: deselect ? null : tag,
                 tagOperation,
