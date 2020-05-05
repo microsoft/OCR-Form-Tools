@@ -16,7 +16,8 @@ import { IColumn,
          DetailsListLayoutMode, Customizer,
          ICustomizations,
          Spinner,
-         SpinnerSize} from "office-ui-fabric-react";
+         SpinnerSize,
+         FontIcon} from "office-ui-fabric-react";
 import "./modelCompose.scss";
 import { strings } from "../../../../common/strings";
 import { getDarkGreyTheme, getDefaultDarkTheme } from "../../../../common/themes";
@@ -43,6 +44,7 @@ export interface IModelComposePageState {
     isModalSelection: boolean;
     isCompactMode: boolean;
     isComposing: boolean;
+    composedModelsId: string[];
 }
 
 export interface IModel {
@@ -50,6 +52,7 @@ export interface IModel {
     createdDateTime: string;
     lastUpdatedDateTime: string;
     status: string;
+    iconName?: string;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -79,6 +82,19 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         const columns: IColumn[] = [
             {
                 key: "column1",
+                name: "Composed Icon",
+                className: "composed-icon-cell",
+                isIconOnly: true,
+                ariaLabel: "Model with icon is a new composed model",
+                fieldName: "icon",
+                minWidth: 20,
+                maxWidth: 20,
+                onRender: (model: IModel) => {
+                    return <FontIcon iconName={model.iconName} className="model-fontIcon"/> ;
+                },
+            },
+            {
+                key: "column2",
                 name: "Model ID",
                 fieldName: "modelId",
                 minWidth: 100,
@@ -92,7 +108,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 },
             },
             {
-                key: "column2",
+                key: "column3",
                 name: "Status",
                 fieldName: "status",
                 minWidth: 100,
@@ -103,7 +119,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 },
             },
             {
-                key: "column3",
+                key: "column4",
                 name: "Create Date Time",
                 fieldName: "createdatetime",
                 minWidth: 200,
@@ -114,7 +130,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 },
             },
             {
-                key: "column4",
+                key: "column5",
                 name: "Last Updated Date Time",
                 fieldName: "lastupdateddatetime",
                 minWidth: 200,
@@ -133,6 +149,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             isModalSelection: false,
             isCompactMode: false,
             isComposing: false,
+            composedModelsId: [],
         };
 
         this.selection = new Selection({
@@ -212,8 +229,12 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         try {
             const res = await this.getReponse();
             const modelList = res.data.modelList;
+            let newList = modelList;
+            if (this.state.composedModelsId.length !== 0) {
+               newList = this.getComposedModelsOnTop(modelList);
+            }
             this.setState({
-                modelList,
+                modelList: newList,
             });
         } catch (error) {
             console.log(error);
@@ -235,6 +256,21 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         } catch (err) {
             ServiceHelper.handleServiceError(err);
         }
+    }
+
+    private getComposedModelsOnTop = (modelList: IModel[]): IModel[] => {
+        const composedModelCopy = [];
+        modelList.map((m) => {
+            if (this.state.composedModelsId.indexOf(m.modelId) !== -1) {
+                m.iconName = "edit";
+                composedModelCopy.push(m);
+            }
+        });
+        const uncomposedModelList = modelList.filter(
+            (m) => this.state.composedModelsId.indexOf(m.modelId) === -1 );
+
+        const newModelList = composedModelCopy.concat(uncomposedModelList);
+        return newModelList;
     }
 
     private handleColumnClick = (event: React.MouseEvent<HTMLElement>, column: IColumn): void => {
@@ -299,6 +335,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         setTimeout( () => {
             this.setState({
                 isComposing: false,
+                composedModelsId: ["003f503e-1361-4386-9a22-3111d5144b73"],
+                modelList: [],
         });
         }, 5000);
     }
