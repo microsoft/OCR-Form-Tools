@@ -118,6 +118,7 @@ export interface ITag {
     color: string;
     type: FieldType;
     format: FieldFormat;
+    documentCount?: number;
 }
 
 /**
@@ -159,6 +160,7 @@ export interface IAsset {
     predicted?: boolean;
     ocr?: any;
     isRunningOCR?: boolean;
+    cachedImage?: string;
 }
 
 /**
@@ -370,7 +372,7 @@ export enum FieldType {
     Date = "date",
     Time = "time",
     Integer = "integer",
-    Checkbox = "checkbox",
+    SelectionMark = "selectionMark",
 }
 
 export enum FieldFormat {

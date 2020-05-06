@@ -5,7 +5,7 @@ import React from "react";
 import { AutoSizer, List } from "react-virtualized";
 import { FontIcon } from "office-ui-fabric-react";
 import { IAsset, AssetState, ISize } from "../../../../models/applicationState";
-import { AssetPreview } from "../../common/assetPreview/assetPreview";
+import {AssetPreview, ContentSource} from "../../common/assetPreview/assetPreview";
 import { strings } from "../../../../common/strings";
 
 /**
@@ -19,6 +19,7 @@ export interface IEditorSideBarProps {
     assets: IAsset[];
     onAssetSelected: (asset: IAsset) => void;
     onBeforeAssetSelected?: () => boolean;
+    onAssetLoaded?: (asset: IAsset, ContentSource: ContentSource) => void;
     selectedAsset?: IAsset;
     thumbnailSize?: ISize;
 }
@@ -117,7 +118,7 @@ export default class EditorSideBar extends React.Component<IEditorSideBarProps, 
                 onClick={() => this.onAssetClicked(asset)}>
                 <div className="asset-item-image" role="gridcell">
                     {this.renderBadges(asset)}
-                    <AssetPreview asset={asset} />
+                    <AssetPreview asset={asset} onLoaded={this.props.onAssetLoaded} />
                 </div>
                 <div className="asset-item-metadata" role="rowheader">
                     <span className="asset-filename" title={asset.name}>

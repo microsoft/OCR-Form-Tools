@@ -42,8 +42,8 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                 onClick: () => props.handleLayerChange("tables"),
               },
               {
-                key: "checkboxes",
-                text: "Checkboxes (Preview)",
+                key: "selectionMark",
+                text: "Selection Marks (Preview)",
                 canCheck: true,
                 iconProps: { iconName: "CheckboxComposite" },
                 isChecked: props.layers["checkboxes"],

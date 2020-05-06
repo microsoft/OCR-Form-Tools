@@ -19,8 +19,7 @@
         "apiUriBase": {
             "title": "Form recognizer service URI",
             "description": "Form recognizer service URI",
-            "type": "string",
-            "format": "uri"
+            "type": "string"
         },
         "apiKey": {
             "title": "API key",
