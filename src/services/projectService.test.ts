@@ -11,7 +11,7 @@ import { generateKey } from "../common/crypto";
 import { encryptProject, decryptProject } from "../common/utils";
 
 describe("Project Service", () => {
-    let projectSerivce: IProjectService = null;
+    let projectService: IProjectService = null;
     let testProject: IProject = null;
     let projectList: IProject[] = null;
     let securityToken: ISecurityToken = null;
@@ -29,7 +29,7 @@ describe("Project Service", () => {
             key: generateKey(),
         };
         testProject = MockFactory.createTestProject("TestProject");
-        projectSerivce = new ProjectService();
+        projectService = new ProjectService();
 
         storageProviderMock.writeText.mockClear();
         storageProviderMock.deleteFile.mockClear();
@@ -37,13 +37,13 @@ describe("Project Service", () => {
 
     it("Load decrypts any project settings using the specified key", async () => {
         const encryptedProject = await encryptProject(testProject, securityToken);
-        const decryptedProject = await projectSerivce.load(encryptedProject, securityToken);
+        const decryptedProject = await projectService.load(encryptedProject, securityToken);
 
         expect(decryptedProject).toEqual(testProject);
     });
 
     it("Saves calls project storage provider to write project", async () => {
-        const result = await projectSerivce.save(testProject, securityToken);
+        const result = await projectService.save(testProject, securityToken);
 
         const encryptedProject: IProject = {
             ...testProject,
@@ -69,7 +69,7 @@ describe("Project Service", () => {
 
     it("initializes tags to empty array if not defined", async () => {
         testProject.tags = null;
-        const result = await projectSerivce.save(testProject, securityToken);
+        const result = await projectService.save(testProject, securityToken);
 
         expect(result.tags).toEqual([]);
     });
@@ -77,7 +77,7 @@ describe("Project Service", () => {
     it("Save throws error if writing to storage provider fails", async () => {
         const expectedError = "Error writing to storage provider";
         storageProviderMock.writeText.mockImplementationOnce(() => Promise.reject(expectedError));
-        await expect(projectSerivce.save(testProject, securityToken)).rejects.toEqual(expectedError);
+        await expect(projectService.save(testProject, securityToken)).rejects.toEqual(expectedError);
     });
 
     it("Save throws error if storage provider cannot be created", async () => {
@@ -85,11 +85,11 @@ describe("Project Service", () => {
         const createMock = StorageProviderFactory.create as jest.Mock;
         createMock.mockImplementationOnce(() => { throw expectedError; });
 
-        await expect(projectSerivce.save(testProject, securityToken)).rejects.toEqual(expectedError);
+        await expect(projectService.save(testProject, securityToken)).rejects.toEqual(expectedError);
     });
 
     it("Delete calls project storage provider to delete project", async () => {
-        await projectSerivce.delete(testProject);
+        await projectService.delete(testProject);
 
         expect(StorageProviderFactory.create).toBeCalledWith(
             testProject.sourceConnection.providerType,
@@ -104,7 +104,7 @@ describe("Project Service", () => {
         storageProviderMock.deleteFile
             .mockImplementationOnce(() => Promise.reject(expectedError));
 
-        await expect(projectSerivce.delete(testProject)).rejects.toEqual(expectedError);
+        await expect(projectService.delete(testProject)).rejects.toEqual(expectedError);
     });
 
     it("Delete call fails if storage provider cannot be created", async () => {
@@ -112,20 +112,20 @@ describe("Project Service", () => {
         const createMock = StorageProviderFactory.create as jest.Mock;
         createMock.mockImplementationOnce(() => { throw expectedError; });
 
-        await expect(projectSerivce.delete(testProject)).rejects.toEqual(expectedError);
+        await expect(projectService.delete(testProject)).rejects.toEqual(expectedError);
     });
 
     it("isDuplicate returns false when called with a unique project", async () => {
         testProject = MockFactory.createTestProject("TestProject");
         projectList = MockFactory.createTestProjects();
-        expect(projectSerivce.isDuplicate(testProject, projectList)).toEqual(false);
+        expect(projectService.isDuplicate(testProject, projectList)).toEqual(false);
     });
 
     it("isDuplicate returns true when called with a duplicate project", async () => {
         testProject = MockFactory.createTestProject("1");
         testProject.id = undefined;
         projectList = MockFactory.createTestProjects();
-        expect(projectSerivce.isDuplicate(testProject, projectList)).toEqual(true);
+        expect(projectService.isDuplicate(testProject, projectList)).toEqual(true);
     });
 
     it("deletes all asset metadata files when project is deleted", async () => {
@@ -136,7 +136,7 @@ describe("Project Service", () => {
 
         testProject.assets = _.keyBy(assets, (asset) => asset.id);
 
-        await projectSerivce.delete(testProject);
+        await projectService.delete(testProject);
         expect(storageProviderMock.deleteFile.mock.calls).toHaveLength(assets.length + 1);
     });
 });

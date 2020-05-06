@@ -157,6 +157,18 @@ export default class ConnectionForm extends React.Component<IConnectionFormProps
             errors.providerType.addError("is a required property");
         }
 
+        if (connection.providerOptions && connection.providerOptions["sas"] && errors.providerOptions["sas"]) {
+            const urlRegex = new RegExp(/^(\s*)?(https:\/\/)([^\s])+(\s*)?$/);
+            if (urlRegex.test(connection.providerOptions["sas"])) {
+                const urlWithQueryRegex = new RegExp(/\?.+\=.+/);
+                if (!urlWithQueryRegex.test(connection.providerOptions["sas"])) {
+                    errors.providerOptions["sas"].addError("should include SAS token in query");
+                }
+            } else {
+                errors.providerOptions["sas"].addError("should match URI format");
+            }
+        }
+
         if (this.state.classNames.indexOf("was-validated") === -1) {
             this.setState({
                 classNames: [...this.state.classNames, "was-validated"],
