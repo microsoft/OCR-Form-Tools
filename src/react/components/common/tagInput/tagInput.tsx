@@ -647,13 +647,14 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         const tag = this.state.selectedTag;
         const types = Object.values(FieldType);
         return types.map((type) => {
+            const isCompatible = this.isTypeCompatibleWithTag(tag, type);
             return {
                 key: type,
                 text: type,
-                canCheck: this.isTypeCompatibleWithTag(tag, type),
+                canCheck: isCompatible,
                 isChecked: type === tag.type,
                 onClick: this.onTypeSelect,
-                disabled: !this.isTypeCompatibleWithTag(tag, type),
+                disabled: !isCompatible,
             } as IContextualMenuItem;
         });
     }
