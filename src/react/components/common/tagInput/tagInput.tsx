@@ -470,12 +470,12 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 const tagCategory = this.getTagCategory(type);
                 if (tagCategory === category ||
                     (documentCount === 0 && type === FieldType.String && format === FieldFormat.NotSpecified)) {
-                        if (category === "checkbox" && this.labelAssigned(labels, name)) {
-                            toast.warn(strings.tags.warnings.checkboxPerTagLimit);
-                            return;
+                    if (category === "checkbox" && this.labelAssigned(labels, name)) {
+                        toast.warn(strings.tags.warnings.checkboxPerTagLimit);
+                        return;
                     }
-                        onTagClick(tag);
-                        deselect = false;
+                    onTagClick(tag);
+                    deselect = false;
                 } else {
                     toast.warn(strings.tags.warnings.notCompatibleTagType);
                 }
@@ -633,73 +633,39 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         return menuItems;
     }
 
+    private isTypeCompatibleWithTag = (tag, type) => {
+        const tagType = this.getTagCategory(tag.type);
+        const menuItemType = this.getTagCategory(type);
+        return tagType === menuItemType;
+    }
+
     private getTypeSubMenuItems = (): IContextualMenuItem[] => {
         const tag = this.state.selectedTag;
         const types = Object.values(FieldType);
-        if (tag && tag.documentCount === 0) {
+        console.table(tag);
+        if (tag && tag.documentCount <= 0) {
             // Free tag - user can assign any type
-            if (tag.format === FieldFormat.NotSpecified) {
-                return types.map((type) => {
-                    return {
-                        key: type,
-                        text: type,
-                        canCheck: true,
-                        isChecked: type === tag.type,
-                        onClick: this.onTypeSelect,
-                    } as IContextualMenuItem;
-                });
-            } else {
-                // Not-free tag. Do we want to do something different here?
-                return types.map((type) => {
-                    return {
-                        key: type,
-                        text: type,
-                        canCheck: true,
-                        isChecked: type === tag.type,
-                        onClick: this.onTypeSelect,
-                    } as IContextualMenuItem;
-                });
-            }
-        }
-        // Non-empty tag
-        if (tag && tag.documentCount > 0) {
-            if (tag.type === FieldType.SelectionMark) {
-                return types.map((type) => {
-                    return (type === FieldType.SelectionMark) ?
-                        {
-                            key: type,
-                            text: type,
-                            canCheck: true,
-                            isChecked: type === tag.type,
-                            onClick: this.onTypeSelect,
-                        } as IContextualMenuItem : {
-                            key: type,
-                            text: type,
-                            canCheck: false,
-                            isChecked: false,
-                            onClick: this.onTypeSelect,
-                            disabled: true,
-                        } as IContextualMenuItem;
-                });
-            } else {
-                return types.map((type) => {
-                    return (type !== FieldType.SelectionMark) ?
-                        {
-                            key: type,
-                            text: type,
-                            canCheck: true,
-                            isChecked: type === tag.type,
-                            onClick: this.onTypeSelect,
-                        } as IContextualMenuItem : {
-                            key: type,
-                            text: type,
-                            canCheck: false,
-                            isChecked: false,
-                            onClick: this.onTypeSelect,
-                            disabled: true,
-                        } as IContextualMenuItem;
-                });
-            }
+            return types.map((type) => {
+                return {
+                    key: type,
+                    text: type,
+                    canCheck: true,
+                    isChecked: type === tag.type,
+                    onClick: this.onTypeSelect,
+                } as IContextualMenuItem;
+            });
+        } else {
+            // Non-empty tag
+            return types.map((type) => {
+                return {
+                    key: type,
+                    text: type,
+                    canCheck: this.isTypeCompatibleWithTag(tag, type),
+                    isChecked: type === tag.type,
+                    onClick: this.onTypeSelect,
+                    disabled: !this.isTypeCompatibleWithTag(tag, type),
+                } as IContextualMenuItem;
+            });
         }
     }
 
