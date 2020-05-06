@@ -489,7 +489,14 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         }
     }
 
-    private getTagCategory = (tagType: string) => tagType === FieldType.SelectionMark ? "checkbox" : "text";
+    private getTagCategory = (tagType: string) => {
+        switch (tagType) {
+            case FieldType.SelectionMark:
+                return "checkbox";
+            default:
+                return "text";
+        }
+    }
 
     private onSearchKeyDown = (event: KeyboardEvent): void => {
         if (event.key === "Escape") {
