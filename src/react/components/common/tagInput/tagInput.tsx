@@ -472,8 +472,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             if (selectedRegions && selectedRegions.length && onTagClick) {
                 const { category } = selectedRegions[0];
                 const { format, type, documentCount } = tag;
-                const tagCatagory = this.getTagCatagory(type);
-                if (tagCatagory === category ||
+                const tagCategory = this.getTagCategory(type);
+                if (tagCategory === category ||
                     (documentCount === 0 && type === FieldType.String && format === FieldFormat.NotSpecified)) {
                         onTagClick(tag);
                         deselect = false;
@@ -489,14 +489,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         }
     }
 
-    private getTagCatagory = (tagType: string) => {
-        switch (tagType) {
-            case FieldType.SelectionMark:
-                return "checkbox";
-            default:
-                return "text";
-        }
-    }
+    private getTagCategory = (tagType: string) => tagType === FieldType.SelectionMark ? "checkbox" : "text";
 
     private onSearchKeyDown = (event: KeyboardEvent): void => {
         if (event.key === "Escape") {
