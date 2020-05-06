@@ -634,7 +634,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     private isTypeCompatibleWithTag = (tag, type) => {
-        // If ree tag we can assign any type
+        // If free tag we can assign any type
         if (tag && tag.documentCount <= 0) {
             return true;
         }
