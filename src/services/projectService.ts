@@ -211,7 +211,7 @@ export default class ProjectService implements IProjectService {
         asset?: string) {
         const tags: ITag[] = [];
         const tagNameSet = new Set<string>();
-        const tagdocumentCount = {};
+        const tagDocumentCount = {};
         try {
             const blobs = new Set<string>(await storageProvider.listFiles(project.folderPath));
             const assetLabel = asset ? asset + constants.labelFileExtension : undefined;
@@ -225,10 +225,10 @@ export default class ProjectService implements IProjectService {
                             const content = JSON.parse(await storageProvider.readText(blob));
                             content.labels.forEach((label) => {
                                 tagNameSet.add(label.label);
-                                if (tagdocumentCount[label.label]) {
-                                    tagdocumentCount[label.label] += 1;
+                                if (tagDocumentCount[label.label]) {
+                                    tagDocumentCount[label.label] += 1;
                                 } else {
-                                    tagdocumentCount[label.label] = 1;
+                                    tagDocumentCount[label.label] = 1;
                                 }
                             });
                         }
@@ -255,11 +255,11 @@ export default class ProjectService implements IProjectService {
                     // use default type
                     type: FieldType.String,
                     format: FieldFormat.NotSpecified,
-                    documentCount: tagdocumentCount[name],
+                    documentCount: tagDocumentCount[name],
                 } as ITag);
             });
             if (project.tags) {
-                await this.addMissingTagsAndUpdatedocumentCount(project, tags, tagdocumentCount);
+                await this.addMissingTagsAndUpdateDocumentCount(project, tags, tagDocumentCount);
             } else {
                 project.tags = tags;
             }
@@ -293,7 +293,7 @@ export default class ProjectService implements IProjectService {
             });
             if (project.tags) {
                 project.tags = patch(project.tags, tags, "name", ["type", "format"]);
-                await this.addMissingTagsAndUpdatedocumentCount(project, tags);
+                await this.addMissingTagsAndUpdateDocumentCount(project, tags);
             } else {
                 project.tags = tags;
             }
@@ -328,14 +328,14 @@ export default class ProjectService implements IProjectService {
         updatedProject.tags = existingTags;
     }
 
-    private async addMissingTagsAndUpdatedocumentCount(project: IProject, tags: ITag[], tagdocumentCount?: any) {
+    private async addMissingTagsAndUpdateDocumentCount(project: IProject, tags: ITag[], tagDocumentCount?: any) {
         const missingTags = tags.filter((fileTag) => {
             const foundExistingTag = project.tags.find((tag) => fileTag.name === tag.name );
             if (!foundExistingTag) {
                 return true;
             } else {
-                if (tagdocumentCount) {
-                    foundExistingTag.documentCount =  tagdocumentCount[foundExistingTag.name];
+                if (tagDocumentCount) {
+                    foundExistingTag.documentCount =  tagDocumentCount[foundExistingTag.name];
                 }
                 return false;
             }
@@ -343,6 +343,7 @@ export default class ProjectService implements IProjectService {
         project.tags = [...project.tags, ...missingTags];
     }
 
+    // private async getAllTagsInProjectCount(project: IProject, tags: ITag[]) {}
     /**
      * Save fields.json
      * @param project the project we're trying to create
