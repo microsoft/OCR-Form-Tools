@@ -480,8 +480,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         // Only update asset metadata if state changes or is different
         if (initialState !== assetMetadata.asset.state || this.state.selectedAsset !== assetMetadata) {
             if (this.state.selectedAsset.labelData && this.state.selectedAsset.labelData.labels &&
-                assetMetadata.labelData && assetMetadata.labelData.labels) {
-                this.updatedAssetMetadata(assetMetadata);
+                assetMetadata.labelData && assetMetadata.labelData.labels &&
+                assetMetadata.labelData.labels.toString() !== this.state.selectedAsset.labelData.labels.toString()) {
+                await this.updatedAssetMetadata(assetMetadata);
             }
             await this.props.actions.saveAssetMetadata(this.props.project, assetMetadata);
             if (this.props.project.lastVisitedAssetId === assetMetadata.asset.id) {
