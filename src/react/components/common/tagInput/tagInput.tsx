@@ -634,6 +634,10 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     private isTypeCompatibleWithTag = (tag, type) => {
+        // If ree tag we can assign any type
+        if (tag && tag.documentCount <= 0) {
+            return true;
+        }
         const tagType = this.getTagCategory(tag.type);
         const menuItemType = this.getTagCategory(type);
         return tagType === menuItemType;
@@ -642,31 +646,16 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     private getTypeSubMenuItems = (): IContextualMenuItem[] => {
         const tag = this.state.selectedTag;
         const types = Object.values(FieldType);
-        console.table(tag);
-        if (tag && tag.documentCount <= 0) {
-            // Free tag - user can assign any type
-            return types.map((type) => {
-                return {
-                    key: type,
-                    text: type,
-                    canCheck: true,
-                    isChecked: type === tag.type,
-                    onClick: this.onTypeSelect,
-                } as IContextualMenuItem;
-            });
-        } else {
-            // Non-empty tag
-            return types.map((type) => {
-                return {
-                    key: type,
-                    text: type,
-                    canCheck: this.isTypeCompatibleWithTag(tag, type),
-                    isChecked: type === tag.type,
-                    onClick: this.onTypeSelect,
-                    disabled: !this.isTypeCompatibleWithTag(tag, type),
-                } as IContextualMenuItem;
-            });
-        }
+        return types.map((type) => {
+            return {
+                key: type,
+                text: type,
+                canCheck: this.isTypeCompatibleWithTag(tag, type),
+                isChecked: type === tag.type,
+                onClick: this.onTypeSelect,
+                disabled: !this.isTypeCompatibleWithTag(tag, type)
+            } as IContextualMenuItem;
+        });
     }
 
     private getFormatSubMenuItems = (): IContextualMenuItem[] => {
