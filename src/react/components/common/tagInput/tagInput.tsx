@@ -431,11 +431,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         return result;
     }
 
-    // helper
-    private isSelectionMark = (item: string): boolean => {
-        return (item === "selectionMark" || item === "checkbox");
-    }
-
     private onTagItemClick = (tag: ITag, props: ITagClickProps) => {
         if (props.ctrlKey && this.props.onCtrlTagClick) { // Lock tags
             this.props.onCtrlTagClick(tag);
@@ -468,13 +463,17 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             let deselect = selected && oldTagOperation === TagOperationMode.None;
 
             // Only fire click event if a region is selected
-            const { selectedRegions, onTagClick } = this.props;
+            const { selectedRegions, onTagClick, labels } = this.props;
             if (selectedRegions && selectedRegions.length && onTagClick) {
                 const { category } = selectedRegions[0];
-                const { format, type, documentCount } = tag;
+                const { format, type, documentCount, name } = tag;
                 const tagCategory = this.getTagCategory(type);
                 if (tagCategory === category ||
                     (documentCount === 0 && type === FieldType.String && format === FieldFormat.NotSpecified)) {
+                        if (category === "checkbox" && this.labelAssigned(labels, name)) {
+                            toast.warn(strings.tags.warnings.checkboxPerTagLimit);
+                            return;
+                    }
                         onTagClick(tag);
                         deselect = false;
                 } else {
@@ -485,8 +484,11 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 selectedTag: deselect ? null : tag,
                 tagOperation,
             });
-
         }
+    }
+
+    private labelAssigned = (labels, name): boolean => {
+         return labels.find((label) => label.label === name ? true : false);
     }
 
     private getTagCategory = (tagType: string) => {
