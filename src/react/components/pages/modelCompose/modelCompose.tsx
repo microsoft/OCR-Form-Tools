@@ -262,19 +262,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         if (key === "createdatetime" || key === "lastupdateddatetime") {
             return (modelList.slice(0)
             .sort((a, b): number => {
-                if (isSortedDescending) {
-                    if ((new Date(a.createdDateTime)).getTime() < (new Date(b.createdDateTime)).getTime()) {
-                        return 1;
-                    } else {
-                        return -1;
-                    }
-                } else {
-                    if ((new Date(a.createdDateTime)).getTime() > (new Date(b.createdDateTime)).getTime()) {
-                        return 1;
-                    } else {
-                        return -1;
-                    }
-                }
+                const cmp = (new Date(b.createdDateTime)).getTime() - (new Date(a.createdDateTime)).getTime();
+                return isSortedDescending ? cmp : -cmp;
             }));
         } else {
             return (modelList.slice(0)

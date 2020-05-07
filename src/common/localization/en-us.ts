@@ -320,6 +320,10 @@ export const english: IAppStrings = {
     profile: {
         settings: "Profile Settings",
     },
+    composePageBar: {
+        composeBarLabel: "Please use command bar to compose models",
+        composeItemAria: "Compose model",
+    },
     errors: {
         unknown: {
             title: "Unknown Error",

@@ -3,6 +3,7 @@ import { CommandBar, ICommandBarItemProps } from "office-ui-fabric-react/lib/Com
 import { ICustomizations, Customizer } from "office-ui-fabric-react/lib/Utilities";
 import { getDarkGreyTheme } from "../../../../common/themes";
 import "./modelCompose.scss";
+import { strings } from "../../../../common/strings";
 
 interface IModelComposeCommandBarProps {
     handleCompose: () => void;
@@ -18,7 +19,7 @@ export const ModelComposeCommandBar: React.FunctionComponent<IModelComposeComman
             key: "Compose",
             text: "Compose",
             // This needs an ariaLabel since it's icon-only
-            ariaLabel: "Compose Model",
+            ariaLabel: strings.composePageBar.composeItemAria,
             iconProps: { iconName: "edit" },
             onClick: () => {props.handleCompose(); },
         },
@@ -28,7 +29,7 @@ export const ModelComposeCommandBar: React.FunctionComponent<IModelComposeComman
             <CommandBar
                 items={commandBarItems}
                 farItems={commandBarFarItems}
-                ariaLabel="Please use command bar to compose models"
+                ariaLabel={strings.composePageBar.composeBarLabel}
             />
     );
 };

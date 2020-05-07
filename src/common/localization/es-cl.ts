@@ -323,6 +323,10 @@ export const spanish: IAppStrings = {
     profile: {
         settings: "Configuración de Perfíl",
     },
+    composePageBar: {
+        composeBarLabel: "Utilice la barra de comandos para componer modelos",
+        composeItemAria: "Componer modelo",
+    },
     errors: {
         unknown: {
             title: "Error desconocido",

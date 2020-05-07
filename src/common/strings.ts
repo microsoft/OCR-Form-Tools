@@ -315,6 +315,10 @@ export interface IAppStrings {
     profile: {
         settings: string;
     };
+    composePageBar: {
+        composeItemAria: string;
+        composeBarLabel: string;
+    };
     errors: {
         unknown: IErrorMetadata,
         projectInvalidJson: IErrorMetadata,
