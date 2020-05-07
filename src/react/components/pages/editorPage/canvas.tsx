@@ -329,9 +329,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
         const newTag = {
             ...tag,
+            documentCount: 1,
             type : fieldType,
             format : FieldFormat.NotSpecified,
-        };
+        } as ITag;
         this.props.onTagChanged(tag, newTag);
     }
 
