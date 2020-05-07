@@ -3,12 +3,23 @@ import { CommandBar, ICommandBarItemProps } from "office-ui-fabric-react/lib/Com
 import "./modelCompose.scss";
 
 interface IModelComposeCommandBarProps {
+    composedModels: any[];
     handleCompose: () => void;
+    GetComposedItemsOnTop: () => void;
 }
 
 export const ModelComposeCommandBar: React.FunctionComponent<IModelComposeCommandBarProps> = (props) => {
 
+    console.log(props.composedModels);
     const commandBarItems: ICommandBarItemProps[] = [
+        {
+            key: "GetComposedItems",
+            text: "Top",
+            title: "Move composed models to top",
+            disabled: props.composedModels.length === 0 ? true : false,
+            iconProps: {iconName: "edit"},
+            onClick: () => {props.GetComposedItemsOnTop(); },
+        },
     ];
 
     const commandBarFarItems: ICommandBarItemProps[] = [

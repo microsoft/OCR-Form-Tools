@@ -202,7 +202,9 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 <Customizer {...dark}>
                     <div className="commandbar">
                         <ModelComposeCommandBar
+                            composedModels={this.state.composedModelsId}
                             handleCompose={this.onComposeClick}
+                            GetComposedItemsOnTop={this.handleGetComposedItemClick}
                             />
                     </div>
                     <div className="label-filter-background">
@@ -347,9 +349,15 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
     private handleModelCompose = () => {
         setTimeout( () => {
+            const newCols = this.state.columns;
+            newCols.forEach((ncol) => {
+                ncol.isSorted = false;
+                ncol.isSortedDescending = true;
+            });
             this.setState({
                 isComposing: false,
                 composedModelsId: ["003f503e-1361-4386-9a22-3111d5144b73"],
+                columns: newCols,
                 modelList: [],
         });
         }, 5000);
@@ -360,4 +368,20 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             modelList: text ? this.allModels.filter((m) => m.modelId.indexOf(text) > -1) : this.allModels,
         });
     }
+
+    private handleGetComposedItemClick = () => {
+        if (this.state.composedModelsId) {
+            const newList = this.getComposedModelsOnTop(this.state.modelList);
+            const newCols = this.state.columns;
+            newCols.forEach((ncol) => {
+                ncol.isSorted = false;
+                ncol.isSortedDescending = true;
+            });
+            this.setState({
+                modelList: newList,
+                columns: newCols,
+            });
+        }
+    }
+
 }
