@@ -172,6 +172,8 @@ export const english: IAppStrings = {
             existingName: "Tag name already exists. Choose another name",
             emptyName: "Cannot have an empty tag name",
             unknownTagName: "Unknown",
+            notCompatibleTagType: "Tag type is not compatible with this feature",
+            checkboxPerTagLimit: "Cannot assign more than one checkbox per tag",
         },
         toolbar: {
             add: "Add new tag",
