@@ -1,3 +1,12 @@
+.modelCompose-page {
+    width: calc(100vw - 45px);
+    overflow: auto;
+}
+
+.models-list {
+    width: 100%;
+} 
+
 .compact-toggle {
     color: white;
     margin: 2px 10px;
@@ -21,3 +30,16 @@
 .model-fontIcon {
     text-align: left;
 }
+
+.label-filter-background {
+    background-color: #1E2024;
+    padding-bottom: 10px;
+}
+
+.label-filter-field {
+    margin-left: auto; 
+    margin-right: 15px;
+    background-color: #1E2024;
+    max-width: 300px;
+}
+

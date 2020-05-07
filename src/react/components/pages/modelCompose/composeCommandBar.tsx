@@ -1,7 +1,5 @@
 import * as React from "react";
 import { CommandBar, ICommandBarItemProps } from "office-ui-fabric-react/lib/CommandBar";
-import { ICustomizations, Customizer } from "office-ui-fabric-react/lib/Utilities";
-import { getDarkGreyTheme } from "../../../../common/themes";
 import "./modelCompose.scss";
 
 interface IModelComposeCommandBarProps {

@@ -17,10 +17,11 @@ import { IColumn,
          ICustomizations,
          Spinner,
          SpinnerSize,
-         FontIcon} from "office-ui-fabric-react";
+         FontIcon,
+         TextField} from "office-ui-fabric-react";
 import "./modelCompose.scss";
 import { strings } from "../../../../common/strings";
-import { getDarkGreyTheme, getDefaultDarkTheme } from "../../../../common/themes";
+import { getDarkGreyTheme, getDefaultDarkTheme, getPrimaryWhiteTheme } from "../../../../common/themes";
 import { ModelComposeCommandBar } from "./composeCommandBar";
 import { bindActionCreators } from "redux";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -75,6 +76,7 @@ function mapDispatchToProps(dispatch) {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class ModelComposePage extends React.Component<IModelComposePageProps, IModelComposePageState> {
     private selection: Selection;
+    private allModels: IModel[];
 
     constructor(props) {
         super(props);
@@ -89,6 +91,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 fieldName: "icon",
                 minWidth: 20,
                 maxWidth: 20,
+                isResizable: true,
                 onRender: (model: IModel) => {
                     return <FontIcon iconName={model.iconName} className="model-fontIcon"/> ;
                 },
@@ -122,7 +125,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 key: "column4",
                 name: "Create Date Time",
                 fieldName: "createdatetime",
-                minWidth: 200,
+                minWidth: 175,
                 isResizable: true,
                 onColumnClick: this.handleColumnClick,
                 onRender: (model: IModel) => {
@@ -133,7 +136,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 key: "column5",
                 name: "Last Updated Date Time",
                 fieldName: "lastupdateddatetime",
-                minWidth: 200,
+                minWidth: 175,
                 isResizable: true,
                 onColumnClick: this.handleColumnClick,
                 onRender: (model: IModel) => {
@@ -195,12 +198,20 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         };
 
         return (
-            <Fabric>
+            <Fabric className="modelCompose-page">
                 <Customizer {...dark}>
                     <div className="commandbar">
                         <ModelComposeCommandBar
                             handleCompose={this.onComposeClick}
                             />
+                    </div>
+                    <div className="label-filter-background">
+                        <TextField
+                            label="Filter By Name"
+                            className="label-filter-field"
+                            theme={getPrimaryWhiteTheme()}
+                            onChange={this.onTextChange}>
+                        </TextField>
                     </div>
                     {this.state.isComposing ?
                     <Spinner
@@ -210,6 +221,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                         size={SpinnerSize.large}>
                     </Spinner> :
                     <DetailsList
+                        className="models-list"
                         items = {modelList}
                         compact={isCompactMode}
                         columns={columns}
@@ -229,12 +241,13 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         try {
             const res = await this.getReponse();
             const modelList = res.data.modelList;
-            let newList = modelList;
+            let reorderedList = modelList;
             if (this.state.composedModelsId.length !== 0) {
-               newList = this.getComposedModelsOnTop(modelList);
+               reorderedList = this.getComposedModelsOnTop(modelList);
             }
+            this.allModels = reorderedList;
             this.setState({
-                modelList: newList,
+                modelList: reorderedList,
             });
         } catch (error) {
             console.log(error);
@@ -287,6 +300,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             }
         });
         const newList = this.copyAndSort(modelList, currColumn.fieldName!, currColumn.isSortedDescending);
+        this.allModels = newList;
         this.setState({
             columns: newColumns,
             modelList: newList,
@@ -339,5 +353,11 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 modelList: [],
         });
         }, 5000);
+    }
+
+    private onTextChange = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string): void => {
+        this.setState({
+            modelList: text ? this.allModels.filter((m) => m.modelId.indexOf(text) > -1) : this.allModels,
+        });
     }
 }
