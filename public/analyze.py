@@ -106,6 +106,11 @@ def getArguments(argv):
         
         if opt == '-o':
             output_file = arg
+            try:
+                open(output_file, 'a')
+            except IOError:
+                print("Output file not creatable")
+                sys.exit(2)
 
     if not file_type:   
         file_type = inferrType(input_file)
