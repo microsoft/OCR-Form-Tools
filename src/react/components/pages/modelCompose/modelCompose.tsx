@@ -102,9 +102,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 fieldName: "modelId",
                 minWidth: 100,
                 isResizable: true,
-                isRowHeader: true,
-                isSorted: true,
-                isSortedDescending: false,
                 onColumnClick: this.handleColumnClick,
                 onRender: (model: IModel) => {
                 return <span>{model.modelId}</span>;
@@ -127,6 +124,9 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 fieldName: "createdatetime",
                 minWidth: 175,
                 isResizable: true,
+                isRowHeader: true,
+                isSorted: true,
+                isSortedDescending: true,
                 onColumnClick: this.handleColumnClick,
                 onRender: (model: IModel) => {
                     return <span>{new Date(model.createdDateTime).toLocaleString()}</span>;
@@ -241,8 +241,17 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
     private getModelList = async () => {
         try {
-            const res = await this.getReponse();
-            const modelList = res.data.modelList;
+            let modelList = [];
+            let nextLink = "";
+            while (modelList.length <= 250) {
+                const res = await this.getResponse(nextLink);
+                const tmpList = res.data.modelList;
+                console.log(tmpList);
+                nextLink = res.data.nextLink;
+                modelList = modelList.concat(tmpList);
+            }
+            modelList = modelList.splice(0, 250);
+            modelList = this.copyAndSort(modelList, "createdatetime", true);
             let reorderedList = modelList;
             if (this.state.composedModelsId.length !== 0) {
                reorderedList = this.getComposedModelsOnTop(modelList);
@@ -256,11 +265,15 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         }
     }
 
-    private async getReponse() {
-        const baseURL = url.resolve(
+    private async getResponse(nextLink?: string) {
+        const baseURL = nextLink === "" ? url.resolve(
             this.props.project.apiUriBase,
             constants.apiModelsPath,
+        ) : url.resolve(
+            this.props.project.apiUriBase,
+            nextLink,
         );
+        console.log(baseURL);
 
         try {
             return await ServiceHelper.getWithAutoRetry(
@@ -269,6 +282,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 this.props.project.apiKey as string,
             );
         } catch (err) {
+            console.log(err);
             ServiceHelper.handleServiceError(err);
         }
     }

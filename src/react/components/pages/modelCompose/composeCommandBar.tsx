@@ -10,14 +10,13 @@ interface IModelComposeCommandBarProps {
 
 export const ModelComposeCommandBar: React.FunctionComponent<IModelComposeCommandBarProps> = (props) => {
 
-    console.log(props.composedModels);
     const commandBarItems: ICommandBarItemProps[] = [
         {
             key: "GetComposedItems",
             text: "Top",
             title: "Move composed models to top",
             disabled: props.composedModels.length === 0 ? true : false,
-            iconProps: {iconName: "edit"},
+            iconProps: {iconName: "ChevronUp"},
             onClick: () => {props.GetComposedItemsOnTop(); },
         },
     ];

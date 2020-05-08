@@ -963,6 +963,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         try {
             const res = await this.getReponse();
             const modelList = res.data.modelList;
+            console.log(this.props.project.trainRecord.modelInfo.modelId);
             this.setState({
                 modelList,
             }, () => {this.setState({

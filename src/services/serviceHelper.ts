@@ -10,6 +10,7 @@ import { strings } from "../common/strings";
 export default class ServiceHelper {
     public static handleServiceError = (err: any) => {
         if (err && err.response) {
+            console.log("ERRRRRR");
             if (err.response.status === 401) {
                 const message = (err.response.data && err.response.data.error && err.response.data.error.message) || "Please make sure the API key is correct.";
                 throw new AppError(ErrorCode.HttpStatusUnauthorized, message, "Permission Denied");
@@ -49,6 +50,7 @@ export default class ServiceHelper {
             }
         } else {
             // Network Error
+            console.log("NETWORKKKKK");
             throw new AppError(
                 ErrorCode.HttpStatusNotFound,
                 "Cannot resolve the host name. Please make sure the service endpoint is correct.",
