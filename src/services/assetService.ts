@@ -16,6 +16,7 @@ import { strings, interpolate } from "../common/strings";
 import { sha256Hash } from "../common/crypto";
 import { toast } from "react-toastify";
 
+
 /**
  * @name - Asset Service
  * @description - Functions for dealing with project assets
@@ -48,7 +49,18 @@ export class AssetService {
 
         // eslint-disable-next-line
         const extensionParts = fileNameParts[fileNameParts.length - 1].split(/[\?#]/);
-        const assetFormat = extensionParts[0];
+        let assetFormat = extensionParts[0];
+
+        if (assetFormat !== "json" && assetFormat !== "fott" && assetFormat !== "txt") {
+            const mime = await this.getMimeType(filePath);
+            // If file was renamed - fix file extension to true MIME type
+            if (assetFormat !== mime) {
+                assetFormat = mime;
+
+                const corruptFileName = fileName.split("%").pop().substring(2);
+                toast.info(`Attention! ${corruptFileName} extension doesn't correspond file MIME type of the file. Please check ${corruptFileName}`, {autoClose: false});
+            }
+        }
 
         const assetType = this.getAssetType(assetFormat);
 
@@ -84,6 +96,15 @@ export class AssetService {
         }
     }
 
+    public static getMimeType = async (uri: string) => {
+        const FileType = require("file-type/browser");
+        const response = await fetch(uri);
+        const fileType = await FileType.fromStream(response.body);
+        if (fileType) {
+            return fileType.mime.split("/").pop();
+        }
+    }
+
     private assetProviderInstance: IAssetProvider;
     private storageProviderInstance: IStorageProvider;
 
@@ -92,7 +113,7 @@ export class AssetService {
     }
 
     /**
-     * Get Asset Provider from project's source connction
+     * Get Asset Provider from project"s source connection
      */
     protected get assetProvider(): IAssetProvider {
         if (!this.assetProviderInstance) {
@@ -140,7 +161,8 @@ export class AssetService {
     public async save(metadata: IAssetMetadata): Promise<IAssetMetadata> {
         Guard.null(metadata);
 
-        const labelFileName = decodeURIComponent(`${metadata.asset.name}${constants.labelFileExtension}`);
+        const labelFileName = decodeURIComponent(`${metadata.asset.name}$
+        {constants.labelFileExtension}`);
         if (metadata.labelData) {
             await this.storageProvider.writeText(labelFileName, JSON.stringify(metadata.labelData, null, 4));
         }
