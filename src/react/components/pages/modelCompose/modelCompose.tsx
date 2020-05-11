@@ -246,9 +246,11 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             while (modelList.length <= 250) {
                 const res = await this.getResponse(nextLink);
                 const tmpList = res.data.modelList;
-                console.log(tmpList);
                 nextLink = res.data.nextLink;
                 modelList = modelList.concat(tmpList);
+                if (nextLink === "") {
+                    break;
+                }
             }
             modelList = modelList.splice(0, 250);
             modelList = this.copyAndSort(modelList, "createdatetime", true);
@@ -273,7 +275,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             this.props.project.apiUriBase,
             nextLink,
         );
-        console.log(baseURL);
 
         try {
             return await ServiceHelper.getWithAutoRetry(
