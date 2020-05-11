@@ -16,7 +16,6 @@ import { strings, interpolate } from "../common/strings";
 import { sha256Hash } from "../common/crypto";
 import { toast } from "react-toastify";
 
-
 /**
  * @name - Asset Service
  * @description - Functions for dealing with project assets
@@ -113,7 +112,7 @@ export class AssetService {
     }
 
     /**
-     * Get Asset Provider from project"s source connection
+     * Get Asset Provider from project's source connection
      */
     protected get assetProvider(): IAssetProvider {
         if (!this.assetProviderInstance) {
