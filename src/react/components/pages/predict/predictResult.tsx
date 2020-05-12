@@ -188,11 +188,11 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                 break;
             case "number":
                 valueType = "valueNumber";
-                postProcessedValue =  prediction.valueNumber.toString();
+                postProcessedValue =  prediction.valueNumber?.toString();
                 break;
             case "integer":
                 valueType = "valueInteger";
-                postProcessedValue =  prediction.valueInteger.toString();
+                postProcessedValue =  prediction.valueInteger?.toString();
                 break;
             case "time":
                 valueType = "valueTime";
@@ -201,7 +201,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
             default:
                 return null;
         }
-        if (predictionText !== postProcessedValue) {
+        if (typeof postProcessedValue === "string" && predictionText !== postProcessedValue) {
             return valueType + ": " + postProcessedValue;
         } else {
             return null;
