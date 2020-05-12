@@ -176,7 +176,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     <div className="condensed-list">
                         <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
                             <FontIcon className="mr-1" iconName="Insights" />
-                            <span>Predict</span>
+                            <span>Analyze</span>
                         </h6>
                         <div className="p-3">
                             {/* <h5>
@@ -268,7 +268,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                     <PrimaryButton
                                         theme={getPrimaryWhiteTheme()}
                                         iconProps={{ iconName: "Insights" }}
-                                        text="Run prediction"
+                                        text="Run analysis"
                                         aria-label={!this.state.predictionLoaded ? strings.predict.inProgress : ""}
                                         allowDisabledFocus
                                         disabled={predictDisabled}

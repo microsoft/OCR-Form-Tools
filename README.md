@@ -12,7 +12,7 @@ Current Features of Labeling Tool: (you can view a short demo [here](https://you
 
 * **Label** forms in PDF, JPEG or TIFF formats. 
 * **Train** model with labeled data through [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/)
-* **Predict** a single form with the trained model, to extract key/value predictions for the form. 
+* **Predict/Analyze** a single form with the trained model, to extract key-value predictions/analyses for the form.
 
 ## Getting Started
 
@@ -101,7 +101,7 @@ Click **Run OCR on all files** on the left pane to get the text layout informati
 
 #### Apply labels to text
 
-Next, you'll create labels and apply them to the text elements that you want the model to recognize.  There are many key/value pairs in a document you would like to train a model to extract,  the first step is to label the value of the key/value pair.  For example, you see text `Charge: 1002.00` in a form, and you would like to label the value (1002.00),  so that AI model could be trained to extract such information on similar forms. 
+Next, you'll create labels and apply them to the text elements that you want the model to recognize.  There are many key-value pairs in a document you would like to train a model to extract,  the first step is to label the value of the key-value pair.  For example, you see text `Charge: 1002.00` in a form, and you would like to label the value (1002.00),  so that AI model could be trained to extract such information on similar forms.
 
 1. First, use the tags editor pane to create the tags (labels) you'd like to identify, e.g, "Cost". 
 
@@ -123,7 +123,7 @@ You can specify tag type and format with tag contextual menu. The type and forma
 
 Click the Train icon on the left pane to open the Training page. Then click the **Train** button to begin training the model. Once the training process completes, you'll see the following information:
 
-* **Model ID** - The ID of the model that was created and trained. Each training call creates a new model with its own ID. Copy this string to a secure location; you'll need it if you want to do prediction calls through the REST API.
+* **Model ID** - The ID of the model that was created and trained. Each training call creates a new model with its own ID. Copy this string to a secure location; you'll need it if you want to do prediction/analysis calls through the REST API.
 * **Average Accuracy** - The model's average accuracy. You can improve model accuracy by labeling additional forms and training again to create a new model. We recommend starting by labeling five forms and adding more forms as needed.
 * The list of tags, and the estimated accuracy per tag.
 
@@ -135,7 +135,7 @@ Tip: You can also run the training process with a REST API call. To learn how to
 
 #### Analyze a form ####
 
-Click on the Predict icon on the left to test your model. Upload a form document that you haven't used in the training process. Then click the **Predict** button on the right to get key/value predictions for the form. The tool will highlight fields and its bounding boxes and will report the confidence of each value.
+Click on the Analyze icon on the left pane to open the Analyze page. Upload a form document that you haven't used in the training process. Then click the **Analyze** button on the right to get key-value predictions/analyses for the form. The tool will highlight fields and its bounding boxes and will report the confidence of each value.
 
 ![alt text](docs/images/analyze-form.png "Analyze Form")
 
