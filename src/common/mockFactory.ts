@@ -400,7 +400,7 @@ export default class MockFactory {
 
     /**
      * Creates an array of test regions
-     * @param count The number of regions to create (deafult: 5)
+     * @param count The number of regions to create (default: 5)
      */
     public static createTestRegions(count: number = 5) {
         const regions: IRegion[] = [];
@@ -467,6 +467,7 @@ export default class MockFactory {
     public static projectActions(): IProjectActions {
         return {
             updateProjectTagsFromFiles: jest.fn(() => Promise.resolve()),
+            updatedAssetMetadata: jest.fn(() => Promise.resolve()),
             loadProject: jest.fn(() => Promise.resolve()),
             saveProject: jest.fn(() => Promise.resolve()),
             deleteProject: jest.fn(() => Promise.resolve()),
@@ -560,7 +561,7 @@ export default class MockFactory {
     }
 
     /**
-     * Runs and waits for a condidtion to be met and resolves a promise
+     * Runs and waits for a condition to be met and resolves a promise
      * @param predicate The predicate to evaluate the condition
      * @param interval The interval to check the value
      */
@@ -728,7 +729,7 @@ export default class MockFactory {
 
     /**
      * Gets StorageType for asset providers
-     * @param providerType Asset Providet type
+     * @param providerType Asset Provider type
      */
     private static getStorageType(providerType: string): StorageType {
         switch (providerType) {

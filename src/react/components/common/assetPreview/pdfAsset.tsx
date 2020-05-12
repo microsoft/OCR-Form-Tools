@@ -5,9 +5,7 @@ import React from "react";
 import { IAssetPreviewProps } from "./assetPreview";
 import * as pdfjsLib from "pdfjs-dist";
 import { constants } from "../../../../common/constants";
-import utils from "../imageMap/utils";
 import {resizeCanvas} from "../../../../common/utils";
-import {IAsset} from "../../../../models/applicationState";
 
 // temp hack for enabling worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);

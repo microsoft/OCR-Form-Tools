@@ -7,13 +7,15 @@ import os
 from requests import get, post
 
 def main(argv):
-    input_file, file_type = getArguments(argv)
-    runAnalysis(input_file, file_type)
+    input_file, output_file, file_type = getArguments(argv)
+    runAnalysis(input_file, output_file, file_type)
 
-def runAnalysis(input_file, file_type):
+def runAnalysis(input_file, output_file, file_type):
     # Endpoint URL
     endpoint = r"<endpoint>"
-    apim_key = "<subsription_key>"
+    # Subscription Key
+    apim_key = "<subscription_key>"
+    # Model ID
     model_id = "<model_id>"
     post_url = endpoint + "/formrecognizer/v2.0-preview/custom/models/%s/analyze" % model_id
     params = {
@@ -49,6 +51,7 @@ def runAnalysis(input_file, file_type):
     n_try = 0
     wait_sec = 5
     max_wait_sec = 60
+    print()
     print('Getting analysis results...')
     while n_try < n_tries:
         try:
@@ -59,7 +62,10 @@ def runAnalysis(input_file, file_type):
                 quit()
             status = resp_json["status"]
             if status == "succeeded":
-                print("Analysis succeeded:\n%s" % json.dumps(resp_json))
+                if output_file:
+                    with open(output_file, 'w') as outfile:
+                        json.dump(resp_json, outfile, indent=2, sort_keys=True)
+                print("Analysis succeeded:\n%s" % json.dumps(resp_json, indent=2, sort_keys=True))
                 quit()
             if status == "failed":
                 print("Analysis failed:\n%s" % json.dumps(resp_json))
@@ -77,8 +83,9 @@ def runAnalysis(input_file, file_type):
 def getArguments(argv):
     input_file = ''
     file_type = ''
+    output_file = ''
     try:
-        opts, args = getopt.gnu_getopt(argv, "ht:", [])
+        opts, args = getopt.gnu_getopt(argv, "ht:o:", [])
     except getopt.GetoptError:
         printCommandDescription(2)
 
@@ -98,11 +105,19 @@ def getArguments(argv):
                 sys.exit()
             else:
                 file_type = arg
+        
+        if opt == '-o':
+            output_file = arg
+            try:
+                open(output_file, 'a')
+            except IOError:
+                print("Output file not creatable")
+                sys.exit(2)
 
     if not file_type:   
         file_type = inferrType(input_file)
 
-    return (input_file, file_type)
+    return (input_file, output_file, file_type)
 
 def inferrType(input_file):
     filename, file_extension = os.path.splitext(input_file)
@@ -122,7 +137,7 @@ def inferrType(input_file):
         sys.exit()
 
 def printCommandDescription(exit_status=0):
-    print('analyze.py <inputfile> [-t <type>]')
+    print('analyze.py <inputfile> [-t <type>] [-o <outputfile>]')
     print
     print('If type option is not provided, type will be inferred from file extension.')
     sys.exit(exit_status)

@@ -199,8 +199,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 }
                 <SplitPane split="vertical"
                     defaultSize={this.state.thumbnailSize.width}
-                    minSize={175}
-                    maxSize={175}
+                    minSize={150}
+                    maxSize={325}
                     paneStyle={{ display: "flex" }}
                     onChange={this.onSideBarResize}
                     onDragFinished={this.onSideBarResizeComplete}>
@@ -479,6 +479,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         // Only update asset metadata if state changes or is different
         if (initialState !== assetMetadata.asset.state || this.state.selectedAsset !== assetMetadata) {
+            if (this.state.selectedAsset.labelData && this.state.selectedAsset.labelData.labels &&
+                assetMetadata.labelData && assetMetadata.labelData.labels &&
+                assetMetadata.labelData.labels.toString() !== this.state.selectedAsset.labelData.labels.toString()) {
+                await this.updatedAssetMetadata(assetMetadata);
+            }
             await this.props.actions.saveAssetMetadata(this.props.project, assetMetadata);
             if (this.props.project.lastVisitedAssetId === assetMetadata.asset.id) {
                 this.setState({selectedAsset: assetMetadata});
@@ -724,5 +729,28 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         if (this.canvas.current) {
             this.canvas.current.updateSize();
         }
+    }
+
+    private async updatedAssetMetadata(assetMetadata: IAssetMetadata) {
+        const assetDocumentCountDifference = {};
+        const updatedAssetLabels = {};
+        const currentAssetLabels = {};
+        assetMetadata.labelData.labels.forEach((label) => {
+            updatedAssetLabels[label.label] = true;
+        });
+        this.state.selectedAsset.labelData.labels.forEach((label) => {
+            currentAssetLabels[label.label] = true;
+        });
+        Object.keys(currentAssetLabels).forEach((label) => {
+            if (!updatedAssetLabels[label]) {
+                assetDocumentCountDifference[label] = -1;
+            }
+        });
+        Object.keys(updatedAssetLabels).forEach((label) => {
+            if (!currentAssetLabels[label]) {
+                assetDocumentCountDifference[label] = 1;
+            }
+        });
+        await this.props.actions.updatedAssetMetadata(this.props.project, assetDocumentCountDifference);
     }
 }

@@ -21,6 +21,13 @@ import { toast } from "react-toastify";
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../react/components/common/tagColors.json");
 
+function normalizeFieldType(type: string): string {
+    if (type === "checkbox") {
+        return FieldType.SelectionMark;
+    }
+    return type;
+}
+
 /**
  * Functions required for a project service
  * @member save - Save a project
@@ -33,6 +40,7 @@ export interface IProjectService {
     delete(project: IProject): Promise<void>;
     isDuplicate(project: IProject, projectList: IProject[]): boolean;
     updateProjectTagsFromFiles(oldProject: IProject): Promise<IProject>;
+    updatedAssetMetadata(oldProject: IProject, assetDocumentCountDifference: []): Promise<IProject>;
 }
 
 /**
@@ -165,6 +173,30 @@ export default class ProjectService implements IProjectService {
         }
     }
 
+    public async updatedAssetMetadata(project: IProject,  assetDocumentCountDifference: any): Promise<IProject> {
+        const updatedProject = Object.assign({}, project);
+        const tags: ITag[] = [];
+        updatedProject.tags.forEach((tag) => {
+            const diff = assetDocumentCountDifference[tag.name];
+            if (diff) {
+                tags.push({
+                    ...tag,
+                    documentCount: tag.documentCount + diff,
+                } as ITag);
+            } else {
+                tags.push({
+                    ...tag,
+                } as ITag);
+            }
+        });
+        updatedProject.tags = tags;
+        if (JSON.stringify(updatedProject.tags) === JSON.stringify(project.tags)) {
+            return project;
+        } else {
+            return updatedProject;
+        }
+    }
+
     /**
      * Assign project tags.
      * A new project doesn't have any tags at the beginning. But it could connect to a blob container
@@ -179,6 +211,7 @@ export default class ProjectService implements IProjectService {
         asset?: string) {
         const tags: ITag[] = [];
         const tagNameSet = new Set<string>();
+        const tagDocumentCount = {};
         try {
             const blobs = new Set<string>(await storageProvider.listFiles(project.folderPath));
             const assetLabel = asset ? asset + constants.labelFileExtension : undefined;
@@ -190,7 +223,14 @@ export default class ProjectService implements IProjectService {
                     try {
                         if (!assetLabel || assetLabel === blob) {
                             const content = JSON.parse(await storageProvider.readText(blob));
-                            content.labels.forEach((label) => tagNameSet.add(label.label));
+                            content.labels.forEach((label) => {
+                                tagNameSet.add(label.label);
+                                if (tagDocumentCount[label.label]) {
+                                    tagDocumentCount[label.label] += 1;
+                                } else {
+                                    tagDocumentCount[label.label] = 1;
+                                }
+                            });
                         }
                         if (assetLabel && assetLabel === blob) {
                             break;
@@ -215,10 +255,11 @@ export default class ProjectService implements IProjectService {
                     // use default type
                     type: FieldType.String,
                     format: FieldFormat.NotSpecified,
+                    documentCount: tagDocumentCount[name],
                 } as ITag);
             });
             if (project.tags) {
-                await this.addMissingTags(project, tags);
+                await this.addMissingTagsAndUpdateDocumentCount(project, tags, tagDocumentCount);
             } else {
                 project.tags = tags;
             }
@@ -245,13 +286,14 @@ export default class ProjectService implements IProjectService {
                 tags.push({
                     name: field.fieldKey,
                     color: tagColors[index],
-                    type: field.fieldType,
+                    type: normalizeFieldType(field.fieldType),
                     format: field.fieldFormat,
+                    documentCount: 0,
                 } as ITag);
             });
             if (project.tags) {
                 project.tags = patch(project.tags, tags, "name", ["type", "format"]);
-                await this.addMissingTags(project, tags);
+                await this.addMissingTagsAndUpdateDocumentCount(project, tags);
             } else {
                 project.tags = tags;
             }
@@ -286,11 +328,22 @@ export default class ProjectService implements IProjectService {
         updatedProject.tags = existingTags;
     }
 
-    private async addMissingTags(project: IProject, tags: ITag[]) {
-        const missingTags = tags.filter((fileTag) => !project.tags.find((tag) => fileTag.name === tag.name ));
+    private async addMissingTagsAndUpdateDocumentCount(project: IProject, tags: ITag[], tagDocumentCount?: any) {
+        const missingTags = tags.filter((fileTag) => {
+            const foundExistingTag = project.tags.find((tag) => fileTag.name === tag.name );
+            if (!foundExistingTag) {
+                return true;
+            } else {
+                if (tagDocumentCount) {
+                    foundExistingTag.documentCount =  tagDocumentCount[foundExistingTag.name];
+                }
+                return false;
+            }
+        });
         project.tags = [...project.tags, ...missingTags];
     }
 
+    // private async getAllTagsInProjectCount(project: IProject, tags: ITag[]) {}
     /**
      * Save fields.json
      * @param project the project we're trying to create

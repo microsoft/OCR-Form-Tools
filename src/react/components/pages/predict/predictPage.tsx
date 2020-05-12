@@ -394,7 +394,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                         this.imageMap.removeAllFeatures();
                     }
                 });
-            }) .catch((error) => {
+            }).catch((error) => {
                 this.setState({
                     isFetching: false,
                     shouldShowAlert: true,

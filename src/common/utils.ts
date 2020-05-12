@@ -5,7 +5,7 @@ import Guard from "./guard";
 import { IProject, ISecurityToken, IProviderOptions, ISecureString, ITag } from "../models/applicationState";
 import { encryptObject, decryptObject, encrypt, decrypt } from "./crypto";
 import UTIF from "utif";
-import HtmlFileReader from "./htmlFileReader";
+
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../react/components/common/tagColors.json");
 

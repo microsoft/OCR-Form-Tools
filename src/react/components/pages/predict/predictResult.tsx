@@ -59,6 +59,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
     }
 
     private renderItem = (item: any, key: any) => {
+        const postProcessedValue = this.getPostProcessedValue(item);
         const style: any = {
             marginLeft: "0px",
             marginRight: "0px",
@@ -77,9 +78,14 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                         {this.getPredictionTagContent(item)}
                     </div>
                 </li>
-                <li className="predictiontag-item-label">
-                    {item.text}
+                <li className={postProcessedValue ? "predictiontag-item-label mt-0" : "predictiontag-item-label mt-0 mb-1"}>
+                    {postProcessedValue ? "text: " + item.text : item.text}
                 </li>
+                {postProcessedValue &&
+                    <li className="predictiontag-item-label mb-1">
+                        {postProcessedValue}
+                    </li>
+                }
             </div>
         );
     }
@@ -160,6 +166,45 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
     private onPredictionMouseLeave = (prediction: any) => {
         if (this.props.onPredictionMouseLeave) {
             this.props.onPredictionMouseLeave(prediction);
+        }
+    }
+
+    private getPostProcessedValue = (prediction: any) => {
+        if (!prediction.type || !prediction.text) {
+            return null;
+        }
+        const predictionType = prediction.type;
+        const predictionText = prediction.text;
+        let postProcessedValue;
+        let valueType;
+        switch (predictionType) {
+            case "string":
+                valueType = "valueString";
+                postProcessedValue =  prediction.valueString;
+                break;
+            case "date":
+                valueType = "valueDate";
+                postProcessedValue =  prediction.valueDate;
+                break;
+            case "number":
+                valueType = "valueNumber";
+                postProcessedValue =  prediction.valueNumber?.toString();
+                break;
+            case "integer":
+                valueType = "valueInteger";
+                postProcessedValue =  prediction.valueInteger?.toString();
+                break;
+            case "time":
+                valueType = "valueTime";
+                postProcessedValue =  prediction.valueTime;
+                break;
+            default:
+                return null;
+        }
+        if (typeof postProcessedValue === "string" && predictionText !== postProcessedValue) {
+            return valueType + ": " + postProcessedValue;
+        } else {
+            return null;
         }
     }
 }
