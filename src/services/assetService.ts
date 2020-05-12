@@ -160,8 +160,7 @@ export class AssetService {
     public async save(metadata: IAssetMetadata): Promise<IAssetMetadata> {
         Guard.null(metadata);
 
-        const labelFileName = decodeURIComponent(`${metadata.asset.name}$
-        {constants.labelFileExtension}`);
+        const labelFileName = decodeURIComponent(`${metadata.asset.name}${constants.labelFileExtension}`);
         if (metadata.labelData) {
             await this.storageProvider.writeText(labelFileName, JSON.stringify(metadata.labelData, null, 4));
         }
