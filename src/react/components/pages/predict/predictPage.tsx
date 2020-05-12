@@ -893,14 +893,14 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         if (Number.isInteger(targetPage) && targetPage !== this.state.currPage) {
             this.setState({
                 currPage: targetPage,
-                highlightedField: predictedItem.fieldName,
+                highlightedField: predictedItem.fieldName ?? "",
             });
         }
     }
 
     private onPredictionMouseEnter = (predictedItem: any) => {
         this.setState({
-            highlightedField: predictedItem.fieldName,
+            highlightedField: predictedItem.fieldName ?? "",
         });
     }
 
