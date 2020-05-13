@@ -291,6 +291,12 @@ export const spanish: IAppStrings = {
             title: "Abrir/cerrar el menú de ayuda",
             escape: "Escapar el menú de ayuda",
         },
+        assetWarning: {
+            incorrectFileExtension: {
+                attention: "¡Atención!",
+                text: "-- la extensión de este archivo no corresponde al tipo MIME. Por favor revise el archivo:",
+            },
+        },
         assetError: "No se puede mostrar el activo",
         tags: {
             hotKey: {

@@ -289,6 +289,12 @@ export const english: IAppStrings = {
             title: "Toggle Help Menu",
             escape: "Escape Help Menu",
         },
+        assetWarning: {
+            incorrectFileExtension: {
+                attention: "Attention!",
+                text: "- extension of this file doesn't correspond MIME type. Please check file:",
+            },
+        },
         assetError: "Unable to load asset",
         tags: {
             hotKey: {

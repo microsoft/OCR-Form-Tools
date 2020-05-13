@@ -285,7 +285,14 @@ export interface IAppStrings {
         help: {
             title: string;
             escape: string;
+        },
+        assetWarning: {
+            incorrectFileExtension: {
+                attention: string,
+                text: string,
+            },
         }
+        ,
         assetError: string;
         tags: {
             hotKey: {

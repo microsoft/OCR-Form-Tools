@@ -16,7 +16,9 @@ import { strings, interpolate } from "../common/strings";
 import { sha256Hash } from "../common/crypto";
 import { toast } from "react-toastify";
 
-const supportedImageFormats = ["jpg", "jpeg", "png", "bmp", "tif", "tiff", "pdf"];
+const supportedImageFormats = {
+    jpg: null, jpeg: null, null: null, png: null, bmp: null, tif: null, tiff: null, pdf: null,
+};
 
 interface IMime {
     mime: string;
@@ -91,7 +93,7 @@ export class AssetService {
         const extensionParts = fileNameParts[fileNameParts.length - 1].split(/[\?#]/);
         let assetFormat = extensionParts[0];
 
-        if (supportedImageFormats.includes(assetFormat)) {
+        if (supportedImageFormats.hasOwnProperty(assetFormat)) {
             const mime = await this.getMimeType(filePath);
 
             // If file was renamed/spoofed - fix file extension to true MIME type and show message
@@ -99,7 +101,7 @@ export class AssetService {
                 assetFormat = mime;
                 const corruptFileName = fileName.split("%").pop().substring(2);
                 setTimeout(() => {
-                    toast.info(`Attention! ${corruptFileName.toLocaleUpperCase()} - extension of this file doesn't correspond MIME type. Please check file: ${corruptFileName.toLocaleUpperCase()}`, { autoClose: false });
+                    toast.info(`${strings.editorPage.assetWarning.incorrectFileExtension.attention} ${corruptFileName.toLocaleUpperCase()} ${strings.editorPage.assetWarning.incorrectFileExtension.text} ${corruptFileName.toLocaleUpperCase()}`, { autoClose: false });
                 }, 3000);
             }
         }
