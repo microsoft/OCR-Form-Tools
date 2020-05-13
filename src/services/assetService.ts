@@ -93,8 +93,9 @@ export class AssetService {
             if (assetFormat !== mime) {
                 assetFormat = mime;
                 const corruptFileName = fileName.split("%").pop().substring(2);
-                console.log("!", corruptFileName);
-                toast.info(`Attention! ${corruptFileName.toLocaleUpperCase()} - extension of this file doesn't correspond MIME type. Please check file: ${corruptFileName.toLocaleUpperCase()}`, { autoClose: false });
+                setTimeout(() => {
+                    toast.info(`Attention! ${corruptFileName.toLocaleUpperCase()} - extension of this file doesn't correspond MIME type. Please check file: ${corruptFileName.toLocaleUpperCase()}`, { autoClose: false });
+                }, 3000);
             }
         }
 
