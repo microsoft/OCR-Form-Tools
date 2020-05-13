@@ -18,7 +18,9 @@ import { IColumn,
          Spinner,
          SpinnerSize,
          FontIcon,
-         TextField} from "office-ui-fabric-react";
+         TextField,
+         MarqueeSelection,
+         IDetailsList} from "office-ui-fabric-react";
 import "./modelCompose.scss";
 import { strings } from "../../../../common/strings";
 import { getDarkGreyTheme, getDefaultDarkTheme, getPrimaryWhiteTheme } from "../../../../common/themes";
@@ -27,6 +29,7 @@ import { bindActionCreators } from "redux";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
+import { ViewSelection } from "./ViewSelection";
 
 export interface IModelComposePageProps extends RouteComponentProps, React.Props<ModelComposePage> {
     recentProjects: IProject[];
@@ -49,6 +52,7 @@ export interface IModelComposePageState {
 }
 
 export interface IModel {
+    key: string;
     modelId: string;
     createdDateTime: string;
     lastUpdatedDateTime: string;
@@ -77,10 +81,10 @@ function mapDispatchToProps(dispatch) {
 export default class ModelComposePage extends React.Component<IModelComposePageProps, IModelComposePageState> {
     private selection: Selection;
     private allModels: IModel[];
+    private listRef = React.createRef<IDetailsList>();
 
     constructor(props) {
         super(props);
-
         const columns: IColumn[] = [
             {
                 key: "column1",
@@ -181,7 +185,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     public componentDidUpdate(prevProps, prevState) {
         if ( prevState.isComposing === true &&
                 prevState.isComposing !== this.state.isComposing) {
-            this.selection.setAllSelected(false);
             if (this.props.project) {
                 this.getModelList();
             }
@@ -211,48 +214,93 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                         <TextField
                             label="Filter By Name"
                             className="label-filter-field"
+                            disabled={this.allModels ? false : true}
                             theme={getPrimaryWhiteTheme()}
                             onChange={this.onTextChange}>
                         </TextField>
                     </div>
-                    {this.state.isComposing ?
-                    <Spinner
-                        label="Model is composing, please wait..."
-                        className="compose-spinner"
-                        theme={getDefaultDarkTheme()}
-                        size={SpinnerSize.large}>
-                    </Spinner> :
-                    <DetailsList
-                        className="models-list"
-                        items = {modelList}
-                        compact={isCompactMode}
-                        columns={columns}
-                        selectionMode={SelectionMode.multiple}
-                        layoutMode={DetailsListLayoutMode.justified}
-                        isHeaderVisible={true}
+                    <ViewSelection
                         selection={this.selection}
-                        selectionPreservedOnEmptyClick={true}>
-                    </DetailsList>
-                    }
+                        items={this.state.modelList}
+                        columns={this.state.columns}
+                        isComposing={this.state.isComposing}
+                        allModels={this.allModels}>
+                        {this.state.isComposing ?
+                        <Spinner
+                            label="Model is composing, please wait..."
+                            className="compose-spinner"
+                            theme={getDefaultDarkTheme()}
+                            size={SpinnerSize.large}>
+                        </Spinner> :
+                        <DetailsList
+                            componentRef={this.listRef}
+                            className="models-list"
+                            items = {modelList}
+                            compact={isCompactMode}
+                            columns={columns}
+                            getKey={this.getKey}
+                            setKey="multiple"
+                            selectionMode={SelectionMode.multiple}
+                            layoutMode={DetailsListLayoutMode.justified}
+                            isHeaderVisible={true}
+                            selection={this.selection}
+                            selectionPreservedOnEmptyClick={true}>
+                        </DetailsList>
+                        }
+                    </ViewSelection>
+                    {/* <MarqueeSelection
+                        selection={this.selection}>
+                        {this.state.isComposing ?
+                        <Spinner
+                            label="Model is composing, please wait..."
+                            className="compose-spinner"
+                            theme={getDefaultDarkTheme()}
+                            size={SpinnerSize.large}>
+                        </Spinner> :
+                        <DetailsList
+                            componentRef={this.listRef}
+                            className="models-list"
+                            items = {modelList}
+                            compact={isCompactMode}
+                            columns={columns}
+                            getKey={this.getKey}
+                            setKey="multiple"
+                            selectionMode={SelectionMode.multiple}
+                            layoutMode={DetailsListLayoutMode.justified}
+                            isHeaderVisible={true}
+                            selection={this.selection}
+                            selectionPreservedOnEmptyClick={true}>
+                        </DetailsList>
+                        }
+                    </MarqueeSelection> */}
                 </Customizer>
             </Fabric>
         );
     }
 
+    private getKey = (item: any, index?: number): string => {
+        return item.key;
+    }
+
     private getModelList = async () => {
         try {
-            let modelList = [];
             let nextLink = "";
-            while (modelList.length <= 250) {
-                const res = await this.getResponse(nextLink);
-                const tmpList = res.data.modelList;
-                nextLink = res.data.nextLink;
-                modelList = modelList.concat(tmpList);
-                if (nextLink === "") {
-                    break;
-                }
-            }
+            let res = await this.getResponse(nextLink);
+            let modelList = res.data.modelList;
+            nextLink = res.data.nextLink;
+            console.log(modelList);
+            console.log(nextLink);
+            // while (modelList.length <= 250) {
+            //     // const res = await this.getResponse(nextLink);
+            //     // const tmpList = res.data.modelList;
+            //     // nextLink = res.data.nextLink;
+            //     // modelList = modelList.concat(tmpList);
+            //     // if (nextLink === "") {
+            //     //     break;
+            //     // }
+            // }
             modelList = modelList.splice(0, 250);
+            modelList.map((m) => m.key = m.modelId);
             modelList = this.copyAndSort(modelList, "createdatetime", true);
             let reorderedList = modelList;
             if (this.state.composedModelsId.length !== 0) {
@@ -318,6 +366,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         });
         const newList = this.copyAndSort(modelList, currColumn.fieldName!, currColumn.isSortedDescending);
         this.allModels = newList;
+        console.log(this.selection.getSelectedIndices());
         this.setState({
             columns: newColumns,
             modelList: newList,
@@ -350,7 +399,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     private handleSelection = (): string => {
-        console.log("handle selection");
         return "item selected";
     }
 
