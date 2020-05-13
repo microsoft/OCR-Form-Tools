@@ -673,11 +673,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const isKey = this.isKeyRegionSelected(regionId);
             return new Style({
                 stroke: new Stroke({
-                    color: isKey ? "#0000FF" : "#6eff40",
+                    color: isKey ? "#64D4FF" : "#6eff40",
                     width: 1,
                 }),
                 fill: new Fill({
-                    color: isKey ? "rgb(0, 0, 255, 0.4)" : "rgba(110, 255, 80, 0.4)",
+                    color: isKey ? "rgb(100,212,255, 0.4)" : "rgba(110, 255, 80, 0.4)",
                 }),
             });
         } else {
