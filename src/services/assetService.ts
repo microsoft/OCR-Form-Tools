@@ -16,6 +16,42 @@ import { strings, interpolate } from "../common/strings";
 import { sha256Hash } from "../common/crypto";
 import { toast } from "react-toastify";
 
+const supportedImageFormats = ["jpg", "jpeg", "png", "bmp", "tif", "tiff", "pdf"];
+
+interface IMime {
+    mime: string;
+    pattern: Array<number | undefined>;
+  }
+
+  // tslint:disable number-literal-format
+  // tslint:disable no-magic-numbers
+const imageMimes: IMime[] = [
+    {
+      mime: "image/png",
+      pattern: [0x89, 0x50, 0x4e, 0x47],
+    },
+    {
+      mime: "image/jpeg",
+      pattern: [0xff, 0xd8, 0xff],
+    },
+    {
+      mime: "image/tif",
+      pattern: [0x49, 0x49, 0x2a, 0x00],
+    },
+    {
+      mime: "image/tiff",
+      pattern: [0x4d, 0x4d, 0x00, 0x2a],
+    },
+    {
+      mime: "image/tif",
+      pattern: [0x25, 0x50, 0x44, 0x46, 0x2d],
+    },
+    {
+      mime: "application/pdf",
+      pattern: [0x25, 0x50, 0x44, 0x46, 0x2d],
+    },
+    // We can expand this list @see https://mimesniff.spec.whatwg.org/#matching-an-image-type-pattern
+  ];
 /**
  * @name - Asset Service
  * @description - Functions for dealing with project assets
@@ -50,14 +86,15 @@ export class AssetService {
         const extensionParts = fileNameParts[fileNameParts.length - 1].split(/[\?#]/);
         let assetFormat = extensionParts[0];
 
-        if (assetFormat !== "json" && assetFormat !== "fott" && assetFormat !== "txt") {
+        if (supportedImageFormats.includes(assetFormat)) {
             const mime = await this.getMimeType(filePath);
-            // If file was renamed - fix file extension to true MIME type
+
+            // If file was renamed/spoofed - fix file extension to true MIME type and show message
             if (assetFormat !== mime) {
                 assetFormat = mime;
-
                 const corruptFileName = fileName.split("%").pop().substring(2);
-                toast.info(`Attention! ${corruptFileName} extension doesn't correspond file MIME type of the file. Please check ${corruptFileName}`, {autoClose: false});
+                console.log("!", corruptFileName);
+                toast.info(`Attention! ${corruptFileName.toLocaleUpperCase()} - extension of this file doesn't correspond MIME type. Please check file: ${corruptFileName.toLocaleUpperCase()}`, { autoClose: false });
             }
         }
 
@@ -95,13 +132,31 @@ export class AssetService {
         }
     }
 
-    public static getMimeType = async (uri: string) => {
-        const FileType = require("file-type/browser");
-        const response = await fetch(uri);
-        const fileType = await FileType.fromStream(response.body);
-        if (fileType) {
-            return fileType.mime.split("/").pop();
-        }
+    // If extension of a file was spoofed, we fetch only first 4 bytes of the file and read MIME type
+    public static async getMimeType(uri: string) {
+        const first4bytes = await fetch(uri, { headers: { range: "bytes=0-3" } });
+        const arrayBuffer = await first4bytes.arrayBuffer();
+        const blob = new Blob([new Uint8Array(arrayBuffer).buffer]);
+        const isMime = (bytes: Uint8Array, mime: IMime): boolean => {
+                return mime.pattern.every((p, i) => !p || bytes[i] === p);
+        };
+        const fileReader = new FileReader();
+
+        const mimeType = new Promise<string>((resolve, reject) => {
+            fileReader.onloadend = (e) => {
+                if (!e || !fileReader.result) { return; }
+                const bytes = new Uint8Array(fileReader.result as ArrayBuffer);
+                const fileMimes = imageMimes.map((mime) => {
+                    if (isMime(bytes, mime)) {
+                        return mime.mime;
+                    }
+                });
+                const mime = fileMimes.filter((i) => i !== undefined)[0].split("/").pop();
+                resolve(mime);
+            };
+            fileReader.readAsArrayBuffer(blob);
+        });
+        return mimeType;
     }
 
     private assetProviderInstance: IAssetProvider;
