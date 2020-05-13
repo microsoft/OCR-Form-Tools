@@ -284,39 +284,59 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
     private getModelList = async () => {
         try {
-            let nextLink = "";
-            let res = await this.getResponse(nextLink);
-            let modelList = res.data.modelList;
-            nextLink = res.data.nextLink;
-            console.log(modelList);
-            console.log(nextLink);
-            // while (modelList.length <= 250) {
-            //     // const res = await this.getResponse(nextLink);
-            //     // const tmpList = res.data.modelList;
-            //     // nextLink = res.data.nextLink;
-            //     // modelList = modelList.concat(tmpList);
-            //     // if (nextLink === "") {
-            //     //     break;
-            //     // }
-            // }
-            modelList = modelList.splice(0, 250);
-            modelList.map((m) => m.key = m.modelId);
-            modelList = this.copyAndSort(modelList, "createdatetime", true);
-            let reorderedList = modelList;
+            const res = await this.getResponse();
+            const modelList = res.data.modelList;
+            const nextLink = res.data.nextLink;
+
+            let reorderedList = this.reorderModelList(modelList);
             if (this.state.composedModelsId.length !== 0) {
-               reorderedList = this.getComposedModelsOnTop(modelList);
+                reorderedList = this.getComposedModelsOnTop(reorderedList);
             }
             this.allModels = reorderedList;
             this.setState({
                 modelList: reorderedList,
-            });
+            }, () => {setTimeout(() => {this.addModelLists(nextLink); }, 300); });
         } catch (error) {
             console.log(error);
         }
     }
 
+    private addModelLists = async (nextLink) => {
+        if (this.state.modelList.length <= 250) {
+            if (nextLink.length !== 0) {
+                const nextRes = await this.getModelsFromNextLink(nextLink);
+                const nextList = this.state.modelList.concat(nextRes.nextList);
+                const link = nextRes.nextLink;
+                let reorderedList = this.reorderModelList(nextList);
+                if (this.state.composedModelsId.length !== 0) {
+                   reorderedList = this.getComposedModelsOnTop(reorderedList);
+                }
+                this.allModels = reorderedList;
+                this.setState({
+                    modelList: reorderedList,
+                }, () => {setTimeout(() => {
+                    this.addModelLists(link);
+                }, 300); });
+            }
+        }
+    }
+
+    private getModelsFromNextLink = async (link: string) => {
+        const res = await this.getResponse(link);
+        return {
+            nextList: res.data.modelList,
+            nextLink: res.data.nextLink,
+        };
+    }
+
+    private reorderModelList = (modelList: IModel[]): IModel[] => {
+        const list = modelList.splice(0, 250);
+        list.map((m) => m.key = m.modelId);
+        return this.copyAndSort(list, "createdatetime", true);
+    }
+
     private async getResponse(nextLink?: string) {
-        const baseURL = nextLink === "" ? url.resolve(
+        const baseURL = nextLink === undefined ? url.resolve(
             this.props.project.apiUriBase,
             constants.apiModelsPath,
         ) : url.resolve(
@@ -344,9 +364,9 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 composedModelCopy.push(m);
             }
         });
+
         const uncomposedModelList = modelList.filter(
             (m) => this.state.composedModelsId.indexOf(m.modelId) === -1 );
-
         const newModelList = composedModelCopy.concat(uncomposedModelList);
         return newModelList;
     }
@@ -366,7 +386,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         });
         const newList = this.copyAndSort(modelList, currColumn.fieldName!, currColumn.isSortedDescending);
         this.allModels = newList;
-        console.log(this.selection.getSelectedIndices());
         this.setState({
             columns: newColumns,
             modelList: newList,
@@ -421,9 +440,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 isComposing: false,
                 composedModelsId: ["003f503e-1361-4386-9a22-3111d5144b73"],
                 columns: newCols,
-                modelList: [],
         });
-        }, 5000);
+        }, 500);
     }
 
     private onTextChange = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string): void => {
