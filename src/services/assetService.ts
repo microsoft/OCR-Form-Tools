@@ -27,12 +27,20 @@ interface IMime {
   // tslint:disable no-magic-numbers
 const imageMimes: IMime[] = [
     {
+      mime: "image/bmp",
+      pattern: [0x42, 0x4d],
+    },
+    {
       mime: "image/png",
       pattern: [0x89, 0x50, 0x4e, 0x47],
     },
     {
       mime: "image/jpeg",
-      pattern: [0xff, 0xd8, 0xff],
+      pattern: [0xff, 0xd8, 0xff, 0xdb],
+    },
+    {
+      mime: "image/jpg",
+      pattern: [0xff, 0xd8, 0xff, 0xf0, 0x00, 0xfe, 0xe1],
     },
     {
       mime: "image/tif",
@@ -41,10 +49,6 @@ const imageMimes: IMime[] = [
     {
       mime: "image/tiff",
       pattern: [0x4d, 0x4d, 0x00, 0x2a],
-    },
-    {
-      mime: "image/tif",
-      pattern: [0x25, 0x50, 0x44, 0x46, 0x2d],
     },
     {
       mime: "application/pdf",
@@ -135,25 +139,26 @@ export class AssetService {
     }
 
     // If extension of a file was spoofed, we fetch only first 4 bytes of the file and read MIME type
-    public static async getMimeType(uri: string) {
-        const first4bytes = await fetch(uri, { headers: { range: "bytes=0-3" } });
-        const arrayBuffer = await first4bytes.arrayBuffer();
+    public static async getMimeType(uri: string): Promise<string> {
+        const numBytesNeeded: number = (Math.max(...imageMimes.map((m) => m.pattern.length)) - 1);
+        const first4bytes: Response = await fetch(uri, { headers: { range: `bytes=0-${numBytesNeeded}` } });
+        const arrayBuffer: ArrayBuffer = await first4bytes.arrayBuffer();
         const blob = new Blob([new Uint8Array(arrayBuffer).buffer]);
         const isMime = (bytes: Uint8Array, mime: IMime): boolean => {
                 return mime.pattern.every((p, i) => !p || bytes[i] === p);
         };
-        const fileReader = new FileReader();
+        const fileReader: FileReader = new FileReader();
 
         const mimeType = new Promise<string>((resolve, reject) => {
             fileReader.onloadend = (e) => {
                 if (!e || !fileReader.result) { return; }
-                const bytes = new Uint8Array(fileReader.result as ArrayBuffer);
-                const fileMimes = imageMimes.map((mime) => {
+                const bytes: Uint8Array = new Uint8Array(fileReader.result as ArrayBuffer);
+                const fileMimes: string[] = imageMimes.map((mime) => {
                     if (isMime(bytes, mime)) {
                         return mime.mime;
                     }
                 });
-                const mime = fileMimes.filter((i) => i !== undefined)[0].split("/").pop();
+                const mime: string = fileMimes.filter((i) => i !== undefined)[0].split("/").pop();
                 resolve(mime);
             };
             fileReader.readAsArrayBuffer(blob);
