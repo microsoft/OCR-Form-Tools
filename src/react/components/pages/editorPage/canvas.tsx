@@ -1114,6 +1114,16 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         }
                     });
                 }
+                if (label.key) {
+                    label.key.forEach((formRegion) => {
+                        if (formRegion.boundingBoxes) {
+                            formRegion.boundingBoxes.forEach((boundingBox, boundingBoxIndex) => {
+                                const text = this.getBoundingBoxTextFromRegion(formRegion, boundingBoxIndex);
+                                regions.push(this.createRegion(boundingBox, text, label.label, formRegion.page, true));
+                            });
+                        }
+                    });
+                }
             });
         }
 
@@ -1596,7 +1606,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         features.forEach((feature) => feature.changed());
     }
 
-    private createRegion(boundingBox: number[], text: string, tagName: string, pangeNumber: number) {
+    private createRegion(boundingBox: number[], text: string, tagName: string, pangeNumber: number, isKey?: boolean) {
         const xAxisValues = boundingBox.filter((value, index) => index % 2 === 0);
         const yAxisValues = boundingBox.filter((value, index) => index % 2 === 1);
         const left = Math.min(...xAxisValues);
@@ -1627,6 +1637,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             points,
             value: text,
             pageNumber: pangeNumber,
+            isKey,
         };
         return newRegion;
     }
