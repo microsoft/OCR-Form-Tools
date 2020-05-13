@@ -204,6 +204,7 @@ export interface IRegion {
     boundingBox?: IBoundingBox;
     value?: string;
     pageNumber: number;
+    isKey?: boolean;
 }
 
 /**
