@@ -20,7 +20,7 @@ const supportedImageFormats = ["jpg", "jpeg", "png", "bmp", "tif", "tiff", "pdf"
 
 interface IMime {
     mime: string;
-    pattern: Array<number | undefined>;
+    pattern: Array<number|undefined>;
   }
 
   // tslint:disable number-literal-format
@@ -50,8 +50,9 @@ const imageMimes: IMime[] = [
       mime: "application/pdf",
       pattern: [0x25, 0x50, 0x44, 0x46, 0x2d],
     },
-    // We can expand this list @see https://mimesniff.spec.whatwg.org/#matching-an-image-type-pattern
-  ];
+];
+// We can expand this list @see https://mimesniff.spec.whatwg.org/#matching-an-image-type-pattern
+
 /**
  * @name - Asset Service
  * @description - Functions for dealing with project assets
