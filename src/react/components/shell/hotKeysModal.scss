@@ -1,0 +1,40 @@
+
+@import '../../../assets/sass/theme.scss';
+@import '../common/common.scss';
+
+.container {
+    padding: 2rem 3rem;
+    p {
+        color: rgba(255, 255, 255, 0.6) ;
+    }
+    .header {
+        text-align: center;
+        margin: 1rem;
+    }
+    .hotkeys-list {
+        li {
+            list-style: none;
+        }
+    }
+}
+
+.hotkeys-modal-button {
+    padding: 6px 8px;
+    color: #ccc;
+    display: inline-block;
+
+    &:hover {
+        color: #fff;
+        background-color: $lighter-2;
+        cursor: pointer;
+    }
+}
+.close-modal {
+    float: right;
+    color: #fff;
+
+    &:hover {
+        color: $lighter-5;
+        cursor: pointer;
+    }
+}
