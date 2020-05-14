@@ -99,9 +99,9 @@ export class AssetService {
             // If file was renamed/spoofed - fix file extension to true MIME type and show message
             if (assetFormat !== mime) {
                 assetFormat = mime;
-                const corruptFileName = fileName.split("%").pop().substring(2);
+                const corruptFileName = fileName.split("%2F").pop().replace(/%20/g, " ");
                 setTimeout(() => {
-                    toast.info(`${strings.editorPage.assetWarning.incorrectFileExtension.attention} ${corruptFileName.toLocaleUpperCase()} ${strings.editorPage.assetWarning.incorrectFileExtension.text} ${corruptFileName.toLocaleUpperCase()}`, { autoClose: false });
+                    toast.info(`${strings.editorPage.assetWarning.incorrectFileExtension.attention} ${corruptFileName.toLocaleUpperCase()} ${strings.editorPage.assetWarning.incorrectFileExtension.text} ${corruptFileName.toLocaleUpperCase()}`);
                 }, 3000);
             }
         }
