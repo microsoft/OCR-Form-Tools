@@ -322,6 +322,69 @@ export const english: IAppStrings = {
     profile: {
         settings: "Profile Settings",
     },
+    shortcuts: {
+        squareBrackets: {
+            name: "square brackets",
+            ariaLabel: "square brackets",
+            keys: {
+                key1: "[",
+                key2: "]",
+            },
+            description: "Can be used move the selection to the previous or the next word",
+        },
+        greaterAndLessThan: {
+            name: "greater-than and less-than",
+            ariaLabel: ",  or  .",
+            keys: {
+                key1: ",",
+                key2: ",",
+                },
+            description: "Can be used go to the previous or the next page in multi-pages documents",
+        },
+        zoomKeys: {
+            name: "zoom keys",
+            ariaLabel: "- or + and /",
+            keys: {
+                key1: "-",
+                key2: "=",
+                key3: "/",
+                },
+            description: "Can be used to zoom in/out and reset zoom of editing page",
+        },
+        deleteAndBackspace: {
+            name: "delete and backspace",
+            ariaLabel: "delete and backspace",
+            keys: {
+                key1: "Delete",
+                key2: "Backspace",
+                },
+            description: "Can be used to delete selection from document map or key of selection from a tag",
+        },
+        modifiers: {
+            and: "and",
+            or: "or",
+            hold: "hold",
+            click: "click",
+        },
+        tips: {
+            quickLabeling: {
+                name: "Quick labeling",
+            description: "Hotkeys of 1 through 0 and all letters are assigned to first 36 tags, after you selected one or multiple words from the highlighted text elements, by pressing these hotkeys, you can label the selected words.",
+            },
+            renameTag: {
+                name: "Rename Tag",
+                description: "Hold Alt key and click on tag name, user can change the tag's name.",
+            },
+            multipleWordSelection: {
+                name: "Multiple words selection",
+                description: "Click and hold on word, than  hover over other words to do multiple words selection at a time.",
+            },
+        },
+        headers: {
+            keyboardShortcuts: "Keyboard shortcuts",
+            otherTips: "Other tips",
+        },
+    },
     errors: {
         unknown: {
             title: "Unknown Error",

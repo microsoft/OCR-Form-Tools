@@ -317,6 +317,69 @@ export interface IAppStrings {
     profile: {
         settings: string;
     };
+    shortcuts: {
+        squareBrackets: {
+            name: string,
+            ariaLabel: string,
+            keys: {
+                key1: string,
+                key2: string,
+            },
+            description: string,
+        },
+        greaterAndLessThan: {
+            name: string,
+            ariaLabel: string,
+            keys: {
+                key1: string,
+                key2: string,
+            },
+            description: string,
+        },
+        zoomKeys: {
+            name: string,
+            ariaLabel: string,
+            keys: {
+                key1: string,
+                key2: string,
+                key3: string,
+            },
+            description: string,
+        },
+        deleteAndBackspace: {
+            name: string,
+            ariaLabel: string,
+            keys: {
+                key1: string,
+                key2: string,
+            },
+            description: string,
+        },
+        modifiers: {
+            and: string,
+            or: string,
+            hold: string,
+            click: string,
+        },
+        tips: {
+            quickLabeling: {
+                name: string,
+                description: string,
+            },
+            renameTag: {
+                name: string,
+                description: string,
+            },
+            multipleWordSelection: {
+                name: string,
+                description: string,
+            },
+        },
+        headers: {
+            keyboardShortcuts: string,
+            otherTips: string,
+        },
+    };
     errors: {
         unknown: IErrorMetadata,
         projectInvalidJson: IErrorMetadata,

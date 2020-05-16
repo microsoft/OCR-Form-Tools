@@ -12,7 +12,7 @@ import IAppErrorActions, * as appErrorActions from "./redux/actions/appErrorActi
 import { ErrorHandler } from "./react/components/common/errorHandler/errorHandler";
 import { KeyboardManager } from "./react/components/common/keyboardManager/keyboardManager";
 import { HelpMenu } from "./react/components/shell/helpMenu";
-import { HotKeysModal } from "./react/components/shell/hotKeysModal";
+import { KeyboardShortcuts } from "./react/components/shell/keyboardShortcuts";
 import { MainContentRouter } from "./react/components/shell/mainContentRouter";
 import { Sidebar } from "./react/components/shell/sidebar";
 import { StatusBar } from "./react/components/shell/statusBar";
@@ -79,7 +79,7 @@ export default class App extends React.Component<IAppProps> {
                             <div className={`app-shell platform-${platform}`}>
                                 <TitleBar icon="TagGroup">
                                 <div className="app-hotkeys-menu-icon">
-                                    <HotKeysModal />
+                                    <KeyboardShortcuts />
                                 </div>
                                 <div className="app-help-menu-icon">
                                     <HelpMenu />

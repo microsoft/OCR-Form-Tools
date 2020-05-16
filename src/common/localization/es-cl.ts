@@ -325,6 +325,69 @@ export const spanish: IAppStrings = {
     profile: {
         settings: "Configuración de Perfíl",
     },
+    shortcuts: {
+        squareBrackets: {
+            name: "corchetes",
+            ariaLabel: "corchetes",
+            keys: {
+                key1: "[",
+                key2: "]",
+                },
+            description: "Se puede usar mover la selección a la palabra anterior o siguiente",
+        },
+        greaterAndLessThan: {
+            name: "mayor que y menor que",
+            ariaLabel: ",  o  .",
+            keys: {
+                key1: ",",
+                key2: ",",
+                },
+            description: "Se puede usar para ir a la página anterior o siguiente en documentos de varias páginas",
+        },
+        zoomKeys: {
+            name: "teclas de zoom",
+            ariaLabel: "- o = y /",
+            keys: {
+                key1: "-",
+                key2: "=",
+                key3: "/",
+                },
+            description: "Se puede usar para acercar/alejar y restablecer el zoom de la página de edición",
+        },
+        deleteAndBackspace: {
+            name: "eliminar y retroceder",
+            ariaLabel: "eliminar y retroceder",
+            keys: {
+                key1: "Delete",
+                key2: "Backspace",
+                },
+            description: "Se puede utilizar para eliminar la selección del mapa del documento o la clave de selección de una etiqueta",
+        },
+        modifiers: {
+            and: "y",
+            or: "o",
+            hold: "sostener",
+            click: "hacer clic",
+        },
+        tips: {
+            quickLabeling: {
+                name: "Etiquetado rápido",
+            description: "Las teclas de acceso rápido de 1 a 0 y todas las letras se asignan a las primeras 36 etiquetas, después de seleccionar una o varias palabras de los elementos de texto resaltados, al presionar estas teclas de acceso rápido, puede etiquetar las palabras seleccionadas.",
+            },
+            renameTag: {
+                name: "Rename Tag",
+                description: "Mantenga presionada la tecla Alt y haga clic en el nombre de la etiqueta, el usuario puede cambiar el nombre de la etiqueta.",
+            },
+            multipleWordSelection: {
+                name: "Selección de palabras múltiples",
+                description: "Haga clic y mantenga presionada la palabra, luego desplace el cursor sobre otras palabras para seleccionar varias palabras a la vez.",
+            },
+        },
+        headers: {
+            keyboardShortcuts: "Atajos de teclado",
+            otherTips: "Otros consejos",
+        },
+    },
     errors: {
         unknown: {
             title: "Error desconocido",
