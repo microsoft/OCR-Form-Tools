@@ -45,3 +45,15 @@
     max-width: 300px;
 }
 
+.blink-field {
+    width: calc(100vw - 45px);
+    height: 40px;
+    position: absolute;
+    bottom: 24px;
+    text-align: center;
+    z-index: 1;
+    background-color: #1E2024;
+    padding-left: 20px;
+    padding-top: 7px;
+}
+

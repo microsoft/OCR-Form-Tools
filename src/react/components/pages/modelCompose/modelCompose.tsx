@@ -30,6 +30,7 @@ import IProjectActions, * as projectActions from "../../../../redux/actions/proj
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import { ViewSelection } from "./ViewSelection";
+import { Blink } from "./blink";
 
 export interface IModelComposePageProps extends RouteComponentProps, React.Props<ModelComposePage> {
     recentProjects: IProject[];
@@ -49,6 +50,7 @@ export interface IModelComposePageState {
     isCompactMode: boolean;
     isComposing: boolean;
     composedModelsId: string[];
+    isLoading: boolean;
 }
 
 export interface IModel {
@@ -81,6 +83,7 @@ function mapDispatchToProps(dispatch) {
 export default class ModelComposePage extends React.Component<IModelComposePageProps, IModelComposePageState> {
     private selection: Selection;
     private allModels: IModel[];
+    private loadingFlag: boolean = true;
     private listRef = React.createRef<IDetailsList>();
 
     constructor(props) {
@@ -157,6 +160,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             isCompactMode: false,
             isComposing: false,
             composedModelsId: [],
+            isLoading: false,
         };
 
         this.selection = new Selection({
@@ -191,6 +195,10 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         }
     }
 
+    public componentWillUnmount() {
+        this.loadingFlag = false;
+    }
+
     public render() {
         const {modelList, isCompactMode, columns} = this.state;
         const dark: ICustomizations = {
@@ -207,7 +215,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                         <ModelComposeCommandBar
                             composedModels={this.state.composedModelsId}
                             handleCompose={this.onComposeClick}
-                            GetComposedItemsOnTop={this.handleGetComposedItemClick}
+                            GetComposedItemsOnTop={this.handleTopComposedModel}
                             />
                     </div>
                     <div className="label-filter-background">
@@ -219,6 +227,11 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                             onChange={this.onTextChange}>
                         </TextField>
                     </div>
+                    {this.state.isLoading &&
+                        <Blink
+                            Notification="Model list is still loading">
+                        </Blink>
+                    }
                     <ViewSelection
                         selection={this.selection}
                         items={this.state.modelList}
@@ -248,31 +261,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                         </DetailsList>
                         }
                     </ViewSelection>
-                    {/* <MarqueeSelection
-                        selection={this.selection}>
-                        {this.state.isComposing ?
-                        <Spinner
-                            label="Model is composing, please wait..."
-                            className="compose-spinner"
-                            theme={getDefaultDarkTheme()}
-                            size={SpinnerSize.large}>
-                        </Spinner> :
-                        <DetailsList
-                            componentRef={this.listRef}
-                            className="models-list"
-                            items = {modelList}
-                            compact={isCompactMode}
-                            columns={columns}
-                            getKey={this.getKey}
-                            setKey="multiple"
-                            selectionMode={SelectionMode.multiple}
-                            layoutMode={DetailsListLayoutMode.justified}
-                            isHeaderVisible={true}
-                            selection={this.selection}
-                            selectionPreservedOnEmptyClick={true}>
-                        </DetailsList>
-                        }
-                    </MarqueeSelection> */}
                 </Customizer>
             </Fabric>
         );
@@ -284,6 +272,9 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
     private getModelList = async () => {
         try {
+            this.setState({
+                isLoading: true,
+            });
             const res = await this.getResponse();
             const modelList = res.data.modelList;
             const nextLink = res.data.nextLink;
@@ -295,30 +286,39 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             this.allModels = reorderedList;
             this.setState({
                 modelList: reorderedList,
-            }, () => {setTimeout(() => {this.addModelLists(nextLink); }, 300); });
+            }, () => {
+                setTimeout(() => {this.addModelLists(nextLink); }, 300); });
         } catch (error) {
             console.log(error);
         }
     }
 
     private addModelLists = async (nextLink) => {
-        if (this.state.modelList.length <= 250) {
-            if (nextLink.length !== 0) {
-                const nextRes = await this.getModelsFromNextLink(nextLink);
-                const nextList = this.state.modelList.concat(nextRes.nextList);
-                const link = nextRes.nextLink;
-                let reorderedList = this.reorderModelList(nextList);
-                if (this.state.composedModelsId.length !== 0) {
-                   reorderedList = this.getComposedModelsOnTop(reorderedList);
+        if (this.loadingFlag) {
+            if (this.state.modelList.length <= 250) {
+                if (nextLink.length !== 0) {
+                    const nextRes = await this.getModelsFromNextLink(nextLink);
+                    const nextList = this.state.modelList.concat(nextRes.nextList);
+                    const link = nextRes.nextLink;
+                    let reorderedList = this.reorderModelList(nextList);
+                    if (this.state.composedModelsId.length !== 0) {
+                       reorderedList = this.getComposedModelsOnTop(reorderedList);
+                    }
+                    this.allModels = reorderedList;
+                    this.setState({
+                        modelList: reorderedList,
+                    }, () => {
+                        setTimeout(() => {
+                        this.addModelLists(link);
+                    }, 300); });
+                } else {
+                    this.setState({isLoading: false});
                 }
-                this.allModels = reorderedList;
-                this.setState({
-                    modelList: reorderedList,
-                }, () => {setTimeout(() => {
-                    this.addModelLists(link);
-                }, 300); });
             }
+        } else {
+            this.loadingFlag = true;
         }
+
     }
 
     private getModelsFromNextLink = async (link: string) => {
@@ -438,10 +438,10 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             });
             this.setState({
                 isComposing: false,
-                composedModelsId: ["003f503e-1361-4386-9a22-3111d5144b73"],
+                composedModelsId: ["62ce2175-92b5-444c-b703-9bc2185684c7"],
                 columns: newCols,
         });
-        }, 500);
+        }, 5000);
     }
 
     private onTextChange = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string): void => {
@@ -450,7 +450,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         });
     }
 
-    private handleGetComposedItemClick = () => {
+    private handleTopComposedModel = () => {
         if (this.state.composedModelsId) {
             const newList = this.getComposedModelsOnTop(this.state.modelList);
             const newCols = this.state.columns;
