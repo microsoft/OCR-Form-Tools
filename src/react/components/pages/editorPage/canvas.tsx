@@ -70,6 +70,7 @@ export interface ICanvasState {
     layers: any;
     tableIconTooltip: any;
     hoveringFeature: string;
+    labelKeyMode: boolean;
 }
 
 interface IRegionOrder {
@@ -121,6 +122,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         layers: {text: true, tables: true, checkboxes: true, label: true},
         tableIconTooltip: { display: "none", width: 0, height: 0, top: 0, left: 0},
         hoveringFeature: null,
+        labelKeyMode: false,
     };
 
     private imageMap: ImageMap;
@@ -128,6 +130,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private ocrService: OCRService;
 
     private selectedRegionIds: string[] = [];
+
+    private selectedKeyRegionIds: string[] = [];
 
     private regionOrders: Array<Record<string, number>> = [];
 
@@ -152,6 +156,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (this.props.selectedAsset.asset.name !== prevProps.selectedAsset.asset.name ||
             this.props.selectedAsset.asset.isRunningOCR !== prevProps.selectedAsset.asset.isRunningOCR) {
             this.selectedRegionIds = [];
+            this.selectedKeyRegionIds = [];
             this.imageMap.removeAllFeatures();
             this.setState({
                 currentAsset: this.props.selectedAsset,
@@ -199,9 +204,16 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         displayName={"Delete region"}
                         key={"Delete"}
                         keyEventType={KeyEventType.KeyDown}
-                        accelerators={["Delete", "Backspace", "<", ",", ">", ".",
+                        accelerators={["Delete", "Backspace", "Shift", "<", ",", ">", ".",
                             "{", "[", "}", "]", "+", "-", "/", "=", "_", "?"]}
                         handler={this.handleKeyDown}
+                />
+                <KeyboardBinding
+                        displayName={"Label Key Mode"}
+                        key={"Shift"}
+                        keyEventType={KeyEventType.KeyUp}
+                        accelerators={["Shift"]}
+                        handler={this.handleKeyUp}
                 />
                 <CanvasCommandBar
                     handleLayerChange={this.handleLayerChange}
@@ -310,6 +322,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.updateRegions(selectedRegions);
 
         this.selectedRegionIds = [];
+        this.selectedKeyRegionIds = [];
         if (this.props.onSelectedRegionsChanged) {
             this.props.onSelectedRegionsChanged([]);
         }
@@ -396,6 +409,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             text: region.value,
             highlighted: false,
             isOcrProposal,
+            isKey: region.isKey,
         });
         feature.setId(region.id);
 
@@ -413,6 +427,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const regionIndex = this.getIndexOfSelectedRegionIndex(region.id);
             if (regionIndex >= 0) {
                 this.selectedRegionIds.splice(regionIndex, 1);
+                const keyRegionIndex = this.getIndexOfSelectedKeyRegionIndex(region.id);
+                if (keyRegionIndex >= 0) {
+                    this.selectedKeyRegionIds.splice(keyRegionIndex, 1);
+                }
             }
         });
     }
@@ -652,13 +670,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const regionId = feature.get("id");
         // Selected
         if (this.isRegionSelected(regionId)) {
+            const isKey = this.isKeyRegionSelected(regionId);
             return new Style({
                 stroke: new Stroke({
-                    color: "#6eff40",
+                    color: isKey ? "#64D4FF" : "#6eff40",
                     width: 1,
                 }),
                 fill: new Fill({
-                    color: "rgba(110, 255, 80, 0.4)",
+                    color: isKey ? "rgb(100,212,255, 0.4)" : "rgba(110, 255, 80, 0.4)",
                 }),
             });
         } else {
@@ -795,12 +814,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private handleFeatureSelect = (feature: Feature, isToggle: boolean = true, category: FeatureCategory) => {
         const regionId = feature.get("id");
+        const isKey = this.state.labelKeyMode;
         if (isToggle && this.isRegionSelected(regionId)) {
             this.removeFromSelectedRegions(regionId);
         } else {
             this.handleMultiSelection(regionId, category);
             const polygon = regionId.split(",").map(parseFloat);
-            this.addToSelectedRegions(regionId, feature.get("text"), polygon, category);
+            this.addToSelectedRegions(regionId, feature.get("text"), polygon, category, isKey);
         }
         this.redrawAllFeatures();
     }
@@ -841,6 +861,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 this.onRegionDelete(regionId);
             }
             this.selectedRegionIds.splice(iRegionId, 1);
+            const keyRegionIndex = this.getIndexOfSelectedKeyRegionIndex(regionId);
+            if (keyRegionIndex >= 0) {
+                this.selectedKeyRegionIds.splice(keyRegionIndex, 1);
+            }
             if (this.props.onSelectedRegionsChanged) {
                 this.props.onSelectedRegionsChanged(this.getSelectedRegions());
             }
@@ -850,7 +874,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private addToSelectedRegions = (regionId: string,
                                     text: string,
                                     polygon: number[],
-                                    regionCategory: FeatureCategory) => {
+                                    regionCategory: FeatureCategory,
+                                    isKey: boolean) => {
         let selectedRegion;
         if (this.isRegionSelected(regionId)) {
             // skip if it's already existed in selected regions
@@ -876,11 +901,17 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 points: regionPoints,
                 value: text,
                 pageNumber: this.state.currentPage,
+                isKey,
             };
+
+            console.log(selectedRegion);
             this.addRegions([selectedRegion]);
         }
 
         this.selectedRegionIds.push(regionId);
+        if (isKey) {
+            this.selectedKeyRegionIds.push(regionId);
+        }
         this.onRegionSelected(regionId, false);
     }
 
@@ -888,8 +919,16 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         return this.getIndexOfSelectedRegionIndex(regionId) !== -1;
     }
 
+    private isKeyRegionSelected = (regionId: string) => {
+        return this.getIndexOfSelectedKeyRegionIndex(regionId) !== -1;
+    }
+
     private getIndexOfSelectedRegionIndex = (regionId: string) => {
         return this.selectedRegionIds.findIndex((id) => id === regionId);
+    }
+
+    private getIndexOfSelectedKeyRegionIndex = (regionId: string) => {
+        return this.selectedKeyRegionIds.findIndex((id) => id === regionId);
     }
 
     private getIndexOfCurrentRegions = (regionId: string) => {
@@ -1075,6 +1114,16 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         }
                     });
                 }
+                if (label.key) {
+                    label.key.forEach((formRegion) => {
+                        if (formRegion.boundingBoxes) {
+                            formRegion.boundingBoxes.forEach((boundingBox, boundingBoxIndex) => {
+                                const text = this.getBoundingBoxTextFromRegion(formRegion, boundingBoxIndex);
+                                regions.push(this.createRegion(boundingBox, text, label.label, formRegion.page, true));
+                            });
+                        }
+                    });
+                }
             });
         }
 
@@ -1102,19 +1151,30 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         fieldNames.forEach((fieldName) => {
             const label: ILabel = {
                     label: fieldName.value,
-                    key: null,
+                    key: [],
                     value: [],
             };
             const regionsToConvert = regions.filter((region) => region.tags.indexOf(fieldName.value) !== -1);
             regionsToConvert.forEach((region) => {
                 const boundingBox = region.id.split(",").map(parseFloat);
-                label.value.push({
-                    page: region.pageNumber,
-                    text: region.value,
-                    boundingBoxes: [boundingBox],
-                });
-            });
+                if (region.isKey) {
+                    label.key.push({
+                        page: region.pageNumber,
+                        text: region.value,
+                        boundingBoxes: [boundingBox],
+                    });
+                } else {
+                    label.value.push({
+                        page: region.pageNumber,
+                        text: region.value,
+                        boundingBoxes: [boundingBox],
+                    });
+                }
 
+            });
+            if (label.key.length === 0) {
+                label.key = null;
+            }
             labelData.labels.push(label);
         });
 
@@ -1158,6 +1218,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private handleKeyDown = (keyEvent) => {
         switch (keyEvent.key) {
+            case "Shift":
+                this.setState({
+                    labelKeyMode: true,
+                });
+                break;
+
             case "Delete":
             case "Backspace":
                 this.deleteRegions(this.getSelectedRegions());
@@ -1215,6 +1281,15 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
     }
 
+    private handleKeyUp = (keyEvent) => {
+        switch (keyEvent.key) {
+            case "Shift":
+                this.setState({
+                    labelKeyMode: false,
+                });
+        }
+    }
+
     private handleCanvasZoomIn = () => {
         this.imageMap.zoomIn();
     }
@@ -1231,6 +1306,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         let lastSelectedId;
         const selectedRegion = this.getSelectedRegions();
         const currentPage = this.state.currentPage;
+        const labelKeyMode = this.state.labelKeyMode;
         let nextRegionId;
         if (!selectedRegion.length && !this.applyTagFlag) {
             nextRegionId = this.regionOrderById[this.state.currentPage - 1][0];
@@ -1258,7 +1334,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const nextFeature = allFeatures.find((f) => f.get("id") === (nextRegionId));
         if (nextFeature) {
             const polygon = nextRegionId.split(",").map(parseFloat);
-            this.addToSelectedRegions(nextRegionId, nextFeature.get("text"), polygon, FeatureCategory.Text);
+            this.addToSelectedRegions(nextRegionId, nextFeature.get("text"), polygon, FeatureCategory.Text,
+                                      labelKeyMode);
             this.redrawFeatures(allFeatures);
         }
 
@@ -1266,7 +1343,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const nextCheckboxFeature = allCheckboxFeature.find((f) => f.get("id") === (nextRegionId));
         if (nextCheckboxFeature) {
             const polygon = nextRegionId.split(",").map(parseFloat);
-            this.addToSelectedRegions(nextRegionId, nextCheckboxFeature.get("text"), polygon, FeatureCategory.Checkbox);
+            this.addToSelectedRegions(nextRegionId, nextCheckboxFeature.get("text"), polygon, FeatureCategory.Checkbox,
+                                      labelKeyMode);
             this.redrawFeatures(allCheckboxFeature);
         }
         this.lastKeyBoardRegionId = nextRegionId;
@@ -1528,7 +1606,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         features.forEach((feature) => feature.changed());
     }
 
-    private createRegion(boundingBox: number[], text: string, tagName: string, pangeNumber: number) {
+    private createRegion(boundingBox: number[], text: string, tagName: string, pangeNumber: number, isKey?: boolean) {
         const xAxisValues = boundingBox.filter((value, index) => index % 2 === 0);
         const yAxisValues = boundingBox.filter((value, index) => index % 2 === 1);
         const left = Math.min(...xAxisValues);
@@ -1559,6 +1637,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             points,
             value: text,
             pageNumber: pangeNumber,
+            isKey,
         };
         return newRegion;
     }

@@ -15,11 +15,23 @@ export interface ITagInputItemLabelState {}
 export default class TagInputItemLabel extends React.Component<ITagInputItemLabelProps, ITagInputItemLabelState> {
     public render() {
         return (
-            <div
-                className={"tag-item-label px-2"}
-                onMouseEnter={this.handleMouseEnter}
-                onMouseLeave={this.handleMouseLeave}>
-                {this.props.label.value.map((formRegion: IFormRegion) => formRegion.text).join(" ")}
+            <div>
+                { this.props.label.key &&
+                    <div
+                        className={"tag-item-label px-2"}
+                    >
+                        {"key: " + this.props.label.key.map((formRegion: IFormRegion) => formRegion.text).join(" ")}
+                    </div>
+                }
+                <div
+                    className={"tag-item-label px-2"}
+                    onMouseEnter={this.handleMouseEnter}
+                    onMouseLeave={this.handleMouseLeave}>
+                    {
+                        (this.props.label.key ? "value: " : "") +
+                        this.props.label.value.map((formRegion: IFormRegion) => formRegion.text).join(" ")
+                    }
+                </div>
             </div>
         );
     }
