@@ -34,7 +34,7 @@ export const KeyboardShortcuts: React.FC = () => {
     };
     const uniqueId: string = useId("shortcuts");
 
-    const [showModal, setShowModal] = useState(true);
+    const [showModal, setShowModal] = useState(false);
     const closeModal = () => setShowModal(false);
 
     const shortcutsItems: IShortcutsItems[] = [
