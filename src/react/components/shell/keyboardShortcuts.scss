@@ -2,6 +2,7 @@
 @import "../common/common.scss";
 
 .container {
+    display: flex;
     padding: 2rem;
     .header {
         margin-top: 2rem;
@@ -25,6 +26,7 @@
     .shortcuts-list {
         overflow-y: auto;
         height: 14rem;
+        margin-right: .5rem;
 
         .shortcut {
             display: flex;
