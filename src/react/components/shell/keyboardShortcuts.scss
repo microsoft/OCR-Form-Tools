@@ -2,7 +2,7 @@
 @import "../common/common.scss";
 
 .container {
-    padding: 2rem 3rem;
+    padding: 2rem;
     .header {
         margin-top: 2rem;
     }
@@ -43,7 +43,7 @@
                 width: 30%;
                 .keyboard-modifier {
                     margin: 0 0.5rem;
-                }
+                 }
                 .keyboard-key {
                     display: inline-flex;
                     align-items: center;
@@ -60,8 +60,10 @@
             }
         }
     }
-    .tips-list {
-        overflow-y: auto;
+    .tips-list-container {
+        .tips-list{
+            overflow-y: auto;
+        }
     }
 }
 
@@ -85,3 +87,25 @@
         cursor: pointer;
     }
 }
+
+@media (max-width: 768px) {
+    .container {
+        display: flex;
+        padding: 1rem;
+        .shortcuts-list {
+            .shortcut {
+                flex-direction: column;
+                &-keys{
+                    display: flex;
+                    .keyboard-modifier {
+                        margin: 0.5rem;
+                     }
+                }
+                &-description {
+                    align-self: flex-start;
+                    width: 100%;
+                }
+            }
+        }
+    }
+  }
