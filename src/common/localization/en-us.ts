@@ -337,7 +337,7 @@ export const english: IAppStrings = {
             ariaLabel: ",  or  .",
             keys: {
                 key1: ",",
-                key2: ",",
+                key2: ".",
                 },
             description: "Can be used go to the previous or the next page in multi-pages documents",
         },
