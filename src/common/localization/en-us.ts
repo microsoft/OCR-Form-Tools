@@ -330,7 +330,7 @@ export const english: IAppStrings = {
                 key1: "[",
                 key2: "]",
             },
-            description: "Can be used move the selection to the previous or the next word",
+            description: "Move the selection to the previous or the next word",
         },
         greaterAndLessThan: {
             name: "greater-than and less-than",
@@ -339,7 +339,7 @@ export const english: IAppStrings = {
                 key1: ",",
                 key2: ".",
                 },
-            description: "Can be used go to the previous or the next page in multi-pages documents",
+            description: "Go to the previous or the next page in multi-pages documents",
         },
         zoomKeys: {
             name: "zoom keys",
@@ -349,7 +349,7 @@ export const english: IAppStrings = {
                 key2: "=",
                 key3: "/",
                 },
-            description: "Can be used to zoom in/out and reset zoom of editing page",
+            description: "Zoom in/out and reset zoom of editing page",
         },
         deleteAndBackspace: {
             name: "delete and backspace",
@@ -358,7 +358,7 @@ export const english: IAppStrings = {
                 key1: "Delete",
                 key2: "Backspace",
                 },
-            description: "Can be used to delete selection from document map or key of selection from a tag",
+            description: "Delete selection from document map or key of selection from a tag",
         },
         modifiers: {
             and: "and",

@@ -333,7 +333,7 @@ export const spanish: IAppStrings = {
                 key1: "[",
                 key2: "]",
                 },
-            description: "Se puede usar mover la selección a la palabra anterior o siguiente",
+            description: "Mover la selección a la palabra anterior o siguiente",
         },
         greaterAndLessThan: {
             name: "mayor que y menor que",
@@ -342,7 +342,7 @@ export const spanish: IAppStrings = {
                 key1: ",",
                 key2: ".",
                 },
-            description: "Se puede usar para ir a la página anterior o siguiente en documentos de varias páginas",
+            description: "Ir a la página anterior o siguiente en documentos de varias páginas",
         },
         zoomKeys: {
             name: "teclas de zoom",
@@ -352,7 +352,7 @@ export const spanish: IAppStrings = {
                 key2: "=",
                 key3: "/",
                 },
-            description: "Se puede usar para acercar/alejar y restablecer el zoom de la página de edición",
+            description: "Acercar / alejar y restablecer el zoom de la página de edición",
         },
         deleteAndBackspace: {
             name: "eliminar y retroceder",
@@ -361,7 +361,7 @@ export const spanish: IAppStrings = {
                 key1: "Delete",
                 key2: "Backspace",
                 },
-            description: "Se puede utilizar para eliminar la selección del mapa del documento o la clave de selección de una etiqueta",
+            description: "Eliminar selección del mapa del documento o clave de selección de una etiqueta",
         },
         modifiers: {
             and: "y",
