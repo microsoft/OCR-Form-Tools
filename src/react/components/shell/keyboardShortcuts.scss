@@ -35,16 +35,18 @@
 
             &-description {
                 align-self: center;
-                margin-bottom: .5rem;
+                margin-bottom: .25rem;
                 margin-right: .125rem;
                 width: 70%;
             }
             &-keys {
+                display: flex;
                 margin-right: auto;
                 margin-right: .5rem;
                 width: 30%;
+                align-items: baseline;
                 .keyboard-modifier {
-                    margin: 0 0.5rem;
+                    margin: 0.5rem;
                  }
                 .keyboard-key {
                     display: inline-flex;
