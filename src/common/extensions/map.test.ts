@@ -12,7 +12,7 @@ describe("Map Extensions", () => {
     beforeAll(registerMixins);
 
     describe("forEachAsync", () => {
-        const map = testArray.map((asset) => [asset.id, asset]) as Array<[string, IAsset]>;
+        const map = testArray.map((asset) => [asset.id, asset]) as [string, IAsset][];
         const testMap = new Map<string, IAsset>(map);
 
         const output = [];
