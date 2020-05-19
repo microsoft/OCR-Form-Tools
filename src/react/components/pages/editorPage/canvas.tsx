@@ -129,7 +129,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private selectedRegionIds: string[] = [];
 
-    private regionOrders: Array<Record<string, number>> = [];
+    private regionOrders: Record<string, number>[] = [];
 
     private regionOrderById: string[][] = [];
 
