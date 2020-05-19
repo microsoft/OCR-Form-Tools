@@ -327,47 +327,46 @@ export const spanish: IAppStrings = {
     },
     shortcuts: {
         squareBrackets: {
-            name: "corchetes",
-            ariaLabel: "corchetes",
             keys: {
-                key1: "[",
-                key2: "]",
-                },
-            description: "Mover la selección a la palabra anterior o siguiente",
+                leftBracket: "[",
+                rightBracket: "]",
+            },
+            description: {
+                prevWord: "Mover la selección a la palabra anterior",
+                nextWord: "Mover la selección a la siguiente palabra",
+            },
         },
         greaterAndLessThan: {
-            name: "mayor que y menor que",
-            ariaLabel: ",  o  .",
             keys: {
-                key1: ",",
-                key2: ".",
+                lessThan: "<",
+                greaterThan: ">",
                 },
-            description: "Ir a la página anterior o siguiente en documentos de varias páginas",
+            description: {
+                prevPage: "Ir a la página anterior en documentos de varias páginas",
+                nextPage: "Ir a la página siguiente en documentos de varias páginas",
+            },
         },
         zoomKeys: {
-            name: "teclas de zoom",
-            ariaLabel: "- o = y /",
             keys: {
-                key1: "-",
-                key2: "=",
-                key3: "/",
+                minus: "-",
+                plus: "=",
+                slash: "/",
                 },
-            description: "Acercar / alejar y restablecer el zoom de la página de edición",
+            description: {
+                in: "Acercarse",
+                out: "Disminuir el zoom",
+                reset: "Restablecer zoom",
+            },
         },
         deleteAndBackspace: {
-            name: "eliminar y retroceder",
-            ariaLabel: "eliminar y retroceder",
             keys: {
-                key1: "Delete",
-                key2: "Backspace",
+                delete: "Delete",
+                backSpace: "Backspace",
                 },
-            description: "Eliminar selección del mapa del documento o clave de selección de una etiqueta",
-        },
-        modifiers: {
-            and: "y",
-            or: "o",
-            hold: "sostener",
-            click: "hacer clic",
+            description: {
+                delete: "Eliminar selección del mapa del documento o clave de selección de una etiqueta",
+                backSpace: "Eliminar selección del mapa del documento o clave de selección de una etiqueta",
+                },
         },
         tips: {
             quickLabeling: {

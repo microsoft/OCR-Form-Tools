@@ -324,47 +324,46 @@ export const english: IAppStrings = {
     },
     shortcuts: {
         squareBrackets: {
-            name: "square brackets",
-            ariaLabel: "square brackets",
             keys: {
-                key1: "[",
-                key2: "]",
+                leftBracket: "[",
+                rightBracket: "]",
             },
-            description: "Move the selection to the previous or the next word",
+            description: {
+                prevWord: "Move the selection to previous word",
+                nextWord: "Move the selection to next word",
+            },
         },
         greaterAndLessThan: {
-            name: "greater-than and less-than",
-            ariaLabel: ",  or  .",
             keys: {
-                key1: ",",
-                key2: ".",
+                lessThan: "<",
+                greaterThan: ">",
                 },
-            description: "Go to the previous or the next page in multi-pages documents",
+            description: {
+                prevPage: "Go to the previous page in multi-pages documents",
+                nextPage: "Go to the next page in multi-pages documents",
+            },
         },
         zoomKeys: {
-            name: "zoom keys",
-            ariaLabel: "- or + and /",
             keys: {
-                key1: "-",
-                key2: "=",
-                key3: "/",
+                minus: "-",
+                plus: "=",
+                slash: "/",
                 },
-            description: "Zoom in/out and reset zoom of editing page",
+            description: {
+                in: "Zoom in",
+                out: "Zoom out",
+                reset: "Reset zoom",
+            },
         },
         deleteAndBackspace: {
-            name: "delete and backspace",
-            ariaLabel: "delete and backspace",
             keys: {
-                key1: "Delete",
-                key2: "Backspace",
+                delete: "Delete",
+                backSpace: "Backspace",
                 },
-            description: "Delete selection from document map or key of selection from a tag",
-        },
-        modifiers: {
-            and: "and",
-            or: "or",
-            hold: "hold",
-            click: "click",
+            description: {
+                delete: "Delete selection from document map or selection key from a label",
+                backSpace: "Delete selection from document map or selection key from a label",
+                },
         },
         tips: {
             quickLabeling: {

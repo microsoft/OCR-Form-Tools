@@ -16,12 +16,6 @@ export interface IHotKeysModalState {
 }
 interface IKey {
     key: string;
-    modifier?: string;
-}
-export interface IShortcutsItems {
-    name: string;
-    ariaLabel: string;
-    keys: IKey[];
     description: string;
 }
 
@@ -34,69 +28,45 @@ export const KeyboardShortcuts: React.FC = () => {
     };
     const uniqueId: string = useId("shortcuts");
 
-    const [showModal, setShowModal] = useState(false);
+    const [showModal, setShowModal] = useState(true);
     const closeModal = () => setShowModal(false);
 
-    const shortcutsItems: IShortcutsItems[] = [
+    const shortcutsItems: IKey[] = [
         {
-            name: strings.shortcuts.squareBrackets.name,
-            ariaLabel: strings.shortcuts.squareBrackets.ariaLabel,
-            keys: [
-                {
-                    key: strings.shortcuts.squareBrackets.keys.key1,
-                    modifier: strings.shortcuts.modifiers.or,
-                },
-                {
-                    key: strings.shortcuts.squareBrackets.keys.key2,
-                },
-            ],
-            description: strings.shortcuts.squareBrackets.description,
+            key: strings.shortcuts.squareBrackets.keys.leftBracket,
+            description: strings.shortcuts.squareBrackets.description.prevWord,
         },
         {
-            name: strings.shortcuts.greaterAndLessThan.name,
-            ariaLabel: strings.shortcuts.greaterAndLessThan.ariaLabel,
-            keys: [
-                {
-                    key: strings.shortcuts.greaterAndLessThan.keys.key1,
-                    modifier: strings.shortcuts.modifiers.or,
-                },
-                {
-                    key: strings.shortcuts.greaterAndLessThan.keys.key2,
-                },
-            ],
-            description: strings.shortcuts.greaterAndLessThan.description,
+            key: strings.shortcuts.squareBrackets.keys.rightBracket,
+            description: strings.shortcuts.squareBrackets.description.nextWord,
         },
         {
-            name: strings.shortcuts.zoomKeys.name,
-            ariaLabel: strings.shortcuts.zoomKeys.name,
-            keys: [
-                {
-                    key: strings.shortcuts.zoomKeys.keys.key1,
-                    modifier: strings.shortcuts.modifiers.or,
-                },
-                {
-                    key: strings.shortcuts.zoomKeys.keys.key2,
-                    modifier: strings.shortcuts.modifiers.and,
-                },
-                {
-                    key: strings.shortcuts.zoomKeys.keys.key3,
-                },
-            ],
-            description: strings.shortcuts.zoomKeys.description,
+            key: strings.shortcuts.greaterAndLessThan.keys.lessThan,
+            description: strings.shortcuts.greaterAndLessThan.description.prevPage,
         },
         {
-            name: strings.shortcuts.deleteAndBackspace.name,
-            ariaLabel: strings.shortcuts.deleteAndBackspace.ariaLabel,
-            keys: [
-                {
-                    key: strings.shortcuts.deleteAndBackspace.keys.key1,
-                    modifier: strings.shortcuts.modifiers.or,
-                },
-                {
-                    key: strings.shortcuts.deleteAndBackspace.keys.key2,
-                },
-            ],
-            description: strings.shortcuts.deleteAndBackspace.description,
+            key: strings.shortcuts.greaterAndLessThan.keys.greaterThan,
+            description: strings.shortcuts.greaterAndLessThan.description.nextPage,
+        },
+        {
+            key: strings.shortcuts.zoomKeys.keys.minus,
+            description: strings.shortcuts.zoomKeys.description.out,
+        },
+        {
+            key: strings.shortcuts.zoomKeys.keys.plus,
+            description: strings.shortcuts.zoomKeys.description.in,
+        },
+        {
+            key: strings.shortcuts.zoomKeys.keys.slash,
+            description: strings.shortcuts.zoomKeys.description.reset,
+        },
+        {
+            key: strings.shortcuts.deleteAndBackspace.keys.delete,
+            description: strings.shortcuts.deleteAndBackspace.description.delete,
+        },
+        {
+            key: strings.shortcuts.deleteAndBackspace.keys.backSpace,
+            description: strings.shortcuts.deleteAndBackspace.description.backSpace,
         },
 
     ];
@@ -116,24 +86,21 @@ export const KeyboardShortcuts: React.FC = () => {
         },
     ];
     const ShortcutsListItem = ({ item }): JSX.Element => {
-        const { id, description, keys } = item;
         return (
-            <li key={id} className="shortcut">
-                <span className="shortcut-keys">
-                    {
-                         keys.map((item) => {
-                             return Object.keys(item).map((el) => (
-                                 <span key={`${uniqueId}`} className={`keyboard-${el}`}>{item[el]}</span>));
-                         })
-                    }
-                </span>
-                <span className="shortcut-description description">{description}</span>
-
+            <li key={uniqueId} className="shortcut">
+                <div className="shortcut-description description">{item.description}</div>
+                <div className="shortcut-keys">
+                    <span
+                        key={uniqueId}
+                        className="keyboard-key"
+                        aria-label={`keyboard key - ${item.key}`}
+                    >{item.key}</span>
+                </div>
             </li>);
     };
 
     const TipsListItem = ({ item }): JSX.Element => (
-        <li key={item.id}>
+        <li key={uniqueId}>
             <h6>{item.name}</h6>
             <p className="description">{item.description}</p>
         </li>
@@ -152,24 +119,29 @@ export const KeyboardShortcuts: React.FC = () => {
                 isOpen={showModal}
                 onDismiss={closeModal}
                 isBlocking={false}
-                containerClassName={"container"}
+                containerClassName="container"
+                // className="container"
             >
-                <FontIcon className="close-modal" role="button" onClick={closeModal} iconName="Cancel" />
-                <div className="shortcuts-list-container">
-                    <h3 className="header">{strings.shortcuts.headers.keyboardShortcuts}</h3>
-                    <ul className="shortcuts-list">
-                        {
-                            shortcutsItems.map((item) => <ShortcutsListItem item={item} />)
-                        }
-                    </ul>
-                </div>
-                <div className="tips-list-container">
-                    <h3 className="header">{strings.shortcuts.headers.otherTips}</h3>
-                    <ul className="tips-list">
-                        {
-                            tipsItems.map((item) => <TipsListItem item={item} />)
-                        }
-                    </ul>
+                <div className="header">
+                            <h3>{strings.shortcuts.headers.keyboardShortcuts}</h3>
+                            <FontIcon className="close-modal" role="button" onClick={closeModal} iconName="Cancel" />
+                        </div>
+                <div className="content">
+                    <div className="shortcuts-list-container">
+                        <ul className="shortcuts-list">
+                            {
+                                shortcutsItems.map((item) => <ShortcutsListItem item={item} />)
+                            }
+                        </ul>
+                    </div>
+                    <div className="tips-list-container">
+                        <h4 >{strings.shortcuts.headers.otherTips}</h4>
+                        <ul className="tips-list">
+                            {
+                                tipsItems.map((item) => <TipsListItem item={item} />)
+                            }
+                        </ul>
+                    </div>
                 </div>
             </Modal>
         </Customizer>

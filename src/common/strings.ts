@@ -319,47 +319,46 @@ export interface IAppStrings {
     };
     shortcuts: {
         squareBrackets: {
-            name: string,
-            ariaLabel: string,
             keys: {
-                key1: string,
-                key2: string,
+                leftBracket: string,
+                rightBracket: string,
             },
-            description: string,
+            description: {
+                prevWord: string,
+                nextWord: string,
+            },
         },
         greaterAndLessThan: {
-            name: string,
-            ariaLabel: string,
             keys: {
-                key1: string,
-                key2: string,
+                lessThan: string,
+                greaterThan: string,
             },
-            description: string,
+            description: {
+                prevPage: string,
+                nextPage: string,
+            },
         },
         zoomKeys: {
-            name: string,
-            ariaLabel: string,
             keys: {
-                key1: string,
-                key2: string,
-                key3: string,
+                minus: string,
+                plus: string,
+                slash: string,
             },
-            description: string,
+            description: {
+                in: string,
+                out: string,
+                reset: string,
+            },
         },
         deleteAndBackspace: {
-            name: string,
-            ariaLabel: string,
             keys: {
-                key1: string,
-                key2: string,
+                delete: string,
+                backSpace: string,
             },
-            description: string,
-        },
-        modifiers: {
-            and: string,
-            or: string,
-            hold: string,
-            click: string,
+            description: {
+                delete: string,
+                backSpace: string,
+            },
         },
         tips: {
             quickLabeling: {
