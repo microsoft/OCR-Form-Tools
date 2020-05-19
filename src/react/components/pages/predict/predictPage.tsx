@@ -48,11 +48,11 @@ export interface IPredictPageProps extends RouteComponentProps, React.Props<Pred
 }
 
 export interface IPredictPageState {
-    inputedLocalFile: string;
+    inputtedLocalFile: string;
     sourceOption: string;
     isFetching: boolean;
     fetchedFileURL: string;
-    inputedFileURL: string;
+    inputtedFileURL: string;
     analyzeResult: {};
     fileLabel: string;
     predictionLoaded: boolean;
@@ -93,8 +93,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         sourceOption: "localFile",
         isFetching: false,
         fetchedFileURL: "",
-        inputedFileURL: strings.predict.defaultURLInput,
-        inputedLocalFile: strings.predict.defaultLocalFileInput,
+        inputtedFileURL: strings.predict.defaultURLInput,
+        inputtedLocalFile: strings.predict.defaultLocalFileInput,
         analyzeResult: {},
         fileLabel: "",
         predictionLoaded: true,
@@ -157,8 +157,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const predictDisabled: boolean = !this.state.predictionLoaded || !this.state.file;
         const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
         const fetchDisabled: boolean = !this.state.predictionLoaded || this.state.isFetching ||
-                                        this.state.inputedFileURL.length === 0 ||
-                                        this.state.inputedFileURL === strings.predict.defaultURLInput;
+                                        this.state.inputtedFileURL.length === 0 ||
+                                        this.state.inputtedFileURL === strings.predict.defaultURLInput;
 
         const sourceOptions: IDropdownOption[] = [
             { key: "localFile", text: "Local file" },
@@ -226,7 +226,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                         onClick={this.handleDummyInputClick}
                                         readOnly={true}
                                         aria-label={strings.predict.uploadFile}
-                                        value={this.state.inputedLocalFile}
+                                        value={this.state.inputtedLocalFile}
                                         disabled={browseFileDisabled}
                                     />
                                 }
@@ -245,10 +245,10 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                     <TextField
                                         className="mr-2 ml-2"
                                         theme={getGreenWithWhiteBackgroundTheme()}
-                                        onFocus={this.removeDefaultInputedFileURL}
-                                        onChange={this.setInputedFileURL}
+                                        onFocus={this.removeDefaultInputtedFileURL}
+                                        onChange={this.setInputtedFileURL}
                                         aria-label={strings.predict.uploadFile}
-                                        value={this.state.inputedFileURL}
+                                        value={this.state.inputtedFileURL}
                                         disabled={urlInputDisabled}
                                     />
                                 }
@@ -341,19 +341,19 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         document.getElementById("hiddenInputFile").click();
     }
 
-    private removeDefaultInputedFileURL = () => {
-        if (this.state.inputedFileURL === strings.predict.defaultURLInput) {
-            this.setState({inputedFileURL: ""});
+    private removeDefaultInputtedFileURL = () => {
+        if (this.state.inputtedFileURL === strings.predict.defaultURLInput) {
+            this.setState({inputtedFileURL: ""});
         }
     }
 
-    private setInputedFileURL = (event) => {
-        this.setState({inputedFileURL: event.target.value});
+    private setInputtedFileURL = (event) => {
+        this.setState({inputtedFileURL: event.target.value});
     }
 
     private getFileFromURL = () => {
         this.setState({isFetching: true});
-        fetch(this.state.inputedFileURL, { headers: {Accept: "application/pdf, image/jpeg, image/png, image/tiff"}})
+        fetch(this.state.inputtedFileURL, { headers: {Accept: "application/pdf, image/jpeg, image/png, image/tiff"}})
          .then((response) => {
             if (!response.ok) {
                 this.setState({
@@ -377,11 +377,11 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 return;
             }
             response.blob().then((blob) => {
-                const fileAsURL = new URL(this.state.inputedFileURL);
+                const fileAsURL = new URL(this.state.inputtedFileURL);
                 const fileName = fileAsURL.pathname.split("/").pop();
                 const file = new File([blob], fileName, {type: contentType});
                 this.setState({
-                    fetchedFileURL: this.state.inputedFileURL,
+                    fetchedFileURL: this.state.inputtedFileURL,
                     isFetching: false,
                     fileLabel: fileName,
                     currPage: 1,
@@ -419,8 +419,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         if (option.key !== this.state.sourceOption) {
             this.setState({
                 sourceOption: option.key,
-                inputedFileURL: strings.predict.defaultURLInput,
-                inputedLocalFile: strings.predict.defaultLocalFileInput,
+                inputtedFileURL: strings.predict.defaultURLInput,
+                inputtedLocalFile: strings.predict.defaultLocalFileInput,
                 fileLabel: "",
                 currPage: undefined,
                 analyzeResult: {},
@@ -515,7 +515,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             const fileName = this.fileInput.current.value.split("\\").pop();
             if (fileName !== "") {
                 this.setState({
-                    inputedLocalFile: fileName,
+                    inputtedLocalFile: fileName,
                     fileLabel: fileName,
                     currPage: 1,
                     analyzeResult: {},
