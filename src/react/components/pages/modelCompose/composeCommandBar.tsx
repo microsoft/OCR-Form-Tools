@@ -4,7 +4,10 @@ import "./modelCompose.scss";
 
 interface IModelComposeCommandBarProps {
     composedModels: any[];
+    isComposing: boolean;
+    isLoading: boolean;
     handleCompose: () => void;
+    handleRefresh: () => void;
     GetComposedItemsOnTop: () => void;
 }
 
@@ -23,9 +26,16 @@ export const ModelComposeCommandBar: React.FunctionComponent<IModelComposeComman
 
     const commandBarFarItems: ICommandBarItemProps[] = [
         {
+            key: "Refresh",
+            text: "Refresh",
+            ariaLabel: "Refresh the list",
+            disabled: props.isComposing || props.isLoading,
+            iconProps: {iconName: "refresh"},
+            onClick: () => {props.handleRefresh(); },
+        },
+        {
             key: "Compose",
             text: "Compose",
-            // This needs an ariaLabel since it's icon-only
             ariaLabel: "Compose Model",
             iconProps: { iconName: "edit" },
             onClick: () => {props.handleCompose(); },

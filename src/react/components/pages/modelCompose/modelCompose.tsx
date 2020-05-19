@@ -51,6 +51,8 @@ export interface IModelComposePageState {
     isComposing: boolean;
     composedModelsId: string[];
     isLoading: boolean;
+  //  loadingFlag: boolean;
+    refreshFlag: boolean;
 }
 
 export interface IModel {
@@ -83,7 +85,7 @@ function mapDispatchToProps(dispatch) {
 export default class ModelComposePage extends React.Component<IModelComposePageProps, IModelComposePageState> {
     private selection: Selection;
     private allModels: IModel[];
-    private loadingFlag: boolean = true;
+    private refreshClicks: boolean;
     private listRef = React.createRef<IDetailsList>();
 
     constructor(props) {
@@ -161,6 +163,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             isComposing: false,
             composedModelsId: [],
             isLoading: false,
+ //           loadingFlag: true,
+            refreshFlag: false,
         };
 
         this.selection = new Selection({
@@ -187,16 +191,23 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     public componentDidUpdate(prevProps, prevState) {
-        if ( prevState.isComposing === true &&
-                prevState.isComposing !== this.state.isComposing) {
+        if ((prevState.isComposing === true &&
+                prevState.isComposing !== this.state.isComposing) || this.state.refreshFlag) {
             if (this.props.project) {
                 this.getModelList();
             }
+            this.refreshClicks = false;
+            this.setState({
+                refreshFlag: false,
+            });
         }
     }
 
     public componentWillUnmount() {
-        this.loadingFlag = false;
+        // this.setState({
+        //     loadingFlag: false,
+        // });
+        console.log("this will unmount");
     }
 
     public render() {
@@ -214,8 +225,11 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     <div className="commandbar">
                         <ModelComposeCommandBar
                             composedModels={this.state.composedModelsId}
-                            handleCompose={this.onComposeClick}
-                            GetComposedItemsOnTop={this.handleTopComposedModel}
+                            isComposing={this.state.isComposing}
+                            isLoading={this.state.isLoading}
+                            handleCompose={this.onComposeButtonClick}
+                            handleRefresh={this.onRreshButtonClick}
+                            GetComposedItemsOnTop={this.handleTopButtonClick}
                             />
                     </div>
                     <div className="label-filter-background">
@@ -287,14 +301,14 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             this.setState({
                 modelList: reorderedList,
             }, () => {
-                setTimeout(() => {this.addModelLists(nextLink); }, 300); });
+                setTimeout(() => {this.addModelLists(nextLink); }, 400); });
         } catch (error) {
             console.log(error);
         }
     }
 
     private addModelLists = async (nextLink) => {
-        if (this.loadingFlag) {
+        try {
             if (this.state.modelList.length <= 250) {
                 if (nextLink.length !== 0) {
                     const nextRes = await this.getModelsFromNextLink(nextLink);
@@ -310,15 +324,16 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     }, () => {
                         setTimeout(() => {
                         this.addModelLists(link);
-                    }, 300); });
+                    }, 400); });
                 } else {
-                    this.setState({isLoading: false});
+                    setTimeout(() => {
+                        this.setState({isLoading: false});
+                    }, 600);
                 }
             }
-        } else {
-            this.loadingFlag = true;
+        } catch (error) {
+            console.log(error);
         }
-
     }
 
     private getModelsFromNextLink = async (link: string) => {
@@ -336,6 +351,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     private async getResponse(nextLink?: string) {
+        console.log("call response");
         const baseURL = nextLink === undefined ? url.resolve(
             this.props.project.apiUriBase,
             constants.apiModelsPath,
@@ -343,11 +359,17 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             this.props.project.apiUriBase,
             nextLink,
         );
+        const config = {
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "withCredentials": "true",
+            },
+        };
 
         try {
             return await ServiceHelper.getWithAutoRetry(
                 baseURL,
-                {},
+                config,
                 this.props.project.apiKey as string,
             );
         } catch (err) {
@@ -421,7 +443,13 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         return "item selected";
     }
 
-    private onComposeClick = () => {
+    private onTextChange = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string): void => {
+        this.setState({
+            modelList: text ? this.allModels.filter((m) => m.modelId.indexOf(text) > -1) : this.allModels,
+        });
+    }
+
+    private onComposeButtonClick = () => {
         this.selection.getSelection().map((s) => console.log(s));
         this.setState({
             isComposing: true,
@@ -444,13 +472,20 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         }, 5000);
     }
 
-    private onTextChange = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string): void => {
-        this.setState({
-            modelList: text ? this.allModels.filter((m) => m.modelId.indexOf(text) > -1) : this.allModels,
-        });
+    private onRreshButtonClick = () => {
+        if (!this.refreshClicks) {
+            this.refreshClicks = true;
+            setTimeout(() => {
+                if (!this.state.refreshFlag && this.refreshClicks) {
+                    this.setState({
+                        refreshFlag: true,
+                    });
+                }
+            }, 1);
+        }
     }
 
-    private handleTopComposedModel = () => {
+    private handleTopButtonClick = () => {
         if (this.state.composedModelsId) {
             const newList = this.getComposedModelsOnTop(this.state.modelList);
             const newCols = this.state.columns;
