@@ -102,8 +102,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     public state: IPredictPageState = {
         receiptTags: null,
         showInputedAPIKey: false,
-        inputedAPIKey: "",
-        inputedServiceURI: "",
+        inputedAPIKey: "3f1523d3ece8448eb0d16c583ce3e2a9",
+        inputedServiceURI: "https://cognitiveusw2ppe.azure-api.net/",
         sourceOption: "localFile",
         isFetching: false,
         fetchedFileURL: "",
@@ -222,7 +222,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     <div className="condensed-list">
                         <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
                             <FontIcon className="mr-1" iconName="Insights" />
-                            <span>Predict {this.props.receiptMode ? " receipts (preview)" : ""}</span>
+                            <span>Analyze {this.props.receiptMode ? " receipts (preview)" : ""}</span>
                         </h6>
                         <div className="p-3">
                             {/* <h5>
