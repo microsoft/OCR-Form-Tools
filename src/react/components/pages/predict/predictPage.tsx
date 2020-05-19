@@ -190,9 +190,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                 onClick={this.handleDownloadClick}
                             />
                             <div className="alight-vertical-center mt-2">
-                                <div className="seperator"/>
+                                <div className="separator"/>
                                 or
-                                <div className="seperator"/>
+                                <div className="separator"/>
                             </div> */}
                             <h5>
                                 {strings.predict.uploadFile}
@@ -588,12 +588,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             }
             const endpointURL = this.props.project.apiUriBase as string;
             const apiKey = this.props.project.apiKey as string;
-            const analyzeScript = response.data.replace(/<endpoint>|<subsription_key>|<model_id>/gi,
+            const analyzeScript = response.data.replace(/<endpoint>|<subscription_key>|<model_id>/gi,
                 (matched: string) => {
                 switch (matched) {
                     case "<endpoint>":
                         return endpointURL;
-                    case "<subsription_key>":
+                    case "<subscription_key>":
                         return apiKey;
                     case "<model_id>":
                         return modelID;
@@ -839,8 +839,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     /**
-     * Poll function to repeatly check if request succeeded
-     * @param func - function that will be called repeatly
+     * Poll function to repeatedly check if request succeeded
+     * @param func - function that will be called repeatedly
      * @param timeout - timeout
      * @param interval - interval
      */
