@@ -35,6 +35,10 @@
       "unicode": "E710"
     },
     {
+      "name": "Cancel",
+      "unicode": "E711"
+    },
+    {
       "name": "Settings",
       "unicode": "E713"
     },
@@ -57,10 +61,6 @@
     {
       "name": "CheckboxComposite",
       "unicode": "E73A"
-    },
-    {
-      "name": "LabelComposite",
-      "unicode": "E932"
     },
     {
       "name": "CheckMark",
@@ -127,6 +127,10 @@
       "unicode": "E8EC"
     },
     {
+      "name": "Label",
+      "unicode": "E932"
+    },
+    {
       "name": "Info",
       "unicode": "E946"
     },
@@ -177,6 +181,10 @@
     {
       "name": "WarningSolid",
       "unicode": "F736"
+    },
+    {
+      "name": "BookAnswers",
+      "unicode": "F8A4"
     }
   ]
 }
