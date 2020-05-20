@@ -1,0 +1,25 @@
+@import "../../../../assets/sass/theme.scss";
+@import "../../common/common.scss";
+
+.viewed-table {
+    border: 1px solid white;
+    margin-left: 10px;
+    margin-right: 10px;
+    td {
+        border: 0.5px solid white;
+    }
+
+}
+
+td:empty::after {
+    content: "\00a0";
+}
+
+.close-modal {
+    margin: 1.25rem 0rem auto auto;
+    color: #fff;
+    &:hover {
+        color: $lighter-5;
+        cursor: pointer;
+    }
+}

@@ -45,6 +45,8 @@ export interface ICanvasProps extends React.Props<Canvas> {
     lockedTags: string[];
     hoveredLabel: ILabel;
     children?: ReactElement<AssetPreview>;
+    setTableToView?: (tableToView: object, tableToViewId: string) => void;
+    handleTableViewClose?: () => void;
     onAssetMetadataChanged?: (assetMetadata: IAssetMetadata) => void;
     onSelectedRegionsChanged?: (regions: IRegion[]) => void;
     onCanvasRendered?: (canvas: HTMLCanvasElement) => void;
@@ -138,6 +140,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private applyTagFlag: boolean = false;
 
     private pendingFlag: boolean = false;
+
+    private tableIDToIndexMap: object;
 
     public componentDidMount = async () => {
         this.ocrService = new OCRService(this.props.project);
@@ -283,6 +287,16 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     public updateSize() {
         this.imageMap.updateSize();
+    }
+
+    public handleCloseTableView(viewedTableId) {
+        this.imageMap.getTableBorderFeatureByID(viewedTableId).set("state", "rest");
+        this.imageMap.getTableIconFeatureByID(viewedTableId).set("state", "rest");
+    }
+
+    public handleOpenTableView(viewedTableId) {
+        this.imageMap.getTableBorderFeatureByID(viewedTableId).set("state", "selected");
+        this.imageMap.getTableIconFeatureByID(viewedTableId).set("state", "selected");
     }
 
     /**
@@ -559,7 +573,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         return feature;
     }
 
-    private createBoundingBoxVectorTable = (boundingBox, imageExtent, ocrExtent, page, rows, columns) => {
+    private createBoundingBoxVectorTable = (boundingBox, imageExtent, ocrExtent, page, rows, columns, index) => {
         const coordinates: any[] = [];
         const polygonPoints: number[] = [];
         const imageWidth = imageExtent[2] - imageExtent[0];
@@ -578,6 +592,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             polygonPoints.push(boundingBox[i + 1] / ocrHeight);
         }
         const tableID = this.createRegionIdFromBoundingBox(polygonPoints, page);
+        this.tableIDToIndexMap[tableID] = index;
         const tableFeatures = {};
         tableFeatures["border"] = new Feature({
             geometry: new Polygon([coordinates]),
@@ -824,11 +839,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (this.state.hoveringFeature != null) {
             const tableState = this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).get("state");
             if (tableState === "hovering") {
-                this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).set("state", "selected");
-                this.imageMap.getTableIconFeatureByID(this.state.hoveringFeature).set("state", "selected");
+                this.props.setTableToView(this.state.ocrForCurrentPage.pageResults
+                    .tables[this.tableIDToIndexMap[this.state.hoveringFeature]], this.state.hoveringFeature);
             } else {
-                this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).set("state", "hovering");
-                this.imageMap.getTableIconFeatureByID(this.state.hoveringFeature).set("state", "hovering");
+                this.props.handleTableViewClose();
             }
         }
     }
@@ -1482,15 +1496,19 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 }
             });
         }
+        this.tableIDToIndexMap = {};
         if (ocrPageResults && ocrPageResults.tables) {
-            ocrPageResults.tables.forEach((table) => {
+            ocrPageResults.tables.forEach((table, index) => {
                 if (table.cells && table.columns && table.rows) {
                     const tableBoundingBox = this.getTableBoundingBox(table.cells.map((cell) => cell.boundingBox));
                     const createdTableFeatures = this.createBoundingBoxVectorTable(
                         tableBoundingBox,
                         imageExtent,
                         ocrExtent,
-                        ocrPageResults.page, table.rows, table.columns);
+                        ocrPageResults.page,
+                        table.rows,
+                        table.columns,
+                        index);
                     tableBorderFeatures.push(createdTableFeatures["border"]);
                     tableIconFeatures.push(createdTableFeatures["icon"]);
                     tableIconBorderFeatures.push(createdTableFeatures["iconBorder"]);
