@@ -17,10 +17,10 @@ export async function forEachAsync<K, V>(
     Guard.null(action);
     Guard.expression(batchSize, (value) => value > 0);
 
-    const all: Array<[K, V]> = [...this.entries()];
+    const all: [K, V][] = [...this.entries()];
 
     while (all.length > 0) {
-        const batch: Array<[K, V]> = [];
+        const batch: [K, V][] = [];
 
         while (all.length > 0 && batch.length < batchSize) {
             batch.push(all.pop());
