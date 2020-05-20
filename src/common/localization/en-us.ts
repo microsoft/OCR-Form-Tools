@@ -322,6 +322,68 @@ export const english: IAppStrings = {
     profile: {
         settings: "Profile Settings",
     },
+    shortcuts: {
+        squareBrackets: {
+            keys: {
+                leftBracket: "[",
+                rightBracket: "]",
+            },
+            description: {
+                prevWord: "Move the selection to previous word",
+                nextWord: "Move the selection to next word",
+            },
+        },
+        greaterAndLessThan: {
+            keys: {
+                lessThan: "<",
+                greaterThan: ">",
+                },
+            description: {
+                prevPage: "Go to the previous page in multi-pages documents",
+                nextPage: "Go to the next page in multi-pages documents",
+            },
+        },
+        zoomKeys: {
+            keys: {
+                minus: "-",
+                plus: "=",
+                slash: "/",
+                },
+            description: {
+                in: "Zoom in",
+                out: "Zoom out",
+                reset: "Reset zoom",
+            },
+        },
+        deleteAndBackspace: {
+            keys: {
+                delete: "Delete",
+                backSpace: "Backspace",
+                },
+            description: {
+                delete: "Delete selection from document map or selection key from a label",
+                backSpace: "Delete selection from document map or selection key from a label",
+                },
+        },
+        tips: {
+            quickLabeling: {
+                name: "Quick labeling",
+            description: "Hotkeys of 1 through 0 and all letters are assigned to first 36 tags, after you selected one or multiple words from the highlighted text elements, by pressing these hotkeys, you can label the selected words.",
+            },
+            renameTag: {
+                name: "Rename Tag",
+                description: "Hold Alt key and click on tag name, user can change the tag's name.",
+            },
+            multipleWordSelection: {
+                name: "Multiple words selection",
+                description: "Click and hold on word, than  hover over other words to do multiple words selection at a time.",
+            },
+        },
+        headers: {
+            keyboardShortcuts: "Keyboard shortcuts",
+            otherTips: "Other tips",
+        },
+    },
     errors: {
         unknown: {
             title: "Unknown Error",
