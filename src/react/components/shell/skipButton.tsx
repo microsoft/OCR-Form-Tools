@@ -21,7 +21,6 @@ export class SkipButton extends React.Component<ISkipButtonProps> {
 
         const collection = document.getElementsByClassName(this.props.skipTo);
         const element = collection.length > 0 ? collection[0] as HTMLElement : null;
-        console.log(element);
 
         if (!element) {
             return;
