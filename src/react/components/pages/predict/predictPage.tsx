@@ -5,7 +5,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
-import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton, TextField, IDropdownOption, Dropdown} from "office-ui-fabric-react";
+import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton, TextField, IDropdownOption, Dropdown, TooltipHostBase} from "office-ui-fabric-react";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
@@ -34,6 +34,8 @@ import { getPrimaryGreenTheme, getPrimaryWhiteTheme,
          getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
 import { SkipButton } from "../../shell/skipButton";
 import axios from "axios";
+import { getStorageItem, setStorageItem } from "../../../../redux/middleware/localStorage";
+
 
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
 
@@ -111,19 +113,27 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         highlightedField: "",
     };
 
+    private prevRunState: any;
     private fileInput: React.RefObject<HTMLInputElement> = React.createRef();
     private currPdf: any;
     private tiffImages: any[];
     private imageMap: ImageMap;
+    private projectId: string;
+
 
     public async componentDidMount() {
-        const projectId = this.props.match.params["projectId"];
-        if (projectId) {
-            const project = this.props.recentProjects.find((project) => project.id === projectId);
+        this.projectId = this.props.match.params["projectId"];
+        if (this.projectId) {
+            const project = this.props.recentProjects.find((project) => project.id === this.projectId);
             await this.props.actions.loadProject(project);
             this.props.appTitleActions.setTitle(project.name);
         }
         document.title = strings.predict.title + " - " + strings.appName;
+        this.prevRunState = this.getLastPredictionResultFromLocalStrorage(this.projectId);
+        if (this.prevRunState) {
+            this.prevRunState = JSON.parse(this.prevRunState);
+            this.setState({ ...this.prevRunState, currPage: undefined  })
+        }
     }
 
     public componentDidUpdate(prevProps, prevState) {
@@ -148,6 +158,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             if (prevState.highlightedField !== this.state.highlightedField) {
                 this.setPredictedFieldHighlightStatus(this.state.highlightedField);
             }
+            this.saveLastPredictionResultToLocalStorage(this.state, this.projectId);
         }
     }
 
@@ -541,7 +552,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     predictRun: true,
                     isPredicting: false,
                 }, () => {
-                    this.drawPredictionResult();
+                        this.drawPredictionResult();
                 });
             }).catch((error) => {
                 let alertMessage = "";
@@ -651,18 +662,18 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             headers = { "Content-Type": "application/json", "cache-control": "no-cache" };
             body = { source: this.state.fetchedFileURL };
         }
-        let response;
-        try {
+let response;
+try {
             response = await ServiceHelper.postWithAutoRetry(
                 endpointURL, body, { headers }, this.props.project.apiKey as string);
         } catch (err) {
             ServiceHelper.handleServiceError(err);
         }
 
-        const operationLocation = response.headers["operation-location"];
+const operationLocation = response.headers["operation-location"];
 
         // Make the second REST API call and get the response.
-        return this.poll(() =>
+return this.poll(() =>
             ServiceHelper.getWithAutoRetry(
                 operationLocation, { headers }, this.props.project.apiKey as string), 120000, 500);
     }
@@ -820,15 +831,16 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private drawPredictionResult = (): void => {
+        const currPage = this.prevRunState ? 1 : this.state.currPage
         const features = [];
         const imageExtent = [0, 0, this.state.imageWidth, this.state.imageHeight];
-        const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[this.state.currPage - 1];
+        const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[currPage - 1];
         const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
         const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
 
         for (const fieldName of Object.keys(predictions)) {
             const field = predictions[fieldName];
-            if (_.get(field, "page", null) === this.state.currPage) {
+            if (_.get(field, "page", null) === currPage) {
                 const text = fieldName;
                 const boundingbox = _.get(field, "boundingBox", []);
                 const feature = this.createBoundingBoxVectorFeature(text, boundingbox, imageExtent, ocrExtent);
@@ -836,6 +848,16 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             }
         }
         this.imageMap.addFeatures(features);
+    }
+
+    private saveLastPredictionResultToLocalStorage = (result, projectID) => {
+        if (projectID) {
+            setStorageItem(`prevPredictionResult-${projectID}`, JSON.stringify(result));
+        }
+    }
+
+    private getLastPredictionResultFromLocalStrorage = (projectID: string) => {
+       return getStorageItem(`prevPredictionResult-${projectID}`);
     }
 
     /**
