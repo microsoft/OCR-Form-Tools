@@ -87,7 +87,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                             {/* eslint-disable-next-line */}
                             <a ref={this.newProjectRef}
                                 id="home_newProject"
-                                href="#" onClick={this.createNewProject} className="p-5 new-project appMainContent" role="button">
+                                href="#" onClick={this.createNewProject} className="p-5 new-project skipToMainContent" role="button">
                                 <FontIcon iconName="AddTo" className="icon-9x"  />
                                 <div>{strings.homePage.newProject}</div>
                             </a>

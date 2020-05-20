@@ -73,7 +73,7 @@ export default class App extends React.Component<IAppProps> {
                     onError={this.props.actions.showError}
                     onClearError={this.props.actions.clearError} />
                 {/* Don't render app contents during a render error */}
-                <SkipButton skipTo="appMainContent">{strings.common.skipToMainContent}</SkipButton>
+                <SkipButton skipTo="skipToMainContent">{strings.common.skipToMainContent}</SkipButton>
                 {(!this.props.appError || this.props.appError.errorCode !== ErrorCode.GenericRenderError) &&
                     <KeyboardManager>
                         <BrowserRouter>

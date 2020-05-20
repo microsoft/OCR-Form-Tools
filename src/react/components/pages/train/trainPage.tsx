@@ -106,7 +106,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         const currTrainRecord = this.state.currTrainRecord;
 
         return (
-            <div className="train-page appMainContent" id="pageTrain">
+            <div className="train-page skipToMainContent" id="pageTrain">
                 <main className="train-page-main">
                     {currTrainRecord &&
                         <div>

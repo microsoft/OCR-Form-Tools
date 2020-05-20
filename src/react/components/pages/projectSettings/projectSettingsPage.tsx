@@ -111,7 +111,7 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
     // Hide ProjectMetrics for private-preview
     public render() {
         return (
-            <div className="project-settings-page appMainContent" id="pageProjectSettings">
+            <div className="project-settings-page skipToMainContent" id="pageProjectSettings">
                 <div className="project-settings-page-settings m-3">
                     <h3 className="flex-center">
                         <FontIcon iconName="DocumentManagement" />

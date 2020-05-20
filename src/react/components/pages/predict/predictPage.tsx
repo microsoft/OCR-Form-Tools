@@ -166,7 +166,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         ];
 
         return (
-            <div className="predict appMainContent" id="pagePredict">
+            <div className="predict skipToMainContent" id="pagePredict">
                 <div className="predict-main">
                     {this.state.file && this.state.imageUri && this.renderImageMap()}
                     {this.renderPrevPageButton()}

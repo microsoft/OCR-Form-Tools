@@ -65,7 +65,7 @@ export default class AppSettingsPage extends React.Component<IAppSettingsProps> 
 
     public render() {
         return (
-            <div className="app-settings-page appMainContent" id="pageAppSettings">
+            <div className="app-settings-page skipToMainContent" id="pageAppSettings">
                 <AppSettingsForm
                     appSettings={this.props.appSettings}
                     onSubmit={this.onFormSubmit}

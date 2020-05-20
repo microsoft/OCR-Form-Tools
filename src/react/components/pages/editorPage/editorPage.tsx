@@ -186,7 +186,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
 
         return (
-            <div className="editor-page appMainContent" id="pageEditor">
+            <div className="editor-page skipToMainContent" id="pageEditor">
                 {
                     tagIndexKeys.map((index) =>
                         (<KeyboardBinding
