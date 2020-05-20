@@ -186,7 +186,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
 
         return (
-            <div className="editor-page" id="pageEditor">
+            <div className="editor-page appMainContent" id="pageEditor">
                 {
                     tagIndexKeys.map((index) =>
                         (<KeyboardBinding
@@ -319,7 +319,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                     when={isRunningOCRs || isCanvasRunningOCR}
                     message={"An OCR operation is currently in progress, are you sure you want to leave?"}
                 />
-                <SkipButton skipTo = "pageEditor">{strings.common.skipToMainContent}</SkipButton>
             </div>
         );
     }

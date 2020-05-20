@@ -94,7 +94,7 @@ export default class ConnectionPage extends React.Component<IConnectionPageProps
 
     public render() {
         return (
-            <div className="app-connections-page" id="pageConnections">
+            <div className="app-connections-page appMainContent" id="pageConnections">
                 <div className="app-connections-page-list bg-lighter-1">
                     <CondensedList
                         title={strings.connections.title}
@@ -124,8 +124,6 @@ export default class ConnectionPage extends React.Component<IConnectionPageProps
                         onSubmit={this.onFormSubmit}
                         onCancel={this.onFormCancel} />
                 } />
-
-                <SkipButton skipTo="pageConnections">{strings.common.skipToMainContent}</SkipButton>
             </div>
         );
     }

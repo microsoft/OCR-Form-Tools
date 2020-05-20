@@ -72,6 +72,7 @@ export default class App extends React.Component<IAppProps> {
                     onError={this.props.actions.showError}
                     onClearError={this.props.actions.clearError} />
                 {/* Don't render app contents during a render error */}
+                <SkipButton skipTo="appMainContent">{strings.common.skipToMainContent}</SkipButton>
                 {(!this.props.appError || this.props.appError.errorCode !== ErrorCode.GenericRenderError) &&
                     <KeyboardManager>
                         <BrowserRouter>
@@ -89,7 +90,6 @@ export default class App extends React.Component<IAppProps> {
                                 <ToastContainer className="frtt-toast-container" role="alert"/>
                             </div>
                         </BrowserRouter>
-                        <SkipButton skipTo="appSidebar">{strings.common.skipToSidebar}</SkipButton>
                     </KeyboardManager>
                 }
             </Fragment>
