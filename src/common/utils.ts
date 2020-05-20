@@ -168,8 +168,8 @@ async function decryptString(str: string | ISecureString, secret) {
 }
 
 export async function throttle<T>(max: number, arr: T[], worker: (payload: T) => Promise<any>) {
-    const allPromises: Array<Promise<any>> = [];
-    const runningPromises: Array<Promise<any>> = [];
+    const allPromises: Promise<any>[] = [];
+    const runningPromises: Promise<any>[] = [];
     let i = 0;
     while (i < arr.length) {
         const payload = arr[i];

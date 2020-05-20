@@ -41,7 +41,7 @@ export function Sidebar({ project }) {
                 </li>
                 <li>
                     <ConditionalNavLink disabled={!projectId}
-                        title={`Predict`}
+                        title={`Analyze`}
                         to={`/projects/${projectId}/predict`}>
                         <FontIcon iconName="Insights" />
                     </ConditionalNavLink>

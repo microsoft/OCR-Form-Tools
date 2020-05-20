@@ -19,7 +19,7 @@ RUN npm run build
 
 # Stage 2
 # Use Nginx to serve files
-FROM nginx:1.16.0-alpine
+FROM nginx:1.18.0-alpine
 WORKDIR /usr/src/app
 
 COPY --from=build /usr/src/app/run.sh .
