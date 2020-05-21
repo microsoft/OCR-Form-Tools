@@ -106,7 +106,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         const currTrainRecord = this.state.currTrainRecord;
 
         return (
-            <div className="train-page" id="pageTrain">
+            <div className="train-page skipToMainContent" id="pageTrain">
                 <main className="train-page-main">
                     {currTrainRecord &&
                         <div>
@@ -182,7 +182,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                     when={this.state.isTraining}
                     message={"A training operation is currently in progress, are you sure you want to leave?"}
                 />
-                <SkipButton skipTo="pageTrain">{strings.common.skipToMainContent}</SkipButton>
             </div>
         );
     }
