@@ -754,11 +754,13 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private closeTableView = (state: string) => {
-        this.canvas.current.setTableState(this.state.tableToViewId, state);
-        this.setState({
-            tableToView: null,
-            tableToViewId: null,
-        });
+        if (this.state.tableToView) {
+            this.canvas.current.setTableState(this.state.tableToViewId, state);
+            this.setState({
+                tableToView: null,
+                tableToViewId: null,
+            });
+        }
     }
 
     private resizeCanvas = () => {
