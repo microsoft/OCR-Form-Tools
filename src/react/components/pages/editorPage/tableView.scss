@@ -9,11 +9,10 @@
         min-width: 20px;
         padding: 0 2px;
     }
+    td:empty::after {
+        content: "\00a0";
+    }
 
-}
-
-td:empty::after {
-    content: "\00a0";
 }
 
 .close-modal {
