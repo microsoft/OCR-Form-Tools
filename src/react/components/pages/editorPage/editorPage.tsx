@@ -739,9 +739,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     private setTableToView = async (tableToView, tableToViewId) => {
         if (this.state.tableToViewId) {
-            this.canvas.current.handleCloseTableView(this.state.tableToViewId, "rest");
+            this.canvas.current.setTableState(this.state.tableToViewId, "rest");
         }
-        this.canvas.current.handleOpenTableView(tableToViewId);
+        this.canvas.current.setTableState(tableToViewId, "selected");
         this.setState({
             tableToView,
             tableToViewId,
@@ -753,7 +753,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private closeTableView = (state: string) => {
-        this.canvas.current.handleCloseTableView(this.state.tableToViewId, state);
+        this.canvas.current.setTableState(this.state.tableToViewId, state);
         this.setState({
             tableToView: null,
             tableToViewId: null,
