@@ -46,7 +46,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     hoveredLabel: ILabel;
     children?: ReactElement<AssetPreview>;
     setTableToView?: (tableToView: object, tableToViewId: string) => void;
-    handleTableViewClose?: () => void;
+    closeTableView?: (state: string) => void;
     onAssetMetadataChanged?: (assetMetadata: IAssetMetadata) => void;
     onSelectedRegionsChanged?: (regions: IRegion[]) => void;
     onCanvasRendered?: (canvas: HTMLCanvasElement) => void;
@@ -289,9 +289,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.imageMap.updateSize();
     }
 
-    public handleCloseTableView(viewedTableId) {
-        this.imageMap.getTableBorderFeatureByID(viewedTableId).set("state", "rest");
-        this.imageMap.getTableIconFeatureByID(viewedTableId).set("state", "rest");
+    public handleCloseTableView(viewedTableId, state) {
+        this.imageMap.getTableBorderFeatureByID(viewedTableId).set("state", state);
+        this.imageMap.getTableIconFeatureByID(viewedTableId).set("state", state);
     }
 
     public handleOpenTableView(viewedTableId) {
@@ -842,7 +842,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 this.props.setTableToView(this.state.ocrForCurrentPage.pageResults
                     .tables[this.tableIDToIndexMap[this.state.hoveringFeature]], this.state.hoveringFeature);
             } else {
-                this.props.handleTableViewClose();
+                this.props.closeTableView("hovering");
             }
         }
     }
