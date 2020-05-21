@@ -22,7 +22,7 @@ const supportedImageFormats = {
 
 interface IMime {
     mime: string;
-    pattern: Array<number|undefined>;
+    pattern: (number|undefined)[];
   }
 
   // tslint:disable number-literal-format
