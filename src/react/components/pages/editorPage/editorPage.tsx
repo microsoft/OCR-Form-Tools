@@ -192,10 +192,12 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         return (
             <div className="editor-page" id="pageEditor">
-                <TableView
-                    handleTableViewClose={this.handleTableViewClose}
-                    tableToView={this.state.tableToView}
-                />
+                {this.state.tableToView !== null &&
+                    <TableView
+                        handleTableViewClose={this.handleTableViewClose}
+                        tableToView={this.state.tableToView}
+                    />
+                }
                 {
                     tagIndexKeys.map((index) =>
                         (<KeyboardBinding

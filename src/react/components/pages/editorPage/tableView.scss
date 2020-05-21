@@ -5,9 +5,9 @@
     margin: 4% 0;
     border: 1px solid white;
     td {
-        border: 0.5px solid white;
-        min-width: 20px;
-        padding: 0 2px;
+        border: 0.5px solid rgba(255,255,255, 0.6);;
+        min-width: 30px;
+        padding: 0 10px 0 4px;
     }
     td:empty::after {
         content: "\00a0";
