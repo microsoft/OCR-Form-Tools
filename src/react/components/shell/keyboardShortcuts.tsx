@@ -3,9 +3,8 @@
 
 import React, { useState } from "react";
 import { Modal } from "office-ui-fabric-react/lib/Modal";
-import { FontIcon, IFontIconProps } from "office-ui-fabric-react";
+import { FontIcon } from "office-ui-fabric-react";
 import { ICustomizations, Customizer } from "office-ui-fabric-react/lib/Utilities";
-import { useId } from "@uifabric/react-hooks";
 import { getDarkGreyTheme } from "../../../common/themes";
 import { strings } from "../../../common/strings";
 
@@ -26,7 +25,6 @@ export const KeyboardShortcuts: React.FC = () => {
         },
         scopedSettings: {},
     };
-    const uniqueId: string = useId("shortcuts");
 
     const [showModal, setShowModal] = useState(false);
     const closeModal = () => setShowModal(false);
@@ -85,26 +83,27 @@ export const KeyboardShortcuts: React.FC = () => {
             description: strings.shortcuts.tips.multipleWordSelection.description,
         },
     ];
-    const ShortcutsListItem = ({ item }): JSX.Element => {
-        return (
-            <li key={uniqueId} className="shortcut">
+    const ShortcutsListItems = ({ items }): JSX.Element => {
+        return items.map((item, idx) => (
+            <li key={`${item.key}-${idx}`} className="shortcut">
                 <div className="shortcut-description description">{item.description}</div>
                 <div className="shortcut-keys">
                     <span
-                        key={uniqueId}
                         className="keyboard-key"
                         aria-label={`keyboard key - ${item.key}`}
                     >{item.key}</span>
                 </div>
-            </li>);
+            </li>));
     };
 
-    const TipsListItem = ({ item }): JSX.Element => (
-        <li key={uniqueId}>
-            <h6>{item.name}</h6>
-            <p className="description">{item.description}</p>
-        </li>
-    );
+    const TipsListItems = ({ items }): JSX.Element => {
+        return items.map((item, idx) => (
+            <li key={`${item.name}-${idx}`}>
+                <h6>{item.name}</h6>
+                <p className="description">{item.description}</p>
+            </li>
+        ));
+    };
 
     return (
         <Customizer {...dark}>
@@ -120,26 +119,21 @@ export const KeyboardShortcuts: React.FC = () => {
                 onDismiss={closeModal}
                 isBlocking={false}
                 containerClassName="container"
-                // className="container"
             >
                 <div className="header">
-                            <h3>{strings.shortcuts.headers.keyboardShortcuts}</h3>
-                            <FontIcon className="close-modal" role="button" onClick={closeModal} iconName="Cancel" />
-                        </div>
+                    <h3>{strings.shortcuts.headers.keyboardShortcuts}</h3>
+                    <FontIcon className="close-modal" role="button" onClick={closeModal} iconName="Cancel" />
+                </div>
                 <div className="content">
                     <div className="shortcuts-list-container">
                         <ul className="shortcuts-list">
-                            {
-                                shortcutsItems.map((item) => <ShortcutsListItem item={item} />)
-                            }
+                            <ShortcutsListItems items={shortcutsItems} />
                         </ul>
                     </div>
                     <div className="tips-list-container">
                         <h4 >{strings.shortcuts.headers.otherTips}</h4>
                         <ul className="tips-list">
-                            {
-                                tipsItems.map((item) => <TipsListItem item={item} />)
-                            }
+                            <TipsListItems items={tipsItems} />
                         </ul>
                     </div>
                 </div>
