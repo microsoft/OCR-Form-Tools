@@ -14,14 +14,14 @@ interface IModelComposeCommandBarProps {
 export const ModelComposeCommandBar: React.FunctionComponent<IModelComposeCommandBarProps> = (props) => {
 
     const commandBarItems: ICommandBarItemProps[] = [
-        {
-            key: "GetComposedItems",
-            text: "Top",
-            title: "Move composed models to top",
-            disabled: props.composedModels.length === 0 ? true : false,
-            iconProps: {iconName: "ChevronUp"},
-            onClick: () => {props.GetComposedItemsOnTop(); },
-        },
+        // {
+        //     key: "GetComposedItems",
+        //     text: "Top",
+        //     title: "Move composed models to top",
+        //     disabled: props.composedModels.length === 0 ? true : false,
+        //     iconProps: {iconName: "ChevronUp"},
+        //     onClick: () => {props.GetComposedItemsOnTop(); },
+        // },
     ];
 
     const commandBarFarItems: ICommandBarItemProps[] = [

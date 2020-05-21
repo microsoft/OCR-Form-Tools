@@ -373,6 +373,9 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 this.props.project.apiKey as string,
             );
         } catch (err) {
+            this.setState({
+                isLoading: false,
+            })
             console.log(err);
             ServiceHelper.handleServiceError(err);
         }
