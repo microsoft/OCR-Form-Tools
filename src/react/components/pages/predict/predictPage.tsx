@@ -129,9 +129,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             this.props.appTitleActions.setTitle(project.name);
         }
         document.title = strings.predict.title + " - " + strings.appName;
-        this.prevRunState = this.getLastPredictionResultFromLocalStrorage(this.projectId);
-        if (this.prevRunState) {
-            this.prevRunState = JSON.parse(this.prevRunState);
+        this.prevRunState = this.getLastPredictionResultFromLocalStrorage();
+        if (this.prevRunState && this.projectId === this.prevRunState.projectId) {
             this.setState({ ...this.prevRunState, currPage: undefined  })
         }
     }
@@ -158,7 +157,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             if (prevState.highlightedField !== this.state.highlightedField) {
                 this.setPredictedFieldHighlightStatus(this.state.highlightedField);
             }
-            this.saveLastPredictionResultToLocalStorage(this.state, this.projectId);
+            this.saveLastPredictionResultToLocalStorage({...this.state, projectId: this.projectId});
         }
     }
 
@@ -850,14 +849,12 @@ return this.poll(() =>
         this.imageMap.addFeatures(features);
     }
 
-    private saveLastPredictionResultToLocalStorage = (result, projectID) => {
-        if (projectID) {
-            setStorageItem(`prevPredictionResult-${projectID}`, JSON.stringify(result));
-        }
+    private saveLastPredictionResultToLocalStorage = (state) => {
+            setStorageItem("prevPredictionResult", JSON.stringify(state));
     }
 
-    private getLastPredictionResultFromLocalStrorage = (projectID: string) => {
-       return getStorageItem(`prevPredictionResult-${projectID}`);
+    private getLastPredictionResultFromLocalStrorage = () => {
+        return JSON.parse(getStorageItem("prevPredictionResult"));
     }
 
     /**
