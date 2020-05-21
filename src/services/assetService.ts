@@ -16,6 +16,49 @@ import { strings, interpolate } from "../common/strings";
 import { sha256Hash } from "../common/crypto";
 import { toast } from "react-toastify";
 
+const supportedImageFormats = {
+    jpg: null, jpeg: null, null: null, png: null, bmp: null, tif: null, tiff: null, pdf: null,
+};
+
+interface IMime {
+    mime: string;
+    pattern: (number|undefined)[];
+  }
+
+  // tslint:disable number-literal-format
+  // tslint:disable no-magic-numbers
+const imageMimes: IMime[] = [
+    {
+      mime: "image/bmp",
+      pattern: [0x42, 0x4d],
+    },
+    {
+      mime: "image/png",
+      pattern: [0x89, 0x50, 0x4e, 0x47],
+    },
+    {
+      mime: "image/jpeg",
+      pattern: [0xff, 0xd8, 0xff, 0xdb],
+    },
+    {
+      mime: "image/jpg",
+      pattern: [0xff, 0xd8, 0xff, 0xf0, 0x00, 0xfe, 0xe1],
+    },
+    {
+      mime: "image/tif",
+      pattern: [0x49, 0x49, 0x2a, 0x00],
+    },
+    {
+      mime: "image/tiff",
+      pattern: [0x4d, 0x4d, 0x00, 0x2a],
+    },
+    {
+      mime: "application/pdf",
+      pattern: [0x25, 0x50, 0x44, 0x46, 0x2d],
+    },
+];
+// We can expand this list @see https://mimesniff.spec.whatwg.org/#matching-an-image-type-pattern
+
 /**
  * @name - Asset Service
  * @description - Functions for dealing with project assets
@@ -48,7 +91,20 @@ export class AssetService {
 
         // eslint-disable-next-line
         const extensionParts = fileNameParts[fileNameParts.length - 1].split(/[\?#]/);
-        const assetFormat = extensionParts[0];
+        let assetFormat = extensionParts[0];
+
+        if (supportedImageFormats.hasOwnProperty(assetFormat.toLowerCase())) {
+            const mime = await this.getMimeType(filePath);
+
+            // If file was renamed/spoofed - fix file extension to true MIME type and show message
+            if (assetFormat !== mime) {
+                assetFormat = mime;
+                const corruptFileName = fileName.split("%2F").pop().replace(/%20/g, " ");
+                setTimeout(() => {
+                    toast.info(`${strings.editorPage.assetWarning.incorrectFileExtension.attention} ${corruptFileName.toLocaleUpperCase()} ${strings.editorPage.assetWarning.incorrectFileExtension.text} ${corruptFileName.toLocaleUpperCase()}`);
+                }, 3000);
+            }
+        }
 
         const assetType = this.getAssetType(assetFormat);
 
@@ -84,6 +140,34 @@ export class AssetService {
         }
     }
 
+    // If extension of a file was spoofed, we fetch only first 4 bytes of the file and read MIME type
+    public static async getMimeType(uri: string): Promise<string> {
+        const numBytesNeeded: number = (Math.max(...imageMimes.map((m) => m.pattern.length)) - 1);
+        const first4bytes: Response = await fetch(uri, { headers: { range: `bytes=0-${numBytesNeeded}` } });
+        const arrayBuffer: ArrayBuffer = await first4bytes.arrayBuffer();
+        const blob = new Blob([new Uint8Array(arrayBuffer).buffer]);
+        const isMime = (bytes: Uint8Array, mime: IMime): boolean => {
+                return mime.pattern.every((p, i) => !p || bytes[i] === p);
+        };
+        const fileReader: FileReader = new FileReader();
+
+        const mimeType = new Promise<string>((resolve, reject) => {
+            fileReader.onloadend = (e) => {
+                if (!e || !fileReader.result) { return; }
+                const bytes: Uint8Array = new Uint8Array(fileReader.result as ArrayBuffer);
+                const fileMimes: string[] = imageMimes.map((mime) => {
+                    if (isMime(bytes, mime)) {
+                        return mime.mime;
+                    }
+                });
+                const mime: string = fileMimes.filter((i) => i !== undefined)[0].split("/").pop();
+                resolve(mime);
+            };
+            fileReader.readAsArrayBuffer(blob);
+        });
+        return mimeType;
+    }
+
     private assetProviderInstance: IAssetProvider;
     private storageProviderInstance: IStorageProvider;
 
@@ -92,7 +176,7 @@ export class AssetService {
     }
 
     /**
-     * Get Asset Provider from project's source connction
+     * Get Asset Provider from project's source connection
      */
     protected get assetProvider(): IAssetProvider {
         if (!this.assetProviderInstance) {
