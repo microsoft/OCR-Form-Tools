@@ -2,10 +2,10 @@
 @import "../../common/common.scss";
 
 .viewed-table {
-    margin: 4% 0;
-    border: 1px solid white;
+    margin: 4vh 0;
+    border: 1px solid rgba(255,255,255, 0.9);
     td {
-        border: 0.5px solid rgba(255,255,255, 0.6);;
+        border: 0.6px solid rgba(255,255,255, 0.7);
         min-width: 30px;
         padding: 0 10px 0 4px;
     }
