@@ -267,7 +267,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             lockedTags={this.state.lockedTags}
                                             hoveredLabel={this.state.hoveredLabel}
                                             setTableToView={this.setTableToView}
-                                            handleTableViewClose={this.handleTableViewClose}>
+                                            closeTableView={this.closeTableView}>
                                             <AssetPreview
                                                 controlsEnabled={this.state.isValid}
                                                 onBeforeAssetChanged={this.onBeforeAssetSelected}
@@ -739,7 +739,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     private setTableToView = async (tableToView, tableToViewId) => {
         if (this.state.tableToViewId) {
-            this.canvas.current.handleCloseTableView(this.state.tableToViewId);
+            this.canvas.current.handleCloseTableView(this.state.tableToViewId, "rest");
         }
         this.canvas.current.handleOpenTableView(tableToViewId);
         this.setState({
@@ -749,11 +749,16 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private handleTableViewClose = () => {
-        this.canvas.current.handleCloseTableView(this.state.tableToViewId);
+        this.closeTableView("hovering");
+    }
+
+    private closeTableView = (state: string) => {
+        this.canvas.current.handleCloseTableView(this.state.tableToViewId, state);
         this.setState({
             tableToView: null,
             tableToViewId: null,
-        });    }
+        });
+    }
 
     private resizeCanvas = () => {
         if (this.canvas.current) {
