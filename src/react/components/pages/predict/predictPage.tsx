@@ -639,6 +639,13 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         });
     }
 
+    private async createImageFileFromDataUri(dataUri: string, fileName: string) {
+        const blob = await fetch(dataUri)
+            .then((res) => res.blob())
+            .then((blob) => blob)
+        return new File([blob], fileName, { type: blob.type });
+    }
+
     private async getPrediction(): Promise<any> {
         const modelID = _.get(this.props.project, "trainRecord.modelInfo.modelId");
         if (!modelID) {
@@ -653,10 +660,16 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         );
         let headers;
         let body;
-        if (this.state.sourceOption === "localFile") {
+        if (this.state.sourceOption === "localFile" && !this.prevRunState) {
             headers = { "Content-Type": this.state.file.type, "cache-control": "no-cache" };
             body = this.state.file;
-        } else {
+        }
+        if (this.prevRunState.sourceOption === "localFile") {
+            const file = await this.createImageFileFromDataUri(this.prevRunState.imageUri, this.prevRunState.fileLabel)
+            headers = { "Content-Type": file.type, "cache-control": "no-cache" };
+            body = file;
+        }
+        else {
             headers = { "Content-Type": "application/json", "cache-control": "no-cache" };
             body = { source: this.state.fetchedFileURL };
         }
