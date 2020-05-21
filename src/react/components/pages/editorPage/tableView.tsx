@@ -22,24 +22,27 @@ export const TableView: React.FunctionComponent<ITableViewProps> = (props) => {
         menu: ContextualMenu,
       };
 
-    const table = props.tableToView;
-    let tableBody = null;
-    if (table !== null) {
-        tableBody = [];
-        const rows = table["rows"];
-        const columns = table["columns"];
-        for (let i = 0; i < rows; i++) {
-            const tableRow = [];
-            for (let j = 0; j < columns; j++) {
-                tableRow.push(<td key={j}></td>);
+    function getTableBody() {
+        const table = props.tableToView;
+        let tableBody = null;
+        if (table !== null) {
+            tableBody = [];
+            const rows = table["rows"];
+            const columns = table["columns"];
+            for (let i = 0; i < rows; i++) {
+                const tableRow = [];
+                for (let j = 0; j < columns; j++) {
+                    tableRow.push(<td key={j}></td>);
+                }
+                tableBody.push(<tr key={i}>{tableRow}</tr>);
             }
-            tableBody.push(<tr key={i}>{tableRow}</tr>);
+            table["cells"].forEach((cell) => {
+                const rowIndex = cell["rowIndex"];
+                const columnIndex = cell["columnIndex"];
+                tableBody[rowIndex]["props"]["children"][columnIndex] = <td key={columnIndex}>{cell["text"]}</td>;
+            });
         }
-        table["cells"].forEach((cell) => {
-            const rowIndex = cell["rowIndex"];
-            const columnIndex = cell["columnIndex"];
-            tableBody[rowIndex]["props"]["children"][columnIndex] = <td key={columnIndex}>{cell["text"]}</td>;
-        });
+        return tableBody;
     }
 
     return (
@@ -59,7 +62,7 @@ export const TableView: React.FunctionComponent<ITableViewProps> = (props) => {
             />
             <table className="viewed-table">
                 <tbody>
-                    {tableBody}
+                    {getTableBody()}
                 </tbody>
             </table>
             </Modal>
