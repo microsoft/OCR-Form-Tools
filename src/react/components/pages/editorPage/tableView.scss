@@ -2,12 +2,14 @@
 @import "../../common/common.scss";
 
 .viewed-table {
+    margin-top: 2%;
+    margin-bottom: 2%;
     border: 1px solid white;
-    margin-left: 10px;
-    margin-right: 10px;
     td {
         border: 0.5px solid white;
         min-width: 20px;
+        padding-left: 2px;
+        padding-right: 2px;
     }
 
 }
@@ -17,10 +19,23 @@ td:empty::after {
 }
 
 .close-modal {
-    margin: 1.25rem 0rem auto auto;
+    right: 0px;
+    top: 0px;
+    padding-right: 5px;
+    padding-top: 3px;
+    padding-left: 5px;
+    padding-bottom: 3px;
+    position: absolute;
     color: #fff;
     &:hover {
         color: $lighter-5;
         cursor: pointer;
     }
+}
+
+.table-view-container {
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

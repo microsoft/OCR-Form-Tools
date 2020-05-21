@@ -45,10 +45,11 @@ export const TableView: React.FunctionComponent<ITableViewProps> = (props) => {
     return (
         <Customizer {...dark}>
             <Modal
-                titleAriaId={""}
+                titleAriaId={"Table view"}
                 isOpen={props.tableToView !== null}
                 isModeless={true}
                 dragOptions={dragOptions}
+                containerClassName={"table-view-container"}
             >
             <FontIcon
                 className="close-modal"
@@ -56,8 +57,8 @@ export const TableView: React.FunctionComponent<ITableViewProps> = (props) => {
                 iconName="Cancel"
                 onClick={props.handleTableViewClose}
             />
-            <table>
-                <tbody className="viewed-table">
+            <table className="viewed-table">
+                <tbody>
                     {tableBody}
                 </tbody>
             </table>
