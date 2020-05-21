@@ -1508,7 +1508,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 checkboxFeatures.push(this.createBoundingBoxVectorFeature(
                     checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, ocrPageResults.page));
             });
-        } else if (ocrReadResults && ocrReadResults.selectionMarks) {
+        }
 
         if (tableBorderFeatures.length > 0 && tableBorderFeatures.length === tableIconFeatures.length
             && tableBorderFeatures.length === tableIconBorderFeatures.length) {
