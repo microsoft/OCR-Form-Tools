@@ -750,7 +750,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private handleTableViewClose = () => {
-        this.closeTableView("hovering");
+        this.closeTableView("rest");
     }
 
     private closeTableView = (state: string) => {
