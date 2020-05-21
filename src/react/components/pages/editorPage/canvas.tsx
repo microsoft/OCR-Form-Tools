@@ -833,7 +833,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private handleTableIconFeatureSelect = () => {
         if (this.state.hoveringFeature != null) {
             const tableState = this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).get("state");
-            if (tableState === "hovering") {
+            if (tableState === "hovering" || tableState === "rest") {
                 this.props.setTableToView(this.state.ocrForCurrentPage.pageResults
                     .tables[this.tableIDToIndexMap[this.state.hoveringFeature]], this.state.hoveringFeature);
             } else {
@@ -1032,12 +1032,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private nextPage = async () => {
         if ((this.state.pdfFile !== null || this.state.tiffImages.length !== 0)
             && this.state.currentPage < this.state.numPages) {
+            this.props.closeTableView("rest");
             await this.goToPage(this.state.currentPage + 1);
         }
     }
 
     private prevPage = async () => {
         if ((this.state.pdfFile !== null || this.state.tiffImages.length !== 0) && this.state.currentPage > 1) {
+            this.props.closeTableView("rest");
             await this.goToPage(this.state.currentPage - 1);
         }
     }
