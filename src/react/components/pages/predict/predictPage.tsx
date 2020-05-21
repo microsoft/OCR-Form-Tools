@@ -166,7 +166,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         ];
 
         return (
-            <div className="predict" id="pagePredict">
+            <div className="predict skipToMainContent" id="pagePredict">
                 <div className="predict-main">
                     {this.state.file && this.state.imageUri && this.renderImageMap()}
                     {this.renderPrevPageButton()}
@@ -332,7 +332,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     when={this.state.isPredicting}
                     message={"A prediction operation is currently in progress, are you sure you want to leave?"}
                 />
-                <SkipButton skipTo="pagePredict">{strings.common.skipToMainContent}</SkipButton>
             </div>
         );
     }
