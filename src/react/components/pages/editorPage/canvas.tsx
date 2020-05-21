@@ -289,14 +289,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.imageMap.updateSize();
     }
 
-    public handleCloseTableView(viewedTableId, state) {
+    public setTableState(viewedTableId, state) {
         this.imageMap.getTableBorderFeatureByID(viewedTableId).set("state", state);
         this.imageMap.getTableIconFeatureByID(viewedTableId).set("state", state);
-    }
-
-    public handleOpenTableView(viewedTableId) {
-        this.imageMap.getTableBorderFeatureByID(viewedTableId).set("state", "selected");
-        this.imageMap.getTableIconFeatureByID(viewedTableId).set("state", "selected");
     }
 
     /**
