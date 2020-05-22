@@ -53,6 +53,7 @@ export const TableView: React.FunctionComponent<ITableViewProps> = (props) => {
                 isModeless={true}
                 dragOptions={dragOptions}
                 containerClassName={"table-view-container"}
+                scrollableContentClassName={"table-view-scollable-content"}
             >
             <FontIcon
                 className="close-modal"
