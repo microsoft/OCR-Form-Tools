@@ -5,8 +5,8 @@
     border: 1.2px solid rgba(255,255,255, 0.9);
     td {
         border: 0.6px solid rgba(255,255,255, 0.7);
-        min-width: 40px;
-        padding: 8px 14px 8px 8px;
+        min-width: 50px;
+        padding: 8px 16px 8px 8px;
     }
     td:empty::after {
         content: "\00a0";
