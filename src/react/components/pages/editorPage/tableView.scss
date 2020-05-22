@@ -2,12 +2,10 @@
 @import "../../common/common.scss";
 
 .table-view-container {
-    direction: rtl;
-    margin: 1rem;
+    margin-left: 0.5rem;
     max-height: 85vh;
     max-width: 85vw;
     .viewed-table {
-        direction: ltr;
         margin: 0.25rem 0.75rem;
         td {
             border: 2px solid #8D8D8D;
@@ -21,10 +19,9 @@
 }
 
 .close-modal {
-    right: 0px;
-    top: 0px;
-    margin: 0.75rem 1rem;
     position: fixed;
+    top: 10px;
+    right: 13px;
     color: #fff;
     &:hover {
         color: $lighter-5;
@@ -33,6 +30,6 @@
 }
 
 .table-view-scrollable-content {
-    margin: 25px;
+    margin: 2.25rem 1rem;
     max-height: 65vh;
 }

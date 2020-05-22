@@ -52,7 +52,6 @@ export const TableView: React.FunctionComponent<ITableViewProps> = (props) => {
                 isOpen={props.tableToView !== null}
                 isModeless={true}
                 dragOptions={dragOptions}
-                containerClassName={"table-view-container"}
                 scrollableContentClassName={"table-view-scrollable-content"}
             >
             <FontIcon
@@ -61,11 +60,13 @@ export const TableView: React.FunctionComponent<ITableViewProps> = (props) => {
                 iconName="Cancel"
                 onClick={props.handleTableViewClose}
                 />
-            <table className="viewed-table">
-                <tbody>
-                    {getTableBody()}
-                </tbody>
-            </table>
+                <div className="table-view-container">
+                    <table className="viewed-table">
+                        <tbody>
+                            {getTableBody()}
+                        </tbody>
+                    </table>
+                </div>
             </Modal>
         </Customizer>
     );
