@@ -2,8 +2,7 @@
 @import "../../common/common.scss";
 
 .viewed-table {
-    margin: 4vh 0;
-    border: 1px solid rgba(255,255,255, 0.9);
+    border: 1.2px solid rgba(255,255,255, 0.9);
     td {
         border: 0.6px solid rgba(255,255,255, 0.7);
         min-width: 30px;
@@ -18,8 +17,10 @@
 .close-modal {
     right: 0px;
     top: 0px;
-    padding: 2px 5px 5px;
-    position: absolute;
+    padding: 0 4px;
+    margin-right: 3px;
+    margin-top: 2px;
+    position: fixed;
     color: #fff;
     &:hover {
         color: $lighter-5;
@@ -28,8 +29,11 @@
 }
 
 .table-view-container {
-    padding: 0px 25px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    max-height: 85vh;
+
+}
+
+.table-view-scollable-content {
+    margin: 25px 25px;
+    max-height: 65vh;    
 }
