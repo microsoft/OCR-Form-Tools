@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ICustomizations, Customizer, ContextualMenu, IDragOptions, Modal, IconButton, IIconProps, FontIcon } from "office-ui-fabric-react";
+import { ICustomizations, Customizer, ContextualMenu, IDragOptions, Modal, FontIcon } from "office-ui-fabric-react";
 import { getDarkGreyTheme } from "../../../../common/themes";
 import "./tableView.scss";
 
