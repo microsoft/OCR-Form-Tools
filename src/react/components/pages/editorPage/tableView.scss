@@ -6,7 +6,7 @@
     td {
         border: 0.6px solid rgba(255,255,255, 0.7);
         min-width: 30px;
-        padding: 0 10px 0 4px;
+        padding: 2px 10px 2px 4px;
     }
     td:empty::after {
         content: "\00a0";
