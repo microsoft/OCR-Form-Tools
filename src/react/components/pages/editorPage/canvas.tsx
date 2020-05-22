@@ -1418,7 +1418,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const ocrReadResults = (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.readResults));
         const ocrPageResults =  (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.pageResults));
         const imageExtent = this.imageMap.getImageExtent();
-        ocrReadResults.map((ocr) => {
+        ocrReadResults.forEach((ocr) => {
             const ocrExtent = [0, 0, ocr.width, ocr.height];
             const pageIndex = ocr.page - 1;
             this.regionOrders[pageIndex] = {};
@@ -1438,11 +1438,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     }
                 });
             }
-            const checkboxes = ocrPageResults && ocrPageResults[pageIndex] && ocrPageResults[pageIndex].checkboxes;
+            const checkboxes = ocr.selectionMarks
+                || (ocrPageResults && ocrPageResults[pageIndex] && ocrPageResults[pageIndex].checkboxes);
             if (checkboxes) {
                 this.addCheckboxToRegionOrder(checkboxes, pageIndex, order, imageExtent, ocrExtent);
             }
-            return ocr;
         });
     }
 
@@ -1498,7 +1498,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             });
         }
 
-        if (ocrPageResults && ocrPageResults.checkboxes) {
+        if (ocrReadResults && ocrReadResults.selectionMarks) {
+            ocrReadResults.selectionMarks.forEach((checkbox) => {
+                checkboxFeatures.push(this.createBoundingBoxVectorFeature(
+                    checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, ocrReadResults.page));
+            });
+        } else if (ocrPageResults && ocrPageResults.checkboxes) {
             ocrPageResults.checkboxes.forEach((checkbox) => {
                 checkboxFeatures.push(this.createBoundingBoxVectorFeature(
                     checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, ocrPageResults.page));
