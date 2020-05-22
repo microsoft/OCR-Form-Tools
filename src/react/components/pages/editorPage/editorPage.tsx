@@ -25,6 +25,7 @@ import { KeyEventType } from "../../common/keyboardManager/keyboardManager";
 import { TagInput } from "../../common/tagInput/tagInput";
 import { tagIndexKeys } from "../../common/tagInput/tagIndexKeys";
 import Canvas from "./canvas";
+import { TableView } from "./tableView"
 import CanvasHelpers from "./canvasHelpers";
 import "./editorPage.scss";
 import EditorSideBar from "./editorSideBar";
@@ -90,6 +91,8 @@ export interface IEditorPageState {
     isError?: boolean;
     errorTitle?: string;
     errorMessage?: string;
+    tableToView: object;
+    tableToViewId: string;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -124,6 +127,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         showInvalidRegionWarning: false,
         tagsLoaded: false,
         hoveredLabel: null,
+        tableToView: null,
+        tableToViewId: null,
     };
 
     private tagInputRef: RefObject<TagInput>;
@@ -187,6 +192,12 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         return (
             <div className="editor-page skipToMainContent" id="pageEditor">
+                {this.state.tableToView !== null &&
+                    <TableView
+                        handleTableViewClose={this.handleTableViewClose}
+                        tableToView={this.state.tableToView}
+                    />
+                }
                 {
                     tagIndexKeys.map((index) =>
                         (<KeyboardBinding
@@ -256,7 +267,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             editorMode={this.state.editorMode}
                                             project={this.props.project}
                                             lockedTags={this.state.lockedTags}
-                                            hoveredLabel={this.state.hoveredLabel}>
+                                            hoveredLabel={this.state.hoveredLabel}
+                                            setTableToView={this.setTableToView}
+                                            closeTableView={this.closeTableView}>
                                             <AssetPreview
                                                 controlsEnabled={this.state.isValid}
                                                 onBeforeAssetChanged={this.onBeforeAssetSelected}
@@ -575,6 +588,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
 
         this.setState({
+            tableToView: null,
+            tableToViewId: null,
             selectedAsset: assetMetadata,
         }, async () => {
             await this.onAssetMetadataChanged(assetMetadata);
@@ -720,6 +735,31 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         if (selectedAsset) {
             this.setState({
                 selectedAsset,
+            });
+        }
+    }
+
+    private setTableToView = async (tableToView, tableToViewId) => {
+        if (this.state.tableToViewId) {
+            this.canvas.current.setTableState(this.state.tableToViewId, "rest");
+        }
+        this.canvas.current.setTableState(tableToViewId, "selected");
+        this.setState({
+            tableToView,
+            tableToViewId,
+        });
+    }
+
+    private handleTableViewClose = () => {
+        this.closeTableView("rest");
+    }
+
+    private closeTableView = (state: string) => {
+        if (this.state.tableToView) {
+            this.canvas.current.setTableState(this.state.tableToViewId, state);
+            this.setState({
+                tableToView: null,
+                tableToViewId: null,
             });
         }
     }
