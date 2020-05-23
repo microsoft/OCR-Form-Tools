@@ -1,26 +1,27 @@
 @import "../../../../assets/sass/theme.scss";
 @import "../../common/common.scss";
 
-.viewed-table {
-    border: 1.2px solid rgba(255,255,255, 0.9);
-    td {
-        border: 0.6px solid rgba(255,255,255, 0.7);
-        min-width: 80px;
-        padding: 8px 16px 8px 8px;
+.table-view-container {
+    margin-left: 0.5rem;
+    max-height: 85vh;
+    max-width: 85vw;
+    .viewed-table {
+        margin: 0.25rem 0.75rem;
+        td {
+            border: 2px solid #8D8D8D;
+            min-width: 80px;
+            padding: 0.5rem 1rem;
+        }
+        td:empty::after {
+            content: "\00a0";
+        }
     }
-    td:empty::after {
-        content: "\00a0";
-    }
-
 }
 
 .close-modal {
-    right: 0px;
-    top: 0px;
-    padding: 0 4px;
-    margin-right: 3px;
-    margin-top: 2px;
     position: fixed;
+    top: 10px;
+    right: 13px;
     color: #fff;
     &:hover {
         color: $lighter-5;
@@ -28,13 +29,7 @@
     }
 }
 
-.table-view-container {
-    max-height: 85vh;
-    max-width: 85vw;
-
-}
-
-.table-view-scollable-content {
-    margin: 25px 25px;
-    max-height: 65vh;    
+.table-view-scrollable-content {
+    margin: 2.25rem 1rem;
+    max-height: 65vh;
 }
