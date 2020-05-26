@@ -335,8 +335,8 @@ export const english: IAppStrings = {
                 rightBracket: "]",
             },
             description: {
-                prevWord: "Move the selection to previous word",
-                nextWord: "Move the selection to next word",
+                prevWord: "Select previous word",
+                nextWord: "Select next word",
             },
         },
         greaterAndLessThan: {
@@ -345,8 +345,8 @@ export const english: IAppStrings = {
                 greaterThan: ">",
                 },
             description: {
-                prevPage: "Go to the previous page in multi-pages documents",
-                nextPage: "Go to the next page in multi-pages documents",
+                prevPage: "Go to previous page",
+                nextPage: "Go to next page",
             },
         },
         zoomKeys: {
@@ -367,22 +367,22 @@ export const english: IAppStrings = {
                 backSpace: "Backspace",
                 },
             description: {
-                delete: "Delete selection from document map or selection key from a label",
-                backSpace: "Delete selection from document map or selection key from a label",
+                delete: "Remove selection and delete labels of selected words",
+                backSpace: "Remove selection and delete labels of selected words",
                 },
         },
         tips: {
             quickLabeling: {
                 name: "Quick labeling",
-            description: "Hotkeys of 1 through 0 and all letters are assigned to first 36 tags, after you selected one or multiple words from the highlighted text elements, by pressing these hotkeys, you can label the selected words.",
+            description: "Hotkeys 1 through 0 and all letters are assigned to first 36 tags. After selecting one or multiple words, press tag's assigned hotkey.",
             },
             renameTag: {
-                name: "Rename Tag",
-                description: "Hold Alt key and click on tag name, user can change the tag's name.",
+                name: "Rename tag",
+                description: "Hold Alt key and click on tag name.",
             },
             multipleWordSelection: {
-                name: "Multiple words selection",
-                description: "Click and hold on word, than  hover over other words to do multiple words selection at a time.",
+                name: "Select multiple words",
+                description: "Click and hold on word. Then, hover over additional words.",
             },
         },
         headers: {
