@@ -74,7 +74,7 @@ describe("Connections Page", () => {
             expect(props.items).toEqual([]);
 
             const listButton = list.find(Link);
-            expect(listButton.props().to).toEqual(connectionCreateRoute);
+            expect(listButton.props()).toEqual(connectionCreateRoute);
         });
 
         it("renders connection form correctly", () => {
@@ -199,8 +199,8 @@ describe("Connections Page", () => {
             const connectionsPage = wrapper.find(ConnectionPage);
             const items = connectionsPage.find(ConnectionItem);
 
-            expect(items.at(0).find(NavLink).props().to).toEqual("/connections/connection-1");
-            expect(items.at(1).find(NavLink).props().to).toEqual("/connections/connection-2");
+            expect(items.at(0).find(NavLink).props()).toEqual("/connections/connection-1");
+            expect(items.at(1).find(NavLink).props()).toEqual("/connections/connection-2");
             wrapper.unmount();
         });
 
