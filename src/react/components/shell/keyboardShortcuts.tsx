@@ -7,7 +7,6 @@ import { FontIcon } from "office-ui-fabric-react";
 import { ICustomizations, Customizer } from "office-ui-fabric-react/lib/Utilities";
 import { getDarkGreyTheme } from "../../../common/themes";
 import { strings } from "../../../common/strings";
-import useEscape from '../common/keyboardManager/useEscape';
 
 import "./keyboardShortcuts.scss";
 
@@ -29,7 +28,6 @@ export const KeyboardShortcuts: React.FC = () => {
 
     const [showModal, setShowModal] = useState(false);
     const closeModal = () => setShowModal(false);
-    useEscape(() => setShowModal(false));
 
     const shortcutsItems: IKey[] = [
         {
