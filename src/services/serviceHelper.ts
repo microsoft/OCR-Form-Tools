@@ -49,7 +49,6 @@ export default class ServiceHelper {
                     "Error");
             }
         } else {
-            console.log(err.response);
             // Network Error
             toast.warn("Over rate limitation, please try again later",{autoClose: 10000})
             throw new AppError(

@@ -190,6 +190,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     public componentDidUpdate(prevProps, prevState) {
+        console.log(this.state.modelList);
         if ((prevState.isComposing === true &&
                 prevState.isComposing !== this.state.isComposing) || this.state.refreshFlag) {
             if (this.props.project) {
@@ -350,7 +351,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     private async getResponse(nextLink?: string) {
-        console.log("call response");
         const baseURL = nextLink === undefined ? url.resolve(
             this.props.project.apiUriBase,
             constants.apiModelsPath,

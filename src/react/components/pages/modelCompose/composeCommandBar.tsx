@@ -1,7 +1,7 @@
 import * as React from "react";
 import { CommandBar, ICommandBarItemProps } from "office-ui-fabric-react/lib/CommandBar";
 import "./modelCompose.scss";
-import { TextField, SpinnerSize, Spinner } from "office-ui-fabric-react";
+import { TextField, SpinnerSize, Spinner, IconNames } from "office-ui-fabric-react";
 import { getPrimaryWhiteTheme, getDefaultDarkTheme } from "../../../../common/themes";
 
 interface IModelComposeCommandBarProps {
@@ -43,7 +43,7 @@ export const ModelComposeCommandBar: React.FunctionComponent<IModelComposeComman
                         className="commandbar-spinner"
                         labelPosition="right"
                         theme={getDefaultDarkTheme()}
-                        size={SpinnerSize.large}>
+                        size={SpinnerSize.medium}>
                     </Spinner>
                 </div>
             )
