@@ -52,6 +52,7 @@ export const TableView: React.FunctionComponent<ITableViewProps> = (props) => {
                 isOpen={props.tableToView !== null}
                 isModeless={true}
                 dragOptions={dragOptions}
+                onDismiss={props.handleTableViewClose}
                 scrollableContentClassName={"table-view-scrollable-content"}
             >
             <FontIcon
