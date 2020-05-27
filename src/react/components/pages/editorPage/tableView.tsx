@@ -2,7 +2,6 @@ import * as React from "react";
 import { ICustomizations, Customizer, ContextualMenu, IDragOptions, Modal, FontIcon } from "office-ui-fabric-react";
 import { getDarkGreyTheme } from "../../../../common/themes";
 import "./tableView.scss";
-import useEscape from '../../common/keyboardManager/useEscape';
 
 interface ITableViewProps {
     handleTableViewClose: () => any;
@@ -16,8 +15,6 @@ export const TableView: React.FunctionComponent<ITableViewProps> = (props) => {
         },
         scopedSettings: {},
     };
-
-    useEscape(() => props.handleTableViewClose());
 
     const dragOptions: IDragOptions = {
         moveMenuItemText: "Move",
@@ -55,6 +52,7 @@ export const TableView: React.FunctionComponent<ITableViewProps> = (props) => {
                 isOpen={props.tableToView !== null}
                 isModeless={true}
                 dragOptions={dragOptions}
+                onDismiss={props.handleTableViewClose}
                 scrollableContentClassName={"table-view-scrollable-content"}
             >
             <FontIcon
