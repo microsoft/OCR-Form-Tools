@@ -39,6 +39,10 @@
       "unicode": "E710"
     },
     {
+      "name": "Cancel",
+      "unicode": "E711"
+    },
+    {
       "name": "Settings",
       "unicode": "E713"
     },
@@ -181,6 +185,10 @@
     {
       "name": "WarningSolid",
       "unicode": "F736"
+    },
+    {
+      "name": "BookAnswers",
+      "unicode": "F8A4"
     }
   ]
 }

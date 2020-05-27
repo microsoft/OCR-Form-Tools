@@ -34,7 +34,7 @@ Please see instructions [here](https://docs.microsoft.com/en-us/azure/cognitive-
 
 ### Run as web application
 
-Using a modern Web browser, FOTT can be loaded from: https://fott.azurewebsites.net/
+Using a modern Web browser, FOTT can be run directly at: https://fott.azurewebsites.net/
 
 **Note: The site is for testing purpose only.**
 
@@ -42,7 +42,7 @@ Using a modern Web browser, FOTT can be loaded from: https://fott.azurewebsites.
 
 ### Set up input data
 
-To go thru a complete label-train-analyze scenario, you need a set of at least six forms of the same type. You will label five forms to train a model and one form to test the model.  You could upload the [sample files](https://go.microsoft.com/fwlink/?linkid=2090451) to the root of a blob storage container in an Azure Storage account.  For advanced scenarios where there are forms in quite different formats, you could organize them into subfolders based on similar format. When you set up your project to train a model from one format, you need to specify a subfolder in the project setting page. 
+To go thru a complete label-train-analyze scenario, you need a set of at least six forms of the same type. You will label five forms to train a model and one form to test the model.  You could upload the [sample files](https://go.microsoft.com/fwlink/?linkid=2090451) to the root of a blob storage container in an Azure Storage account. You can use [Azure Storage Explorer](https://azure.microsoft.com/en-us/features/storage-explorer/) to upload data.   For advanced scenarios where there are forms in quite different formats, you could organize them into subfolders based on similar format. When you set up your project to train a model from one format, you need to specify a subfolder in the project setting page. 
 
 #### Configure cross-domain resource sharing (CORS)
 
@@ -69,7 +69,7 @@ Fill in the fields with the following values:
 
 * **Display Name** - The connection display name.
 * **Description** - Your project description.
-* **SAS URL** - The shared access signature (SAS) URL of your Azure blob storage container. To retrieve the SAS URL, open the Microsoft Azure Storage Explorer, right-click your container (note: not the parent storage node), and select Get shared access signature. Set the expiry time to some time after you'll have used the service. Make sure the Read, Write, Delete, and List permissions are checked, and click Create. Then copy the value in the URL section. It should have such format: https://&lt;storage account&gt;.blob.core.windows.net/&lt;container name&gt;?&lt;SAS value&gt;.
+* **SAS URL** - The shared access signature (SAS) URL of your Azure blob storage container. To retrieve the SAS URL, open the Microsoft Azure Storage Explorer, right-click your container (note: not the parent storage node, not the URL in your Azure portal), and select Get shared access signature. Set the expiry time to some time after you'll have used the service. Make sure the Read, Write, Delete, and List permissions are checked, and click Create. Then copy the value in the URL section. It should have such format: https://&lt;storage account&gt;.blob.core.windows.net/&lt;container name&gt;?&lt;SAS value&gt;.
 
 ![alt text](docs/images/new-connection.png "New Connection")
 

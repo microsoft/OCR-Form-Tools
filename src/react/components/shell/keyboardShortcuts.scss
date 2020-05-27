@@ -1,0 +1,98 @@
+@import "../../../assets/sass/theme.scss";
+@import "../common/common.scss";
+
+.container {
+    display: flex;
+    margin: 2rem;
+    padding: 4rem 1rem 2rem 2rem;
+    h3, h4, h6 {
+        font-weight: 600;
+    }
+    .header {
+        display: flex;
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 4rem;
+        width: calc(100% - 1.5rem);
+        background-color: rgb(30, 32, 36);
+
+        h3 {
+            display: flex;
+            width: 90%;
+            align-self: center;
+            margin-top: 1.5rem;
+            margin-left: 2rem;
+        }
+        .close-modal {
+            position: relative;
+            margin: 0.5rem -0.75rem auto auto;
+            font-size: 1rem;
+            color: #fff;
+            &:hover {
+                color: $lighter-5;
+                cursor: pointer;
+            }
+        }
+    }
+    .content {
+        .description {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        li {
+            list-style: none;
+        }
+        ul {
+            padding: 0;
+        }
+        h6 {
+            margin-bottom: 0;
+        }
+        .shortcuts-list {
+            overflow-y: auto;
+            .shortcut {
+                display: flex;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                margin: 0.5rem;
+                margin-left: 0;
+                &-description {
+                    align-self: center;
+                    margin-bottom: 0.25rem;
+                    margin-right: 0.125rem;
+                    width: 70%;
+                }
+                &-keys {
+                    display: flex;
+                    justify-content: flex-end;
+                    width: 30%;
+                    .keyboard-key {
+                        display: inline-flex;
+                        align-items: center;
+                        color: rgba(255, 255, 255, 0.7);
+                        background: rgba(49, 52, 58, 0.79);
+                        font-weight: 600;
+                        height: 2rem;
+                        margin-bottom: 0.5rem;
+                        padding: 0 1rem;
+                        -moz-border-radius: 4px;
+                        border-radius: 4px;
+                        border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+                    }
+                }
+            }
+        }
+    }
+}
+
+// modal icon-button
+.shortcuts-modal-button {
+    padding: 6px 8px;
+    color: #ccc;
+    display: inline-block;
+
+    &:hover {
+        color: #fff;
+        background-color: $lighter-2;
+        cursor: pointer;
+    }
+}

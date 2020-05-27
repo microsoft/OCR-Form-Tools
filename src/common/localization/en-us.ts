@@ -292,6 +292,12 @@ export const english: IAppStrings = {
             title: "Toggle Help Menu",
             escape: "Escape Help Menu",
         },
+        assetWarning: {
+            incorrectFileExtension: {
+                attention: "Attention!",
+                text: "- extension of this file doesn't correspond MIME type. Please check file:",
+            },
+        },
         assetError: "Unable to load asset",
         tags: {
             hotKey: {
@@ -324,6 +330,68 @@ export const english: IAppStrings = {
     },
     profile: {
         settings: "Profile Settings",
+    },
+    shortcuts: {
+        squareBrackets: {
+            keys: {
+                leftBracket: "[",
+                rightBracket: "]",
+            },
+            description: {
+                prevWord: "Select previous word",
+                nextWord: "Select next word",
+            },
+        },
+        greaterAndLessThan: {
+            keys: {
+                lessThan: "<",
+                greaterThan: ">",
+                },
+            description: {
+                prevPage: "Go to previous page",
+                nextPage: "Go to next page",
+            },
+        },
+        zoomKeys: {
+            keys: {
+                minus: "-",
+                plus: "=",
+                slash: "/",
+                },
+            description: {
+                in: "Zoom in",
+                out: "Zoom out",
+                reset: "Reset zoom",
+            },
+        },
+        deleteAndBackspace: {
+            keys: {
+                delete: "Delete",
+                backSpace: "Backspace",
+                },
+            description: {
+                delete: "Remove selection and delete labels of selected words",
+                backSpace: "Remove selection and delete labels of selected words",
+                },
+        },
+        tips: {
+            quickLabeling: {
+                name: "Quick labeling",
+            description: "Hotkeys 1 through 0 and all letters are assigned to first 36 tags. After selecting one or multiple words, press tag's assigned hotkey.",
+            },
+            renameTag: {
+                name: "Rename tag",
+                description: "Hold Alt key and click on tag name.",
+            },
+            multipleWordSelection: {
+                name: "Select multiple words",
+                description: "Click and hold on word. Then, hover over additional words.",
+            },
+        },
+        headers: {
+            keyboardShortcuts: "Keyboard shortcuts",
+            otherTips: "Other tips",
+        },
     },
     errors: {
         unknown: {

@@ -25,6 +25,7 @@
 @mixin ms-Icon--ChevronUp { content: "\E70E"; }
 @mixin ms-Icon--Edit { content: "\E70F"; }
 @mixin ms-Icon--Add { content: "\E710"; }
+@mixin ms-Icon--Cancel { content: "\E711"; }
 @mixin ms-Icon--Settings { content: "\E713"; }
 @mixin ms-Icon--Link { content: "\E71B"; }
 @mixin ms-Icon--Filter { content: "\E71C"; }
@@ -61,6 +62,7 @@
 @mixin ms-Icon--AlertSolid { content: "\F331"; }
 @mixin ms-Icon--Hide3 { content: "\F6AC"; }
 @mixin ms-Icon--WarningSolid { content: "\F736"; }
+@mixin ms-Icon--BookAnswers { content: "\F8A4"; }
 
 
 // Classes
@@ -72,6 +74,7 @@
 .ms-Icon--ChevronUp:before { @include ms-Icon--ChevronUp }
 .ms-Icon--Edit:before { @include ms-Icon--Edit }
 .ms-Icon--Add:before { @include ms-Icon--Add }
+.ms-Icon--Cancel:before { @include ms-Icon--Cancel }
 .ms-Icon--Settings:before { @include ms-Icon--Settings }
 .ms-Icon--Link:before { @include ms-Icon--Link }
 .ms-Icon--Filter:before { @include ms-Icon--Filter }
@@ -108,3 +111,4 @@
 .ms-Icon--AlertSolid:before { @include ms-Icon--AlertSolid }
 .ms-Icon--Hide3:before { @include ms-Icon--Hide3 }
 .ms-Icon--WarningSolid:before { @include ms-Icon--WarningSolid }
+.ms-Icon--BookAnswers:before { @include ms-Icon--BookAnswers }

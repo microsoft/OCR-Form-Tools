@@ -45,6 +45,8 @@ export interface ICanvasProps extends React.Props<Canvas> {
     lockedTags: string[];
     hoveredLabel: ILabel;
     children?: ReactElement<AssetPreview>;
+    setTableToView?: (tableToView: object, tableToViewId: string) => void;
+    closeTableView?: (state: string) => void;
     onAssetMetadataChanged?: (assetMetadata: IAssetMetadata) => void;
     onSelectedRegionsChanged?: (regions: IRegion[]) => void;
     onCanvasRendered?: (canvas: HTMLCanvasElement) => void;
@@ -138,6 +140,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private applyTagFlag: boolean = false;
 
     private pendingFlag: boolean = false;
+
+    private tableIDToIndexMap: object;
 
     public componentDidMount = async () => {
         this.ocrService = new OCRService(this.props.project);
@@ -283,6 +287,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     public updateSize() {
         this.imageMap.updateSize();
+    }
+
+    public setTableState(viewedTableId, state) {
+        this.imageMap.getTableBorderFeatureByID(viewedTableId).set("state", state);
+        this.imageMap.getTableIconFeatureByID(viewedTableId).set("state", state);
     }
 
     /**
@@ -559,7 +568,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         return feature;
     }
 
-    private createBoundingBoxVectorTable = (boundingBox, imageExtent, ocrExtent, page, rows, columns) => {
+    private createBoundingBoxVectorTable = (boundingBox, imageExtent, ocrExtent, page, rows, columns, index) => {
         const coordinates: any[] = [];
         const polygonPoints: number[] = [];
         const imageWidth = imageExtent[2] - imageExtent[0];
@@ -578,6 +587,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             polygonPoints.push(boundingBox[i + 1] / ocrHeight);
         }
         const tableID = this.createRegionIdFromBoundingBox(polygonPoints, page);
+        this.tableIDToIndexMap[tableID] = index;
         const tableFeatures = {};
         tableFeatures["border"] = new Feature({
             geometry: new Polygon([coordinates]),
@@ -823,12 +833,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private handleTableIconFeatureSelect = () => {
         if (this.state.hoveringFeature != null) {
             const tableState = this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).get("state");
-            if (tableState === "hovering") {
-                this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).set("state", "selected");
-                this.imageMap.getTableIconFeatureByID(this.state.hoveringFeature).set("state", "selected");
+            if (tableState === "hovering" || tableState === "rest") {
+                this.props.setTableToView(this.state.ocrForCurrentPage.pageResults
+                    .tables[this.tableIDToIndexMap[this.state.hoveringFeature]], this.state.hoveringFeature);
             } else {
-                this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).set("state", "hovering");
-                this.imageMap.getTableIconFeatureByID(this.state.hoveringFeature).set("state", "hovering");
+                this.props.closeTableView("hovering");
             }
         }
     }
@@ -1023,12 +1032,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private nextPage = async () => {
         if ((this.state.pdfFile !== null || this.state.tiffImages.length !== 0)
             && this.state.currentPage < this.state.numPages) {
+            this.props.closeTableView("rest");
             await this.goToPage(this.state.currentPage + 1);
         }
     }
 
     private prevPage = async () => {
         if ((this.state.pdfFile !== null || this.state.tiffImages.length !== 0) && this.state.currentPage > 1) {
+            this.props.closeTableView("rest");
             await this.goToPage(this.state.currentPage - 1);
         }
     }
@@ -1418,7 +1429,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const ocrReadResults = (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.readResults));
         const ocrPageResults =  (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.pageResults));
         const imageExtent = this.imageMap.getImageExtent();
-        ocrReadResults.map((ocr) => {
+        ocrReadResults.forEach((ocr) => {
             const ocrExtent = [0, 0, ocr.width, ocr.height];
             const pageIndex = ocr.page - 1;
             this.regionOrders[pageIndex] = {};
@@ -1438,11 +1449,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     }
                 });
             }
-            const checkboxes = ocrPageResults && ocrPageResults[pageIndex] && ocrPageResults[pageIndex].checkboxes;
+            const checkboxes = ocr.selectionMarks
+                || (ocrPageResults && ocrPageResults[pageIndex] && ocrPageResults[pageIndex].checkboxes);
             if (checkboxes) {
                 this.addCheckboxToRegionOrder(checkboxes, pageIndex, order, imageExtent, ocrExtent);
             }
-            return ocr;
         });
     }
 
@@ -1482,15 +1493,19 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 }
             });
         }
+        this.tableIDToIndexMap = {};
         if (ocrPageResults && ocrPageResults.tables) {
-            ocrPageResults.tables.forEach((table) => {
+            ocrPageResults.tables.forEach((table, index) => {
                 if (table.cells && table.columns && table.rows) {
                     const tableBoundingBox = this.getTableBoundingBox(table.cells.map((cell) => cell.boundingBox));
                     const createdTableFeatures = this.createBoundingBoxVectorTable(
                         tableBoundingBox,
                         imageExtent,
                         ocrExtent,
-                        ocrPageResults.page, table.rows, table.columns);
+                        ocrPageResults.page,
+                        table.rows,
+                        table.columns,
+                        index);
                     tableBorderFeatures.push(createdTableFeatures["border"]);
                     tableIconFeatures.push(createdTableFeatures["icon"]);
                     tableIconBorderFeatures.push(createdTableFeatures["iconBorder"]);
@@ -1498,7 +1513,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             });
         }
 
-        if (ocrPageResults && ocrPageResults.checkboxes) {
+        if (ocrReadResults && ocrReadResults.selectionMarks) {
+            ocrReadResults.selectionMarks.forEach((checkbox) => {
+                checkboxFeatures.push(this.createBoundingBoxVectorFeature(
+                    checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, ocrReadResults.page));
+            });
+        } else if (ocrPageResults && ocrPageResults.checkboxes) {
             ocrPageResults.checkboxes.forEach((checkbox) => {
                 checkboxFeatures.push(this.createBoundingBoxVectorFeature(
                     checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, ocrPageResults.page));

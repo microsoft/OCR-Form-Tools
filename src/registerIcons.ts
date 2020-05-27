@@ -53,6 +53,9 @@ export function registerIcons() {
             Filter: "\uE71C",
             Table: "\uED86",
             MapLayers: "\uE81E",
+            BookAnswers: "\uF8A4",
+            Cancel: "\uE711",
+
         },
     });
 }
