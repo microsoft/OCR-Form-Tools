@@ -19,11 +19,10 @@ import { IColumn,
          SpinnerSize,
          FontIcon,
          TextField,
-         MarqueeSelection,
          IDetailsList} from "office-ui-fabric-react";
 import "./modelCompose.scss";
 import { strings } from "../../../../common/strings";
-import { getDarkGreyTheme, getDefaultDarkTheme, getPrimaryWhiteTheme } from "../../../../common/themes";
+import { getDarkGreyTheme, getDefaultDarkTheme } from "../../../../common/themes";
 import { ModelComposeCommandBar } from "./composeCommandBar";
 import { bindActionCreators } from "redux";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -204,9 +203,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     public componentWillUnmount() {
-        // this.setState({
-        //     loadingFlag: false,
-        // });
         console.log("this will unmount");
     }
 
@@ -225,14 +221,16 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     <div className="commandbar">
                         <ModelComposeCommandBar
                             composedModels={this.state.composedModelsId}
+                            allModels={this.allModels}
                             isComposing={this.state.isComposing}
                             isLoading={this.state.isLoading}
                             handleCompose={this.onComposeButtonClick}
                             handleRefresh={this.onRreshButtonClick}
                             GetComposedItemsOnTop={this.handleTopButtonClick}
+                            filterTextChange={this.onTextChange}
                             />
                     </div>
-                    <div className="label-filter-background">
+                    {/* <div className="label-filter-background">
                         <TextField
                             label="Filter By Name"
                             className="label-filter-field"
@@ -240,17 +238,18 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                             theme={getPrimaryWhiteTheme()}
                             onChange={this.onTextChange}>
                         </TextField>
-                    </div>
-                    {this.state.isLoading &&
+                    </div> */}
+                    {/* {this.state.isLoading &&
                         <Blink
                             Notification="Model list is still loading">
                         </Blink>
-                    }
+                    } */}
                     <ViewSelection
                         selection={this.selection}
                         items={this.state.modelList}
                         columns={this.state.columns}
                         isComposing={this.state.isComposing}
+                        refreshFlag={this.state.refreshFlag}
                         allModels={this.allModels}>
                         {this.state.isComposing ?
                         <Spinner
@@ -385,7 +384,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         const composedModelCopy = [];
         modelList.map((m) => {
             if (this.state.composedModelsId.indexOf(m.modelId) !== -1) {
-                m.iconName = "edit";
+                m.iconName = "combine";
                 composedModelCopy.push(m);
             }
         });

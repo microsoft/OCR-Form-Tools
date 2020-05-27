@@ -33,18 +33,6 @@
     text-align: left;
 }
 
-.label-filter-background {
-    background-color: #1E2024;
-    padding-bottom: 10px;
-}
-
-.label-filter-field {
-    margin-left: auto; 
-    margin-right: 15px;
-    background-color: #1E2024;
-    max-width: 300px;
-}
-
 .blink-field {
     width: calc(100vw - 45px);
     height: 80px;
@@ -58,3 +46,39 @@
     padding-top: 15px;
 }
 
+.label-filter-background {
+    background-color: #1E2024;
+    padding-bottom: 10px;
+}
+
+.label-filter-field {
+    margin-left: auto; 
+    margin-right: 15px;
+    background-color: #1E2024;
+    max-width: 300px;
+    width: 100%;
+}
+
+.filter-item {
+    width: 200px;
+}
+
+.commandbar-filter {
+    background-color: #1E2024;
+    display: flex;
+    justify-items: center;
+    align-self: center;
+    width: 300px;
+}
+
+.spinner-item {
+    width: 300px;
+    display: inline-flex;
+    align-items: center;
+    padding-left: 10px;
+}
+
+.commandbar-spinner {
+    color: white;
+    font-size: large;
+}

@@ -21,6 +21,8 @@ export interface IViewSelectionProps
   columns: any[];
 
   isComposing: boolean;
+
+  refreshFlag: boolean;
 }
 
 export interface IViewSelectionState {}
@@ -52,6 +54,11 @@ export class ViewSelection extends BaseComponent<
     if (prevProps.isComposing === true && (prevProps.isComposing !== this.props.isComposing)) {
         this.props.selection.setAllSelected(false);
         this.selectedIndices = [];
+    }
+
+    if (this.props.refreshFlag) {
+      this.props.selection.setAllSelected(false);
+      this.selectedIndices = [];
     }
   }
 
