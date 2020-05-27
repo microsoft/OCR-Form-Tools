@@ -202,11 +202,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         return (
             <div style={{ width: "100%", height: "100%" }}>
                 <KeyboardBinding
-                        displayName={"Delete region"}
-                        key={"Delete"}
+                        displayName={"Canvas tools and navigation"}
+                        key={"CanvasTools"}
                         keyEventType={KeyEventType.KeyDown}
                         accelerators={["Delete", "Backspace", "<", ",", ">", ".",
-                            "{", "[", "}", "]", "+", "-", "/", "=", "_", "?"]}
+                            "{", "[", "}", "]", "+", "-", "/", "=", "_", "?", "R", "\\"]}
                         handler={this.handleKeyDown}
                 />
                 <CanvasCommandBar
@@ -1223,6 +1223,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             case "/":
             case "?":
                 this.handleZoomReset();
+                break;
+
+            case "R":
+            case "\\":
+                this.toggleBoundingBoxMode();
                 break;
 
             default:
