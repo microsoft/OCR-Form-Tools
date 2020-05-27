@@ -73,6 +73,7 @@ export interface ICanvasState {
     layers: any;
     tableIconTooltip: any;
     hoveringFeature: string;
+    points: number[];
 }
 
 interface IRegionOrder {
@@ -125,6 +126,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         layers: {text: true, tables: true, checkboxes: true, label: true},
         tableIconTooltip: { display: "none", width: 0, height: 0, top: 0, left: 0},
         hoveringFeature: null,
+        points: [],
     };
 
     private imageMap: ImageMap;
@@ -1073,6 +1075,47 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.drawOcr();
             this.loadLabelData(this.state.currentAsset.asset);
         });
+    }
+
+    /* Bounding Box Synthesizer Code */
+    private handleGeneratorRectangleClick = (x: number, y: number) => {
+        // Every time we click, editor state updates, this thing will re-render, ok...
+        // How would we get partial updates
+        // TODO integrate and validate
+        if (this.props.editorMode !== EditorMode.GeneratorRect) {
+            return;
+        }
+
+        const { points } = this.state;
+        if (points.length === 0) {
+            this.setState({points: [x, y]});
+            return;
+        }
+        this.setState({points: []});
+        const fullPoints = [
+            points[0], points[1],
+            points[0], points[3],
+            points[2], points[3],
+            points[2], points[1]
+        ]; // CCW x,y starting from first point
+        this.drawBoundedRegion(fullPoints); // will create a drawn entity, attached to asset
+        // TODO attach region to editor state/asset (will need the info during generation)
+        // TODO how will we know when we click on/reactivated a region?
+    }
+
+    private drawBoundedRegion = (points: number[]) => {
+        const ocrReadResults = this.state.ocrForCurrentPage["readResults"];
+        const imageExtent = this.imageMap.getImageExtent();
+        const ocrExtent = [0, 0, ocrReadResults.width, ocrReadResults.height];
+
+        const ocrWidth = ocrExtent[2] - ocrExtent[0];
+        const ocrHeight = ocrExtent[3] - ocrExtent[1];
+
+        // const boundingBox = this.polygonPointsToBoundingBox(polygonPoints, ocrWidth, ocrHeight);
+
+        // const feature = this.createBoundingBoxVectorFeature(
+        //     strings.tags.generated, boundingBox, imageExtent, ocrExtent, ocrReadResults.page);
+        // this.imageMap.addFeature(feature);
     }
 
     private convertLabelDataToRegions = (labelData: ILabelData): IRegion[] => {

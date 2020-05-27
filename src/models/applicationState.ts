@@ -358,6 +358,7 @@ export enum RegionType {
 
 export enum EditorMode {
     Rectangle = "RECT",
+    GeneratorRect = "GENERATOR_RECT",
     Polygon = "POLYGON",
     Polyline = "POLYLINE",
     Point = "POINT",
@@ -391,4 +392,5 @@ export enum FeatureCategory {
     Text = "text",
     Checkbox = "checkbox",
     Label = "label",
+    Generator = "generator",
 }

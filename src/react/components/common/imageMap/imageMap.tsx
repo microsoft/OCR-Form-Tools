@@ -62,6 +62,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
     private readonly TABLE_ICON_BORDER_VECTOR_LAYER_NAME = "tableIconBorderVectorLayer";
     private readonly CHECKBOX_VECTOR_LAYER_NAME = "checkboxBorderVectorLayer";
     private readonly LABEL_VECTOR_LAYER_NAME = "labelledVectorLayer";
+    private readonly GENERATOR_VECTOR_LAYER_NAME = "generatorVectorLayer";
 
     private ignorePointerMoveEventCount: number = 5;
     private pointerMoveEventCount: number = 0;
@@ -80,6 +81,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
     private labelVectorLayerFilter = {
         layerFilter: (layer: Layer) => layer.get("name") === this.LABEL_VECTOR_LAYER_NAME,
+    };
+
+    private generatorVectorLayerFilter = {
+        layerFilter: (layer: Layer) => layer.get("name") === this.GENERATOR_VECTOR_LAYER_NAME,
     };
 
     constructor(props: IImageMapProps) {
@@ -470,6 +475,15 @@ export class ImageMap extends React.Component<IImageMapProps> {
     }
 
     private getLayerFilterAtPixel = (eventPixel: any) => {
+        const isPointerOnGeneratorFeature = this.map.hasFeatureAtPixel(
+            eventPixel,
+            this.generatorVectorLayerFilter);
+        if (isPointerOnGeneratorFeature) {
+            return {
+                layerfilter: this.generatorVectorLayerFilter,
+                category: FeatureCategory.Generator,
+            };
+        }
         const isPointerOnLabelledFeature = this.map.hasFeatureAtPixel(
             eventPixel,
             this.labelVectorLayerFilter);

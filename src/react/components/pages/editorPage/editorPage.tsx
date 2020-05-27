@@ -477,6 +477,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      */
     private onAssetMetadataChanged = async (assetMetadata: IAssetMetadata): Promise<void> => {
         // Comment out below code as we allow regions without tags, it would make labeler's work easier.
+        // TODO is our stuff relevant here?
 
         const initialState = assetMetadata.asset.state;
 
