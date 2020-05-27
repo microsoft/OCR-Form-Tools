@@ -25,7 +25,9 @@
             margin-left: 2rem;
         }
         .close-modal {
-            margin: 1.25rem 0rem auto auto;
+            position: relative;
+            margin: 0.5rem -0.75rem auto auto;
+            font-size: 1rem;
             color: #fff;
             &:hover {
                 color: $lighter-5;
