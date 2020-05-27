@@ -45,6 +45,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     lockedTags: string[];
     hoveredLabel: ILabel;
     children?: ReactElement<AssetPreview>;
+    setEditorMode: (mode: EditorMode) => void,
     setTableToView?: (tableToView: object, tableToViewId: string) => void;
     closeTableView?: (state: string) => void;
     onAssetMetadataChanged?: (assetMetadata: IAssetMetadata) => void;
@@ -100,6 +101,7 @@ function hexToRgba(color: string, a: number) {
 export default class Canvas extends React.Component<ICanvasProps, ICanvasState> {
     public static defaultProps: ICanvasProps = {
         editorMode: EditorMode.Select,
+        setEditorMode: null, // TODO proper no-op
         selectedAsset: null,
         project: null,
         lockedTags: [],
@@ -211,6 +213,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleLayerChange={this.handleLayerChange}
                     handleZoomIn={this.handleCanvasZoomIn}
                     handleZoomOut={this.handleCanvasZoomOut}
+                    toggleBoundingBoxMode={this.toggleBoundingBoxMode}
+                    editorMode={this.props.editorMode}
                     layers={this.state.layers}
                 />
                 <ImageMap
@@ -1628,6 +1632,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.setState({
             layers : newLayers,
         });
+    }
+
+    private toggleBoundingBoxMode = () => {
+        if (this.props.editorMode === EditorMode.Rectangle) { // TODO update
+            this.props.setEditorMode(EditorMode.Select);
+        } else {
+            this.props.setEditorMode(EditorMode.Rectangle);
+        }
     }
 
     private handleTableToolTipChange = async (display: string, width: number, height: number, top: number,

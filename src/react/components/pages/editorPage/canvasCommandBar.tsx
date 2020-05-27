@@ -2,11 +2,14 @@ import * as React from "react";
 import { CommandBar, ICommandBarItemProps } from "office-ui-fabric-react/lib/CommandBar";
 import { ICustomizations, Customizer } from "office-ui-fabric-react/lib/Utilities";
 import { getDarkGreyTheme } from "../../../../common/themes";
+import { EditorMode } from "../../../../models/applicationState";
 
 interface ICanvasCommandBarProps {
     handleZoomIn: () => void;
     handleZoomOut: () => void;
     handleLayerChange: (layer: string) => void;
+    toggleBoundingBoxMode: () => void,
+    editorMode: EditorMode,
     layers: any;
 }
 
@@ -64,6 +67,15 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
 
     const commandBarFarItems: ICommandBarItemProps[] = [
         {
+            key: "toggleBoundingBox",
+            text: "Toggle Bounding Box selection",
+            ariaLabel: "Toggle Bounding Box selection",
+            iconOnly: true,
+            iconProps: { iconName: "Annotation" },
+            buttonStyles: {}, // TODO I dunno how to make it active, only styles available
+            onClick: () => props.toggleBoundingBoxMode(),
+        },
+        {
             key: "zoomOut",
             text: "Zoom out",
             // This needs an ariaLabel since it's icon-only
@@ -85,6 +97,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
 
     return (
         <Customizer {...dark}>
+            {props.editorMode}
             <CommandBar
                 items={commandBarItems}
                 farItems={commandBarFarItems}

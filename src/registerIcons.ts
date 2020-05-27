@@ -48,6 +48,7 @@ export function registerIcons() {
             WarningSolid: "\uF736",
             ZoomIn: "\uE8A3",
             ZoomOut: "\uE71F",
+            Annotation: "\uE924",
             TextField: "\uEDC3",
             Filter: "\uE71C",
             Table: "\uED86",

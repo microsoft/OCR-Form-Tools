@@ -265,6 +265,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             onRunningOCRStatusChanged={this.onCanvasRunningOCRStatusChanged}
                                             onTagChanged={this.onTagChanged}
                                             editorMode={this.state.editorMode}
+                                            setEditorMode={this.setEditorMode}
                                             project={this.props.project}
                                             lockedTags={this.state.lockedTags}
                                             hoveredLabel={this.state.hoveredLabel}
@@ -737,6 +738,12 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 selectedAsset,
             });
         }
+    }
+
+    private setEditorMode = (newMode: EditorMode) => {
+        this.setState({
+            editorMode: newMode
+        });
     }
 
     private setTableToView = async (tableToView, tableToViewId) => {
