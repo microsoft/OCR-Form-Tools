@@ -40,6 +40,19 @@ import { getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/the
 import { SkipButton } from "../../shell/skipButton";
 
 /**
+ * Generator Info. This is probably going to move to its own file soon. Preferring to define something distinct from IRegion
+ * as it is "pre-populated"
+ * @member points - Generator region bounding coordinates
+ * @member extent - Region extent
+ * @member uid - Shape OL UID
+ */
+export interface IGeneratorRegion {
+    points: number[];
+    extent: number[];
+    uid: string;
+}
+
+/**
  * Properties for Editor Page
  * @member project - Project being edited
  * @member recentProjects - Array of projects recently viewed/edited
@@ -67,6 +80,9 @@ export interface IEditorPageState {
     selectedAsset?: IAssetMetadata;
     /** Currently selected region on current asset */
     selectedRegions?: IRegion[];
+    /** Generator regions on current asset */
+    // TODO this needs to go somewhere better
+    generatorRegions?: IGeneratorRegion[];
     /** Most recently selected tag */
     selectedTag: string;
     /** Tags locked for region labeling */
@@ -122,6 +138,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         lockedTags: [],
         assets: [],
         editorMode: EditorMode.Select,
+        generatorRegions: [], // TODO move this out
         thumbnailSize: { width: 175, height: 155 },
         isValid: true,
         showInvalidRegionWarning: false,
@@ -266,6 +283,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             onTagChanged={this.onTagChanged}
                                             editorMode={this.state.editorMode}
                                             setEditorMode={this.setEditorMode}
+                                            addGeneratorRegion={this.addGeneratorRegion}
                                             project={this.props.project}
                                             lockedTags={this.state.lockedTags}
                                             hoveredLabel={this.state.hoveredLabel}
@@ -744,6 +762,12 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private setEditorMode = (newMode: EditorMode) => {
         this.setState({
             editorMode: newMode
+        });
+    }
+
+    private addGeneratorRegion = (region: IGeneratorRegion) => {
+        this.setState({
+            generatorRegions: [ ...this.state.generatorRegions, region],
         });
     }
 

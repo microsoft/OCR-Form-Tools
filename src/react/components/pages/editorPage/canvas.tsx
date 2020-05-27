@@ -21,7 +21,7 @@ import Point from "ol/geom/Point";
 import Stroke from "ol/style/Stroke";
 import Fill from "ol/style/Fill";
 import { OCRService, OcrStatus } from "../../../../services/ocrService";
-import { Feature } from "ol";
+import { Feature, DrawEvent } from "ol";
 import { Extent } from "ol/extent";
 import { KeyboardBinding } from "../../common/keyboardBinding/keyboardBinding";
 import { KeyEventType } from "../../common/keyboardManager/keyboardManager";
@@ -34,6 +34,7 @@ import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../.
 import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./canvasCommandBar";
 import { TooltipHost, ITooltipHostStyles } from "office-ui-fabric-react";
+import { IGeneratorRegion } from "./editorPage";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -53,6 +54,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onCanvasRendered?: (canvas: HTMLCanvasElement) => void;
     onRunningOCRStatusChanged?: (isRunning: boolean) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
+    addGeneratorRegion?: (info: IGeneratorRegion) => void;
 }
 
 export interface ICanvasState {
@@ -123,7 +125,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         isError: false,
         errorMessage: undefined,
         ocrStatus: OcrStatus.done,
-        layers: {text: true, tables: true, checkboxes: true, label: true},
+        layers: {text: true, tables: true, checkboxes: true, label: true, generator: true},
         tableIconTooltip: { display: "none", width: 0, height: 0, top: 0, left: 0},
         hoveringFeature: null,
         points: [],
@@ -235,6 +237,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     onMapReady={this.noOp}
                     handleTableToolTipChange={this.handleTableToolTipChange}
                     hoveringFeature={this.state.hoveringFeature}
+                    editorMode={this.props.editorMode}
+                    handleGeneratorRegionCompleted={this.handleGeneratorRegionCompleted}
                 />
                 <TooltipHost
                     content={"rows: " + this.state.tableIconTooltip.rows +
@@ -1078,44 +1082,23 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     /* Bounding Box Synthesizer Code */
-    private handleGeneratorRectangleClick = (x: number, y: number) => {
-        // Every time we click, editor state updates, this thing will re-render, ok...
-        // How would we get partial updates
-        // TODO integrate and validate
-        if (this.props.editorMode !== EditorMode.GeneratorRect) {
+    private handleGeneratorRegionCompleted = (drawEvent: DrawEvent) => {
+        if (!this.props.addGeneratorRegion) {
+            console.log("Generator region formed unexpectedly, dropping.");
             return;
         }
+        const geometry = drawEvent.feature.values_.geometry;
+        // snap tool will make last 2 coords match first 2
+        const points = geometry.flatCoordinates.slice(0, -2);
+        const regionInfo: IGeneratorRegion = {
+            points,
+            extent: geometry.extent_,
+            uid: geometry.ol_uid // this is a string of a number
+        };
 
-        const { points } = this.state;
-        if (points.length === 0) {
-            this.setState({points: [x, y]});
-            return;
-        }
-        this.setState({points: []});
-        const fullPoints = [
-            points[0], points[1],
-            points[0], points[3],
-            points[2], points[3],
-            points[2], points[1]
-        ]; // CCW x,y starting from first point
-        this.drawBoundedRegion(fullPoints); // will create a drawn entity, attached to asset
-        // TODO attach region to editor state/asset (will need the info during generation)
-        // TODO how will we know when we click on/reactivated a region?
-    }
-
-    private drawBoundedRegion = (points: number[]) => {
-        const ocrReadResults = this.state.ocrForCurrentPage["readResults"];
-        const imageExtent = this.imageMap.getImageExtent();
-        const ocrExtent = [0, 0, ocrReadResults.width, ocrReadResults.height];
-
-        const ocrWidth = ocrExtent[2] - ocrExtent[0];
-        const ocrHeight = ocrExtent[3] - ocrExtent[1];
-
-        // const boundingBox = this.polygonPointsToBoundingBox(polygonPoints, ocrWidth, ocrHeight);
-
-        // const feature = this.createBoundingBoxVectorFeature(
-        //     strings.tags.generated, boundingBox, imageExtent, ocrExtent, ocrReadResults.page);
-        // this.imageMap.addFeature(feature);
+        this.props.addGeneratorRegion(regionInfo);
+        // TODO handle modification
+        // TODO handle deletion
     }
 
     private convertLabelDataToRegions = (labelData: ILabelData): IRegion[] => {
@@ -1671,6 +1654,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             case "checkboxes":
                 this.imageMap.toggleCheckboxFeatureVisibility();
                 break;
+            case "generator":
+                this.imageMap.toggleGeneratorRegionVisibility();
+                break;
             case "label":
                 this.imageMap.toggleLabelFeatureVisibility();
                 break;
@@ -1683,10 +1669,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private toggleBoundingBoxMode = () => {
-        if (this.props.editorMode === EditorMode.Rectangle) { // TODO update
+        if (this.props.editorMode === EditorMode.GeneratorRect) {
             this.props.setEditorMode(EditorMode.Select);
         } else {
-            this.props.setEditorMode(EditorMode.Rectangle);
+            this.props.setEditorMode(EditorMode.GeneratorRect);
         }
     }
 

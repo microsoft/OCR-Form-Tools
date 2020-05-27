@@ -53,6 +53,14 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                 onClick: () => props.handleLayerChange("checkboxes"),
               },
               {
+                key: "generator",
+                text: "Generators (Preview)",
+                canCheck: true,
+                iconProps: { iconName: "Annotation" },
+                isChecked: props.layers["generator"],
+                onClick: () => props.handleLayerChange("generator"),
+              },
+              {
                 key: "Label",
                 text: "Label",
                 canCheck: true,

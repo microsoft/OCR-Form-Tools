@@ -3,7 +3,7 @@
 
 import { Feature, MapBrowserEvent, View } from "ol";
 import { Extent, getCenter } from "ol/extent";
-import { defaults as defaultInteractions, DragPan, Interaction } from "ol/interaction.js";
+import { defaults as defaultInteractions, DragPan, Draw, Snap, Modify, Interaction } from "ol/interaction.js";
 import ImageLayer from "ol/layer/Image";
 import Layer from "ol/layer/Layer";
 import VectorLayer from "ol/layer/Vector";
@@ -14,7 +14,7 @@ import VectorSource from "ol/source/Vector";
 import * as React from "react";
 import "./styles.css";
 import Utils from "./utils";
-import { FeatureCategory } from "../../../../models/applicationState";
+import { FeatureCategory, EditorMode } from "../../../../models/applicationState";
 
 interface IImageMapProps {
     imageUri: string;
@@ -32,6 +32,8 @@ interface IImageMapProps {
     enableFeatureSelection?: boolean;
     handleFeatureSelect?: (feature: any, isTaggle: boolean, category: FeatureCategory) => void;
     hoveringFeature?: string;
+    editorMode?: EditorMode;
+    handleGeneratorRegionCompleted?: (region: any) => void;
 
     onMapReady: () => void;
     handleTableToolTipChange?: (display: string, width: number, height: number, top: number,
@@ -48,6 +50,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
     private tableIconBorderVectorLayer: VectorLayer;
     private checkboxVectorLayer: VectorLayer;
     private labelVectorLayer: VectorLayer;
+    private generatorVectorLayer: VectorLayer;
 
     private mapElement: HTMLDivElement | null = null;
 
@@ -102,6 +105,22 @@ export class ImageMap extends React.Component<IImageMapProps> {
             this.imageExtent = [0, 0, this.props.imageWidth, this.props.imageHeight];
             this.setImage(this.props.imageUri, this.imageExtent);
         }
+
+        if (this.props.editorMode && prevProps.editorMode !== this.props.editorMode) {
+            this.map.getInteractions().forEach((interaction) => {
+                if (interaction instanceof Draw || interaction instanceof Snap || interaction instanceof Modify) {
+                    interaction.setActive(this.props.editorMode === EditorMode.GeneratorRect);
+                    if (this.props.editorMode !== EditorMode.GeneratorRect &&
+                        interaction instanceof Draw) {
+                        interaction.abortDrawing_();
+                    }
+                    // TODO - fire a mousemove so that we can avoid the point jump interaction.handleEvent(); // pointer uses this to update
+                }
+            });
+            if (this.isDrawing()) {
+                this.setDragPanInteraction(false);
+            }
+        }
     }
 
     public render() {
@@ -130,6 +149,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
      */
     public toggleCheckboxFeatureVisibility = () => {
         this.checkboxVectorLayer.setVisible(!this.checkboxVectorLayer.getVisible());
+    }
+
+    public toggleGeneratorRegionVisibility = () => {
+        this.generatorVectorLayer.setVisible(!this.generatorVectorLayer.getVisible());
     }
 
     public getResolutionForZoom = (zoom: number) => {
@@ -366,6 +389,12 @@ export class ImageMap extends React.Component<IImageMapProps> {
         labelOptions.source = new VectorSource();
         this.labelVectorLayer = new VectorLayer(labelOptions);
 
+        const generatorOptions: any = {};
+        generatorOptions.name = this.GENERATOR_VECTOR_LAYER_NAME;
+        generatorOptions.style = this.props.labelFeatureStyler;
+        generatorOptions.source = new VectorSource();
+        this.generatorVectorLayer = new VectorLayer(generatorOptions);
+
         this.map = new Map({
             controls: [] ,
             interactions: defaultInteractions({ doubleClickZoom: false,
@@ -379,9 +408,27 @@ export class ImageMap extends React.Component<IImageMapProps> {
                 this.tableIconBorderVectorLayer,
                 this.checkboxVectorLayer,
                 this.labelVectorLayer,
+                this.generatorVectorLayer,
             ],
             view: this.createMapView(projection, this.imageExtent),
         });
+
+        const draw = new Draw({
+            source: generatorOptions.source,
+            type: "Polygon",
+        });
+        draw.on("drawend", this.props.handleGeneratorRegionCompleted);
+        // TODO handle delete
+        // TODO handle modification
+        const snap = new Snap({source: generatorOptions.source});
+        const modify = new Modify({source: generatorOptions.source});
+        draw.setActive(false);
+        snap.setActive(false);
+        modify.setActive(false);
+
+        this.addInteraction(modify);
+        this.addInteraction(draw);
+        this.addInteraction(snap);
 
         this.map.on("pointerdown", this.handlePointerDown);
         this.map.on("pointermove", this.handlePointerMove);
@@ -446,6 +493,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
     private handlePointerDown = (event: MapBrowserEvent) => {
         if (!this.props.enableFeatureSelection) {
+            return;
+        }
+
+        if (this.isDrawing()) {
             return;
         }
 
@@ -579,6 +630,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
             return;
         }
 
+        if (this.isDrawing()) {
+            return;
+        }
+
         this.countPointerDown -= 1;
         if (this.countPointerDown === 0) {
             this.setDragPanInteraction(true /*dragPanEnabled*/);
@@ -595,12 +650,18 @@ export class ImageMap extends React.Component<IImageMapProps> {
         });
     }
 
+    private isDrawing = () => this.props.editorMode && this.props.editorMode === EditorMode.GeneratorRect;
+
     private shouldIgnorePointerMove = () => {
         if (!this.props.enableFeatureSelection) {
             return true;
         }
 
         if (!this.isSwiping) {
+            return true;
+        }
+
+        if (this.isDrawing()) {
             return true;
         }
 
