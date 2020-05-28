@@ -230,6 +230,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     enableFeatureSelection={true}
                     handleFeatureSelect={this.handleFeatureSelect}
                     featureStyler={this.featureStyler}
+                    generatorFeatureStyler={this.generatorFeatureStyler}
                     checkboxFeatureStyler={this.checkboxFeatureStyler}
                     labelFeatureStyler={this.labelFeatureStyler}
                     tableBorderFeatureStyler={this.tableBorderFeatureStyler}
@@ -692,6 +693,33 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 }),
                 fill: new Fill({
                     color: "rgba(255, 252, 127, 0.2)",
+                }),
+            });
+        }
+    }
+
+    private generatorFeatureStyler = (feature) => {
+        const regionId = feature.get("id");
+        // Selected
+        if (this.isRegionSelected(regionId)) {
+            return new Style({
+                stroke: new Stroke({
+                    color: "#6eff40",
+                    width: 1,
+                }),
+                fill: new Fill({
+                    color: "rgba(110, 255, 80, 0.4)",
+                }),
+            });
+        } else {
+            // Unselected
+            return new Style({
+                stroke: new Stroke({
+                    color: "#f7dc52",
+                    width: 1,
+                }),
+                fill: new Fill({
+                    color: "rgba(255, 152, 57, 0.4)",
                 }),
             });
         }

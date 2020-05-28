@@ -23,6 +23,7 @@ interface IImageMapProps {
     imageAngle?: number;
 
     featureStyler?: any;
+    generatorFeatureStyler?: any;
     tableBorderFeatureStyler?: any;
     tableIconFeatureStyler?: any;
     tableIconBorderFeatureStyler?: any;
@@ -396,7 +397,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
         const generatorOptions: any = {};
         generatorOptions.name = this.GENERATOR_VECTOR_LAYER_NAME;
-        generatorOptions.style = this.props.featureStyler;
+        generatorOptions.style = this.props.generatorFeatureStyler;
         generatorOptions.source = new VectorSource();
         this.generatorVectorLayer = new VectorLayer(generatorOptions);
 
