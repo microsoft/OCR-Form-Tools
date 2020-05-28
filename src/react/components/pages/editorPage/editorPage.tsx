@@ -797,9 +797,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private onSelectedGeneratorRegion = (selectedGeneratorRegion: IGeneratorRegion) => {
         // find and update the old one in case we modified
         const { generatorRegions } = this.state;
-        const newRegions = generatorRegions.map(r => r.uid === selectedGeneratorRegion.uid ? selectedGeneratorRegion : r);
+        const oldRegionIndex = generatorRegions.findIndex(r => r.uid === selectedGeneratorRegion.uid);
+        const newRegion = { ...generatorRegions[oldRegionIndex], ...selectedGeneratorRegion };
+        generatorRegions[oldRegionIndex] = newRegion;
         this.setState({
-            generatorRegions: newRegions,
+            generatorRegions,
             selectedGeneratorRegion
         });
     }
