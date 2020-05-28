@@ -29,6 +29,7 @@ import { TableView } from "./tableView"
 import CanvasHelpers from "./canvasHelpers";
 import "./editorPage.scss";
 import EditorSideBar from "./editorSideBar";
+import GeneratorPane from "./generatorPane";
 import Alert from "../../common/alert/alert";
 import Confirm from "../../common/confirm/confirm";
 import { OCRService } from "../../../../services/ocrService";
@@ -83,6 +84,10 @@ export interface IEditorPageState {
     /** Generator regions on current asset */
     // TODO this needs to go somewhere better
     generatorRegions?: IGeneratorRegion[];
+    /** Most recently active generator */
+    selectedGeneratorRegion?: IGeneratorRegion;
+    // TODO support asset generator settings
+
     /** Most recently selected tag */
     selectedTag: string;
     /** Tags locked for region labeling */
@@ -139,6 +144,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         assets: [],
         editorMode: EditorMode.Select,
         generatorRegions: [], // TODO move this out
+        selectedGeneratorRegion: null,
         thumbnailSize: { width: 175, height: 155 },
         isValid: true,
         showInvalidRegionWarning: false,
@@ -284,6 +290,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             editorMode={this.state.editorMode}
                                             setEditorMode={this.setEditorMode}
                                             addGeneratorRegion={this.addGeneratorRegion}
+                                            onSelectedGeneratorRegion={this.onSelectedGeneratorRegion}
                                             project={this.props.project}
                                             lockedTags={this.state.lockedTags}
                                             hoveredLabel={this.state.hoveredLabel}
@@ -298,34 +305,48 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                 </div>
                             </div>
                             <div className="editor-page-right-sidebar">
-                                <TagInput
-                                    tagsLoaded={this.state.tagsLoaded}
-                                    tags={this.props.project.tags}
-                                    lockedTags={this.state.lockedTags}
-                                    selectedRegions={this.state.selectedRegions}
-                                    labels={labels}
-                                    onChange={this.onTagsChanged}
-                                    onLockedTagsChange={this.onLockedTagsChanged}
-                                    onTagClick={this.onTagClicked}
-                                    onCtrlTagClick={this.onCtrlTagClicked}
-                                    onTagRename={this.confirmTagRename}
-                                    onTagDeleted={this.confirmTagDeleted}
-                                    onLabelEnter={this.onLabelEnter}
-                                    onLabelLeave={this.onLabelLeave}
-                                    onTagChanged={this.onTagChanged}
-                                    ref = {this.tagInputRef}
-                                />
-                                <Confirm title={strings.editorPage.tags.rename.title}
-                                ref={this.renameTagConfirm}
-                                message={strings.editorPage.tags.rename.confirmation}
-                                confirmButtonTheme={getPrimaryRedTheme()}
-                                onCancel={this.onTagRenameCanceled}
-                                onConfirm={this.onTagRenamed} />
-                                <Confirm title={strings.editorPage.tags.delete.title}
-                                    ref={this.deleteTagConfirm}
-                                    message={strings.editorPage.tags.delete.confirmation}
-                                    confirmButtonTheme={getPrimaryRedTheme()}
-                                    onConfirm={this.onTagDeleted} />
+                                <SplitPane split="horizontal"
+                                    primary="first"
+                                    pane1Style = {{ height: "80%"}}
+                                    pane2Style = {{ height: "auto" }}
+                                    minSize = {300}
+                                    resizerStyle = {{height: "5px", margin: "0px", border: "2px", background: "transparent"}}>
+                                    <div>
+                                        <TagInput
+                                            tagsLoaded={this.state.tagsLoaded}
+                                            tags={this.props.project.tags}
+                                            lockedTags={this.state.lockedTags}
+                                            selectedRegions={this.state.selectedRegions}
+                                            labels={labels}
+                                            onChange={this.onTagsChanged}
+                                            onLockedTagsChange={this.onLockedTagsChanged}
+                                            onTagClick={this.onTagClicked}
+                                            onCtrlTagClick={this.onCtrlTagClicked}
+                                            onTagRename={this.confirmTagRename}
+                                            onTagDeleted={this.confirmTagDeleted}
+                                            onLabelEnter={this.onLabelEnter}
+                                            onLabelLeave={this.onLabelLeave}
+                                            onTagChanged={this.onTagChanged}
+                                            ref = {this.tagInputRef}
+                                        />
+                                        <Confirm title={strings.editorPage.tags.rename.title}
+                                        ref={this.renameTagConfirm}
+                                        message={strings.editorPage.tags.rename.confirmation}
+                                        confirmButtonTheme={getPrimaryRedTheme()}
+                                        onCancel={this.onTagRenameCanceled}
+                                        onConfirm={this.onTagRenamed} />
+                                        <Confirm title={strings.editorPage.tags.delete.title}
+                                            ref={this.deleteTagConfirm}
+                                            message={strings.editorPage.tags.delete.confirmation}
+                                            confirmButtonTheme={getPrimaryRedTheme()}
+                                            onConfirm={this.onTagDeleted} />
+                                    </div>
+                                    <GeneratorPane
+                                        // assetGenerator={this.state.assetGenerator}
+                                        generatorRegion={this.state.selectedGeneratorRegion}
+                                    />
+                                </SplitPane>
+
                             </div>
                         </SplitPane>
                     </div>
@@ -399,6 +420,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         this.setState({
             selectedTag: tag.name,
             lockedTags: [],
+            selectedGeneratorRegion: null, // TODO does this do anything...
         }, () => this.canvas.current.applyTag(tag.name));
     }
 
@@ -768,7 +790,12 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private addGeneratorRegion = (region: IGeneratorRegion) => {
         this.setState({
             generatorRegions: [ ...this.state.generatorRegions, region],
+            selectedGeneratorRegion: region,
         });
+    }
+
+    private onSelectedGeneratorRegion = (selectedGeneratorRegion: IGeneratorRegion) => {
+        this.setState({ selectedGeneratorRegion });
     }
 
     private setTableToView = async (tableToView, tableToViewId) => {

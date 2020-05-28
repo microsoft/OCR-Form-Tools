@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Feature, MapBrowserEvent, View } from "ol";
+import { Feature, MapBrowserEvent, DrawEvent, ModifyEvent, View } from "ol";
 import { Extent, getCenter } from "ol/extent";
 import { defaults as defaultInteractions, DragPan, Draw, Snap, Modify, Interaction } from "ol/interaction.js";
 import ImageLayer from "ol/layer/Image";
@@ -33,7 +33,8 @@ interface IImageMapProps {
     handleFeatureSelect?: (feature: any, isTaggle: boolean, category: FeatureCategory) => void;
     hoveringFeature?: string;
     editorMode?: EditorMode;
-    handleGeneratorRegionCompleted?: (region: any) => void;
+    handleGeneratorRegionCompleted?: (drawEvent: DrawEvent) => void;
+    handleGeneratorRegionModified?: (modifyEvent: ModifyEvent) => void;
 
     onMapReady: () => void;
     handleTableToolTipChange?: (display: string, width: number, height: number, top: number,
@@ -413,11 +414,14 @@ export class ImageMap extends React.Component<IImageMapProps> {
             view: this.createMapView(projection, this.imageExtent),
         });
 
+        this.map.on("change", (e: any) => {
+            console.log(e); // Er, I'm not sure.
+        })
+
         const draw = new Draw({
             source: generatorOptions.source,
             type: "Polygon",
         });
-        draw.on("drawend", this.props.handleGeneratorRegionCompleted);
         // TODO handle delete
         // TODO handle modification
         const snap = new Snap({source: generatorOptions.source});
@@ -426,6 +430,8 @@ export class ImageMap extends React.Component<IImageMapProps> {
         snap.setActive(false);
         modify.setActive(false);
 
+        draw.on("drawend", this.props.handleGeneratorRegionCompleted);
+        modify.on("modifystart", this.props.handleGeneratorRegionModified); // Do we need to update the object itself? Or will the reference update?
         this.addInteraction(modify);
         this.addInteraction(draw);
         this.addInteraction(snap);

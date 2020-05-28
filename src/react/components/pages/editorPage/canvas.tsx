@@ -21,7 +21,7 @@ import Point from "ol/geom/Point";
 import Stroke from "ol/style/Stroke";
 import Fill from "ol/style/Fill";
 import { OCRService, OcrStatus } from "../../../../services/ocrService";
-import { Feature, DrawEvent } from "ol";
+import { Feature, DrawEvent, ModifyEvent } from "ol";
 import { Extent } from "ol/extent";
 import { KeyboardBinding } from "../../common/keyboardBinding/keyboardBinding";
 import { KeyEventType } from "../../common/keyboardManager/keyboardManager";
@@ -55,6 +55,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onRunningOCRStatusChanged?: (isRunning: boolean) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
     addGeneratorRegion?: (info: IGeneratorRegion) => void;
+    onSelectedGeneratorRegion?: (info: IGeneratorRegion) => void;
 }
 
 export interface ICanvasState {
@@ -239,6 +240,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     hoveringFeature={this.state.hoveringFeature}
                     editorMode={this.props.editorMode}
                     handleGeneratorRegionCompleted={this.handleGeneratorRegionCompleted}
+                    handleGeneratorRegionModified={this.handleGeneratorRegionModified}
                 />
                 <TooltipHost
                     content={"rows: " + this.state.tableIconTooltip.rows +
@@ -1097,9 +1099,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         };
 
         this.props.addGeneratorRegion(regionInfo);
-        // TODO handle modification
-        // TODO handle deletion
     }
+
+    private handleGeneratorRegionModified = (modifyEvent: ModifyEvent) => {
+        console.log(modifyEvent);
+        // TODO implement
+    }
+
+    // TODO handle selection
 
     private convertLabelDataToRegions = (labelData: ILabelData): IRegion[] => {
         const regions = [];
