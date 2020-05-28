@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Feature, MapBrowserEvent, DrawEvent, ModifyEvent, View } from "ol";
+import { Feature, MapBrowserEvent, DrawEvent, ModifyEvent, View, Style } from "ol";
 import { Extent, getCenter } from "ol/extent";
 import { defaults as defaultInteractions, DragPan, Draw, Snap, Modify, Interaction } from "ol/interaction.js";
 import ImageLayer from "ol/layer/Image";
@@ -235,8 +235,12 @@ export class ImageMap extends React.Component<IImageMapProps> {
     /**
      * Get all features from the map
      */
-    public getAllFeatures = () => {
+    public getAllTextFeatures = () => {
         return this.textVectorLayer.getSource().getFeatures();
+    }
+
+    public getAllGeneratorFeatures = () => {
+        return this.generatorVectorLayer.getSource().getFeatures();
     }
 
     public getAllCheckboxFeatures = () => {
@@ -392,7 +396,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
         const generatorOptions: any = {};
         generatorOptions.name = this.GENERATOR_VECTOR_LAYER_NAME;
-        generatorOptions.style = this.props.labelFeatureStyler;
+        generatorOptions.style = this.props.featureStyler;
         generatorOptions.source = new VectorSource();
         this.generatorVectorLayer = new VectorLayer(generatorOptions);
 
@@ -419,8 +423,8 @@ export class ImageMap extends React.Component<IImageMapProps> {
         })
 
         const draw = new Draw({
-            source: generatorOptions.source,
-            type: "Polygon",
+            source: generatorOptions.source, // using the label source doesn't appear to work either
+            type: "Polygon", // using Point doesn't work either
         });
         // TODO handle delete
         // TODO handle modification

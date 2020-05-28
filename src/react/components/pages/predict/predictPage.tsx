@@ -910,7 +910,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private setPredictedFieldHighlightStatus = (highlightedField: string) => {
-        const features = this.imageMap.getAllFeatures();
+        const features = this.imageMap.getAllTextFeatures();
         for (const feature of features) {
             if (feature.get("fieldName").toLocaleLowerCase() === highlightedField.toLocaleLowerCase()) {
                 feature.set("isHighlighted", true);

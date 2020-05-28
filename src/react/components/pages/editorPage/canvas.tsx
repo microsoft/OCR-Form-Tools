@@ -381,7 +381,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const textRegions = regions.filter((r) => r.category === FeatureCategory.Text);
         const checkboxRegions = regions.filter((r) => r.category === FeatureCategory.Checkbox);
 
-        const allTextFeatures = this.imageMap.getAllFeatures();
+        const allTextFeatures = this.imageMap.getAllTextFeatures();
         const regionsNotInFeatures = textRegions.filter((region) =>
             allTextFeatures.findIndex((feature) => feature.get("id") === region.id) === -1);
         const imageExtent = this.imageMap.getImageExtent();
@@ -453,7 +453,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const textRegions = regions.filter((r) => r.category === FeatureCategory.Text);
         const checkboxRegions = regions.filter((r) => r.category === FeatureCategory.Checkbox);
 
-        const allFeatures = this.imageMap.getAllFeatures();
+        const allFeatures = this.imageMap.getAllTextFeatures();
         const selectedFeatures = allFeatures
             .filter((feature) => !feature.get("isOcrProposal"))
             .filter((feature) => textRegions.findIndex((region) => region.id === feature.get("id")) !== -1);
@@ -1307,7 +1307,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             }
             this.applyTagFlag = false;
         }
-        const allFeatures = this.imageMap.getAllFeatures();
+        const allFeatures = this.imageMap.getAllTextFeatures();
         const nextFeature = allFeatures.find((f) => f.get("id") === (nextRegionId));
         if (nextFeature) {
             const polygon = nextRegionId.split(",").map(parseFloat);
@@ -1709,7 +1709,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private redrawAllFeatures = () => {
-        this.redrawFeatures(this.imageMap.getAllFeatures());
+        this.redrawFeatures(this.imageMap.getAllTextFeatures());
+        this.redrawFeatures(this.imageMap.getAllGeneratorFeatures());
         this.redrawFeatures(this.imageMap.getAllCheckboxFeatures());
         this.redrawFeatures(this.imageMap.getAllLabelFeatures());
     }
