@@ -795,7 +795,13 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private onSelectedGeneratorRegion = (selectedGeneratorRegion: IGeneratorRegion) => {
-        this.setState({ selectedGeneratorRegion });
+        // find and update the old one in case we modified
+        const { generatorRegions } = this.state;
+        const newRegions = generatorRegions.map(r => r.uid === selectedGeneratorRegion.uid ? selectedGeneratorRegion : r);
+        this.setState({
+            generatorRegions: newRegions,
+            selectedGeneratorRegion
+        });
     }
 
     private setTableToView = async (tableToView, tableToViewId) => {

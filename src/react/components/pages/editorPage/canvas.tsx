@@ -1112,12 +1112,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     /* Bounding Box Synthesizer Code */
-    private handleGeneratorRegionCompleted = (drawEvent: DrawEvent) => {
-        if (!this.props.addGeneratorRegion) {
-            console.log("Generator region formed unexpectedly, dropping.");
-            return;
-        }
-        const geometry = drawEvent.feature.values_.geometry;
+    // TODO should we just pass around all the info? And not worry about all this work until necessary?
+    private extractGeneratorInfo = (feature: any) => {
+        const geometry = feature.values_.geometry;
         // snap tool will make last 2 coords match first 2
         const points = geometry.flatCoordinates.slice(0, -2);
         const regionInfo: IGeneratorRegion = {
@@ -1125,13 +1122,16 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             extent: geometry.extent_,
             uid: geometry.ol_uid // this is a string of a number
         };
+        return regionInfo;
+    }
 
-        this.props.addGeneratorRegion(regionInfo);
+    private handleGeneratorRegionCompleted = (drawEvent: DrawEvent) => {
+        this.props?.addGeneratorRegion(this.extractGeneratorInfo(drawEvent.feature));
     }
 
     private handleGeneratorRegionModified = (modifyEvent: ModifyEvent) => {
-        console.log(modifyEvent);
-        // TODO implement
+        const regionInfo = this.extractGeneratorInfo(modifyEvent.features.item(0));
+        this.props?.onSelectedGeneratorRegion(regionInfo);
     }
 
     // TODO handle selection
