@@ -7,32 +7,68 @@
   "hashFontFileName": true,
   "glyphs": [
     {
-      "name": "Insights",
-      "unicode": "E3AF"
+      "name": "Table",
+      "unicode": "ED86"
     },
     {
-      "name": "MachineLearning",
-      "unicode": "E3B8"
+      "name": "TextField",
+      "unicode": "EDC3"
     },
     {
-      "name": "TagGroup",
-      "unicode": "E3F6"
+      "name": "TextDocument",
+      "unicode": "F029"
     },
     {
-      "name": "ChevronDown",
-      "unicode": "E70D"
+      "name": "DocumentManagement",
+      "unicode": "EFFC"
     },
     {
-      "name": "ChevronUp",
-      "unicode": "E70E"
+      "name": "OpenFolderHorizontal",
+      "unicode": "ED25"
     },
     {
-      "name": "Edit",
-      "unicode": "E70F"
+      "name": "Info",
+      "unicode": "E946"
     },
     {
-      "name": "Add",
-      "unicode": "E710"
+      "name": "Annotation",
+      "unicode": "E924"
+    },
+    {
+      "name": "Label",
+      "unicode": "E932"
+    },
+    {
+      "name": "AddTo",
+      "unicode": "ECC8"
+    },
+    {
+      "name": "Hide3",
+      "unicode": "F6AC"
+    },
+    {
+      "name": "WarningSolid",
+      "unicode": "F736"
+    },
+    {
+      "name": "BranchMerge",
+      "unicode": "F295"
+    },
+    {
+      "name": "PlugConnected",
+      "unicode": "F302"
+    },
+    {
+      "name": "Plug",
+      "unicode": "F300"
+    },
+    {
+      "name": "AlertSolid",
+      "unicode": "F331"
+    },
+    {
+      "name": "CheckboxComposite",
+      "unicode": "E73A"
     },
     {
       "name": "Cancel",
@@ -59,12 +95,20 @@
       "unicode": "E721"
     },
     {
-      "name": "CheckboxComposite",
-      "unicode": "E73A"
+      "name": "Add",
+      "unicode": "E710"
     },
     {
       "name": "CheckMark",
       "unicode": "E73E"
+    },
+    {
+      "name": "ChevronLeft",
+      "unicode": "E76B"
+    },
+    {
+      "name": "ChevronRight",
+      "unicode": "E76C"
     },
     {
       "name": "Up",
@@ -83,32 +127,20 @@
       "unicode": "E753"
     },
     {
-      "name": "ChevronLeft",
-      "unicode": "E76B"
+      "name": "Edit",
+      "unicode": "E70F"
     },
     {
-      "name": "ChevronRight",
-      "unicode": "E76C"
+      "name": "ChevronUp",
+      "unicode": "E70E"
     },
     {
-      "name": "Home",
-      "unicode": "E80F"
+      "name": "ChevronDown",
+      "unicode": "E70D"
     },
     {
-      "name": "MapLayers",
-      "unicode": "E81E"
-    },
-    {
-      "name": "View",
-      "unicode": "E890"
-    },
-    {
-      "name": "Download",
-      "unicode": "E896"
-    },
-    {
-      "name": "Help",
-      "unicode": "E897"
+      "name": "Copy",
+      "unicode": "E8C8"
     },
     {
       "name": "ZoomIn",
@@ -119,68 +151,40 @@
       "unicode": "E8AC"
     },
     {
-      "name": "Copy",
-      "unicode": "E8C8"
-    },
-    {
       "name": "Tag",
       "unicode": "E8EC"
     },
     {
-      "name": "Label",
-      "unicode": "E932"
+      "name": "Download",
+      "unicode": "E896"
     },
     {
-      "name": "Info",
-      "unicode": "E946"
+      "name": "View",
+      "unicode": "E890"
     },
     {
-      "name": "AddTo",
-      "unicode": "ECC8"
+      "name": "Help",
+      "unicode": "E897"
     },
     {
-      "name": "OpenFolderHorizontal",
-      "unicode": "ED25"
+      "name": "Home",
+      "unicode": "E80F"
     },
     {
-      "name": "Table",
-      "unicode": "ED86"
+      "name": "MapLayers",
+      "unicode": "E81E"
     },
     {
-      "name": "TextField",
-      "unicode": "EDC3"
+      "name": "Insights",
+      "unicode": "E3AF"
     },
     {
-      "name": "DocumentManagement",
-      "unicode": "EFFC"
+      "name": "MachineLearning",
+      "unicode": "E3B8"
     },
     {
-      "name": "TextDocument",
-      "unicode": "F029"
-    },
-    {
-      "name": "BranchMerge",
-      "unicode": "F295"
-    },
-    {
-      "name": "Plug",
-      "unicode": "F300"
-    },
-    {
-      "name": "PlugConnected",
-      "unicode": "F302"
-    },
-    {
-      "name": "AlertSolid",
-      "unicode": "F331"
-    },
-    {
-      "name": "Hide3",
-      "unicode": "F6AC"
-    },
-    {
-      "name": "WarningSolid",
-      "unicode": "F736"
+      "name": "TagGroup",
+      "unicode": "E3F6"
     },
     {
       "name": "BookAnswers",
