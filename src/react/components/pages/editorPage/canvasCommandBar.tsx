@@ -80,7 +80,8 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
             ariaLabel: "Toggle Bounding Box selection",
             iconOnly: true,
             iconProps: { iconName: "Annotation" },
-            buttonStyles: {}, // TODO I dunno how to make it active, only styles available
+            checked: props.editorMode === EditorMode.GeneratorRect,
+            buttonStyles: {},
             onClick: () => props.toggleBoundingBoxMode(),
         },
         {
@@ -105,7 +106,6 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
 
     return (
         <Customizer {...dark}>
-            {props.editorMode}
             <CommandBar
                 items={commandBarItems}
                 farItems={commandBarFarItems}
