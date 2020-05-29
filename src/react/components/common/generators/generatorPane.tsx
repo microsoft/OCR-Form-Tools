@@ -13,6 +13,7 @@ import "../condensedList/condensedList.scss";
 import GeneratorEditor from "./generatorEditor";
 import { dark, TagOperationMode, onItemRename } from "../tagInput/tagInput";
 import { toast } from "react-toastify";
+import { ITagClickProps } from "../tagInput/tagInputItem";
 
 /**
  * TODO
@@ -65,9 +66,10 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
         activeID = props.generatorRegions[props.selectedIndex].uid;
     }
 
-    const onEditorClick = (region: IGeneratorRegion) => {
+    const onEditorClick = (region: IGeneratorRegion, clickProps: ITagClickProps) => {
         // props describe the type of click that occurred
         // TODO add them props back (needed for the type assignment)
+        // TODO support color again
         const { generatorRegions, selectedIndex } = props;
         const selected =  generatorRegions[selectedIndex].uid === region.uid;
         const newOperation = selected ? operation : TagOperationMode.None;
@@ -81,19 +83,19 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
 
     const renderGenerators = () => {
         const { generatorRegions, selectedIndex } = props;
-        // this.tagItemRefs.clear();
+        // TODO this.tagItemRefs.clear();
         let regions = generatorRegions;
         if (searchQuery.length) {
             regions = regions.filter((r) => !r.name ||
             r.name.toLowerCase().includes(searchQuery.toLowerCase()));
         }
         const perRegionProps = regions.map((r,index) => ({
-            r,
+            region: r,
             index: 1, // why?
             isRenaming: operation === TagOperationMode.Rename && index === selectedIndex,
             isSelected: index === selectedIndex,
-            onClick: onEditorClick,
-            onRename: onItemRename.bind(this, generatorRegions),
+            onClick: onEditorClick.bind(this, r),
+            onRename: onItemRename.bind(this, generatorRegions, r),
         }));
         return regions.map((r, index) =>
             <GeneratorEditor
@@ -110,12 +112,12 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
 
     return (
         <div className="tag-input">
-            <div ref={this.headerRef} className="tag-input-header p-2">
+            <div className="tag-input-header p-2">
                 <span className="tag-input-title">{strings.generator.title}</span>
                 Total regions: {props.generatorRegions.length}.
             </div>
             {
-                this.props.generatorsLoaded ?
+                props.generatorsLoaded ?
                 <div className="tag-input-body-container">
                     <div className="tag-input-body">
                         Active region: {activeID}

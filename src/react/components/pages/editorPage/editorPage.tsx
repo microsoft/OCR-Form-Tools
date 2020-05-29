@@ -17,6 +17,7 @@ import {
     ILabel,
     FieldType,
     FieldFormat,
+    FormattedItem,
 } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -54,13 +55,10 @@ import { SkipButton } from "../../shell/skipButton";
  * @member type - like tag type
  * @member format - like tag format
  */
-export interface IGeneratorRegion {
+export interface IGeneratorRegion extends FormattedItem{
     points: number[];
     extent: number[];
     uid: string;
-    name: string;
-    type: FieldType,
-    format: FieldFormat,
 }
 
 /**

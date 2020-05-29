@@ -1,16 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import React, { useState, MouseEvent } from "react";
+import React, { useState, useRef, MouseEvent } from "react";
 import { FontIcon, IconButton } from "office-ui-fabric-react";
 import { ITag, ILabel, FieldType, FieldFormat } from "../../../../models/applicationState";
-import { getFormattedEditorContent } from "../tagInput/tagInputItem";
+import {
+    getFormattedEditorContent,
+    ITagClickProps,
+    onColorClick,
+    onDropdownClick,
+    onNameClick,
+} from "../tagInput/tagInputItem";
 import { IGeneratorRegion } from "../../pages/editorPage/editorPage";
-
-export interface ITagClickProps {
-    keyClick?: boolean;
-    clickedColor?: boolean;
-    clickedDropDown?: boolean;
-}
 
 /**
  * Properties for tag input item
@@ -22,14 +22,12 @@ export interface IGeneratorEditorProps {
     index: number;
     /** Tag is currently renaming */
     isRenaming: boolean;
-    /** Tag is currently locked for application */
-    isLocked: boolean;
     /** Tag is currently selected */
     isSelected: boolean;
     /** Function to call upon clicking item */
-    onClick: (tag: ITag, props: ITagClickProps) => void;
+    onClick: (props: ITagClickProps) => void;
     /** Apply new name to tag */
-    onRename: (oldTag: ITag, newName: string, cancelCallback: () => void) => void;
+    onRename: (newName: string, cancelCallback: () => void) => void;
 }
 
 const strings = {
@@ -39,75 +37,42 @@ const strings = {
 }
 
 const GeneratorEditor: React.FunctionComponent<IGeneratorEditorProps> = (props) => {
-    const style: any = {
-        background: this.props.tag.color,
+    const style = {
+        background: props.region.color,
     };
 
-    const onDropdownClick = (e: MouseEvent<HTMLButtonElement>) => {
-        e.stopPropagation();
+    const [isRenaming, setRenaming] = useState(false);
 
-        const clickedDropDown = true;
-        props.onClick(this.props.tag, { clickedDropDown });
-    }
-
-    const onNameClick = (e: MouseEvent) => {
-        e.stopPropagation();
-
-        props.onClick(this.props.tag, {});
-    }
-
-    const getItemClassName = () => {
-        const classNames = ["tag-item"];
-        if (this.props.isSelected) {
-            classNames.push("tag-item-selected");
-        }
-        if (this.props.appliedToSelectedRegions) {
-            classNames.push("tag-item-applied");
-        }
-        return classNames.join(" ");
-    }
-
-    const renderTagDetail = () => {
-        return this.props.labels.map((label, idx) =>
-            <TagInputItemLabel
-                key={idx}
-                label={label}
-                onLabelEnter={this.props.onLabelEnter}
-                onLabelLeave={this.props.onLabelLeave}
-            />);
-    }
-
-    const onInputRef = (element: HTMLInputElement) => {
-        this.inputElement = element;
-        if (element) {
-            element.select();
-        }
-    }
+    const itemRef = useRef<HTMLDivElement>();
+    const inputElement = useRef<HTMLInputElement>(null);
 
     const onInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-        this.onRenameTag();
+        onRenameTag();
     }
 
     const onInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter") {
-            this.inputElement.blur();
+            inputElement.current.blur();
         } else if (e.key === "Escape") {
-            this.setState({
-                isRenaming: false,
-            });
+            setRenaming(false);
         }
     }
 
+    const getItemClassName = () => {
+        const classNames = ["tag-item"];
+        if (props.isSelected) {
+            classNames.push("tag-item-selected");
+        }
+        return classNames.join(" ");
+    }
+
     const onRenameTag = () => {
-        if (!this.inputElement) {
+        if (!inputElement) {
             return;
         }
-        const tag = this.props.tag;
-        const name = this.inputElement.value.trim();
-        this.props.onRename(tag, name, () => {
-            this.setState({
-                isRenaming: false,
-            });
+        const name = inputElement.current.value.trim();
+        props.onRename(name, () => {
+            setRenaming(false);
         });
     }
 
@@ -116,27 +81,32 @@ const GeneratorEditor: React.FunctionComponent<IGeneratorEditorProps> = (props) 
             <div
                 className={"tag-color"}
                 style={style}
-                onClick={this.onColorClick}>
+                onClick={onColorClick.bind(this, props.onClick)}>
             </div>
             <div className={"tag-item-block-2"}>
                 {
-                    this.props.tag &&
+                    props.region &&
                     <div
-                        ref={this.itemRef}
+                        ref={itemRef}
                         className={getItemClassName()}
                         style={style}>
                         <div
                             className={"tag-content pr-2"}
-                            onClick={this.onNameClick}>
-                            {getFormattedEditorContent(props.region, null)}
+                            onClick={onNameClick.bind(this, props.onClick)}>
+                            {getFormattedEditorContent(
+                                props.region,
+                                null,
+                                ()=>{},
+                                ()=>{},
+                                inputElement,
+                                isRenaming,
+                                onInputBlur,
+                                onDropdownClick.bind(this, props.onClick),
+                                onInputKeyDown,
+                            )}
                         </div>
-                        {
-                            this.state.isLocked &&
-                            <div></div>
-                        }
                     </div>
                 }
-                {this.renderTagDetail()}
             </div>
         </div>
     );

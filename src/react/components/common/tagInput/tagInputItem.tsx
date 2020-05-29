@@ -35,9 +35,9 @@ export interface ITagInputItemProps {
     /** Tag is currently applied to one of the selected regions */
     appliedToSelectedRegions: boolean;
     /** Function to call upon clicking item */
-    onClick: (tag: ITag, props: ITagClickProps) => void;
+    onClick: (props: ITagClickProps) => void;
     /** Apply new name to tag */
-    onRename: (oldTag: ITag, newName: string, cancelCallback: () => void) => void;
+    onRename: (newName: string, cancelCallback: () => void) => void;
     onLabelEnter: (label: ILabel) => void;
     onLabelLeave: (label: ILabel) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
@@ -46,16 +46,12 @@ export interface ITagInputItemProps {
 export interface ITagInputItemState {
     /** Tag is currently renaming */
     isRenaming: boolean;
-
-    /** Tag is currently locked for application */
-    isLocked: boolean;
 }
 
 export default class TagInputItem extends React.Component<ITagInputItemProps, ITagInputItemState> {
 
     public state: ITagInputItemState = {
         isRenaming: false,
-        isLocked: false,
     };
 
     private itemRef = React.createRef<HTMLDivElement>();
@@ -65,12 +61,6 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         if (prevProps.isRenaming !== this.props.isRenaming) {
             this.setState({
                 isRenaming: this.props.isRenaming,
-            });
-        }
-
-        if (prevProps.isLocked !== this.props.isLocked) {
-            this.setState({
-                isLocked: this.props.isLocked,
             });
         }
     }
@@ -85,7 +75,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                 <div
                     className={"tag-color"}
                     style={style}
-                    onClick={this.onColorClick}>
+                    onClick={onColorClick.bind(this, this.props.onClick)}>
                 </div>
                 <div className={"tag-item-block-2"}>
                     {
@@ -96,7 +86,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                             style={style}>
                             <div
                                 className={"tag-content pr-2"}
-                                onClick={this.onNameClick}>
+                                onClick={onNameClick.bind(this, this.props.onClick)}>
                                 {getFormattedEditorContent(
                                     this.props.tag,
                                     this.getDisplayIndex(),
@@ -105,11 +95,12 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                                     this.onInputRef,
                                     this.state.isRenaming,
                                     this.onInputBlur,
-                                    this.onDropdownClick,
+                                    onDropdownClick.bind(this, this.props.onClick),
+                                    this.onInputKeyDown,
                                 )}
                             </div>
                             {
-                                this.state.isLocked &&
+                                this.props.isLocked &&
                                 <div></div>
                             }
                         </div>
@@ -122,30 +113,6 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
 
     public getTagNameRef() {
         return this.itemRef;
-    }
-
-    private onDropdownClick = (e: MouseEvent<HTMLButtonElement>) => {
-        e.stopPropagation();
-
-        const clickedDropDown = true;
-        this.props.onClick(this.props.tag, { clickedDropDown });
-    }
-
-    private onColorClick = (e: MouseEvent) => {
-        e.stopPropagation();
-
-        const ctrlKey = e.ctrlKey || e.metaKey;
-        const altKey = e.altKey;
-        const clickedColor = true;
-        this.props.onClick(this.props.tag, { ctrlKey, altKey, clickedColor });
-    }
-
-    private onNameClick = (e: MouseEvent) => {
-        e.stopPropagation();
-
-        const ctrlKey = e.ctrlKey || e.metaKey;
-        const altKey = e.altKey;
-        this.props.onClick(this.props.tag, { ctrlKey, altKey });
     }
 
     private getItemClassName = () => {
@@ -194,9 +161,8 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         if (!this.inputElement) {
             return;
         }
-        const tag = this.props.tag;
         const name = this.inputElement.value.trim();
-        this.props.onRename(tag, name, () => {
+        this.props.onRename(name, () => {
             this.setState({
                 isRenaming: false,
             });
@@ -227,9 +193,9 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
     }
 }
 
-// TODO clear all the unnecessary state from this
+// TODO turn into a component proper
 export const getFormattedEditorContent = (
-    item: FormattedItem & NamedItem,
+    item: FormattedItem,
     displayIndex: string,
     handleMouseEnter: any,
     handleMouseLeave: any,
@@ -237,6 +203,7 @@ export const getFormattedEditorContent = (
     isRenaming: boolean,
     onInputBlur: any,
     onDropdownClick: any,
+    onInputKeyDown: any,
 ) => {
     return (
         <div className={"tag-name-container"}
@@ -255,7 +222,7 @@ export const getFormattedEditorContent = (
                         className={`tag-name-editor ${getFormattedContentClassName(item)}`}
                         type="text"
                         defaultValue={item.name}
-                        onKeyDown={(e) => this.onInputKeyDown(e)}
+                        onKeyDown={(e) => onInputKeyDown(e)}
                         onBlur={onInputBlur}
                         autoFocus={true}
                     />
@@ -283,7 +250,31 @@ export const getFormattedEditorContent = (
     );
 }
 
-const getFormattedContentClassName = (item: FormattedItem) => {
+export const onDropdownClick = (onClick: any, e: MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+
+    const clickedDropDown = true;
+    onClick({ clickedDropDown });
+}
+
+export const onColorClick = (onClick: any, e: MouseEvent) => {
+    e.stopPropagation();
+
+    const ctrlKey = e.ctrlKey || e.metaKey;
+    const altKey = e.altKey;
+    const clickedColor = true;
+    onClick({ ctrlKey, altKey, clickedColor });
+}
+
+export const onNameClick = (onClick: any, e: MouseEvent) => {
+    e.stopPropagation();
+
+    const ctrlKey = e.ctrlKey || e.metaKey;
+    const altKey = e.altKey;
+    onClick({ ctrlKey, altKey });
+}
+
+export const getFormattedContentClassName = (item: FormattedItem) => {
     const classNames = ["tag-name-text px-2 pb-1"];
     if (isTypeOrFormatSpecified(item)) {
         classNames.push("tag-name-text-typed");
@@ -291,7 +282,7 @@ const getFormattedContentClassName = (item: FormattedItem) => {
     return classNames.join(" ");
 }
 
-const isTypeOrFormatSpecified = (item: FormattedItem) => {
+export const isTypeOrFormatSpecified = (item: FormattedItem) => {
     return (item.type && item.type !== FieldType.String) ||
         (item.format && item.format !== FieldFormat.NotSpecified);
 }

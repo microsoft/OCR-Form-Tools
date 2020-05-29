@@ -381,8 +381,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     && tagOperation === TagOperationMode.Rename,
                 isSelected: selectedTag && isNameEqual(selectedTag.name, tag.name),
                 appliedToSelectedRegions: selectedRegionTagSet.has(tag.name),
-                onClick: this.onTagItemClick,
-                onRename: onItemRename.bind(this, this.state.tags), // TODO use global tags
+                onClick: this.onTagItemClick.bind(this, tag),
+                onRename: onItemRename.bind(this, this.state.tags, tag), // TODO use global tags
             } as ITagInputItemProps
         ));
     }

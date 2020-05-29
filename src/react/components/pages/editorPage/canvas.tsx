@@ -1124,6 +1124,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             extent: geometry.extent_,
             uid: geometry.ol_uid, // this is a string of a number
             name: "New generator",
+            type: FieldType.String,
+            format: FieldFormat.Alphanumeric,
+            color: "#777",
         };
         return regionInfo;
     }

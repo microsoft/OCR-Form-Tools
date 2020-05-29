@@ -399,7 +399,8 @@ export interface NamedItem {
     name: string;
 }
 
-export interface FormattedItem {
+export interface FormattedItem extends NamedItem {
     type: FieldType;
     format: FieldFormat;
+    color: string;
 }
