@@ -112,6 +112,7 @@ export const KeyboardShortcuts: React.FC = () => {
                 iconName="BookAnswers"
                 role="button"
                 onClick={() => setShowModal(true)}
+                title={strings.shortcuts.iconTitle}
             />
             <Modal
                 titleAriaId={"Hot Keys Modal"}

@@ -385,6 +385,7 @@ export interface IAppStrings {
             keyboardShortcuts: string,
             otherTips: string,
         },
+        iconTitle: string;
     };
     errors: {
         unknown: IErrorMetadata,

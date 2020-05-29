@@ -392,6 +392,7 @@ export const spanish: IAppStrings = {
             keyboardShortcuts: "Atajos de teclado",
             otherTips: "Otros consejos",
         },
+        iconTitle: "Atajos de teclado y consejos útiles"
     },
     errors: {
         unknown: {
