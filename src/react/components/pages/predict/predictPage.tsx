@@ -5,7 +5,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
-import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton, TextField, IDropdownOption, Dropdown} from "office-ui-fabric-react";
+import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton, TextField, IDropdownOption, Dropdown } from "office-ui-fabric-react";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
@@ -116,17 +116,19 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     private tiffImages: any[];
     private imageMap: ImageMap;
 
-    public async componentDidMount() {
-        const projectId = this.props.match.params["projectId"];
-        if (projectId) {
+    private async loadProject(projectId: string) {
             const project = this.props.recentProjects.find((project) => project.id === projectId);
             await this.props.actions.loadProject(project);
             this.props.appTitleActions.setTitle(project.name);
-        }
+    }
+
+    public async componentDidMount() {
+        const projectId = this.props.match.params["projectId"];
+        this.loadProject(await projectId);
         document.title = strings.predict.title + " - " + strings.appName;
     }
 
-    public componentDidUpdate(prevProps, prevState) {
+    public async componentDidUpdate(prevProps, prevState) {
         if (this.state.file) {
             if (this.state.fileChanged) {
                 this.currPdf = null;
@@ -156,17 +158,21 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const urlInputDisabled: boolean = !this.state.predictionLoaded || this.state.isFetching;
         const predictDisabled: boolean = !this.state.predictionLoaded || !this.state.file;
         const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
-        const fetchDisabled: boolean = !this.state.predictionLoaded || this.state.isFetching ||
-                                        this.state.inputedFileURL.length === 0 ||
-                                        this.state.inputedFileURL === strings.predict.defaultURLInput;
+        const fetchDisabled: boolean =
+            !this.state.predictionLoaded ||
+            this.state.isFetching ||
+            this.state.inputedFileURL.length === 0 ||
+            this.state.inputedFileURL === strings.predict.defaultURLInput;
 
         const sourceOptions: IDropdownOption[] = [
             { key: "localFile", text: "Local file" },
             { key: "url", text: "URL" },
         ];
 
+        const onPredictionPath: boolean = this.props.match.path.includes("predict");
+
         return (
-            <div className="predict skipToMainContent" id="pagePredict">
+            <div className="predict skipToMainContent" id="pagePredict" style={{display: `${onPredictionPath ? "flex": "none"}`}} >
                 <div className="predict-main">
                     {this.state.file && this.state.imageUri && this.renderImageMap()}
                     {this.renderPrevPageButton()}
