@@ -128,7 +128,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         document.title = strings.predict.title + " - " + strings.appName;
     }
 
-    public async componentDidUpdate(prevProps, prevState) {
+    public componentDidUpdate(prevProps, prevState) {
         if (this.state.file) {
             if (this.state.fileChanged) {
                 this.currPdf = null;
@@ -172,7 +172,10 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const onPredictionPath: boolean = this.props.match.path.includes("predict");
 
         return (
-            <div className="predict skipToMainContent" id="pagePredict" style={{display: `${onPredictionPath ? "flex": "none"}`}} >
+            <div
+                className={`predict skipToMainContent ${onPredictionPath ? "" : "hidden"} `}
+                id="pagePredict"
+                style={{ display: `${onPredictionPath ? "flex" : "none"}` }} >
                 <div className="predict-main">
                     {this.state.file && this.state.imageUri && this.renderImageMap()}
                     {this.renderPrevPageButton()}
