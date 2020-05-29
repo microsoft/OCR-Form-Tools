@@ -116,15 +116,13 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     private tiffImages: any[];
     private imageMap: ImageMap;
 
-    private async loadProject(projectId: string) {
+    public async componentDidMount() {
+        const projectId = this.props.match.params["projectId"];
+        if (projectId) {
             const project = this.props.recentProjects.find((project) => project.id === projectId);
             await this.props.actions.loadProject(project);
             this.props.appTitleActions.setTitle(project.name);
-    }
-
-    public async componentDidMount() {
-        const projectId = this.props.match.params["projectId"];
-        this.loadProject(await projectId);
+        }
         document.title = strings.predict.title + " - " + strings.appName;
     }
 
