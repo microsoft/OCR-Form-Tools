@@ -428,9 +428,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
             type: "Polygon", // using Point doesn't work either
         });
         // TODO handle delete
-        // TODO add listener for click in region, activate generator region
         const snap = new Snap({source: generatorOptions.source});
-
         const modify = new Modify({source: generatorOptions.source});
         draw.setActive(false);
         snap.setActive(false);

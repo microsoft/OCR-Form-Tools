@@ -29,7 +29,7 @@ import { TableView } from "./tableView"
 import CanvasHelpers from "./canvasHelpers";
 import "./editorPage.scss";
 import EditorSideBar from "./editorSideBar";
-import GeneratorPane from "./generatorPane";
+import GeneratorPane from "../../common/generators/generatorPane";
 import Alert from "../../common/alert/alert";
 import Confirm from "../../common/confirm/confirm";
 import { OCRService } from "../../../../services/ocrService";
@@ -325,7 +325,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             onLockedTagsChange={this.onLockedTagsChanged}
                                             onTagClick={this.onTagClicked}
                                             onCtrlTagClick={this.onCtrlTagClicked}
-                                            onTagRename={this.confirmTagRename}
+                                            onRename={this.confirmTagRename}
                                             onTagDeleted={this.confirmTagDeleted}
                                             onLabelEnter={this.onLabelEnter}
                                             onLabelLeave={this.onLabelLeave}
@@ -345,8 +345,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             onConfirm={this.onTagDeleted} />
                                     </div>
                                     <GeneratorPane
+                                        generatorsLoaded={true}
                                         generatorRegions={this.state.generatorRegions}
                                         selectedIndex={this.state.selectedGeneratorIndex}
+                                        onDeselectedGeneratorRegion={this.onDeselectedGeneratorRegion}
                                     />
                                 </SplitPane>
 

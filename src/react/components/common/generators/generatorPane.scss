@@ -1,0 +1,279 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+@import "../../../../assets/sass/theme.scss";
+@import "./tagInputSize.scss";
+
+.tag {
+    &-input {
+        display: flex;
+        flex-grow: 1;
+        flex-direction: column;
+        user-select: none;
+        background: $lighter-1;
+
+        &-header {
+            display: flex;
+            flex-direction: row;
+            text-shadow: none;
+            font-size: 80%;
+            color: #f1f1f1;
+            background: $darker-2;
+            margin: 0;
+            font-weight: 500;
+            line-height: 1.2;
+        }
+
+        &-title {
+            flex: 1;
+        }
+
+        &-body {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+
+            &-container {
+                overflow-x: visible;
+                overflow-y: auto;
+            };
+        }
+
+        &-text-input-row {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            margin: 2px;
+            background: $darker-2;
+            border: solid 1px $lighter-2;
+            min-height: 2em;
+            padding: 0.25em 0.5em;
+            font-size: 90%;
+
+            input {
+                color: #fff;
+                flex-grow: 1;
+                background: none;
+                border: none;
+
+                &:focus {
+                    outline: none;
+                }
+            }
+
+            input::placeholder {
+                color: #ccc;
+            }
+
+            .tag-input-input-enter {
+                color: #ccc;
+            }
+        }
+    }
+
+    &-item-block {
+        display: flex;
+        flex-direction: row;
+        margin: 2px 0;
+
+        &-2 {
+            width: 100%;
+        }
+    }
+
+    &-item {
+        display: flex;
+        flex-direction: row;
+
+        &-selected {
+            .tag-content {
+                color: white;
+                background: $darker-10 !important;
+            }
+        }
+
+        &-applied {
+            .tag-content {
+                color: #fff;
+                font-weight: 600;
+                background: $darker-10 !important;
+            }
+        }
+
+        &-label {
+            display: flex;
+            flex-direction: row;
+            margin-bottom: 5px;
+            padding-left: 3px;
+            font-size: 0.95em;
+        }
+    }
+
+    &-content {
+        flex: 1;
+        background: $darker-15;
+    }
+
+    &-content:hover {
+        background: $darker-8;
+    }
+
+    &-name {
+        &-body {
+            display: inline-flex;
+            flex-grow: 1;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        &-editor {
+            background: transparent;
+            border: none;
+            color: #fff;
+
+            &:focus {
+                outline: none;
+            }
+        }
+
+        &-container {
+            display: flex;
+            flex-direction: row;
+            min-height: 1.8em;
+            align-items: center;
+        }
+
+        &-text {
+            width: $tagTextWidth;
+            display: inline-block;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            align-items: center;
+
+            &-typed {
+                width: $tagTextLinkedWidth;
+            }
+        }
+    }
+
+    &-icons-container {
+        display: inline-flex;
+        font-weight: 600;
+        margin-left: 5px;
+        align-items: center;
+    }
+
+    &-item:hover {
+        color: #fff;
+        background: $lighter-4;
+        cursor: pointer;
+    }
+
+    &-item-label {
+        color: #A0A0A0;
+    }
+
+    &-item-label:hover {
+        color: #fff;
+        background: $lighter-4;
+        cursor: pointer;
+    }
+
+    &-color {
+        width: $tagColorWidth;
+
+        &-edit:hover {
+            background: $darker-1;
+            cursor: pointer;
+        }
+    }
+
+    &-lock-icon {
+        font-size: 90%;
+    }
+
+    &-input {
+        &-colorpicker-container {
+            height: $tagColorPickerHeight;
+            box-shadow: 0px 5px 10px $darker-5;
+            overflow: auto;
+        }
+
+        &-field-dropdown {
+            position: absolute;
+            z-index: 1;
+        }
+
+        &-toolbar {
+            display: flex;
+            flex-direction: row;
+
+            &-item {
+                color: #ccc;
+                padding: 1px;
+            }
+
+            &-item:hover {
+                color: white;
+                cursor: pointer;
+            }
+
+            &-separator {
+                width: 0.1px;
+                border: 0.5px solid $lighter-2;
+                height: 18px;
+                margin: 0 0.25em
+            }
+
+            &-iconbutton {
+                color: #ccc;
+                width: auto;
+                height: auto;
+                padding: 0 0.25em;
+                background-color: transparent;
+
+                &.active, &:hover {
+                    background-color: transparent;
+                    color: #fff;
+                }
+
+                &-disabled {
+                    i {
+                        color: $lighter-5;
+                    }
+                }
+
+                i {
+                    font-size: 80%;
+                    margin: 0;
+                    padding: 0;
+                }
+            }
+        }
+
+        &-contextual-menu {
+            width: $tagContextualMenuWidth;
+        }
+    }
+
+    &-index-span {
+        width: 20px;
+        height: 20px;
+        display: inline-block;
+        text-align: center;
+        line-height: 16px;
+    }
+}
+
+div.github-picker > span > div {
+    margin: 2px;
+}
+
+div.circle-picker-container {
+    background: #252526;
+}
+
+.loading-generator {
+    height: 100%;
+}

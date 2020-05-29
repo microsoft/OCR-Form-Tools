@@ -62,7 +62,7 @@ export interface ITagInputProps {
     /** Function to call on clicking individual tag while holding CTRL key */
     onCtrlTagClick?: (tag: ITag) => void;
     /** Function to call when tag is renamed */
-    onTagRename?: (oldTag: ITag, newTag: ITag, cancelCallback: () => void) => void;
+    onRename?: (oldTag: ITag, newTag: ITag, cancelCallback: () => void) => void;
     /** Function to call when tag is deleted */
     onTagDeleted?: (tagName: string) => void;
     /** Always show tag input box */
@@ -115,6 +115,13 @@ function isNameEqual(x: string, y: string) {
     return x.trim().toLocaleLowerCase() === y.trim().toLocaleLowerCase();
 }
 
+export const dark: ICustomizations = {
+    settings: {
+      theme: getDarkTheme(),
+    },
+    scopedSettings: {},
+};
+
 export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
     public state: ITagInputState = {
@@ -151,12 +158,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     public render() {
-        const dark: ICustomizations = {
-            settings: {
-              theme: getDarkTheme(),
-            },
-            scopedSettings: {},
-        };
 
         const { selectedTag, tagOperation } = this.state;
         const selectedTagRef = selectedTag ? this.tagItemRefs.get(selectedTag.name).getTagNameRef() : null;
@@ -296,8 +297,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
     private addTag = (tag: ITag) => {
         try {
-            this.validateTagLength(tag);
-            this.validateTagUniqness(tag, this.state.tags);
+            validateNameLength(tag.name);
+            validateNameUniqueness(tag.name, this.state.tags.map(t => t.name));
         } catch (error) {
             toast.warn(error.toString());
             return;
@@ -329,15 +330,15 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
         try {
             const tagsWithoutOldTag = this.state.tags.filter((elem) => !isNameEqual(elem.name, tag.name));
-            this.validateTagLength(newTag);
-            this.validateTagUniqness(newTag, tagsWithoutOldTag);
+            validateNameLength(name);
+            validateNameUniqueness(name, tagsWithoutOldTag.map(t => t.name));
         } catch (error) {
             toast.warn(error.toString());
             return;
         }
 
-        if (this.props.onTagRename) {
-            this.props.onTagRename(tag, newTag, cancelRename);
+        if (this.props.onRename) {
+            this.props.onRename(tag, newTag, cancelRename);
             return;
         }
     }
@@ -382,7 +383,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             <TagInputItem
                 {...prop}
                 key={prop.tag.name}
-                labels={this.setTagLabels(prop.tag.name)}
+                labels={this.getTagLabels(prop.tag.name)}
                 ref={(item) => this.setTagItemRef(item, prop.tag)}
                 onLabelEnter={this.props.onLabelEnter}
                 onLabelLeave={this.props.onLabelLeave}
@@ -395,7 +396,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         return item;
     }
 
-    private setTagLabels = (key: string): ILabel[] => {
+    private getTagLabels = (key: string): ILabel[] => {
         return this.props.labels.filter((label) => label.label === key);
     }
 
@@ -543,21 +544,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             toast.warn(strings.tags.warnings.emptyName);
         } else {
             toast.warn(strings.tags.warnings.existingName);
-        }
-    }
-
-    private validateTagLength = (tag: ITag) => {
-        if (!tag.name.trim().length) {
-            throw new Error(strings.tags.warnings.emptyName);
-        }
-        if (tag.name.length >= 128) {
-            throw new Error("Tag name is too long (>= 128).");
-        }
-    }
-
-    private validateTagUniqness = (tag: ITag, tags: ITag[]) => {
-        if (tags.some((t) => isNameEqual(t.name, tag.name))) {
-            throw new Error(strings.tags.warnings.existingName);
         }
     }
 
@@ -732,5 +718,20 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 this.onDeleteTag(tag);
                 break;
         }
+    }
+}
+
+export const validateNameLength = (name: string) => {
+    if (!name.trim().length) {
+        throw new Error(strings.tags.warnings.emptyName);
+    }
+    if (name.length >= 128) {
+        throw new Error("Name is too long (>= 128).");
+    }
+}
+
+export const validateNameUniqueness = (name: string, names: string[]) => {
+    if (names.some((n) => isNameEqual(n, name))) {
+        throw new Error(strings.tags.warnings.existingName);
     }
 }
