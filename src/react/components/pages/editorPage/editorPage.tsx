@@ -15,6 +15,8 @@ import {
     IAppSettings, IAsset, IAssetMetadata, IProject, IRegion,
     ISize, ITag,
     ILabel,
+    FieldType,
+    FieldFormat,
 } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -42,15 +44,23 @@ import { SkipButton } from "../../shell/skipButton";
 
 /**
  * Generator Info. This is probably going to move to its own file soon. Preferring to define something distinct from IRegion
- * as it is "pre-populated"
+ * as it is "pre-populated".
+ * A little tied together as generator region probably doesn't need to stick with name and formatting.
+ * But generators will be 1:1 with such things so probably ok. (We can refactor if we need something with tables)
  * @member points - Generator region bounding coordinates
  * @member extent - Region extent
  * @member uid - Shape OL UID
+ * @member name - name of generator (like a tag name)
+ * @member type - like tag type
+ * @member format - like tag format
  */
 export interface IGeneratorRegion {
     points: number[];
     extent: number[];
     uid: string;
+    name: string;
+    type: FieldType,
+    format: FieldFormat,
 }
 
 /**
@@ -801,6 +811,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private addGeneratorRegion = (region: IGeneratorRegion) => {
+        // rename generator
+        // TODO give the min number so it makes more sense
+        region.name = region.name + Math.random().toString(36).slice(2);
         this.setState({
             generatorRegions: [ ...this.state.generatorRegions, region],
             selectedGeneratorIndex: this.state.generatorRegions.length,

@@ -10,7 +10,8 @@ import {
 } from "office-ui-fabric-react";
 import "./generatorPane.scss";
 import "../condensedList/condensedList.scss";
-import { dark, TagOperationMode } from "../tagInput/tagInput";
+import GeneratorEditor from "./generatorEditor";
+import { dark, TagOperationMode, onItemRename } from "../tagInput/tagInput";
 import { toast } from "react-toastify";
 
 /**
@@ -20,6 +21,8 @@ import { toast } from "react-toastify";
  * onleave and onenter
  * num copies info
  * add search bar
+ * ughhh we probably need logic to not conflict with old tagssssss
+ *
  * enable context menu
  */
 
@@ -75,8 +78,6 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
         setOperation(newOperation);
     }
 
-    // ughhh we probably need logic to not conflict with old tagssssss
-    const onEditorRename = (region: IGeneratorRegion, name: string, cancel: () => void) => {}
 
     const renderGenerators = () => {
         const { generatorRegions, selectedIndex } = props;
@@ -92,18 +93,14 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
             isRenaming: operation === TagOperationMode.Rename && index === selectedIndex,
             isSelected: index === selectedIndex,
             onClick: onEditorClick,
-            onRename: () => null,
+            onRename: onItemRename.bind(this, generatorRegions),
         }));
         return regions.map((r, index) =>
-            <RegionInput
+            <GeneratorEditor
                 {...perRegionProps[index]}
                 key={r.uid}
-                onRegionEnter={props.onLabelEnter}
-                onRegionLeave={props.onLabelLeave}
             />);
     }
-
-    const
 
     const onSearchKeyDown = (event: KeyboardEvent): void => {
         if (event.key === "Escape") {

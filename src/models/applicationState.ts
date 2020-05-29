@@ -394,3 +394,12 @@ export enum FeatureCategory {
     Label = "label",
     Generator = "generator",
 }
+
+export interface NamedItem {
+    name: string;
+}
+
+export interface FormattedItem {
+    type: FieldType;
+    format: FieldFormat;
+}

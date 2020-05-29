@@ -16,7 +16,7 @@ import { strings } from "../../../../common/strings";
 import { getDarkTheme } from "../../../../common/themes";
 import { AlignPortal } from "../align/alignPortal";
 import { getNextColor } from "../../../../common/utils";
-import { IRegion, ITag, ILabel, FieldType, FieldFormat } from "../../../../models/applicationState";
+import { IRegion, ITag, ILabel, FieldType, FieldFormat, NamedItem } from "../../../../models/applicationState";
 import { ColorPicker } from "../colorPicker";
 import "./tagInput.scss";
 import "../condensedList/condensedList.scss";
@@ -297,8 +297,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
     private addTag = (tag: ITag) => {
         try {
-            validateNameLength(tag.name);
-            validateNameUniqueness(tag.name, this.state.tags.map(t => t.name));
+            validateNameLength(tag);
+            validateNameUniqueness(tag, this.state.tags);
         } catch (error) {
             toast.warn(error.toString());
             return;
@@ -308,39 +308,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         this.setState({
             tags,
         }, () => this.props.onChange(tags));
-    }
-
-    private onTagRename = (tag: ITag, name: string, cancelCallback: () => void) => {
-        const cancelRename = () => {
-            cancelCallback();
-            this.setState({
-                tagOperation: TagOperationMode.None,
-            });
-        };
-
-        if (isNameEqual(tag.name, name)) {
-            cancelRename();
-            return;
-        }
-
-        const newTag = {
-            ...tag,
-            name,
-        };
-
-        try {
-            const tagsWithoutOldTag = this.state.tags.filter((elem) => !isNameEqual(elem.name, tag.name));
-            validateNameLength(name);
-            validateNameUniqueness(name, tagsWithoutOldTag.map(t => t.name));
-        } catch (error) {
-            toast.warn(error.toString());
-            return;
-        }
-
-        if (this.props.onRename) {
-            this.props.onRename(tag, newTag, cancelRename);
-            return;
-        }
     }
 
     private onDeleteTag = (tag: ITag) => {
@@ -415,7 +382,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 isSelected: selectedTag && isNameEqual(selectedTag.name, tag.name),
                 appliedToSelectedRegions: selectedRegionTagSet.has(tag.name),
                 onClick: this.onTagItemClick,
-                onRename: this.onTagRename,
+                onRename: onItemRename.bind(this, this.state.tags), // TODO use global tags
             } as ITagInputItemProps
         ));
     }
@@ -721,17 +688,52 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 }
 
-export const validateNameLength = (name: string) => {
-    if (!name.trim().length) {
+
+
+export const validateNameLength = (item: NamedItem) => {
+    if (!item.name.trim().length) {
         throw new Error(strings.tags.warnings.emptyName);
     }
-    if (name.length >= 128) {
+    if (item.name.length >= 128) {
         throw new Error("Name is too long (>= 128).");
     }
 }
 
-export const validateNameUniqueness = (name: string, names: string[]) => {
-    if (names.some((n) => isNameEqual(n, name))) {
+export const validateNameUniqueness = (item: NamedItem, otherItems: NamedItem[]) => {
+    if (otherItems.map(i => i.name).some((n) => isNameEqual(n, item.name))) {
         throw new Error(strings.tags.warnings.existingName);
+    }
+}
+
+export const onItemRename = (otherItems: NamedItem[], item: NamedItem, name: string, cancelCallback: () => void) => {
+    const cancelRename = () => {
+        cancelCallback();
+        this.setState({
+            tagOperation: TagOperationMode.None,
+        });
+    };
+
+    if (isNameEqual(item.name, name)) {
+        cancelRename();
+        return;
+    }
+
+    const newItem = {
+        ...item,
+        name,
+    };
+
+    try {
+        otherItems = otherItems.filter((elem) => !isNameEqual(elem.name, item.name));
+        validateNameLength(item);
+        validateNameUniqueness(item, otherItems);
+    } catch (error) {
+        toast.warn(error.toString());
+        return;
+    }
+
+    if (this.props.onRename) {
+        this.props.onRename(item, newItem, cancelRename);
+        return;
     }
 }

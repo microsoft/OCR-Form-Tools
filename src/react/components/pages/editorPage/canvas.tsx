@@ -1122,7 +1122,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const regionInfo: IGeneratorRegion = {
             points,
             extent: geometry.extent_,
-            uid: geometry.ol_uid // this is a string of a number
+            uid: geometry.ol_uid, // this is a string of a number
+            name: "New generator",
         };
         return regionInfo;
     }

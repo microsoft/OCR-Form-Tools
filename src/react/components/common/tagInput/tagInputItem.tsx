@@ -3,7 +3,7 @@
 
 import React, { MouseEvent } from "react";
 import { FontIcon, IconButton } from "office-ui-fabric-react";
-import { ITag, ILabel, FieldType, FieldFormat } from "../../../../models/applicationState";
+import { ITag, ILabel, FieldType, FieldFormat, FormattedItem, NamedItem } from "../../../../models/applicationState";
 import { strings } from "../../../../common/strings";
 import TagInputItemLabel from "./tagInputItemLabel";
 import { tagIndexKeys } from "./tagIndexKeys";
@@ -97,7 +97,16 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                             <div
                                 className={"tag-content pr-2"}
                                 onClick={this.onNameClick}>
-                                {this.getTagContent()}
+                                {getFormattedEditorContent(
+                                    this.props.tag,
+                                    this.getDisplayIndex(),
+                                    this.handleMouseEnter,
+                                    this.handleMouseLeave,
+                                    this.onInputRef,
+                                    this.state.isRenaming,
+                                    this.onInputBlur,
+                                    this.onDropdownClick,
+                                )}
                             </div>
                             {
                                 this.state.isLocked &&
@@ -150,53 +159,6 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         return classNames.join(" ");
     }
 
-    private getTagContent = () => {
-        const displayIndex = this.getDisplayIndex();
-        return (
-            <div className={"tag-name-container"}
-                onMouseEnter={this.handleMouseEnter}
-                onMouseLeave={this.handleMouseLeave}>
-                {
-                    (this.isTypeOrFormatSpecified()) &&
-                    <FontIcon iconName="Link" className="pl-1" />
-                }
-                <div className="tag-name-body">
-                    {
-                        this.state.isRenaming
-                        ?
-                        <input
-                            ref={this.onInputRef}
-                            className={`tag-name-editor ${this.getContentClassName()}`}
-                            type="text"
-                            defaultValue={this.props.tag.name}
-                            onKeyDown={(e) => this.onInputKeyDown(e)}
-                            onBlur={this.onInputBlur}
-                            autoFocus={true}
-                        />
-                        :
-                        <span title={this.props.tag.name} className={this.getContentClassName()}>
-                            {this.props.tag.name}
-                        </span>
-                    }
-                </div>
-                <div className={"tag-icons-container"}>
-                    {(displayIndex !== null)
-                        ?
-                        <span className="tag-index-span border border-white rounded-sm ">{displayIndex}</span>
-                        :
-                        <span className="tag-index-span"></span>
-                    }
-                    <IconButton
-                        title={strings.tags.toolbar.contextualMenu}
-                        ariaLabel={strings.tags.toolbar.contextualMenu}
-                        className="tag-input-toolbar-iconbutton ml-2"
-                        iconProps={{iconName: "ChevronDown"}}
-                        onClick={this.onDropdownClick} />
-                </div>
-            </div>
-        );
-    }
-
     private renderTagDetail = () => {
         return this.props.labels.map((label, idx) =>
             <TagInputItemLabel
@@ -241,13 +203,6 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         });
     }
 
-    private getContentClassName = () => {
-        const classNames = ["tag-name-text px-2 pb-1"];
-        if (this.isTypeOrFormatSpecified()) {
-            classNames.push("tag-name-text-typed");
-        }
-        return classNames.join(" ");
-    }
 
     private getDisplayIndex = () => {
         const index = this.props.index;
@@ -255,12 +210,6 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
             return tagIndexKeys[index];
         }
         return null;
-    }
-
-    private isTypeOrFormatSpecified = () => {
-        const {tag} = this.props;
-        return (tag.type && tag.type !== FieldType.String) ||
-            (tag.format && tag.format !== FieldFormat.NotSpecified);
     }
 
     private handleMouseEnter = () => {
@@ -277,3 +226,73 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         }
     }
 }
+
+// TODO clear all the unnecessary state from this
+export const getFormattedEditorContent = (
+    item: FormattedItem & NamedItem,
+    displayIndex: string,
+    handleMouseEnter: any,
+    handleMouseLeave: any,
+    inputRef: any,
+    isRenaming: boolean,
+    onInputBlur: any,
+    onDropdownClick: any,
+) => {
+    return (
+        <div className={"tag-name-container"}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}>
+            {
+                (isTypeOrFormatSpecified(item)) &&
+                <FontIcon iconName="Link" className="pl-1" />
+            }
+            <div className="tag-name-body">
+                {
+                    isRenaming
+                    ?
+                    <input
+                        ref={inputRef}
+                        className={`tag-name-editor ${getFormattedContentClassName(item)}`}
+                        type="text"
+                        defaultValue={item.name}
+                        onKeyDown={(e) => this.onInputKeyDown(e)}
+                        onBlur={onInputBlur}
+                        autoFocus={true}
+                    />
+                    :
+                    <span title={item.name} className={getFormattedContentClassName(item)}>
+                        {item.name}
+                    </span>
+                }
+            </div>
+            <div className={"tag-icons-container"}>
+                {(displayIndex !== null)
+                    ?
+                    <span className="tag-index-span border border-white rounded-sm ">{displayIndex}</span>
+                    :
+                    <span className="tag-index-span"></span>
+                }
+                <IconButton
+                    title={strings.tags.toolbar.contextualMenu}
+                    ariaLabel={strings.tags.toolbar.contextualMenu}
+                    className="tag-input-toolbar-iconbutton ml-2"
+                    iconProps={{iconName: "ChevronDown"}}
+                    onClick={onDropdownClick} />
+            </div>
+        </div>
+    );
+}
+
+const getFormattedContentClassName = (item: FormattedItem) => {
+    const classNames = ["tag-name-text px-2 pb-1"];
+    if (isTypeOrFormatSpecified(item)) {
+        classNames.push("tag-name-text-typed");
+    }
+    return classNames.join(" ");
+}
+
+const isTypeOrFormatSpecified = (item: FormattedItem) => {
+    return (item.type && item.type !== FieldType.String) ||
+        (item.format && item.format !== FieldFormat.NotSpecified);
+}
+
