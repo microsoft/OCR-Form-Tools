@@ -307,9 +307,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                             <div className="editor-page-right-sidebar">
                                 <SplitPane split="horizontal"
                                     primary="first"
-                                    pane1Style = {{ height: "80%"}}
-                                    pane2Style = {{ height: "auto" }}
+                                    pane1Style = {{width: "100%"}}
+                                    pane2Style = {{width: "auto"}}
                                     minSize = {300}
+                                    onDragFinished={this.onEditorSidebarSplitResized}
                                     resizerStyle = {{height: "5px", margin: "0px", border: "2px", background: "transparent"}}>
                                     <div>
                                         <TagInput
@@ -411,6 +412,15 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         this.props.applicationActions.saveAppSettings(appSettings);
     }
+
+    /**
+     * Called when the editor sidebar tag-generator split is resized.
+     */
+    private onEditorSidebarSplitResized = () => {
+        // TODO here
+        console.log("resized");
+    }
+
 
     /**
      * Called when a tag from footer is clicked

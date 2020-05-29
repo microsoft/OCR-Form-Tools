@@ -24,7 +24,6 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
     return (
         <div>
             ID: {props.generatorRegion.uid}
-            Tag Name: {tagName}
         </div>
     );
 }
