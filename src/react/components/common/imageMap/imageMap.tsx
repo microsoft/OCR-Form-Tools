@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Feature, MapBrowserEvent, DrawEvent, ModifyEvent, View, Style } from "ol";
+import { Feature, MapBrowserEvent, DrawEvent, View, Style} from "ol";
 import { Extent, getCenter } from "ol/extent";
 import { defaults as defaultInteractions, DragPan, Draw, Snap, Modify, Interaction } from "ol/interaction.js";
 import ImageLayer from "ol/layer/Image";
@@ -35,7 +35,7 @@ interface IImageMapProps {
     hoveringFeature?: string;
     editorMode?: EditorMode;
     handleGeneratorRegionCompleted?: (drawEvent: DrawEvent) => void;
-    handleGeneratorRegionModified?: (modifyEvent: ModifyEvent) => void;
+    handleGeneratorRegionSelectionChanged?: (feature?: any) => void;
 
     onMapReady: () => void;
     handleTableToolTipChange?: (display: string, width: number, height: number, top: number,
@@ -116,8 +116,8 @@ export class ImageMap extends React.Component<IImageMapProps> {
                         interaction instanceof Draw) {
                         interaction.abortDrawing_();
                     }
-                    // TODO - fire a mousemove so that we can avoid the point jump interaction.handleEvent(); // pointer uses this to update
                 }
+                // TODO - fire a mousemove so that we can avoid the point jump interaction.handleEvent(); // pointer uses this to update
             });
             if (this.isDrawing()) {
                 this.setDragPanInteraction(false);
@@ -430,16 +430,17 @@ export class ImageMap extends React.Component<IImageMapProps> {
         // TODO handle delete
         // TODO add listener for click in region, activate generator region
         const snap = new Snap({source: generatorOptions.source});
+
         const modify = new Modify({source: generatorOptions.source});
         draw.setActive(false);
         snap.setActive(false);
         modify.setActive(false);
 
         draw.on("drawend", this.props.handleGeneratorRegionCompleted);
-        modify.on("modifystart", this.props.handleGeneratorRegionModified); // Do we need to update the object itself? Or will the reference update?
-        this.addInteraction(modify);
+        // modify.on("modifystart", this.props.handleGeneratorRegionModified); // Do we need to update the object itself? Or will the reference update?
         this.addInteraction(draw);
         this.addInteraction(snap);
+        this.addInteraction(modify);
 
         this.map.on("pointerdown", this.handlePointerDown);
         this.map.on("pointermove", this.handlePointerMove);
@@ -508,6 +509,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
         }
 
         if (this.isDrawing()) {
+            // If we're actively drawing, no selection.
             return;
         }
 
@@ -526,12 +528,18 @@ export class ImageMap extends React.Component<IImageMapProps> {
             this.map.forEachFeatureAtPixel(
                 eventPixel,
                 (feature) => {
-                    this.props.handleFeatureSelect(feature, true, filter.category);
+                    if (filter.layerfilter === this.generatorVectorLayerFilter) {
+                        // This definitely isn't meant to handle more than one feature
+                        this.props.handleGeneratorRegionSelectionChanged(feature); // TODO debounce
+                    } else {
+                        this.props.handleFeatureSelect(feature, true, filter.category);
+                    }
                 },
                 filter.layerfilter,
             );
         }
         const isPixelOnFeature = !!filter;
+
         this.setDragPanInteraction(!isPixelOnFeature /*dragPanEnabled*/);
         this.isSwiping = isPixelOnFeature;
     }

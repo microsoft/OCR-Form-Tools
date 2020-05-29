@@ -9,7 +9,8 @@ import { IGeneratorRegion } from "./editorPage";
  * @member generatorRegion - Info for selected region
  */
 export interface IGeneratorPaneProps {
-    generatorRegion?: IGeneratorRegion
+    generatorRegions: IGeneratorRegion[]
+    selectedIndex: number
 }
 
 /**
@@ -18,12 +19,19 @@ export interface IGeneratorPaneProps {
  */
 const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
     const [tagName, setTagName] = useState("");
-    if (!props.generatorRegion) {
+    if (props.generatorRegions.length === 0) {
         return null;
+    }
+    let activeID;
+    if (props.selectedIndex === -1) {
+        activeID = "None";
+    } else {
+        activeID = props.generatorRegions[props.selectedIndex].uid;
     }
     return (
         <div>
-            ID: {props.generatorRegion.uid}
+            Total regions: {props.generatorRegions.length}.
+            Active region: {activeID}
         </div>
     );
 }

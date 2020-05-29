@@ -83,9 +83,9 @@ export interface IEditorPageState {
     selectedRegions?: IRegion[];
     /** Generator regions on current asset */
     // TODO this needs to go somewhere better
-    generatorRegions?: IGeneratorRegion[];
+    generatorRegions: IGeneratorRegion[];
     /** Most recently active generator */
-    selectedGeneratorRegion?: IGeneratorRegion;
+    selectedGeneratorIndex: number;
     // TODO support asset generator settings
 
     /** Most recently selected tag */
@@ -144,7 +144,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         assets: [],
         editorMode: EditorMode.Select,
         generatorRegions: [], // TODO move this out
-        selectedGeneratorRegion: null,
+        selectedGeneratorIndex: -1,
         thumbnailSize: { width: 175, height: 155 },
         isValid: true,
         showInvalidRegionWarning: false,
@@ -287,10 +287,12 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             onSelectedRegionsChanged={this.onSelectedRegionsChanged}
                                             onRunningOCRStatusChanged={this.onCanvasRunningOCRStatusChanged}
                                             onTagChanged={this.onTagChanged}
+                                            activeGeneratorRegionId={this.getActiveGeneratorId()}
                                             editorMode={this.state.editorMode}
                                             setEditorMode={this.setEditorMode}
                                             addGeneratorRegion={this.addGeneratorRegion}
                                             onSelectedGeneratorRegion={this.onSelectedGeneratorRegion}
+                                            onDeselectedGeneratorRegion={this.onDeselectedGeneratorRegion}
                                             project={this.props.project}
                                             lockedTags={this.state.lockedTags}
                                             hoveredLabel={this.state.hoveredLabel}
@@ -343,8 +345,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             onConfirm={this.onTagDeleted} />
                                     </div>
                                     <GeneratorPane
-                                        // assetGenerator={this.state.assetGenerator}
-                                        generatorRegion={this.state.selectedGeneratorRegion}
+                                        generatorRegions={this.state.generatorRegions}
+                                        selectedIndex={this.state.selectedGeneratorIndex}
                                     />
                                 </SplitPane>
 
@@ -430,7 +432,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         this.setState({
             selectedTag: tag.name,
             lockedTags: [],
-            selectedGeneratorRegion: null, // TODO does this do anything...
         }, () => this.canvas.current.applyTag(tag.name));
     }
 
@@ -800,11 +801,13 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private addGeneratorRegion = (region: IGeneratorRegion) => {
         this.setState({
             generatorRegions: [ ...this.state.generatorRegions, region],
-            selectedGeneratorRegion: region,
+            selectedGeneratorIndex: this.state.generatorRegions.length,
         });
     }
 
     private onSelectedGeneratorRegion = (selectedGeneratorRegion: IGeneratorRegion) => {
+        // TODO only update on revision change - not sure about the UX here
+        // https://stackoverflow.com/questions/25993044/openlayers3-is-it-possible-to-combine-modify-draw-select-operations
         // find and update the old one in case we modified
         const { generatorRegions } = this.state;
         const oldRegionIndex = generatorRegions.findIndex(r => r.uid === selectedGeneratorRegion.uid);
@@ -812,9 +815,21 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         generatorRegions[oldRegionIndex] = newRegion;
         this.setState({
             generatorRegions,
-            selectedGeneratorRegion
+            selectedGeneratorIndex: oldRegionIndex,
         });
     }
+
+    private onDeselectedGeneratorRegion = () => {
+        this.setState({
+            selectedGeneratorIndex: -1,
+        });
+    }
+
+    private getActiveGeneratorId = () => {
+        const generator = this.state.generatorRegions[this.state.selectedGeneratorIndex];
+        return generator?.uid;
+    }
+
 
     private setTableToView = async (tableToView, tableToViewId) => {
         if (this.state.tableToViewId) {

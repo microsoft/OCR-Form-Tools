@@ -21,7 +21,7 @@ import Point from "ol/geom/Point";
 import Stroke from "ol/style/Stroke";
 import Fill from "ol/style/Fill";
 import { OCRService, OcrStatus } from "../../../../services/ocrService";
-import { Feature, DrawEvent, ModifyEvent } from "ol";
+import { Feature, DrawEvent} from "ol";
 import { Extent } from "ol/extent";
 import { KeyboardBinding } from "../../common/keyboardBinding/keyboardBinding";
 import { KeyEventType } from "../../common/keyboardManager/keyboardManager";
@@ -45,6 +45,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     project: IProject;
     lockedTags: string[];
     hoveredLabel: ILabel;
+    activeGeneratorRegionId?: string;
     children?: ReactElement<AssetPreview>;
     setEditorMode: (mode: EditorMode) => void,
     setTableToView?: (tableToView: object, tableToViewId: string) => void;
@@ -55,6 +56,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onRunningOCRStatusChanged?: (isRunning: boolean) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
     addGeneratorRegion?: (info: IGeneratorRegion) => void;
+    onDeselectedGeneratorRegion?: () => void;
     onSelectedGeneratorRegion?: (info: IGeneratorRegion) => void;
 }
 
@@ -241,7 +243,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     hoveringFeature={this.state.hoveringFeature}
                     editorMode={this.props.editorMode}
                     handleGeneratorRegionCompleted={this.handleGeneratorRegionCompleted}
-                    handleGeneratorRegionModified={this.handleGeneratorRegionModified}
+                    handleGeneratorRegionSelectionChanged={this.handleGeneratorRegionSelectionChanged}
                 />
                 <TooltipHost
                     content={"rows: " + this.state.tableIconTooltip.rows +
@@ -699,9 +701,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private generatorFeatureStyler = (feature) => {
-        const regionId = feature.get("id");
+        const regionId = feature.get("ol_uid");
         // Selected
-        if (this.isRegionSelected(regionId)) {
+        if (regionId && this.props?.activeGeneratorRegionId === regionId) {
             return new Style({
                 stroke: new Stroke({
                     color: "#6eff40",
@@ -1129,9 +1131,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.props?.addGeneratorRegion(this.extractGeneratorInfo(drawEvent.feature));
     }
 
-    private handleGeneratorRegionModified = (modifyEvent: ModifyEvent) => {
-        const regionInfo = this.extractGeneratorInfo(modifyEvent.features.item(0));
-        this.props?.onSelectedGeneratorRegion(regionInfo);
+    private handleGeneratorRegionSelectionChanged = (feature?: any) => {
+        if (!feature) {
+            this.props.onDeselectedGeneratorRegion();
+        } else {
+            const regionInfo = this.extractGeneratorInfo(feature);
+            this.props.onSelectedGeneratorRegion(regionInfo);
+        }
     }
 
     // TODO handle selection
@@ -1679,6 +1685,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private handleLayerChange = async (layer: string) => {
+        // TODO I'm pretty sure this should handle interactivity as well as visibility
         switch (layer) {
             case "text":
                 this.imageMap.toggleTextFeatureVisibility();
@@ -1706,6 +1713,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private toggleBoundingBoxMode = () => {
         if (this.props.editorMode === EditorMode.GeneratorRect) {
             this.props.setEditorMode(EditorMode.Select);
+            this.props.onDeselectedGeneratorRegion();
         } else {
             this.props.setEditorMode(EditorMode.GeneratorRect);
         }
