@@ -145,6 +145,7 @@ export class AzureBlobStorage implements IStorageProvider {
                     : await containerURL.listBlobFlatSegment(
                         Aborter.none,
                         marker);
+                console.log(listBlobsResponse);
                 if (!listBlobsResponse.segment || !listBlobsResponse.containerName) {
                     throw new AzureBlobStorageError(404);
                 }
@@ -308,6 +309,12 @@ export class AzureBlobStorage implements IStorageProvider {
                 ErrorCode.BlobContainerIOForbidden,
                 strings.errors.blobContainerIOForbidden.message,
                 strings.errors.blobContainerIOForbidden.title);
+        } else if (exception.code === "REQUEST_SEND_ERROR") {
+            return new AppError(
+                ErrorCode.RequestSendError,
+                strings.errors.requestSendError.message,
+                strings.errors.requestSendError.title,
+            );
         }
         return exception;
     }

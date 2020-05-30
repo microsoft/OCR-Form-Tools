@@ -509,6 +509,10 @@ export const spanish: IAppStrings = {
             title: "",
             message: "",
         },
+        requestSendError: {
+            title: "solicitud enviar error",
+            message: "Error al enviar solicitud a Azure Blob Container. El uso compartido de recursos de origen cruzado (CORS) no está configurado en el lado del servidor o error de red",
+        }
     },
 };
 
