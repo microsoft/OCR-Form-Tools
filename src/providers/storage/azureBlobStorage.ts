@@ -145,7 +145,6 @@ export class AzureBlobStorage implements IStorageProvider {
                     : await containerURL.listBlobFlatSegment(
                         Aborter.none,
                         marker);
-                console.log(listBlobsResponse);
                 if (!listBlobsResponse.segment || !listBlobsResponse.containerName) {
                     throw new AzureBlobStorageError(404);
                 }

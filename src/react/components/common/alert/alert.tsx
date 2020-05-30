@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { ReactElement, createElement } from "react";
+import React, { ReactElement } from "react";
 import { MessageFormatHandler } from "../messageBox/messageBox";
 import { getDarkTheme, getPrimaryBlueTheme } from "../../../../common/themes";
 import {
@@ -12,9 +12,7 @@ import {
     ICustomizations,
     ITheme,
     PrimaryButton,
-    DialogContent,
 } from "office-ui-fabric-react";
-import { strings } from "../../../../common/strings";
 /**
  * Properties for Alert Component
  * @member closeButtonText - Text displayed on 'Close' button. Default 'OK'
@@ -102,7 +100,7 @@ export default class Alert extends React.Component<IAlertProps, IAlertState> {
                 const messageList = message.toString().split("\n");
                 const elements = [];
                 messageList.forEach((m) => {
-                elements.push(<div>{m}<br/></div>);
+                    elements.push(<div>{m}<br/></div>);
                 })
                 message = <div>{elements}</div>
             }
