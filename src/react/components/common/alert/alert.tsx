@@ -97,15 +97,20 @@ export default class Alert extends React.Component<IAlertProps, IAlertState> {
             return message.apply(this, this.state.params);
         } else {
             if (message.toString().includes("\n")){
-                const messageList = message.toString().split("\n");
-                const elements = [];
-                messageList.forEach((m) => {
-                    elements.push(<div>{m}<br/></div>);
-                })
-                message = <div>{elements}</div>
+                message = <div>{this.multilineMessage(message)}</div>
             }
             return message;
         }
+    }
+
+    private multilineMessage = (message: string | MessageFormatHandler | ReactElement<any>) => {
+        const messageList = message.toString().split("\n");
+        const leng = messageList.length;
+        const elements = [<div>{messageList[0]}<br/></div>];
+        messageList.splice(1,leng-1).forEach((m) => {
+            elements.push(<div>{m}<br/></div>);
+        })
+        return elements;
     }
 
 }
