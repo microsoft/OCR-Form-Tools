@@ -511,7 +511,7 @@ export const spanish: IAppStrings = {
         },
         requestSendError: {
             title: "solicitud enviar error",
-            message: "Error al enviar solicitud a Azure Blob Container. Problemas comunes: \n 1. SAS URI no válida \n 2. Cross-Origin Resource Sharing (CORS) no está configurado del lado del servidor \n 3. Error de red",
+            message: "Error al enviar solicitud a Azure Blob Container. Problemas comunes: \n • SAS URI no válida \n • Cross-Origin Resource Sharing (CORS) no está configurado del lado del servidor \n • Error de red",
         }
     },
 };

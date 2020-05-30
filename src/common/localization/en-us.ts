@@ -508,7 +508,7 @@ export const english: IAppStrings = {
         },
         requestSendError: {
             title: "Request send error",
-            message: "Failed to send request to Azure Blob Container. Common issues: \n 1. SAS URI not valid \n 2. Cross-Origin Resource Sharing (CORS) is not configured server-side \n 3. Network error",
+            message: "Failed to send request to Azure Blob Container. Common issues: \n • SAS URI not valid \n • Cross-Origin Resource Sharing (CORS) is not configured server-side \n • Network error",
 
         }
     },
