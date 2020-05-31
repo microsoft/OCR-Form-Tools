@@ -1,5 +1,9 @@
 # FoTT Changelog 
 
+## 2.0.0-2760166 (05-30-2020)
+* fix: fix mime check bug for jpeg/jpg and tiff ([#291](https://github.com/microsoft/OCR-Form-Tools/commit/2760166bcb809bbfdc207b01db49f00153318624))
+* refactor: simplify shortcut descriptions ([#277](https://github.com/microsoft/OCR-Form-Tools/commit/db95b0e2510f6cef9bc7279fe0a19dce239c816e))
+
 ## 2.0.0-a5e4e07 (05-21-2020)
 * feature: show table view when table icon is clicked ([#271](https://github.com/microsoft/OCR-Form-Tools/commit/a5e4e079d4c0d1c7c52e3b015c0ddf9b8601bbf2))
 
