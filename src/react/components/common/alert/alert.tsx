@@ -106,7 +106,7 @@ export default class Alert extends React.Component<IAlertProps, IAlertState> {
     private multilineMessage = (message: string | MessageFormatHandler | ReactElement<any>) => {
         const messageList = message.toString().split("\n");
         const leng = messageList.length;
-        const  elements = [<div>{messageList[0]}<br/></div>];
+        const elements = [<div>{messageList[0]}<br/></div>];
         messageList.splice(1,leng-1).forEach((m) => {
             elements.push(<div>{m}<br/></div>);
         })
