@@ -737,9 +737,9 @@ export const onItemRename = (
     };
 
     try {
-        otherItems = otherItems.filter((elem) => !isNameEqual(elem.name, item.name));
-        validateNameLength(item);
-        validateNameUniqueness(item, otherItems);
+        otherItems = otherItems.filter((elem) => !isNameEqual(elem.name, item.name)); // pull out diff items
+        validateNameLength(newItem);
+        validateNameUniqueness(newItem, otherItems);
     } catch (error) {
         toast.warn(error.toString());
         return;

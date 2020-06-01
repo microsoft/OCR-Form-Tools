@@ -233,6 +233,18 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
         <div className="tag-input">
             <div ref={headerRef} className="tag-input-header p-2">
                 <span className="tag-input-title">{strings.generator.title}</span>
+                {/* <TagInputToolbar
+                    selectedTag={this.state.selectedTag}
+                    onAddTags={() => this.setState({ addTags: !this.state.addTags })}
+                    onSearchTags={() => this.setState({
+                        searchTags: !this.state.searchTags,
+                        searchQuery: "",
+                    })}
+                    onRenameTag={this.toggleRenameMode}
+                    onLockTag={this.onLockTag}
+                    onDelete={this.onDeleteTag}
+                    onReorder={this.onReOrder}
+                /> */}
             </div>
             <div className="tag-input-body-container">
             {
