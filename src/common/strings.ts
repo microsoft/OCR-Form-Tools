@@ -380,7 +380,7 @@ export interface IAppStrings {
                 name: string,
                 description: string,
             },
-            deleteInfoAssociatedWithTag: {
+            deleteAllLabelsForTag: {
                 name: string,
                 description: string;
             }

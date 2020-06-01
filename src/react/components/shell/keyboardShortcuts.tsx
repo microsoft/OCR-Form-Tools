@@ -87,8 +87,8 @@ export const KeyboardShortcuts: React.FC = () => {
             description: strings.shortcuts.tips.multipleWordSelection.description,
         },
         {
-            name: strings.shortcuts.tips.deleteInfoAssociatedWithTag.name,
-            description: strings.shortcuts.tips.deleteInfoAssociatedWithTag.description,
+            name: strings.shortcuts.tips.deleteAllLabelsForTag.name,
+            description: strings.shortcuts.tips.deleteAllLabelsForTag.description,
         }
     ];
     const ShortcutsListItems = ({ items }): JSX.Element => {
