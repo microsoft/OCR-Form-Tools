@@ -389,6 +389,7 @@ export const english: IAppStrings = {
             keyboardShortcuts: "Keyboard shortcuts",
             otherTips: "Other tips",
         },
+        iconTitle: "Keyboard shortcuts and useful tips"
     },
     errors: {
         unknown: {
