@@ -28,7 +28,7 @@ export interface IGeneratorEditorProps {
     onClick: (props: ITagClickProps) => void;
     /** Apply new name to tag */
     onRename: (newName: string, cancelCallback: () => void) => void;
-
+    cancelRename: () => void;
     setRef: (divRef: React.MutableRefObject<HTMLDivElement>) => void;
 }
 
@@ -42,8 +42,6 @@ const GeneratorEditor: React.FunctionComponent<IGeneratorEditorProps> = (props) 
     const style = {
         background: props.region.color,
     };
-
-    const [isRenaming, setRenaming] = useState(false);
 
     const itemRef = useRef<HTMLDivElement>();
     const inputElement = useRef<HTMLInputElement>(null);
@@ -60,7 +58,7 @@ const GeneratorEditor: React.FunctionComponent<IGeneratorEditorProps> = (props) 
         if (e.key === "Enter") {
             inputElement.current.blur();
         } else if (e.key === "Escape") {
-            setRenaming(false);
+            props.cancelRename();
         }
     }
 
@@ -78,7 +76,7 @@ const GeneratorEditor: React.FunctionComponent<IGeneratorEditorProps> = (props) 
         }
         const name = inputElement.current.value.trim();
         props.onRename(name, () => {
-            setRenaming(false);
+            props.cancelRename();
         });
     }
 
@@ -105,7 +103,7 @@ const GeneratorEditor: React.FunctionComponent<IGeneratorEditorProps> = (props) 
                                 ()=>{},
                                 ()=>{},
                                 inputElement,
-                                isRenaming,
+                                props.isRenaming,
                                 onInputBlur,
                                 onDropdownClick.bind(this, props.onClick),
                                 onInputKeyDown,

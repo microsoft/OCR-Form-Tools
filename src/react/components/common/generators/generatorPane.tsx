@@ -73,7 +73,7 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
 
     const headerRef = useRef<HTMLDivElement>();
 
-    const itemRefs = new Map<string, React.MutableRefObject<HTMLDivElement>>(); // er...
+    const itemRefs = useRef<Map<string, React.MutableRefObject<HTMLDivElement>>>(new Map()); // er...
 
     if (props.generators.length === 0) {
         return null;
@@ -117,7 +117,7 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
 
     const setItemRef = (divRef: React.MutableRefObject<HTMLDivElement>, item: FormattedItem) => {
         // TODO use id instead?
-        itemRefs.set(item.name, divRef);
+        itemRefs.current.set(item.name, divRef);
     }
 
     const renderGenerators = () => {
@@ -136,9 +136,11 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
             isRenaming: operation === TagOperationMode.Rename && index === selectedIndex,
             isSelected: index === selectedIndex,
             onClick: onEditorClick.bind(this, r),
+            cancelRename: onCancel,
             onRename: onItemRename.bind(this, generators, r, onCancel, handleNameChange),
             setRef: (divRef) => setItemRef(divRef, r)
         }));
+        itemRefs.current.clear();
         return regions.map((r, index) =>
             <GeneratorEditor
                 {...perRegionProps[index]}
@@ -189,6 +191,7 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
         }
         items.splice(currentIndex, 1);
         items.splice(newIndex, 0, item);
+        props.onSelectedGenerator(props.generators[newIndex]);
         // TODO deal with selected index (is that why they tracked the active item instead?)
         props.onGeneratorsChanged(items);
     }
@@ -217,8 +220,15 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
     }
 
     // TODO shouldn't the color portal be aligned to the itemref and not the headerref?
-    const selectedRef = selectedGenerator ? itemRefs.get(selectedGenerator.name) : null;
+    const selectedRef = selectedGenerator ? itemRefs.current.get(selectedGenerator.name) : null;
 
+    /**
+     * Ok so the current flow here is that
+     * Everytime we render, ref map clears and we thus don't have anything @ selectedRef
+     * What taginput does is it gets the component (which somehow is not cleared?) and takes the ref stored on that component
+     * TagInput has no gap between clearing and setting the next set, which is why it works.
+     * How can we do that too?
+     */
     return (
         <div className="tag-input">
             <div ref={headerRef} className="tag-input-header p-2">

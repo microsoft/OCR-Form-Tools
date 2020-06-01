@@ -849,7 +849,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private onGeneratorDeleted = (generator: IGenerator) => {
-        // TODO hook up
+        // TODO hook up - it only deletes the tag atm
         const { generators } = this.state;
         const oldRegionIndex = generators.findIndex(r => r.uid === generator.uid);
         const newGenerators = generators.splice(oldRegionIndex, 1);

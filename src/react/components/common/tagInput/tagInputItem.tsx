@@ -38,32 +38,33 @@ export interface ITagInputItemProps {
     onClick: (props: ITagClickProps) => void;
     /** Apply new name to tag */
     onRename: (newName: string, cancelCallback: () => void) => void;
+    cancelRename: () => void;
     onLabelEnter: (label: ILabel) => void;
     onLabelLeave: (label: ILabel) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
 }
 
 export interface ITagInputItemState {
-    /** Tag is currently renaming */
-    isRenaming: boolean;
+    // /** Tag is currently renaming */
+    // isRenaming: boolean;
 }
 
 export default class TagInputItem extends React.Component<ITagInputItemProps, ITagInputItemState> {
 
-    public state: ITagInputItemState = {
-        isRenaming: false,
-    };
+    // public state: ITagInputItemState = {
+    //     isRenaming: false,
+    // };
 
     private itemRef = React.createRef<HTMLDivElement>();
     private inputElement: HTMLInputElement;
 
-    public componentDidUpdate(prevProps: ITagInputItemProps) {
-        if (prevProps.isRenaming !== this.props.isRenaming) {
-            this.setState({
-                isRenaming: this.props.isRenaming,
-            });
-        }
-    }
+    // public componentDidUpdate(prevProps: ITagInputItemProps) {
+    //     if (prevProps.isRenaming !== this.props.isRenaming) {
+    //         this.setState({
+    //             isRenaming: this.props.isRenaming,
+    //         });
+    //     }
+    // }
 
     public render() {
         const style: any = {
@@ -93,7 +94,8 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                                     this.handleMouseEnter,
                                     this.handleMouseLeave,
                                     this.onInputRef,
-                                    this.state.isRenaming,
+                                    this.props.isRenaming,
+                                    // this.state.isRenaming,
                                     this.onInputBlur,
                                     onDropdownClick.bind(this, this.props.onClick),
                                     this.onInputKeyDown,
@@ -151,9 +153,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         if (e.key === "Enter") {
             this.inputElement.blur();
         } else if (e.key === "Escape") {
-            this.setState({
-                isRenaming: false,
-            });
+            this.props.cancelRename();
         }
     }
 
@@ -163,9 +163,9 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         }
         const name = this.inputElement.value.trim();
         this.props.onRename(name, () => {
-            this.setState({
-                isRenaming: false,
-            });
+            // this.setState({
+            //     isRenaming: false,
+            // });
         });
     }
 
