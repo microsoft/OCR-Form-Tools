@@ -718,6 +718,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             });
         } else {
             // Unselected
+            // TODO - address highlighting
+            // const highlighted = feature.get("highlighted"); // hmm, we're getting something different since we have a dict and they use get
+            // TODO proper color piping once we attach the generator to the asset
             return new Style({
                 stroke: new Stroke({
                     color: "#f7dc52",

@@ -43,7 +43,8 @@ const strings = {
         title: "Generators",
         search: {
             placeholder: "Search generators"
-        }
+        },
+        generateCount: "Generation Count:"
     }
 }
 
@@ -54,17 +55,18 @@ const strings = {
 const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const [generateCount, setGenerateCount] = useState(1);
     const [operation, setOperation] = useState(TagOperationMode.None);
 
     if (props.generators.length === 0) {
         return null;
     }
-    let activeID;
-    if (props.selectedIndex === -1) {
-        activeID = "None";
-    } else {
-        activeID = props.generators[props.selectedIndex].uid;
-    }
+    // let activeID;
+    // if (props.selectedIndex === -1) {
+    //     activeID = "None";
+    // } else {
+    //     activeID = props.generators[props.selectedIndex].uid;
+    // }
 
     const onEditorClick = (region: IGenerator, clickProps: ITagClickProps) => {
         // props describe the type of click that occurred
@@ -115,17 +117,36 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
         }
     }
 
+    const setValidGenerateCount = (event: any) => {
+        const { value, min, max } = event.target;
+        const validValue = Math.max(Number(min), Math.min(Number(max), Number(value)));
+        setGenerateCount(validValue);
+    }
+
     return (
         <div className="tag-input">
             <div className="tag-input-header p-2">
                 <span className="tag-input-title">{strings.generator.title}</span>
-                Total regions: {props.generators.length}.
             </div>
+            <div className="tag-input-body-container">
             {
                 props.generatorsLoaded ?
-                <div className="tag-input-body-container">
                     <div className="tag-input-body">
-                        Active region: {activeID}
+                        <div className="tag-input">
+                            <span className="tag-input-text-input-row">
+                                <span className="tag-input-input-row-desc">
+                                    {strings.generator.generateCount}
+                                </span>
+                                <input
+                                    className="tag-search-box"
+                                    type="number"
+                                    onChange={setValidGenerateCount}
+                                    placeholder="1"
+                                    min="1"
+                                    max="10"
+                                />
+                            </span>
+                        </div>
                         {
                             searchOpen &&
                             <div className="tag-input-text-input-row search-input">
@@ -144,10 +165,10 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
                             {renderGenerators()}
                         </div>
                     </div>
-                </div>
                 :
                 <Spinner className="loading-generator" size={SpinnerSize.large}/>
             }
+            </div>
         </div>
     );
 }

@@ -40,6 +40,10 @@
             };
         }
 
+        &-input-row-desc {
+            margin-right: 1em;
+        }
+
         &-text-input-row {
             display: flex;
             flex-direction: row;
@@ -70,6 +74,7 @@
                 color: #ccc;
             }
         }
+
     }
 
     &-item-block {
