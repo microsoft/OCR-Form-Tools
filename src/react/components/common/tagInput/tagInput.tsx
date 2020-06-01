@@ -210,6 +210,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                                     {
                                         tagOperation === TagOperationMode.ContextualMenu && selectedRef &&
                                         <FormattedItemContextMenu
+                                            item={this.state.selectedTag}
                                             onRename={this.toggleRenameMode}
                                             onDelete={this.onDeleteTag}
                                             onReOrder={this.onReOrder}
@@ -525,9 +526,9 @@ export const FormattedItemContextMenu: React.FunctionComponent<IFormattedItemCon
         />);
     }
 
-    const onTypeSelect = (event: React.MouseEvent<HTMLButtonElement>, item?: IContextualMenuItem): void => {
+    const onTypeSelect = (event: React.MouseEvent<HTMLButtonElement>, contextItem?: IContextualMenuItem): void => {
         event.preventDefault();
-        const type = item.text as FieldType;
+        const type = contextItem.text as FieldType;
         if (type === item.type) {
             return;
         }
@@ -538,9 +539,7 @@ export const FormattedItemContextMenu: React.FunctionComponent<IFormattedItemCon
             format: FieldFormat.NotSpecified,
         };
 
-        if (this.props.onTagChanged) {
-            this.props.onTagChanged(item, newItem);
-        }
+        props.onItemChanged(item, newItem);
     }
 
     const onFormatSelect = (event: React.MouseEvent<HTMLButtonElement>, contextItem?: IContextualMenuItem): void => {
@@ -555,9 +554,7 @@ export const FormattedItemContextMenu: React.FunctionComponent<IFormattedItemCon
             format,
         };
 
-        if (props.onItemChanged) {
-            props.onItemChanged(item, newTag);
-        }
+        props.onItemChanged(item, newTag);
     }
 
     const getTypeSubMenuItems = (item: FormattedItem): IContextualMenuItem[] => {

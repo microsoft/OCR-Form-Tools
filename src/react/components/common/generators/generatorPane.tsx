@@ -19,8 +19,6 @@ import { dark, TagOperationMode, onItemRename, FormattedItemContextMenu, ColorPi
 import { toast } from "react-toastify";
 import TagInputItem, { ITagClickProps } from "../tagInput/tagInputItem";
 
-import { AlignPortal } from "../align/alignPortal";
-import { ColorPicker } from "../colorPicker";
 import { FormattedItem } from "../../../../models/applicationState";
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../../common/tagColors.json");
@@ -47,6 +45,7 @@ export interface IGeneratorPaneProps {
     generatorsLoaded: boolean,
     onSelectedGenerator: (region?: IGeneratorRegion) => void,
     onGeneratorsChanged: (newGenerators?: IGenerator[]) => void,
+    onGeneratorDeleted: (deletedGenerator: IGenerator) => void,
     // skipping onRename, onDelete for now
 }
 
@@ -64,6 +63,8 @@ const strings = {
  * @name - Generator Pane
  * @description - Controlling generator settings for pane
  */
+// TODO memoize callbacks
+// https://reactjs.org/docs/hooks-reference.html#usecallback
 const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
@@ -196,7 +197,7 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
         if (!item) {
             return;
         }
-        this.props.onGeneratorDeleted(item);
+        props.onGeneratorDeleted(item);
     }
 
     const handleColorChange = (color: string) => {
@@ -215,6 +216,7 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
         onItemChanged(oldItem, newItem); // drop cancel since we have no confirmation box
     }
 
+    // TODO shouldn't the color portal be aligned to the itemref and not the headerref?
     const selectedRef = selectedGenerator ? itemRefs.get(selectedGenerator.name) : null;
 
     return (
@@ -261,6 +263,7 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
                                 {
                                     operation === TagOperationMode.ContextualMenu && selectedRef &&
                                     <FormattedItemContextMenu
+                                        item={selectedGenerator}
                                         onRename={toggleRenameMode}
                                         onDelete={onDelete}
                                         onReOrder={onReOrder}
