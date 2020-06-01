@@ -415,6 +415,7 @@ export interface IAppStrings {
         endpointConnectionError: IErrorMetadata,
         tooManyRequests: IErrorMetadata,
         modelCountLimitExceeded: IErrorMetadata,
+        requestSendError: IErrorMetadata,
     };
 }
 
