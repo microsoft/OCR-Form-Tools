@@ -380,6 +380,10 @@ export interface IAppStrings {
                 name: string,
                 description: string,
             },
+            deleteInfoAssociatedWithTag: {
+                name: string,
+                description: string;
+            }
         },
         headers: {
             keyboardShortcuts: string,

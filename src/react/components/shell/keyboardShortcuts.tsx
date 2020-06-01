@@ -13,8 +13,12 @@ import "./keyboardShortcuts.scss";
 export interface IHotKeysModalState {
     showModal: boolean;
 }
-interface IKey {
+interface IKeyItem {
     key: string;
+    description: string;
+}
+interface ITipsItem {
+    name: string;
     description: string;
 }
 
@@ -29,7 +33,7 @@ export const KeyboardShortcuts: React.FC = () => {
     const [showModal, setShowModal] = useState(false);
     const closeModal = () => setShowModal(false);
 
-    const shortcutsItems: IKey[] = [
+    const shortcutsItems: IKeyItem[] = [
         {
             key: strings.shortcuts.squareBrackets.keys.leftBracket,
             description: strings.shortcuts.squareBrackets.description.prevWord,
@@ -69,7 +73,7 @@ export const KeyboardShortcuts: React.FC = () => {
 
     ];
 
-    const tipsItems = [
+    const tipsItems: ITipsItem[] = [
         {
             name: strings.shortcuts.tips.quickLabeling.name,
             description: strings.shortcuts.tips.quickLabeling.description,
@@ -81,7 +85,11 @@ export const KeyboardShortcuts: React.FC = () => {
         {
             name: strings.shortcuts.tips.multipleWordSelection.name,
             description: strings.shortcuts.tips.multipleWordSelection.description,
-        },
+        }, {
+            name: strings.shortcuts.tips.deleteInfoAssociatedWithTag.name,
+            description: strings.shortcuts.tips.deleteInfoAssociatedWithTag.description,
+        }
+
     ];
     const ShortcutsListItems = ({ items }): JSX.Element => {
         return items.map((item, idx) => (
