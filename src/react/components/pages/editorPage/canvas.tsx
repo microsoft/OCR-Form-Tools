@@ -1480,62 +1480,64 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const ocrReadResults = this.state.ocrForCurrentPage["readResults"];
         const ocrPageResults = this.state.ocrForCurrentPage["pageResults"];
         const imageExtent = this.imageMap.getImageExtent();
-        const ocrExtent = [0, 0, ocrReadResults.width, ocrReadResults.height];
-        if (ocrReadResults.lines) {
-            ocrReadResults.lines.forEach((line) => {
-                if (line.words) {
-                    line.words.forEach((word) => {
-                        if (this.shouldDisplayOcrWord(word.text)) {
-                            textFeatures.push(this.createBoundingBoxVectorFeature(
-                                word.text, word.boundingBox, imageExtent, ocrExtent, ocrReadResults.page));
-                        }
-                    });
-                }
-            });
-        }
-        this.tableIDToIndexMap = {};
-        if (ocrPageResults && ocrPageResults.tables) {
-            ocrPageResults.tables.forEach((table, index) => {
-                if (table.cells && table.columns && table.rows) {
-                    const tableBoundingBox = this.getTableBoundingBox(table.cells.map((cell) => cell.boundingBox));
-                    const createdTableFeatures = this.createBoundingBoxVectorTable(
-                        tableBoundingBox,
-                        imageExtent,
-                        ocrExtent,
-                        ocrPageResults.page,
-                        table.rows,
-                        table.columns,
-                        index);
-                    tableBorderFeatures.push(createdTableFeatures["border"]);
-                    tableIconFeatures.push(createdTableFeatures["icon"]);
-                    tableIconBorderFeatures.push(createdTableFeatures["iconBorder"]);
-                }
-            });
-        }
+        if (ocrReadResults) {
+            const ocrExtent = [0, 0, ocrReadResults.width, ocrReadResults.height];
+            if (ocrReadResults.lines) {
+                ocrReadResults.lines.forEach((line) => {
+                    if (line.words) {
+                        line.words.forEach((word) => {
+                            if (this.shouldDisplayOcrWord(word.text)) {
+                                textFeatures.push(this.createBoundingBoxVectorFeature(
+                                    word.text, word.boundingBox, imageExtent, ocrExtent, ocrReadResults.page));
+                            }
+                        });
+                    }
+                });
+            }
+            this.tableIDToIndexMap = {};
+            if (ocrPageResults && ocrPageResults.tables) {
+                ocrPageResults.tables.forEach((table, index) => {
+                    if (table.cells && table.columns && table.rows) {
+                        const tableBoundingBox = this.getTableBoundingBox(table.cells.map((cell) => cell.boundingBox));
+                        const createdTableFeatures = this.createBoundingBoxVectorTable(
+                            tableBoundingBox,
+                            imageExtent,
+                            ocrExtent,
+                            ocrPageResults.page,
+                            table.rows,
+                            table.columns,
+                            index);
+                        tableBorderFeatures.push(createdTableFeatures["border"]);
+                        tableIconFeatures.push(createdTableFeatures["icon"]);
+                        tableIconBorderFeatures.push(createdTableFeatures["iconBorder"]);
+                    }
+                });
+            }
 
-        if (ocrReadResults && ocrReadResults.selectionMarks) {
-            ocrReadResults.selectionMarks.forEach((checkbox) => {
-                checkboxFeatures.push(this.createBoundingBoxVectorFeature(
-                    checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, ocrReadResults.page));
-            });
-        } else if (ocrPageResults && ocrPageResults.checkboxes) {
-            ocrPageResults.checkboxes.forEach((checkbox) => {
-                checkboxFeatures.push(this.createBoundingBoxVectorFeature(
-                    checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, ocrPageResults.page));
-            });
-        }
+            if (ocrReadResults && ocrReadResults.selectionMarks) {
+                ocrReadResults.selectionMarks.forEach((checkbox) => {
+                    checkboxFeatures.push(this.createBoundingBoxVectorFeature(
+                        checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, ocrReadResults.page));
+                });
+            } else if (ocrPageResults && ocrPageResults.checkboxes) {
+                ocrPageResults.checkboxes.forEach((checkbox) => {
+                    checkboxFeatures.push(this.createBoundingBoxVectorFeature(
+                        checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, ocrPageResults.page));
+                });
+            }
 
-        if (tableBorderFeatures.length > 0 && tableBorderFeatures.length === tableIconFeatures.length
-            && tableBorderFeatures.length === tableIconBorderFeatures.length) {
-            this.imageMap.addTableBorderFeatures(tableBorderFeatures);
-            this.imageMap.addTableIconFeatures(tableIconFeatures);
-            this.imageMap.addTableIconBorderFeatures(tableIconBorderFeatures);
-        }
-        if (textFeatures.length > 0) {
-            this.imageMap.addFeatures(textFeatures);
-        }
-        if (checkboxFeatures.length > 0) {
-            this.imageMap.addCheckboxFeatures(checkboxFeatures);
+            if (tableBorderFeatures.length > 0 && tableBorderFeatures.length === tableIconFeatures.length
+                && tableBorderFeatures.length === tableIconBorderFeatures.length) {
+                this.imageMap.addTableBorderFeatures(tableBorderFeatures);
+                this.imageMap.addTableIconFeatures(tableIconFeatures);
+                this.imageMap.addTableIconBorderFeatures(tableIconBorderFeatures);
+            }
+            if (textFeatures.length > 0) {
+                this.imageMap.addFeatures(textFeatures);
+            }
+            if (checkboxFeatures.length > 0) {
+                this.imageMap.addCheckboxFeatures(checkboxFeatures);
+            }
         }
     }
 
