@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import React, { useState, useRef, MouseEvent } from "react";
+import React, { useState, useRef, useEffect, MouseEvent } from "react";
 import { FontIcon, IconButton } from "office-ui-fabric-react";
 import { ITag, ILabel, FieldType, FieldFormat } from "../../../../models/applicationState";
 import {
@@ -28,6 +28,8 @@ export interface IGeneratorEditorProps {
     onClick: (props: ITagClickProps) => void;
     /** Apply new name to tag */
     onRename: (newName: string, cancelCallback: () => void) => void;
+
+    setRef: (divRef: React.MutableRefObject<HTMLDivElement>) => void;
 }
 
 const strings = {
@@ -45,6 +47,10 @@ const GeneratorEditor: React.FunctionComponent<IGeneratorEditorProps> = (props) 
 
     const itemRef = useRef<HTMLDivElement>();
     const inputElement = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        props.setRef(itemRef);
+    });
 
     const onInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
         onRenameTag();

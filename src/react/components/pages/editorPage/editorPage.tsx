@@ -358,6 +358,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                         generators={this.state.generators}
                                         selectedIndex={this.state.selectedGeneratorIndex}
                                         onSelectedGenerator={this.onSelectedGenerator}
+                                        onGeneratorsChanged={this.onGeneratorsChanged}
                                     />
                                 </SplitPane>
 
@@ -840,6 +841,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             generators,
             selectedGeneratorIndex: oldRegionIndex,
         });
+    }
+
+    private onGeneratorsChanged = (generators?: IGenerator[]) => {
+        this.setState({generators});
     }
 
     private getActiveGeneratorId = () => {

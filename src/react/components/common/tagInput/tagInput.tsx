@@ -16,7 +16,7 @@ import { strings } from "../../../../common/strings";
 import { getDarkTheme } from "../../../../common/themes";
 import { AlignPortal } from "../align/alignPortal";
 import { getNextColor } from "../../../../common/utils";
-import { IRegion, ITag, ILabel, FieldType, FieldFormat, NamedItem } from "../../../../models/applicationState";
+import { IRegion, ITag, ILabel, FieldType, FieldFormat, NamedItem, FormattedItem } from "../../../../models/applicationState";
 import { ColorPicker } from "../colorPicker";
 import "./tagInput.scss";
 import "../condensedList/condensedList.scss";
@@ -157,10 +157,17 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         }
     }
 
+
+    private onHideContextualMenu = () => {
+        this.setState({tagOperation: TagOperationMode.None});
+    }
+
     public render() {
 
         const { selectedTag, tagOperation } = this.state;
-        const selectedTagRef = selectedTag ? this.tagItemRefs.get(selectedTag.name).getTagNameRef() : null;
+        // Uhm, don't we re-render every time? What exactly is happening here
+        // TODO
+        const selectedRef = selectedTag ? this.tagItemRefs.get(selectedTag.name).getTagNameRef() : null;
 
         return (
             <div className="tag-input">
@@ -173,7 +180,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                             searchTags: !this.state.searchTags,
                             searchQuery: "",
                         })}
-                        onRenameTag={this.onRenameTag}
+                        onRenameTag={this.toggleRenameMode}
                         onLockTag={this.onLockTag}
                         onDelete={this.onDeleteTag}
                         onReorder={this.onReOrder}
@@ -201,16 +208,23 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                                 {this.renderTagItems()}
                                 <Customizer {...dark}>
                                     {
-                                        tagOperation === TagOperationMode.ContextualMenu && selectedTagRef &&
-                                        <ContextualMenu
-                                            className="tag-input-contextual-menu"
-                                            items={this.getContextualMenuItems()}
-                                            target={selectedTagRef}
-                                            onDismiss={this.onHideContextualMenu}
+                                        tagOperation === TagOperationMode.ContextualMenu && selectedRef &&
+                                        <FormattedItemContextMenu
+                                            onRename={this.toggleRenameMode}
+                                            onDelete={this.onDeleteTag}
+                                            onReOrder={this.onReOrder}
+                                            selectedRef={selectedRef}
+                                            onHideContextualMenu={this.onHideContextualMenu}
+                                            onItemChanged={this.props.onTagChanged}
                                         />
                                     }
                                 </Customizer>
-                                {this.getColorPickerPortal()}
+                                <ColorPickerPortal
+                                    selectedItem={this.state.selectedTag}
+                                    operation={this.state.tagOperation}
+                                    handleColorChange={this.handleColorChange}
+                                    alignRef={this.headerRef}
+                                />
                             </div>
                             {
                                 this.state.addTags &&
@@ -243,7 +257,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         }
     }
 
-    private onRenameTag = (tag: ITag) => {
+    private toggleRenameMode = (tag: ITag) => {
         const tagOperation = this.state.tagOperation === TagOperationMode.Rename
             ? TagOperationMode.None : TagOperationMode.Rename;
         this.setState({
@@ -317,26 +331,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         this.props.onTagDeleted(tag.name);
     }
 
-    private getColorPickerPortal = () => {
-        const { selectedTag } = this.state;
-        const showColorPicker = this.state.tagOperation === TagOperationMode.ColorPicker;
-        return (
-            <AlignPortal align={{points: [ "tr", "tl" ]}} target={() => this.headerRef.current}>
-                <div className="tag-input-colorpicker-container">
-                    {
-                        showColorPicker &&
-                        <ColorPicker
-                            color={selectedTag && selectedTag.color}
-                            colors={tagColors}
-                            onEditColor={this.handleColorChange}
-                            show={showColorPicker}
-                        />
-                    }
-                </div>
-            </AlignPortal>
-        );
-    }
-
     private renderTagItems = () => {
         let props = this.createTagItemProps();
         const query = this.state.searchQuery;
@@ -370,7 +364,11 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     private createTagItemProps = (): ITagInputItemProps[] => {
         const { tags, selectedTag, tagOperation } = this.state;
         const selectedRegionTagSet = this.getSelectedRegionTagSet();
-
+        const onCancel = () => {
+            this.setState({
+                tagOperation: TagOperationMode.None,
+            });
+        }
         return tags.map((tag) => (
             {
                 tag,
@@ -382,7 +380,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 isSelected: selectedTag && isNameEqual(selectedTag.name, tag.name),
                 appliedToSelectedRegions: selectedRegionTagSet.has(tag.name),
                 onClick: this.onTagItemClick.bind(this, tag),
-                onRename: onItemRename.bind(this, this.state.tags, tag), // TODO use global tags
+                onRename: onItemRename.bind(this, this.state.tags, tag, onCancel, this.props.onRename), // TODO use global tags
             } as ITagInputItemProps
         ));
     }
@@ -413,7 +411,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 || this.state.tagOperation !== TagOperationMode.ContextualMenu;
             const tagOperation = showContextualMenu ? TagOperationMode.ContextualMenu : TagOperationMode.None;
             this.setState({
-                selectedTag: tag,
+                selectedTag: showContextualMenu ? tag: selectedTag,
                 tagOperation,
             });
         } else if (props.clickedColor) {
@@ -435,7 +433,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             if (selectedRegions && selectedRegions.length && onTagClick) {
                 const { category } = selectedRegions[0];
                 const { format, type, documentCount, name } = tag;
-                const tagCategory = this.getTagCategory(type);
+                const tagCategory = getTagCategory(type);
                 if (tagCategory === category ||
                     (documentCount === 0 && type === FieldType.String && format === FieldFormat.NotSpecified)) {
                     if (category === "checkbox" && this.labelAssigned(labels, name)) {
@@ -457,15 +455,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
     private labelAssigned = (labels, name): boolean => {
          return labels.find((label) => label.label === name ? true : false);
-    }
-
-    private getTagCategory = (tagType: string) => {
-        switch (tagType) {
-            case FieldType.SelectionMark:
-                return "checkbox";
-            default:
-                return "text";
-        }
     }
 
     private onSearchKeyDown = (event: KeyboardEvent): void => {
@@ -513,183 +502,204 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             toast.warn(strings.tags.warnings.existingName);
         }
     }
+}
 
-    private onHideContextualMenu = () => {
-        this.setState({tagOperation: TagOperationMode.None});
+export interface IFormattedItemContextMenuProps {
+    item?: FormattedItem;
+    selectedRef: React.RefObject<HTMLDivElement>
+    onHideContextualMenu: () => void;
+    onReOrder: (item: FormattedItem, displacement: number) => void;
+    onRename: (item: FormattedItem) => void;
+    onDelete: (item: FormattedItem) => void;
+    onItemChanged: (item: FormattedItem, newItem: FormattedItem) => void;
+}
+
+export const FormattedItemContextMenu: React.FunctionComponent<IFormattedItemContextMenuProps> = (props) => {
+    const { item, selectedRef, onHideContextualMenu } = props;
+    if (!item) {
+        return (<ContextualMenu
+            className="tag-input-contextual-menu"
+            items={[]}
+            target={selectedRef}
+            onDismiss={onHideContextualMenu}
+        />);
     }
 
-    private getContextualMenuItems = (): IContextualMenuItem[] => {
-        const tag = this.state.selectedTag;
-        if (!tag) {
-            return [];
+    const onTypeSelect = (event: React.MouseEvent<HTMLButtonElement>, item?: IContextualMenuItem): void => {
+        event.preventDefault();
+        const type = item.text as FieldType;
+        if (type === item.type) {
+            return;
         }
 
-        const menuItems: IContextualMenuItem[] = [
-            {
-                key: "type",
-                iconProps: {
-                    iconName: "Link",
-                },
-                text: tag.type ? tag.type : strings.tags.toolbar.type,
-                subMenuProps: {
-                    items: this.getTypeSubMenuItems(),
-                },
-            },
-            {
-                key: "format",
-                iconProps: {
-                    iconName: "Link",
-                },
-                text: tag.format ? tag.format : strings.tags.toolbar.format,
-                subMenuProps: {
-                    items: this.getFormatSubMenuItems(),
-                },
-            },
-            {
-                key: "divider_1",
-                itemType: ContextualMenuItemType.Divider,
-            },
-            {
-                key: TagMenuItem.Rename,
-                iconProps: {
-                    iconName: "Rename",
-                },
-                text: strings.tags.toolbar.rename,
-                onClick: this.onMenuItemClick,
-            },
-            {
-                key: TagMenuItem.MoveUp,
-                iconProps: {
-                    iconName: "Up",
-                },
-                text: strings.tags.toolbar.moveUp,
-                onClick: this.onMenuItemClick,
-            },
-            {
-                key: TagMenuItem.MoveDown,
-                iconProps: {
-                    iconName: "Down",
-                },
-                text: strings.tags.toolbar.moveDown,
-                onClick: this.onMenuItemClick,
-            },
-            {
-                key: TagMenuItem.Delete,
-                iconProps: {
-                    iconName: "Delete",
-                },
-                text: strings.tags.toolbar.delete,
-                onClick: this.onMenuItemClick,
-            },
-        ];
+        const newItem = {
+            ...item,
+            type,
+            format: FieldFormat.NotSpecified,
+        };
 
-        return menuItems;
-    }
-
-    private isTypeCompatibleWithTag = (tag, type) => {
-        // If free tag we can assign any type
-        if (tag && tag.documentCount <= 0) {
-            return true;
+        if (this.props.onTagChanged) {
+            this.props.onTagChanged(item, newItem);
         }
-        const tagType = this.getTagCategory(tag.type);
-        const menuItemType = this.getTagCategory(type);
-        return tagType === menuItemType;
     }
 
-    private getTypeSubMenuItems = (): IContextualMenuItem[] => {
-        const tag = this.state.selectedTag;
+    const onFormatSelect = (event: React.MouseEvent<HTMLButtonElement>, contextItem?: IContextualMenuItem): void => {
+        event.preventDefault();
+        const format = contextItem.text as FieldFormat;
+        if (format === item.format) {
+            return;
+        }
+
+        const newTag = {
+            ...item,
+            format,
+        };
+
+        if (props.onItemChanged) {
+            props.onItemChanged(item, newTag);
+        }
+    }
+
+    const getTypeSubMenuItems = (item: FormattedItem): IContextualMenuItem[] => {
         const types = Object.values(FieldType);
         return types.map((type) => {
-            const isCompatible = this.isTypeCompatibleWithTag(tag, type);
+            const isCompatible = isTypeCompatibleWithTag(item, type);
             return {
                 key: type,
                 text: type,
                 canCheck: isCompatible,
-                isChecked: type === tag.type,
-                onClick: this.onTypeSelect,
+                isChecked: type === item.type,
+                onClick: onTypeSelect,
                 disabled: !isCompatible,
             } as IContextualMenuItem;
         });
     }
 
-    private getFormatSubMenuItems = (): IContextualMenuItem[] => {
-        const tag = this.state.selectedTag;
-        const formats = filterFormat(tag.type);
+    const getFormatSubMenuItems = (item: FormattedItem): IContextualMenuItem[] => {
+        const formats = filterFormat(item.type);
 
         return formats.map((format) => {
             return {
                 key: format,
                 text: format,
                 canCheck: true,
-                isChecked: format === tag.format,
-                onClick: this.onFormatSelect,
+                isChecked: format === item.format,
+                onClick: onFormatSelect,
             } as IContextualMenuItem;
         });
     }
 
-    private onTypeSelect = (event: React.MouseEvent<HTMLButtonElement>, item?: IContextualMenuItem): void => {
+    const onMenuItemClick = (event: React.MouseEvent<HTMLButtonElement>, contextItem?: IContextualMenuItem): void => {
         event.preventDefault();
-        const type = item.text as FieldType;
-        const tag = this.state.selectedTag;
-        if (type === tag.type) {
+        if (!item) { // TODO make sure this is the right item
             return;
         }
 
-        const newTag = {
-            ...tag,
-            type,
-            format: FieldFormat.NotSpecified,
-        };
-
-        if (this.props.onTagChanged) {
-            this.props.onTagChanged(tag, newTag);
-        }
-    }
-
-    private onFormatSelect = (event: React.MouseEvent<HTMLButtonElement>, item?: IContextualMenuItem): void => {
-        event.preventDefault();
-        const format = item.text as FieldFormat;
-        const tag = this.state.selectedTag;
-        if (format === tag.format) {
-            return;
-        }
-
-        const newTag = {
-            ...tag,
-            format,
-        };
-
-        if (this.props.onTagChanged) {
-            this.props.onTagChanged(tag, newTag);
-        }
-    }
-
-    private onMenuItemClick = (event: React.MouseEvent<HTMLButtonElement>, item?: IContextualMenuItem): void => {
-        event.preventDefault();
-        const tag = this.state.selectedTag;
-        if (!tag) {
-            return;
-        }
-
-        switch (item.key) {
+        switch (contextItem.key) {
             case TagMenuItem.MoveDown:
-                this.onReOrder(tag, 1);
+                props.onReOrder(item, 1);
                 break;
             case TagMenuItem.MoveUp:
-                this.onReOrder(tag, -1);
+                props.onReOrder(item, -1);
                 break;
             case TagMenuItem.Rename:
-                this.onRenameTag(tag);
+                props.onRename(item);
                 break;
             case TagMenuItem.Delete:
-                this.onDeleteTag(tag);
+                props.onDelete(item);
                 break;
         }
     }
+
+    const menuItems: IContextualMenuItem[] = [
+        {
+            key: "type",
+            iconProps: {
+                iconName: "Link",
+            },
+            text: item.type ? item.type : strings.tags.toolbar.type,
+            subMenuProps: {
+                items: getTypeSubMenuItems(item),
+            },
+        },
+        {
+            key: "format",
+            iconProps: {
+                iconName: "Link",
+            },
+            text: item.format ? item.format : strings.tags.toolbar.format,
+            subMenuProps: {
+                items: getFormatSubMenuItems(item),
+            },
+        },
+        {
+            key: "divider_1",
+            itemType: ContextualMenuItemType.Divider,
+        },
+        {
+            key: TagMenuItem.Rename,
+            iconProps: {
+                iconName: "Rename",
+            },
+            text: strings.tags.toolbar.rename,
+            onClick: onMenuItemClick,
+        },
+        {
+            key: TagMenuItem.MoveUp,
+            iconProps: {
+                iconName: "Up",
+            },
+            text: strings.tags.toolbar.moveUp,
+            onClick: onMenuItemClick,
+        },
+        {
+            key: TagMenuItem.MoveDown,
+            iconProps: {
+                iconName: "Down",
+            },
+            text: strings.tags.toolbar.moveDown,
+            onClick: onMenuItemClick,
+        },
+        {
+            key: TagMenuItem.Delete,
+            iconProps: {
+                iconName: "Delete",
+            },
+            text: strings.tags.toolbar.delete,
+            onClick: onMenuItemClick,
+        },
+    ];
+
+    return (<ContextualMenu
+        className="tag-input-contextual-menu"
+        items={menuItems}
+        target={selectedRef}
+        onDismiss={onHideContextualMenu}
+    />);
+
 }
 
 
+const getTagCategory = (tagType: string) => {
+    switch (tagType) {
+        case FieldType.SelectionMark:
+            return "checkbox";
+        default:
+            return "text";
+    }
+}
 
+const isTypeCompatibleWithTag = (tag, type) => {
+    // If free tag we can assign any type
+    if (tag && tag.documentCount <= 0) {
+        return true;
+    }
+    const tagType = getTagCategory(tag.type);
+    const menuItemType = getTagCategory(type);
+    return tagType === menuItemType;
+}
+
+// Name input
 export const validateNameLength = (item: NamedItem) => {
     if (!item.name.trim().length) {
         throw new Error(strings.tags.warnings.emptyName);
@@ -705,12 +715,17 @@ export const validateNameUniqueness = (item: NamedItem, otherItems: NamedItem[])
     }
 }
 
-export const onItemRename = (otherItems: NamedItem[], item: NamedItem, name: string, cancelCallback: () => void) => {
+export const onItemRename = (
+    otherItems: NamedItem[],
+    item: NamedItem,
+    onCancel: () => void,
+    onRename: (oldItem: NamedItem, newItem: NamedItem, cancelCallback: () => void) => void,
+    name: string,
+    cancelCallback: () => void,
+) => {
     const cancelRename = () => {
         cancelCallback();
-        this.setState({
-            tagOperation: TagOperationMode.None,
-        });
+        onCancel();
     };
 
     if (isNameEqual(item.name, name)) {
@@ -732,8 +747,34 @@ export const onItemRename = (otherItems: NamedItem[], item: NamedItem, name: str
         return;
     }
 
-    if (this.props.onRename) {
-        this.props.onRename(item, newItem, cancelRename);
-        return;
+    if (onRename) {
+        onRename(item, newItem, cancelRename);
     }
+}
+
+export interface IColorPickerPortalProps {
+    selectedItem: FormattedItem,
+    operation: TagOperationMode,
+    handleColorChange: (color: string) => void,
+    alignRef: React.RefObject<HTMLDivElement>
+}
+export const ColorPickerPortal: React.FunctionComponent<IColorPickerPortalProps> = (
+    { selectedItem, operation, handleColorChange, alignRef }
+) => {
+    const showColorPicker = operation === TagOperationMode.ColorPicker;
+    return (
+        <AlignPortal align={{points: [ "tr", "tl" ]}} target={() => alignRef.current}>
+            <div className="tag-input-colorpicker-container">
+                {
+                    showColorPicker &&
+                    <ColorPicker
+                        color={selectedItem && selectedItem.color}
+                        colors={tagColors}
+                        onEditColor={handleColorChange}
+                        show={showColorPicker}
+                    />
+                }
+            </div>
+        </AlignPortal>
+    );
 }
