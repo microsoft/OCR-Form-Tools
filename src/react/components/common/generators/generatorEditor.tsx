@@ -10,14 +10,14 @@ import {
     onDropdownClick,
     onNameClick,
 } from "../tagInput/tagInputItem";
-import { IGeneratorRegion } from "../../pages/editorPage/editorPage";
+import { IGenerator } from "../../pages/editorPage/editorPage";
 
 /**
  * Properties for tag input item
  */
 export interface IGeneratorEditorProps {
     /** Tag represented by item */
-    region: IGeneratorRegion;
+    region: IGenerator;
     /** Index of tag within tags array */
     index: number;
     /** Tag is currently renaming */

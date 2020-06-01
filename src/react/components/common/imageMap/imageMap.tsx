@@ -35,7 +35,7 @@ interface IImageMapProps {
     hoveringFeature?: string;
     editorMode?: EditorMode;
     handleGeneratorRegionCompleted?: (drawEvent: DrawEvent) => void;
-    handleGeneratorRegionSelectionChanged?: (feature?: any) => void;
+    handleGeneratorRegionSelect?: (feature?: any) => void;
 
     onMapReady: () => void;
     handleTableToolTipChange?: (display: string, width: number, height: number, top: number,
@@ -528,7 +528,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
                 (feature) => {
                     if (filter.layerfilter === this.generatorVectorLayerFilter) {
                         // This definitely isn't meant to handle more than one feature
-                        this.props.handleGeneratorRegionSelectionChanged(feature); // TODO debounce
+                        this.props.handleGeneratorRegionSelect(feature); // TODO debounce
                     } else {
                         this.props.handleFeatureSelect(feature, true, filter.category);
                     }
@@ -537,6 +537,9 @@ export class ImageMap extends React.Component<IImageMapProps> {
             );
         }
         const isPixelOnFeature = !!filter;
+        if (!isPixelOnFeature) {
+            this.props.handleGeneratorRegionSelect(); // selected no generator region
+        }
 
         this.setDragPanInteraction(!isPixelOnFeature /*dragPanEnabled*/);
         this.isSwiping = isPixelOnFeature;

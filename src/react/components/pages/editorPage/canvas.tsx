@@ -34,7 +34,7 @@ import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../.
 import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./canvasCommandBar";
 import { TooltipHost, ITooltipHostStyles } from "office-ui-fabric-react";
-import { IGeneratorRegion } from "./editorPage";
+import { IGeneratorRegion, IGenerator } from "./editorPage";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -55,9 +55,8 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onCanvasRendered?: (canvas: HTMLCanvasElement) => void;
     onRunningOCRStatusChanged?: (isRunning: boolean) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
-    addGeneratorRegion?: (info: IGeneratorRegion) => void;
-    onDeselectedGeneratorRegion?: () => void;
-    onSelectedGeneratorRegion?: (info: IGeneratorRegion) => void;
+    addGenerator?: (info: IGenerator) => void;
+    onSelectedGeneratorRegion?: (info?: IGeneratorRegion) => void;
 }
 
 export interface ICanvasState {
@@ -193,6 +192,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (this.props.hoveredLabel !== prevProps.hoveredLabel) {
             this.imageMap.getAllLabelFeatures().map(this.updateHighlightStatus);
         }
+
+        if (this.props.activeGeneratorRegionId !== prevProps.activeGeneratorRegionId) {
+            this.redrawFeatures(this.imageMap.getAllGeneratorFeatures());
+        }
     }
 
     public render = () => {
@@ -243,7 +246,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     hoveringFeature={this.state.hoveringFeature}
                     editorMode={this.props.editorMode}
                     handleGeneratorRegionCompleted={this.handleGeneratorRegionCompleted}
-                    handleGeneratorRegionSelectionChanged={this.handleGeneratorRegionSelectionChanged}
+                    handleGeneratorRegionSelect={this.handleGeneratorRegionSelect}
                 />
                 <TooltipHost
                     content={"rows: " + this.state.tableIconTooltip.rows +
@@ -701,7 +704,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private generatorFeatureStyler = (feature) => {
-        const regionId = feature.get("ol_uid");
+        const regionId = feature["ol_uid"];
         // Selected
         if (regionId && this.props?.activeGeneratorRegionId === regionId) {
             return new Style({
@@ -1115,33 +1118,41 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     /* Bounding Box Synthesizer Code */
     // TODO should we just pass around all the info? And not worry about all this work until necessary?
-    private extractGeneratorInfo = (feature: any) => {
+    // Currently putting this here since it's more canvas related
+    private extractGeneratorRegion = (feature?: any) => {
+        if (!feature) {
+            return null;
+        }
         const geometry = feature.values_.geometry;
         // snap tool will make last 2 coords match first 2
         const points = geometry.flatCoordinates.slice(0, -2);
-        const regionInfo: IGeneratorRegion = {
+        return {
             points,
             extent: geometry.extent_,
-            uid: geometry.ol_uid, // this is a string of a number
-            name: "New generator",
+            uid: feature.ol_uid,
+        }
+    }
+
+    private initializeGenerator = (feature?: any) => {
+        const regionInfo = this.extractGeneratorRegion(feature);
+        const metadata = {
+            name: "Generator",
             type: FieldType.String,
             format: FieldFormat.Alphanumeric,
             color: "#777",
-        };
-        return regionInfo;
+        }
+        const regionAndMetadata: IGenerator = {...regionInfo, ...metadata};
+        return regionAndMetadata;
     }
 
     private handleGeneratorRegionCompleted = (drawEvent: DrawEvent) => {
-        this.props?.addGeneratorRegion(this.extractGeneratorInfo(drawEvent.feature));
+        this.props?.addGenerator(this.initializeGenerator(drawEvent.feature));
     }
 
-    private handleGeneratorRegionSelectionChanged = (feature?: any) => {
-        if (!feature) {
-            this.props.onDeselectedGeneratorRegion();
-        } else {
-            const regionInfo = this.extractGeneratorInfo(feature);
-            this.props.onSelectedGeneratorRegion(regionInfo);
-        }
+    private handleGeneratorRegionSelect = (feature?: any) => {
+        const regionInfo = this.extractGeneratorRegion(feature);
+        this.props.onSelectedGeneratorRegion(regionInfo);
+        this.redrawFeatures(this.imageMap.getAllGeneratorFeatures());
     }
 
     // TODO handle selection
@@ -1717,7 +1728,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private toggleBoundingBoxMode = () => {
         if (this.props.editorMode === EditorMode.GeneratorRect) {
             this.props.setEditorMode(EditorMode.Select);
-            this.props.onDeselectedGeneratorRegion();
+            this.handleGeneratorRegionSelect();
         } else {
             this.props.setEditorMode(EditorMode.GeneratorRect);
         }

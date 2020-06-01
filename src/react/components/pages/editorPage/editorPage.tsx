@@ -55,11 +55,13 @@ import { SkipButton } from "../../shell/skipButton";
  * @member type - like tag type
  * @member format - like tag format
  */
-export interface IGeneratorRegion extends FormattedItem{
+export interface IGeneratorRegion {
     points: number[];
     extent: number[];
-    uid: string;
+    uid: string; // Note, this is the uid of the feature, not the underlying geometry
 }
+
+export type IGenerator = FormattedItem & IGeneratorRegion;
 
 /**
  * Properties for Editor Page
@@ -91,7 +93,7 @@ export interface IEditorPageState {
     selectedRegions?: IRegion[];
     /** Generator regions on current asset */
     // TODO this needs to go somewhere better
-    generatorRegions: IGeneratorRegion[];
+    generators: IGenerator[];
     /** Most recently active generator */
     selectedGeneratorIndex: number;
     // TODO support asset generator settings
@@ -151,7 +153,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         lockedTags: [],
         assets: [],
         editorMode: EditorMode.Select,
-        generatorRegions: [], // TODO move this out
+        generators: [], // TODO move this out
         selectedGeneratorIndex: -1,
         thumbnailSize: { width: 175, height: 155 },
         isValid: true,
@@ -298,9 +300,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             activeGeneratorRegionId={this.getActiveGeneratorId()}
                                             editorMode={this.state.editorMode}
                                             setEditorMode={this.setEditorMode}
-                                            addGeneratorRegion={this.addGeneratorRegion}
-                                            onSelectedGeneratorRegion={this.onSelectedGeneratorRegion}
-                                            onDeselectedGeneratorRegion={this.onDeselectedGeneratorRegion}
+                                            addGenerator={this.addGeneratorRegion}
+                                            onSelectedGeneratorRegion={this.onSelectedGenerator}
                                             project={this.props.project}
                                             lockedTags={this.state.lockedTags}
                                             hoveredLabel={this.state.hoveredLabel}
@@ -354,9 +355,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     </div>
                                     <GeneratorPane
                                         generatorsLoaded={true}
-                                        generatorRegions={this.state.generatorRegions}
+                                        generators={this.state.generators}
                                         selectedIndex={this.state.selectedGeneratorIndex}
-                                        onDeselectedGeneratorRegion={this.onDeselectedGeneratorRegion}
+                                        onSelectedGenerator={this.onSelectedGenerator}
                                     />
                                 </SplitPane>
 
@@ -808,38 +809,41 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         });
     }
 
-    private addGeneratorRegion = (region: IGeneratorRegion) => {
+    private addGeneratorRegion = (region: IGenerator) => {
         // rename generator
         // TODO give the min number so it makes more sense
-        region.name = region.name + Math.random().toString(36).slice(2);
+        region.name = region.name + " " + Math.random().toString(36).slice(4);
         this.setState({
-            generatorRegions: [ ...this.state.generatorRegions, region],
-            selectedGeneratorIndex: this.state.generatorRegions.length,
+            generators: [ ...this.state.generators, region],
+            selectedGeneratorIndex: this.state.generators.length,
         });
     }
 
-    private onSelectedGeneratorRegion = (selectedGeneratorRegion: IGeneratorRegion) => {
+    private onSelectedGenerator = (selectedGenerator?: IGeneratorRegion) => {
+        if (!selectedGenerator) {
+            this.setState({
+                selectedGeneratorIndex: -1,
+            });
+            return;
+        }
+        // We only deselect when we click off a region.
         // TODO only update on revision change - not sure about the UX here
         // https://stackoverflow.com/questions/25993044/openlayers3-is-it-possible-to-combine-modify-draw-select-operations
         // find and update the old one in case we modified
-        const { generatorRegions } = this.state;
-        const oldRegionIndex = generatorRegions.findIndex(r => r.uid === selectedGeneratorRegion.uid);
-        const newRegion = { ...generatorRegions[oldRegionIndex], ...selectedGeneratorRegion };
-        generatorRegions[oldRegionIndex] = newRegion;
+        // the canvas will provide location information on update only, since it only handles the click event
+        // thus we should
+        const { generators } = this.state;
+        const oldRegionIndex = generators.findIndex(r => r.uid === selectedGenerator.uid);
+        const newRegion = { ...generators[oldRegionIndex], ...selectedGenerator };
+        generators[oldRegionIndex] = newRegion;
         this.setState({
-            generatorRegions,
+            generators,
             selectedGeneratorIndex: oldRegionIndex,
         });
     }
 
-    private onDeselectedGeneratorRegion = () => {
-        this.setState({
-            selectedGeneratorIndex: -1,
-        });
-    }
-
     private getActiveGeneratorId = () => {
-        const generator = this.state.generatorRegions[this.state.selectedGeneratorIndex];
+        const generator = this.state.generators[this.state.selectedGeneratorIndex];
         return generator?.uid;
     }
 

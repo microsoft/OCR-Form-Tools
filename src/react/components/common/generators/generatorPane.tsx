@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 
 import React, { useState, KeyboardEvent } from "react";
-import { IGeneratorRegion } from "../../pages/editorPage/editorPage";
 import {
     FontIcon,
     Spinner,
@@ -11,14 +10,15 @@ import {
 import "./generatorPane.scss";
 import "../condensedList/condensedList.scss";
 import GeneratorEditor from "./generatorEditor";
+import { IGenerator, IGeneratorRegion } from "../../pages/editorPage/editorPage";
 import { dark, TagOperationMode, onItemRename } from "../tagInput/tagInput";
 import { toast } from "react-toastify";
 import { ITagClickProps } from "../tagInput/tagInputItem";
 
 /**
  * TODO
- * per region info
- * optional names for regions
+ * per region info bugbash
+ * regression test for tags
  * onleave and onenter
  * num copies info
  * add search bar
@@ -32,10 +32,10 @@ import { ITagClickProps } from "../tagInput/tagInputItem";
  * @member generatorRegion - Info for selected region
  */
 export interface IGeneratorPaneProps {
-    generatorRegions: IGeneratorRegion[]
+    generators: IGenerator[]
     selectedIndex: number,
     generatorsLoaded: boolean,
-    onDeselectedGeneratorRegion: () => void,
+    onSelectedGenerator: (region?: IGeneratorRegion) => void,
 }
 
 const strings = {
@@ -56,35 +56,40 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
     const [searchQuery, setSearchQuery] = useState("");
     const [operation, setOperation] = useState(TagOperationMode.None);
 
-    if (props.generatorRegions.length === 0) {
+    if (props.generators.length === 0) {
         return null;
     }
     let activeID;
     if (props.selectedIndex === -1) {
         activeID = "None";
     } else {
-        activeID = props.generatorRegions[props.selectedIndex].uid;
+        activeID = props.generators[props.selectedIndex].uid;
     }
 
-    const onEditorClick = (region: IGeneratorRegion, clickProps: ITagClickProps) => {
+    const onEditorClick = (region: IGenerator, clickProps: ITagClickProps) => {
         // props describe the type of click that occurred
         // TODO add them props back (needed for the type assignment)
         // TODO support color again
-        const { generatorRegions, selectedIndex } = props;
-        const selected =  generatorRegions[selectedIndex].uid === region.uid;
+        const { generators, selectedIndex } = props;
+        const selected = selectedIndex !== -1 && generators[selectedIndex].uid === region.uid;
         const newOperation = selected ? operation : TagOperationMode.None;
+        const deselect = selected && operation === TagOperationMode.None;
+
         // do we deselect? By default, if we click on already selected, do deselect
         if (selected && operation === TagOperationMode.None) {
-            props.onDeselectedGeneratorRegion();
+            props.onSelectedGenerator();
+        }
+        if (!deselect) {
+            props.onSelectedGenerator(region);
         }
         setOperation(newOperation);
     }
 
 
     const renderGenerators = () => {
-        const { generatorRegions, selectedIndex } = props;
+        const { generators, selectedIndex } = props;
         // TODO this.tagItemRefs.clear();
-        let regions = generatorRegions;
+        let regions = generators;
         if (searchQuery.length) {
             regions = regions.filter((r) => !r.name ||
             r.name.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -95,7 +100,7 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
             isRenaming: operation === TagOperationMode.Rename && index === selectedIndex,
             isSelected: index === selectedIndex,
             onClick: onEditorClick.bind(this, r),
-            onRename: onItemRename.bind(this, generatorRegions, r),
+            onRename: onItemRename.bind(this, generators, r),
         }));
         return regions.map((r, index) =>
             <GeneratorEditor
@@ -114,7 +119,7 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
         <div className="tag-input">
             <div className="tag-input-header p-2">
                 <span className="tag-input-title">{strings.generator.title}</span>
-                Total regions: {props.generatorRegions.length}.
+                Total regions: {props.generators.length}.
             </div>
             {
                 props.generatorsLoaded ?
