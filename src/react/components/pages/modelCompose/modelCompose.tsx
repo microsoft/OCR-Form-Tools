@@ -233,11 +233,10 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     </div>
                     <ViewSelection
                         selection={this.selection}
-                        items={this.state.modelList}
+                        items={this.allModels}
                         columns={this.state.columns}
                         isComposing={this.state.isComposing}
-                        refreshFlag={this.state.refreshFlag}
-                        allModels={this.allModels}>
+                        refreshFlag={this.state.refreshFlag}>
                         {this.state.isComposing ?
                         <Spinner
                             label="Model is composing, please wait..."

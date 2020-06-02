@@ -16,8 +16,6 @@ export interface IViewSelectionProps
 
   items: any[];
 
-  allModels: any[];
-
   columns: any[];
 
   isComposing: boolean;
@@ -65,11 +63,11 @@ export class ViewSelection extends BaseComponent<
   private toListIndex(index: number) {
     const viewItems = this.props.selection.getItems();
     const viewItem = viewItems[index];
-    return this.props.allModels.findIndex((listItem) => listItem === viewItem);
+    return this.props.items.findIndex((listItem) => listItem === viewItem);
     }
 
   private toViewIndex(index: number) {
-    const listItem = this.props.allModels[index];
+    const listItem = this.props.items[index];
     const viewIndex = this.props.selection
       .getItems()
       .findIndex((viewItem) => viewItem === listItem);
