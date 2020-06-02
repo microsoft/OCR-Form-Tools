@@ -88,18 +88,18 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                             <div
                                 className={"tag-content pr-2"}
                                 onClick={onNameClick.bind(this, this.props.onClick)}>
-                                {getFormattedEditorContent(
-                                    this.props.tag,
-                                    this.getDisplayIndex(),
-                                    this.handleMouseEnter,
-                                    this.handleMouseLeave,
-                                    this.onInputRef,
-                                    this.props.isRenaming,
-                                    // this.state.isRenaming,
-                                    this.onInputBlur,
-                                    onDropdownClick.bind(this, this.props.onClick),
-                                    this.onInputKeyDown,
-                                )}
+
+                                <FormattedItemEditor
+                                    item={this.props.tag}
+                                    displayIndex={this.getDisplayIndex()}
+                                    onMouseEnter={this.handleMouseEnter}
+                                    onMouseLeave={this.handleMouseLeave}
+                                    inputRef={this.onInputRef}
+                                    isRenaming={this.props.isRenaming}
+                                    onInputBlur={this.onInputBlur}
+                                    onClick={this.props.onClick}
+                                    onInputKeyDown={this.onInputKeyDown}
+                                />
                             </div>
                             {
                                 this.props.isLocked &&
@@ -193,22 +193,41 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
     }
 }
 
-// TODO turn into a component proper
-export const getFormattedEditorContent = (
+export interface IFormattedItemEditor {
     item: FormattedItem,
-    displayIndex: string,
-    handleMouseEnter: any,
-    handleMouseLeave: any,
-    inputRef: any,
-    isRenaming: boolean,
-    onInputBlur: any,
-    onDropdownClick: any,
+    displayIndex?: string,
+    onMouseEnter: () => void,
+    onMouseLeave: () => void,
+    inputRef: React.RefObject<HTMLInputElement> | ((e: HTMLInputElement) => void),
+    isRenaming: boolean;
+    onInputBlur: (e: React.FocusEvent<HTMLInputElement>) => void;
+    onClick: any,
     onInputKeyDown: any,
-) => {
+}
+
+export const FormattedItemEditor: React.FunctionComponent<IFormattedItemEditor>  = (props) => {
+    const {
+        item,
+        displayIndex,
+        onMouseEnter,
+        onMouseLeave,
+        inputRef,
+        isRenaming,
+        onInputBlur,
+        onClick,
+        onInputKeyDown,
+    } = props;
+
+    const onDropdownClick = (e: MouseEvent<HTMLButtonElement>) => {
+        e.stopPropagation();
+        const clickedDropDown = true;
+        onClick({ clickedDropDown });
+    }
+
     return (
         <div className={"tag-name-container"}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}>
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}>
             {
                 (isTypeOrFormatSpecified(item)) &&
                 <FontIcon iconName="Link" className="pl-1" />
@@ -233,7 +252,7 @@ export const getFormattedEditorContent = (
                 }
             </div>
             <div className={"tag-icons-container"}>
-                {(displayIndex !== null)
+                {(!!displayIndex)
                     ?
                     <span className="tag-index-span border border-white rounded-sm ">{displayIndex}</span>
                     :
@@ -248,13 +267,6 @@ export const getFormattedEditorContent = (
             </div>
         </div>
     );
-}
-
-export const onDropdownClick = (onClick: any, e: MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-
-    const clickedDropDown = true;
-    onClick({ clickedDropDown });
 }
 
 export const onColorClick = (onClick: any, e: MouseEvent) => {

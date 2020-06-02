@@ -4,11 +4,10 @@ import React, { useState, useRef, useEffect, MouseEvent } from "react";
 import { FontIcon, IconButton } from "office-ui-fabric-react";
 import { ITag, ILabel, FieldType, FieldFormat } from "../../../../models/applicationState";
 import {
-    getFormattedEditorContent,
     ITagClickProps,
     onColorClick,
-    onDropdownClick,
     onNameClick,
+    FormattedItemEditor
 } from "../tagInput/tagInputItem";
 import { IGenerator } from "../../pages/editorPage/editorPage";
 
@@ -24,20 +23,12 @@ export interface IGeneratorEditorProps {
     isRenaming: boolean;
     /** Tag is currently selected */
     isSelected: boolean;
-    /** Function to call upon clicking item */
     onClick: (props: ITagClickProps) => void;
-    /** Apply new name to tag */
     onRename: (newName: string, cancelCallback: () => void) => void;
     cancelRename: () => void;
     setRef: (divRef: React.MutableRefObject<HTMLDivElement>) => void;
     onEnter: () => void,
     onLeave: () => void,
-}
-
-const strings = {
-    generator: {
-        contextualMenu: "Context"
-    }
 }
 
 const GeneratorEditor: React.FunctionComponent<IGeneratorEditorProps> = (props) => {
@@ -99,17 +90,16 @@ const GeneratorEditor: React.FunctionComponent<IGeneratorEditorProps> = (props) 
                         <div
                             className={"tag-content pr-2"}
                             onClick={onNameClick.bind(this, props.onClick)}>
-                            {getFormattedEditorContent(
-                                props.region,
-                                null,
-                                props.onEnter,
-                                props.onLeave,
-                                inputElement,
-                                props.isRenaming,
-                                onInputBlur,
-                                onDropdownClick.bind(this, props.onClick),
-                                onInputKeyDown,
-                            )}
+                            <FormattedItemEditor
+                                item={props.region}
+                                onMouseEnter={props.onEnter}
+                                onMouseLeave={props.onLeave}
+                                inputRef={inputElement}
+                                isRenaming={props.isRenaming}
+                                onInputBlur={onInputBlur}
+                                onClick={props.onClick}
+                                onInputKeyDown={onInputKeyDown}
+                            />
                         </div>
                     </div>
                 }
