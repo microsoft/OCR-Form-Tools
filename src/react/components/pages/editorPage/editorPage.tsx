@@ -226,6 +226,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             return (<div>Loading...</div>);
         }
 
+        const namedItems = [...this.props.project.tags, ...this.state.generators];
         return (
             <div className="editor-page skipToMainContent" id="pageEditor">
                 {this.state.tableToView !== null &&
@@ -333,6 +334,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                         <TagInput
                                             tagsLoaded={this.state.tagsLoaded}
                                             tags={this.props.project.tags}
+                                            namedItems={namedItems}
                                             lockedTags={this.state.lockedTags}
                                             selectedRegions={this.state.selectedRegions}
                                             labels={labels}
@@ -363,6 +365,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                         <GeneratorPane
                                             generatorsLoaded={true}
                                             generators={this.state.generators}
+                                            namedItems={namedItems}
                                             selectedIndex={this.state.selectedGeneratorIndex}
                                             onSelectedGenerator={this.onSelectedGenerator}
                                             onGeneratorsChanged={this.onGeneratorsChanged}

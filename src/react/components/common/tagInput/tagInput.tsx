@@ -43,6 +43,8 @@ export enum TagOperationMode {
 export interface ITagInputProps {
     /** Current list of tags */
     tags: ITag[];
+    /** Named items */
+    namedItems: NamedItem[];
     /** Function called on tags change */
     onChange: (tags: ITag[]) => void;
     /** Currently selected regions in canvas */
@@ -383,7 +385,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 appliedToSelectedRegions: selectedRegionTagSet.has(tag.name),
                 onClick: this.onTagItemClick.bind(this, tag),
                 cancelRename: onCancel,
-                onRename: onItemRename.bind(this, this.props.tags, tag, onCancel, this.props.onRename), // TODO use global tags
+                onRename: onItemRename.bind(this, this.props.namedItems, tag, onCancel, this.props.onRename), // TODO use global tags
             } as ITagInputItemProps
         ));
     }

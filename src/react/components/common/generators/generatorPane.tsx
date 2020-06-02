@@ -16,7 +16,7 @@ import { dark, TagOperationMode, onItemRename, FormattedItemContextMenu, ColorPi
 import { toast } from "react-toastify";
 import { ITagClickProps } from "../tagInput/tagInputItem";
 
-import { FormattedItem } from "../../../../models/applicationState";
+import { FormattedItem, NamedItem } from "../../../../models/applicationState";
 import TagInputToolbar, { ItemToolbarOptions } from "../tagInput/tagInputToolbar";
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../../common/tagColors.json");
@@ -32,7 +32,8 @@ const tagColors = require("../../common/tagColors.json");
  * @member generatorRegion - Info for selected region
  */
 export interface IGeneratorPaneProps {
-    generators: IGenerator[]
+    generators: IGenerator[],
+    namedItems: NamedItem[],
     selectedIndex: number,
     generatorsLoaded: boolean,
     onSelectedGenerator: (region?: IGenerator) => void,
@@ -112,7 +113,7 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
     }
 
     const renderGenerators = () => {
-        const { generators, selectedIndex } = props;
+        const { generators, selectedIndex, namedItems } = props;
         let regions = generators;
         if (searchQuery.length) {
             regions = regions.filter((r) => !r.name ||
@@ -128,7 +129,7 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
             isSelected: index === selectedIndex,
             onClick: onEditorClick.bind(this, r),
             cancelRename: onCancel,
-            onRename: onItemRename.bind(this, generators, r, onCancel, handleNameChange),
+            onRename: onItemRename.bind(this, namedItems, r, onCancel, handleNameChange),
             setRef: (divRef) => setItemRef(divRef, r),
             onEnter: props.onEditorEnter.bind(this, r),
             onLeave: props.onEditorLeave.bind(this, r),
