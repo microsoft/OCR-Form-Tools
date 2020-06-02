@@ -23,14 +23,8 @@ const tagColors = require("../../common/tagColors.json");
 
 /**
  * TODO
- * per region info bugbash
- * regression test for tags
  * onleave and onenter
- * num copies info
- * add search bar
- * ughhh we probably need logic to not conflict with old tagssssss
- *
- * enable context menu
+ * logic to not conflict with tag names
  */
 
 /**
@@ -80,14 +74,11 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
     const selectedGenerator = props.selectedIndex !== -1 ? props.generators[props.selectedIndex]: null;
 
     const onEditorClick = (region: IGenerator, clickProps: ITagClickProps) => {
-        // props describe the type of click that occurred
-        // TODO add them props back (needed for the type assignment)
-        // TODO support color again
         const { selectedIndex } = props;
         const selected = selectedGenerator && selectedGenerator.uid === region.uid;
         let newOperation;
         if (clickProps.clickedDropDown) {
-            const showContextualMenu = !selectedIndex || !selected
+            const showContextualMenu = !selectedGenerator || !selected
                 || operation !== TagOperationMode.ContextualMenu;
             newOperation = showContextualMenu ? TagOperationMode.ContextualMenu : TagOperationMode.None;
             if (showContextualMenu) {
@@ -169,7 +160,6 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
     }
 
     const onItemChanged = (oldItem: IGenerator, newItem: Partial<IGenerator>) => {
-        // TODO why do we bother with spread if the update is entire?
         const newGenerators = props.generators.map(g => {
             return g.uid === oldItem.uid ? {...g, ...newItem} : g;
         })
@@ -190,7 +180,6 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
         items.splice(currentIndex, 1);
         items.splice(newIndex, 0, item);
         props.onSelectedGenerator(props.generators[newIndex]);
-        // TODO deal with selected index (is that why they tracked the active item instead?)
         props.onGeneratorsChanged(items);
     }
 
