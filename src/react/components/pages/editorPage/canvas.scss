@@ -6,7 +6,7 @@
     height: 100%;
     padding-bottom: 0px;
   }
-  
+
   .map {
     background-color: Gainsboro;
     width: 100%;
@@ -57,7 +57,7 @@
   color: white;
   text-shadow:
      1px  1px 0 #000,
-    -1px -1px 0 #000,  
+    -1px -1px 0 #000,
      1px -1px 0 #000,
     -1px  1px 0 #000,
      1px  1px 0 #000;
@@ -85,4 +85,8 @@
 .tooltip-container {
   width: 100%;
   height: 100%;
+}
+
+.re-run-ocr-item {
+margin-right: 0.5rem;
 }

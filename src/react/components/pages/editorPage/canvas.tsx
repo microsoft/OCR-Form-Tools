@@ -143,12 +143,19 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private tableIDToIndexMap: object;
 
-    public componentDidMount = async () => {
-        this.ocrService = new OCRService(this.props.project);
-        const asset = this.state.currentAsset.asset;
-        await this.loadImage();
-        await this.loadOcr();
-        this.loadLabelData(asset);
+    private loadProject = async () => {
+        if (this.props.project) {
+            this.ocrService = new OCRService(this.props.project);
+            const asset = this.state.currentAsset.asset;
+            await this.loadImage();
+            await this.loadOcr();
+            this.loadLabelData(asset);
+        }
+
+    }
+
+    public componentDidMount =  () => {
+        this.loadProject();
     }
 
     public componentDidUpdate = async (prevProps: Readonly<ICanvasProps>, prevState: Readonly<ICanvasState>) => {
@@ -212,6 +219,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleZoomIn={this.handleCanvasZoomIn}
                     handleZoomOut={this.handleCanvasZoomOut}
                     layers={this.state.layers}
+                    handleReRunOCR={this.loadOcr}
+                    handleReRunOcrForAllDocuments={this.loadProject}
                 />
                 <ImageMap
                     ref={(ref) => this.imageMap = ref}
@@ -940,11 +949,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private loadOcr = async () => {
         const asset = this.state.currentAsset.asset;
+        console.log(asset);
+
         if (asset.isRunningOCR) {
             // Skip loading OCR this time since it's running. This will be triggered again once it's finished.
             return;
         }
         try {
+            // ? OCR
             const ocr = await this.ocrService.getRecognizedText(asset.path, asset.name, this.setOCRStatus);
             if (asset.id === this.state.currentAsset.asset.id) {
                 // since get OCR is async, we only set currentAsset's OCR
