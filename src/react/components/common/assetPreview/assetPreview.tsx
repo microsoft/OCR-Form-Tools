@@ -86,7 +86,7 @@ export class AssetPreview extends React.Component<IAssetPreviewProps, IAssetPrev
 
     public render() {
         const { loaded, hasError } = this.state;
-        const size = this.props.asset.size;
+        const { size } = this.props.asset;
         const classNames = ["asset-preview"];
         if (size) {
             if (size.width > size.height) {
