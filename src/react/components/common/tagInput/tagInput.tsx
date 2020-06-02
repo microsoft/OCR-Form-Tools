@@ -21,7 +21,7 @@ import { ColorPicker } from "../colorPicker";
 import "./tagInput.scss";
 import "../condensedList/condensedList.scss";
 import TagInputItem, { ITagInputItemProps, ITagClickProps } from "./tagInputItem";
-import TagInputToolbar from "./tagInputToolbar";
+import TagInputToolbar, {ItemToolbarOptions} from "./tagInputToolbar";
 import { toast } from "react-toastify";
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../../common/tagColors.json");
@@ -165,25 +165,31 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     public render() {
 
         const { selectedTag, tagOperation } = this.state;
-        // Uhm, don't we re-render every time? What exactly is happening here
-        // TODO
         const selectedRef = selectedTag ? this.tagItemRefs.get(selectedTag.name).getTagNameRef() : null;
-
+        const toolbarOpts = [
+            ItemToolbarOptions.add,
+            ItemToolbarOptions.search,
+            ItemToolbarOptions.rename,
+            ItemToolbarOptions.moveDown,
+            ItemToolbarOptions.moveUp,
+            ItemToolbarOptions.delete,
+        ]
         return (
             <div className="tag-input">
                 <div ref={this.headerRef} className="tag-input-header p-2">
                     <span className="tag-input-title">{strings.tags.title}</span>
                     <TagInputToolbar
-                        selectedTag={this.state.selectedTag}
-                        onAddTags={() => this.setState({ addTags: !this.state.addTags })}
-                        onSearchTags={() => this.setState({
+                        selected={this.state.selectedTag}
+                        onAdd={() => this.setState({ addTags: !this.state.addTags })}
+                        onSearch={() => this.setState({
                             searchTags: !this.state.searchTags,
                             searchQuery: "",
                         })}
-                        onRenameTag={this.toggleRenameMode}
-                        onLockTag={this.onLockTag}
+                        onRename={this.toggleRenameMode}
+                        onLock={this.onLockTag}
                         onDelete={this.onDeleteTag}
                         onReorder={this.onReOrder}
+                        options={toolbarOpts}
                     />
                 </div>
                 {

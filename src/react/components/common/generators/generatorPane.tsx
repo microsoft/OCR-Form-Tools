@@ -3,9 +3,6 @@
 
 import React, { useState, useRef, KeyboardEvent } from "react";
 import {
-    ContextualMenu,
-    ContextualMenuItemType,
-    IContextualMenuItem,
     FontIcon,
     Spinner,
     SpinnerSize,
@@ -17,9 +14,10 @@ import GeneratorEditor from "./generatorEditor";
 import { IGenerator, IGeneratorRegion } from "../../pages/editorPage/editorPage";
 import { dark, TagOperationMode, onItemRename, FormattedItemContextMenu, ColorPickerPortal } from "../tagInput/tagInput";
 import { toast } from "react-toastify";
-import TagInputItem, { ITagClickProps } from "../tagInput/tagInputItem";
+import { ITagClickProps } from "../tagInput/tagInputItem";
 
 import { FormattedItem } from "../../../../models/applicationState";
+import TagInputToolbar, { ItemToolbarOptions } from "../tagInput/tagInputToolbar";
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../../common/tagColors.json");
 
@@ -222,29 +220,28 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
     // TODO shouldn't the color portal be aligned to the itemref and not the headerref?
     const selectedRef = selectedGenerator ? itemRefs.current.get(selectedGenerator.name) : null;
 
-    /**
-     * Ok so the current flow here is that
-     * Everytime we render, ref map clears and we thus don't have anything @ selectedRef
-     * What taginput does is it gets the component (which somehow is not cleared?) and takes the ref stored on that component
-     * TagInput has no gap between clearing and setting the next set, which is why it works.
-     * How can we do that too?
-     */
+    const toolbarOpts = [
+        ItemToolbarOptions.search,
+        ItemToolbarOptions.rename,
+        ItemToolbarOptions.moveDown,
+        ItemToolbarOptions.moveUp,
+        ItemToolbarOptions.delete,
+    ]
     return (
         <div className="tag-input">
             <div ref={headerRef} className="tag-input-header p-2">
                 <span className="tag-input-title">{strings.generator.title}</span>
-                {/* <TagInputToolbar
-                    selectedTag={this.state.selectedTag}
-                    onAddTags={() => this.setState({ addTags: !this.state.addTags })}
-                    onSearchTags={() => this.setState({
-                        searchTags: !this.state.searchTags,
-                        searchQuery: "",
-                    })}
-                    onRenameTag={this.toggleRenameMode}
-                    onLockTag={this.onLockTag}
-                    onDelete={this.onDeleteTag}
-                    onReorder={this.onReOrder}
-                /> */}
+                <TagInputToolbar
+                    selected={selectedGenerator}
+                    onSearch={() => {
+                      setSearchOpen(!searchOpen);
+                      setSearchQuery("");
+                    }}
+                    onRename={toggleRenameMode}
+                    onDelete={onDelete}
+                    onReorder={onReOrder}
+                    options={toolbarOpts}
+                />
             </div>
             <div className="tag-input-body-container">
             {
