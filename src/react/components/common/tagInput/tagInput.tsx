@@ -78,7 +78,6 @@ export interface ITagInputProps {
 }
 
 export interface ITagInputState {
-    tags: ITag[];
     tagOperation: TagOperationMode;
     addTags: boolean;
     searchTags: boolean;
@@ -125,7 +124,6 @@ export const dark: ICustomizations = {
 export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
     public state: ITagInputState = {
-        tags: this.props.tags || [],
         tagOperation: TagOperationMode.None,
         addTags: this.props.showTagInputBox,
         searchTags: this.props.showSearchBox,
@@ -145,7 +143,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             }
 
             this.setState({
-                tags: this.props.tags,
                 selectedTag,
             });
         }
@@ -289,7 +286,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         if (!tag) {
             return;
         }
-        const tags = [...this.state.tags];
+        const tags = [...this.props.tags];
         const currentIndex = tags.indexOf(tag);
         const newIndex = currentIndex + displacement;
         if (newIndex < 0 || newIndex >= tags.length) {
@@ -297,38 +294,34 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         }
         tags.splice(currentIndex, 1);
         tags.splice(newIndex, 0, tag);
-        this.setState({
-            tags,
-        }, () => this.props.onChange(tags));
+        this.props.onChange(tags);
     }
 
     private handleColorChange = (color: string) => {
         const tag = this.state.selectedTag;
-        const tags = this.state.tags.map((t) => {
+        const tags = this.props.tags.map((t) => {
             return (isNameEqual(t.name, tag.name)) ? {
                 ...tag,
                 color,
             } : t;
         });
         this.setState({
-            tags,
             tagOperation: TagOperationMode.None,
-        }, () => this.props.onChange(tags));
+        });
+        this.props.onChange(tags);
     }
 
     private addTag = (tag: ITag) => {
         try {
             validateNameLength(tag);
-            validateNameUniqueness(tag, this.state.tags);
+            validateNameUniqueness(tag, this.props.tags);
         } catch (error) {
             toast.warn(error.toString());
             return;
         }
 
-        const tags = [...this.state.tags, tag];
-        this.setState({
-            tags,
-        }, () => this.props.onChange(tags));
+        const tags = [...this.props.tags, tag];
+        this.props.onChange(tags);
     }
 
     private onDeleteTag = (tag: ITag) => {
@@ -369,13 +362,15 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     private createTagItemProps = (): ITagInputItemProps[] => {
-        const { tags, selectedTag, tagOperation } = this.state;
+        const { selectedTag, tagOperation } = this.state;
+        const { tags } = this.props;
         const selectedRegionTagSet = this.getSelectedRegionTagSet();
         const onCancel = () => {
             this.setState({
                 tagOperation: TagOperationMode.None,
             });
         }
+
         return tags.map((tag) => (
             {
                 tag,
@@ -388,7 +383,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 appliedToSelectedRegions: selectedRegionTagSet.has(tag.name),
                 onClick: this.onTagItemClick.bind(this, tag),
                 cancelRename: onCancel,
-                onRename: onItemRename.bind(this, this.state.tags, tag, onCancel, this.props.onRename), // TODO use global tags
+                onRename: onItemRename.bind(this, this.props.tags, tag, onCancel, this.props.onRename), // TODO use global tags
             } as ITagInputItemProps
         ));
     }
@@ -497,12 +492,12 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     private creatTagInput = (value: any) => {
         const newTag: ITag = {
                 name: value,
-                color: getNextColor(this.state.tags),
+                color: getNextColor(this.props.tags),
                 type: FieldType.String,
                 format: FieldFormat.NotSpecified,
                 documentCount: 0,
         };
-        if (newTag.name.length && ![...this.state.tags, newTag].containsDuplicates((t) => t.name)) {
+        if (newTag.name.length && ![...this.props.tags, newTag].containsDuplicates((t) => t.name)) {
             this.addTag(newTag);
         } else if (!newTag.name.length) {
             toast.warn(strings.tags.warnings.emptyName);
@@ -715,7 +710,7 @@ export const validateNameLength = (item: NamedItem) => {
 
 export const validateNameUniqueness = (item: NamedItem, otherItems: NamedItem[]) => {
     if (otherItems.map(i => i.name).some((n) => isNameEqual(n, item.name))) {
-        throw new Error(strings.tags.warnings.existingName);
+        throw new Error(strings.tags.warnings.existingName); // TODO probably update this string
     }
 }
 
