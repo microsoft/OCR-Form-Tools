@@ -147,7 +147,7 @@ const TagInputToolbar: React.FunctionComponent<ITagInputToolbarProps> = (props) 
         const searchIndex = props.options.findIndex(p => p === ItemToolbarOptions.search);
         const sepOpts = [...props.options];
         if (searchIndex !== -1) {
-            sepOpts.splice(searchIndex, 0, ItemToolbarOptions.separator);
+            sepOpts.splice(searchIndex+1, 0, ItemToolbarOptions.separator);
         }
 
         return(
