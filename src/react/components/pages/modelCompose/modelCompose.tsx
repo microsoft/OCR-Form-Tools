@@ -231,20 +231,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                             filterTextChange={this.onTextChange}
                             />
                     </div>
-                    {/* <div className="label-filter-background">
-                        <TextField
-                            label="Filter By Name"
-                            className="label-filter-field"
-                            disabled={this.allModels ? false : true}
-                            theme={getPrimaryWhiteTheme()}
-                            onChange={this.onTextChange}>
-                        </TextField>
-                    </div> */}
-                    {/* {this.state.isLoading &&
-                        <Blink
-                            Notification="Model list is still loading">
-                        </Blink>
-                    } */}
                     <ViewSelection
                         selection={this.selection}
                         items={this.state.modelList}
