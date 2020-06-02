@@ -302,6 +302,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             setEditorMode={this.setEditorMode}
                                             generators={this.state.generators}
                                             addGenerator={this.addGeneratorRegion}
+                                            deleteGenerators={this.deleteGeneratorRegions}
                                             onSelectedGeneratorRegion={this.onSelectedGenerator}
                                             project={this.props.project}
                                             lockedTags={this.state.lockedTags}
@@ -819,6 +820,17 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         this.setState({
             generators: [ ...this.state.generators, region],
             selectedGeneratorIndex: this.state.generators.length,
+        });
+    }
+
+    private deleteGeneratorRegions = (regions: IGeneratorRegion[]) => {
+        // this may come from a component update (which should be registered here)
+        // or a canvas delete (which is a bubble up)
+        const oldGenerators = [...this.state.generators];
+        const newGenerators = oldGenerators.filter(g => regions.findIndex(r => r.uid === g.uid) === -1);
+        this.setState({
+            generators: newGenerators,
+            selectedGeneratorIndex: -1, // safe bet
         });
     }
 

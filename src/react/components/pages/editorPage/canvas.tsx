@@ -57,6 +57,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onRunningOCRStatusChanged?: (isRunning: boolean) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
     addGenerator?: (info: IGenerator) => void;
+    deleteGenerators?: (generators: IGeneratorRegion[]) => void;
     onSelectedGeneratorRegion?: (info?: IGeneratorRegion) => void;
 }
 
@@ -200,14 +201,15 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
 
         if (this.props.generators !== prevProps.generators) {
-            // Get the generators no longer here
             const removedGenerators = [];
             prevProps.generators.forEach(g => {
                 if (this.props.generators.indexOf(g) === -1) {
                     removedGenerators.push(g);
                 }
             });
-            this.deleteGeneratorRegions(removedGenerators);
+            if (removedGenerators.length > 0) {
+                this.deleteGeneratorRegions(removedGenerators);
+            }
         }
     }
 
@@ -500,6 +502,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private deleteGeneratorRegions = (regions: IGeneratorRegion[]) => {
         // TODO parity with deleteRegions
         this.deleteGeneratorRegionsFromImageMap(regions);
+        this.props.deleteGenerators(regions);
     }
 
     private deleteGeneratorRegionsFromImageMap = (regions: IGeneratorRegion[]) => {
