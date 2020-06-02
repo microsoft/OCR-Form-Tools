@@ -96,7 +96,8 @@ export interface IEditorPageState {
     generators: IGenerator[];
     /** Most recently active generator */
     selectedGeneratorIndex: number;
-    // TODO support asset generator settings
+    /** The currently hovered GeneratorEditor */
+    hoveredGenerator: IGenerator;
 
     /** Most recently selected tag */
     selectedTag: string;
@@ -155,6 +156,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         editorMode: EditorMode.Select,
         generators: [], // TODO move this out
         selectedGeneratorIndex: -1,
+        hoveredGenerator: null,
         thumbnailSize: { width: 175, height: 155 },
         isValid: true,
         showInvalidRegionWarning: false,
@@ -298,6 +300,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             onRunningOCRStatusChanged={this.onCanvasRunningOCRStatusChanged}
                                             onTagChanged={this.onTagChanged}
                                             activeGeneratorRegionId={this.getActiveGeneratorId()}
+                                            hoveredGenerator={this.state.hoveredGenerator}
                                             editorMode={this.state.editorMode}
                                             setEditorMode={this.setEditorMode}
                                             generators={this.state.generators}
@@ -362,6 +365,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                         onSelectedGenerator={this.onSelectedGenerator}
                                         onGeneratorsChanged={this.onGeneratorsChanged}
                                         onGeneratorDeleted={this.onGeneratorDeleted}
+                                        onEditorEnter={this.onGeneratorEnter}
+                                        onEditorLeave={this.onGeneratorLeave}
                                     />
                                 </SplitPane>
 
@@ -786,6 +791,15 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     private onLabelLeave = (label: ILabel) => {
         this.setState({hoveredLabel: null});
+    }
+
+    private onGeneratorEnter = (hoveredGenerator: IGenerator) => {
+        // TODO currently only attached to editor, not canvas
+        this.setState({hoveredGenerator});
+    }
+
+    private onGeneratorLeave = (generator: IGenerator) => {
+        this.setState({hoveredGenerator: null});
     }
 
     private onCanvasRunningOCRStatusChanged = (isCanvasRunningOCR: boolean) => {

@@ -46,7 +46,8 @@ export interface ICanvasProps extends React.Props<Canvas> {
     lockedTags: string[];
     hoveredLabel: ILabel;
     activeGeneratorRegionId?: string;
-    generators: IGeneratorRegion[];
+    generators: IGenerator[];
+    hoveredGenerator: IGeneratorRegion;
     children?: ReactElement<AssetPreview>;
     setEditorMode: (mode: EditorMode) => void,
     setTableToView?: (tableToView: object, tableToViewId: string) => void;
@@ -114,6 +115,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         lockedTags: [],
         hoveredLabel: null,
         generators: [],
+        hoveredGenerator: null,
     };
 
     public state: ICanvasState = {
@@ -196,6 +198,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.imageMap.getAllLabelFeatures().map(this.updateHighlightStatus);
         }
 
+        if (this.props.hoveredGenerator !== prevProps.hoveredGenerator) {
+            // TODO Update when we reach feature parity
+            this.imageMap.getAllGeneratorFeatures().forEach((f) => this.updateGeneratorHighlight(f, this.props.hoveredGenerator));
+        }
+
         if (this.props.activeGeneratorRegionId !== prevProps.activeGeneratorRegionId) {
             this.redrawFeatures(this.imageMap.getAllGeneratorFeatures());
         }
@@ -203,7 +210,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (this.props.generators !== prevProps.generators) {
             const removedGenerators = [];
             prevProps.generators.forEach(g => {
-                if (this.props.generators.indexOf(g) === -1) {
+                if (this.props.generators.findIndex(newG => newG.uid === g.uid) === -1) {
                     removedGenerators.push(g);
                 }
             });
@@ -211,6 +218,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 this.deleteGeneratorRegions(removedGenerators);
             }
         }
+
     }
 
     public render = () => {
@@ -743,12 +751,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private generatorFeatureStyler = (feature) => {
         const regionId = feature["ol_uid"];
+        // TODO id-ing when we attach the generator to the asset
+        const region = this.props.generators.find(g => g.uid === regionId);
         // Selected
         if (regionId && this.props?.activeGeneratorRegionId === regionId) {
             return new Style({
                 stroke: new Stroke({
-                    color: "#6eff40",
-                    width: 1,
+                    color: region.color,
+                    width: feature.get("highlighted") ? 4 : 2,
                 }),
                 fill: new Fill({
                     color: "rgba(110, 255, 80, 0.4)",
@@ -756,16 +766,18 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             });
         } else {
             // Unselected
-            // TODO - address highlighting
-            // const highlighted = feature.get("highlighted"); // hmm, we're getting something different since we have a dict and they use get
-            // TODO proper color piping once we attach the generator to the asset
+            const highlighted = feature.get("highlighted"); // hmm, we're getting something different since we have a dict and they use get
+            let color = "rgb(255, 255, 255, 0)";
+            if (highlighted) {
+                color = hexToRgba(region.color, 0.3);
+            }
             return new Style({
                 stroke: new Stroke({
-                    color: "#f7dc52",
-                    width: 1,
+                    color: region.color,
+                    width: highlighted ? 4 : 2,
                 }),
                 fill: new Fill({
-                    color: "rgba(255, 152, 57, 0.4)",
+                    color,
                 }),
             });
         }
@@ -885,6 +897,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 this.setFeatureProperty(feature, "highlighted", true);
             }
         } else if (feature.get("highlighted")) {
+            this.setFeatureProperty(feature, "highlighted", false);
+        }
+    }
+
+    private updateGeneratorHighlight = (feature: any, hoveredItem: IGeneratorRegion): void => {
+        if (hoveredItem && hoveredItem.uid === feature["ol_uid"]) {
+            this.setFeatureProperty(feature, "highlighted", true);
+        } else {
             this.setFeatureProperty(feature, "highlighted", false);
         }
     }

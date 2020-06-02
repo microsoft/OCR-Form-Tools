@@ -30,6 +30,8 @@ export interface IGeneratorEditorProps {
     onRename: (newName: string, cancelCallback: () => void) => void;
     cancelRename: () => void;
     setRef: (divRef: React.MutableRefObject<HTMLDivElement>) => void;
+    onEnter: () => void,
+    onLeave: () => void,
 }
 
 const strings = {
@@ -100,8 +102,8 @@ const GeneratorEditor: React.FunctionComponent<IGeneratorEditorProps> = (props) 
                             {getFormattedEditorContent(
                                 props.region,
                                 null,
-                                ()=>{},
-                                ()=>{},
+                                props.onEnter,
+                                props.onLeave,
                                 inputElement,
                                 props.isRenaming,
                                 onInputBlur,

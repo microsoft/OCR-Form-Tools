@@ -35,9 +35,11 @@ export interface IGeneratorPaneProps {
     generators: IGenerator[]
     selectedIndex: number,
     generatorsLoaded: boolean,
-    onSelectedGenerator: (region?: IGeneratorRegion) => void,
+    onSelectedGenerator: (region?: IGenerator) => void,
     onGeneratorsChanged: (newGenerators?: IGenerator[]) => void,
     onGeneratorDeleted: (deletedGenerator: IGenerator) => void,
+    onEditorEnter: (generator: IGenerator) => void,
+    onEditorLeave: (generator: IGenerator) => void,
     // skipping onRename, onDelete for now
 }
 
@@ -119,7 +121,7 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
         const onCancel = () => {
             setOperation(TagOperationMode.None);
         }
-        const perRegionProps = regions.map((r,index) => ({
+        const editorProps = regions.map((r,index) => ({
             region: r,
             index: 1, // why?
             isRenaming: operation === TagOperationMode.Rename && index === selectedIndex,
@@ -127,12 +129,14 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
             onClick: onEditorClick.bind(this, r),
             cancelRename: onCancel,
             onRename: onItemRename.bind(this, generators, r, onCancel, handleNameChange),
-            setRef: (divRef) => setItemRef(divRef, r)
+            setRef: (divRef) => setItemRef(divRef, r),
+            onEnter: props.onEditorEnter.bind(this, r),
+            onLeave: props.onEditorLeave.bind(this, r),
         }));
         itemRefs.current.clear();
         return regions.map((r, index) =>
             <GeneratorEditor
-                {...perRegionProps[index]}
+                {...editorProps[index]}
                 key={r.uid}
             />);
     }
