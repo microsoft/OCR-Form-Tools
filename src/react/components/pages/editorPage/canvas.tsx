@@ -510,7 +510,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private deleteGeneratorRegions = (regions: IGeneratorRegion[]) => {
         // TODO parity with deleteRegions
         this.deleteGeneratorRegionsFromImageMap(regions);
-        this.props.deleteGenerators(regions);
     }
 
     private deleteGeneratorRegionsFromImageMap = (regions: IGeneratorRegion[]) => {
@@ -1317,7 +1316,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             case "Delete":
             case "Backspace":
                 this.deleteRegions(this.getSelectedRegions());
-                this.deleteGeneratorRegions([this.getSelectedGenerator()]);
+                this.props.deleteGenerators([this.getSelectedGenerator()]);
                 break;
 
             case "<":

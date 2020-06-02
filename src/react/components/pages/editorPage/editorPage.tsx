@@ -173,6 +173,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private renameTagConfirm: React.RefObject<Confirm> = React.createRef();
     private renameCanceled: () => void;
     private deleteTagConfirm: React.RefObject<Confirm> = React.createRef();
+    private deleteGeneratorConfirm: React.RefObject<Confirm> = React.createRef();
     private isUnmount: boolean = false;
 
     constructor(props) {
@@ -305,7 +306,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             setEditorMode={this.setEditorMode}
                                             generators={this.state.generators}
                                             addGenerator={this.addGeneratorRegion}
-                                            deleteGenerators={this.deleteGeneratorRegions}
+                                            deleteGenerators={this.confirmGeneratorsDeleted}
                                             onSelectedGeneratorRegion={this.onSelectedGenerator}
                                             project={this.props.project}
                                             lockedTags={this.state.lockedTags}
@@ -347,27 +348,34 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             ref = {this.tagInputRef}
                                         />
                                         <Confirm title={strings.editorPage.tags.rename.title}
-                                        ref={this.renameTagConfirm}
-                                        message={strings.editorPage.tags.rename.confirmation}
-                                        confirmButtonTheme={getPrimaryRedTheme()}
-                                        onCancel={this.onTagRenameCanceled}
-                                        onConfirm={this.onTagRenamed} />
+                                            ref={this.renameTagConfirm}
+                                            message={strings.editorPage.tags.rename.confirmation}
+                                            confirmButtonTheme={getPrimaryRedTheme()}
+                                            onCancel={this.onTagRenameCanceled}
+                                            onConfirm={this.onTagRenamed} />
                                         <Confirm title={strings.editorPage.tags.delete.title}
                                             ref={this.deleteTagConfirm}
                                             message={strings.editorPage.tags.delete.confirmation}
                                             confirmButtonTheme={getPrimaryRedTheme()}
                                             onConfirm={this.onTagDeleted} />
                                     </div>
-                                    <GeneratorPane
-                                        generatorsLoaded={true}
-                                        generators={this.state.generators}
-                                        selectedIndex={this.state.selectedGeneratorIndex}
-                                        onSelectedGenerator={this.onSelectedGenerator}
-                                        onGeneratorsChanged={this.onGeneratorsChanged}
-                                        onGeneratorDeleted={this.onGeneratorDeleted}
-                                        onEditorEnter={this.onGeneratorEnter}
-                                        onEditorLeave={this.onGeneratorLeave}
-                                    />
+                                    <div>
+                                        <GeneratorPane
+                                            generatorsLoaded={true}
+                                            generators={this.state.generators}
+                                            selectedIndex={this.state.selectedGeneratorIndex}
+                                            onSelectedGenerator={this.onSelectedGenerator}
+                                            onGeneratorsChanged={this.onGeneratorsChanged}
+                                            onGeneratorsDeleted={this.confirmGeneratorsDeleted}
+                                            onEditorEnter={this.onGeneratorEnter}
+                                            onEditorLeave={this.onGeneratorLeave}
+                                            />
+                                        <Confirm title={"Delete Generator"}
+                                            ref={this.deleteGeneratorConfirm}
+                                            message={"Are you sure you want to delete?"}
+                                            confirmButtonTheme={getPrimaryRedTheme()}
+                                            onConfirm={this.onGeneratorsDeleted} />
+                                    </div>
                                 </SplitPane>
 
                             </div>
@@ -492,6 +500,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      */
     private confirmTagDeleted = (tagName: string): void => {
         this.deleteTagConfirm.current.open(tagName);
+    }
+
+    private confirmGeneratorsDeleted = (ctx: IGenerator[]): void => {
+        this.deleteGeneratorConfirm.current.open(ctx);
     }
 
     /**
@@ -837,17 +849,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         });
     }
 
-    private deleteGeneratorRegions = (regions: IGeneratorRegion[]) => {
-        // this may come from a component update (which should be registered here)
-        // or a canvas delete (which is a bubble up)
-        const oldGenerators = [...this.state.generators];
-        const newGenerators = oldGenerators.filter(g => regions.findIndex(r => r.uid === g.uid) === -1);
-        this.setState({
-            generators: newGenerators,
-            selectedGeneratorIndex: -1, // safe bet
-        });
-    }
-
     private onSelectedGenerator = (selectedGenerator?: IGeneratorRegion) => {
         if (!selectedGenerator) {
             this.setState({
@@ -875,13 +876,16 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         this.setState({generators});
     }
 
-    private onGeneratorDeleted = (generator: IGenerator) => {
-        // TODO hook up - it only deletes the tag atm
-        const { generators } = this.state;
-        const oldRegionIndex = generators.findIndex(r => r.uid === generator.uid);
-        const newGenerators = [...generators];
-        newGenerators.splice(oldRegionIndex, 1);
-        this.setState({generators: newGenerators});
+    private onGeneratorsDeleted = (regions: IGeneratorRegion | IGeneratorRegion[]) => {
+        const deletedRegions = Array.isArray(regions) ? regions : [regions];
+        // this may come from a component update (which should be registered here)
+        // or a canvas delete (which is a bubble up)
+        const oldGenerators = [...this.state.generators];
+        const newGenerators = oldGenerators.filter(g => deletedRegions.findIndex(r => r.uid === g.uid) === -1);
+        this.setState({
+            generators: newGenerators,
+            selectedGeneratorIndex: -1, // safe bet
+        });
     }
 
     private getActiveGeneratorId = () => {

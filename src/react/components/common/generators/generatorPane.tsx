@@ -37,7 +37,7 @@ export interface IGeneratorPaneProps {
     generatorsLoaded: boolean,
     onSelectedGenerator: (region?: IGenerator) => void,
     onGeneratorsChanged: (newGenerators?: IGenerator[]) => void,
-    onGeneratorDeleted: (deletedGenerator: IGenerator) => void,
+    onGeneratorsDeleted: (deletedGenerator: IGenerator[]) => void,
     onEditorEnter: (generator: IGenerator) => void,
     onEditorLeave: (generator: IGenerator) => void,
     // skipping onRename, onDelete for now
@@ -191,7 +191,7 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
         if (!item) {
             return;
         }
-        props.onGeneratorDeleted(item);
+        props.onGeneratorsDeleted([item]);
     }
 
     const handleColorChange = (color: string) => {
