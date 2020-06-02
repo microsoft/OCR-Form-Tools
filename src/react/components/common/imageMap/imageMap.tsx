@@ -287,6 +287,9 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.labelVectorLayer.getSource().removeFeature(feature);
     }
 
+    public removeGeneratorFeature = (feature: Feature) => {
+        this.generatorVectorLayer.getSource().removeFeature(feature);
+    }
     /**
      * Remove all features from the map
      */

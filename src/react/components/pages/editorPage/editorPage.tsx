@@ -300,6 +300,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             activeGeneratorRegionId={this.getActiveGeneratorId()}
                                             editorMode={this.state.editorMode}
                                             setEditorMode={this.setEditorMode}
+                                            generators={this.state.generators}
                                             addGenerator={this.addGeneratorRegion}
                                             onSelectedGeneratorRegion={this.onSelectedGenerator}
                                             project={this.props.project}
@@ -852,7 +853,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         // TODO hook up - it only deletes the tag atm
         const { generators } = this.state;
         const oldRegionIndex = generators.findIndex(r => r.uid === generator.uid);
-        const newGenerators = generators.splice(oldRegionIndex, 1);
+        const newGenerators = [...generators];
+        newGenerators.splice(oldRegionIndex, 1);
         this.setState({generators: newGenerators});
     }
 

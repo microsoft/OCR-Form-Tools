@@ -46,6 +46,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     lockedTags: string[];
     hoveredLabel: ILabel;
     activeGeneratorRegionId?: string;
+    generators: IGeneratorRegion[];
     children?: ReactElement<AssetPreview>;
     setEditorMode: (mode: EditorMode) => void,
     setTableToView?: (tableToView: object, tableToViewId: string) => void;
@@ -111,6 +112,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         project: null,
         lockedTags: [],
         hoveredLabel: null,
+        generators: [],
     };
 
     public state: ICanvasState = {
@@ -195,6 +197,17 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
         if (this.props.activeGeneratorRegionId !== prevProps.activeGeneratorRegionId) {
             this.redrawFeatures(this.imageMap.getAllGeneratorFeatures());
+        }
+
+        if (this.props.generators !== prevProps.generators) {
+            // Get the generators no longer here
+            const removedGenerators = [];
+            prevProps.generators.forEach(g => {
+                if (this.props.generators.indexOf(g) === -1) {
+                    removedGenerators.push(g);
+                }
+            });
+            this.deleteGeneratorRegions(removedGenerators);
         }
     }
 
@@ -367,6 +380,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         return this.state.currentAsset.regions.filter((r) => this.selectedRegionIds.find((id) => r.id === id));
     }
 
+    private getSelectedGenerator = (): IGeneratorRegion => {
+        return this.props.activeGeneratorRegionId ?
+            this.props.generators.find(g => g.uid === this.props.activeGeneratorRegionId) : null;
+    }
+
     private addRegions = (regions: IRegion[]) => {
         this.addRegionsToAsset(regions);
         this.addRegionsToImageMap(regions.filter((region) => region.pageNumber === this.state.currentPage));
@@ -477,6 +495,23 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         selectedLabelledFeatures.map((feature) => this.imageMap.removeLabelFeature(feature));
 
         this.redrawAllFeatures();
+    }
+
+    private deleteGeneratorRegions = (regions: IGeneratorRegion[]) => {
+        // TODO parity with deleteRegions
+        this.deleteGeneratorRegionsFromImageMap(regions);
+    }
+
+    private deleteGeneratorRegionsFromImageMap = (regions: IGeneratorRegion[]) => {
+        if (this.imageMap == null) {
+            return;
+        }
+
+        const generatorFeatures = this.imageMap.getAllGeneratorFeatures();
+        const selectedGeneratorFeatures = generatorFeatures
+            .filter((feature) => regions.findIndex(r => r.uid === feature["ol_uid"]) !== -1);
+        selectedGeneratorFeatures.map(this.imageMap.removeGeneratorFeature);
+        this.redrawFeatures(this.imageMap.getAllGeneratorFeatures());
     }
 
     /**
@@ -1158,8 +1193,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.redrawFeatures(this.imageMap.getAllGeneratorFeatures());
     }
 
-    // TODO handle selection
-
     private convertLabelDataToRegions = (labelData: ILabelData): IRegion[] => {
         const regions = [];
 
@@ -1261,6 +1294,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             case "Delete":
             case "Backspace":
                 this.deleteRegions(this.getSelectedRegions());
+                this.deleteGeneratorRegions([this.getSelectedGenerator()]);
                 break;
 
             case "<":
