@@ -72,6 +72,7 @@ export interface ICanvasState {
     layers: any;
     tableIconTooltip: any;
     hoveringFeature: string;
+    rerunOcr: boolean;
 }
 
 interface IRegionOrder {
@@ -123,6 +124,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         layers: {text: true, tables: true, checkboxes: true, label: true},
         tableIconTooltip: { display: "none", width: 0, height: 0, top: 0, left: 0},
         hoveringFeature: null,
+        rerunOcr: false,
     };
 
     private imageMap: ImageMap;
@@ -191,6 +193,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (this.props.hoveredLabel !== prevProps.hoveredLabel) {
             this.imageMap.getAllLabelFeatures().map(this.updateHighlightStatus);
         }
+        if (this.state.rerunOcr) {
+            this.loadOcr();
+            this.setState({ rerunOcr: false })
+        }
     }
 
     public render = () => {
@@ -219,8 +225,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleZoomIn={this.handleCanvasZoomIn}
                     handleZoomOut={this.handleCanvasZoomOut}
                     layers={this.state.layers}
-                    handleReRunOCR={this.loadOcr}
-                    handleReRunOcrForAllDocuments={this.loadProject}
+                    handleReRunOCR={this.setRerunOCR}
+                    handleReRunOcrForAllDocuments={()=>console.log("* all")}
                 />
                 <ImageMap
                     ref={(ref) => this.imageMap = ref}
@@ -947,6 +953,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         });
     }
 
+    private setRerunOCR = async () => {
+        this.setState({ rerunOcr: true });
+    }
+
     private loadOcr = async () => {
         const asset = this.state.currentAsset.asset;
         console.log(asset);
@@ -956,8 +966,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             return;
         }
         try {
-            // ? OCR
-            const ocr = await this.ocrService.getRecognizedText(asset.path, asset.name, this.setOCRStatus);
+            const ocr = await this.ocrService.getRecognizedText(asset.path, asset.name, this.setOCRStatus, this.state.rerunOcr);
             if (asset.id === this.state.currentAsset.asset.id) {
                 // since get OCR is async, we only set currentAsset's OCR
                 this.setState({
