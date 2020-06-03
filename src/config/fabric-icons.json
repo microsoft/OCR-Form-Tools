@@ -7,6 +7,10 @@
   "hashFontFileName": true,
   "glyphs": [
     {
+      "name": "KeyPhraseExtraction",
+      "unicode": "E395"
+    },
+    {
       "name": "Insights",
       "unicode": "E3AF"
     },

@@ -131,6 +131,9 @@ export const english: IAppStrings = {
         defaultLocalFileInput: "Browse for a file...",
         defaultURLInput: "Paste or type URL...",
     },
+    receipts: {
+        title: "Receipts (preview)",
+    },
     projectMetrics: {
         title: "Project Metrics",
         assetsSectionTitle: "Assets",

@@ -11,7 +11,8 @@ export function registerIcons() {
         icons: {
             AlertSolid: "\uF331",
             CheckboxComposite: "\uE73A",
-            LabelComposite: "\uE932",
+            Label: "\uE932",
+            KeyPhraseExtraction: "\uE395",
             Insights: "\uE3AF",
             MachineLearning: "\uE3B8",
             TagGroup: "\uE3F6",
