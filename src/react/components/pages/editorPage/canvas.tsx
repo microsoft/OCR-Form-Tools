@@ -52,7 +52,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     setEditorMode: (mode: EditorMode) => void,
     setTableToView?: (tableToView: object, tableToViewId: string) => void;
     closeTableView?: (state: string) => void;
-    onAssetMetadataChanged?: (assetMetadata: IAssetMetadata) => void;
+    onAssetMetadataChanged?: (assetMetadata: IAssetMetadata) => Promise<void>; // * We need to assure that root asset is updated before we update the imagemap
     onSelectedRegionsChanged?: (regions: IRegion[]) => void;
     onCanvasRendered?: (canvas: HTMLCanvasElement) => void;
     onRunningOCRStatusChanged?: (isRunning: boolean) => void;
@@ -535,13 +535,15 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             regions,
             labelData,
         };
-        if (this.imageMap) {
-            this.imageMap.removeAllLabelFeatures();
-            this.addLabelledDataToLayer(regions.filter(
-                (region) => region.tags[0] !== undefined &&
-                region.pageNumber === this.state.currentPage));
-        }
-        this.props.onAssetMetadataChanged(currentAsset);
+
+        this.props.onAssetMetadataChanged(currentAsset).then(() => {
+            if (this.imageMap) {
+                this.imageMap.removeAllLabelFeatures();
+                this.addLabelledDataToLayer(regions.filter(
+                    (region) => region.tags[0] !== undefined &&
+                    region.pageNumber === this.state.currentPage));
+            }
+        });
     }
 
     /**
@@ -1006,7 +1008,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private getTagFromRegionId = (id: string): ITag => {
-        const iRegion = this.getIndexOfCurrentRegions(id);
+        const iRegion = this.getIndexOfCurrentRegions(id); // so prop asset can't find the region, but the state asset does. let's take a look
         if (iRegion >= 0) {
             const tagName = this.props.selectedAsset.regions[iRegion].tags[0];
             return this.props.project.tags.find((tag) => tag.name === tagName);
