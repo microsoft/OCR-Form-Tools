@@ -32,11 +32,11 @@ export function PredictPageRoute() {
 
     useEffect(() => {
         if (prevProjectId !== projectId || prevModelId !== modelId) {
-            setRenderPrediction(false) // unmounts predictionPage on projectId or TrainModelIf change
+            setRenderPrediction(false) // unmounts predictionPageRoute component on projectId or train ModelId change
             setPrevProjectId(projectId);
             setPrevModelId(modelId);
         }
-        return () => {setRenderPrediction(true); console.log("* RERENDER ***************")}
+        return () => setRenderPrediction(true)
     }, [renderPrediction, prevProjectId, projectId, prevModelId, modelId]);
 
     return (renderPrediction &&
