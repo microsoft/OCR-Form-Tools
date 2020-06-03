@@ -68,6 +68,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
         {
             key: "reRunOCR",
             text: "re-OCR",
+            title: "rerun OCR",
             className:  "re-run-ocr-item",
             iconProps: { iconName: "Refresh" },
             subMenuProps: {
