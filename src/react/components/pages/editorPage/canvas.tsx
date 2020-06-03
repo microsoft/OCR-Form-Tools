@@ -63,7 +63,6 @@ export interface ICanvasProps extends React.Props<Canvas> {
 }
 
 export interface ICanvasState {
-    currentAsset: IAssetMetadata;
     imageUri: string;
     imageWidth: number;
     imageHeight: number;
@@ -119,7 +118,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     };
 
     public state: ICanvasState = {
-        currentAsset: this.props.selectedAsset,
         imageUri: null,
         imageWidth: 1024,
         imageHeight: 768,
@@ -158,7 +156,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     public componentDidMount = async () => {
         this.ocrService = new OCRService(this.props.project);
-        const asset = this.state.currentAsset.asset;
+        const asset = this.props.selectedAsset.asset;
         await this.loadImage();
         await this.loadOcr();
         this.loadLabelData(asset);
@@ -166,12 +164,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     public componentDidUpdate = async (prevProps: Readonly<ICanvasProps>, prevState: Readonly<ICanvasState>) => {
         // Handles asset changing
+        // TODO why do we track a currentAsset if we get it in props? What's the difference?
         if (this.props.selectedAsset.asset.name !== prevProps.selectedAsset.asset.name ||
             this.props.selectedAsset.asset.isRunningOCR !== prevProps.selectedAsset.asset.isRunningOCR) {
             this.selectedRegionIds = [];
             this.imageMap.removeAllFeatures();
+            // TODO cleanup of other generator items
             this.setState({
-                currentAsset: this.props.selectedAsset,
                 ocr: null,
                 ocrForCurrentPage: {},
                 numPages: 1,
@@ -181,7 +180,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 tiffImages: [],
                 layers: { tables : true, text: true, checkboxes: true, label: true },
             }, async () => {
-                const asset = this.state.currentAsset.asset;
+                const asset = this.props.selectedAsset.asset;
                 await this.loadImage();
                 await this.loadOcr();
                 this.loadLabelData(asset);
@@ -387,7 +386,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private getSelectedRegions = (): IRegion[] => {
-        return this.state.currentAsset.regions.filter((r) => this.selectedRegionIds.find((id) => r.id === id));
+        return this.props.selectedAsset.regions.filter((r) => this.selectedRegionIds.find((id) => r.id === id));
     }
 
     private getSelectedGenerator = (): IGeneratorRegion => {
@@ -401,7 +400,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private addRegionsToAsset = (regions: IRegion[]) => {
-        const regionsToBeKept = this.state.currentAsset.regions.filter((assetRegion) => {
+        const regionsToBeKept = this.props.selectedAsset.regions.filter((assetRegion) => {
             return regions.findIndex((r) => r.id === assetRegion.id) === -1;
         });
         this.updateAssetRegions(regionsToBeKept.concat(regions));
@@ -473,7 +472,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private deleteRegionsFromAsset = (regions: IRegion[]) => {
-        const filteredRegions = this.state.currentAsset.regions.filter((assetRegion) => {
+        const filteredRegions = this.props.selectedAsset.regions.filter((assetRegion) => {
             return regions.findIndex((r) => r.id === assetRegion.id) === -1;
         });
         this.updateAssetRegions(filteredRegions);
@@ -530,9 +529,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
      * @param selectedRegions
      */
     private updateAssetRegions = (regions: IRegion[]) => {
-        const labelData = this.convertRegionsToLabelData(regions, this.state.currentAsset.asset.name);
+        const labelData = this.convertRegionsToLabelData(regions, this.props.selectedAsset.asset.name);
         const currentAsset: IAssetMetadata = {
-            ...this.state.currentAsset,
+            ...this.props.selectedAsset,
             regions,
             labelData,
         };
@@ -542,11 +541,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 (region) => region.tags[0] !== undefined &&
                 region.pageNumber === this.state.currentPage));
         }
-        this.setState({
-            currentAsset,
-        }, () => {
-            this.props.onAssetMetadataChanged(currentAsset);
-        });
+        this.props.onAssetMetadataChanged(currentAsset);
     }
 
     /**
@@ -556,7 +551,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
      */
     private onRegionDelete = (id: string) => {
         // Remove from project
-        const currentRegions = this.state.currentAsset.regions;
+        const currentRegions = this.props.selectedAsset.regions;
         const deletedRegionIndex = currentRegions.findIndex((region) => region.id === id);
         currentRegions.splice(deletedRegionIndex, 1);
 
@@ -581,7 +576,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
      * @param updates Regions to be updated
      */
     private updateRegions = (updates: IRegion[]) => {
-        const regions = this.state.currentAsset.regions;
+        const regions = this.props.selectedAsset.regions;
         const updatedRegions = [].concat(regions);
         for (const update of updates) {
             const region = regions.find((r) => r.id === update.id);
@@ -784,7 +779,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private labelFeatureStyler = (feature) => {
         const regionId = feature.get("id");
-        const selectedRegion = this.state.currentAsset.regions.find((region) => region.id === regionId);
+        const selectedRegion = this.props.selectedAsset.regions.find((region) => region.id === regionId);
         const tag: ITag = this.getTagFromRegionId(regionId);
         // Selected
         if (this.isRegionSelected(regionId)) {
@@ -924,11 +919,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const selectedRegions = this.getSelectedRegions();
 
         if (category === FeatureCategory.Checkbox ||
-            (category === FeatureCategory.Label && this.state.currentAsset.regions
+            (category === FeatureCategory.Label && this.props.selectedAsset.regions
             .find((r) => r.id === regionId).category === FeatureCategory.Checkbox)) {
                 selectedRegions.forEach((region) => this.removeFromSelectedRegions(region.id));
         } else if (category === FeatureCategory.Text ||
-            (category === FeatureCategory.Label && this.state.currentAsset.regions
+            (category === FeatureCategory.Label && this.props.selectedAsset.regions
             .find((r) => r.id === regionId).category === FeatureCategory.Text)) {
                 selectedRegions.filter((region) => region.category === FeatureCategory.Checkbox)
                     .forEach((region) => this.removeFromSelectedRegions(region.id));
@@ -970,7 +965,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             // skip if it's already existed in selected regions
             return;
         } else if (this.getIndexOfCurrentRegions(regionId) !== -1) {
-            selectedRegion = this.state.currentAsset.regions.find((region) => region.id === regionId);
+            selectedRegion = this.props.selectedAsset.regions.find((region) => region.id === regionId);
             // Explicitly set pageNumber in order to fix incorrect page number
             selectedRegion.pageNumber = this.state.currentPage;
 
@@ -1007,20 +1002,20 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private getIndexOfCurrentRegions = (regionId: string) => {
-        return this.state.currentAsset.regions.findIndex((region) => region.id === regionId);
+        return this.props.selectedAsset.regions.findIndex((region) => region.id === regionId);
     }
 
     private getTagFromRegionId = (id: string): ITag => {
         const iRegion = this.getIndexOfCurrentRegions(id);
         if (iRegion >= 0) {
-            const tagName = this.state.currentAsset.regions[iRegion].tags[0];
+            const tagName = this.props.selectedAsset.regions[iRegion].tags[0];
             return this.props.project.tags.find((tag) => tag.name === tagName);
         }
         return null;
     }
 
     private loadImage = async () => {
-        const asset = this.state.currentAsset.asset;
+        const asset = this.props.selectedAsset.asset;
         if (asset.type === AssetType.Image) {
             const canvas = await loadImageToCanvas(asset.path);
             this.setState({
@@ -1044,20 +1039,20 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private loadOcr = async () => {
-        const asset = this.state.currentAsset.asset;
+        const asset = this.props.selectedAsset.asset;
         if (asset.isRunningOCR) {
             // Skip loading OCR this time since it's running. This will be triggered again once it's finished.
             return;
         }
         try {
             const ocr = await this.ocrService.getRecognizedText(asset.path, asset.name, this.setOCRStatus);
-            if (asset.id === this.state.currentAsset.asset.id) {
+            if (asset.id === this.props.selectedAsset.asset.id) {
                 // since get OCR is async, we only set currentAsset's OCR
                 this.setState({
                     ocr,
                     ocrForCurrentPage: this.getOcrResultForCurrentPage(ocr),
                 }, () => {
-                    if (asset.id === this.state.currentAsset.asset.id) {
+                    if (asset.id === this.props.selectedAsset.asset.id) {
                         this.buildRegionOrders();
                         this.drawOcr();
                     }
@@ -1095,7 +1090,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         try {
             const pdf = await pdfjsLib.getDocument({url, cMapUrl, cMapPacked: true}).promise;
             // Fetch current page
-            if (assetId === this.state.currentAsset.asset.id) {
+            if (assetId === this.props.selectedAsset.asset.id) {
                 await this.loadPdfPage(assetId, pdf, this.state.currentPage);
             }
         } catch (reason) {
@@ -1122,7 +1117,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         };
 
         await page.render(renderContext).promise;
-        if (assetId === this.state.currentAsset.asset.id) {
+        if (assetId === this.props.selectedAsset.asset.id) {
             this.setState({
                 imageUri: canvas.toDataURL(constants.convertedImageFormat, constants.convertedImageQuality),
                 imageWidth: canvas.width,
@@ -1172,7 +1167,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }, () => {
             this.imageMap.removeAllFeatures();
             this.drawOcr();
-            this.loadLabelData(this.state.currentAsset.asset);
+            this.loadLabelData(this.props.selectedAsset.asset);
         });
     }
 
@@ -1399,7 +1394,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             lastSelectedId = selectedRegion.find((r) =>
                 r.id === this.selectedRegionIds[this.selectedRegionIds.length - 1]).id;
             this.deleteRegionsFromSelectedRegionIds(selectedRegion);
-            const removeList = this.state.currentAsset.regions.filter((r) => r.tags.length === 0);
+            const removeList = this.props.selectedAsset.regions.filter((r) => r.tags.length === 0);
             this.deleteRegionsFromAsset(removeList);
             if (keyFlag) {
                 nextRegionId = this.getNextIdByOrder(lastSelectedId, currentPage);
@@ -1478,9 +1473,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private loadLabelData = (asset: IAsset) => {
-        if (asset.id === this.state.currentAsset.asset.id &&
-            this.state.currentAsset.labelData != null) {
-            const regionsFromLabelData = this.convertLabelDataToRegions(this.state.currentAsset.labelData);
+        if (asset.id === this.props.selectedAsset.asset.id &&
+            this.props.selectedAsset.labelData != null) {
+            const regionsFromLabelData = this.convertLabelDataToRegions(this.props.selectedAsset.labelData);
             if (regionsFromLabelData.length > 0) {
                 this.addRegionsToAsset(regionsFromLabelData);
             }
@@ -1499,7 +1494,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private showMultiPageFieldWarningIfNecessary = (tagName: string, regions: IRegion[]): boolean => {
-        const existedRegionsWithSameTag = this.state.currentAsset.regions.filter(
+        const existedRegionsWithSameTag = this.props.selectedAsset.regions.filter(
             (region) => _.get(region, "tags[0]", "") === tagName);
         const regionsWithSameTag = existedRegionsWithSameTag.concat(regions);
         const pageCount = (new Set(regionsWithSameTag.map((region) => region.pageNumber))).size;
@@ -1735,7 +1730,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private switchToTargetPage = async (targetPage: number) => {
         if (this.state.pdfFile !== null) {
-            await this.loadPdfPage(this.state.currentAsset.asset.id, this.state.pdfFile, targetPage);
+            await this.loadPdfPage(this.props.selectedAsset.asset.id, this.state.pdfFile, targetPage);
         } else if (this.state.tiffImages.length !== 0) {
             this.loadTiffPage(this.state.tiffImages, targetPage);
         }

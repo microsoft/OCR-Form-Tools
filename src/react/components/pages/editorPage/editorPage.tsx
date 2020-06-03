@@ -214,6 +214,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     public render() {
         const { project } = this.props;
+        if (!project) {
+            return (<div>Loading...</div>);
+        } // TODO localization
         const { assets, selectedAsset, isRunningOCRs, isCanvasRunningOCR } = this.state;
 
         const labels = (selectedAsset &&
@@ -222,9 +225,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         const needRunOCRButton = assets.some((asset) => asset.state === AssetState.NotVisited);
 
-        if (!project) {
-            return (<div>Loading...</div>);
-        }
 
         const namedItems = [...this.props.project.tags, ...this.state.generators];
         return (
@@ -277,7 +277,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                             selectedAsset={selectedAsset ? selectedAsset.asset : null}
                             onBeforeAssetSelected={this.onBeforeAssetSelected}
                             onAssetSelected={this.selectAsset}
-                            onAssetLoaded={this.onAssetLoaded}
+                            onAssetLoaded={this.onAssetPreviewLoaded}
                             thumbnailSize={this.state.thumbnailSize}
                         />
                     </div>
@@ -563,7 +563,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      */
     private onAssetMetadataChanged = async (assetMetadata: IAssetMetadata): Promise<void> => {
         // Comment out below code as we allow regions without tags, it would make labeler's work easier.
-        // TODO is our stuff relevant here?
+        // TODO what does the comment above mean?
 
         const initialState = assetMetadata.asset.state;
 
@@ -578,6 +578,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
 
         // Only update asset metadata if state changes or is different
+        // TODO we'll want to add a full diff checking function that includes generators here
         if (initialState !== assetMetadata.asset.state || this.state.selectedAsset !== assetMetadata) {
             if (this.state.selectedAsset.labelData && this.state.selectedAsset.labelData.labels &&
                 assetMetadata.labelData && assetMetadata.labelData.labels &&
@@ -609,7 +610,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
     }
 
-    private onAssetLoaded = (asset: IAsset, contentSource: ContentSource) => {
+    private onAssetPreviewLoaded = (asset: IAsset, contentSource: ContentSource) => {
         const assets = [...this.state.assets];
         const assetIndex = assets.findIndex((item) => item.id === asset.id);
         if (assetIndex > -1) {
@@ -666,6 +667,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         const assetMetadata = await this.props.actions.loadAssetMetadata(this.props.project, asset);
 
+        // TODO why do we need to recalculate asset size all the time?
         try {
             if (!assetMetadata.asset.size) {
                 const assetProps = await HtmlFileReader.readAssetAttributes(asset);
@@ -681,6 +683,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             selectedAsset: assetMetadata,
         }, async () => {
             await this.onAssetMetadataChanged(assetMetadata);
+            // TODO why saveProject?
             await this.props.actions.saveProject(this.props.project, false, false);
         });
     }
@@ -699,6 +702,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         if (this.state.assets.length === assets.length
             && JSON.stringify(this.state.assets) === JSON.stringify(assets)) {
             this.loadingProjectAssets = false;
+            // TODO why tags loaded?
             this.setState({ tagsLoaded: true });
             return;
         }
@@ -708,6 +712,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         this.setState({
             assets,
         }, async () => {
+            // TODO why saveProject? How do we propagate our local state to projects anyway?
             await this.props.actions.saveProject(this.props.project, false, true);
             this.setState({ tagsLoaded: true });
             if (assets.length > 0) {

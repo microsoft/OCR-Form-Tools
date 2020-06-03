@@ -303,6 +303,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.tableIconBorderVectorLayer.getSource().clear();
         this.checkboxVectorLayer.getSource().clear();
         this.labelVectorLayer.getSource().clear();
+        this.generatorVectorLayer.getSource().clear();
     }
 
     public removeAllLabelFeatures = () => {

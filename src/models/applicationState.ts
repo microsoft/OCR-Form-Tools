@@ -211,7 +211,7 @@ export interface IRegion {
  * @description - Defines a label data correspond to an asset
  */
 export interface ILabelData {
-    document: string;
+    document: string; // TODO I have no idea what this is used for. Do we need it?
     labels: ILabel[];
 }
 
@@ -220,9 +220,9 @@ export interface ILabelData {
  * @description - Defines a label
  */
 export interface ILabel {
-    label: string;
-    key?: IFormRegion[];
-    value: IFormRegion[];
+    label: string; // tag name
+    key?: IFormRegion[]; // Why does a label have multiple key/values?
+    value: IFormRegion[]; // TODO diff b/n formregion and region?
 }
 
 /**
