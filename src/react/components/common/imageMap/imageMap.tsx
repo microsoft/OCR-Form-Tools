@@ -206,6 +206,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.textVectorLayer.getSource().addFeatures(features);
     }
 
+    public addGeneratorFeatures = (features: Feature[]) => {
+        this.generatorVectorLayer.getSource().addFeatures(features);
+    }
+
     public addCheckboxFeatures = (features: Feature[]) => {
         this.checkboxVectorLayer.getSource().addFeatures(features);
     }
@@ -308,6 +312,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
     public removeAllLabelFeatures = () => {
         this.labelVectorLayer.getSource().clear();
+    }
+
+    public removeAllGeneratorFeatures = () => {
+        this.generatorVectorLayer.getSource().clear();
     }
 
     /**

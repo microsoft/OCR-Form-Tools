@@ -11,28 +11,18 @@ import {
 import "./generatorPane.scss";
 import "../condensedList/condensedList.scss";
 import GeneratorEditor from "./generatorEditor";
-import { IGenerator, IGeneratorRegion } from "../../pages/editorPage/editorPage";
 import { dark, TagOperationMode, onItemRename, FormattedItemContextMenu, ColorPickerPortal } from "../tagInput/tagInput";
 import { toast } from "react-toastify";
 import { ITagClickProps } from "../tagInput/tagInputItem";
 
-import { FormattedItem, NamedItem } from "../../../../models/applicationState";
+import { FormattedItem, NamedItem, IGenerator, IGeneratorSettings } from "../../../../models/applicationState";
 import TagInputToolbar, { ItemToolbarOptions } from "../tagInput/tagInputToolbar";
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../../common/tagColors.json");
 
-/**
- * TODO
- * onleave and onenter
- * logic to not conflict with tag names
- */
-
-/**
- * Properties for Generator Pane
- * @member generatorRegion - Info for selected region
- */
 export interface IGeneratorPaneProps {
     generators: IGenerator[],
+    assetGeneratorSettings: IGeneratorSettings,
     namedItems: NamedItem[],
     selectedIndex: number,
     generatorsLoaded: boolean,
@@ -41,7 +31,7 @@ export interface IGeneratorPaneProps {
     onGeneratorsDeleted: (deletedGenerator: IGenerator[]) => void,
     onEditorEnter: (generator: IGenerator) => void,
     onEditorLeave: (generator: IGenerator) => void,
-    // skipping onRename, onDelete for now
+    setGeneratorSettings: (settings: Partial<IGeneratorSettings>) => void;
 }
 
 const strings = {
@@ -63,7 +53,6 @@ const strings = {
 const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
-    const [generateCount, setGenerateCount] = useState(1);
     const [operation, setOperation] = useState(TagOperationMode.None);
 
     const headerRef = useRef<HTMLDivElement>();
@@ -77,7 +66,6 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
     const selectedGenerator = props.selectedIndex !== -1 ? props.generators[props.selectedIndex]: null;
 
     const onEditorClick = (region: IGenerator, clickProps: ITagClickProps) => {
-        const { selectedIndex } = props;
         const selected = selectedGenerator && selectedGenerator.uid === region.uid;
         let newOperation;
         if (clickProps.clickedDropDown) {
@@ -151,7 +139,7 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
     const setValidGenerateCount = (event: any) => {
         const { value, min, max } = event.target;
         const validValue = Math.max(Number(min), Math.min(Number(max), Number(value)));
-        setGenerateCount(validValue);
+        props.setGeneratorSettings({generateCount: validValue});
     }
 
     const onHideContextualMenu = () => {

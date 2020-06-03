@@ -15,9 +15,9 @@ import {
     IAppSettings, IAsset, IAssetMetadata, IProject, IRegion,
     ISize, ITag,
     ILabel,
-    FieldType,
-    FieldFormat,
-    FormattedItem,
+    IGenerator,
+    IGeneratorRegion,
+    IGeneratorSettings,
 } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -42,26 +42,6 @@ import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
 import { getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/themes";
 import { SkipButton } from "../../shell/skipButton";
-
-/**
- * Generator Info. This is probably going to move to its own file soon. Preferring to define something distinct from IRegion
- * as it is "pre-populated".
- * A little tied together as generator region probably doesn't need to stick with name and formatting.
- * But generators will be 1:1 with such things so probably ok. (We can refactor if we need something with tables)
- * @member points - Generator region bounding coordinates
- * @member extent - Region extent
- * @member uid - Shape OL UID
- * @member name - name of generator (like a tag name)
- * @member type - like tag type
- * @member format - like tag format
- */
-export interface IGeneratorRegion {
-    points: number[];
-    extent: number[];
-    uid: string; // Note, this is the uid of the feature, not the underlying geometry
-}
-
-export type IGenerator = FormattedItem & IGeneratorRegion;
 
 /**
  * Properties for Editor Page
@@ -91,14 +71,10 @@ export interface IEditorPageState {
     selectedAsset?: IAssetMetadata;
     /** Currently selected region on current asset */
     selectedRegions?: IRegion[];
-    /** Generator regions on current asset */
-    // TODO this needs to go somewhere better
-    generators: IGenerator[];
     /** Most recently active generator */
     selectedGeneratorIndex: number;
     /** The currently hovered GeneratorEditor */
     hoveredGenerator: IGenerator;
-
     /** Most recently selected tag */
     selectedTag: string;
     /** Tags locked for region labeling */
@@ -154,7 +130,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         lockedTags: [],
         assets: [],
         editorMode: EditorMode.Select,
-        generators: [], // TODO move this out
         selectedGeneratorIndex: -1,
         hoveredGenerator: null,
         thumbnailSize: { width: 175, height: 155 },
@@ -218,15 +193,18 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             return (<div>Loading...</div>);
         } // TODO localization
         const { assets, selectedAsset, isRunningOCRs, isCanvasRunningOCR } = this.state;
+        const needRunOCRButton = assets.some((asset) => asset.state === AssetState.NotVisited);
 
+        // TODO I have this hunch that selectedAsset is not something we want in state, since we constantly communicate with project
         const labels = (selectedAsset &&
             selectedAsset.labelData &&
             selectedAsset.labelData.labels) || [];
+        const generators = (selectedAsset && selectedAsset.generators) || [];
+        const generatorSettings = (selectedAsset && selectedAsset.generatorSettings) || {
+            generateCount: 1
+        };
 
-        const needRunOCRButton = assets.some((asset) => asset.state === AssetState.NotVisited);
-
-
-        const namedItems = [...this.props.project.tags, ...this.state.generators];
+        const namedItems = [...this.props.project.tags, ...generators];
         return (
             <div className="editor-page skipToMainContent" id="pageEditor">
                 {this.state.tableToView !== null &&
@@ -305,7 +283,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             hoveredGenerator={this.state.hoveredGenerator}
                                             editorMode={this.state.editorMode}
                                             setEditorMode={this.setEditorMode}
-                                            generators={this.state.generators}
+                                            generators={generators}
                                             addGenerator={this.addGeneratorRegion}
                                             deleteGenerators={this.confirmGeneratorsDeleted}
                                             onSelectedGeneratorRegion={this.onSelectedGenerator}
@@ -328,7 +306,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     pane1Style = {{width: "100%"}}
                                     pane2Style = {{width: "auto"}}
                                     minSize = {300}
-                                    onDragFinished={this.onEditorSidebarSplitResized}
                                     resizerStyle = {{height: "5px", margin: "0px", border: "2px", background: "transparent"}}>
                                     <div>
                                         <TagInput
@@ -364,7 +341,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     <div>
                                         <GeneratorPane
                                             generatorsLoaded={true}
-                                            generators={this.state.generators}
+                                            generators={generators}
+                                            assetGeneratorSettings={generatorSettings}
+                                            setGeneratorSettings={this.setGeneratorSettings}
                                             namedItems={namedItems}
                                             selectedIndex={this.state.selectedGeneratorIndex}
                                             onSelectedGenerator={this.onSelectedGenerator}
@@ -447,15 +426,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     /**
-     * Called when the editor sidebar tag-generator split is resized.
-     */
-    private onEditorSidebarSplitResized = () => {
-        // TODO here
-        console.log("resized");
-    }
-
-
-    /**
      * Called when a tag from footer is clicked
      * @param tag Tag clicked
      */
@@ -485,9 +455,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
 
         if (selectedAsset) {
-            if (selectedAsset) {
-                this.setState({ selectedAsset });
-            }
+            this.setState({ selectedAsset });
         }
     }
 
@@ -559,7 +527,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     /**
      * Raised when the selected asset has been changed.
-     * This can either be a parent or child asset
+     * This can either be a parent or child asset.
+     * Returns when selectedAsset and asset are fully updated.
      */
     private onAssetMetadataChanged = async (assetMetadata: IAssetMetadata): Promise<void> => {
         // Comment out below code as we allow regions without tags, it would make labeler's work easier.
@@ -578,12 +547,15 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
 
         // Only update asset metadata if state changes or is different
-        // TODO we'll want to add a full diff checking function that includes generators here
         if (initialState !== assetMetadata.asset.state || this.state.selectedAsset !== assetMetadata) {
             if (this.state.selectedAsset.labelData && this.state.selectedAsset.labelData.labels &&
                 assetMetadata.labelData && assetMetadata.labelData.labels &&
                 assetMetadata.labelData.labels.toString() !== this.state.selectedAsset.labelData.labels.toString()) {
-                await this.updatedAssetMetadata(assetMetadata);
+                await this.updatedAssetLabels(assetMetadata);
+            }
+            if (this.state.selectedAsset.generators && assetMetadata.generators) {
+                // TODO something for settings
+                await this.updatedAssetGenerators(assetMetadata);
             }
             await this.props.actions.saveAssetMetadata(this.props.project, assetMetadata);
             if (this.props.project.lastVisitedAssetId === assetMetadata.asset.id) {
@@ -847,13 +819,23 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         });
     }
 
-    private addGeneratorRegion = (region: IGenerator) => {
-        // rename generator
-        // TODO give the min number so it makes more sense
-        region.name = region.name + " " + Math.random().toString(36).slice(4);
+    private setGeneratorSettings = (settingUpdate: Partial<IGeneratorSettings>) => {
+        const generatorSettings = {
+            ...this.state.selectedAsset.generatorSettings,
+            ...settingUpdate,
+        };
+
         this.setState({
-            generators: [ ...this.state.generators, region],
-            selectedGeneratorIndex: this.state.generators.length,
+            selectedAsset: { ...this.state.selectedAsset, generatorSettings }
+        });
+    }
+
+    private addGeneratorRegion = (region: IGenerator) => {
+        region.name = region.name + " " + Math.random().toString(36).slice(4);
+        const generators = [ ...this.state.selectedAsset.generators, region];
+        this.onGeneratorsChanged(generators);
+        this.setState({
+            selectedGeneratorIndex: generators.length,
         });
     }
 
@@ -864,43 +846,44 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             });
             return;
         }
-        // We only deselect when we click off a region.
         // TODO only update on revision change - not sure about the UX here
         // https://stackoverflow.com/questions/25993044/openlayers3-is-it-possible-to-combine-modify-draw-select-operations
         // find and update the old one in case we modified
         // the canvas will provide location information on update only, since it only handles the click event
-        // thus we should
-        const { generators } = this.state;
+        const generators = [...this.state.selectedAsset.generators];
         const oldRegionIndex = generators.findIndex(r => r.uid === selectedGenerator.uid);
         const newRegion = { ...generators[oldRegionIndex], ...selectedGenerator };
         generators[oldRegionIndex] = newRegion;
+        this.onGeneratorsChanged(generators);
         this.setState({
-            generators,
             selectedGeneratorIndex: oldRegionIndex,
         });
     }
 
-    private onGeneratorsChanged = (generators?: IGenerator[]) => {
-        this.setState({generators});
+    private onGeneratorsChanged = (newGenerators?: IGenerator[]) => {
+        // TODO update project (use IAssetMetadataChanged) - actually, can we just use that?
+        const generators = [...newGenerators]; // make a copy just in case
+        this.setState({
+            selectedAsset: { ...this.state.selectedAsset, generators }
+        });
     }
 
     private onGeneratorsDeleted = (regions: IGeneratorRegion | IGeneratorRegion[]) => {
         const deletedRegions = Array.isArray(regions) ? regions : [regions];
         // this may come from a component update (which should be registered here)
         // or a canvas delete (which is a bubble up)
-        const oldGenerators = [...this.state.generators];
+        const oldGenerators = [...this.state.selectedAsset.generators];
         const newGenerators = oldGenerators.filter(g => deletedRegions.findIndex(r => r.uid === g.uid) === -1);
+        this.onGeneratorsChanged(newGenerators);
         this.setState({
-            generators: newGenerators,
             selectedGeneratorIndex: -1, // safe bet
         });
     }
 
     private getActiveGeneratorId = () => {
-        const generator = this.state.generators[this.state.selectedGeneratorIndex];
+        const generator = this.state.selectedAsset.generators[this.state.selectedGeneratorIndex];
         return generator?.uid;
     }
-
 
     private setTableToView = async (tableToView, tableToViewId) => {
         if (this.state.tableToViewId) {
@@ -933,7 +916,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
     }
 
-    private async updatedAssetMetadata(assetMetadata: IAssetMetadata) {
+    private async updatedAssetLabels(assetMetadata: IAssetMetadata) {
         const assetDocumentCountDifference = {};
         const updatedAssetLabels = {};
         const currentAssetLabels = {};
@@ -954,5 +937,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             }
         });
         await this.props.actions.updatedAssetMetadata(this.props.project, assetDocumentCountDifference);
+    }
+
+    private async updatedAssetGenerators(assetMetadata) {
+        // TODO
     }
 }

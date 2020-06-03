@@ -247,7 +247,16 @@ export class AssetService {
      */
     public async getAssetMetadata(asset: IAsset): Promise<IAssetMetadata> {
         Guard.null(asset);
-
+        const defaultAssetMetadata: IAssetMetadata = {
+            asset: { ...asset },
+            regions: [],
+            generators: [],
+            generatorSettings: {
+                generateCount: 1
+            },
+            version: appInfo.version,
+            labelData: null,
+        };
         const labelFileName = decodeURIComponent(`${asset.name}${constants.labelFileExtension}`);
         try {
             const json = await this.storageProvider.readText(labelFileName, true);
@@ -295,23 +304,14 @@ export class AssetService {
                 }
             }
             toast.dismiss();
-            return {
-                asset: { ...asset },
-                regions: [],
-                version: appInfo.version,
-                labelData,
-            };
+            defaultAssetMetadata.labelData = labelData;
+            return defaultAssetMetadata;
         } catch (err) {
             if (err instanceof SyntaxError) {
                 const reason = interpolate(strings.errors.invalidJSONFormat.message, { labelFileName });
                 toast.error(reason, { autoClose: false });
             }
-            return {
-                asset: { ...asset },
-                regions: [],
-                version: appInfo.version,
-                labelData: null,
-            };
+            return defaultAssetMetadata;
         }
     }
 

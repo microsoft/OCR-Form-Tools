@@ -2,14 +2,13 @@
 // Licensed under the MIT license.
 import React, { useState, useRef, useEffect, MouseEvent } from "react";
 import { FontIcon, IconButton } from "office-ui-fabric-react";
-import { ITag, ILabel, FieldType, FieldFormat } from "../../../../models/applicationState";
+import { ITag, ILabel, FieldType, FieldFormat, IGenerator } from "../../../../models/applicationState";
 import {
     ITagClickProps,
     onColorClick,
     onNameClick,
     FormattedItemEditor
 } from "../tagInput/tagInputItem";
-import { IGenerator } from "../../pages/editorPage/editorPage";
 
 /**
  * Properties for tag input item

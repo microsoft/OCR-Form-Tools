@@ -9,7 +9,7 @@ import {
     EditorMode, IAssetMetadata,
     IProject, IRegion, RegionType,
     AssetType, ILabelData, ILabel,
-    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat,
+    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, IGeneratorRegion, IGenerator,
 } from "../../../../models/applicationState";
 import CanvasHelpers from "./canvasHelpers";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
@@ -34,7 +34,6 @@ import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../.
 import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./canvasCommandBar";
 import { TooltipHost, ITooltipHostStyles } from "office-ui-fabric-react";
-import { IGeneratorRegion, IGenerator } from "./editorPage";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -154,22 +153,26 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private tableIDToIndexMap: object;
 
-    public componentDidMount = async () => {
-        this.ocrService = new OCRService(this.props.project);
-        const asset = this.props.selectedAsset.asset;
+    private initPage = async () => {
         await this.loadImage();
         await this.loadOcr();
-        this.loadLabelData(asset);
+        this.loadLabelAndGeneratorData();
+    }
+
+    public componentDidMount = async () => {
+        this.ocrService = new OCRService(this.props.project);
+        await this.initPage();
     }
 
     public componentDidUpdate = async (prevProps: Readonly<ICanvasProps>, prevState: Readonly<ICanvasState>) => {
         // Handles asset changing
-        // TODO why do we track a currentAsset if we get it in props? What's the difference?
         if (this.props.selectedAsset.asset.name !== prevProps.selectedAsset.asset.name ||
             this.props.selectedAsset.asset.isRunningOCR !== prevProps.selectedAsset.asset.isRunningOCR) {
             this.selectedRegionIds = [];
             this.imageMap.removeAllFeatures();
             // TODO cleanup of other generator items
+            // They do this somehow with labels because the relevant ones per page are shown
+            // Or maybe it's controlled via props to the pane editor?
             this.setState({
                 ocr: null,
                 ocrForCurrentPage: {},
@@ -179,18 +182,22 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 imageUri: null,
                 tiffImages: [],
                 layers: { tables : true, text: true, checkboxes: true, label: true },
-            }, async () => {
-                const asset = this.props.selectedAsset.asset;
-                await this.loadImage();
-                await this.loadOcr();
-                this.loadLabelData(asset);
-            });
-        } else if (this.isLabelDataChanged(this.props, prevProps)
-            || (prevProps.project
-                && this.needUpdateAssetRegionsFromTags(prevProps.project.tags, this.props.project.tags))) {
-            const newRegions = this.convertLabelDataToRegions(this.props.selectedAsset.labelData);
-            this.updateAssetRegions(newRegions);
-            this.redrawAllFeatures();
+            }, this.initPage);
+        } else {
+            // same asset - TODO - same page?
+            if (prevProps.project && this.needUpdateAssetRegionsFromTags(prevProps.project.tags, this.props.project.tags))  {
+                // first time label change - propagate to regions
+                const newRegions = this.convertLabelDataToRegions(this.props.selectedAsset.labelData);
+                this.updateAssetRegions(newRegions);
+                this.redrawAllFeatures();
+            }
+            if (this.isLabelDataOrRegionsChanged(this.props, prevProps)) {
+                this.redrawLabelFeatures();
+            }
+            // loaded generators
+            if (this.props.selectedAsset.generators !== prevProps.selectedAsset.generators) {
+                this.redrawGeneratorFeatures();
+            }
         }
 
         if (this.props.hoveredLabel !== prevProps.hoveredLabel) {
@@ -406,6 +413,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.updateAssetRegions(regionsToBeKept.concat(regions));
     }
 
+    private addGeneratorsToAsset = (generators: IGenerator[]) => {
+        const diffSelectedGenerators = this.props.selectedAsset.generators.filter(
+            (assetG) => generators.findIndex(g => g.uid === assetG.uid) === -1
+        );
+        this.updateAssetGenerators(diffSelectedGenerators.concat(generators));
+    }
+
     private addRegionsToImageMap = (regions: IRegion[]) => {
         if (this.imageMap == null) {
             return;
@@ -440,6 +454,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 Math.round(boundingBox[i] * imageWidth),
                 Math.round((1 - boundingBox[i + 1]) * imageHeight),
             ]);
+            // TODO some concern around how we incorporate imageWidth and height, prob
         }
 
         const feature = new Feature({
@@ -453,6 +468,16 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         });
         feature.setId(region.id);
 
+        return feature;
+    }
+
+    private convertGeneratorToFeature = (generator: IGenerator, imageExtent: Extent) => {
+        const coordinates = generator.points;
+        const feature = new Feature({
+            geoemetry: new Polygon([coordinates]),
+        });
+        feature.setId(generator.uid);
+        // TODO flesh this out
         return feature;
     }
 
@@ -529,21 +554,39 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
      * @param selectedRegions
      */
     private updateAssetRegions = (regions: IRegion[]) => {
-        const labelData = this.convertRegionsToLabelData(regions, this.props.selectedAsset.asset.name);
+        const update = this.getAssetRegionUpdate(regions);
         const currentAsset: IAssetMetadata = {
             ...this.props.selectedAsset,
+            ...update
+        };
+        this.props.onAssetMetadataChanged(currentAsset);
+    }
+
+    /**
+     * Update generators in current asset
+     */
+    private updateAssetGenerators = (generators: IGenerator[]) => {
+        const update = this.getAssetGeneratorUpdate(generators);
+        const currentAsset: IAssetMetadata = {
+            ...this.props.selectedAsset,
+            ...update
+        };
+        this.props.onAssetMetadataChanged(currentAsset);
+    }
+
+    /**
+     * Used to avoid race condition on init of generators and assets (they both need to be loaded and maintaining a loading queue seems complex)
+     */
+    private getAssetRegionUpdate: (regions: IRegion[]) => Partial<IAssetMetadata> = (regions) => {
+        const labelData = this.convertRegionsToLabelData(regions, this.props.selectedAsset.asset.name);
+        return {
             regions,
             labelData,
         };
+    }
 
-        this.props.onAssetMetadataChanged(currentAsset).then(() => {
-            if (this.imageMap) {
-                this.imageMap.removeAllLabelFeatures();
-                this.addLabelledDataToLayer(regions.filter(
-                    (region) => region.tags[0] !== undefined &&
-                    region.pageNumber === this.state.currentPage));
-            }
-        });
+    private getAssetGeneratorUpdate: (generators: IGenerator[]) => Partial<IAssetMetadata> = (generators) => {
+        return { generators: [...generators]};
     }
 
     /**
@@ -1049,7 +1092,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         try {
             const ocr = await this.ocrService.getRecognizedText(asset.path, asset.name, this.setOCRStatus);
             if (asset.id === this.props.selectedAsset.asset.id) {
-                // since get OCR is async, we only set currentAsset's OCR
+                // since get OCR is async, we only set selectedAsset's OCR
                 this.setState({
                     ocr,
                     ocrForCurrentPage: this.getOcrResultForCurrentPage(ocr),
@@ -1169,7 +1212,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }, () => {
             this.imageMap.removeAllFeatures();
             this.drawOcr();
-            this.loadLabelData(this.props.selectedAsset.asset);
+            this.loadLabelAndGeneratorData();
         });
     }
 
@@ -1448,7 +1491,15 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         return {};
     }
 
-    private isLabelDataChanged = (newProps: ICanvasProps, prevProps: ICanvasProps): boolean => {
+    private isLabelDataOrRegionsChanged = (newProps: ICanvasProps, prevProps: ICanvasProps): boolean => {
+        if (newProps.selectedAsset.regions.length !== prevProps.selectedAsset.regions.length) return true;
+        // shallow check each region
+        for (let i = 0; i < newProps.selectedAsset.regions.length; i+= 1) {
+            if (newProps.selectedAsset.regions[i] !== prevProps.selectedAsset.regions[i]) {
+                return true;
+            }
+        }
+
         const newLabels = _.get(newProps, "selectedAsset.labelData.labels", []) as ILabel[];
         const prevLabels = _.get(prevProps, "selectedAsset.labelData.labels", []) as ILabel[];
 
@@ -1474,25 +1525,52 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         return "";
     }
 
-    private loadLabelData = (asset: IAsset) => {
-        if (asset.id === this.props.selectedAsset.asset.id &&
-            this.props.selectedAsset.labelData != null) {
-            const regionsFromLabelData = this.convertLabelDataToRegions(this.props.selectedAsset.labelData);
-            if (regionsFromLabelData.length > 0) {
-                this.addRegionsToAsset(regionsFromLabelData);
-            }
-        }
-    }
-
-    private addLabelledDataToLayer = (regions: IRegion[]) => {
-        if (this.imageMap == null) {
+    private loadLabelAndGeneratorData = () => {
+        const assetMetadata = this.props.selectedAsset;
+        if (!assetMetadata || !assetMetadata.labelData || !assetMetadata.generators) {
             return;
         }
+        const regions = this.convertLabelDataToRegions(assetMetadata.labelData);
+        // this guy basically filters the regions, and then converts the regions back to label data...
+        let labelUpdate = {};
+        if (regions.length > 0) {
+            const regionsToBeKept = assetMetadata.regions.filter((assetRegion) => {
+                return regions.findIndex((r) => r.id === assetRegion.id) === -1;
+            });
+            labelUpdate = this.getAssetRegionUpdate(regionsToBeKept.concat(regions));
+        }
+        // TODO implement this with a filter (see addGenerators)
+        const generatorUpdate = this.getAssetGeneratorUpdate(assetMetadata.generators);
+        const newAsset = {
+            ...assetMetadata,
+            ...labelUpdate,
+            ...generatorUpdate
+        };
+        this.props.onAssetMetadataChanged(newAsset);
+    }
 
+    private redrawLabelFeatures = () => {
+        if (!this.imageMap) return;
+        this.imageMap.removeAllLabelFeatures();
+
+        const matchedRegions = this.props.selectedAsset.regions.filter(
+            (region) => region.tags[0] !== undefined &&
+            region.pageNumber === this.state.currentPage
+        );
         const imageExtent = this.imageMap.getImageExtent();
-        const featuresToAdd = regions.map((region) => this.convertRegionToFeature(region, imageExtent));
+        const featuresToAdd = matchedRegions.map((region) => this.convertRegionToFeature(region, imageExtent));
         this.imageMap.addLabelFeatures(featuresToAdd);
+    }
 
+    // Redraws generator features on the current asset
+    private redrawGeneratorFeatures = () => {
+        if (!this.imageMap) return;
+        this.imageMap.removeAllGeneratorFeatures();
+        const imageExtent = this.imageMap.getImageExtent();
+        const features = this.props.selectedAsset.generators.map(
+            g => this.convertGeneratorToFeature(g, imageExtent)
+        );
+        this.imageMap.addGeneratorFeatures(features);
     }
 
     private showMultiPageFieldWarningIfNecessary = (tagName: string, regions: IRegion[]): boolean => {

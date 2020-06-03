@@ -110,6 +110,10 @@ export default class MockFactory {
         return {
             asset: asset || MockFactory.createTestAsset(),
             regions: regions || [],
+            generators: [],
+            generatorSettings: {
+                generateCount: 1,
+            },
             version: appInfo.version,
             labelData: null,
         };

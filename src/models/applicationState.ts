@@ -168,10 +168,14 @@ export interface IAsset {
  * @description - Format to store asset metadata for each asset within a project
  * @member asset - References an asset within the project
  * @member regions - The list of regions drawn on the asset
+ * @member generators - Generators marked out - present regardless of whether synthesized already
+ * @member generatorSettings - Asset settings
  */
 export interface IAssetMetadata {
     asset: IAsset;
     regions: IRegion[];
+    generators: IGenerator[];
+    generatorSettings: IGeneratorSettings;
     version: string;
     labelData: ILabelData;
 }
@@ -220,9 +224,9 @@ export interface ILabelData {
  * @description - Defines a label
  */
 export interface ILabel {
-    label: string; // tag name
-    key?: IFormRegion[]; // Why does a label have multiple key/values?
-    value: IFormRegion[]; // TODO diff b/n formregion and region?
+    label: string; // tag name -> basically a reference to a tag
+    key?: IFormRegion[];
+    value: IFormRegion[];
 }
 
 /**
@@ -248,6 +252,29 @@ export interface IBoundingBox {
     top: number;
     width: number;
     height: number;
+}
+
+/**
+ * Generator Info. This is probably going to move to its own file soon. Preferring to define something distinct from IRegion
+ * as it is "pre-populated".
+ * Different from regular regions since they are 1:1 with tags
+ * @member points - Generator region bounding coordinates
+ * @member extent - Region extent
+ * @member uid - Shape OL UID
+ * @member name - name of generator (like a tag name)
+ * @member type - like tag type
+ * @member format - like tag format
+ */
+export interface IGeneratorRegion {
+    points: number[];
+    extent: number[];
+    uid: string; // Note, this is the uid of the feature, not the underlying geometry
+}
+
+export type IGenerator = FormattedItem & IGeneratorRegion;
+
+export interface IGeneratorSettings {
+    generateCount: number;
 }
 
 /**
