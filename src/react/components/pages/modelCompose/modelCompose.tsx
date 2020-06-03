@@ -18,8 +18,8 @@ import { IColumn,
          Spinner,
          SpinnerSize,
          FontIcon,
-         TextField,
-         IDetailsList} from "office-ui-fabric-react";
+         IDetailsList,
+         PrimaryButton} from "office-ui-fabric-react";
 import "./modelCompose.scss";
 import { strings } from "../../../../common/strings";
 import { getDarkGreyTheme, getDefaultDarkTheme } from "../../../../common/themes";
@@ -29,7 +29,6 @@ import IProjectActions, * as projectActions from "../../../../redux/actions/proj
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import { ViewSelection } from "./ViewSelection";
-import { Blink } from "./blink";
 
 export interface IModelComposePageProps extends RouteComponentProps, React.Props<ModelComposePage> {
     recentProjects: IProject[];
@@ -43,6 +42,7 @@ export interface IModelComposePageProps extends RouteComponentProps, React.Props
 
 export interface IModelComposePageState {
     modelList: IModel[];
+    nextLink: string;
     columns: IColumn[];
     selectionDetails: string;
     isModalSelection: boolean;
@@ -50,7 +50,6 @@ export interface IModelComposePageState {
     isComposing: boolean;
     composedModelsId: string[];
     isLoading: boolean;
-  //  loadingFlag: boolean;
     refreshFlag: boolean;
 }
 
@@ -133,7 +132,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 minWidth: 175,
                 isResizable: true,
                 isRowHeader: true,
-                isSorted: true,
+                isSorted: false,
                 isSortedDescending: true,
                 onColumnClick: this.handleColumnClick,
                 onRender: (model: IModel) => {
@@ -155,6 +154,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
         this.state = {
             modelList: [],
+            nextLink: "*",
             columns,
             selectionDetails: this.handleSelection(),
             isModalSelection: false,
@@ -162,7 +162,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             isComposing: false,
             composedModelsId: [],
             isLoading: false,
- //           loadingFlag: true,
             refreshFlag: false,
         };
 
@@ -190,7 +189,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     public componentDidUpdate(prevProps, prevState) {
-        console.log(this.state.modelList);
+        // console.log(this.state.modelList);
         if ((prevState.isComposing === true &&
                 prevState.isComposing !== this.state.isComposing) || this.state.refreshFlag) {
             if (this.props.project) {
@@ -201,6 +200,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 refreshFlag: false,
             });
         }
+        console.log("Finish Update");
     }
 
     public componentWillUnmount() {
@@ -244,20 +244,42 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                             theme={getDefaultDarkTheme()}
                             size={SpinnerSize.large}>
                         </Spinner> :
-                        <DetailsList
-                            componentRef={this.listRef}
-                            className="models-list"
-                            items = {modelList}
-                            compact={isCompactMode}
-                            columns={columns}
-                            getKey={this.getKey}
-                            setKey="multiple"
-                            selectionMode={SelectionMode.multiple}
-                            layoutMode={DetailsListLayoutMode.justified}
-                            isHeaderVisible={true}
-                            selection={this.selection}
-                            selectionPreservedOnEmptyClick={true}>
-                        </DetailsList>
+                        <div>
+                            <DetailsList
+                                componentRef={this.listRef}
+                                className="models-list"
+                                items = {modelList}
+                                compact={isCompactMode}
+                                columns={columns}
+                                getKey={this.getKey}
+                                setKey="multiple"
+                                selectionMode={SelectionMode.multiple}
+                                layoutMode={DetailsListLayoutMode.justified}
+                                isHeaderVisible={true}
+                                selection={this.selection}
+                                selectionPreservedOnEmptyClick={true}>
+                            </DetailsList>
+                            {this.state.nextLink &&
+                                <div className="next-page-container">
+                                    {
+                                        this.state.isLoading ?
+                                        <Spinner
+                                            label="Model is loading..."
+                                            className="commandbar-spinner"
+                                            labelPosition="right"
+                                            theme={getDefaultDarkTheme()}
+                                            size={SpinnerSize.small}>
+                                        </Spinner> :
+                                        <PrimaryButton
+                                            className="next-page-button"
+                                            onClick={this.getNextPage}>
+                                            <FontIcon iconName="Down" style={{padding: "5px"}}>
+                                            </FontIcon>
+                                            <span>Load next page</span>
+                                        </PrimaryButton>
+                                    }
+                                </div>}
+                        </div>
                         }
                     </ViewSelection>
                 </Customizer>
@@ -273,47 +295,62 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         try {
             this.setState({
                 isLoading: true,
-            });
+            })
             const res = await this.getResponse();
-            const modelList = res.data.modelList;
-            const nextLink = res.data.nextLink;
+            const models = res.data.modelList;
+            const link = res.data.nextLink;
 
-            let reorderedList = this.reorderModelList(modelList);
+            models.map((m) => m.key = m.modelId);
+            let newList = models;
             if (this.state.composedModelsId.length !== 0) {
-                reorderedList = this.getComposedModelsOnTop(reorderedList);
+                newList = this.getComposedModelsOnTop(newList);
             }
-            this.allModels = reorderedList;
+
+            this.allModels = newList;
             this.setState({
-                modelList: reorderedList,
-            }, () => {
-                setTimeout(() => {this.addModelLists(nextLink); }, 400); });
+                modelList: newList,
+                nextLink: link,
+            },() => {
+                this.setState({
+                    isLoading: false,
+                })
+            });
         } catch (error) {
             console.log(error);
         }
     }
 
-    private addModelLists = async (nextLink) => {
+    private getNextPage = async () => {
+        console.log(this.state.composedModelsId);
         try {
-            if (this.state.modelList.length <= 250) {
-                if (nextLink.length !== 0) {
-                    const nextRes = await this.getModelsFromNextLink(nextLink);
-                    const nextList = this.state.modelList.concat(nextRes.nextList);
-                    const link = nextRes.nextLink;
-                    let reorderedList = this.reorderModelList(nextList);
-                    if (this.state.composedModelsId.length !== 0) {
-                       reorderedList = this.getComposedModelsOnTop(reorderedList);
-                    }
-                    this.allModels = reorderedList;
+            if (this.allModels.length <= 5000) {
+                if (this.state.nextLink.length !== 0) {
                     this.setState({
-                        modelList: reorderedList,
+                        isLoading: true,
+                    })
+                    const nextPage = await this.getModelsFromNextLink(this.state.nextLink);
+                    const currentList = this.state.modelList;
+                    const reorderdList = this.copyAndSort(currentList, "modelId", false);
+                    nextPage.nextList.map((m) => m.key = m.modelId);
+                    let newList = reorderdList.concat(nextPage.nextList);
+                    if (this.state.composedModelsId.length !== 0) {
+                        newList = this.getComposedModelsOnTop(newList);
+                    }
+                    this.allModels = newList;
+                    const newCols = this.state.columns;
+                    newCols.forEach((ncol) => {
+                        ncol.isSorted = false;
+                        ncol.isSortedDescending = true;
+                    });
+                    this.setState({
+                        modelList: newList,
+                        nextLink: nextPage.nextLink,
+                        columns: newCols,
                     }, () => {
-                        setTimeout(() => {
-                        this.addModelLists(link);
-                    }, 400); });
-                } else {
-                    setTimeout(() => {
-                        this.setState({isLoading: false});
-                    }, 600);
+                        this.setState({
+                            isLoading: false,
+                        })
+                    });
                 }
             }
         } catch (error) {
@@ -329,11 +366,71 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         };
     }
 
-    private reorderModelList = (modelList: IModel[]): IModel[] => {
-        const list = modelList.splice(0, 250);
-        list.map((m) => m.key = m.modelId);
-        return this.copyAndSort(list, "createdatetime", true);
-    }
+    // private getModelList = async () => {
+    //     try {
+    //         this.setState({
+    //             isLoading: true,
+    //         });
+    //         const res = await this.getResponse();
+    //         const modelList = res.data.modelList;
+    //         const nextLink = res.data.nextLink;
+
+    //         let reorderedList = this.reorderModelList(modelList);
+    //         if (this.state.composedModelsId.length !== 0) {
+    //             reorderedList = this.getComposedModelsOnTop(reorderedList);
+    //         }
+    //         this.allModels = reorderedList;
+    //         this.setState({
+    //             modelList: reorderedList,
+    //         }, () => {
+    //             setTimeout(() => {this.addModelLists(nextLink); }, 400); });
+    //     } catch (error) {
+    //         console.log(error);
+    //     }
+    // }
+
+    // private addModelLists = async (nextLink) => {
+    //     try {
+    //         if (this.state.modelList.length <= 250) {
+    //             if (nextLink.length !== 0) {
+    //                 const nextRes = await this.getModelsFromNextLink(nextLink);
+    //                 const nextList = this.state.modelList.concat(nextRes.nextList);
+    //                 const link = nextRes.nextLink;
+    //                 let reorderedList = this.reorderModelList(nextList);
+    //                 if (this.state.composedModelsId.length !== 0) {
+    //                    reorderedList = this.getComposedModelsOnTop(reorderedList);
+    //                 }
+    //                 this.allModels = reorderedList;
+    //                 this.setState({
+    //                     modelList: reorderedList,
+    //                 }, () => {
+    //                     setTimeout(() => {
+    //                     this.addModelLists(link);
+    //                 }, 400); });
+    //             } else {
+    //                 setTimeout(() => {
+    //                     this.setState({isLoading: false});
+    //                 }, 600);
+    //             }
+    //         }
+    //     } catch (error) {
+    //         console.log(error);
+    //     }
+    // }
+
+    // private getModelsFromNextLink = async (link: string) => {
+    //     const res = await this.getResponse(link);
+    //     return {
+    //         nextList: res.data.modelList,
+    //         nextLink: res.data.nextLink,
+    //     };
+    // }
+
+    // private reorderModelList = (modelList: IModel[]): IModel[] => {
+    //     const list = modelList.splice(0, 250);
+    //     list.map((m) => m.key = m.modelId);
+    //     return this.copyAndSort(list, "createdatetime", true);
+    // }
 
     private async getResponse(nextLink?: string) {
         const baseURL = nextLink === undefined ? url.resolve(
@@ -363,21 +460,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             console.log(err);
             ServiceHelper.handleServiceError(err);
         }
-    }
-
-    private getComposedModelsOnTop = (modelList: IModel[]): IModel[] => {
-        const composedModelCopy = [];
-        modelList.map((m) => {
-            if (this.state.composedModelsId.indexOf(m.modelId) !== -1) {
-                m.iconName = "combine";
-                composedModelCopy.push(m);
-            }
-        });
-
-        const uncomposedModelList = modelList.filter(
-            (m) => this.state.composedModelsId.indexOf(m.modelId) === -1 );
-        const newModelList = composedModelCopy.concat(uncomposedModelList);
-        return newModelList;
     }
 
     private handleColumnClick = (event: React.MouseEvent<HTMLElement>, column: IColumn): void => {
@@ -485,6 +567,21 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 columns: newCols,
             });
         }
+    }
+
+    private getComposedModelsOnTop = (modelList: IModel[]): IModel[] => {
+        const composedModelCopy = [];
+        modelList.map((m) => {
+            if (this.state.composedModelsId.indexOf(m.modelId) !== -1) {
+                m.iconName = "combine";
+                composedModelCopy.push(m);
+            }
+        });
+
+        const uncomposedModelList = modelList.filter(
+            (m) => this.state.composedModelsId.indexOf(m.modelId) === -1 );
+        const newModelList = composedModelCopy.concat(uncomposedModelList);
+        return newModelList;
     }
 
 }

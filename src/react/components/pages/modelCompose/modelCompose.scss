@@ -81,3 +81,17 @@
 .commandbar-spinner {
     color: white;
 }
+
+.next-page-container {
+    height: 40px;
+    background-color: #1E2024 ;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.next-page-button {
+    background: transparent;
+    border: 1px white;
+    color: white;
+}

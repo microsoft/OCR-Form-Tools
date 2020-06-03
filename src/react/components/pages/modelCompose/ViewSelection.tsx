@@ -30,6 +30,7 @@ export class ViewSelection extends BaseComponent<
   IViewSelectionState
 > {
   private selectedIndices: any[];
+  private selectedItems: any[] = [];
   constructor(props: IViewSelectionProps) {
     super(props);
     this.state = {};
@@ -52,11 +53,13 @@ export class ViewSelection extends BaseComponent<
     if (prevProps.isComposing === true && (prevProps.isComposing !== this.props.isComposing)) {
         this.props.selection.setAllSelected(false);
         this.selectedIndices = [];
+        this.selectedItems = [];
     }
 
     if (this.props.refreshFlag) {
       this.props.selection.setAllSelected(false);
       this.selectedIndices = [];
+      this.selectedItems = [];
     }
   }
 
@@ -89,16 +92,40 @@ export class ViewSelection extends BaseComponent<
     this.selectedIndices = this.selectedIndices.filter(
       (index) => unselectedIndices.indexOf(index) === -1,
     );
-
     this.selectedIndices = [...this.selectedIndices, ...newIndices];
+
+
+    const items = [];
+    this.selectedIndices.forEach((i) => {
+      const item = this.props.items[i];
+      if (!items.includes(item)){
+        items.push(item);
+      }
+    })
+
+    this.selectedItems = items;
   }
 
   private restoreSelection(): void {
-    const indices = this.selectedIndices
+    const indiceList = [];
+    this.selectedItems.forEach((i) => {
+      const indice = this.props.items.indexOf(i);
+      if (indice !== -1) {
+        indiceList.push(indice);
+      }
+    })
+    const indices = indiceList
       .map((index) => this.toViewIndex(index))
       .filter((index) => index !== -1);
     for (const index of indices) {
       this.props.selection.setIndexSelected(index, true, false);
     }
+
+    // const indices = this.selectedIndices
+    //   .map((index) => this.toViewIndex(index))
+    //   .filter((index) => index !== -1);
+    // for (const index of indices) {
+    //   this.props.selection.setIndexSelected(index, true, false);
+    // }
   }
 }
