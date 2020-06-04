@@ -88,8 +88,10 @@ export interface IEditorPageState {
     isValid: boolean;
     /** Whether the show invalid region warning alert should display */
     showInvalidRegionWarning: boolean;
-    /** Show tags when loaded */
-    tagsLoaded: boolean;
+    /** Used for tag pane */
+    assetsLoaded: boolean;
+    /** Used for generator pane */
+    assetMetadataLoaded: boolean;
     /** The currently hovered TagInputItemLabel */
     hoveredLabel: ILabel;
     /** Whether the task for loading all OCRs is running */
@@ -135,7 +137,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         thumbnailSize: { width: 175, height: 155 },
         isValid: true,
         showInvalidRegionWarning: false,
-        tagsLoaded: false,
+        assetsLoaded: false,
+        assetMetadataLoaded: true, // TODO implement actions
         hoveredLabel: null,
         tableToView: null,
         tableToViewId: null,
@@ -309,7 +312,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     resizerStyle = {{height: "5px", margin: "0px", border: "2px", background: "transparent"}}>
                                     <div>
                                         <TagInput
-                                            tagsLoaded={this.state.tagsLoaded}
+                                            tagsLoaded={this.state.assetsLoaded}
                                             tags={this.props.project.tags}
                                             namedItems={namedItems}
                                             lockedTags={this.state.lockedTags}
@@ -340,7 +343,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     </div>
                                     <div>
                                         <GeneratorPane
-                                            generatorsLoaded={true}
+                                            generatorsLoaded={this.state.assetMetadataLoaded}
                                             generators={generators}
                                             assetGeneratorSettings={generatorSettings}
                                             setGeneratorSettings={this.setGeneratorSettings}
@@ -548,15 +551,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         // Only update asset metadata if state changes or is different
         if (initialState !== assetMetadata.asset.state || this.state.selectedAsset !== assetMetadata) {
-            if (this.state.selectedAsset.labelData && this.state.selectedAsset.labelData.labels &&
-                assetMetadata.labelData && assetMetadata.labelData.labels &&
-                assetMetadata.labelData.labels.toString() !== this.state.selectedAsset.labelData.labels.toString()) {
-                await this.updatedAssetLabels(assetMetadata);
-            }
-            if (this.state.selectedAsset.generators && assetMetadata.generators) {
-                // TODO something for settings
-                await this.updatedAssetGenerators(assetMetadata);
-            }
+            // TODO - doesn't make sense that we're communicating with store like this
+            // * Why do we maintain a local state for the selected asset if it lives in the store?
+            await this.props.actions.updatedAssetMetadata(this.props.project, this.state.selectedAsset, assetMetadata);
+            // TODO study this - why is saving separate?
             await this.props.actions.saveAssetMetadata(this.props.project, assetMetadata);
             if (this.props.project.lastVisitedAssetId === assetMetadata.asset.id) {
                 this.setState({selectedAsset: assetMetadata});
@@ -674,8 +672,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         if (this.state.assets.length === assets.length
             && JSON.stringify(this.state.assets) === JSON.stringify(assets)) {
             this.loadingProjectAssets = false;
-            // TODO why tags loaded?
-            this.setState({ tagsLoaded: true });
+            this.setState({ assetsLoaded: true });
             return;
         }
 
@@ -686,7 +683,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }, async () => {
             // TODO why saveProject? How do we propagate our local state to projects anyway?
             await this.props.actions.saveProject(this.props.project, false, true);
-            this.setState({ tagsLoaded: true });
+            this.setState({ assetsLoaded: true });
             if (assets.length > 0) {
                 await this.selectAsset(lastVisited ? lastVisited : assets[0]);
             }
@@ -914,32 +911,5 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         if (this.canvas.current) {
             this.canvas.current.updateSize();
         }
-    }
-
-    private async updatedAssetLabels(assetMetadata: IAssetMetadata) {
-        const assetDocumentCountDifference = {};
-        const updatedAssetLabels = {};
-        const currentAssetLabels = {};
-        assetMetadata.labelData.labels.forEach((label) => {
-            updatedAssetLabels[label.label] = true;
-        });
-        this.state.selectedAsset.labelData.labels.forEach((label) => {
-            currentAssetLabels[label.label] = true;
-        });
-        Object.keys(currentAssetLabels).forEach((label) => {
-            if (!updatedAssetLabels[label]) {
-                assetDocumentCountDifference[label] = -1;
-            }
-        });
-        Object.keys(updatedAssetLabels).forEach((label) => {
-            if (!currentAssetLabels[label]) {
-                assetDocumentCountDifference[label] = 1;
-            }
-        });
-        await this.props.actions.updatedAssetMetadata(this.props.project, assetDocumentCountDifference);
-    }
-
-    private async updatedAssetGenerators(assetMetadata) {
-        // TODO
     }
 }

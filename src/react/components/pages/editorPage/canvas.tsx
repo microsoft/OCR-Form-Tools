@@ -406,18 +406,26 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.addRegionsToImageMap(regions.filter((region) => region.pageNumber === this.state.currentPage));
     }
 
-    private addRegionsToAsset = (regions: IRegion[]) => {
+    private extendAssetRegions = (regions: IRegion[]) => {
         const regionsToBeKept = this.props.selectedAsset.regions.filter((assetRegion) => {
             return regions.findIndex((r) => r.id === assetRegion.id) === -1;
         });
-        this.updateAssetRegions(regionsToBeKept.concat(regions));
+        return regionsToBeKept.concat(regions);
+    }
+
+    private addRegionsToAsset = (regions: IRegion[]) => {
+        this.updateAssetRegions(this.extendAssetRegions(regions));
+    }
+
+    private extendAssetGenerators = (generators: IGenerator[]) => {
+        const diffAssetGenerators = this.props.selectedAsset.generators.filter(
+            (assetG) => generators.findIndex(g => g.uid === assetG.uid) === -1
+        );
+        return diffAssetGenerators.concat(generators);
     }
 
     private addGeneratorsToAsset = (generators: IGenerator[]) => {
-        const diffSelectedGenerators = this.props.selectedAsset.generators.filter(
-            (assetG) => generators.findIndex(g => g.uid === assetG.uid) === -1
-        );
-        this.updateAssetGenerators(diffSelectedGenerators.concat(generators));
+        this.updateAssetGenerators(this.extendAssetGenerators(generators));
     }
 
     private addRegionsToImageMap = (regions: IRegion[]) => {
@@ -1531,7 +1539,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             return;
         }
         const regions = this.convertLabelDataToRegions(assetMetadata.labelData);
-        // this guy basically filters the regions, and then converts the regions back to label data...
         let labelUpdate = {};
         if (regions.length > 0) {
             const regionsToBeKept = assetMetadata.regions.filter((assetRegion) => {
@@ -1539,8 +1546,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             });
             labelUpdate = this.getAssetRegionUpdate(regionsToBeKept.concat(regions));
         }
-        // TODO implement this with a filter (see addGenerators)
-        const generatorUpdate = this.getAssetGeneratorUpdate(assetMetadata.generators);
+        // Not going to add the filter until it seems necessary
+        let generatorUpdate = this.getAssetGeneratorUpdate(assetMetadata.generators);
         const newAsset = {
             ...assetMetadata,
             ...labelUpdate,

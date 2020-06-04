@@ -31,7 +31,8 @@ export default interface IProjectActions {
     updateProjectTag(project: IProject, oldTag: ITag, newTag: ITag): Promise<IAssetMetadata[]>;
     deleteProjectTag(project: IProject, tagName): Promise<IAssetMetadata[]>;
     updateProjectTagsFromFiles(project: IProject, asset?: string): Promise<void>;
-    updatedAssetMetadata(project: IProject, assetDocumentCountDifference: any): Promise<void>;
+    // updatedAssetMetadata(project: IProject, assetDocumentCountDifference: any): Promise<void>;
+    updatedAssetMetadata(project: IProject, oldMetadata: IAssetMetadata, newMetadata: IAssetMetadata): Promise<void>;
 }
 
 /**
@@ -100,15 +101,75 @@ export function updateProjectTagsFromFiles(project: IProject, asset?: string): (
     };
 }
 
-export function updatedAssetMetadata(project: IProject,
-                                     assetDocumentCountDifference: any): (dispatch: Dispatch) => Promise<void> {
+// export function updatedAssetMetadata(project: IProject,
+//                                      assetDocumentCountDifference: any): (dispatch: Dispatch) => Promise<void> {
+//     return async (dispatch: Dispatch) => {
+//         const projectService = new ProjectService();
+//         const updatedProject = await projectService.updatedAssetMetadata(project, assetDocumentCountDifference);
+//         if (updatedProject !== project) {
+//             dispatch(updatedAssetMetadataAction(updatedProject));
+//         }
+//     };
+// }
+
+export function updatedAssetMetadata(
+    project: IProject,
+    oldMetadata: IAssetMetadata,
+    newMetadata: IAssetMetadata
+): (dispatch: Dispatch) => Promise<void> {
     return async (dispatch: Dispatch) => {
         const projectService = new ProjectService();
-        const updatedProject = await projectService.updatedAssetMetadata(project, assetDocumentCountDifference);
-        if (updatedProject !== project) {
-            dispatch(updatedAssetMetadataAction(updatedProject));
+
+        // diff labeldata
+        if (oldMetadata.labelData?.labels &&
+            newMetadata.labelData?.labels &&
+            oldMetadata.labelData.labels.toString() !== newMetadata.labelData.labels.toString()) {
+            const assetDocumentCountDifference = getLabelCountDiff(oldMetadata, newMetadata);
+            const updatedProject = await projectService.updatedAssetMetadata(project, assetDocumentCountDifference);
+            if (updatedProject !== project) {
+                dispatch(updatedLabelCountsAction(updatedProject));
+            }
         }
+        // TODO - going to need to pipe asset identity somehow
+        // diff generators
+        if (oldMetadata.generators &&
+            newMetadata.generators &&
+            oldMetadata.generators !== newMetadata.generators) {
+            // update.generators = newMetadata.generators;
+        }
+
+        // diff generatorSettings
+        if (oldMetadata.generatorSettings && newMetadata.generatorSettings &&
+            oldMetadata.generatorSettings !== newMetadata.generatorSettings) {
+            // update.generatorSettings = newMetadata.generatorSettings;
+        }
+
     };
+}
+
+const getLabelCountDiff = (oldMetadata: IAssetMetadata, assetMetadata: IAssetMetadata) => {
+    const assetDocumentCountDifference = {};
+    const updatedAssetLabels = {};
+    const currentAssetLabels = {};
+    // Diffing the new assetmetadata on tag appearance (presumably from selectedAsset)
+    // And the state's selected asset - which hasn't been updated...?
+    assetMetadata.labelData.labels.forEach((label) => {
+        updatedAssetLabels[label.label] = true;
+    });
+    oldMetadata.labelData.labels.forEach((label) => {
+        currentAssetLabels[label.label] = true;
+    });
+    Object.keys(currentAssetLabels).forEach((label) => {
+        if (!updatedAssetLabels[label]) {
+            assetDocumentCountDifference[label] = -1;
+        }
+    });
+    Object.keys(updatedAssetLabels).forEach((label) => {
+        if (!currentAssetLabels[label]) {
+            assetDocumentCountDifference[label] = 1;
+        }
+    });
+    return assetDocumentCountDifference;
 }
 
 /**
@@ -387,7 +448,15 @@ export const updateProjectTagAction =
 export const updateProjectTagsFromFilesAction =
     createPayloadAction<IUpdateProjectTagsFromFilesAction>(ActionTypes.UPDATE_PROJECT_TAGS_FROM_FILES_SUCCESS);
 
-export const updatedAssetMetadataAction =
+export const updatedLabelCountsAction =
+    createPayloadAction<IUpdateTagDocumentCount>(ActionTypes.UPDATE_TAG_LABEL_COUNTS_SUCCESS);
+
+// ! Do we need to do this?
+// What is actually in the store? Just the assets or the metadata as well?
+export const updatedGeneratorsAction =
+    createPayloadAction<IUpdateTagDocumentCount>(ActionTypes.UPDATE_TAG_LABEL_COUNTS_SUCCESS);
+
+export const updatedGeneratorSettingsAction =
     createPayloadAction<IUpdateTagDocumentCount>(ActionTypes.UPDATE_TAG_LABEL_COUNTS_SUCCESS);
 
 /**
