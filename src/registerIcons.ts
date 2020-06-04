@@ -56,6 +56,7 @@ export function registerIcons() {
             Cancel: "\uE711",
             Refresh: "\uE72C",
             Documentation: "\uEC17",
+            More: "\uE712",
         },
     });
 }

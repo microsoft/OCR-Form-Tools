@@ -37,7 +37,6 @@ import { constants } from "../../../../common/constants";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
 import { getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/themes";
-import { SkipButton } from "../../shell/skipButton";
 
 /**
  * Properties for Editor Page
@@ -629,7 +628,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         });
     }
 
-    private loadAllOCRs = async () => {
+    public loadAllOCRs = async () => {
         if (this.state.isRunningOCRs) {
             return;
         }
