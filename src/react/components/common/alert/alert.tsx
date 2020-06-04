@@ -12,7 +12,7 @@ import {
     ICustomizations,
     ITheme,
     PrimaryButton,
-} from "office-ui-fabric-react";
+} from "@fluentui/react";
 /**
  * Properties for Alert Component
  * @member closeButtonText - Text displayed on 'Close' button. Default 'OK'

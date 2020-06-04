@@ -7,8 +7,8 @@ import { strings } from "../../../../common/strings";
 import { ImageAsset } from "./imageAsset";
 import { PDFAsset } from "./pdfAsset";
 import { TiffAsset } from "./tiffAsset";
-import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
-import { Label } from "office-ui-fabric-react/lib/Label";
+import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
+import { Label } from "@fluentui/react/lib/Label";
 
 export interface IGenericContentSource {
     width: number;

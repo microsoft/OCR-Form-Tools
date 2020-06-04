@@ -3,7 +3,7 @@
 
 import React from "react";
 import _ from "lodash";
-import { FontIcon } from "office-ui-fabric-react";
+import { FontIcon } from "@fluentui/react";
 import { IProject, AssetState } from "../../../models/applicationState";
 import { strings, interpolate } from "../../../common/strings";
 

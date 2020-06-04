@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { FontIcon, IconButton } from "office-ui-fabric-react";
+import { FontIcon, IconButton } from "@fluentui/react";
 import { strings } from "../../../../common/strings";
 import "../../../../App.scss";
 

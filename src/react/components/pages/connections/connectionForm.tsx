@@ -3,7 +3,7 @@
 
 import React from "react";
 import Form, { Widget, IChangeEvent, FormValidation } from "react-jsonschema-form";
-import { FontIcon, PrimaryButton} from "office-ui-fabric-react";
+import { FontIcon, PrimaryButton} from "@fluentui/react";
 import { IConnection } from "../../../../models/applicationState";
 import { strings, addLocValues } from "../../../../common/strings";
 import CustomFieldTemplate from "../../common/customField/customFieldTemplate";

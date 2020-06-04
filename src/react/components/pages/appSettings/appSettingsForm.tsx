@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { FontIcon } from "office-ui-fabric-react";
+import { FontIcon } from "@fluentui/react";
 import { strings, addLocValues } from "../../../../common/strings";
 import Form, { FormValidation } from "react-jsonschema-form";
 import { ObjectFieldTemplate } from "../../common/objectField/objectFieldTemplate";
@@ -12,7 +12,7 @@ import { IAppSettings } from "../../../../models/applicationState";
 import { ProtectedInput } from "../../common/protectedInput/protectedInput";
 import { CustomField } from "../../common/customField/customField";
 import { generateKey } from "../../../../common/crypto";
-import { PrimaryButton } from "office-ui-fabric-react";
+import { PrimaryButton } from "@fluentui/react";
 import { getPrimaryGreenTheme, getPrimaryGreyTheme } from "../../../../common/themes";
 // tslint:disable-next-line:no-var-requires
 const formSchema = addLocValues(require("./appSettingsForm.json"));
