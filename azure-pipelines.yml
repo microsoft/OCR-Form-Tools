@@ -17,15 +17,15 @@ steps:
 
 - script: |
     yarn install
-    yarn run tslint
+    yarn tslint
     if [ $? -ne 0 ]; then
         exit 1
     fi
-    yarn run compile
+    yarn compile
     if [ $? -ne 0 ]; then
         exit 1
     fi
-    yarn run build
+    yarn build
     if [ $? -ne 0 ]; then
         exit 1
     fi
