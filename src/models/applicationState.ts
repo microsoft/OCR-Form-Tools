@@ -260,7 +260,7 @@ export interface IBoundingBox {
  * Different from regular regions since they are 1:1 with tags
  * @member points - Generator region bounding coordinates
  * @member extent - Region extent
- * @member uid - Shape OL UID
+ * @member id - ID randomly generated string
  * @member name - name of generator (like a tag name)
  * @member type - like tag type
  * @member format - like tag format
@@ -268,7 +268,7 @@ export interface IBoundingBox {
 export interface IGeneratorRegion {
     points: number[];
     extent: number[];
-    uid: string; // Note, this is the uid of the feature, not the underlying geometry
+    id: string;
 }
 
 export type IGenerator = FormattedItem & IGeneratorRegion;

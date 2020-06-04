@@ -66,7 +66,7 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
     const selectedGenerator = props.selectedIndex !== -1 ? props.generators[props.selectedIndex]: null;
 
     const onEditorClick = (region: IGenerator, clickProps: ITagClickProps) => {
-        const selected = selectedGenerator && selectedGenerator.uid === region.uid;
+        const selected = selectedGenerator && selectedGenerator.id === region.id;
         let newOperation;
         if (clickProps.clickedDropDown) {
             const showContextualMenu = !selectedGenerator || !selected
@@ -126,7 +126,7 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
         return regions.map((r, index) =>
             <GeneratorEditor
                 {...editorProps[index]}
-                key={r.uid}
+                key={r.id}
             />);
     }
 
@@ -154,7 +154,7 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
 
     const onItemChanged = (oldItem: IGenerator, newItem: Partial<IGenerator>) => {
         const newGenerators = props.generators.map(g => {
-            return g.uid === oldItem.uid ? {...g, ...newItem} : g;
+            return g.id === oldItem.id ? {...g, ...newItem} : g;
         })
         props.onGeneratorsChanged(newGenerators);
         // find the selected item and change it and call the generators changed
@@ -238,6 +238,7 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
                                     className="tag-search-box"
                                     type="number"
                                     onChange={setValidGenerateCount}
+                                    value={props.assetGeneratorSettings.generateCount}
                                     placeholder="1"
                                     min="1"
                                     max="10"

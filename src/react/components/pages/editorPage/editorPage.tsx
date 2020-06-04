@@ -187,7 +187,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 this.updateAssetsState();
             }
         }
-        if ( this.state.selectedAsset?.generators && prevState.selectedAsset?.generators &&
+        // Only save generators on asset not changed because onAssetMetadataChanged is a fragmented bit of update logic that will also trigger this (when we change assets)
+        if (this.state.selectedAsset?.asset.name === prevState.selectedAsset?.asset.name &&
+            this.state.selectedAsset?.generators && prevState.selectedAsset?.generators &&
             (this.state.selectedAsset.generators !== prevState.selectedAsset.generators
             || this.state.selectedAsset.generatorSettings !== prevState.selectedAsset.generatorSettings)
         ) {
@@ -355,7 +357,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     </div>
                                     <div>
                                         <GeneratorPane
-                                            generatorsLoaded={this.state.assetMetadataLoaded}
+                                            generatorsLoaded={!!this.state.selectedAsset}
                                             generators={generators}
                                             assetGeneratorSettings={generatorSettings}
                                             setGeneratorSettings={this.setGeneratorSettings}
@@ -839,7 +841,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private addGeneratorRegion = (region: IGenerator) => {
-        region.name = region.name + " " + Math.random().toString(36).slice(4);
+        region.name = region.name + " " + region.id;
         const generators = [ ...this.state.selectedAsset.generators, region];
         this.onGeneratorsChanged(generators);
         this.setState({
@@ -859,7 +861,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         // find and update the old one in case we modified
         // the canvas will provide location information on update only, since it only handles the click event
         const generators = [...this.state.selectedAsset.generators];
-        const oldRegionIndex = generators.findIndex(r => r.uid === selectedGenerator.uid);
+        const oldRegionIndex = generators.findIndex(r => r.id === selectedGenerator.id);
         const newRegion = { ...generators[oldRegionIndex], ...selectedGenerator };
         generators[oldRegionIndex] = newRegion;
         this.onGeneratorsChanged(generators);
@@ -880,7 +882,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         // this may come from a component update (which should be registered here)
         // or a canvas delete (which is a bubble up)
         const oldGenerators = [...this.state.selectedAsset.generators];
-        const newGenerators = oldGenerators.filter(g => deletedRegions.findIndex(r => r.uid === g.uid) === -1);
+        const newGenerators = oldGenerators.filter(g => deletedRegions.findIndex(r => r.id === g.id) === -1);
         this.onGeneratorsChanged(newGenerators);
         this.setState({
             selectedGeneratorIndex: -1, // safe bet
@@ -889,7 +891,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     private getActiveGeneratorId = () => {
         const generator = this.state.selectedAsset.generators[this.state.selectedGeneratorIndex];
-        return generator?.uid;
+        return generator?.id;
     }
 
     private setTableToView = async (tableToView, tableToViewId) => {

@@ -170,7 +170,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.props.selectedAsset.asset.isRunningOCR !== prevProps.selectedAsset.asset.isRunningOCR) {
             this.selectedRegionIds = [];
             this.imageMap.removeAllFeatures();
-            // TODO cleanup of other generator items
             // They do this somehow with labels because the relevant ones per page are shown
             // Or maybe it's controlled via props to the pane editor?
             this.setState({
@@ -194,10 +193,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             if (this.isLabelDataOrRegionsChanged(this.props, prevProps)) {
                 this.redrawLabelFeatures();
             }
-            // loaded generators
-            if (this.props.selectedAsset.generators !== prevProps.selectedAsset.generators) {
-                this.redrawGeneratorFeatures();
-            }
+
+            // TODO generator redraw support for pages
         }
 
         if (this.props.hoveredLabel !== prevProps.hoveredLabel) {
@@ -213,10 +210,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.redrawFeatures(this.imageMap.getAllGeneratorFeatures());
         }
 
+        // Generic generator update from editorpage
+        // i.e. mainly deletion, since addition is only done from canvas
+        // I /don't/ think this happens on with asset changing
+        // TODO make sure - we can throw this in the above else case if we want
         if (this.props.generators !== prevProps.generators) {
             const removedGenerators = [];
             prevProps.generators.forEach(g => {
-                if (this.props.generators.findIndex(newG => newG.uid === g.uid) === -1) {
+                if (this.props.generators.findIndex(newG => newG.id === g.id) === -1) {
                     removedGenerators.push(g);
                 }
             });
@@ -398,7 +399,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private getSelectedGenerator = (): IGeneratorRegion => {
         return this.props.activeGeneratorRegionId ?
-            this.props.generators.find(g => g.uid === this.props.activeGeneratorRegionId) : null;
+            this.props.generators.find(g => g.id === this.props.activeGeneratorRegionId) : null;
     }
 
     private addRegions = (regions: IRegion[]) => {
@@ -419,7 +420,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private extendAssetGenerators = (generators: IGenerator[]) => {
         const diffAssetGenerators = this.props.selectedAsset.generators.filter(
-            (assetG) => generators.findIndex(g => g.uid === assetG.uid) === -1
+            (assetG) => generators.findIndex(g => g.id === assetG.id) === -1
         );
         return diffAssetGenerators.concat(generators);
     }
@@ -474,18 +475,21 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             highlighted: false,
             isOcrProposal,
         });
+        // This is fake!
         feature.setId(region.id);
 
         return feature;
     }
 
     private convertGeneratorToFeature = (generator: IGenerator, imageExtent: Extent) => {
-        const coordinates = generator.points;
+        const coordinates = []; // split to regular arrays
+        for (let i=0; i < generator.points.length; i += 2) {
+            coordinates.push(generator.points.slice(i, i+2));
+        }
         const feature = new Feature({
-            geoemetry: new Polygon([coordinates]),
+            geometry: new Polygon([coordinates]),
+            id: generator.id
         });
-        feature.setId(generator.uid);
-        // TODO flesh this out
         return feature;
     }
 
@@ -551,7 +555,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
         const generatorFeatures = this.imageMap.getAllGeneratorFeatures();
         const selectedGeneratorFeatures = generatorFeatures
-            .filter((feature) => regions.findIndex(r => r.uid === feature["ol_uid"]) !== -1);
+            .filter((feature) => regions.findIndex(r => r.id === feature.get("id")) !== -1);
         selectedGeneratorFeatures.map(this.imageMap.removeGeneratorFeature);
         this.redrawFeatures(this.imageMap.getAllGeneratorFeatures());
     }
@@ -797,9 +801,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private generatorFeatureStyler = (feature) => {
-        const regionId = feature["ol_uid"];
-        // TODO id-ing when we attach the generator to the asset
-        const region = this.props.generators.find(g => g.uid === regionId);
+        const regionId = feature.get("id");
+        const region = this.props.generators.find(g => g.id === regionId);
         // Selected
         if (regionId && this.props?.activeGeneratorRegionId === regionId) {
             return new Style({
@@ -949,7 +952,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private updateGeneratorHighlight = (feature: any, hoveredItem: IGeneratorRegion): void => {
-        if (hoveredItem && hoveredItem.uid === feature["ol_uid"]) {
+        if (hoveredItem && hoveredItem.id === feature.get("id")) {
             this.setFeatureProperty(feature, "highlighted", true);
         } else {
             this.setFeatureProperty(feature, "highlighted", false);
@@ -1227,22 +1230,26 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     /* Bounding Box Synthesizer Code */
     // TODO should we just pass around all the info? And not worry about all this work until necessary?
     // Currently putting this here since it's more canvas related
-    private extractGeneratorRegion = (feature?: any) => {
+    private extractGeneratorRegion: (feature?: any) => IGeneratorRegion = (feature) => {
         if (!feature) {
             return null;
         }
         const geometry = feature.values_.geometry;
         // snap tool will make last 2 coords match first 2
         const points = geometry.flatCoordinates.slice(0, -2);
+        const id = Math.random().toString(36).slice(4);
         return {
             points,
             extent: geometry.extent_,
-            uid: feature.ol_uid,
+            id,
         }
     }
 
     private initializeGenerator = (feature?: any) => {
         const regionInfo = this.extractGeneratorRegion(feature);
+        feature.setProperties({
+            id: regionInfo.id,
+        });
         const metadata = {
             name: "Generator",
             type: FieldType.String,
@@ -1553,6 +1560,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             ...labelUpdate,
             // ...generatorUpdate
         };
+        this.redrawGeneratorFeatures();
         this.props.onAssetMetadataChanged(newAsset);
     }
 
