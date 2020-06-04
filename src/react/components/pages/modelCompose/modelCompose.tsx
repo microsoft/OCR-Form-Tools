@@ -24,7 +24,7 @@ import "./modelCompose.scss";
 import { strings } from "../../../../common/strings";
 import { getDarkGreyTheme, getDefaultDarkTheme } from "../../../../common/themes";
 import { ModelComposeCommandBar } from "./composeCommandBar";
-import { bindActionCreators } from "redux";
+import { bindActionCreators, compose } from "redux";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
@@ -43,6 +43,7 @@ export interface IModelComposePageProps extends RouteComponentProps, React.Props
 export interface IModelComposePageState {
     modelList: IModel[];
     nextLink: string;
+    composedModelList: IModel[];
     columns: IColumn[];
     selectionDetails: string;
     isModalSelection: boolean;
@@ -51,6 +52,7 @@ export interface IModelComposePageState {
     composedModelsId: string[];
     isLoading: boolean;
     refreshFlag: boolean;
+    hasText: boolean;
 }
 
 export interface IModel {
@@ -155,6 +157,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         this.state = {
             modelList: [],
             nextLink: "*",
+            composedModelList:[],
             columns,
             selectionDetails: this.handleSelection(),
             isModalSelection: false,
@@ -163,6 +166,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             composedModelsId: [],
             isLoading: false,
             refreshFlag: false,
+            hasText: false,
         };
 
         this.selection = new Selection({
@@ -259,7 +263,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                                 selection={this.selection}
                                 selectionPreservedOnEmptyClick={true}>
                             </DetailsList>
-                            {this.state.nextLink &&
+                            {this.state.nextLink && !this.state.hasText &&
                                 <div className="next-page-container">
                                     {
                                         this.state.isLoading ?
@@ -296,20 +300,31 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             this.setState({
                 isLoading: true,
             })
+
+            const composedModels = this.state.composedModelList;
+            if (this.state.composedModelsId.length !== 0) {
+                const composedIds = this.getComposedIds();
+                if (composedIds.indexOf(this.state.composedModelsId[0]) === -1) {
+                    const idURL = constants.apiModelsPath + "/" + this.state.composedModelsId[0];
+                    const composedRes = await this.getResponse(idURL);
+                    const composedModel: IModel = composedRes.data.modelInfo;
+                    composedModel.iconName = "combine";
+                    composedModel.key = composedModel.modelId;
+                    composedModels.push(composedModel);
+                }
+            }
             const res = await this.getResponse();
             const models = res.data.modelList;
             const link = res.data.nextLink;
 
             models.map((m) => m.key = m.modelId);
-            let newList = models;
-            if (this.state.composedModelsId.length !== 0) {
-                newList = this.getComposedModelsOnTop(newList);
-            }
+            const newList = composedModels.concat(models);
 
             this.allModels = newList;
             this.setState({
                 modelList: newList,
                 nextLink: link,
+                composedModelList: composedModels,
             },() => {
                 this.setState({
                     isLoading: false,
@@ -321,7 +336,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     private getNextPage = async () => {
-        console.log(this.state.composedModelsId);
         try {
             if (this.allModels.length <= 5000) {
                 if (this.state.nextLink.length !== 0) {
@@ -329,13 +343,19 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                         isLoading: true,
                     })
                     const nextPage = await this.getModelsFromNextLink(this.state.nextLink);
-                    const currentList = this.state.modelList;
-                    const reorderdList = this.copyAndSort(currentList, "modelId", false);
-                    nextPage.nextList.map((m) => m.key = m.modelId);
-                    let newList = reorderdList.concat(nextPage.nextList);
-                    if (this.state.composedModelsId.length !== 0) {
-                        newList = this.getComposedModelsOnTop(newList);
-                    }
+                    let currentList = this.state.modelList;
+                    const composedModels = this.state.composedModelList;
+                    const composedIds = this.getComposedIds();
+                    currentList = currentList.filter((m) => composedIds.indexOf(m.modelId) === -1);
+                    let reorderdList = this.copyAndSort(currentList, "modelId", false);
+                    reorderdList = composedModels.concat(reorderdList);
+
+                    let nextPageList = nextPage.nextList;
+                    nextPageList = nextPageList.filter((m) => composedIds.indexOf(m.modelId) === -1);
+
+                    nextPageList.map((m) => m.key = m.modelId);
+                    const newList = reorderdList.concat(nextPageList);
+
                     this.allModels = newList;
                     const newCols = this.state.columns;
                     newCols.forEach((ncol) => {
@@ -356,6 +376,12 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         } catch (error) {
             console.log(error);
         }
+    }
+
+    private getComposedIds = () => {
+        const composedIds = [];
+        this.state.composedModelList.forEach((m) => {composedIds.push(m.modelId)});
+        return composedIds;
     }
 
     private getModelsFromNextLink = async (link: string) => {
@@ -515,6 +541,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     private onTextChange = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string): void => {
         this.setState({
             modelList: text ? this.allModels.filter((m) => m.modelId.indexOf(text) > -1) : this.allModels,
+            hasText: text ? true : false,
         });
     }
 
@@ -569,7 +596,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         }
     }
 
-    private getComposedModelsOnTop = (modelList: IModel[]): IModel[] => {
+    private getComposedModelsOnTop =  (modelList: IModel[]) => {
         const composedModelCopy = [];
         modelList.map((m) => {
             if (this.state.composedModelsId.indexOf(m.modelId) !== -1) {
