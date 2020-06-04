@@ -4,7 +4,7 @@
     "excludeGlyphs": false,
     "excludeThirdPartyIcons": false,
     "chunkSubsets": false,
-    "hashFontFileName": false,
+    "hashFontFileName": true,
     "glyphs": [
       {
         "name": "Table",
@@ -77,6 +77,10 @@
       {
         "name": "Cancel",
         "unicode": "E711"
+      },
+      {
+        "name": "More",
+        "unicode": "E712"
       },
       {
         "name": "Settings",

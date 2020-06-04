@@ -226,7 +226,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleZoomOut={this.handleCanvasZoomOut}
                     layers={this.state.layers}
                     handleReRunOCR={this.setRerunOCR}
-                    handleReRunOcrForAllDocuments={()=>console.log("* all")}
+                    handleReRunOcrForAllDocuments={this.rerunOcrForAllPages}
                 />
                 <ImageMap
                     ref={(ref) => this.imageMap = ref}
@@ -298,6 +298,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 />
             </div>
         );
+    }
+    public rerunOcrForAllPages = () => {
+        ///
     }
 
     public updateSize() {

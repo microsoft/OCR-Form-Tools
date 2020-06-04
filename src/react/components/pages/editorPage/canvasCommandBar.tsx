@@ -66,29 +66,6 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
 
     const commandBarFarItems: ICommandBarItemProps[] = [
         {
-            key: "reRunOCR",
-            text: "re-OCR",
-            title: "rerun OCR",
-            className:  "re-run-ocr-item",
-            iconProps: { iconName: "Refresh" },
-            subMenuProps: {
-                items: [
-                    {
-                        key: "reRunForSingleDocument",
-                        text: "this document",
-                        iconProps: { iconName: "TextDocument" },
-                        onClick: () => props.handleReRunOCR(),
-                    },
-                    {
-                        key: "reRunForAllDocuments",
-                        text: "all documents",
-                        iconProps: { iconName: "Documentation" },
-                        onClick: () => props.handleReRunOcrForAllDocuments(),
-                    },
-                ],
-            },
-        },
-        {
             key: "zoomOut",
             text: "Zoom out",
             // This needs an ariaLabel since it's icon-only
@@ -105,6 +82,29 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
             iconOnly: true,
             iconProps: { iconName: "ZoomIn" },
             onClick: () => props.handleZoomIn(),
+        },
+        {
+            key: "reRunOCR",
+            title: "Additional actions",
+            ariaLabel: "Additional actions",
+            className: "re-run-ocr-item",
+            iconProps: { iconName: "More" },
+            subMenuProps: {
+                items: [
+                    {
+                        key: "reRunForSingleDocument",
+                        text: "re-run OCR current document",
+                        iconProps: { iconName: "TextDocument" },
+                        onClick: () => props.handleReRunOCR(),
+                    },
+                    {
+                        key: "reRunForAllDocuments",
+                        text: "re-run OCR for all documents",
+                        iconProps: { iconName: "Documentation" },
+                        onClick: () => props.handleReRunOcrForAllDocuments(),
+                    },
+                ],
+            },
         },
     ];
 
