@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import React, { MouseEvent } from "react";
-import { FontIcon, IconButton } from "office-ui-fabric-react";
+import { FontIcon, IconButton } from "@fluentui/react";
 import { ITag, ILabel, FieldType, FieldFormat } from "../../../../models/applicationState";
 import { strings } from "../../../../common/strings";
 import TagInputItemLabel from "./tagInputItemLabel";
