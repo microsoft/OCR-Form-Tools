@@ -15,29 +15,27 @@ import { IApplicationState } from '../../../models/applicationState';
  */
 
 export function PredictPageRoute() {
-    const modelId = useSelector((state: IApplicationState) => {
-        if (state.currentProject && state.currentProject.trainRecord) {
-            return state.currentProject.trainRecord.modelInfo.modelId;
-        }
-    });
-    const projectId = useSelector((state: IApplicationState) => {
-        if (state.currentProject) {
-            return state.currentProject.id;
+    const projectProperties = useSelector((state: IApplicationState) => {
+        if (state && state.currentProject) {
+            const { apiKey, folderPath, apiUriBase, id, trainRecord } = state.currentProject;
+            let modelId: string;
+            if (trainRecord) {
+                modelId = trainRecord.modelInfo.modelId;
+            }
+            return JSON.stringify({ id, apiKey, apiUriBase, folderPath, modelId });
         }
     });
 
-    const [prevModelId, setPrevModelId] = useState(modelId)
-    const [prevProjectId, setPrevProjectId] = useState(projectId)
+    const [prevProjectProperties, setPrevProjectProperties] = useState(projectProperties)
     const [renderPrediction, setRenderPrediction] = useState(true);
 
     useEffect(() => {
-        if (prevProjectId !== projectId || prevModelId !== modelId) {
+        if (projectProperties !== prevProjectProperties) {
             setRenderPrediction(false) // unmounts predictionPageRoute component on projectId or train ModelId change
-            setPrevProjectId(projectId);
-            setPrevModelId(modelId);
+            setPrevProjectProperties(projectProperties);
         }
-        return () => setRenderPrediction(true)
-    }, [renderPrediction, prevProjectId, projectId, prevModelId, modelId]);
+        return () => setRenderPrediction(true);
+    }, [renderPrediction, prevProjectProperties, projectProperties]);
 
     return (renderPrediction &&
         <Route
