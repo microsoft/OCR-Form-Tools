@@ -328,6 +328,7 @@ export enum ErrorCode {
     HttpStatusUnauthorized = "unauthorized",
     HttpStatusNotFound = "notFound",
     HttpStatusTooManyRequests = "tooManyRequests",
+    RequestSendError = "requestSendError",
 }
 
 /**

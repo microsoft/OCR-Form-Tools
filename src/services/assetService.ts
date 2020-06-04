@@ -21,43 +21,36 @@ const supportedImageFormats = {
 };
 
 interface IMime {
-    mime: string;
+    types: string[];
     pattern: (number|undefined)[];
-  }
+}
 
   // tslint:disable number-literal-format
   // tslint:disable no-magic-numbers
 const imageMimes: IMime[] = [
     {
-      mime: "image/bmp",
-      pattern: [0x42, 0x4d],
+        types: ["bmp"],
+        pattern: [0x42, 0x4d],
     },
     {
-      mime: "image/png",
-      pattern: [0x89, 0x50, 0x4e, 0x47],
+        types: ["png"],
+        pattern: [0x89, 0x50, 0x4e, 0x47],
     },
     {
-      mime: "image/jpeg",
-      pattern: [0xff, 0xd8, 0xff, 0xdb],
+        types: ["jpeg", "jpg"],
+        pattern: [0xff, 0xd8, 0xff],
     },
     {
-      mime: "image/jpg",
-      pattern: [0xff, 0xd8, 0xff, 0xf0, 0x00, 0xfe, 0xe1],
+        types: ["tif", "tiff"],
+        pattern: [0x49, 0x49, 0x42, 0x00],
     },
     {
-      mime: "image/tif",
-      pattern: [0x49, 0x49, 0x2a, 0x00],
-    },
-    {
-      mime: "image/tiff",
-      pattern: [0x4d, 0x4d, 0x00, 0x2a],
-    },
-    {
-      mime: "application/pdf",
-      pattern: [0x25, 0x50, 0x44, 0x46, 0x2d],
+        types: ["pdf"],
+        pattern: [0x25, 0x50, 0x44, 0x46, 0x2d],
     },
 ];
 // We can expand this list @see https://mimesniff.spec.whatwg.org/#matching-an-image-type-pattern
+const mimeBytesNeeded: number = (Math.max(...imageMimes.map((m) => m.pattern.length)) - 1);
 
 /**
  * @name - Asset Service
@@ -91,14 +84,14 @@ export class AssetService {
 
         // eslint-disable-next-line
         const extensionParts = fileNameParts[fileNameParts.length - 1].split(/[\?#]/);
-        let assetFormat = extensionParts[0];
+        let assetFormat = extensionParts[0].toLowerCase();
 
-        if (supportedImageFormats.hasOwnProperty(assetFormat.toLowerCase())) {
-            const mime = await this.getMimeType(filePath);
+        if (supportedImageFormats.hasOwnProperty(assetFormat)) {
+            const types = await this.getMimeType(filePath);
 
             // If file was renamed/spoofed - fix file extension to true MIME type and show message
-            if (assetFormat !== mime) {
-                assetFormat = mime;
+            if (!types.includes(assetFormat)) {
+                assetFormat = types[0];
                 const corruptFileName = fileName.split("%2F").pop().replace(/%20/g, " ");
                 setTimeout(() => {
                     toast.info(`${strings.editorPage.assetWarning.incorrectFileExtension.attention} ${corruptFileName.toLocaleUpperCase()} ${strings.editorPage.assetWarning.incorrectFileExtension.text} ${corruptFileName.toLocaleUpperCase()}`);
@@ -141,9 +134,8 @@ export class AssetService {
     }
 
     // If extension of a file was spoofed, we fetch only first 4 bytes of the file and read MIME type
-    public static async getMimeType(uri: string): Promise<string> {
-        const numBytesNeeded: number = (Math.max(...imageMimes.map((m) => m.pattern.length)) - 1);
-        const first4bytes: Response = await fetch(uri, { headers: { range: `bytes=0-${numBytesNeeded}` } });
+    public static async getMimeType(uri: string): Promise<string[]> {
+        const first4bytes: Response = await fetch(uri, { headers: { range: `bytes=0-${mimeBytesNeeded}` } });
         const arrayBuffer: ArrayBuffer = await first4bytes.arrayBuffer();
         const blob = new Blob([new Uint8Array(arrayBuffer).buffer]);
         const isMime = (bytes: Uint8Array, mime: IMime): boolean => {
@@ -151,21 +143,17 @@ export class AssetService {
         };
         const fileReader: FileReader = new FileReader();
 
-        const mimeType = new Promise<string>((resolve, reject) => {
+        return new Promise<string[]>((resolve, reject) => {
             fileReader.onloadend = (e) => {
-                if (!e || !fileReader.result) { return; }
+                if (!e || !fileReader.result) {
+                    return [];
+                }
                 const bytes: Uint8Array = new Uint8Array(fileReader.result as ArrayBuffer);
-                const fileMimes: string[] = imageMimes.map((mime) => {
-                    if (isMime(bytes, mime)) {
-                        return mime.mime;
-                    }
-                });
-                const mime: string = fileMimes.filter((i) => i !== undefined)[0].split("/").pop();
-                resolve(mime);
+                const type: string[] = imageMimes.filter((mime) => isMime(bytes, mime))?.[0]?.types;
+                resolve(type || []);
             };
             fileReader.readAsArrayBuffer(blob);
         });
-        return mimeType;
     }
 
     private assetProviderInstance: IAssetProvider;

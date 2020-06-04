@@ -79,7 +79,7 @@ export default class App extends React.Component<IAppProps> {
                         <BrowserRouter>
                             <div className={`app-shell platform-${platform}`}>
                                 <TitleBar icon="TagGroup">
-                                <div className="app-hotkeys-menu-icon">
+                                <div className="app-shortcuts-menu-icon">
                                     <KeyboardShortcuts />
                                 </div>
                                 <div className="app-help-menu-icon">

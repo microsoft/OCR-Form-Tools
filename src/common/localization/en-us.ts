@@ -389,6 +389,7 @@ export const english: IAppStrings = {
             keyboardShortcuts: "Keyboard shortcuts",
             otherTips: "Other tips",
         },
+        iconTitle: "Keyboard shortcuts and useful tips"
     },
     errors: {
         unknown: {
@@ -506,6 +507,11 @@ export const english: IAppStrings = {
             title: "Too many models",
             message: "The number of models associated with the given API key has exceeded the maximum allowed value.",
         },
+        requestSendError: {
+            title: "Request send error",
+            message: "Failed to send request to Azure Blob Container. Common issues: \n • SAS URI not valid \n • Cross-Origin Resource Sharing (CORS) is not configured server-side \n • Network error",
+
+        }
     },
 };
 

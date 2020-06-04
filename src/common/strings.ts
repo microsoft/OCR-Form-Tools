@@ -385,6 +385,7 @@ export interface IAppStrings {
             keyboardShortcuts: string,
             otherTips: string,
         },
+        iconTitle: string;
     };
     errors: {
         unknown: IErrorMetadata,
@@ -414,6 +415,7 @@ export interface IAppStrings {
         endpointConnectionError: IErrorMetadata,
         tooManyRequests: IErrorMetadata,
         modelCountLimitExceeded: IErrorMetadata,
+        requestSendError: IErrorMetadata,
     };
 }
 
