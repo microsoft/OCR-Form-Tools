@@ -42,6 +42,7 @@ import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
 import { getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/themes";
 import { SkipButton } from "../../shell/skipButton";
+import { AssetService } from "../../../../services/assetService";
 
 /**
  * Properties for Editor Page
@@ -64,10 +65,13 @@ export interface IEditorPageProps extends RouteComponentProps, React.Props<Edito
  */
 export interface IEditorPageState {
     /** Array of assets in project */
+    // * Note - this IS kept in store. Probably should refactor this into props
     assets: IAsset[];
     /** The editor mode to set for canvas tools */
     editorMode: EditorMode;
     /** The selected asset for the primary editing experience */
+    // * Note - this is not kept in store, but almost always synced with storage
+    // * Probably important to keep it this way for offline editing
     selectedAsset?: IAssetMetadata;
     /** Currently selected region on current asset */
     selectedRegions?: IRegion[];
@@ -175,13 +179,22 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         document.title = strings.editorPage.title + " - " + strings.appName;
     }
 
-    public async componentDidUpdate(prevProps: Readonly<IEditorPageProps>) {
+    public async componentDidUpdate(prevProps: Readonly<IEditorPageProps>, prevState: Readonly<IEditorPageState>) {
         if (this.props.project) {
             if (this.state.assets.length === 0) {
                 await this.loadProjectAssets();
             } else {
                 this.updateAssetsState();
             }
+        }
+        if ( this.state.selectedAsset?.generators && prevState.selectedAsset?.generators &&
+            (this.state.selectedAsset.generators !== prevState.selectedAsset.generators
+            || this.state.selectedAsset.generatorSettings !== prevState.selectedAsset.generatorSettings)
+        ) {
+            // ! this is what happens when project asset metadata isn't tracked in state
+            const assetService = new AssetService(this.props.project);
+            await assetService.saveGenerators(this.state.selectedAsset);
+            // While we wait, client and storage break sync - rapid updates will prob break things
         }
     }
 
@@ -198,7 +211,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const { assets, selectedAsset, isRunningOCRs, isCanvasRunningOCR } = this.state;
         const needRunOCRButton = assets.some((asset) => asset.state === AssetState.NotVisited);
 
-        // TODO I have this hunch that selectedAsset is not something we want in state, since we constantly communicate with project
         const labels = (selectedAsset &&
             selectedAsset.labelData &&
             selectedAsset.labelData.labels) || [];
@@ -537,6 +549,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         // Comment out below code as we allow regions without tags, it would make labeler's work easier.
         // TODO what does the comment above mean?
 
+        // Visit state update
         const initialState = assetMetadata.asset.state;
 
         const asset = { ...assetMetadata.asset };
@@ -549,19 +562,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             assetMetadata.asset.state = AssetState.Visited;
         }
 
-        // Only update asset metadata if state changes or is different
-        if (initialState !== assetMetadata.asset.state || this.state.selectedAsset !== assetMetadata) {
-            // TODO - doesn't make sense that we're communicating with store like this
-            // * Why do we maintain a local state for the selected asset if it lives in the store?
-            await this.props.actions.updatedAssetMetadata(this.props.project, this.state.selectedAsset, assetMetadata);
-            // TODO study this - why is saving separate?
-            await this.props.actions.saveAssetMetadata(this.props.project, assetMetadata);
-            if (this.props.project.lastVisitedAssetId === assetMetadata.asset.id) {
-                this.setState({selectedAsset: assetMetadata});
-            }
-        }
-
-        // Find and update the root asset in the internal state
+         // Find and update the root asset in the internal state
         // This forces the root assets that are displayed in the sidebar to
         // accurately show their correct state (not-visited, visited or tagged)
         const assets = [...this.state.assets];
@@ -577,6 +578,17 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         // Workaround for if component is unmounted
         if (!this.isUnmount) {
             this.props.appTitleActions.setTitle(`${this.props.project.name} - [ ${asset.name} ]`);
+        }
+
+        // Only update asset metadata if state changes or is different
+        if (initialState !== assetMetadata.asset.state || this.state.selectedAsset !== assetMetadata) {
+            // * Note - this is actually a tag update, store doesn't hold assetMetadata...
+            await this.props.actions.updatedAssetMetadata(this.props.project, this.state.selectedAsset, assetMetadata);
+            // * Hence why we "update" (not really update) and save in separate actions
+            await this.props.actions.saveAssetMetadata(this.props.project, assetMetadata);
+            if (this.props.project.lastVisitedAssetId === assetMetadata.asset.id) {
+                this.setState({selectedAsset: assetMetadata});
+            }
         }
     }
 
@@ -652,8 +664,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             tableToViewId: null,
             selectedAsset: assetMetadata,
         }, async () => {
+            // * We update here just to manage the visit state update
             await this.onAssetMetadataChanged(assetMetadata);
-            // TODO why saveProject?
             await this.props.actions.saveProject(this.props.project, false, false);
         });
     }
@@ -681,7 +693,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         this.setState({
             assets,
         }, async () => {
-            // TODO why saveProject? How do we propagate our local state to projects anyway?
+            // TODO why saveProject? Didn't we just load it?
             await this.props.actions.saveProject(this.props.project, false, true);
             this.setState({ assetsLoaded: true });
             if (assets.length > 0) {
@@ -783,12 +795,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private onGeneratorEnter = (hoveredGenerator: IGenerator) => {
-        // TODO currently only attached to editor, not canvas
-        this.setState({hoveredGenerator});
+        this.setState({ hoveredGenerator });
     }
 
     private onGeneratorLeave = (generator: IGenerator) => {
-        this.setState({hoveredGenerator: null});
+        this.setState({ hoveredGenerator: null });
     }
 
     private onCanvasRunningOCRStatusChanged = (isCanvasRunningOCR: boolean) => {
@@ -858,7 +869,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private onGeneratorsChanged = (newGenerators?: IGenerator[]) => {
-        // TODO update project (use IAssetMetadataChanged) - actually, can we just use that?
         const generators = [...newGenerators]; // make a copy just in case
         this.setState({
             selectedAsset: { ...this.state.selectedAsset, generators }

@@ -10,6 +10,7 @@ export const constants = {
     projectFileExtensionOld: ".vott",
     projectFileExtension: ".fott",
     labelFileExtension: ".labels.json",
+    generatorFileExtension: ".generators.json",
     ocrFileExtension: ".ocr.json",
     fieldsFileName: "fields.json",
     maxConcurrentServiceRequests: 3,

@@ -15,6 +15,7 @@ const tagColors = require("../../react/components/common/tagColors.json");
  * SAVE_PROJECT_SUCCESS
  * LOAD_PROJECT_ASSETS_SUCCESS
  * SAVE_ASSET_METADATA_SUCCESS
+ * UPDATE_TAG_LABEL_COUNTS_SUCCESS
  * @param state - Current project
  * @param action - Action that was dispatched
  */

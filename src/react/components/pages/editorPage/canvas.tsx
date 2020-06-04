@@ -1547,11 +1547,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             labelUpdate = this.getAssetRegionUpdate(regionsToBeKept.concat(regions));
         }
         // Not going to add the filter until it seems necessary
-        let generatorUpdate = this.getAssetGeneratorUpdate(assetMetadata.generators);
+        // const generatorUpdate = this.getAssetGeneratorUpdate(assetMetadata.generators);
         const newAsset = {
             ...assetMetadata,
             ...labelUpdate,
-            ...generatorUpdate
+            // ...generatorUpdate
         };
         this.props.onAssetMetadataChanged(newAsset);
     }

@@ -217,6 +217,14 @@ export class AssetService {
         return returnedAssets;
     }
 
+    private getLabelFilename = (asset: IAsset) => {
+        return decodeURIComponent(`${asset.name}${constants.labelFileExtension}`);
+    }
+
+    private getGeneratorFilename = (asset: IAsset) => {
+        return decodeURIComponent(`${asset.name}${constants.generatorFileExtension}`);
+    }
+
     /**
      * Save metadata for asset
      * @param metadata - Metadata for asset
@@ -224,11 +232,11 @@ export class AssetService {
     public async save(metadata: IAssetMetadata): Promise<IAssetMetadata> {
         Guard.null(metadata);
 
-        const labelFileName = decodeURIComponent(`${metadata.asset.name}${constants.labelFileExtension}`);
+        // Labels
+        const labelFileName = this.getLabelFilename(metadata.asset);
         if (metadata.labelData) {
             await this.storageProvider.writeText(labelFileName, JSON.stringify(metadata.labelData, null, 4));
         }
-
         if (metadata.asset.state !== AssetState.Tagged) {
             // If the asset is no longer tagged, then it doesn't contain any regions
             // and the file is not required.
@@ -238,7 +246,27 @@ export class AssetService {
                 // The file may not exist - that's OK.
             }
         }
+
+        await this.saveGenerators(metadata);
+
         return metadata;
+    }
+
+    public async saveGenerators(metadata: IAssetMetadata): Promise<void> {
+        Guard.null(metadata);
+        // Generators
+        // TODO ideally we would make separate calls for lightweight settings change and generators
+        const generatorFilename = this.getGeneratorFilename(metadata.asset);
+        if (metadata.generators || metadata.generatorSettings) {
+            const generatorData = {
+                generators: metadata.generators,
+                generatorSettings: metadata.generatorSettings,
+            };
+            await this.storageProvider.writeText(generatorFilename, JSON.stringify(generatorData, null, 4));
+        }
+
+        // TODO deletion logic
+        return;
     }
 
     /**
@@ -247,7 +275,7 @@ export class AssetService {
      */
     public async getAssetMetadata(asset: IAsset): Promise<IAssetMetadata> {
         Guard.null(asset);
-        const defaultAssetMetadata: IAssetMetadata = {
+        let assetMetadata: IAssetMetadata = {
             asset: { ...asset },
             regions: [],
             generators: [],
@@ -257,7 +285,16 @@ export class AssetService {
             version: appInfo.version,
             labelData: null,
         };
-        const labelFileName = decodeURIComponent(`${asset.name}${constants.labelFileExtension}`);
+        const labelFilename = this.getLabelFilename(asset);
+        // TODO parallelize
+        assetMetadata.labelData = await this.getLabelDataFromJSON(labelFilename);
+        const generatorFilename = this.getGeneratorFilename(asset);
+        const generatorUpdate = await this.getGeneratorDataFromJSON(generatorFilename);
+        assetMetadata = {...assetMetadata, ...generatorUpdate};
+        return assetMetadata;
+    }
+
+    private async getLabelDataFromJSON(labelFileName: string): Promise<ILabelData> {
         try {
             const json = await this.storageProvider.readText(labelFileName, true);
             const labelData = JSON.parse(json) as ILabelData;
@@ -304,14 +341,40 @@ export class AssetService {
                 }
             }
             toast.dismiss();
-            defaultAssetMetadata.labelData = labelData;
-            return defaultAssetMetadata;
+            return labelData;
         } catch (err) {
             if (err instanceof SyntaxError) {
                 const reason = interpolate(strings.errors.invalidJSONFormat.message, { labelFileName });
                 toast.error(reason, { autoClose: false });
             }
-            return defaultAssetMetadata;
+            return null;
+        }
+    }
+
+    private async getGeneratorDataFromJSON(filename): Promise<Partial<IAssetMetadata>> {
+        try {
+            const json = await this.storageProvider.readText(filename, true);
+            const generatorData = JSON.parse(json) as Partial<IAssetMetadata>;
+            if (!generatorData.generators || !generatorData.generatorSettings) {
+                // TODO custom warnings
+                const reason = interpolate(strings.errors.missingRequiredFieldInLabelFile.message, { filename });
+                toast.error(reason, { autoClose: false });
+                throw new Error("Invalid generator file");
+            }
+            // TODO use a separate json validator
+            // TODO validate generators
+
+            // TODO validate generator settings
+            // TODO multiple page support
+
+            toast.dismiss();
+            return generatorData;
+        } catch (err) {
+            if (err instanceof SyntaxError) {
+                const reason = interpolate(strings.errors.invalidJSONFormat.message, { filename });
+                toast.error(reason, { autoClose: false });
+            }
+            return {};
         }
     }
 

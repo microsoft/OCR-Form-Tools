@@ -130,20 +130,20 @@ export function updatedAssetMetadata(
                 dispatch(updatedLabelCountsAction(updatedProject));
             }
         }
-        // TODO - going to need to pipe asset identity somehow
+        // ! Surprise - assetMetadata proper isn't even stored. So we're skipping updates.
+        // * Will be relying on assetMetadata requests
         // diff generators
-        if (oldMetadata.generators &&
-            newMetadata.generators &&
-            oldMetadata.generators !== newMetadata.generators) {
-            // update.generators = newMetadata.generators;
-        }
+        // if (oldMetadata.generators &&
+        //     newMetadata.generators &&
+        //     oldMetadata.generators !== newMetadata.generators) {
+        //     // update.generators = newMetadata.generators;
+        // }
 
-        // diff generatorSettings
-        if (oldMetadata.generatorSettings && newMetadata.generatorSettings &&
-            oldMetadata.generatorSettings !== newMetadata.generatorSettings) {
-            // update.generatorSettings = newMetadata.generatorSettings;
-        }
-
+        // // diff generatorSettings
+        // if (oldMetadata.generatorSettings && newMetadata.generatorSettings &&
+        //     oldMetadata.generatorSettings !== newMetadata.generatorSettings) {
+        //     // update.generatorSettings = newMetadata.generatorSettings;
+        // }
     };
 }
 
@@ -451,7 +451,7 @@ export const updateProjectTagsFromFilesAction =
 export const updatedLabelCountsAction =
     createPayloadAction<IUpdateTagDocumentCount>(ActionTypes.UPDATE_TAG_LABEL_COUNTS_SUCCESS);
 
-// ! Do we need to do this?
+// ! Do we need to do this? What in the store is even holding this?
 // What is actually in the store? Just the assets or the metadata as well?
 export const updatedGeneratorsAction =
     createPayloadAction<IUpdateTagDocumentCount>(ActionTypes.UPDATE_TAG_LABEL_COUNTS_SUCCESS);
