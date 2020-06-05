@@ -5,7 +5,7 @@ import React from "react";
 import { ITag } from "../../../../models/applicationState";
 import "./predictResult.scss";
 import { getPrimaryGreenTheme } from "../../../../common/themes";
-import { PrimaryButton } from "office-ui-fabric-react";
+import { PrimaryButton } from "@fluentui/react";
 
 export interface IPredictResultProps {
     predictions: { [key: string]: any };

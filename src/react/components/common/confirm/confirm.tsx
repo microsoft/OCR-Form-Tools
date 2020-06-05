@@ -11,7 +11,7 @@ import {
     ITheme,
     PrimaryButton,
     DefaultButton,
-} from "office-ui-fabric-react";
+} from "@fluentui/react";
 import { MessageFormatHandler } from "../messageBox/messageBox";
 import { getDarkTheme } from "../../../../common/themes";
 

@@ -1,5 +1,10 @@
 # FoTT Changelog 
 
+## 2.0.0-9c8f768 (06-04-2020)
+* feat: enable download analyze script ([#304](https://github.com/microsoft/OCR-Form-Tools/commit/9c97ed0ff9b0aa72ec9a197fc92f3a5998135c36))
+* fix: check ocrread results before getting image extent ([#296](https://github.com/microsoft/OCR-Form-Tools/commit/61dba02fc6f19eb854e1f499e475b1336e6171b9))
+* feat: Add better error message for CORS ([#289](https://github.com/microsoft/OCR-Form-Tools/commit/8f210792b4d84e424b00499efb540b0e27e9fdad))
+
 ## 2.0.0-2760166 (05-30-2020)
 * fix: fix mime check bug for jpeg/jpg and tiff ([#291](https://github.com/microsoft/OCR-Form-Tools/commit/2760166bcb809bbfdc207b01db49f00153318624))
 * refactor: simplify shortcut descriptions ([#277](https://github.com/microsoft/OCR-Form-Tools/commit/db95b0e2510f6cef9bc7279fe0a19dce239c816e))

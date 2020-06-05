@@ -3,7 +3,7 @@
 
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { FontIcon } from "office-ui-fabric-react";
+import { FontIcon } from "@fluentui/react";
 import ConditionalNavLink from "../common/conditionalNavLink/conditionalNavLink";
 import { strings } from "../../../common/strings";
 

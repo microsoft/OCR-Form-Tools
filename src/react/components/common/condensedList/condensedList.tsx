@@ -3,8 +3,8 @@
 
 import React, { SyntheticEvent } from "react";
 import { Link } from "react-router-dom";
-import { FontIcon } from "office-ui-fabric-react";
-import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
+import { FontIcon } from "@fluentui/react";
+import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
 import "./condensedList.scss";
 
 /**
