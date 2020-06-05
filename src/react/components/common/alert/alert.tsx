@@ -12,7 +12,7 @@ import {
     ICustomizations,
     ITheme,
     PrimaryButton,
-} from "office-ui-fabric-react";
+} from "@fluentui/react";
 /**
  * Properties for Alert Component
  * @member closeButtonText - Text displayed on 'Close' button. Default 'OK'
@@ -68,6 +68,7 @@ export default class Alert extends React.Component<IAlertProps, IAlertState> {
                             type: DialogType.normal,
                             title: this.props.title,
                             subText: this.getMessage(this.props.message),
+                            isMultiline: true,
                         }}
                         modalProps={{
                             isBlocking: false,
@@ -95,8 +96,21 @@ export default class Alert extends React.Component<IAlertProps, IAlertState> {
         if (typeof message === "function") {
             return message.apply(this, this.state.params);
         } else {
+            if (message.toString().includes("\n")){
+                message = this.multilineMessage(message);
+            }
             return message;
         }
+    }
+
+    private multilineMessage = (message: string | MessageFormatHandler | ReactElement<any>) => {
+        const messageList = message.toString().split("\n");
+        const leng = messageList.length;
+        const elements = [<div>{messageList[0]}<br/></div>];
+        messageList.splice(1,leng-1).forEach((m) => {
+            elements.push(<div>{m}<br/></div>);
+        })
+        return <div>{elements}</div>;
     }
 
 }

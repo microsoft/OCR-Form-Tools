@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { FontIcon, DefaultButton } from "office-ui-fabric-react";
+import { FontIcon, DefaultButton } from "@fluentui/react";
 import { getPrimaryGreyTheme } from "../../../../common/themes";
 
 /**
