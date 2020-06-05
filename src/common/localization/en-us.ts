@@ -384,6 +384,10 @@ export const english: IAppStrings = {
                 name: "Select multiple words",
                 description: "Click and hold on word. Then, hover over additional words.",
             },
+            deleteAllLabelsForTag: {
+                name: "Delete all labels for a tag",
+                description: "Select all labels for a tag on document and press 'delete' key"
+            }
         },
         headers: {
             keyboardShortcuts: "Keyboard shortcuts",
