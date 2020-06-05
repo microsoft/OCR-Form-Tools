@@ -268,7 +268,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             lockedTags={this.state.lockedTags}
                                             hoveredLabel={this.state.hoveredLabel}
                                             setTableToView={this.setTableToView}
-                                            closeTableView={this.closeTableView}>
+                                            closeTableView={this.closeTableView}
+                                            rerunAllOcr={this.loadAllOCRs}>
                                             <AssetPreview
                                                 controlsEnabled={this.state.isValid}
                                                 onBeforeAssetChanged={this.onBeforeAssetSelected}
@@ -628,11 +629,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         });
     }
 
-    public loadAllOCRs = async () => {
+    public loadAllOCRs = async (rerunOCR?) => {
         if (this.state.isRunningOCRs) {
             return;
         }
-
         const { project } = this.props;
         const ocrService = new OCRService(project);
         if (this.state.assets) {
@@ -640,23 +640,25 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             try {
                 await throttle(
                     constants.maxConcurrentServiceRequests,
-                    this.state.assets.filter((asset) => asset.state === AssetState.NotVisited).map((asset) => asset.id),
+                    this.state.assets
+                        .filter((asset) => rerunOCR ? asset : asset.state === AssetState.NotVisited)
+                        .map((asset) => asset.id),
                     async (assetId) => {
                         // Get the latest version of asset.
                         const asset = this.state.assets.find((asset) => asset.id === assetId);
-                        if (asset && asset.state === AssetState.NotVisited) {
-                            try {
-                                this.updateAssetState(asset.id, true);
-                                await ocrService.getRecognizedText(asset.path, asset.name);
-                                this.updateAssetState(asset.id, false, AssetState.Visited);
-                            } catch (err) {
-                                this.updateAssetState(asset.id, false);
-                                this.setState({
-                                    isError: true,
-                                    errorTitle: err.title,
-                                    errorMessage: err.message,
-                                });
-                            }
+                        if (asset && (asset.state === AssetState.NotVisited || rerunOCR)) {
+                                try {
+                                    this.updateAssetState(asset.id, true);
+                                    await ocrService.getRecognizedText(asset.path, asset.name, undefined, rerunOCR);
+                                    this.updateAssetState(asset.id, false, AssetState.Visited);
+                                } catch (err) {
+                                    this.updateAssetState(asset.id, false);
+                                    this.setState({
+                                        isError: true,
+                                        errorTitle: err.title,
+                                        errorMessage: err.message,
+                                    });
+                                }
                         }
                 });
             } finally {

@@ -52,6 +52,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onCanvasRendered?: (canvas: HTMLCanvasElement) => void;
     onRunningOCRStatusChanged?: (isRunning: boolean) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
+    rerunAllOcr?: (rerunOCR:boolean) => void;
 }
 
 export interface ICanvasState {
@@ -145,19 +146,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private tableIDToIndexMap: object;
 
-    private loadProject = async () => {
-        if (this.props.project) {
-            this.ocrService = new OCRService(this.props.project);
-            const asset = this.state.currentAsset.asset;
-            await this.loadImage();
-            await this.loadOcr();
-            this.loadLabelData(asset);
-        }
-
-    }
-
-    public componentDidMount =  () => {
-        this.loadProject();
+    public componentDidMount = async () => {
+        this.ocrService = new OCRService(this.props.project);
+        const asset = this.state.currentAsset.asset;
+        await this.loadImage();
+        await this.loadOcr();
+        this.loadLabelData(asset);
     }
 
     public componentDidUpdate = async (prevProps: Readonly<ICanvasProps>, prevState: Readonly<ICanvasState>) => {
@@ -226,7 +220,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleZoomOut={this.handleCanvasZoomOut}
                     layers={this.state.layers}
                     handleReRunOCR={this.setRerunOCR}
-                    handleReRunOcrForAllDocuments={this.rerunOcrForAllPages}
+                    handleReRunOcrForAllDocuments={this.rerunOcrForAllDocuments}
                 />
                 <ImageMap
                     ref={(ref) => this.imageMap = ref}
@@ -299,8 +293,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             </div>
         );
     }
-    public rerunOcrForAllPages = () => {
-        ///
+
+    private rerunOcrForAllDocuments = () => {
+        this.setState({ocrStatus: OcrStatus.runningOCR})
+        this.props.rerunAllOcr(true);
     }
 
     public updateSize() {
@@ -962,7 +958,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private loadOcr = async () => {
         const asset = this.state.currentAsset.asset;
-        console.log(asset);
 
         if (asset.isRunningOCR) {
             // Skip loading OCR this time since it's running. This will be triggered again once it's finished.
