@@ -11,7 +11,7 @@ import {
     ICustomizations,
     Spinner,
     SpinnerSize,
-} from "office-ui-fabric-react";
+} from "@fluentui/react";
 import { strings } from "../../../../common/strings";
 import { getDarkTheme } from "../../../../common/themes";
 import { AlignPortal } from "../align/alignPortal";

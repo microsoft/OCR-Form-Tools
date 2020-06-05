@@ -2,9 +2,9 @@
 // Licensed under the MIT license.
 
 import React, { ReactElement } from "react";
-import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
-import { Label } from "office-ui-fabric-react/lib/Label";
-import { IconButton } from "office-ui-fabric-react/lib/Button";
+import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
+import { Label } from "@fluentui/react/lib/Label";
+import { IconButton } from "@fluentui/react/lib/Button";
 import {
     EditorMode, IAssetMetadata,
     IProject, IRegion, RegionType,
@@ -33,7 +33,7 @@ import HtmlFileReader from "../../../../common/htmlFileReader";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./canvasCommandBar";
-import { TooltipHost, ITooltipHostStyles } from "office-ui-fabric-react";
+import { TooltipHost, ITooltipHostStyles } from "@fluentui/react";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);

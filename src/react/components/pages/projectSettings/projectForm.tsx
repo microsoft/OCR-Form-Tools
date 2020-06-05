@@ -14,7 +14,7 @@ import "vott-react/dist/css/tagsInput.css";
 import { IConnectionProviderPickerProps } from "../../common/connectionProviderPicker/connectionProviderPicker";
 import { ProjectSettingAction } from "./projectSettingAction";
 import { ProtectedInput } from "../../common/protectedInput/protectedInput";
-import { PrimaryButton } from "office-ui-fabric-react";
+import { PrimaryButton } from "@fluentui/react";
 import { getPrimaryGreenTheme, getPrimaryGreyTheme } from "../../../../common/themes";
 
 // tslint:disable-next-line:no-var-requires
