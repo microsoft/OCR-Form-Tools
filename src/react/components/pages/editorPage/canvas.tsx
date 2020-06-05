@@ -20,8 +20,9 @@ import Icon from "ol/style/Icon";
 import Point from "ol/geom/Point";
 import Stroke from "ol/style/Stroke";
 import Fill from "ol/style/Fill";
+import Text from "ol/style/Text";
 import { OCRService, OcrStatus } from "../../../../services/ocrService";
-import { Feature, DrawEvent} from "ol";
+import { Feature, DrawEvent } from "ol";
 import { Extent } from "ol/extent";
 import { KeyboardBinding } from "../../common/keyboardBinding/keyboardBinding";
 import { KeyEventType } from "../../common/keyboardManager/keyboardManager";
@@ -34,6 +35,7 @@ import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../.
 import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./canvasCommandBar";
 import { TooltipHost, ITooltipHostStyles } from "office-ui-fabric-react";
+import { generateString } from "../../common/generators/generateStrings";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -79,6 +81,7 @@ export interface ICanvasState {
     tableIconTooltip: any;
     hoveringFeature: string;
     points: number[];
+    generatorStrings: {[id: string]: string},
 }
 
 interface IRegionOrder {
@@ -133,6 +136,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         tableIconTooltip: { display: "none", width: 0, height: 0, top: 0, left: 0},
         hoveringFeature: null,
         points: [],
+        generatorStrings: {},
     };
 
     private imageMap: ImageMap;
@@ -379,6 +383,55 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.applyTagFlag = true;
     }
 
+    /**
+     * Fill in generators with sample (only a preview).
+     * We'll perform the actual pdf file generation when user trains.
+     * Just leave an generatorEditorProp for whether to use empty label feature or not.
+     * Flexibly close to using empty label features.
+     */
+    public generate = (generators: IGenerator[]) => {
+        const generatorStrings = {}
+        generators.forEach(g => {
+            generatorStrings[g.id] = generateString(g);
+        });
+        this.setState({generatorStrings}, this.redrawGeneratorFeatures);
+    }
+
+    // basic alignment heuristic - left aligned with small padding
+    private createTextStyle = (feature: any, resolution, style?: Partial<GeneratorTextStyle>) => {
+        // TODO grab font size from context intelligently?
+        // assuming font size of 12-18, we need resolution *
+        // zoom in => res goes down
+
+        const ext = feature.getGeometry().getExtent(); // BL X, BL Y, TR X, TR Y
+        const center = (ext[0] + ext[2]) / 2;
+        const tl = ext[0]; // has desired x
+        const leftAlign = tl - center;
+        const updateStyle = style || {};
+        const paddingMU = 20;
+        style = { ...defaultStyle, ...updateStyle };
+        // resolution - number of map units per pixel
+        style.offsetX += (leftAlign + paddingMU) / resolution; // this needs pixels
+        const font = `${style.weight} ${style.size}px/${style.lineHeight} ${style.fontFamily}`;
+        const { offsetX, offsetY, placement, maxAngle, overflow, rotation } = style;
+        return new Text({
+          textAlign: style.align === '' ? undefined : style.align,
+          textBaseline: style.baseline,
+          font,
+          text: "",
+          fill: new Fill({color: style.fill}),
+          stroke: new Stroke({color: style.outlineColor, width: style.outlineWidth}),
+          offsetX,
+          offsetY,
+          placement,
+          maxAngle,
+          overflow,
+          rotation,
+          scale: 2 / resolution, // resist zoom scale (inverse of whatever OL is doing)
+        });
+    };
+
+
     private setTagType = (tag: ITag, fieldType: FieldType) => {
         if (tag.type === fieldType) {
             return;
@@ -463,7 +516,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 Math.round(boundingBox[i] * imageWidth),
                 Math.round((1 - boundingBox[i + 1]) * imageHeight),
             ]);
-            // TODO some concern around how we incorporate imageWidth and height, prob
         }
 
         const feature = new Feature({
@@ -800,9 +852,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
     }
 
-    private generatorFeatureStyler = (feature) => {
+    private generatorFeatureStyler = (feature, resolution) => {
         const regionId = feature.get("id");
         const region = this.props.generators.find(g => g.id === regionId);
+        // TODO style according to generator
+        const text = this.createTextStyle(feature, resolution);
+        text.setText(this.state.generatorStrings[region.id] || ""); // careful, there's a length here...
         // Selected
         if (regionId && this.props?.activeGeneratorRegionId === regionId) {
             return new Style({
@@ -813,6 +868,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 fill: new Fill({
                     color: "rgba(110, 255, 80, 0.4)",
                 }),
+                text,
             });
         } else {
             // Unselected
@@ -829,6 +885,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 fill: new Fill({
                     color,
                 }),
+                text,
             });
         }
     }
@@ -1234,13 +1291,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (!feature) {
             return null;
         }
-        const geometry = feature.values_.geometry;
+        const geometry = feature.getGeometry();
         // snap tool will make last 2 coords match first 2
         const points = geometry.flatCoordinates.slice(0, -2);
-        const id = Math.random().toString(36).slice(4);
+        const id = Math.random().toString(36).slice(8);
         return {
             points,
-            extent: geometry.extent_,
+            extent: geometry.getExtent(),
             id,
         }
     }
@@ -1251,7 +1308,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             id: regionInfo.id,
         });
         const metadata = {
-            name: "Generator",
+            name: "Gen",
             type: FieldType.String,
             format: FieldFormat.Alphanumeric,
             color: "#777",
@@ -1955,3 +2012,39 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         return false;
     }
 }
+
+interface GeneratorTextStyle {
+    fontFamily: string,
+    lineHeight: number,
+    align: string,
+    baseline: string,
+    size: number,
+    offsetX: number,
+    offsetY: number,
+    weight: number,
+    placement: any,
+    maxAngle: any,
+    overflow: any,
+    rotation: number,
+    fill: any,
+    outlineColor: any,
+    outlineWidth: number,
+}
+
+const defaultStyle: GeneratorTextStyle = {
+    fontFamily: "sans-serif",
+    lineHeight: 1.0,
+    align: "left",
+    baseline: "middle",
+    size: 14,
+    offsetX: 0,
+    offsetY: 0,
+    weight: 50,
+    placement: "point",
+    maxAngle: undefined,
+    overflow: "true",
+    rotation: 0,
+    fill: "#000",
+    outlineColor: "#000",
+    outlineWidth: 0,
+};

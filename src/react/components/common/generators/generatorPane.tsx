@@ -7,6 +7,7 @@ import {
     Spinner,
     SpinnerSize,
     Customizer,
+    PrimaryButton,
 } from "office-ui-fabric-react";
 import "./generatorPane.scss";
 import "../condensedList/condensedList.scss";
@@ -14,6 +15,7 @@ import GeneratorEditor from "./generatorEditor";
 import { dark, TagOperationMode, onItemRename, FormattedItemContextMenu, ColorPickerPortal } from "../tagInput/tagInput";
 import { toast } from "react-toastify";
 import { ITagClickProps } from "../tagInput/tagInputItem";
+import { getPrimaryGreenTheme } from "../../../../common/themes";
 
 import { FormattedItem, NamedItem, IGenerator, IGeneratorSettings } from "../../../../models/applicationState";
 import TagInputToolbar, { ItemToolbarOptions } from "../tagInput/tagInputToolbar";
@@ -32,6 +34,7 @@ export interface IGeneratorPaneProps {
     onEditorEnter: (generator: IGenerator) => void,
     onEditorLeave: (generator: IGenerator) => void,
     setGeneratorSettings: (settings: Partial<IGeneratorSettings>) => void;
+    onGenerateClick: () => void;
 }
 
 const strings = {
@@ -40,7 +43,9 @@ const strings = {
         search: {
             placeholder: "Search generators"
         },
-        generateCount: "Generation Count:"
+        generateCount: "Generation Count:",
+        generateDesc: "Preview Generation",
+        generateAction: "Generate",
     }
 }
 
@@ -230,7 +235,7 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
                 props.generatorsLoaded ?
                     <div className="tag-input-body">
                         <div className="tag-input">
-                            <span className="tag-input-text-input-row">
+                            <div className="tag-input-text-input-row">
                                 <span className="tag-input-input-row-desc">
                                     {strings.generator.generateCount}
                                 </span>
@@ -243,7 +248,21 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
                                     min="1"
                                     max="10"
                                 />
-                            </span>
+                            </div>
+                            <div className="tag-input-text-input-row">
+                                <span className="tag-input-input-row-desc">
+                                    {strings.generator.generateDesc}
+                                </span>
+                                <PrimaryButton
+                                    id="generate_generateButton"
+                                    theme={getPrimaryGreenTheme()}
+                                    autoFocus={true}
+                                    className="flex-center"
+                                    onClick={props.onGenerateClick}>
+                                    <FontIcon iconName="MachineLearning" />
+                                    <h6 className="d-inline text-shadow-none ml-2 mb-0"> {strings.generator.generateAction} </h6>
+                                </PrimaryButton>
+                            </div>
                         </div>
                         {
                             searchOpen &&

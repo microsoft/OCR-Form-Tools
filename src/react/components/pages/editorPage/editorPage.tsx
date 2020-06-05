@@ -368,6 +368,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             onGeneratorsDeleted={this.confirmGeneratorsDeleted}
                                             onEditorEnter={this.onGeneratorEnter}
                                             onEditorLeave={this.onGeneratorLeave}
+                                            onGenerateClick={this.onGenerateClick}
                                             />
                                         <Confirm title={"Delete Generator"}
                                             ref={this.deleteGeneratorConfirm}
@@ -802,6 +803,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     private onGeneratorLeave = (generator: IGenerator) => {
         this.setState({ hoveredGenerator: null });
+    }
+
+    private onGenerateClick = () => {
+        this.canvas.current.generate(this.state.selectedAsset.generators);
     }
 
     private onCanvasRunningOCRStatusChanged = (isCanvasRunningOCR: boolean) => {
