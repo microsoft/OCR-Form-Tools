@@ -647,20 +647,20 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                         // Get the latest version of asset.
                         const asset = this.state.assets.find((asset) => asset.id === assetId);
                         if (asset && (asset.state === AssetState.NotVisited || rerunOCR)) {
-                                try {
-                                    this.updateAssetState(asset.id, true);
-                                    await ocrService.getRecognizedText(asset.path, asset.name, undefined, rerunOCR);
-                                    this.updateAssetState(asset.id, false, AssetState.Visited);
-                                } catch (err) {
-                                    this.updateAssetState(asset.id, false);
-                                    this.setState({
-                                        isError: true,
-                                        errorTitle: err.title,
-                                        errorMessage: err.message,
-                                    });
-                                }
+                            try {
+                                this.updateAssetState(asset.id, true);
+                                await ocrService.getRecognizedText(asset.path, asset.name, undefined, rerunOCR);
+                                this.updateAssetState(asset.id, false, AssetState.Visited);
+                            } catch (err) {
+                                this.updateAssetState(asset.id, false);
+                                this.setState({
+                                    isError: true,
+                                    errorTitle: err.title,
+                                    errorMessage: err.message,
+                                });
+                            }
                         }
-                });
+                    });
             } finally {
                 this.setState({ isRunningOCRs: false });
             }
