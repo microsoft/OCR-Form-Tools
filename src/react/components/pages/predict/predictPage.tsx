@@ -156,17 +156,24 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const urlInputDisabled: boolean = !this.state.predictionLoaded || this.state.isFetching;
         const predictDisabled: boolean = !this.state.predictionLoaded || !this.state.file;
         const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
-        const fetchDisabled: boolean = !this.state.predictionLoaded || this.state.isFetching ||
-                                        this.state.inputedFileURL.length === 0 ||
-                                        this.state.inputedFileURL === strings.predict.defaultURLInput;
+        const fetchDisabled: boolean =
+            !this.state.predictionLoaded ||
+            this.state.isFetching ||
+            this.state.inputedFileURL.length === 0 ||
+            this.state.inputedFileURL === strings.predict.defaultURLInput;
 
         const sourceOptions: IDropdownOption[] = [
             { key: "localFile", text: "Local file" },
             { key: "url", text: "URL" },
         ];
 
+        const onPredictionPath: boolean = this.props.match.path.includes("predict");
+
         return (
-            <div className="predict skipToMainContent" id="pagePredict">
+            <div
+                className={`predict skipToMainContent ${onPredictionPath ? "" : "hidden"} `}
+                id="pagePredict"
+                style={{ display: `${onPredictionPath ? "flex" : "none"}` }} >
                 <div className="predict-main">
                     {this.state.file && this.state.imageUri && this.renderImageMap()}
                     {this.renderPrevPageButton()}
@@ -296,7 +303,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                     />
                                 </div>
                             }
-                            {Object.keys(predictions).length > 0 &&
+                            {Object.keys(predictions).length > 0 && this.props.project &&
                                 <PredictResult
                                     predictions={predictions}
                                     analyzeResult={this.state.analyzeResult}
