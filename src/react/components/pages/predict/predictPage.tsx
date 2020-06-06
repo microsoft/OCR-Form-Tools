@@ -303,7 +303,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                     />
                                 </div>
                             }
-                            {Object.keys(predictions).length > 0 &&
+                            {Object.keys(predictions).length > 0 && this.props.project &&
                                 <PredictResult
                                     predictions={predictions}
                                     analyzeResult={this.state.analyzeResult}
