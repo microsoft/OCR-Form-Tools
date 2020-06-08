@@ -213,8 +213,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleZoomIn={this.handleCanvasZoomIn}
                     handleZoomOut={this.handleCanvasZoomOut}
                     layers={this.state.layers}
-                    handleReRunOCR={this.rerunOcr}
-                    handleReRunOcrForAllDocuments={this.rerunOcrForAllDocuments}
+                    handleRerunOcr={this.rerunOcr}
+                    handleRerunOcrForAllDocuments={this.rerunOcrForAllDocuments}
                 />
                 <ImageMap
                     ref={(ref) => this.imageMap = ref}

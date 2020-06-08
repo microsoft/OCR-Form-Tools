@@ -6,8 +6,8 @@ import { getDarkGreyTheme } from "../../../../common/themes";
 interface ICanvasCommandBarProps {
     handleZoomIn: () => void;
     handleZoomOut: () => void;
-    handleReRunOCR: () => void;
-    handleReRunOcrForAllDocuments: () => void;
+    handleRerunOcr: () => void;
+    handleRerunOcrForAllDocuments: () => void;
     handleLayerChange: (layer: string) => void;
     layers: any;
 }
@@ -95,13 +95,13 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         key: "reRunForSingleDocument",
                         text: "re-run OCR current document",
                         iconProps: { iconName: "TextDocument" },
-                        onClick: () => props.handleReRunOCR(),
+                        onClick: () => props.handleRerunOcr(),
                     },
                     {
                         key: "reRunForAllDocuments",
                         text: "re-run OCR for all documents",
                         iconProps: { iconName: "Documentation" },
-                        onClick: () => props.handleReRunOcrForAllDocuments(),
+                        onClick: () => props.handleRerunOcrForAllDocuments(),
                     },
                 ],
             },

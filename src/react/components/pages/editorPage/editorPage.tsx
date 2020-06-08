@@ -660,7 +660,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     });
                                 }
                         }
-                });
+                    });
             } finally {
                 this.setState({ isRunningOCRs: false });
             }
