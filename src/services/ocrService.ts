@@ -83,7 +83,7 @@ export class OCRService {
         try {
             const headers = { "Content-Type": "application/json" };
             const response = await ServiceHelper.postWithAutoRetry(
-                this.project.apiUriBase + "/formrecognizer/v2.0-preview/layout/analyze",
+                this.project.apiUriBase + `/formrecognizer/${constants.apiVersion}/layout/analyze`,
                 { url: filePath },
                 { headers },
                 this.project.apiKey as string,

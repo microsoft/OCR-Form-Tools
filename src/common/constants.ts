@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+const apiVersion = "v2.0-preview";
+
 /**
  * Constants used throughout application
  */
@@ -21,8 +23,9 @@ export const constants = {
     convertedImageFormat: "image/jpeg",
     convertedImageQuality: 0.7,
     convertedThumbnailQuality: 0.2,
+    apiVersion,
 
-    apiModelsPath: "/formrecognizer/v2.0-preview/custom/models",
+    apiModelsPath: `/formrecognizer/${apiVersion}/custom/models`,
 
     pdfjsWorkerSrc(version: string) {
         return `//fotts.azureedge.net/npm/pdfjs-dist/${version}/pdf.worker.js`;

@@ -213,6 +213,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     private async trainProcess(): Promise<any> {
         try {
             const trainRes = await this.train();
+            console.log(trainRes.headers);
             const trainStatusRes =
                 await this.getTrainStatus(trainRes.headers["location"]);
             const updatedProject = this.buildUpdatedProject(
