@@ -84,7 +84,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
             onClick: () => props.handleZoomIn(),
         },
         {
-            key: "reRunOCR",
+            key: "additionalActions",
             title: "Additional actions",
             ariaLabel: "Additional actions",
             className: "re-run-ocr-item",
@@ -93,7 +93,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                 items: [
                     {
                         key: "reRunForSingleDocument",
-                        text: "re-run OCR current document",
+                        text: "re-run OCR for current document",
                         iconProps: { iconName: "TextDocument" },
                         onClick: () => props.handleRerunOcr(),
                     },
