@@ -157,9 +157,9 @@ When you want to resume your project, you first need to create a connection to t
 
 Finally, go to the main page (house icon) and click Open Cloud Project. Then select the blob storage connection, and select your project's .proj file. The application will load all of the project's settings because it has the security token.
 
-#### Keyboard Shortcuts ####
+#### Keyboard Shortcuts and useful tips ####
 
-Labeling tool allows a number of keyboard shortcuts to support accessibility and also sometimes make labeling easier and faster.
+Labeling tool allows a number of keyboard shortcuts to support accessibility and also sometimes make labeling easier and faster. You can find them in the right top corner (icon with book and letter "i" ![alt text](docs/images/keyboard-shortcuts-icon.png "Keyboard shortcuts menu icon")).
 
 Hotkeys of 1 through 0 and all letters are assigned to first 36 tags, after you selected one or multiple words from the highlighted text elements, by pressing these hotkeys, you can label the selected words.
 
@@ -170,6 +170,8 @@ Hotkeys of 1 through 0 and all letters are assigned to first 36 tags, after you 
 '-', '+' and '/' keys can be used to zoom in/out and reset zoom of editing page.
 
 Hold Alt key and click on tag name, user can change the tag's name.
+
+To delete all labels for a tag - select all labels for a tag on document then press 'delete' key.
 
 ## Collaborators
 
