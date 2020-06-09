@@ -29,6 +29,7 @@ import { KeyEventType } from "../../common/keyboardManager/keyboardManager";
 import _ from "lodash";
 import Alert from "../../common/alert/alert";
 import * as pdfjsLib from "pdfjs-dist";
+import * as jsPDF from 'jspdf';
 import Polygon from "ol/geom/Polygon";
 import HtmlFileReader from "../../../../common/htmlFileReader";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
@@ -486,6 +487,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.updateAssetGenerators(this.extendAssetGenerators(generators));
     }
 
+    private getImageDims = () => {
+        if (!this.imageMap) {
+            return;
+        }
+        const imageExtent = this.imageMap.getImageExtent();
+        return [imageExtent[2] - imageExtent[0], imageExtent[3] - imageExtent[1]];
+    }
+
     private addRegionsToImageMap = (regions: IRegion[]) => {
         if (this.imageMap == null) {
             return;
@@ -513,8 +522,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private convertRegionToFeature = (region: IRegion, imageExtent: Extent, isOcrProposal: boolean = false) => {
         const coordinates = [];
         const boundingBox = region.id.split(",").map(parseFloat);
-        const imageWidth = imageExtent[2] - imageExtent[0];
-        const imageHeight = imageExtent[3] - imageExtent[1];
+        const [imageWidth, imageHeight] = this.getImageDims();
         for (let i = 0; i < boundingBox.length; i += 2) {
             coordinates.push([
                 Math.round(boundingBox[i] * imageWidth),
@@ -1970,46 +1978,57 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.setState({ isExporting: true });
         // document.body.style.cursor = 'progress';
 
-        var format = document.getElementById('format').value;
-        var resolution = document.getElementById('resolution').value;
-        var dim = dims[format];
+        const resolution = 150;
+        const dim = [210, 148];
         const width = Math.round(dim[0] * resolution / 25.4);
         const height = Math.round(dim[1] * resolution / 25.4);
-        const size = this.imageMap.getSize();
-        const viewResolution = map.getView().getResolution();
+        // const [width, height] = this.getImageDims();
 
-        map.once('rendercomplete', function() {
-            var mapCanvas = document.createElement('canvas');
+        const size = this.imageMap.getSize();
+        const viewResolution = this.imageMap.getResolution();
+
+        const saveDown = () => {
+            // https://openlayers.org/en/latest/examples/export-pdf.html
+            const mapCanvas = document.createElement('canvas');
             mapCanvas.width = width;
             mapCanvas.height = height;
-            var mapContext = mapCanvas.getContext('2d');
-            Array.prototype.forEach.call(document.querySelectorAll('.ol-layer canvas'), function(canvas) {
-            if (canvas.width > 0) {
-                var opacity = canvas.parentNode.style.opacity;
-                mapContext.globalAlpha = opacity === '' ? 1 : Number(opacity);
-                var transform = canvas.style.transform;
-                // Get the transform parameters from the style's transform matrix
-                var matrix = transform.match(/^matrix\(([^\(]*)\)$/)[1].split(',').map(Number);
-                // Apply the transform to the export map context
-                CanvasRenderingContext2D.prototype.setTransform.apply(mapContext, matrix);
-                mapContext.drawImage(canvas, 0, 0);
-            }
+            const mapContext = mapCanvas.getContext('2d');
+            Array.prototype.forEach.call(document.querySelectorAll('.ol-unselectable'), (canvas) => {
+                if (canvas.width > 0) {
+                    const opacity = canvas.parentNode.style.opacity;
+                    mapContext.globalAlpha = opacity === '' ? 1 : Number(opacity);
+                    const transform = canvas.style.transform;
+                    // Get the transform parameters from the style's transform matrix
+                    const matrix = transform.match(/^matrix\(([^\(]*)\)$/)[1].split(',').map(Number);
+                    // Apply the transform to the export map context
+                    CanvasRenderingContext2D.prototype.setTransform.apply(mapContext, matrix);
+                    mapContext.drawImage(canvas, 0, 0);
+                }
             });
-            var pdf = new jsPDF('landscape', undefined, format);
+            const pdf = new jsPDF('landscape', undefined, 'A5');
+            // this prob isn't going to work but
             pdf.addImage(mapCanvas.toDataURL('image/jpeg'), 'JPEG', 0, 0, dim[0], dim[1]);
+            // https://github.com/MrRio/jsPDF/issues/942
+            // const blob = pdf.output('blob');
             pdf.save('map.pdf');
             // Reset original map size
-            map.setSize(size);
-            map.getView().setResolution(viewResolution);
+            this.imageMap.setSize(size);
+            this.imageMap.setResolution(viewResolution);
             this.setState({isExporting: false});
-            document.body.style.cursor = 'auto';
-        });
+            // document.body.style.cursor = 'auto';
+        };
+
+        // saveDown();
+        setTimeout(saveDown, 3000);
+        // this.imageMap.once('rendercomplete', saveDown);
 
         // Set print size
-        var printSize = [width, height];
-        map.setSize(printSize);
+        const printSize = [width, height];
+        this.imageMap.setSize(printSize);
         var scaling = Math.min(width / size[0], height / size[1]);
-        map.getView().setResolution(viewResolution / scaling);
+        this.imageMap.setResolution(viewResolution / scaling);
+        // TODO prob won't re-render
+
     }
 
     private handleTableToolTipChange = async (display: string, width: number, height: number, top: number,
