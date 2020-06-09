@@ -191,7 +191,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             </h5>
                             <PrimaryButton
                                 theme={getPrimaryGreenTheme()}
-                                text="Download python script"
+                                text="Download Python script"
                                 allowDisabledFocus
                                 autoFocus={true}
                                 onClick={this.handleDownloadClick}
