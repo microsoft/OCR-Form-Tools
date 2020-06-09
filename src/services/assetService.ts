@@ -179,8 +179,9 @@ export class AssetService {
 
     /**
      * Get Storage Provider from project's target connection
+     * TODO: some better abstraction for project storage manipulation
      */
-    protected get storageProvider(): IStorageProvider {
+    public get storageProvider(): IStorageProvider {
         if (!this.storageProviderInstance) {
             this.storageProviderInstance = StorageProviderFactory.create(
                 this.project.sourceConnection.providerType,
@@ -213,6 +214,10 @@ export class AssetService {
         return decodeURIComponent(`${asset.name}${constants.generatorFileExtension}`);
     }
 
+    private getOCRFilename = (asset: IAsset) => {
+        return decodeURIComponent(`${asset.name}${constants.ocrFileExtension}`);
+    }
+
     /**
      * Save metadata for asset
      * @param metadata - Metadata for asset
@@ -220,11 +225,7 @@ export class AssetService {
     public async save(metadata: IAssetMetadata): Promise<IAssetMetadata> {
         Guard.null(metadata);
 
-        // Labels
         const labelFileName = this.getLabelFilename(metadata.asset);
-        if (metadata.labelData) {
-            await this.storageProvider.writeText(labelFileName, JSON.stringify(metadata.labelData, null, 4));
-        }
         if (metadata.asset.state !== AssetState.Tagged) {
             // If the asset is no longer tagged, then it doesn't contain any regions
             // and the file is not required.
@@ -233,11 +234,41 @@ export class AssetService {
             } catch (err) {
                 // The file may not exist - that's OK.
             }
+        } else if (metadata.labelData) {
+            await this.saveLabels(metadata.asset, metadata.labelData);
         }
 
         await this.saveGenerators(metadata);
 
         return metadata;
+    }
+
+    public async saveLabels(asset: IAsset, labelData: ILabelData, prefix: string = "") {
+        /**
+         * prefix: override for asset prefix
+         */
+        let filepath = this.getLabelFilename(asset);
+        if (prefix.length > 0) {
+            const filename = filepath.split("/").slice(-1)[0];
+            filepath = prefix.concat(filename);
+        }
+        // TODO do we care about decodeURI in the filename?
+
+        return await this.storageProvider.writeText(filepath, JSON.stringify(labelData, null, 4));
+    }
+
+    public async saveOCR(asset: IAsset, ocr: any, prefix: string = "") {
+        /**
+         * prefix: override for asset prefix
+         */
+        let filepath = this.getOCRFilename(asset);
+        if (prefix.length > 0) {
+            const filename = filepath.split("/").slice(-1)[0];
+            filepath = prefix.concat(filename);
+        }
+        // TODO do we care about decodeURI in the filename?
+
+        return await this.storageProvider.writeText(filepath, JSON.stringify(ocr, null, 4));
     }
 
     public async saveGenerators(metadata: IAssetMetadata): Promise<void> {

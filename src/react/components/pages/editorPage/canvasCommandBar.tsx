@@ -9,6 +9,8 @@ interface ICanvasCommandBarProps {
     handleZoomOut: () => void;
     handleLayerChange: (layer: string) => void;
     toggleBoundingBoxMode: () => void,
+    downloadPDF: () => void,
+    isExporting: boolean,
     editorMode: EditorMode,
     layers: any;
 }
@@ -74,6 +76,15 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
     ];
 
     const commandBarFarItems: ICommandBarItemProps[] = [
+        {
+            key: "downloadPDF",
+            text: "Download PDF",
+            ariaLabel: "Download PDF",
+            iconOnly: true,
+            iconProps: { iconName: "Annotation" }, // TODO is disabled
+            buttonStyles: {},
+            onClick: () => props.downloadPDF(),
+        },
         {
             key: "toggleBoundingBox",
             text: "Toggle Bounding Box selection",

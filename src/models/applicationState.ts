@@ -259,7 +259,7 @@ export interface IBoundingBox {
  * as it is "pre-populated".
  * Different from regular regions since they are 1:1 with tags
  * @member points - Generator region bounding coordinates
- * @member extent - Region extent
+ * @member bbox - Region bbox
  * @member id - ID randomly generated string
  * @member name - name of generator (like a tag name)
  * @member type - like tag type
@@ -267,7 +267,7 @@ export interface IBoundingBox {
  */
 export interface IGeneratorRegion {
     points: number[];
-    extent: number[];
+    bbox: number[];
     id: string;
 }
 

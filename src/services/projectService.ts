@@ -10,6 +10,7 @@ import {
     FieldFormat,
     IField,
     IFieldInfo,
+    FormattedItem,
 } from "../models/applicationState";
 import Guard from "../common/guard";
 import { constants } from "../common/constants";
@@ -93,7 +94,7 @@ export default class ProjectService implements IProjectService {
         }
 
         if (project.tags && saveTags) {
-            await this.saveFieldsFile(project, storageProvider);
+            await this.saveFieldsFile(project.tags, project.folderPath, storageProvider);
         }
 
         project = await encryptProject(project, securityToken);
@@ -349,19 +350,17 @@ export default class ProjectService implements IProjectService {
      * @param project the project we're trying to create
      * @param storageProvider the storage we're trying to save the project
      */
-    private async saveFieldsFile(project: IProject, storageProvider: IStorageProvider) {
-        Guard.null(project);
-        Guard.null(project.tags);
-
+    public async saveFieldsFile(tags: FormattedItem[], path: string, storageProvider: IStorageProvider) {
+        Guard.null(tags);
         const fieldInfo = {
-            fields: project.tags.map((tag) => ({
+            fields: tags.map((tag) => ({
                 fieldKey: tag.name,
                 fieldType: tag.type ? tag.type : FieldType.String,
                 fieldFormat: tag.format ? tag.format : FieldFormat.NotSpecified,
             } as IField)),
         };
 
-        const fieldFilePath = joinPath("/", project.folderPath, constants.fieldsFileName);
+        const fieldFilePath = joinPath("/", path, constants.fieldsFileName);
         await storageProvider.writeText(fieldFilePath, JSON.stringify(fieldInfo, null, 4));
     }
 }

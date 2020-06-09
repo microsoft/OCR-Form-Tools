@@ -4,7 +4,26 @@ import * as RandExp from "randexp";
 
 import { IGenerator, FieldFormat, FieldType } from "../../../../models/applicationState";
 
-export const generateString: (g: IGenerator, maxLength?: number) => string = (generator) => {
+
+export interface IGeneratedInfo {
+    text: string,
+    boundingBoxes: [number[]]
+}
+
+// TODO seeding
+export const generate:(g: IGenerator) => IGeneratedInfo = (generator) => {
+    // Should be in charge of providing everything the training pipeline needs, in addition to something for generation
+    const text = generateString(generator);
+    const boundingBoxes = generateBoundingBoxes(generator, text);
+    return { text, boundingBoxes };
+}
+
+const generateBoundingBoxes: (g: IGenerator, text: string) => [number[]] = (generator, text) => {
+    return [generator.bbox];
+}
+
+
+const generateString: (g: IGenerator, maxLength?: number) => string = (generator) => {
     // TODO incorporate max length
     const fieldType = generator.type;
     const fieldFormat = generator.format;

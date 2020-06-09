@@ -35,7 +35,7 @@ import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../.
 import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./canvasCommandBar";
 import { TooltipHost, ITooltipHostStyles } from "office-ui-fabric-react";
-import { generateString } from "../../common/generators/generateStrings";
+import { generate } from "../../common/generators/generateUtils";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -82,6 +82,7 @@ export interface ICanvasState {
     hoveringFeature: string;
     points: number[];
     generatorStrings: {[id: string]: string},
+    isExporting: boolean;
 }
 
 interface IRegionOrder {
@@ -137,6 +138,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         hoveringFeature: null,
         points: [],
         generatorStrings: {},
+        isExporting: false,
     };
 
     private imageMap: ImageMap;
@@ -258,8 +260,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleZoomIn={this.handleCanvasZoomIn}
                     handleZoomOut={this.handleCanvasZoomOut}
                     toggleBoundingBoxMode={this.toggleBoundingBoxMode}
+                    downloadPDF={this.downloadPDF}
                     editorMode={this.props.editorMode}
                     layers={this.state.layers}
+                    isExporting={this.state.isExporting}
                 />
                 <ImageMap
                     ref={(ref) => this.imageMap = ref}
@@ -392,7 +396,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     public generate = (generators: IGenerator[]) => {
         const generatorStrings = {}
         generators.forEach(g => {
-            generatorStrings[g.id] = generateString(g);
+            generatorStrings[g.id] = generate(g).text;
         });
         this.setState({generatorStrings}, this.redrawGeneratorFeatures);
     }
@@ -1291,13 +1295,27 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (!feature) {
             return null;
         }
+        const imageExtent = this.imageMap.getImageExtent();
+        const imageWidth = imageExtent[2] - imageExtent[0];
+        const imageHeight = imageExtent[3] - imageExtent[1];
+        const ocrReadResults = this.state.ocrForCurrentPage["readResults"];
+        const [ocrWidth, ocrHeight] = [ocrReadResults.width, ocrReadResults.height];
         const geometry = feature.getGeometry();
         // snap tool will make last 2 coords match first 2
         const points = geometry.flatCoordinates.slice(0, -2);
         const id = Math.random().toString(36).slice(8);
+        const [lowX, lowY, hiX, hiY] = geometry.getExtent();
+        const canvasBbox = [lowX, hiY, hiX, hiY, hiX, lowY, lowX, lowY];
+        const bbox = [];
+        for (let i = 0; i < canvasBbox.length; i += 2) {
+            bbox.push(
+                Math.round((canvasBbox[i] / imageWidth * ocrWidth)),
+                Math.round(((1 - canvasBbox[i + 1] / imageHeight) * ocrHeight)),
+            );
+        }
         return {
             points,
-            extent: geometry.getExtent(),
+            bbox,
             id,
         }
     }
@@ -1717,13 +1735,19 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
     }
 
+    private getPagesOCR = () => {
+        const ocrs = this.state.ocr;
+        return (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.readResults));
+    }
+
     private buildRegionOrders = () => {
         // Build order index here instead of building it during 'drawOcr' for two reasons.
         // 1. Build order index for all pages at once. This allow us to support cross page
         //    tagging if it's supported by FR service.
         // 2. Avoid rebuilding order index when users switch back and forth between pages.
         const ocrs = this.state.ocr;
-        const ocrReadResults = (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.readResults));
+        const ocrReadResults = this.getPagesOCR();
+        // ! Uh, why is this identical
         const ocrPageResults =  (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.pageResults));
         const imageExtent = this.imageMap.getImageExtent();
         ocrReadResults.forEach((ocr) => {
@@ -1940,6 +1964,52 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         } else {
             this.props.setEditorMode(EditorMode.GeneratorRect);
         }
+    }
+
+    private downloadPDF = () => {
+        this.setState({ isExporting: true });
+        // document.body.style.cursor = 'progress';
+
+        var format = document.getElementById('format').value;
+        var resolution = document.getElementById('resolution').value;
+        var dim = dims[format];
+        const width = Math.round(dim[0] * resolution / 25.4);
+        const height = Math.round(dim[1] * resolution / 25.4);
+        const size = this.imageMap.getSize();
+        const viewResolution = map.getView().getResolution();
+
+        map.once('rendercomplete', function() {
+            var mapCanvas = document.createElement('canvas');
+            mapCanvas.width = width;
+            mapCanvas.height = height;
+            var mapContext = mapCanvas.getContext('2d');
+            Array.prototype.forEach.call(document.querySelectorAll('.ol-layer canvas'), function(canvas) {
+            if (canvas.width > 0) {
+                var opacity = canvas.parentNode.style.opacity;
+                mapContext.globalAlpha = opacity === '' ? 1 : Number(opacity);
+                var transform = canvas.style.transform;
+                // Get the transform parameters from the style's transform matrix
+                var matrix = transform.match(/^matrix\(([^\(]*)\)$/)[1].split(',').map(Number);
+                // Apply the transform to the export map context
+                CanvasRenderingContext2D.prototype.setTransform.apply(mapContext, matrix);
+                mapContext.drawImage(canvas, 0, 0);
+            }
+            });
+            var pdf = new jsPDF('landscape', undefined, format);
+            pdf.addImage(mapCanvas.toDataURL('image/jpeg'), 'JPEG', 0, 0, dim[0], dim[1]);
+            pdf.save('map.pdf');
+            // Reset original map size
+            map.setSize(size);
+            map.getView().setResolution(viewResolution);
+            this.setState({isExporting: false});
+            document.body.style.cursor = 'auto';
+        });
+
+        // Set print size
+        var printSize = [width, height];
+        map.setSize(printSize);
+        var scaling = Math.min(width / size[0], height / size[1]);
+        map.getView().setResolution(viewResolution / scaling);
     }
 
     private handleTableToolTipChange = async (display: string, width: number, height: number, top: number,

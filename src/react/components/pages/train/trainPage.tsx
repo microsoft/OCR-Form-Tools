@@ -10,7 +10,7 @@ import IProjectActions, * as projectActions from "../../../../redux/actions/proj
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import {
-    IApplicationState, IConnection, IProject, IAppSettings, FieldType,
+    IApplicationState, IConnection, IProject, IAppSettings, FieldType, IAssetMetadata, IGenerator, ILabel,
 } from "../../../../models/applicationState";
 import TrainChart from "./trainChart";
 import TrainPanel from "./trainPanel";
@@ -26,6 +26,11 @@ import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
 import { getPrimaryGreenTheme } from "../../../../common/themes";
 import { SkipButton } from "../../shell/skipButton";
+import { AssetService } from "../../../../services/assetService";
+import ProjectService from "../../../../services/projectService";
+import Guard from "../../../../common/guard";
+import { generate } from "../../common/generators/generateUtils";
+import { OCRService } from "../../../../services/ocrService";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -211,8 +216,13 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private async trainProcess(): Promise<any> {
+        const shouldGenerate = true;
         try {
-            const trainRes = await this.train();
+            let sourcePrefix = this.props.project.folderPath ? this.props.project.folderPath : "";
+            if (shouldGenerate) {
+                sourcePrefix = await this.generateValues(sourcePrefix);
+            }
+            const trainRes = await this.train(sourcePrefix);
             const trainStatusRes =
                 await this.getTrainStatus(trainRes.headers["location"]);
             const updatedProject = this.buildUpdatedProject(
@@ -230,7 +240,87 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         }
     }
 
-    private async train(): Promise<any> {
+    private async generateValues(sourcePrefix: string): Promise<string> {
+        // Generate values from project generators and create a new folder with the appropriate data
+        /**
+         * copy files over to folder
+         * write new pdfs
+         * call ocr service to regen
+         * proper shouldGenerate clause
+         */
+        const assets = this.props.project.assets;
+        Guard.null(assets);
+        const generatePath = sourcePrefix.concat("/generated");
+        // We need to iterate through the assets to get generator information
+        // This will need an update if we refactor
+        const assetService = new AssetService(this.props.project);
+        const projectService = new ProjectService();
+        const ocrService = new OCRService(this.props.project);
+        const metadataDict: {[key: string]: IAssetMetadata} = {}
+        const metadatas = await Promise.all(Object.keys(assets).map(async (assetKey) => {
+            const asset = assets[assetKey];
+            const metadata = await assetService.getAssetMetadata(asset);
+            metadataDict[assetKey] = metadata;
+            return metadata;
+        }));
+
+        const allFields = [].concat.apply(this.props.project.tags, metadatas.map(m => m.generators));
+        const fieldsPromise = projectService.saveFieldsFile(allFields, generatePath, assetService.storageProvider);
+        const generatorLabels: {[key: string]: ILabel[][]} = {};
+        Object.keys(metadataDict).forEach((assetKey) => {
+            const metadata = metadataDict[assetKey];
+            const generatorInfo: ILabel[][] = [];
+            // each asset has generators, each of which corresponds to X ILabel[]
+            // outer index is copy number
+            for (let i = 0; i < metadata.generatorSettings.generateCount; i++) {
+                generatorInfo.push(metadata.generators.map(this.generatorToLabel));
+            }
+            generatorLabels[assetKey] = generatorInfo;
+        });
+        const labelsAndOCRPromise = Promise.all(Object.keys(metadataDict).map(async (assetKey) => {
+            const asset = assets[assetKey];
+            const metadata = metadataDict[assetKey];
+            const labelData = metadata.labelData; // precisely JSON.parse of the file
+            const generatedLabelData = generatorLabels[assetKey];
+            const baseLabels = [...labelData.labels]; // make a copy of the array, we don't need copies of the object
+            const savePromises = [];
+            for (let i = 0; i < metadata.generatorSettings.generateCount; i++) {
+                const prefix = `${generatePath}/${i}_`;
+                metadata.labelData.labels = baseLabels.concat(generatedLabelData[i]);
+                savePromises.push(assetService.saveLabels(asset, metadata.labelData, prefix));
+            }
+
+            // * To update the ocr files, we can either edit them or edit the pdfs and re-invoke
+            // * Choosing to edit the files directly, as pdfjslib doesn't support editing, and OL needs a canvas and saves to image
+            const ocr = await ocrService.getRecognizedText(asset.path, asset.name);
+            for (let i = 0; i < metadata.generatorSettings.generateCount; i++) {
+                const prefix = `${generatePath}/${i}_`;
+                // TODO modify OCR
+                savePromises.push(assetService.saveOCR(asset, ocr, prefix));
+            }
+            return savePromises;
+        }));
+
+        await Promise.all([fieldsPromise, labelsAndOCRPromise]);
+        // ! return generatePath;
+        return sourcePrefix;
+    }
+
+    private generatorToLabel: (g: IGenerator) => ILabel = (generator) => {
+        const generatedInfo = generate(generator);
+        return { // TODO is there something else that puts this together?
+            label: generator.name,
+            key: null,
+            value: [
+                {
+                    page: 1, // TODO anchor page
+                    ...generatedInfo,
+                }
+            ]
+        };
+    }
+
+    private async train(sourcePrefix: string): Promise<any> {
         const baseURL = url.resolve(
             this.props.project.apiUriBase,
             constants.apiModelsPath,
@@ -241,7 +331,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         const payload = {
             source: trainSourceURL,
             sourceFilter: {
-                prefix: this.props.project.folderPath ? this.props.project.folderPath : "",
+                prefix: sourcePrefix,
                 includeSubFolders: false,
             },
             useLabelFile: true,
