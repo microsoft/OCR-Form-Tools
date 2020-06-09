@@ -220,7 +220,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                 theme={getPrimaryGreenTheme()}
                                 className="editor-page-sidebar-run-ocr"
                                 type="button"
-                                onClick={this.loadAllOCRs}
+                                onClick={this.loadOcrForNotVisited}
                                 disabled={this.state.isRunningOCRs}>
                                 {this.state.isRunningOCRs ?
                                     <div>
@@ -230,7 +230,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             ariaLive="off"
                                             labelPosition="right"
                                         />
-                                    </div> : "Run OCR on all files"
+                                    </div> : "Run OCR for not visited documents"
                                 }
                             </PrimaryButton>
                         </div>}
@@ -269,7 +269,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             hoveredLabel={this.state.hoveredLabel}
                                             setTableToView={this.setTableToView}
                                             closeTableView={this.closeTableView}
-                                            rerunAllOcr={this.loadAllOCRs}>
+                                            runOcrForAllDocs={this.loadOcrForNotVisited}>
                                             <AssetPreview
                                                 controlsEnabled={this.state.isValid}
                                                 onBeforeAssetChanged={this.onBeforeAssetSelected}
@@ -629,7 +629,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         });
     }
 
-    public loadAllOCRs = async (rerunOCR?) => {
+    public loadOcrForNotVisited = async (runForAll?) => {
         if (this.state.isRunningOCRs) {
             return;
         }
@@ -641,15 +641,15 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 await throttle(
                     constants.maxConcurrentServiceRequests,
                     this.state.assets
-                        .filter((asset) => rerunOCR ? asset : asset.state === AssetState.NotVisited)
+                        .filter((asset) => runForAll ? asset : asset.state === AssetState.NotVisited)
                         .map((asset) => asset.id),
                     async (assetId) => {
                         // Get the latest version of asset.
                         const asset = this.state.assets.find((asset) => asset.id === assetId);
-                        if (asset && (asset.state === AssetState.NotVisited || rerunOCR)) {
+                        if (asset && (asset.state === AssetState.NotVisited || runForAll)) {
                             try {
                                 this.updateAssetState(asset.id, true);
-                                await ocrService.getRecognizedText(asset.path, asset.name, undefined, rerunOCR);
+                                await ocrService.getRecognizedText(asset.path, asset.name, undefined, runForAll);
                                 this.updateAssetState(asset.id, false, AssetState.Visited);
                             } catch (err) {
                                 this.updateAssetState(asset.id, false);

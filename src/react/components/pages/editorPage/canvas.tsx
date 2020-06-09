@@ -52,7 +52,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onCanvasRendered?: (canvas: HTMLCanvasElement) => void;
     onRunningOCRStatusChanged?: (isRunning: boolean) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
-    rerunAllOcr?: (rerunOCR:boolean) => void;
+    runOcrForAllDocs?: (runOcr:boolean) => void;
 }
 
 export interface ICanvasState {
@@ -213,8 +213,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleZoomIn={this.handleCanvasZoomIn}
                     handleZoomOut={this.handleCanvasZoomOut}
                     layers={this.state.layers}
-                    handleRerunOcr={this.rerunOcr}
-                    handleRerunOcrForAllDocuments={this.rerunOcrForAllDocuments}
+                    handleRunOcr={this.runOcr}
+                    handleRunOcrForAllDocuments={this.runOcrForAllDocuments}
                 />
                 <ImageMap
                     ref={(ref) => this.imageMap = ref}
@@ -288,9 +288,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         );
     }
 
-    private rerunOcrForAllDocuments = () => {
+    private runOcrForAllDocuments = () => {
         this.setState({ocrStatus: OcrStatus.runningOCR})
-        this.props.rerunAllOcr(true);
+        this.props.runOcrForAllDocs(true);
     }
 
     public updateSize() {
@@ -946,11 +946,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         });
     }
 
-    private rerunOcr = () => {
+    private runOcr = () => {
         this.loadOcr(true);
     }
 
-    private loadOcr = async (reRun?: boolean) => {
+    private loadOcr = async (force?: boolean) => {
         const asset = this.state.currentAsset.asset;
 
         if (asset.isRunningOCR) {
@@ -958,7 +958,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             return;
         }
         try {
-            const ocr = await this.ocrService.getRecognizedText(asset.path, asset.name, this.setOCRStatus, reRun);
+            const ocr = await this.ocrService.getRecognizedText(asset.path, asset.name, this.setOCRStatus, force);
             if (asset.id === this.state.currentAsset.asset.id) {
                 // since get OCR is async, we only set currentAsset's OCR
                 this.setState({
