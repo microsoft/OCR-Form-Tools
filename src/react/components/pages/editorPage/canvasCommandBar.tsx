@@ -87,7 +87,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
             key: "additionalActions",
             title: "Additional actions",
             ariaLabel: "Additional actions",
-            className: "re-run-ocr-item",
+            className: "additional-action-dropdown",
             iconProps: { iconName: "More" },
             subMenuProps: {
                 items: [
