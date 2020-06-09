@@ -150,6 +150,9 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.map.getView().setResolution(res);
     }
 
+    public getView() {
+        return this.map.getView();
+    }
     /**
      * Hide/Display table features
      */
@@ -431,52 +434,48 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.generatorVectorLayer = new VectorLayer(generatorOptions);
 
         this.map = new Map({
-            // controls: [] ,
-            // interactions: defaultInteractions({ doubleClickZoom: false,
-            //     pinchRotate: false }),
+            controls: [] ,
+            interactions: defaultInteractions({ doubleClickZoom: false,
+                pinchRotate: false }),
             target: "map",
             layers: [
-                // this.imageLayer,
-                // this.textVectorLayer,
-                // this.tableBorderVectorLayer,
-                // this.tableIconVectorLayer,
-                // this.tableIconBorderVectorLayer,
-                // this.checkboxVectorLayer,
+                this.imageLayer,
+                this.textVectorLayer,
+                this.tableBorderVectorLayer,
+                this.tableIconVectorLayer,
+                this.tableIconBorderVectorLayer,
+                this.checkboxVectorLayer,
                 this.labelVectorLayer,
-                // this.generatorVectorLayer,
+                this.generatorVectorLayer,
             ],
-            // view: this.createMapView(projection, this.imageExtent),
-            view: new View({
-                center: [0, 0],
-                zoom: 2,
-            })
+            view: this.createMapView(projection, this.imageExtent),
         });
 
         // this.map.on("change", (e: any) => {
         //     console.log(e); // Er, I'm not sure.
         // })
 
-        // const draw = new Draw({
-        //     source: generatorOptions.source, // using the label source doesn't appear to work either
-        //     type: "Polygon", // using Point doesn't work either
-        // });
+        const draw = new Draw({
+            source: generatorOptions.source, // using the label source doesn't appear to work either
+            type: "Polygon", // using Point doesn't work either
+        });
 
-        // const snap = new Snap({source: generatorOptions.source});
-        // const modify = new Modify({source: generatorOptions.source});
-        // draw.setActive(false);
-        // snap.setActive(false);
-        // modify.setActive(false);
+        const snap = new Snap({source: generatorOptions.source});
+        const modify = new Modify({source: generatorOptions.source});
+        draw.setActive(false);
+        snap.setActive(false);
+        modify.setActive(false);
 
-        // draw.on("drawend", this.props.handleGeneratorRegionCompleted);
-        // // modify.on("modifystart", this.props.handleGeneratorRegionModified); // Do we need to update the object itself? Or will the reference update?
-        // this.addInteraction(draw);
-        // this.addInteraction(snap);
-        // this.addInteraction(modify);
+        draw.on("drawend", this.props.handleGeneratorRegionCompleted);
+        // modify.on("modifystart", this.props.handleGeneratorRegionModified); // Do we need to update the object itself? Or will the reference update?
+        this.addInteraction(draw);
+        this.addInteraction(snap);
+        this.addInteraction(modify);
 
-        // this.map.on("pointerdown", this.handlePointerDown);
-        // this.map.on("pointermove", this.handlePointerMove);
-        // this.map.on("pointermove", this.handlePointerMoveOnTableIcon);
-        // this.map.on("pointerup", this.handlePointerUp);
+        this.map.on("pointerdown", this.handlePointerDown);
+        this.map.on("pointermove", this.handlePointerMove);
+        this.map.on("pointermove", this.handlePointerMoveOnTableIcon);
+        this.map.on("pointerup", this.handlePointerUp);
     }
 
     private setImage = (imageUri: string, imageExtent: number[]) => {

@@ -83,6 +83,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
             iconOnly: true,
             iconProps: { iconName: "Annotation" }, // TODO is disabled
             buttonStyles: {},
+            disabled: props.isExporting,
             onClick: () => props.downloadPDF(),
         },
         {

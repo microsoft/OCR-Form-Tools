@@ -1987,27 +1987,19 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const size = this.imageMap.getSize();
         const viewResolution = this.imageMap.getResolution();
 
+        const extent = this.imageMap.getView().calculateExtent(size);
+
         const saveDown = () => {
             // https://openlayers.org/en/latest/examples/export-pdf.html
-            const mapCanvas = document.createElement('canvas');
-            mapCanvas.width = width;
-            mapCanvas.height = height;
-            const mapContext = mapCanvas.getContext('2d');
+            // https://openlayers.org/en/v5.3.0/examples/export-pdf.html?q=export
+            const pdf = new jsPDF('landscape', undefined, 'A5');
+
             Array.prototype.forEach.call(document.querySelectorAll('.ol-unselectable'), (canvas) => {
                 if (canvas.width > 0) {
-                    const opacity = canvas.parentNode.style.opacity;
-                    mapContext.globalAlpha = opacity === '' ? 1 : Number(opacity);
-                    const transform = canvas.style.transform;
-                    // Get the transform parameters from the style's transform matrix
-                    const matrix = transform.match(/^matrix\(([^\(]*)\)$/)[1].split(',').map(Number);
-                    // Apply the transform to the export map context
-                    CanvasRenderingContext2D.prototype.setTransform.apply(mapContext, matrix);
-                    mapContext.drawImage(canvas, 0, 0);
+                    const data = canvas.toDataURL('image/jpeg');
+                    pdf.addImage(data, 'JPEG', 0, 0, dim[0], dim[1]);
                 }
             });
-            const pdf = new jsPDF('landscape', undefined, 'A5');
-            // this prob isn't going to work but
-            pdf.addImage(mapCanvas.toDataURL('image/jpeg'), 'JPEG', 0, 0, dim[0], dim[1]);
             // https://github.com/MrRio/jsPDF/issues/942
             // const blob = pdf.output('blob');
             pdf.save('map.pdf');
@@ -2025,8 +2017,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         // Set print size
         const printSize = [width, height];
         this.imageMap.setSize(printSize);
-        var scaling = Math.min(width / size[0], height / size[1]);
-        this.imageMap.setResolution(viewResolution / scaling);
+        this.imageMap.getView().fit(extent, {size: printSize});
+        // var scaling = Math.min(width / size[0], height / size[1]);
+        // this.imageMap.setResolution(viewResolution / scaling);
         // TODO prob won't re-render
 
     }
