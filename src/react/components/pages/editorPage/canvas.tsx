@@ -925,11 +925,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (regionId && this.props?.activeGeneratorRegionId === regionId) {
             return new Style({
                 stroke: new Stroke({
+                    // color: hexToRgba(region.color, 0),
                     color: region.color,
                     width: feature.get("highlighted") ? 4 : 2,
                 }),
                 fill: new Fill({
                     color: "rgba(110, 255, 80, 0.4)",
+                    // color: "rgba(110, 255, 80, 0.0)",
                 }),
                 text,
             });
@@ -938,11 +940,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const highlighted = feature.get("highlighted"); // hmm, we're getting something different since we have a dict and they use get
             let color = "rgb(255, 255, 255, 0)";
             if (highlighted) {
+                // color = hexToRgba(region.color, 0.0);
                 color = hexToRgba(region.color, 0.3);
             }
             return new Style({
                 stroke: new Stroke({
                     color: region.color,
+                    // color: hexToRgba(region.color, 0.0),
                     width: highlighted ? 4 : 2,
                 }),
                 fill: new Fill({

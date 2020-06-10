@@ -16,9 +16,7 @@ export const generate:(g: IGenerator, limits: number[][]) => IGeneratedInfo = (g
     /**
      * generator: Generator region
      * limits: Canvas-calibrated width limit () and line limit
-     * TODO determine multiline
      * TODO can we find text dimensions?
-     * Since generator is responsible for font sizing, this should be in char limit
      */
     // Should be in charge of providing everything the training pipeline needs, in addition to something for generation
     const text = generateString(generator, limits);
