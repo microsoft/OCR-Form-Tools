@@ -9,21 +9,33 @@ import { randomIntInRange } from "../../../../common/utils";
 export interface IGeneratedInfo {
     name: string,
     text: string,
-    boundingBoxes: [number[]],
-    format: GeneratorTextStyle, // todo stricter
+    boundingBoxes: GeneratedBbox,
+    format: GeneratorTextStyle,
+}
+
+interface WordLevelBbox {
+    boundingBox: number[],
+    text: string
+}
+
+interface GeneratedBbox {
+    full: number[], // drawn
+    tight: number[], // taut to words
+    words: WordLevelBbox[]
 }
 
 // TODO seeding
-export const generate:(g: IGenerator) => IGeneratedInfo = (generator) => {
+export const generate:(g: IGenerator, ocr: any) => IGeneratedInfo = (generator, ocr) => {
     /**
      * generator: Generator region
+     * ocr: ocr read results
      */
     const limitsAndFormat = getStringLimitsAndFormat(generator);
     const text = generateString(generator, limitsAndFormat.limits);
     // Should be in charge of providing everything the training pipeline needs, in addition to something for generation
     // * TODO can we find text dimensions?
     const format = { ...defaultStyle, ...limitsAndFormat.format, text };
-    const boundingBoxes = generateBoundingBoxes(generator, text);
+    const boundingBoxes = generateBoundingBoxes(generator, format);
     return {
         name: generator.name,
         text,
@@ -32,9 +44,46 @@ export const generate:(g: IGenerator) => IGeneratedInfo = (generator) => {
     };
 }
 
-const generateBoundingBoxes: (g: IGenerator, text: string) => [number[]] = (generator, text) => {
+const generateBoundingBoxes: (g: IGenerator, format: GeneratorTextStyle) => GeneratedBbox =
+    (generator, format) => {
+    const text = format.text;
+    const full = generator.bbox;
+    const tight = generator.bbox;
+    // generator.canvasBbox holds generator canvas info
+    // generator.bbox holds inch info (don't forget y is inverted)
+    // and format holds the offset info (in canvas)
+    // we want tight box in inches
+    const mapOffsetX = format.offsetX;
+    const mapOffsetY = format.offsetY;
+    const widthScale = generator.bbox[0] / generator.canvasBbox[0];
+    const heightScale = (generator.bbox[1] - generator.bbox[5]) / (generator.canvasBbox[5] - generator.canvasBbox[1]);
+    const imageOffsetX = mapOffsetX * widthScale; // offset from center
+    const imageOffsetY = mapOffsetY * heightScale; // offset from center
+
+    const metrics = getTextMetrics(text, format.font); // measure text dimensions
+    const mapWordWidth = metrics.width * generator.resolution;
+    const mapWordHeight = (metrics.actualBoundingBoxAscent - metrics.actualBoundingBoxDescent) * generator.resolution;
+    const imageWordHeight = mapWordHeight * heightScale;
+    const imageWordWidth = mapWordWidth * widthScale;
+    // start from bbox bottom left
+    const center = [(full[0] + full[2]) / 2, (full[1] + full[5]) / 2];
+    const wordTl = [center[0] + imageOffsetX, center[1] + imageOffsetY + imageWordHeight];
+    const wordTr = [center[0] + imageOffsetX + imageWordWidth, center[1] + imageOffsetY + imageWordHeight];
+    const wordBr = [center[0] + imageOffsetX + imageWordWidth, center[1] + imageOffsetY];
+    const wordBl = [center[0] + imageOffsetX, center[1] + imageOffsetY];
+    const wordBbox = [].concat.apply([], [wordTl, wordTr, wordBr, wordBl]);;
+
+    // don't forget your measure metrics
+
+    // assuming single line atm (assuming one word at the moment)
+    const fullWord = {
+        boundingBox: wordBbox,
+        text,
+    };
+
+    // TODO bbox - also generate per word as per ocr.json
     // TODO This is the full bbox - update with the partial one
-    return [generator.bbox];
+    return { full, tight, words: [fullWord]};
 }
 
 
@@ -132,21 +181,18 @@ const getStringLimitsAndFormat: (g: IGenerator) => LimitsAndFormat = (generator)
     const properWeight = 100;
     const properHeight = 1.1;
     const font = `${properWeight} ${properSize}px/${properHeight} sans-serif`;
-    const sampleText = 'abcdefghijklmnopqrstuvwxyzABCDEFHIJKILMNOPQRSTUVWXYZ'; // 52 letters
-    // TODO when we actually construct bbox for ocr
-    const metrics = getTextMetrics(sampleText, font);
 
-    // pixel height occupied by font - we want to render with the right font, so we measure
-    const fontWidth = metrics.width / sampleText.length;
-    const fontHeight = metrics.actualBoundingBoxAscent - metrics.actualBoundingBoxDescent;
-    const bboxWidth = metrics.actualBoundingBoxRight; // since we're left aligned this is the whole width
-    // ultimately to make ocr we're gonna want to have the true inches from canvas coordinates
-
-    // TODO Implement styling
+    // Positioning
+    const mapCenter = (generator.canvasBbox[2] + generator.canvasBbox[0]) / 2;
+    const mapLeft = generator.canvasBbox[0];
+    const offsetPadding = 10;
+    const offsetX = mapLeft - mapCenter + offsetPadding;
+    // TODO Implement more style randomness
     return {
         limits: [[charWidthLow, charWidthHigh], [charHeightLow, charHeightHigh]],
         format: {
             font,
+            offsetX,
         },
     };
 }

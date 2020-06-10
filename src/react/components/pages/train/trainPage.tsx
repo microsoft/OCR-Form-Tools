@@ -266,22 +266,19 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
         const allFields = [].concat.apply(this.props.project.tags, metadatas.map(m => m.generators));
         const fieldsPromise = projectService.saveFieldsFile(allFields, generatePath, assetService.storageProvider);
-        // keyed by asset, inner array is generators per asset, outer is asset count
-        const allGeneratorInfo: {[key: string]: IGeneratedInfo[][]} = {};
-        Object.keys(metadataDict).forEach((assetKey) => {
-            const metadata = metadataDict[assetKey];
-            const assetGeneratedInfo = [];
-            for (let i = 0; i < metadata.generatorSettings.generateCount; i++) {
-                assetGeneratedInfo.push(metadata.generators.map(generate));
-            }
-            allGeneratorInfo[assetKey] = assetGeneratedInfo;
-        });
 
         const labelsAndOCRPromise = Promise.all(Object.keys(metadataDict).map(async (assetKey) => {
             const asset = assets[assetKey];
             const metadata = metadataDict[assetKey];
+            const ocr = await ocrService.getRecognizedText(asset.path, asset.name); // this is the blob
+            const page = 1;
+            const pageReadResults = ocr.analyzeResult.readResults.find(r => r.page === page);
+            const assetGeneratorInfo = [];
+            for (let i = 0; i < metadata.generatorSettings.generateCount; i++) {
+                assetGeneratorInfo.push(metadata.generators.map(g => generate(g, pageReadResults)));
+            }
+
             const labelData = metadata.labelData; // precisely JSON.parse of the file
-            const assetGeneratorInfo = allGeneratorInfo[assetKey];
             const baseLabels = [...labelData.labels]; // make a copy of the array, we don't need copies of the object
             const savePromises = [];
             for (let i = 0; i < metadata.generatorSettings.generateCount; i++) {
@@ -294,20 +291,19 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             // * To update the ocr files, we can either edit them or edit the pdfs and re-invoke
             // * Choosing to edit the files directly
             // * Since ocr re-doing is quite involved
-            const ocr = await ocrService.getRecognizedText(asset.path, asset.name); // this is the blob
+            // TODO page support
+            const baseLines = [...pageReadResults.lines];
             for (let i = 0; i < metadata.generatorSettings.generateCount; i++) {
                 const prefix = `${generatePath}/${i}_`;
-                const curOCRData = assetGeneratorInfo[i].map(this.generatorInfoToOCR);
-                // uhhh...
-                // TODO modify OCR
+                const newOCRLines = assetGeneratorInfo[i].map(this.generatorInfoToOCRLine);
+                pageReadResults.lines = baseLines.concat(newOCRLines);
                 savePromises.push(assetService.saveOCR(asset, ocr, prefix));
             }
             return savePromises;
         }));
 
         await Promise.all([fieldsPromise, labelsAndOCRPromise]);
-        // ! return generatePath;
-        return sourcePrefix;
+        return generatePath;
     }
 
     private generatorInfoToLabel: (g: IGeneratedInfo) => ILabel = (generatedInfo) => {
@@ -318,14 +314,23 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 {
                     page: 1, // TODO anchor page
                     text: generatedInfo.text,
-                    boundingBoxes: generatedInfo.boundingBoxes,
+                    boundingBoxes: [generatedInfo.boundingBoxes.full],
                 }
             ]
         };
     }
 
-    private generatorInfoToOCR: (g: IGeneratedInfo) => any = (generatedInfo) => {
-        return {};
+    private generatorInfoToOCRLine: (g: IGeneratedInfo) => any = (generatedInfo) => {
+        console.log(generatedInfo.text);
+        return {
+            boundingBox: generatedInfo.boundingBoxes.tight,
+            text: generatedInfo.text,
+            words: generatedInfo.boundingBoxes.words.map(this.completeOCRWord)
+        };
+    }
+
+    private completeOCRWord = (wordInfo) => {
+        return { ...wordInfo, confidence: 1 };
     }
 
     private async train(sourcePrefix: string): Promise<any> {

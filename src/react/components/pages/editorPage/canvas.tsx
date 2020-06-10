@@ -391,44 +391,28 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     /**
      * Fill in generators with sample (only a preview).
      * We'll perform the actual pdf file generation when user trains.
+     * TODO
      * Just leave an generatorEditorProp for whether to use empty label feature or not.
      * Flexibly close to using empty label features.
      */
     public generate = (generators: IGenerator[]) => {
         const generatorTextStyles = {}
         generators.forEach(g => {
-            // canvas is responsible for getting partial format - font specs
-            // at render, final positioning is done to incorp resolution
-            generatorTextStyles[g.id] = generate(g).format;
+            generatorTextStyles[g.id] = generate(g, this.state.ocrForCurrentPage.readResults).format;
         });
         this.setState({generatorTextStyles}, this.redrawGeneratorFeatures);
     }
 
-    // basic alignment heuristic - left aligned with small padding
-    private createTextStyle = (feature: any, resolution, style?: GeneratorTextStyle) => {
-        // TODO allow setting of font size while we don't actually know what it should be
-
-        // we have given text, just give it a fixed size
-
-        // assuming font size of 12-18, we need resolution *
-        // zoom in => res goes down
-
-        const ext = feature.getGeometry().getExtent(); // BL X, BL Y, TR X, TR Y
-        const center = (ext[0] + ext[2]) / 2;
-        const tl = ext[0]; // has desired x
-        const bboxLeft = tl - center; // offsetX - left align
-        const updateStyle = style || {};
-        const paddingMU = 10;
-        // resolution - number of map units per pixel
-        style.offsetX += (bboxLeft + paddingMU) / resolution; // this needs pixels
-        style.fill = new Fill({color: style.fill});
+    private createTextStyle = (generator: IGenerator, resolution, style: GeneratorTextStyle) => {
+        // resolution - number of map units per pixel (zoom in, res lower)
         //   stroke: new Stroke({color: style.outlineColor, width: style.outlineWidth}),
-
         return new Text({
-          textAlign: style.align === '' ? undefined : style.align,
-          textBaseline: style.baseline,
-          ...style,
-          scale: 2 / resolution, // resist zoom scale (inverse of whatever OL is doing)
+            ...style,
+            fill: new Fill({color: style.fill}),
+            offsetX: style.offsetX / resolution, // use pixels, not map units
+            textAlign: style.align === '' ? undefined : style.align,
+            textBaseline: style.baseline,
+            scale: 2 / resolution, // resist zoom scale (inverse of whatever OL is doing)
         });
     };
 
@@ -869,7 +853,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         let text = "";
         if (this.state.generatorTextStyles[region.id]) {
             text = this.createTextStyle(
-                feature,
+                region,
                 resolution,
                 this.state.generatorTextStyles[region.id]
             );
@@ -1331,6 +1315,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             points,
             bbox,
             canvasBbox,
+            resolution: this.imageMap.getResolution(),
             id,
         }
     }
