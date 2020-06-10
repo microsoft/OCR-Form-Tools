@@ -5,7 +5,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
-import { FontIcon, PrimaryButton, Spinner, SpinnerSize} from "office-ui-fabric-react";
+import { FontIcon, PrimaryButton, Spinner, SpinnerSize, TextField} from "office-ui-fabric-react";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
@@ -74,6 +74,8 @@ function mapDispatchToProps(dispatch) {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class TrainPage extends React.Component<ITrainPageProps, ITrainPageState> {
 
+    private modelName: string = "";
+
     constructor(props) {
         super(props);
 
@@ -100,6 +102,10 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             this.updateCurrTrainRecord(this.getProjectTrainRecord());
         }
         document.title = strings.train.title + " - " + strings.appName;
+    }
+
+    public componentDidUpdate() {
+        console.log(this.state.currTrainRecord);
     }
 
     public render() {
@@ -139,15 +145,23 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                         </span>
                                     </div>}
                                 {!this.state.isTraining ? (
-                                    <PrimaryButton
-                                        id="train_trainButton"
-                                        theme={getPrimaryGreenTheme()}
-                                        autoFocus={true}
-                                        className="flex-center"
-                                        onClick={this.handleTrainClick}>
-                                        <FontIcon iconName="MachineLearning" />
-                                        <h6 className="d-inline text-shadow-none ml-2 mb-0"> {strings.train.title} </h6>
-                                    </PrimaryButton>
+                                    <div>
+                                        <TextField
+                                            placeholder="Add model name..."
+                                            onChange={this.onTextChanged}
+                                            >
+                                        </TextField>
+                                        <PrimaryButton
+                                            style={{"margin": "10px"}}
+                                            id="train_trainButton"
+                                            theme={getPrimaryGreenTheme()}
+                                            autoFocus={true}
+                                            className="flex-center"
+                                            onClick={this.handleTrainClick}>
+                                            <FontIcon iconName="MachineLearning" />
+                                            <h6 className="d-inline text-shadow-none ml-2 mb-0"> {strings.train.title} </h6>
+                                        </PrimaryButton>
+                                    </div>
                                 ) : (
                                     <div className="loading-container">
                                         <Spinner
@@ -187,6 +201,11 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         );
     }
 
+    private onTextChanged = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string) => {
+        console.log(text);
+        this.modelName = text;
+    }
+
     private handleTrainClick = () => {
         this.setState({
             isTraining: true,
@@ -214,8 +233,10 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     private async trainProcess(): Promise<any> {
         try {
             const trainRes = await this.train();
+            console.log(trainRes);
             const trainStatusRes =
                 await this.getTrainStatus(trainRes.headers["location"]);
+            console.log(trainStatusRes);
             const updatedProject = this.buildUpdatedProject(
                 this.parseTrainResult(trainStatusRes),
             );
@@ -246,6 +267,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 includeSubFolders: false,
             },
             useLabelFile: true,
+            modelName: this.modelName,
         };
         try {
             return await ServiceHelper.postWithAutoRetry(
@@ -270,6 +292,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 this.props.project.apiKey as string);
         }, Math.max(extendedTimeoutInMs, minimumTimeoutInMs), 1000);
 
+        console.log(res);
         return res;
     }
 
@@ -301,6 +324,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             modelInfo: {
                 modelId: response["modelInfo"]["modelId"],
                 createdDateTime: response["modelInfo"]["createdDateTime"],
+                modelName: response["modelInfo"]["modelName"],
             },
             averageAccuracy: response["trainResult"]["averageModelAccuracy"],
             accuracies: this.buildAccuracies(response["trainResult"]["fields"]),

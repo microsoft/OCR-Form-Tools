@@ -21,6 +21,8 @@ export interface IViewSelectionProps
   isComposing: boolean;
 
   refreshFlag: boolean;
+
+  passSelectedItems: (items: any[]) => void;
 }
 
 export interface IViewSelectionState {}
@@ -61,6 +63,12 @@ export class ViewSelection extends BaseComponent<
       this.selectedIndices = [];
       this.selectedItems = [];
     }
+
+    this.props.passSelectedItems(this.selectedItems);
+  }
+
+  public passSelectedItems() {
+    return this.selectedItems;
   }
 
   private toListIndex(index: number) {
@@ -104,6 +112,7 @@ export class ViewSelection extends BaseComponent<
     })
 
     this.selectedItems = items;
+    this.props.passSelectedItems(this.selectedItems);
   }
 
   private restoreSelection(): void {
@@ -120,12 +129,5 @@ export class ViewSelection extends BaseComponent<
     for (const index of indices) {
       this.props.selection.setIndexSelected(index, true, false);
     }
-
-    // const indices = this.selectedIndices
-    //   .map((index) => this.toViewIndex(index))
-    //   .filter((index) => index !== -1);
-    // for (const index of indices) {
-    //   this.props.selection.setIndexSelected(index, true, false);
-    // }
   }
 }

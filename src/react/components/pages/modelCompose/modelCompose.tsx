@@ -19,12 +19,20 @@ import { IColumn,
          SpinnerSize,
          FontIcon,
          IDetailsList,
-         PrimaryButton} from "office-ui-fabric-react";
+         PrimaryButton,
+         Sticky,
+         IDetailsHeaderProps,
+         IRenderFunction,
+         IDetailsColumnRenderTooltipProps,
+         TooltipHost,
+         StickyPositionType,
+         ScrollablePane,
+         ScrollbarVisibility} from "office-ui-fabric-react";
 import "./modelCompose.scss";
 import { strings } from "../../../../common/strings";
 import { getDarkGreyTheme, getDefaultDarkTheme } from "../../../../common/themes";
 import { ModelComposeCommandBar } from "./composeCommandBar";
-import { bindActionCreators, compose } from "redux";
+import { bindActionCreators } from "redux";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
@@ -58,6 +66,7 @@ export interface IModelComposePageState {
 export interface IModel {
     key: string;
     modelId: string;
+    modelName: string;
     createdDateTime: string;
     lastUpdatedDateTime: string;
     status: string;
@@ -86,6 +95,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     private selection: Selection;
     private allModels: IModel[];
     private refreshClicks: boolean;
+    private selectedItems: any[];
     private listRef = React.createRef<IDetailsList>();
 
     constructor(props) {
@@ -104,6 +114,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 onRender: (model: IModel) => {
                     return <FontIcon iconName={model.iconName} className="model-fontIcon"/> ;
                 },
+                headerClassName: "list-header",
             },
             {
                 key: "column2",
@@ -118,9 +129,21 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             },
             {
                 key: "column3",
+                name: "Model name",
+                fieldName: "model name",
+                minWidth: 150,
+                isResizable: true,
+                onColumnClick: this.handleColumnClick,
+                onRender: (model: IModel) => {
+                return (<span>{model.modelName}</span>)
+                }
+
+            },
+            {
+                key: "column4",
                 name: "Status",
                 fieldName: "status",
-                minWidth: 100,
+                minWidth: 50,
                 isResizable: true,
                 onColumnClick: this.handleColumnClick,
                 onRender: (model: IModel) => {
@@ -128,7 +151,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 },
             },
             {
-                key: "column4",
+                key: "column5",
                 name: "Create Date Time",
                 fieldName: "createdatetime",
                 minWidth: 175,
@@ -142,7 +165,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 },
             },
             {
-                key: "column5",
+                key: "column6",
                 name: "Last Updated Date Time",
                 fieldName: "lastupdateddatetime",
                 minWidth: 175,
@@ -219,28 +242,50 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             },
             scopedSettings: {},
         };
+        const onRenderDetailsHeader: IRenderFunction<IDetailsHeaderProps> = (props, defaultRender) => {
+            if (!props) {
+              return null;
+            }
+            const onRenderColumnHeaderTooltip: IRenderFunction<IDetailsColumnRenderTooltipProps> = tooltipHostProps => (
+              <TooltipHost {...tooltipHostProps} />
+            );
+            return (
+              <Sticky stickyPosition={StickyPositionType.Header} isScrollSynced>
+                {defaultRender!({
+                  ...props,
+                  onRenderColumnHeaderTooltip,
+                })}
+              </Sticky>
+            );
+          };
 
         return (
             <Fabric className="modelCompose-page">
                 <Customizer {...dark}>
-                    <div className="commandbar">
+                    <div className="commandbar-container">
                         <ModelComposeCommandBar
                             composedModels={this.state.composedModelsId}
                             allModels={this.allModels}
                             isComposing={this.state.isComposing}
                             isLoading={this.state.isLoading}
+                            hasText={this.state.hasText}
                             handleCompose={this.onComposeButtonClick}
                             handleRefresh={this.onRreshButtonClick}
                             GetComposedItemsOnTop={this.handleTopButtonClick}
                             filterTextChange={this.onTextChange}
                             />
                     </div>
+                    <div>
+                    <ScrollablePane
+                        className="pane-container"
+                        scrollbarVisibility={ScrollbarVisibility.auto}>
                     <ViewSelection
                         selection={this.selection}
                         items={this.allModels}
                         columns={this.state.columns}
                         isComposing={this.state.isComposing}
-                        refreshFlag={this.state.refreshFlag}>
+                        refreshFlag={this.state.refreshFlag}
+                        passSelectedItems={this.passSelectedItems}>
                         {this.state.isComposing ?
                         <Spinner
                             label="Model is composing, please wait..."
@@ -261,7 +306,9 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                                 layoutMode={DetailsListLayoutMode.justified}
                                 isHeaderVisible={true}
                                 selection={this.selection}
-                                selectionPreservedOnEmptyClick={true}>
+                                selectionPreservedOnEmptyClick={true}
+                                onRenderDetailsHeader={onRenderDetailsHeader}
+                                >
                             </DetailsList>
                             {this.state.nextLink && !this.state.hasText &&
                                 <div className="next-page-container">
@@ -286,6 +333,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                         </div>
                         }
                     </ViewSelection>
+                    </ScrollablePane>
+                    </div>
                 </Customizer>
             </Fabric>
         );
@@ -480,26 +529,65 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     private onComposeButtonClick = () => {
-        this.selection.getSelection().map((s) => console.log(s));
+        //const selections = this.selection.getSelection();
+        const selections = this.selectedItems;
+        console.log(selections);
+        console.log(this.selectedItems);
         this.setState({
             isComposing: true,
         });
-        this.handleModelCompose();
+        this.handleModelCompose(selections);
     }
 
-    private handleModelCompose = () => {
-        setTimeout( () => {
-            const newCols = this.state.columns;
-            newCols.forEach((ncol) => {
-                ncol.isSorted = false;
-                ncol.isSortedDescending = true;
-            });
-            this.setState({
-                isComposing: false,
-                composedModelsId: ["62ce2175-92b5-444c-b703-9bc2185684c7"],
-                columns: newCols,
-        });
+    private passSelectedItems = (Items) => {
+        this.selectedItems = Items;
+    };
+
+    private handleModelCompose = async (selections: any[]) => {
+        setTimeout( async () => {
+            try {
+                const idList = [];
+                selections.forEach((s) => idList.push(s.modelId));
+                const payload = {
+                    modelIds: idList,
+                }
+                const link = "/formrecognizer/v2.1-preview.1/custom/models/compose";
+                const composeRes = await this.post(link, payload);
+                console.log(composeRes);
+                const newCols = this.state.columns;
+                newCols.forEach((ncol) => {
+                    ncol.isSorted = false;
+                    ncol.isSortedDescending = true;
+                });
+                this.setState({
+                    isComposing: false,
+                    //composedModelsId: ["62ce2175-92b5-444c-b703-9bc2185684c7"],
+                    columns: newCols,
+                });
+            } catch(error){
+                console.log(error);
+            }
         }, 5000);
+    }
+
+    private async post(link, payload): Promise<any> {
+        const baseURL = url.resolve(
+            this.props.project.apiUriBase,
+            link,
+        );
+        //const provider = this.props.project.sourceConnection.providerOptions as any;
+        //const trainSourceURL = provider.sas;
+
+        try {
+            return await ServiceHelper.postWithAutoRetry(
+                baseURL,
+                payload,
+                {},
+                this.props.project.apiKey as string,
+            );
+        } catch (err) {
+            ServiceHelper.handleServiceError(err);
+        }
     }
 
     private onRreshButtonClick = () => {

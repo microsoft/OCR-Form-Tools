@@ -9,6 +9,7 @@ interface IModelComposeCommandBarProps {
     allModels: any[];
     isComposing: boolean;
     isLoading: boolean;
+    hasText: boolean;
     handleCompose: () => void;
     handleRefresh: () => void;
     GetComposedItemsOnTop: () => void;
@@ -70,6 +71,7 @@ export const ModelComposeCommandBar: React.FunctionComponent<IModelComposeComman
 
     return (
             <CommandBar
+                className="commandbar"
                 items={commandBarItems}
                 farItems={commandBarFarItems}
                 ariaLabel="Please use command bar to compose models"
