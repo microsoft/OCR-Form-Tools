@@ -29,7 +29,7 @@ import { SkipButton } from "../../shell/skipButton";
 import { AssetService } from "../../../../services/assetService";
 import ProjectService from "../../../../services/projectService";
 import Guard from "../../../../common/guard";
-import { generate } from "../../common/generators/generateUtils";
+import { generate, IGeneratedInfo } from "../../common/generators/generateUtils";
 import { OCRService } from "../../../../services/ocrService";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
@@ -266,35 +266,39 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
         const allFields = [].concat.apply(this.props.project.tags, metadatas.map(m => m.generators));
         const fieldsPromise = projectService.saveFieldsFile(allFields, generatePath, assetService.storageProvider);
-        const generatorLabels: {[key: string]: ILabel[][]} = {};
+        // keyed by asset, inner array is generators per asset, outer is asset count
+        const allGeneratorInfo: {[key: string]: IGeneratedInfo[][]} = {};
         Object.keys(metadataDict).forEach((assetKey) => {
             const metadata = metadataDict[assetKey];
-            const generatorInfo: ILabel[][] = [];
-            // each asset has generators, each of which corresponds to X ILabel[]
-            // outer index is copy number
+            const assetGeneratedInfo = [];
             for (let i = 0; i < metadata.generatorSettings.generateCount; i++) {
-                generatorInfo.push(metadata.generators.map(this.generatorToLabel));
+                assetGeneratedInfo.push(metadata.generators.map(generate));
             }
-            generatorLabels[assetKey] = generatorInfo;
+            allGeneratorInfo[assetKey] = assetGeneratedInfo;
         });
+
         const labelsAndOCRPromise = Promise.all(Object.keys(metadataDict).map(async (assetKey) => {
             const asset = assets[assetKey];
             const metadata = metadataDict[assetKey];
             const labelData = metadata.labelData; // precisely JSON.parse of the file
-            const generatedLabelData = generatorLabels[assetKey];
+            const assetGeneratorInfo = allGeneratorInfo[assetKey];
             const baseLabels = [...labelData.labels]; // make a copy of the array, we don't need copies of the object
             const savePromises = [];
             for (let i = 0; i < metadata.generatorSettings.generateCount; i++) {
                 const prefix = `${generatePath}/${i}_`;
-                metadata.labelData.labels = baseLabels.concat(generatedLabelData[i]);
+                const curLabelData = assetGeneratorInfo[i].map(this.generatorInfoToLabel);
+                metadata.labelData.labels = baseLabels.concat(curLabelData);
                 savePromises.push(assetService.saveLabels(asset, metadata.labelData, prefix));
             }
 
             // * To update the ocr files, we can either edit them or edit the pdfs and re-invoke
-            // * Choosing to edit the files directly, as pdfjslib doesn't support editing, and OL needs a canvas and saves to image
-            const ocr = await ocrService.getRecognizedText(asset.path, asset.name);
+            // * Choosing to edit the files directly
+            // * Since ocr re-doing is quite involved
+            const ocr = await ocrService.getRecognizedText(asset.path, asset.name); // this is the blob
             for (let i = 0; i < metadata.generatorSettings.generateCount; i++) {
                 const prefix = `${generatePath}/${i}_`;
+                const curOCRData = assetGeneratorInfo[i].map(this.generatorInfoToOCR);
+                // uhhh...
                 // TODO modify OCR
                 savePromises.push(assetService.saveOCR(asset, ocr, prefix));
             }
@@ -306,19 +310,22 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         return sourcePrefix;
     }
 
-    private generatorToLabel: (g: IGenerator) => ILabel = (generator) => {
-        const generatedInfo = generate(generator, [[1, 10], [1,2]]);
-        // TODO fake canvas
+    private generatorInfoToLabel: (g: IGeneratedInfo) => ILabel = (generatedInfo) => {
         return {
-            label: generator.name,
+            label: generatedInfo.name,
             key: null,
             value: [
                 {
                     page: 1, // TODO anchor page
-                    ...generatedInfo,
+                    text: generatedInfo.text,
+                    boundingBoxes: generatedInfo.boundingBoxes,
                 }
             ]
         };
+    }
+
+    private generatorInfoToOCR: (g: IGeneratedInfo) => any = (generatedInfo) => {
+        return {};
     }
 
     private async train(sourcePrefix: string): Promise<any> {
