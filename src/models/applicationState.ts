@@ -267,7 +267,8 @@ export interface IBoundingBox {
  */
 export interface IGeneratorRegion {
     points: number[];
-    bbox: number[];
+    bbox: number[]; // bbox in inches
+    canvasBbox: number[]; // bbox in canvas units
     id: string;
 }
 

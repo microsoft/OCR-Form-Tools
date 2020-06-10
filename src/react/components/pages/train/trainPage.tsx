@@ -307,8 +307,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private generatorToLabel: (g: IGenerator) => ILabel = (generator) => {
-        const generatedInfo = generate(generator);
-        return { // TODO is there something else that puts this together?
+        const generatedInfo = generate(generator, [[1, 10], [1,2]]);
+        // TODO fake canvas
+        return {
             label: generator.name,
             key: null,
             value: [

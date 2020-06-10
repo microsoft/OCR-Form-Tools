@@ -397,14 +397,62 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     public generate = (generators: IGenerator[]) => {
         const generatorStrings = {}
         generators.forEach(g => {
-            generatorStrings[g.id] = generate(g).text;
+            // ultimately the string will need to be aware of
+            // its own specifications (font size)
+            // and canvas specifications (yeah...)
+            // we can simplify for now by providing a line length limit and line limit
+            // and the canvas is responsible for getting this for a particular generator
+            const limitsAndFormat = this.getStringLimitsAndFormat(g);
+            generatorStrings[g.id] = generate(g, limitsAndFormat.limits).text;
         });
         this.setState({generatorStrings}, this.redrawGeneratorFeatures);
     }
 
+    private getStringLimitsAndFormat: (g: IGenerator) => LimitsAndFormat = (generator) => {
+        // from allocated space, we should be able to determine lower and upper bound on used space, for width and height
+        // upper bound exclusive, lower inclusive
+        const LOW_WIDTH_SCALE = 0.4; // heuristic lower bound on width gvien space
+        // TODO incorporate OCR font size - this height scale is gonna make no sense without it
+        const LOW_HEIGHT_SCALE = 0.5; // heuristic lower bound on height given space
+        const HIGH_WIDTH_SCALE = 1.1; // heuristic upper bound on width given space
+        const HIGH_HEIGHT_SCALE = 1; // heuristic lower bound on width given space
+
+        // TODO better than hardcoding
+        // TODO better than linear lower bound (super long fields shouldn't have multiple)
+        const fontWidth = 18; // map units per character - what's needed to calculate this?
+        const fontHeight = 24; // map units per character - what's needed to calculate this?
+        // probably resolution and that's it right
+        // we can extract the "right font size" by
+        // a. assuming x characters fit in our region and dividing.
+        // b. looking at map units per character elsewhere in ocr
+        // * c. hardcoding
+
+        const width = generator.canvasBbox[2] - generator.canvasBbox[0];
+        const height = generator.canvasBbox[1] - generator.canvasBbox[5];
+
+        const charWidthLow = Math.round(width * LOW_WIDTH_SCALE / fontWidth);
+        const charWidthHigh = Math.round(width * HIGH_WIDTH_SCALE / fontWidth);
+        const charHeightLow = Math.round(height * LOW_HEIGHT_SCALE / fontHeight);
+        const charHeightHigh = Math.round(height * HIGH_HEIGHT_SCALE / fontHeight);
+        // Note that this "fontSize" translates to a proper fontSize in OL text formatting
+        // We'll assume 1:1 for now
+        // This is what we'd want canvas feedback for - so we can get an appropriate rendering resize depending on font family scale
+
+        // TODO Implement styling
+        return {
+            limits: [[charWidthLow, charWidthHigh], [charHeightLow, charHeightHigh]],
+            format: {
+                size: (fontWidth + fontHeight) / 2
+            },
+        };
+    }
+
     // basic alignment heuristic - left aligned with small padding
     private createTextStyle = (feature: any, resolution, style?: Partial<GeneratorTextStyle>) => {
-        // TODO grab font size from context intelligently?
+        // TODO allow setting of font size while we don't actually know what it should be
+
+        // we have given text, just give it a fixed size
+
         // assuming font size of 12-18, we need resolution *
         // zoom in => res goes down
 
@@ -418,6 +466,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         // resolution - number of map units per pixel
         style.offsetX += (leftAlign + paddingMU) / resolution; // this needs pixels
         const font = `${style.weight} ${style.size}px/${style.lineHeight} ${style.fontFamily}`;
+        // we have an idea of font size, we'll used prefit settings here
         const { offsetX, offsetY, placement, maxAngle, overflow, rotation } = style;
         return new Text({
           textAlign: style.align === '' ? undefined : style.align,
@@ -867,9 +916,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private generatorFeatureStyler = (feature, resolution) => {
         const regionId = feature.get("id");
         const region = this.props.generators.find(g => g.id === regionId);
-        // TODO style according to generator
+        // The text string should be validated by the generator on generation
+        // TODO P2: there should be some kind of OCR reckoning here when dealing with the text
+        // * (e.g. date slashes, page tilt)
         const text = this.createTextStyle(feature, resolution);
-        text.setText(this.state.generatorStrings[region.id] || ""); // careful, there's a length here...
+        text.setText(this.state.generatorStrings[region.id] || "");
         // Selected
         if (regionId && this.props?.activeGeneratorRegionId === regionId) {
             return new Style({
@@ -1296,9 +1347,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         });
     }
 
-    /* Bounding Box Synthesizer Code */
-    // TODO should we just pass around all the info? And not worry about all this work until necessary?
-    // Currently putting this here since it's more canvas related
+    /* Generators */
     private extractGeneratorRegion: (feature?: any) => IGeneratorRegion = (feature) => {
         if (!feature) {
             return null;
@@ -1317,13 +1366,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const bbox = [];
         for (let i = 0; i < canvasBbox.length; i += 2) {
             bbox.push(
-                Math.round((canvasBbox[i] / imageWidth * ocrWidth)),
-                Math.round(((1 - canvasBbox[i + 1] / imageHeight) * ocrHeight)),
+                (canvasBbox[i] / imageWidth * ocrWidth),
+                ((1 - canvasBbox[i + 1] / imageHeight) * ocrHeight),
             );
         }
         return {
             points,
             bbox,
+            canvasBbox,
             id,
         }
     }
@@ -2130,3 +2180,10 @@ const defaultStyle: GeneratorTextStyle = {
     outlineColor: "#000",
     outlineWidth: 0,
 };
+
+// the generation step formatting should be done when calibrating the text to display
+interface LimitsAndFormat {
+    format: Partial<GeneratorTextStyle>,
+    // should include as much as possible
+    limits: number[][]
+}
