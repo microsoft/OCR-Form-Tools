@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import _ from "lodash";
-import React, { RefObject } from "react";
+import React, { RefObject, MouseEvent } from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import SplitPane from "react-split-pane";
@@ -629,7 +629,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         });
     }
 
-    public loadOcrForNotVisited = async (runForAll?) => {
+    public loadOcrForNotVisited = async (e = undefined, runForAll?: boolean) => {
         if (this.state.isRunningOCRs) {
             return;
         }

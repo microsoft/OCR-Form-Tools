@@ -52,7 +52,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onCanvasRendered?: (canvas: HTMLCanvasElement) => void;
     onRunningOCRStatusChanged?: (isRunning: boolean) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
-    runOcrForAllDocs?: (runOcr:boolean) => void;
+    runOcrForAllDocs?: (e: undefined, runOcr:boolean) => void;
 }
 
 export interface ICanvasState {
@@ -290,7 +290,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private runOcrForAllDocuments = () => {
         this.setState({ocrStatus: OcrStatus.runningOCR})
-        this.props.runOcrForAllDocs(true);
+        this.props.runOcrForAllDocs(undefined,true);
     }
 
     public updateSize() {
