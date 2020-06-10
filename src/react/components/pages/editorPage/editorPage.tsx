@@ -230,7 +230,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             ariaLive="off"
                                             labelPosition="right"
                                         />
-                                    </div> : "Run OCR for not visited documents"
+                                    </div> : "Run OCR on not visited documents"
                                 }
                             </PrimaryButton>
                         </div>}
@@ -660,7 +660,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                 });
                             }
                         }
-                    });
+                    }
+                );
             } finally {
                 this.setState({ isRunningOCRs: false });
             }

@@ -93,7 +93,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                 items: [
                     {
                         key: "runOcrForCurrentDocument",
-                        text: "Run OCR for current document",
+                        text: "Run OCR on current document",
                         iconProps: { iconName: "TextDocument" },
                         onClick: () => props.handleRunOcr(),
                     },
