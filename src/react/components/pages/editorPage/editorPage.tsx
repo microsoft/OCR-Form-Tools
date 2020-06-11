@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import _ from "lodash";
-import React, { RefObject, MouseEvent } from "react";
+import React, { RefObject } from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import SplitPane from "react-split-pane";
@@ -220,7 +220,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                 theme={getPrimaryGreenTheme()}
                                 className="editor-page-sidebar-run-ocr"
                                 type="button"
-                                onClick={this.loadOcrForNotVisited}
+                                onClick={() => this.loadOcrForNotVisited()}
                                 disabled={this.state.isRunningOCRs}>
                                 {this.state.isRunningOCRs ?
                                     <div>
@@ -629,7 +629,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         });
     }
 
-    public loadOcrForNotVisited = async (e = undefined, runForAll?: boolean) => {
+    public loadOcrForNotVisited = async (runForAll?: boolean) => {
         if (this.state.isRunningOCRs) {
             return;
         }
