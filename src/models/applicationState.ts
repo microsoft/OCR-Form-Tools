@@ -268,8 +268,8 @@ export interface IBoundingBox {
 export interface IGeneratorRegion {
     points: number[];
     bbox: number[]; // bbox in inches
-    resolution: number; // resolution at generation (used to convert to pixels)
-    canvasBbox: number[]; // bbox in canvas units
+    resolution: number; // resolution at definition (used to convert to pixels for measures)
+    canvasBbox: number[]; // bbox in canvas units, as at definition
     id: string;
 }
 

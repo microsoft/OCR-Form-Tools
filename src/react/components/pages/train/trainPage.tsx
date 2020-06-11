@@ -29,7 +29,7 @@ import { SkipButton } from "../../shell/skipButton";
 import { AssetService } from "../../../../services/assetService";
 import ProjectService from "../../../../services/projectService";
 import Guard from "../../../../common/guard";
-import { generate, IGeneratedInfo } from "../../common/generators/generateUtils";
+import { generate, generatorInfoToLabel, generatorInfoToOCRLines } from "../../common/generators/generateUtils";
 import { OCRService } from "../../../../services/ocrService";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
@@ -280,12 +280,12 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
             const docbase = metadata.labelData.document;
             const labelData = metadata.labelData; // precisely JSON.parse of the file
-            const baseLabels = [...labelData.labels]; // make a copy of the array, we don't need copies of the object
+            const baseLabels = [...labelData.labels]; // make a copy of the array, we don't need copies of objects
             const savePromises = [];
             for (let i = 0; i < metadata.generatorSettings.generateCount; i++) {
                 const prefix = `${generatePath}/${i}_`;
 
-                const curLabelData = assetGeneratorInfo[i].map(this.generatorInfoToLabel);
+                const curLabelData = assetGeneratorInfo[i].map(generatorInfoToLabel);
                 const docprefix = prefix.split('/').slice(-1)[0];
                 metadata.labelData.document = `${docprefix}${docbase}`
                 metadata.labelData.labels = baseLabels.concat(curLabelData);
@@ -299,8 +299,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             const baseLines = [...pageReadResults.lines];
             for (let i = 0; i < metadata.generatorSettings.generateCount; i++) {
                 const prefix = `${generatePath}/${i}_`;
-                const newOCRLines = assetGeneratorInfo[i].map(this.generatorInfoToOCRLine);
-                pageReadResults.lines = baseLines.concat(newOCRLines);
+                const nestedOCRLines = assetGeneratorInfo[i].map(generatorInfoToOCRLines);
+                pageReadResults.lines = [].concat.apply(baseLines, nestedOCRLines);
                 savePromises.push(assetService.saveOCR(asset, ocr, prefix));
             }
             return savePromises;
@@ -310,32 +310,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         return generatePath;
     }
 
-    private generatorInfoToLabel: (g: IGeneratedInfo) => ILabel = (generatedInfo) => {
-        return {
-            label: generatedInfo.name,
-            key: null,
-            value: [
-                {
-                    page: 1, // TODO anchor page
-                    text: generatedInfo.text,
-                    boundingBoxes: [generatedInfo.boundingBoxes.percentage],
-                }
-            ]
-        };
-    }
-
-    private generatorInfoToOCRLine: (g: IGeneratedInfo) => any = (generatedInfo) => {
-        console.log(generatedInfo.text);
-        return {
-            boundingBox: generatedInfo.boundingBoxes.tight,
-            text: generatedInfo.text,
-            words: generatedInfo.boundingBoxes.words.map(this.completeOCRWord)
-        };
-    }
-
-    private completeOCRWord = (wordInfo) => {
-        return { ...wordInfo, confidence: .99 };
-    }
+    private
 
     private async train(sourcePrefix: string): Promise<any> {
         const baseURL = url.resolve(
