@@ -37,6 +37,7 @@ export interface IGeneratorPaneProps {
     onGenerateClick: () => void;
 }
 
+const MAX_GENERATE_COUNT = 20;
 const strings = {
     generator: {
         title: "Generators",
@@ -246,7 +247,7 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
                                     value={props.assetGeneratorSettings.generateCount}
                                     placeholder="1"
                                     min="1"
-                                    max="10"
+                                    max={MAX_GENERATE_COUNT}
                                 />
                             </div>
                             <div className="tag-input-text-input-row">

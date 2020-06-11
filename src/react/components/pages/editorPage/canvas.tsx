@@ -1305,6 +1305,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const [lowX, lowY, hiX, hiY] = geometry.getExtent();
         const canvasBbox = [lowX, hiY, hiX, hiY, hiX, lowY, lowX, lowY];
         const bbox = [];
+        // Note, OCR has TL origin
+        // Canvas has BL origin (which is why we flip) - note order of coords doesn't need to change
         for (let i = 0; i < canvasBbox.length; i += 2) {
             bbox.push(
                 (canvasBbox[i] / imageWidth * ocrWidth),
@@ -1317,6 +1319,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             canvasBbox,
             resolution: this.imageMap.getResolution(),
             id,
+            canvas: [this.state.imageWidth, this.state.imageHeight]
         }
     }
 

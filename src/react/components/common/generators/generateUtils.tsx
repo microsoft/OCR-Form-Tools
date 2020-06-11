@@ -21,7 +21,8 @@ interface WordLevelBbox {
 interface GeneratedBbox {
     full: number[], // drawn
     tight: number[], // taut to words
-    words: WordLevelBbox[]
+    words: WordLevelBbox[],
+    percentage: number[], // ratio
 }
 
 // TODO seeding
@@ -35,7 +36,7 @@ export const generate:(g: IGenerator, ocr: any) => IGeneratedInfo = (generator, 
     // Should be in charge of providing everything the training pipeline needs, in addition to something for generation
     // * TODO can we find text dimensions?
     const format = { ...defaultStyle, ...limitsAndFormat.format, text };
-    const boundingBoxes = generateBoundingBoxes(generator, format);
+    const boundingBoxes = generateBoundingBoxes(generator, format, ocr);
     return {
         name: generator.name,
         text,
@@ -44,11 +45,10 @@ export const generate:(g: IGenerator, ocr: any) => IGeneratedInfo = (generator, 
     };
 }
 
-const generateBoundingBoxes: (g: IGenerator, format: GeneratorTextStyle) => GeneratedBbox =
-    (generator, format) => {
+const generateBoundingBoxes: (g: IGenerator, format: GeneratorTextStyle, ocr: any) => GeneratedBbox =
+    (generator, format, ocr) => {
     const text = format.text;
     const full = generator.bbox;
-    const tight = generator.bbox;
     // generator.canvasBbox holds generator canvas info
     // generator.bbox holds inch info (don't forget y is inverted)
     // and format holds the offset info (in canvas)
@@ -56,24 +56,39 @@ const generateBoundingBoxes: (g: IGenerator, format: GeneratorTextStyle) => Gene
     const mapOffsetX = format.offsetX;
     const mapOffsetY = format.offsetY;
     const widthScale = generator.bbox[0] / generator.canvasBbox[0];
-    const heightScale = (generator.bbox[1] - generator.bbox[5]) / (generator.canvasBbox[5] - generator.canvasBbox[1]);
+    const heightScale = (generator.bbox[5] - generator.bbox[1]) / (generator.canvasBbox[1] - generator.canvasBbox[5]);
     const imageOffsetX = mapOffsetX * widthScale; // offset from center
-    const imageOffsetY = mapOffsetY * heightScale; // offset from center
+    const imageOffsetY = mapOffsetY * heightScale * 1.1; // offset from center
 
     const metrics = getTextMetrics(text, format.font); // measure text dimensions
     const mapWordWidth = metrics.width * generator.resolution;
-    const mapWordHeight = (metrics.actualBoundingBoxAscent - metrics.actualBoundingBoxDescent) * generator.resolution;
+    const mapWordHeight = (metrics.actualBoundingBoxAscent - metrics.actualBoundingBoxDescent) * generator.resolution; // TODO I wonder why we're a little short?
     const imageWordHeight = mapWordHeight * heightScale;
     const imageWordWidth = mapWordWidth * widthScale;
-    // start from bbox bottom left
     const center = [(full[0] + full[2]) / 2, (full[1] + full[5]) / 2];
-    const wordTl = [center[0] + imageOffsetX, center[1] + imageOffsetY + imageWordHeight];
-    const wordTr = [center[0] + imageOffsetX + imageWordWidth, center[1] + imageOffsetY + imageWordHeight];
-    const wordBr = [center[0] + imageOffsetX + imageWordWidth, center[1] + imageOffsetY];
-    const wordBl = [center[0] + imageOffsetX, center[1] + imageOffsetY];
+    // * start from bbox TOP LEFT (smallest coords)
+    // * Offset Y is going to manifest itself inverted here
+    // TODO deal with ^ (currently offset is 0)
+    // since origin is TL, TL does not include the word height, we include it as we go down
+    const wordTl = [
+        center[0] + imageOffsetX,
+        center[1] + imageOffsetY
+    ];
+    const wordTr = [
+        center[0] + imageOffsetX + imageWordWidth,
+        center[1] + imageOffsetY
+    ];
+    const wordBr = [
+        center[0] + imageOffsetX + imageWordWidth,
+        center[1] + imageOffsetY + imageWordHeight];
+    const wordBl = [
+        center[0] + imageOffsetX,
+        center[1] + imageOffsetY + imageWordHeight
+    ];
     const wordBbox = [].concat.apply([], [wordTl, wordTr, wordBr, wordBl]);;
 
     // don't forget your measure metrics
+    // TODO support multiword + multiline
 
     // assuming single line atm (assuming one word at the moment)
     const fullWord = {
@@ -81,9 +96,16 @@ const generateBoundingBoxes: (g: IGenerator, format: GeneratorTextStyle) => Gene
         text,
     };
 
+    const percentage = wordBbox.map((el, index) => {
+        if (index % 2 === 0) {
+            return el / ocr.width;
+        }
+        return el / ocr.height;
+    })
+
     // TODO bbox - also generate per word as per ocr.json
     // TODO This is the full bbox - update with the partial one
-    return { full, tight, words: [fullWord]};
+    return { full: wordBbox, tight: wordBbox, percentage, words: [fullWord]};
 }
 
 
@@ -167,7 +189,7 @@ const getStringLimitsAndFormat: (g: IGenerator) => LimitsAndFormat = (generator)
 
     const charWidthLow = Math.round(mapWidth * LOW_WIDTH_SCALE / mapWidthPerChar);
     const charWidthHigh = Math.round(mapWidth * HIGH_WIDTH_SCALE / mapWidthPerChar);
-    const charHeightLow = Math.round(mapHeight * LOW_HEIGHT_SCALE / mapHeightPerChar);
+    const charHeightLow = Math.max(1, Math.round(mapHeight * LOW_HEIGHT_SCALE / mapHeightPerChar));
     const charHeightHigh = Math.round(mapHeight * HIGH_HEIGHT_SCALE / mapHeightPerChar);
     // * We'll run into trouble once we use OCR. Given fixed map width conversion, we're fine.
 

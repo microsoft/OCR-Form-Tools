@@ -278,12 +278,16 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 assetGeneratorInfo.push(metadata.generators.map(g => generate(g, pageReadResults)));
             }
 
+            const docbase = metadata.labelData.document;
             const labelData = metadata.labelData; // precisely JSON.parse of the file
             const baseLabels = [...labelData.labels]; // make a copy of the array, we don't need copies of the object
             const savePromises = [];
             for (let i = 0; i < metadata.generatorSettings.generateCount; i++) {
                 const prefix = `${generatePath}/${i}_`;
+
                 const curLabelData = assetGeneratorInfo[i].map(this.generatorInfoToLabel);
+                const docprefix = prefix.split('/').slice(-1)[0];
+                metadata.labelData.document = `${docprefix}${docbase}`
                 metadata.labelData.labels = baseLabels.concat(curLabelData);
                 savePromises.push(assetService.saveLabels(asset, metadata.labelData, prefix));
             }
@@ -314,7 +318,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 {
                     page: 1, // TODO anchor page
                     text: generatedInfo.text,
-                    boundingBoxes: [generatedInfo.boundingBoxes.full],
+                    boundingBoxes: [generatedInfo.boundingBoxes.percentage],
                 }
             ]
         };
@@ -330,7 +334,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private completeOCRWord = (wordInfo) => {
-        return { ...wordInfo, confidence: 1 };
+        return { ...wordInfo, confidence: .99 };
     }
 
     private async train(sourcePrefix: string): Promise<any> {
