@@ -1,26 +1,23 @@
-# Manual Tests Runbook
+# Test Runbook
 
-## Branch:  alex-krasn/feature-regenerate-OCR-for-file-#256
-**on issue https://github.com/microsoft/OCR-Form-Tools/issues/256**
+## **Enable rerun OCR for current or all documents**
 
-> `Feature description:`
->In some cases user may want to rerun OCR for singe document in the project or for all the documents in project.\
->This feature will enable this.
+> ### Feature description ###
+Adding the following buttons to the canvas command bar:
+- "Run OCR on current document"
+- "Run OCR on all documents"
+> ### Use Case ###
+**`As`** a user
+**`I want`** to rerun OCR on documents
+**`So`** I can update OCR results
 
-## Proposed Tests
+> ### Acceptance criteria ###
+#### Scenario One ####
+**`Given`** I've opened a project containing documents and I'm on the Tag Editor page.
+**`When`** I click "Run OCR on current document" in the canvas command bar
+**`Then`** I should see "Running OCR..." for the current docucment. When running OCR finishes, I should be able to view the document's updated OCR JSON file.
 
-#### Part One #####
-
-1. Open an existing project or create the new one.
-2. In case of new project - the app will offer you to **Run OCR** for all document (green button on the top of documents preview sidebar).
-3. After running OCR for new project or opening existing project - choose the current document on which you want to **rerun OCR**.
-4. In left top corner of  `canvasCommandBar` click on '```...```' icon and chose **re-run OCR for current document**
-5. You should see **Running OCR** spinner.
-6. Check in Azure Blob Container that indeed `documentName.ocr.json` file has changed. (check timestamp for example).
-
-#### Part Two #####
-
-1. Repeat steps `1` and `2` from **Part One**.
-2. After running OCR for new project or opening existing project in left top corner of  `canvasCommandBar` click on '```...```' icon and chose **re-run OCR for all documents**
-3. You should see **Running OCR** spinner on the canvas and on all documents in the documents preview sidebar.
-4. Check in Azure Blob Container that indeed `documentName.ocr.json` files has changed for all documents in the project. (check timestamp for example). You should see the changes.
+#### **Scenario Two** ####
+**`Given`** I've opened a project containing documents and I'm on the Tag Editor page.
+**`When`** I click "Run OCR on all documents" in the canvas command bar
+**`Then`** I should see "Running OCR..." for all documents. When running OCR finishes for each document, I should be ale to view each document's updated OCR JSON file.
