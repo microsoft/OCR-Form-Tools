@@ -37,7 +37,6 @@ import { constants } from "../../../../common/constants";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
 import { getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/themes";
-import { SkipButton } from "../../shell/skipButton";
 
 /**
  * Properties for Editor Page
@@ -221,7 +220,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                 theme={getPrimaryGreenTheme()}
                                 className="editor-page-sidebar-run-ocr"
                                 type="button"
-                                onClick={this.loadAllOCRs}
+                                onClick={() => this.loadOcrForNotVisited()}
                                 disabled={this.state.isRunningOCRs}>
                                 {this.state.isRunningOCRs ?
                                     <div>
@@ -231,7 +230,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             ariaLive="off"
                                             labelPosition="right"
                                         />
-                                    </div> : "Run OCR on all files"
+                                    </div> : "Run OCR on unvisited documents"
                                 }
                             </PrimaryButton>
                         </div>}
@@ -269,7 +268,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             lockedTags={this.state.lockedTags}
                                             hoveredLabel={this.state.hoveredLabel}
                                             setTableToView={this.setTableToView}
-                                            closeTableView={this.closeTableView}>
+                                            closeTableView={this.closeTableView}
+                                            runOcrForAllDocs={this.loadOcrForNotVisited}>
                                             <AssetPreview
                                                 controlsEnabled={this.state.isValid}
                                                 onBeforeAssetChanged={this.onBeforeAssetSelected}
@@ -629,11 +629,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         });
     }
 
-    private loadAllOCRs = async () => {
+    public loadOcrForNotVisited = async (runForAll?: boolean) => {
         if (this.state.isRunningOCRs) {
             return;
         }
-
         const { project } = this.props;
         const ocrService = new OCRService(project);
         if (this.state.assets) {
@@ -641,14 +640,16 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             try {
                 await throttle(
                     constants.maxConcurrentServiceRequests,
-                    this.state.assets.filter((asset) => asset.state === AssetState.NotVisited).map((asset) => asset.id),
+                    this.state.assets
+                        .filter((asset) => runForAll ? asset : asset.state === AssetState.NotVisited)
+                        .map((asset) => asset.id),
                     async (assetId) => {
                         // Get the latest version of asset.
                         const asset = this.state.assets.find((asset) => asset.id === assetId);
-                        if (asset && asset.state === AssetState.NotVisited) {
+                        if (asset && (asset.state === AssetState.NotVisited || runForAll)) {
                             try {
                                 this.updateAssetState(asset.id, true);
-                                await ocrService.getRecognizedText(asset.path, asset.name);
+                                await ocrService.getRecognizedText(asset.path, asset.name, undefined, runForAll);
                                 this.updateAssetState(asset.id, false, AssetState.Visited);
                             } catch (err) {
                                 this.updateAssetState(asset.id, false);
@@ -659,7 +660,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                 });
                             }
                         }
-                });
+                    }
+                );
             } finally {
                 this.setState({ isRunningOCRs: false });
             }
