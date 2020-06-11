@@ -97,7 +97,7 @@
         "redux-mock-store": "^1.5.4",
         "ts-loader": "^6.2.1",
         "tslint": "^5.20.1",
-        "typescript": "^3.8.2"
+        "typescript": "^3.9.5"
     },
     "engines": {
         "node": ">=10.14.2",
