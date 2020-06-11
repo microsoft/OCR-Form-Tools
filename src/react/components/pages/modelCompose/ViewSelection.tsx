@@ -105,14 +105,13 @@ export class ViewSelection extends BaseComponent<
     );
     this.selectedIndices = [...this.selectedIndices, ...newIndices];
 
-
     const items = [];
     this.selectedIndices.forEach((i) => {
       const item = this.props.items[i];
-      if (!items.includes(item)){
+      if (!items.includes(item)) {
         items.push(item);
       }
-    })
+    });
 
     this.selectedItems = items;
     this.props.passSelectedItems(this.selectedItems);
@@ -125,7 +124,8 @@ export class ViewSelection extends BaseComponent<
       if (indice !== -1) {
         indiceList.push(indice);
       }
-    })
+    });
+
     const indices = indiceList
       .map((index) => this.toViewIndex(index))
       .filter((index) => index !== -1);

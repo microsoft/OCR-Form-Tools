@@ -135,8 +135,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 isResizable: true,
                 onColumnClick: this.handleColumnClick,
                 onRender: (model: IModel) => {
-                return (<span>{model.modelName}</span>)
-                }
+                return (<span>{model.modelName}</span>);
+                },
 
             },
             {
@@ -180,7 +180,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         this.state = {
             modelList: [],
             nextLink: "*",
-            composedModelList:[],
+            composedModelList: [],
             columns,
             selectionDetails: this.handleSelection(),
             isModalSelection: false,
@@ -246,7 +246,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             if (!props) {
               return null;
             }
-            const onRenderColumnHeaderTooltip: IRenderFunction<IDetailsColumnRenderTooltipProps> = tooltipHostProps => (
+            const onRenderColumnHeaderTooltip: IRenderFunction<IDetailsColumnRenderTooltipProps> =
+                (tooltipHostProps) => (
               <TooltipHost {...tooltipHostProps} />
             );
             return (
@@ -348,7 +349,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         try {
             this.setState({
                 isLoading: true,
-            })
+            });
 
             const composedModels = this.state.composedModelList;
             if (this.state.composedModelsId.length !== 0) {
@@ -374,10 +375,10 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 modelList: newList,
                 nextLink: link,
                 composedModelList: composedModels,
-            },() => {
+            }, () => {
                 this.setState({
                     isLoading: false,
-                })
+                });
             });
         } catch (error) {
             console.log(error);
@@ -390,7 +391,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 if (this.state.nextLink.length !== 0) {
                     this.setState({
                         isLoading: true,
-                    })
+                    });
                     const nextPage = await this.getModelsFromNextLink(this.state.nextLink);
                     let currentList = this.state.modelList;
                     const composedModels = this.state.composedModelList;
@@ -418,7 +419,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     }, () => {
                         this.setState({
                             isLoading: false,
-                        })
+                        });
                     });
                 }
             }
@@ -429,7 +430,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
     private getComposedIds = () => {
         const composedIds = [];
-        this.state.composedModelList.forEach((m) => {composedIds.push(m.modelId)});
+        this.state.composedModelList.forEach((m) => {composedIds.push(m.modelId); });
         return composedIds;
     }
 
@@ -465,7 +466,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         } catch (err) {
             this.setState({
                 isLoading: false,
-            })
+            });
             console.log(err);
             ServiceHelper.handleServiceError(err);
         }
@@ -541,7 +542,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
     private passSelectedItems = (Items) => {
         this.selectedItems = Items;
-    };
+    }
 
     private handleModelCompose = async (selections: any[]) => {
         setTimeout( async () => {
@@ -550,7 +551,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 selections.forEach((s) => idList.push(s.modelId));
                 const payload = {
                     modelIds: idList,
-                }
+                };
                 console.log(payload);
                 const link = "/formrecognizer/v2.1-preview.1/custom/models/compose";
                 const composeRes = await this.post(link, payload);
@@ -565,7 +566,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     //composedModelsId: ["62ce2175-92b5-444c-b703-9bc2185684c7"],
                     columns: newCols,
                 });
-            } catch(error){
+            } catch (error) {
                 console.log(error);
             }
         }, 5000);
