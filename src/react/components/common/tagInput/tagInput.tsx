@@ -120,7 +120,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     debouncedSetTags: any;
     constructor(props: Readonly<ITagInputProps>) {
         super(props);
-        this.debouncedSetTags = debounce(this.setTags, 1000);
+        this.debouncedSetTags = debounce(this.setTags, 5000);
       }
 
     public state: ITagInputState = {
