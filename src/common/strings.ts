@@ -313,6 +313,32 @@ export interface IAppStrings {
                 title: string;
                 confirmation: string;
             },
+            canvasCommandBar: {
+                items: {
+                    layers: {
+                        text: string,
+                        subMenuItems: {
+                            text: string,
+                            tables: string,
+                            selectionMarks: string;
+                            label: string,
+                        }
+                    },
+                },
+                farItems: {
+                    zoom: {
+                        zoomOut: string,
+                        zoomIn: string,
+                    },
+                    additionalActions: {
+                        text: string,
+                        subIMenuItems: {
+                            runOcrOnCurrentDocument: string,
+                            runOcrOnAllDocuments: string,
+                        }
+                    }
+                }
+            },
         },
         messages: {
             enforceTaggedRegions: {

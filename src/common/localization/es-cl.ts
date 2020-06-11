@@ -319,6 +319,32 @@ export const spanish: IAppStrings = {
                 title: "Borrar Regiones",
                 confirmation: "¿Está seguro que quiere borrar todas las regiones?",
             },
+            canvasCommandBar: {
+                items: {
+                    layers:{
+                        text: "Capas",
+                        subMenuItems: {
+                            text: "Texto",
+                            tables: "Tablas",
+                            selectionMarks: "Marcas de selección (vista previa)",
+                            label: "Etiqueta"
+                        },
+                    }
+                },
+                farItems: {
+                    zoom: {
+                        zoomOut: "Alejar",
+                        zoomIn: "Acercarse",
+                    },
+                    additionalActions: {
+                        text: "Acciones adicionales",
+                        subIMenuItems: {
+                            runOcrOnCurrentDocument: "Ejecutar OCR en el documento actual",
+                            runOcrOnAllDocuments: "Ejecute OCR en todos los documentos",
+                        }
+                    }
+                }
+            }
         },
         messages: {
             enforceTaggedRegions: {
