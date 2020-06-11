@@ -216,14 +216,14 @@ const generateString: (g: IGenerator, l: number[][]) => string = (generator, lim
         },
         [FieldType.Number]: {
             [FieldFormat.NotSpecified]: `^\\d{${low},${high}}$`,
-            [FieldFormat.Currency]: `^\\$?([0-9]{1,3},([0-9]{3},){${low},${3}}[0-9]{3}|[0-9]{${low},${3}})(\\.[0-9][0-9])?$`,
+            [FieldFormat.Currency]: `^\\$?((([1-9][0-9]){2},){${Math.round(low/4)},${Math.round(high/4)}}[0-9]{3}|[0-9]{${low},${high}})(\\.[0-9][0-9])?$`,
         },
         [FieldType.Date]: {
-            [FieldFormat.NotSpecified]: `^\\d\\d[- /.]\\d\\d[- /.]\\d{2,4}$
+            [FieldFormat.NotSpecified]: `^\\d\\d([- /.])\\d\\d\\1\\d{2,4}$
             `,
-            [FieldFormat.DMY]: `^${dd}[- /.]${mm}[- /.]${yy}$`,
-            [FieldFormat.MDY]: `^${mm}[- /.]${dd}[- /.]${yy}$`,
-            [FieldFormat.YMD]: `^${yy}[- /.]${mm}[- /.]${dd}$`,
+            [FieldFormat.DMY]: `^${dd}([- /.])${mm}\\1${yy}$`,
+            [FieldFormat.MDY]: `^${mm}([- /.])${dd}\\1${yy}$`,
+            [FieldFormat.YMD]: `^${yy}([- /.])${mm}\\1${dd}$`,
         },
         [FieldType.Time]: {
             [FieldFormat.NotSpecified]: "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$",
@@ -236,8 +236,6 @@ const generateString: (g: IGenerator, l: number[][]) => string = (generator, lim
         },
     }
 
-
-
     const fieldType = generator.type;
     const fieldFormat = generator.format;
     let regex = regexDict[FieldType.String][FieldFormat.NotSpecified];
@@ -247,8 +245,6 @@ const generateString: (g: IGenerator, l: number[][]) => string = (generator, lim
     // @ts-ignore - something is messed up with this import, satisfying it in lint breaks on runtime
     const randexp = new RandExp(regex);
     // Best effort for multiline atm - just do multiple newlines
-    randexp.min = low;
-    randexp.max = high; // char limit
     const lineStrings = [];
     for (let i = 0; i < linesUsed; i++) {
         lineStrings.push(randexp.gen());
@@ -256,14 +252,26 @@ const generateString: (g: IGenerator, l: number[][]) => string = (generator, lim
     return lineStrings.join("\n");
 }
 
+const GEN_CONSTANTS = {
+    weight: 100,
+    weightJitter: 50,
+    height: 1,
+    heightJitter: .2,
+    size: 14,
+    sizeJitter: 2,
+    offsetX: 10,
+    offsetXJitter: 10,
+    offsetY: 0,
+    offsetYJitter: 5,
+    width_low: 0.3,
+    width_high: 1.05,
+    height_low: 0.2,
+    height_high: 1,
+}
+
 const getStringLimitsAndFormat: (g: IGenerator) => LimitsAndFormat = (generator) => {
     // from allocated space, we should be able to determine lower and upper bound on used space, for width and height
-    // upper bound exclusive, lower inclusive
     // TODO better than linear lower bound (super long fields shouldn't have multiple)
-    const LOW_WIDTH_SCALE = 0.4; // heuristic lower bound on width gvien space
-    const LOW_HEIGHT_SCALE = 0.2; // heuristic lower bound on height given space
-    const HIGH_WIDTH_SCALE = 1.1; // heuristic upper bound on width given space
-    const HIGH_HEIGHT_SCALE = 1; // heuristic lower bound on width given space
 
     // determine map units per character (MUpC)
     // TODO extract from other characters in ocr
@@ -277,10 +285,10 @@ const getStringLimitsAndFormat: (g: IGenerator) => LimitsAndFormat = (generator)
     const mapWidth = generator.canvasBbox[2] - generator.canvasBbox[0];
     const mapHeight = generator.canvasBbox[1] - generator.canvasBbox[5];
 
-    const charWidthLow = Math.round(mapWidth * LOW_WIDTH_SCALE / mapWidthPerChar);
-    const charWidthHigh = Math.round(mapWidth * HIGH_WIDTH_SCALE / mapWidthPerChar);
-    const charHeightLow = Math.max(1, Math.round(mapHeight * LOW_HEIGHT_SCALE / mapHeightPerChar));
-    const charHeightHigh = Math.round(mapHeight * HIGH_HEIGHT_SCALE / mapHeightPerChar);
+    const charWidthLow = Math.round(mapWidth * GEN_CONSTANTS.width_low / mapWidthPerChar);
+    const charWidthHigh = Math.round(mapWidth * GEN_CONSTANTS.width_high / mapWidthPerChar);
+    const charHeightLow = Math.max(1, Math.round(mapHeight * GEN_CONSTANTS.height_low / mapHeightPerChar));
+    const charHeightHigh = Math.round(mapHeight * GEN_CONSTANTS.height_high / mapHeightPerChar);
     // * We'll run into trouble once we use OCR. Given fixed map width conversion, we're fine.
 
     // Map Units to Font size
@@ -289,24 +297,29 @@ const getStringLimitsAndFormat: (g: IGenerator) => LimitsAndFormat = (generator)
 
     // determine font size that uses MUpC (on avg) - assigning that to our generated text
     // TODO search for the correct font size - the one that matches our MUpC assumption
-    const properSize = 14; // hardcoded
-    const properWeight = 100;
-    const properHeight = 1.1;
-    const font = `${properWeight} ${properSize}px/${properHeight} sans-serif`;
+    const size = GEN_CONSTANTS.size + jitter(GEN_CONSTANTS.sizeJitter, true);
+    const weight = GEN_CONSTANTS.weight + jitter(GEN_CONSTANTS.weightJitter, true);
+    const height = GEN_CONSTANTS.height + jitter(GEN_CONSTANTS.heightJitter, true);
+    const font = `${weight} ${size}px/${height} sans-serif`;
 
     // Positioning
     const mapCenter = (generator.canvasBbox[2] + generator.canvasBbox[0]) / 2;
     const mapLeft = generator.canvasBbox[0];
-    const offsetPadding = 10;
-    const offsetX = mapLeft - mapCenter + offsetPadding;
-    // TODO Implement more style randomness
+    const offsetX = mapLeft - mapCenter + GEN_CONSTANTS.offsetX + jitter(GEN_CONSTANTS.offsetXJitter);
+    const offsetY = GEN_CONSTANTS.offsetY + jitter(GEN_CONSTANTS.offsetYJitter);
     return {
         limits: [[charWidthLow, charWidthHigh], [charHeightLow, charHeightHigh]],
         format: {
             font,
             offsetX,
+            offsetY,
         },
     };
+}
+
+const jitter = (max: number, round: boolean = false) => {
+    const val = (Math.random() * 2 - 1) * max;
+    return round ? Math.round(val) : val;
 }
 
 export const getTextMetrics = (text, font) => {
