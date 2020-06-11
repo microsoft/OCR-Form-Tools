@@ -316,6 +316,32 @@ export const english: IAppStrings = {
                 title: "Remove All Regions",
                 confirmation: "Are you sure you want to remove all regions?",
             },
+            canvasCommandBar: {
+                items: {
+                    layers: {
+                        text: "Layers",
+                        subMenuItems: {
+                            text: "Text",
+                            tables: "Tables",
+                            selectionMarks: "Selection Marks (Preview)",
+                            labels: "Labels"
+                        },
+                    }
+                },
+                farItems: {
+                    zoom: {
+                        zoomOut: "Zoom out",
+                        zoomIn: "Zoom in",
+                    },
+                    additionalActions: {
+                        text: "Additional actions",
+                        subIMenuItems: {
+                            runOcrOnCurrentDocument: "Run OCR on current document",
+                            runOcrOnAllDocuments: "Run OCR on all documents",
+                        }
+                    }
+                }
+            }
         },
         messages: {
             enforceTaggedRegions: {
