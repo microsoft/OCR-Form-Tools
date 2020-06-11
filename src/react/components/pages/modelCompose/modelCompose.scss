@@ -1,6 +1,6 @@
 .modelCompose-page {
     width: calc(100vw - 45px);
-    height: calc(100vh - 34px);
+    height: calc(100vh - 58px);
     overflow: auto;
     display: flex;
 }
@@ -88,11 +88,6 @@
     background: transparent;
     border: 1px white;
     color: white;
-}
-
-.headerClass {
-    top: 44px;
-    position: sticky;
 }
 
 .list-container {

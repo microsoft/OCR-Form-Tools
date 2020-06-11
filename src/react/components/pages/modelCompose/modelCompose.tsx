@@ -276,64 +276,64 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                             />
                     </div>
                     <div>
-                    <ScrollablePane
-                        className="pane-container"
-                        scrollbarVisibility={ScrollbarVisibility.auto}>
-                    <ViewSelection
-                        selection={this.selection}
-                        items={this.allModels}
-                        columns={this.state.columns}
-                        isComposing={this.state.isComposing}
-                        refreshFlag={this.state.refreshFlag}
-                        passSelectedItems={this.passSelectedItems}>
-                        {this.state.isComposing ?
-                        <Spinner
-                            label="Model is composing, please wait..."
-                            className="compose-spinner"
-                            theme={getDefaultDarkTheme()}
-                            size={SpinnerSize.large}>
-                        </Spinner> :
-                        <div>
-                            <DetailsList
-                                componentRef={this.listRef}
-                                className="models-list"
-                                items = {modelList}
-                                compact={isCompactMode}
-                                columns={columns}
-                                getKey={this.getKey}
-                                setKey="multiple"
-                                selectionMode={SelectionMode.multiple}
-                                layoutMode={DetailsListLayoutMode.justified}
-                                isHeaderVisible={true}
+                        <ScrollablePane
+                            className="pane-container"
+                            scrollbarVisibility={ScrollbarVisibility.auto}>
+                            <ViewSelection
                                 selection={this.selection}
-                                selectionPreservedOnEmptyClick={true}
-                                onRenderDetailsHeader={onRenderDetailsHeader}
-                                >
-                            </DetailsList>
-                            {this.state.nextLink && !this.state.hasText &&
-                                <div className="next-page-container">
-                                    {
-                                        this.state.isLoading ?
-                                        <Spinner
-                                            label="Model is loading..."
-                                            className="commandbar-spinner"
-                                            labelPosition="right"
-                                            theme={getDefaultDarkTheme()}
-                                            size={SpinnerSize.small}>
-                                        </Spinner> :
-                                        <PrimaryButton
-                                            className="next-page-button"
-                                            onClick={this.getNextPage}>
-                                            <FontIcon iconName="Down" style={{padding: "5px"}}>
-                                            </FontIcon>
-                                            <span>Load next page</span>
-                                        </PrimaryButton>
-                                    }
-                                </div>}
-                        </div>
-                        }
-                    </ViewSelection>
-                    </ScrollablePane>
+                                items={this.allModels}
+                                columns={this.state.columns}
+                                isComposing={this.state.isComposing}
+                                refreshFlag={this.state.refreshFlag}
+                                passSelectedItems={this.passSelectedItems}>
+                                {this.state.isComposing ?
+                                <Spinner
+                                    label="Model is composing, please wait..."
+                                    className="compose-spinner"
+                                    theme={getDefaultDarkTheme()}
+                                    size={SpinnerSize.large}>
+                                </Spinner> :
+                                <div>
+                                    <DetailsList
+                                        componentRef={this.listRef}
+                                        className="models-list"
+                                        items = {modelList}
+                                        compact={isCompactMode}
+                                        columns={columns}
+                                        getKey={this.getKey}
+                                        setKey="multiple"
+                                        selectionMode={SelectionMode.multiple}
+                                        layoutMode={DetailsListLayoutMode.justified}
+                                        isHeaderVisible={true}
+                                        selection={this.selection}
+                                        selectionPreservedOnEmptyClick={true}
+                                        onRenderDetailsHeader={onRenderDetailsHeader}
+                                        >
+                                    </DetailsList>
+                                    {this.state.nextLink && !this.state.hasText &&
+                                        <div className="next-page-container">
+                                            {
+                                                this.state.isLoading ?
+                                                <Spinner
+                                                    label="Model is loading..."
+                                                    className="commandbar-spinner"
+                                                    labelPosition="right"
+                                                    theme={getDefaultDarkTheme()}
+                                                    size={SpinnerSize.small}>
+                                                </Spinner> :
+                                                <PrimaryButton
+                                                    className="next-page-button"
+                                                    onClick={this.getNextPage}>
+                                                    <FontIcon iconName="Down" style={{padding: "5px"}}>
+                                                    </FontIcon>
+                                                    <span>Load next page</span>
+                                                </PrimaryButton>
+                                            }
+                                        </div>}
+                                </div>
+                                }
+                            </ViewSelection>
+                        </ScrollablePane>
                     </div>
                 </Customizer>
             </Fabric>
@@ -551,6 +551,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 const payload = {
                     modelIds: idList,
                 }
+                console.log(payload);
                 const link = "/formrecognizer/v2.1-preview.1/custom/models/compose";
                 const composeRes = await this.post(link, payload);
                 console.log(composeRes);

@@ -104,10 +104,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         document.title = strings.train.title + " - " + strings.appName;
     }
 
-    public componentDidUpdate() {
-        console.log(this.state.currTrainRecord);
-    }
-
     public render() {
         const currTrainRecord = this.state.currTrainRecord;
 
@@ -146,6 +142,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                     </div>}
                                 {!this.state.isTraining ? (
                                     <div>
+                                        <span>
+                                            Give Model Name
+                                        </span>
                                         <TextField
                                             placeholder="Add model name..."
                                             onChange={this.onTextChanged}
