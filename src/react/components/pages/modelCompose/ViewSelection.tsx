@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 // tslint:disable:no-empty-interface
 import { BaseComponent, IRefObject } from "@uifabric/utilities";
 import { ISelection } from "office-ui-fabric-react";
