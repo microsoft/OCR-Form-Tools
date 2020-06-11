@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { CommandBar, ICommandBarItemProps } from "@fluentui/react/lib/CommandBar";
 import { ICustomizations, Customizer } from "@fluentui/react/lib/Utilities";
@@ -54,7 +55,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
               },
               {
                 key: "Label",
-                text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.label,
+                text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.labels,
                 canCheck: true,
                 iconProps: { iconName: "LabelComposite" },
                 isChecked: props.layers["label"],

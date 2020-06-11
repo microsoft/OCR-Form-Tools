@@ -327,7 +327,7 @@ export const spanish: IAppStrings = {
                             text: "Texto",
                             tables: "Tablas",
                             selectionMarks: "Marcas de selección (vista previa)",
-                            label: "Etiqueta"
+                            labels: "Etiquetas"
                         },
                     }
                 },

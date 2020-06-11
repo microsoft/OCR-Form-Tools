@@ -324,7 +324,7 @@ export const english: IAppStrings = {
                             text: "Text",
                             tables: "Tables",
                             selectionMarks: "Selection Marks (Preview)",
-                            label: "Label"
+                            labels: "Labels"
                         },
                     }
                 },

@@ -321,7 +321,7 @@ export interface IAppStrings {
                             text: string,
                             tables: string,
                             selectionMarks: string;
-                            label: string,
+                            labels: string,
                         }
                     },
                 },
