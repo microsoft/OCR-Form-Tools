@@ -230,7 +230,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             ariaLive="off"
                                             labelPosition="right"
                                         />
-                                    </div> : "Run OCR on not visited documents"
+                                    </div> : "Run OCR on unvisited documents"
                                 }
                             </PrimaryButton>
                         </div>}
