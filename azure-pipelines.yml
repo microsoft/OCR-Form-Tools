@@ -12,21 +12,21 @@ pool:
 steps:
 - task: NodeTool@0
   inputs:
-    versionSpec: '10.x'
+    versionSpec: '12.x'
   displayName: 'Install Node.js'
 
 - script: |
-    npm install
-    npm run tslint
+    yarn install
+    yarn tslint
     if [ $? -ne 0 ]; then
         exit 1
     fi
-    npm run compile 
+    yarn compile
     if [ $? -ne 0 ]; then
         exit 1
     fi
-    npm run build
+    yarn build
     if [ $? -ne 0 ]; then
         exit 1
     fi
-  displayName: 'npm install and build'
+  displayName: 'yarn install and build'

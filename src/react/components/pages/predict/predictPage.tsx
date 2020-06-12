@@ -5,8 +5,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
-import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton, TextField, IDropdownOption,
-         Dropdown, DefaultButton} from "office-ui-fabric-react";
+import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton, TextField, IDropdownOption, Dropdown, DefaultButton} from "@fluentui/react";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
@@ -202,17 +201,24 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const urlInputDisabled: boolean = !this.state.predictionLoaded || this.state.isFetching || uploadImageDisabled;
         const predictDisabled: boolean = !this.state.predictionLoaded || !this.state.file;
         const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
-        const fetchDisabled: boolean = !this.state.predictionLoaded || this.state.isFetching ||
-                                        this.state.inputedFileURL.length === 0 ||
-                                        this.state.inputedFileURL === strings.predict.defaultURLInput;
+        const fetchDisabled: boolean =
+            !this.state.predictionLoaded ||
+            this.state.isFetching ||
+            this.state.inputedFileURL.length === 0 ||
+            this.state.inputedFileURL === strings.predict.defaultURLInput;
 
         const sourceOptions: IDropdownOption[] = [
             { key: "localFile", text: "Local file" },
             { key: "url", text: "URL" },
         ];
 
+        const onPredictionPath: boolean = this.props.match.path.includes("predict");
+
         return (
-            <div className="predict skipToMainContent" id="pagePredict">
+            <div
+                className={`predict skipToMainContent ${onPredictionPath ? "" : "hidden"} `}
+                id="pagePredict"
+                style={{ display: `${onPredictionPath ? "flex" : "none"}` }} >
                 <div className="predict-main">
                     {this.state.file && this.state.imageUri && this.renderImageMap()}
                     {this.renderPrevPageButton()}
@@ -225,12 +231,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             <span>Analyze {this.props.receiptMode ? " receipts (preview)" : ""}</span>
                         </h6>
                         <div className="p-3">
-                            {/* <h5>
+                            <h5>
                                 {strings.predict.downloadScript}
                             </h5>
                             <PrimaryButton
                                 theme={getPrimaryGreenTheme()}
-                                text="Download python script"
+                                text="Download Python script"
                                 allowDisabledFocus
                                 autoFocus={true}
                                 onClick={this.handleDownloadClick}
@@ -239,7 +245,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                 <div className="seperator"/>
                                 or
                                 <div className="seperator"/>
-                            </div> */}
+                            </div>
                             {this.props.receiptMode &&
                                 <div>
                                     <h5>
@@ -384,7 +390,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                     />
                                 </div>
                             }
-                            {Object.keys(predictions).length > 0 &&
+                            {Object.keys(predictions).length > 0 && this.props.project &&
                                 <PredictResult
                                     predictions={predictions}
                                     analyzeResult={this.state.analyzeResult}
@@ -720,12 +726,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             }
             const endpointURL = this.props.project.apiUriBase as string;
             const apiKey = this.props.project.apiKey as string;
-            const analyzeScript = response.data.replace(/<endpoint>|<subsription_key>|<model_id>/gi,
+            const analyzeScript = response.data.replace(/<endpoint>|<subscription_key>|<model_id>/gi,
                 (matched: string) => {
                 switch (matched) {
                     case "<endpoint>":
                         return endpointURL;
-                    case "<subsription_key>":
+                    case "<subscription_key>":
                         return apiKey;
                     case "<model_id>":
                         return modelID;
@@ -734,8 +740,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             const fileURL = window.URL.createObjectURL(
                 new Blob([analyzeScript]));
             const fileLink = document.createElement("a");
-            const fileBaseName = "analysis";
-            const downloadFileName = fileBaseName + modelID.substring(0, 4) + ".py";
+            const fileBaseName = "analyze";
+            const downloadFileName = fileBaseName + "-" + modelID.substring(0, 4) + ".py";
 
             fileLink.href = fileURL;
             fileLink.setAttribute("download", downloadFileName);

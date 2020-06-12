@@ -319,6 +319,32 @@ export const english: IAppStrings = {
                 title: "Remove All Regions",
                 confirmation: "Are you sure you want to remove all regions?",
             },
+            canvasCommandBar: {
+                items: {
+                    layers: {
+                        text: "Layers",
+                        subMenuItems: {
+                            text: "Text",
+                            tables: "Tables",
+                            selectionMarks: "Selection Marks (Preview)",
+                            labels: "Labels"
+                        },
+                    }
+                },
+                farItems: {
+                    zoom: {
+                        zoomOut: "Zoom out",
+                        zoomIn: "Zoom in",
+                    },
+                    additionalActions: {
+                        text: "Additional actions",
+                        subIMenuItems: {
+                            runOcrOnCurrentDocument: "Run OCR on current document",
+                            runOcrOnAllDocuments: "Run OCR on all documents",
+                        }
+                    }
+                }
+            }
         },
         messages: {
             enforceTaggedRegions: {
@@ -387,11 +413,16 @@ export const english: IAppStrings = {
                 name: "Select multiple words",
                 description: "Click and hold on word. Then, hover over additional words.",
             },
+            deleteAllLabelsForTag: {
+                name: "Delete all labels for a tag",
+                description: "Select all labels for a tag on document and press 'delete' key"
+            }
         },
         headers: {
             keyboardShortcuts: "Keyboard shortcuts",
             otherTips: "Other tips",
         },
+        iconTitle: "Keyboard shortcuts and useful tips"
     },
     errors: {
         unknown: {
@@ -509,6 +540,11 @@ export const english: IAppStrings = {
             title: "Too many models",
             message: "The number of models associated with the given API key has exceeded the maximum allowed value.",
         },
+        requestSendError: {
+            title: "Request send error",
+            message: "Failed to send request to Azure Blob Container. Common issues: \n • SAS URI not valid \n • Cross-Origin Resource Sharing (CORS) is not configured server-side \n • Network error",
+
+        }
     },
 };
 

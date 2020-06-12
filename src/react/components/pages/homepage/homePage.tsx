@@ -5,7 +5,7 @@ import React, { SyntheticEvent } from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
-import { FontIcon } from "office-ui-fabric-react";
+import { FontIcon } from "@fluentui/react";
 import { strings, interpolate } from "../../../../common/strings";
 import { getPrimaryRedTheme } from "../../../../common/themes";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";

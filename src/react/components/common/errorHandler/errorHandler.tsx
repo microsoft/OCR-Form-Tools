@@ -53,7 +53,6 @@ export class ErrorHandler extends React.Component<IErrorHandlerProps> {
         if (!showError) {
             return null;
         }
-
         return (
             <Alert
                 title={localizedError ? localizedError.title : ""}

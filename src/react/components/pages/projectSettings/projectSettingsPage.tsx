@@ -6,7 +6,7 @@ import { Redirect } from "react-router";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { RouteComponentProps } from "react-router-dom";
-import { FontIcon } from "office-ui-fabric-react";
+import { FontIcon } from "@fluentui/react";
 import ProjectForm from "./projectForm";
 import { constants } from "../../../../common/constants";
 import { strings, interpolate } from "../../../../common/strings";

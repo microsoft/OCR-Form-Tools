@@ -316,6 +316,32 @@ export interface IAppStrings {
                 title: string;
                 confirmation: string;
             },
+            canvasCommandBar: {
+                items: {
+                    layers: {
+                        text: string,
+                        subMenuItems: {
+                            text: string,
+                            tables: string,
+                            selectionMarks: string;
+                            labels: string,
+                        }
+                    },
+                },
+                farItems: {
+                    zoom: {
+                        zoomOut: string,
+                        zoomIn: string,
+                    },
+                    additionalActions: {
+                        text: string,
+                        subIMenuItems: {
+                            runOcrOnCurrentDocument: string,
+                            runOcrOnAllDocuments: string,
+                        }
+                    }
+                }
+            },
         },
         messages: {
             enforceTaggedRegions: {
@@ -383,11 +409,16 @@ export interface IAppStrings {
                 name: string,
                 description: string,
             },
+            deleteAllLabelsForTag: {
+                name: string,
+                description: string;
+            }
         },
         headers: {
             keyboardShortcuts: string,
             otherTips: string,
         },
+        iconTitle: string;
     };
     errors: {
         unknown: IErrorMetadata,
@@ -417,6 +448,7 @@ export interface IAppStrings {
         endpointConnectionError: IErrorMetadata,
         tooManyRequests: IErrorMetadata,
         modelCountLimitExceeded: IErrorMetadata,
+        requestSendError: IErrorMetadata,
     };
 }
 
