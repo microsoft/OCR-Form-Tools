@@ -1333,13 +1333,45 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         feature.setProperties({
             id: regionInfo.id,
         });
+
+        const numberFlags = ["#", "number", "num.", "phone", "amount"];
         let name = `Gen ${regionInfo.id}`;
-        // if (this.state)
+        let type = FieldType.String;
+        let format = FieldFormat.Alphanumeric;
+        // A few quality of life heuristics
+        if (this.state.ocrForCurrentPage) {
+            // Find the closest text
+            let closestDist = 1; // at most half an inch away
+            const refLoc = [regionInfo.bbox[0], regionInfo.bbox[1]];
+            const ocrRead = this.state.ocrForCurrentPage.readResults;
+            ocrRead.lines.forEach(line => {
+                line.words.forEach(word => {
+                    const loc = [word.boundingBox[0], word.boundingBox[1]]; // TL
+                    const dist = Math.hypot(loc[0] - refLoc[0], loc[1] - refLoc[1]);
+                    if (dist < closestDist) {
+                        if (line.text.length > 20) {
+                            name = _.camelCase(word.text);
+                        } else {
+                            name = _.camelCase(line.text);
+                        }
+
+                        if (numberFlags.some(flag => line.text.toLowerCase().includes(flag))) {
+                            type = FieldType.Number;
+                            format = FieldFormat.NotSpecified;
+                        } else {
+                            type = FieldType.String;
+                            format = FieldFormat.Alphanumeric;
+                        }
+                        closestDist = dist;
+                    }
+                });
+            });
+        }
 
         const metadata = {
             name,
-            type: FieldType.String,
-            format: FieldFormat.Alphanumeric,
+            type,
+            format,
             color: getNextColor(this.props.formattedItems),
         }
         const regionAndMetadata: IGenerator = {...regionInfo, ...metadata};
