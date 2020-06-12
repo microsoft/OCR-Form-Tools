@@ -9,7 +9,7 @@ import {
     EditorMode, IAssetMetadata,
     IProject, IRegion, RegionType,
     AssetType, ILabelData, ILabel,
-    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, IGeneratorRegion, IGenerator,
+    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, IGeneratorRegion, IGenerator, FormattedItem,
 } from "../../../../models/applicationState";
 import CanvasHelpers from "./canvasHelpers";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
@@ -32,7 +32,7 @@ import * as pdfjsLib from "pdfjs-dist";
 import * as jsPDF from 'jspdf';
 import Polygon from "ol/geom/Polygon";
 import HtmlFileReader from "../../../../common/htmlFileReader";
-import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
+import { parseTiffData, renderTiffToCanvas, loadImageToCanvas, getNextColor } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./canvasCommandBar";
 import { TooltipHost, ITooltipHostStyles } from "office-ui-fabric-react";
@@ -50,6 +50,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     hoveredLabel: ILabel;
     activeGeneratorRegionId?: string;
     generators: IGenerator[];
+    formattedItems: FormattedItem[];
     hoveredGenerator: IGeneratorRegion;
     children?: ReactElement<AssetPreview>;
     setEditorMode: (mode: EditorMode) => void,
@@ -119,6 +120,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         lockedTags: [],
         hoveredLabel: null,
         generators: [],
+        formattedItems: [],
         hoveredGenerator: null,
     };
 
@@ -1331,11 +1333,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         feature.setProperties({
             id: regionInfo.id,
         });
+        let name = `Gen ${regionInfo.id}`;
+
+
         const metadata = {
-            name: "Gen",
+            name,
             type: FieldType.String,
             format: FieldFormat.Alphanumeric,
-            color: "#777",
+            color: getNextColor(this.props.formattedItems),
         }
         const regionAndMetadata: IGenerator = {...regionInfo, ...metadata};
         return regionAndMetadata;

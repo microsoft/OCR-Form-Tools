@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import Guard from "./guard";
-import { IProject, ISecurityToken, IProviderOptions, ISecureString, ITag } from "../models/applicationState";
+import { IProject, ISecurityToken, IProviderOptions, ISecureString, ITag, FormattedItem } from "../models/applicationState";
 import { encryptObject, decryptObject, encrypt, decrypt } from "./crypto";
 import UTIF from "utif";
 
@@ -329,7 +329,7 @@ export function patch<T, K extends keyof T>(data: T[], diff: T[], key: K, proper
     });
 }
 
-export function getNextColor(tags: ITag[]) {
+export function getNextColor(tags: FormattedItem[]) {
 
     for (const color of tagColors) {
         let vacancy = true;
