@@ -5,7 +5,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
-import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton, TextField, IDropdownOption, Dropdown, DefaultButton} from "@fluentui/react";
+import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton, TextField, IDropdownOption, DefaultButton, Dropdown} from "@fluentui/react";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
@@ -212,13 +212,13 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             { key: "url", text: "URL" },
         ];
 
-        const onPredictionPath: boolean = this.props.match.path.includes("predict");
+        const showPredictionComponent: boolean = /receipts|predict/.test(this.props.match.path)
 
         return (
             <div
-                className={`predict skipToMainContent ${onPredictionPath ? "" : "hidden"} `}
+                className={`predict skipToMainContent ${showPredictionComponent ? "" : "hidden"} `}
                 id="pagePredict"
-                style={{ display: `${onPredictionPath ? "flex" : "none"}` }} >
+                style={{ display: `${showPredictionComponent ? "flex" : "none"}` }}>
                 <div className="predict-main">
                     {this.state.file && this.state.imageUri && this.renderImageMap()}
                     {this.renderPrevPageButton()}
@@ -244,7 +244,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             <div className="alight-vertical-center mt-2">
                                 <div className="seperator"/>
                                 or
-                                <div className="seperator"/>
+                                <div className="seperator" />
                             </div>
                             {this.props.receiptMode &&
                                 <div>
@@ -426,7 +426,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     when={this.state.isPredicting}
                     message={"A prediction operation is currently in progress, are you sure you want to leave?"}
                 />
-            </div>
+            </div >
         );
     }
 
