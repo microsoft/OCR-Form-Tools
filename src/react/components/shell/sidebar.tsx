@@ -6,6 +6,7 @@ import { NavLink } from "react-router-dom";
 import { FontIcon } from "@fluentui/react";
 import ConditionalNavLink from "../common/conditionalNavLink/conditionalNavLink";
 import { strings } from "../../../common/strings";
+import './sidebar.scss'
 
 /**
  * Side bar that remains visible throughout app experience
@@ -53,9 +54,10 @@ export function Sidebar({ project }) {
                         <FontIcon iconName="DocumentManagement" />
                     </ConditionalNavLink>
                 </li>
-                <li>
+                <li className="receipt-demo-sidebar-item">
                     <NavLink title={strings.receipts.title} to={`/receipts`} role="button">
                         <FontIcon iconName="KeyPhraseExtraction" />
+                        <div className="demo-badge">Preview</div>
                     </NavLink>
                 </li>
                 <li>
