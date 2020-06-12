@@ -36,7 +36,7 @@ import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../.
 import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./canvasCommandBar";
 import { TooltipHost, ITooltipHostStyles } from "office-ui-fabric-react";
-import { generate, GeneratorTextStyle } from "../../common/generators/generateUtils";
+import { generate, GeneratorTextStyle, styleToFont } from "../../common/generators/generateUtils";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -408,8 +408,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         //   stroke: new Stroke({color: style.outlineColor, width: style.outlineWidth}),
         return new Text({
             ...style,
+            font: styleToFont(style),
             fill: new Fill({color: style.fill}),
             offsetX: style.offsetX / resolution, // use pixels, not map units
+            offsetY: -1 * style.offsetY / resolution, // use pixels, not map units. -1 for map -> canvas.
             textAlign: style.align === '' ? undefined : style.align,
             textBaseline: style.baseline,
             scale: 2 / resolution, // resist zoom scale (inverse of whatever OL is doing)

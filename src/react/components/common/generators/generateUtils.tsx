@@ -39,7 +39,10 @@ export interface OCRLine {
 
 export interface GeneratorTextStyle {
     text: string,
-    font: string,
+    fontWeight: number,
+    fontSize: string, // e.g. 14px
+    lineHeight: number,
+    fontFamily: string, // e.g. sans-serif
     align: string,
     baseline: string,
     offsetX: number,
@@ -53,12 +56,16 @@ export interface GeneratorTextStyle {
     outlineWidth: number,
 }
 
+// Top of text generates at center
+// Note this is only for rendered text - the actual OCR generation is separate, but should align with this
 const defaultStyle: GeneratorTextStyle = {
     text: "SAMPLE",
-    font: '100 14px/1.1 san-serif',
-    // font: '${style.weight} ${style.size}px/${style.lineHeight} ${style.fontFamily}',
+    fontWeight: 100,
+    fontSize: '14px',
+    lineHeight: 1,
+    fontFamily: 'sans-serif',
     align: "left",
-    baseline: "center", // we can probably do better somehow
+    baseline: "top", // kinda arbitrary reference but easier to think about
     offsetX: 0,
     offsetY: 0,
     placement: "point",
@@ -80,15 +87,15 @@ interface LimitsAndFormat {
 // TODO seeding
 export const generate:(g: IGenerator, ocr: any) => IGeneratedInfo = (generator, ocr) => {
     /**
+     * Generation step - provides all generation info. From generator + context (ocr) to generated data.
      * generator: Generator region
      * ocr: ocr read results
      */
-    const limitsAndFormat = getStringLimitsAndFormat(generator);
+    const mapUnitsPerChar = getMapUnitsPerChar(generator, ocr);
+    const limitsAndFormat = getStringLimitsAndFormat(generator, mapUnitsPerChar);
     const text = generateString(generator, limitsAndFormat.limits);
-    // Should be in charge of providing everything the training pipeline needs, in addition to something for generation
-    // * TODO can we find text dimensions?
     const format = { ...defaultStyle, ...limitsAndFormat.format, text };
-    const boundingBoxes = generateBoundingBoxes(generator, format, ocr);
+    const boundingBoxes = generateBoundingBoxes(generator, format, ocr, mapUnitsPerChar);
     return {
         name: generator.name,
         text,
@@ -97,6 +104,17 @@ export const generate:(g: IGenerator, ocr: any) => IGeneratedInfo = (generator, 
     };
 }
 
+const getMapUnitsPerChar: (g: IGenerator, ocr: any) => number[] = (generator, ocr) => {
+    const mapWidthPerChar = 18; // map units per character - what's needed to calculate this?
+    const mapHeightPerChar = 30; // map units per character - what's needed to calculate this?
+    // probably resolution and that's it right
+    // b. looking at map units per character elsewhere in ocr
+        // determine map units per character (MUpC)
+    // TODO extract from other characters in ocr
+    // ocr gives inches, which we can convert to mapUnits
+    // Map units per character - currently hard coded
+    return [ mapWidthPerChar, mapHeightPerChar ];
+}
 /**
  * Define bounding boxes for a given sampled format on a generator.
  * @param generator generator information
@@ -106,13 +124,20 @@ export const generate:(g: IGenerator, ocr: any) => IGeneratedInfo = (generator, 
  * TODO check height scale
  * TODO support offsetY (don't forget inversion - real is TL, canvas is BL)
  */
-const generateBoundingBoxes: (g: IGenerator, format: GeneratorTextStyle, ocr: any) => GeneratedBboxInfo =
-    (generator, format, ocr) => {
+const generateBoundingBoxes: (g: IGenerator, format: GeneratorTextStyle, ocr: any, mapUnitsPerChar: number[]) => GeneratedBboxInfo =
+    (generator, format, ocr, mapUnitsPerChar) => {
     const text = format.text;
     const full = generator.bbox;
     const center = [(full[0] + full[2]) / 2, (full[1] + full[5]) / 2];
     const mapOffsetX = format.offsetX;
-    const mapOffsetY = format.offsetY;
+    const mapOffsetY = -format.offsetY; // center + map offset y should get y of top box
+    // negative due to map -> image/canvas inversion
+    // doing center displacement to match rendering flow
+
+    // For true text metrics, we can measure mapWidth, but we can't measure height. (Without div hack)
+    // We can use the heuristic used to calculate font to render
+    const [ mapWidthPerChar, mapHeightPerChar ] = mapUnitsPerChar;
+
     // real per map unit
     const widthScale = generator.bbox[0] / generator.canvasBbox[0];
     const heightScale = (generator.bbox[5] - generator.bbox[1]) / (generator.canvasBbox[1] - generator.canvasBbox[5]);
@@ -121,22 +146,22 @@ const generateBoundingBoxes: (g: IGenerator, format: GeneratorTextStyle, ocr: an
     let words: WordLevelBbox[] = [];
     const lines: OCRLine[] = [];
     const lineStrings = text.split("\n");
+    let mapTextOffsetY = 0;
     lineStrings.forEach(lineString => {
         const wordStrings = lineString.split(" ");
         let accumulatedString = "";
-        const mapTextOffsetY = 0; // TODO multiline
         const lineWords: WordLevelBbox[] = [];
         wordStrings.forEach(wordString => {
             // Calculate current word base offset
-            const withoutMetrics = getTextMetrics(accumulatedString, format.font);
+            const withoutMetrics = getTextMetrics(accumulatedString, format);
             accumulatedString += wordString + " ";
-            const wordMetrics = getTextMetrics(wordString, format.font);
+            const wordMetrics = getTextMetrics(wordString, format);
             const mapTextOffsetX = withoutMetrics.width * generator.resolution;
             const mapWordWidth = wordMetrics.width * generator.resolution;
             const mapWordHeight = (wordMetrics.actualBoundingBoxAscent - wordMetrics.actualBoundingBoxDescent) * generator.resolution;
 
             const imageOffsetX = (mapOffsetX + mapTextOffsetX) * widthScale;
-            const imageOffsetY = (mapOffsetY + mapTextOffsetY) * heightScale * 1.1;
+            const imageOffsetY = (mapOffsetY + mapTextOffsetY) * heightScale;
 
             // make box
             const imageWordHeight = mapWordHeight * heightScale;
@@ -173,6 +198,8 @@ const generateBoundingBoxes: (g: IGenerator, format: GeneratorTextStyle, ocr: an
                 text: wordString,
             });
         });
+
+        mapTextOffsetY += mapHeightPerChar * format.lineHeight;
 
         // get line extent from first and last words
         const tl = lineWords[0].boundingBox.slice(0, 2);
@@ -259,28 +286,19 @@ const GEN_CONSTANTS = {
     heightJitter: .2,
     size: 14,
     sizeJitter: 2,
-    offsetX: 10,
+    offsetX: 10, // offset in canvas orientation, from center (rendering point)
     offsetXJitter: 10,
-    offsetY: 0,
-    offsetYJitter: 5,
+    offsetY: 0, // offset
+    offsetYJitter: 2,
+    // TODO better than linear lower bound (super long fields shouldn't have multiple)
     width_low: 0.3,
     width_high: 1.05,
     height_low: 0.2,
     height_high: 1,
 }
 
-const getStringLimitsAndFormat: (g: IGenerator) => LimitsAndFormat = (generator) => {
-    // from allocated space, we should be able to determine lower and upper bound on used space, for width and height
-    // TODO better than linear lower bound (super long fields shouldn't have multiple)
-
-    // determine map units per character (MUpC)
-    // TODO extract from other characters in ocr
-    // ocr gives inches, which we can convert to mapUnits
-    // Map units per character - currently hard coded
-    const mapWidthPerChar = 18; // map units per character - what's needed to calculate this?
-    const mapHeightPerChar = 24; // map units per character - what's needed to calculate this?
-    // probably resolution and that's it right
-    // b. looking at map units per character elsewhere in ocr
+const getStringLimitsAndFormat: (g: IGenerator, mapUnitsPerChar: number[]) => LimitsAndFormat = (generator, mapUnitsPerChar) => {
+    const [ mapWidthPerChar, mapHeightPerChar ] = mapUnitsPerChar;
 
     const mapWidth = generator.canvasBbox[2] - generator.canvasBbox[0];
     const mapHeight = generator.canvasBbox[1] - generator.canvasBbox[5];
@@ -292,7 +310,7 @@ const getStringLimitsAndFormat: (g: IGenerator) => LimitsAndFormat = (generator)
     // * We'll run into trouble once we use OCR. Given fixed map width conversion, we're fine.
 
     // Map Units to Font size
-    // TODO calculate font size and font weight
+    // TODO calculate appropriate font size and font weight
     // Note that this "fontSize" translates to a proper fontSize in OL text formatting
 
     // determine font size that uses MUpC (on avg) - assigning that to our generated text
@@ -302,11 +320,13 @@ const getStringLimitsAndFormat: (g: IGenerator) => LimitsAndFormat = (generator)
     const height = GEN_CONSTANTS.height + jitter(GEN_CONSTANTS.heightJitter, true);
     const font = `${weight} ${size}px/${height} sans-serif`;
 
-    // Positioning
-    const mapCenter = (generator.canvasBbox[2] + generator.canvasBbox[0]) / 2;
+    // Positioning - offset is in MAP UNITS
+    const mapCenterWidth = (generator.canvasBbox[2] + generator.canvasBbox[0]) / 2;
     const mapLeft = generator.canvasBbox[0];
-    const offsetX = mapLeft - mapCenter + GEN_CONSTANTS.offsetX + jitter(GEN_CONSTANTS.offsetXJitter);
-    const offsetY = GEN_CONSTANTS.offsetY + jitter(GEN_CONSTANTS.offsetYJitter);
+    const mapCenterHeight = (generator.canvasBbox[1] + generator.canvasBbox[5]) / 2;
+    const mapTop = generator.canvasBbox[1];
+    const offsetX = (mapLeft - mapCenterWidth + GEN_CONSTANTS.offsetX + jitter(GEN_CONSTANTS.offsetXJitter));
+    const offsetY = (mapTop - mapCenterHeight + GEN_CONSTANTS.offsetY + jitter(GEN_CONSTANTS.offsetYJitter));
     return {
         limits: [[charWidthLow, charWidthHigh], [charHeightLow, charHeightHigh]],
         format: {
@@ -322,12 +342,14 @@ const jitter = (max: number, round: boolean = false) => {
     return round ? Math.round(val) : val;
 }
 
-export const getTextMetrics = (text, font) => {
+export const styleToFont = (style: GeneratorTextStyle) => `${style.fontWeight} ${style.fontSize}/${style.lineHeight} ${style.fontFamily}`;
+
+const getTextMetrics = (text, style) => {
     // re-use canvas object for better performance
     const canvas = document.createElement("canvas");
     // const canvas = this.getTextWidth.canvas || (this.getTextWidth.canvas = document.createElement("canvas"));
     const context = canvas.getContext("2d");
-    context.font = font;
+    context.font = styleToFont(style);
     const metrics = context.measureText(text)
     return metrics;
 }
@@ -350,7 +372,7 @@ export const generatorInfoToLabel: (g: IGeneratedInfo) => ILabel = (generatedInf
         key: null,
         value: generatedInfo.boundingBoxes.words.map(w => ({
                 page: 1, // TODO anchor page
-                text: generatedInfo.text,
+                text: w.text,
                 boundingBoxes: [w.boundingBoxPercentage],
         }))
     };
