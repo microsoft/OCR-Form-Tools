@@ -77,6 +77,28 @@ const defaultStyle: GeneratorTextStyle = {
     outlineWidth: 0,
 };
 
+const GEN_CONSTANTS = {
+    weight: 100,
+    weightJitter: 50,
+    height: 1,
+    heightJitter: .2,
+    widthScale: 2,
+    widthScaleJitter: 1.2,
+    heightScale: 1.5,
+    heightScaleJitter: 1.2,
+    size: 14,
+    sizeJitter: 2,
+    offsetX: 10, // offset in canvas orientation, from center (rendering point)
+    offsetXJitter: 10,
+    offsetY: 0, // offset
+    offsetYJitter: 5,
+    // TODO better than linear lower bound (super long fields shouldn't have multiple)
+    width_low: 0.3,
+    width_high: 1.05,
+    height_low: 0.2,
+    height_high: 1,
+}
+
 // the generation step formatting should be done when calibrating the text to display
 interface LimitsAndFormat {
     format: Partial<GeneratorTextStyle>,
@@ -105,15 +127,47 @@ export const generate:(g: IGenerator, ocr: any) => IGeneratedInfo = (generator, 
 }
 
 const getMapUnitsPerChar: (g: IGenerator, ocr: any) => number[] = (generator, ocr) => {
-    const mapWidthPerChar = 18; // map units per character - what's needed to calculate this?
-    const mapHeightPerChar = 30; // map units per character - what's needed to calculate this?
-    // probably resolution and that's it right
-    // b. looking at map units per character elsewhere in ocr
-        // determine map units per character (MUpC)
-    // TODO extract from other characters in ocr
-    // ocr gives inches, which we can convert to mapUnits
-    // Map units per character - currently hard coded
-    return [ mapWidthPerChar, mapHeightPerChar ];
+    // ! With this current alg, we should only need to do once per page, not per generator
+    // "font size" approximated by the median font size of the document
+    // can probably be elaborated, i.e. font long strings of text or closest form elements...
+    const SAMPLE_SIZE = 10;
+    const sampled_lines = [];
+    for (let i = 0; i < SAMPLE_SIZE; i++) {
+        sampled_lines.push(ocr.lines[randomIntInRange(0, ocr.lines.length)]);
+    }
+    const sampled_words = sampled_lines.map(l => l.words[0]);
+    const widths = [];
+    const heights = [];
+    sampled_words.forEach(w => {
+        widths.push((w.boundingBox[2] - w.boundingBox[0]) / w.text.length);
+        heights.push((w.boundingBox[5] - w.boundingBox[1]));
+    });
+    const [ widthScale, heightScale ] = getImagePerMapUnit(generator);
+    const mapWidthPerChar = median(widths) / widthScale ;
+    const mapHeightPerChar = median(heights) / heightScale;
+    const scaledWidth = mapWidthPerChar * GEN_CONSTANTS.widthScale * GEN_CONSTANTS.widthScaleJitter;
+    const scaledHeight = mapHeightPerChar * GEN_CONSTANTS.heightScale * GEN_CONSTANTS.heightScaleJitter;
+
+    console.log(`Map translation: ${mapWidthPerChar}, ${mapHeightPerChar}`);
+    // const mapWidthPerChar = 18; // map units per character - what's needed to calculate this?
+    // const mapHeightPerChar = 30; // map units per character - what's needed to calculate this?
+    return [ scaledWidth, scaledHeight ];
+}
+
+const median: (a: number[]) => number = (rawArray) => {
+    const array = rawArray.sort();
+    if (array.length % 2 === 0) { // array with even number elements
+        return (array[array.length/2] + array[(array.length / 2) - 1]) / 2;
+    }
+    else {
+        return array[(array.length - 1) / 2]; // array with odd number elements
+    }
+};
+
+const getImagePerMapUnit: (g: IGenerator) => number[] = (generator) => {
+    const widthScale = generator.bbox[0] / generator.canvasBbox[0];
+    const heightScale = (generator.bbox[5] - generator.bbox[1]) / (generator.canvasBbox[1] - generator.canvasBbox[5]);
+    return [widthScale, heightScale];
 }
 /**
  * Define bounding boxes for a given sampled format on a generator.
@@ -139,8 +193,7 @@ const generateBoundingBoxes: (g: IGenerator, format: GeneratorTextStyle, ocr: an
     const [ mapWidthPerChar, mapHeightPerChar ] = mapUnitsPerChar;
 
     // real per map unit
-    const widthScale = generator.bbox[0] / generator.canvasBbox[0];
-    const heightScale = (generator.bbox[5] - generator.bbox[1]) / (generator.canvasBbox[1] - generator.canvasBbox[5]);
+    const [ widthScale, heightScale ] = getImagePerMapUnit(generator);
 
     // track all words (for labels)
     let words: WordLevelBbox[] = [];
@@ -277,24 +330,6 @@ const generateString: (g: IGenerator, l: number[][]) => string = (generator, lim
         lineStrings.push(randexp.gen());
     }
     return lineStrings.join("\n");
-}
-
-const GEN_CONSTANTS = {
-    weight: 100,
-    weightJitter: 50,
-    height: 1,
-    heightJitter: .2,
-    size: 14,
-    sizeJitter: 2,
-    offsetX: 10, // offset in canvas orientation, from center (rendering point)
-    offsetXJitter: 10,
-    offsetY: 0, // offset
-    offsetYJitter: 2,
-    // TODO better than linear lower bound (super long fields shouldn't have multiple)
-    width_low: 0.3,
-    width_high: 1.05,
-    height_low: 0.2,
-    height_high: 1,
 }
 
 const getStringLimitsAndFormat: (g: IGenerator, mapUnitsPerChar: number[]) => LimitsAndFormat = (generator, mapUnitsPerChar) => {
