@@ -221,7 +221,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             generateCount: 1
         };
 
-        const namedItems = [...this.props.project.tags, ...generators];
+        const formattedItems = [...this.props.project.tags, ...generators];
         return (
             <div className="editor-page skipToMainContent" id="pageEditor">
                 {this.state.tableToView !== null &&
@@ -301,6 +301,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             editorMode={this.state.editorMode}
                                             setEditorMode={this.setEditorMode}
                                             generators={generators}
+                                            formattedItems={formattedItems}
                                             addGenerator={this.addGeneratorRegion}
                                             deleteGenerators={this.confirmGeneratorsDeleted}
                                             onSelectedGeneratorRegion={this.onSelectedGenerator}
@@ -328,7 +329,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                         <TagInput
                                             tagsLoaded={this.state.assetsLoaded}
                                             tags={this.props.project.tags}
-                                            namedItems={namedItems}
+                                            namedItems={formattedItems}
                                             lockedTags={this.state.lockedTags}
                                             selectedRegions={this.state.selectedRegions}
                                             labels={labels}
@@ -361,7 +362,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             generators={generators}
                                             assetGeneratorSettings={generatorSettings}
                                             setGeneratorSettings={this.setGeneratorSettings}
-                                            namedItems={namedItems}
+                                            namedItems={formattedItems}
                                             selectedIndex={this.state.selectedGeneratorIndex}
                                             onSelectedGenerator={this.onSelectedGenerator}
                                             onGeneratorsChanged={this.onGeneratorsChanged}

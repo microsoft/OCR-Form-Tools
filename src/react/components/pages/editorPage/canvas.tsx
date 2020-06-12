@@ -1334,7 +1334,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             id: regionInfo.id,
         });
         let name = `Gen ${regionInfo.id}`;
-
+        // if (this.state)
 
         const metadata = {
             name,
