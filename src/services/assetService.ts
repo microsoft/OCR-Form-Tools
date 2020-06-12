@@ -156,6 +156,13 @@ export class AssetService {
         });
     }
 
+    public static emptyLabelData: (assetName: string) => ILabelData  = (assetName: string) => {
+        return {
+            document: decodeURIComponent(assetName).split("/").pop(),
+            labels: [],
+        };
+    }
+
     private assetProviderInstance: IAssetProvider;
     private storageProviderInstance: IStorageProvider;
 
@@ -306,14 +313,14 @@ export class AssetService {
         };
         const labelFilename = this.getLabelFilename(asset);
         // TODO parallelize
-        assetMetadata.labelData = await this.getLabelDataFromJSON(labelFilename);
+        assetMetadata.labelData = await this.getLabelDataFromJSON(labelFilename, asset);
         const generatorFilename = this.getGeneratorFilename(asset);
         const generatorUpdate = await this.getGeneratorDataFromJSON(generatorFilename);
         assetMetadata = {...assetMetadata, ...generatorUpdate};
         return assetMetadata;
     }
 
-    private async getLabelDataFromJSON(labelFileName: string): Promise<ILabelData> {
+    private async getLabelDataFromJSON(labelFileName: string, asset: IAsset): Promise<ILabelData> {
         try {
             const json = await this.storageProvider.readText(labelFileName, true);
             const labelData = JSON.parse(json) as ILabelData;
@@ -365,8 +372,9 @@ export class AssetService {
             if (err instanceof SyntaxError) {
                 const reason = interpolate(strings.errors.invalidJSONFormat.message, { labelFileName });
                 toast.error(reason, { autoClose: false });
+                return null;
             }
-            return null;
+            return AssetService.emptyLabelData(asset.name);
         }
     }
 

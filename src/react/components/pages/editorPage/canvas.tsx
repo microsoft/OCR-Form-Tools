@@ -37,6 +37,7 @@ import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./canvasCommandBar";
 import { TooltipHost, ITooltipHostStyles } from "office-ui-fabric-react";
 import { generate, GeneratorTextStyle, styleToFont } from "../../common/generators/generateUtils";
+import { AssetService } from "../../../../services/assetService";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -1372,10 +1373,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private convertRegionsToLabelData = (regions: IRegion[], assetName: string) => {
-        const labelData: ILabelData = {
-            document: decodeURIComponent(assetName).split("/").pop(),
-            labels: [],
-        };
+        const labelData = AssetService.emptyLabelData(assetName);
 
         const fieldNames = [];
 
