@@ -23,9 +23,9 @@ Form Labeling Tool requires [NodeJS (>= 10.x, Dubnium) and NPM](https://github.c
    ```bash
     git clone https://github.com/Microsoft/OCR-Form-Tools.git
     cd OCR-Form-Tools
-    npm install
-    npm run build
-    npm run react-start
+    yarn install
+    yarn build
+    yarn react-start
    ```
 
 ### Set up this tool with Docker
