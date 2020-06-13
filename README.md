@@ -1,10 +1,27 @@
 # OCR Form Labeling Tool
 
+## v.2.1 Features Preview
+
 [![Build Status](https://dev.azure.com/msazure/Cognitive%20Services/_apis/build/status/microsoft.OCR-Form-Tools?branchName=master)](https://dev.azure.com/msazure/Cognitive%20Services/_build/latest?definitionId=118293&branchName=master)
 
 An open source labeling tool for [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/), part of the Form OCR Test Toolset (FOTT).
 
-The purpose of this repo is to allow customers to test various tools when working with Microsoft Forms and OCR services.  Currently, Labeling tool is the first tool we present here.  Users could provide feedback, and make customer-specific changes to meet their unique needs.  Microsoft Azure Form Recognizer team will update the source code periodically.  If you would like to contribute, please check the contributing section.
+This is `v.2.1` of the Tool. It contains all the new feature available. This is **NOT** the most stable version since this is a Preview.
+
+The purpose of this repo is to allow customers to test the latest tools available when working with Microsoft Forms and OCR services.  Currently, Labeling tool is the first tool we present here.  Users could provide feedback, and make customer-specific changes to meet their unique needs.  Microsoft Azure Form Recognizer team will update the source code periodically.  If you would like to contribute, please check the contributing section.
+
+If you want to checkout our latest stable version of the tool, please follow this [link](https://github.com/microsoft/OCR-Form-Tools/tree/v2.0-General-Availability-Release).
+
+___
+## Features in this repo that are not included in [General Availabilty version](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/):
+
+1. Ability to label Selection Marks (checkboxes)
+2. Composition of train models (model compose)
+3. Receipt Mode
+4. Desktop Mode (electron)
+5. Ability to rerun OCR from UI of existing projects
+6. ...
+___
 
 FOTT's Labeling Tool is a React + Redux Web application, written in [TypeScript](https://github.com/Microsoft/TypeScript). This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
@@ -23,9 +40,9 @@ Form Labeling Tool requires [NodeJS (>= 10.x, Dubnium) and NPM](https://github.c
    ```bash
     git clone https://github.com/Microsoft/OCR-Form-Tools.git
     cd OCR-Form-Tools
-    npm install
-    npm run build
-    npm run react-start
+    yarn install
+    yarn build
+    yarn react-start
    ```
 
 ### Set up this tool with Docker
