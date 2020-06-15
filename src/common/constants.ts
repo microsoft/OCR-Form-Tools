@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-const apiVersion = "v2.0-preview";
+const apiVersion = "v2.1-preview.1";
 
 /**
  * Constants used throughout application
