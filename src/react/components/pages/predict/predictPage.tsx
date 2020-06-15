@@ -281,7 +281,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                             theme={getPrimaryGreyTheme()}
                                             type="button"
                                             title="Copy"
-                                            onClick={this.copyKey}
+                                            onClick={()=>this.copyKey()}
                                         >
                                             <FontIcon iconName="Copy" />
                                         </DefaultButton>
