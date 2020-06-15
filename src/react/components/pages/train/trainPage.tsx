@@ -151,7 +151,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                             >
                                         </TextField>
                                         <PrimaryButton
-                                            style={{"margin": "10px"}}
+                                            style={{"margin": "10px 0px"}}
                                             id="train_trainButton"
                                             theme={getPrimaryGreenTheme()}
                                             autoFocus={true}
