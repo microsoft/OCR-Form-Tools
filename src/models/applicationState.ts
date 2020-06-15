@@ -270,6 +270,7 @@ export interface IGeneratorRegion {
     bbox: number[]; // bbox in inches - origin TL
     resolution: number; // resolution at definition (used to convert to pixels for measures)
     canvasBbox: number[]; // bbox in canvas units, as at definition
+    page: number;
     id: string;
 }
 

@@ -10,7 +10,7 @@ import IProjectActions, * as projectActions from "../../../../redux/actions/proj
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import {
-    IApplicationState, IConnection, IProject, IAppSettings, FieldType, IAssetMetadata, IGenerator, ILabel,
+    IApplicationState, IConnection, IProject, IAppSettings, FieldType, IAssetMetadata
 } from "../../../../models/applicationState";
 import TrainChart from "./trainChart";
 import TrainPanel from "./trainPanel";
@@ -29,7 +29,7 @@ import { SkipButton } from "../../shell/skipButton";
 import { AssetService } from "../../../../services/assetService";
 import ProjectService from "../../../../services/projectService";
 import Guard from "../../../../common/guard";
-import { generate, generatorInfoToLabel, generatorInfoToOCRLines } from "../../common/generators/generateUtils";
+import { generate, generatorInfoToLabel, generatorInfoToOCRLines, IGeneratedInfo } from "../../common/generators/generateUtils";
 import { OCRService } from "../../../../services/ocrService";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
@@ -271,37 +271,58 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             const asset = assets[assetKey];
             const metadata = metadataDict[assetKey];
             const ocr = await ocrService.getRecognizedText(asset.path, asset.name); // this is the blob
-            const page = 1;
-            const pageReadResults = ocr.analyzeResult.readResults.find(r => r.page === page);
-            const assetGeneratorInfo = [];
-            for (let i = 0; i < metadata.generatorSettings.generateCount; i++) {
-                assetGeneratorInfo.push(metadata.generators.map(g => generate(g, pageReadResults)));
-            }
+            // somehow pages isn't tracked on the asset, so we find it here
+            // just grab it from OCR since things are going to break if OCR isn't present anyway
+            // TODO fix that attitude ^
 
+            // Outer loop is for the generation count, inner loop is for the page
+            // Generate data for each page
+            const savePromises = [];
             const docbase = metadata.labelData.document;
+            const pagesReadResults = ocr.analyzeResult.readResults;
             const labelData = metadata.labelData; // precisely JSON.parse of the file
             const baseLabels = [...labelData.labels]; // make a copy of the array, we don't need copies of objects
-            const savePromises = [];
+            const baseLines = {};
+            // Make a first pass to save OCR lines
+            pagesReadResults.forEach( pageReadResults => {
+                baseLines[pageReadResults.page] = [...pageReadResults.lines];
+            });
             for (let i = 0; i < metadata.generatorSettings.generateCount; i++) {
-                const prefix = `${generatePath}/${i}_`;
+                // Generate info for the asset
+                let assetGeneratorInfo: IGeneratedInfo[] = [];
+                pagesReadResults.forEach( pageReadResults => {
+                    assetGeneratorInfo = assetGeneratorInfo.concat(
+                        metadata.generators.filter(
+                            g => g.page === pageReadResults.page
+                        ).map(
+                            g => generate(g, pageReadResults)
+                        )
+                    );
+                });
 
-                const curLabelData = assetGeneratorInfo[i].map(generatorInfoToLabel);
+                // Generate label.json
+                const prefix = `${generatePath}/${i}_`;
+                const curLabelData = assetGeneratorInfo.map(generatorInfoToLabel);
                 const docprefix = prefix.split('/').slice(-1)[0];
                 metadata.labelData.document = `${docprefix}${docbase}`
                 metadata.labelData.labels = baseLabels.concat(curLabelData);
                 savePromises.push(assetService.saveLabels(asset, metadata.labelData, prefix));
-            }
 
-            // * To update the ocr files, we can either edit them or edit the pdfs and re-invoke
-            // * Choosing to edit the files directly
-            // * Since ocr re-doing is quite involved
-            // TODO page support
-            const baseLines = [...pageReadResults.lines];
-            for (let i = 0; i < metadata.generatorSettings.generateCount; i++) {
-                const prefix = `${generatePath}/${i}_`;
-                const nestedOCRLines = assetGeneratorInfo[i].map(generatorInfoToOCRLines);
-                pageReadResults.lines = [].concat.apply(baseLines, nestedOCRLines);
-                savePromises.push(assetService.saveOCR(asset, ocr, prefix));
+                // Generate ocr.json (direct editing instead of reusing API)
+                const generatedReadResults = [];
+                pagesReadResults.forEach( pageReadResults => {
+                    const nestedOCRLines = assetGeneratorInfo.filter(
+                        gi => gi.page === pageReadResults.page
+                    ).map(generatorInfoToOCRLines); // for each generator, return the lines created
+                    // we flatten out the generators, since we only care about the generators
+                    const flatOCRLines = [].concat.apply([], nestedOCRLines);
+                    // contract - array of dicts
+                    const generatedPageReadResults = pageReadResults;
+                    generatedPageReadResults.lines = generatedPageReadResults.lines.concat(flatOCRLines);
+                    generatedReadResults.push(generatedPageReadResults);
+                });
+                ocr.analyzeResult.readResults = generatedReadResults;
+                savePromises.push(assetService.saveOCR(asset, ocr, prefix)); // ! careful with race between multiple copies
             }
             return savePromises;
         }));

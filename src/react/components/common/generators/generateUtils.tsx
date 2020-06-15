@@ -10,6 +10,7 @@ export interface IGeneratedInfo {
     text: string,
     boundingBoxes: GeneratedBboxInfo,
     format: GeneratorTextStyle,
+    page: number,
 }
 interface WordLevelBbox {
     boundingBox: number[],
@@ -122,7 +123,8 @@ export const generate:(g: IGenerator, ocr: any) => IGeneratedInfo = (generator, 
         name: generator.name,
         text,
         boundingBoxes,
-        format
+        format,
+        page: generator.page,
     };
 }
 
@@ -415,7 +417,7 @@ export const generatorInfoToLabel: (g: IGeneratedInfo) => ILabel = (generatedInf
         label: generatedInfo.name,
         key: null,
         value: generatedInfo.boundingBoxes.words.map(w => ({
-                page: 1, // TODO anchor page
+                page: generatedInfo.page,
                 text: w.text,
                 boundingBoxes: [w.boundingBoxPercentage],
         }))

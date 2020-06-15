@@ -693,7 +693,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             }
         }
 
-        updatedRegions.sort(this.compareRegionOrder);
+        updatedRegions.sort(this.compareRegionOrder); // TODO what's going on here?
         this.updateAssetRegions(updatedRegions);
     }
 
@@ -1324,7 +1324,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             canvasBbox,
             resolution: this.imageMap.getResolution(),
             id,
-            canvas: [this.state.imageWidth, this.state.imageHeight]
+            canvas: [this.state.imageWidth, this.state.imageHeight],
+            page: this.state.currentPage,
         }
     }
 
@@ -1697,12 +1698,15 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (!this.imageMap) return;
         this.imageMap.removeAllGeneratorFeatures();
         const imageExtent = this.imageMap.getImageExtent();
-        const features = this.props.selectedAsset.generators.map(
+        const features = this.props.selectedAsset.generators.filter(
+            g => g.page === this.state.currentPage
+        ).map(
             g => this.convertGeneratorToFeature(g, imageExtent)
         );
         this.imageMap.addGeneratorFeatures(features);
     }
 
+    // TODO backlog - share named items here
     private showMultiPageFieldWarningIfNecessary = (tagName: string, regions: IRegion[]): boolean => {
         const existedRegionsWithSameTag = this.props.selectedAsset.regions.filter(
             (region) => _.get(region, "tags[0]", "") === tagName);
