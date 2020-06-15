@@ -37,6 +37,7 @@ import IProjectActions, * as projectActions from "../../../../redux/actions/proj
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import { ViewSelection } from "./ViewSelection";
+import ComposeModelView from "./composeModelView";
 
 export interface IModelComposePageProps extends RouteComponentProps, React.Props<ModelComposePage> {
     recentProjects: IProject[];
@@ -97,6 +98,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     private refreshClicks: boolean;
     private selectedItems: any[];
     private listRef = React.createRef<IDetailsList>();
+    private composeModalRef: React.RefObject<ComposeModelView> = React.createRef();
 
     constructor(props) {
         super(props);
@@ -120,7 +122,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 key: "column2",
                 name: "Model ID",
                 fieldName: "modelId",
-                minWidth: 100,
+                minWidth: 250,
+                maxWidth: 250,
                 isResizable: true,
                 onColumnClick: this.handleColumnClick,
                 onRender: (model: IModel) => {
@@ -144,6 +147,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 name: "Status",
                 fieldName: "status",
                 minWidth: 50,
+                maxWidth: 100,
                 isResizable: true,
                 onColumnClick: this.handleColumnClick,
                 onRender: (model: IModel) => {
@@ -154,7 +158,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 key: "column5",
                 name: "Create Date Time",
                 fieldName: "createdatetime",
-                minWidth: 175,
+                minWidth: 150,
+                maxWidth: 175,
                 isResizable: true,
                 isRowHeader: true,
                 isSorted: false,
@@ -169,6 +174,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 name: "Last Updated Date Time",
                 fieldName: "lastupdateddatetime",
                 minWidth: 175,
+                maxWidth: 175,
                 isResizable: true,
                 onColumnClick: this.handleColumnClick,
                 onRender: (model: IModel) => {
@@ -216,7 +222,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     public componentDidUpdate(prevProps, prevState) {
-        // console.log(this.state.modelList);
         if ((prevState.isComposing === true &&
                 prevState.isComposing !== this.state.isComposing) || this.state.refreshFlag) {
             if (this.props.project) {
@@ -227,11 +232,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 refreshFlag: false,
             });
         }
-        console.log("Finish Update");
-    }
-
-    public componentWillUnmount() {
-        console.log("this will unmount");
     }
 
     public render() {
@@ -336,6 +336,10 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                             </ViewSelection>
                         </ScrollablePane>
                     </div>
+                    <ComposeModelView
+                            ref={this.composeModalRef}
+                            onComposeConfirm={this.onComposeConfirm}
+                            />
                 </Customizer>
             </Fabric>
         );
@@ -445,7 +449,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     private async getResponse(nextLink?: string) {
         const baseURL = nextLink === undefined ? url.resolve(
             this.props.project.apiUriBase,
-            constants.apiModelsPath,
+            "/formrecognizer/v2.1-preview.1/custom/models"
         ) : url.resolve(
             this.props.project.apiUriBase,
             nextLink,
@@ -524,38 +528,39 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
     private onTextChange = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string): void => {
         this.setState({
-            modelList: text ? this.allModels.filter((m) => m.modelId.indexOf(text) > -1) : this.allModels,
+            modelList: text ? this.allModels.filter((m) => (m.modelId.indexOf(text) > -1) || (m.modelName !== undefined ? m.modelName.indexOf(text) > -1 : false)) : this.allModels,
             hasText: text ? true : false,
         });
     }
 
     private onComposeButtonClick = () => {
-        //const selections = this.selection.getSelection();
-        const selections = this.selectedItems;
-        console.log(selections);
-        console.log(this.selectedItems);
+        this.composeModalRef.current.open(this.selectedItems);
+    }
+
+    private onComposeConfirm = (composeModelName: string) => {
         this.setState({
             isComposing: true,
         });
-        this.handleModelCompose(selections);
+        const selections = this.selectedItems;
+        console.log(selections);
+        this.handleModelCompose(selections, composeModelName);
     }
 
     private passSelectedItems = (Items) => {
         this.selectedItems = Items;
     }
 
-    private handleModelCompose = async (selections: any[]) => {
+    private handleModelCompose = async (selections: any[], name: string) => {
         setTimeout( async () => {
             try {
                 const idList = [];
                 selections.forEach((s) => idList.push(s.modelId));
                 const payload = {
                     modelIds: idList,
+                    modelName: name,
                 };
-                console.log(payload);
                 const link = "/formrecognizer/v2.1-preview.1/custom/models/compose";
                 const composeRes = await this.post(link, payload);
-                console.log(composeRes);
                 const newCols = this.state.columns;
                 newCols.forEach((ncol) => {
                     ncol.isSorted = false;
@@ -577,8 +582,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             this.props.project.apiUriBase,
             link,
         );
-        //const provider = this.props.project.sourceConnection.providerOptions as any;
-        //const trainSourceURL = provider.sas;
 
         try {
             return await ServiceHelper.postWithAutoRetry(

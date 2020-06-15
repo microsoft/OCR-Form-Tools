@@ -220,7 +220,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             <h5>
                                 {strings.predict.uploadFile}
                             </h5>
-                            <div style={{marginBottom: "3px"}}>Model source</div>
+                            {/* <div style={{marginBottom: "3px"}}>Model source</div>
                                 {this.state.modelList.length !== 0 ?
                                     <Dropdown
                                         className="modelDropDown"
@@ -232,7 +232,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                             defaultSelectedKey= ""
                                             selectedKey= ""
                                             options={modelOptions}/>
-                                }
+                                } */}
                             <div style={{marginBottom: "3px"}}>Image source</div>
                             <div className="container-space-between">
                                 <Dropdown

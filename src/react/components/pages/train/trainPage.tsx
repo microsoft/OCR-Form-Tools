@@ -201,7 +201,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private onTextChanged = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string) => {
-        console.log(text);
         this.modelName = text;
     }
 
@@ -232,10 +231,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     private async trainProcess(): Promise<any> {
         try {
             const trainRes = await this.train();
-            console.log(trainRes);
             const trainStatusRes =
                 await this.getTrainStatus(trainRes.headers["location"]);
-            console.log(trainStatusRes);
             const updatedProject = this.buildUpdatedProject(
                 this.parseTrainResult(trainStatusRes),
             );

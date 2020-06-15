@@ -106,3 +106,39 @@
     right: 0px;
     bottom: auto;
 }
+
+.modal-container {
+    width: 700px;
+    min-height: 200px;
+    max-height: 400px;
+    padding: 20px;
+    padding-right: 10px;
+}
+
+.modal-list-container {
+    margin: 0;
+    width: 100%;
+    height: 80%;
+    min-height: 100px;
+    padding-bottom: 10px;
+}
+
+.modal-textfield {
+    margin-top: 10px;
+}
+
+.modal-button-container {
+    width: 100%;
+    display: flex;
+    justify-content: right;
+}
+
+.modal-confirm {
+    //display: flex;
+    width: 110px;
+}
+
+.modal-cancel {
+    width: 110px;
+    float: right;
+}
