@@ -1,10 +1,18 @@
 # OCR Form Labeling Tool
 
+## Features Preview
+
 [![Build Status](https://dev.azure.com/msazure/Cognitive%20Services/_apis/build/status/microsoft.OCR-Form-Tools?branchName=master)](https://dev.azure.com/msazure/Cognitive%20Services/_build/latest?definitionId=118293&branchName=master)
 
 An open source labeling tool for [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/), part of the Form OCR Test Toolset (FOTT).
 
-The purpose of this repo is to allow customers to test various tools when working with Microsoft Forms and OCR services.  Currently, Labeling tool is the first tool we present here.  Users could provide feedback, and make customer-specific changes to meet their unique needs.  Microsoft Azure Form Recognizer team will update the source code periodically.  If you would like to contribute, please check the contributing section.
+This is a `MASTER` branch of the Tool. It contains all the newest features available. This is **NOT** the most stable version since this is a preview.
+
+The purpose of this repo is to allow customers to test the latest tools available when working with Microsoft Forms and OCR services.  Currently, Labeling tool is the first tool we present here.  Users could provide feedback, and make customer-specific changes to meet their unique needs.  Microsoft Azure Form Recognizer team will update the source code periodically.  If you would like to contribute, please check the contributing section.
+
+> If you want to checkout our latest GA  version of the tool, please follow this [link](https://github.com/microsoft/OCR-Form-Tools/tree/v2.0-General-Availability-Release).
+
+___
 
 FOTT's Labeling Tool is a React + Redux Web application, written in [TypeScript](https://github.com/Microsoft/TypeScript). This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
