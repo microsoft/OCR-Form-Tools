@@ -6,7 +6,7 @@
 
 An open source labeling tool for [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/), part of the Form OCR Test Toolset (FOTT).
 
-This is a `MASTER` branch of the Tool. It contains all the newest features available. This is **NOT** the most stable version since this is a preview.
+This is a `MAIN` branch of the Tool. It contains all the newest features available. This is **NOT** the most stable version since this is a preview.
 
 The purpose of this repo is to allow customers to test the latest tools available when working with Microsoft Forms and OCR services.  Currently, Labeling tool is the first tool we present here.  Users could provide feedback, and make customer-specific changes to meet their unique needs.  Microsoft Azure Form Recognizer team will update the source code periodically.  If you would like to contribute, please check the contributing section.
 
