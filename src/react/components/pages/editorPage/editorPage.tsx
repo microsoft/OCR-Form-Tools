@@ -218,7 +218,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             selectedAsset.labelData.labels) || [];
         const generators = (selectedAsset && selectedAsset.generators) || [];
         const generatorSettings = (selectedAsset && selectedAsset.generatorSettings) || {
-            generateCount: 1
+            generateCount: 40
         };
 
         const formattedItems = [...this.props.project.tags, ...generators];

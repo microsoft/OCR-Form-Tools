@@ -37,7 +37,7 @@ export interface IGeneratorPaneProps {
     onGenerateClick: () => void;
 }
 
-const MAX_GENERATE_COUNT = 20;
+const MAX_GENERATE_COUNT = 40;
 const strings = {
     generator: {
         title: "Generators",

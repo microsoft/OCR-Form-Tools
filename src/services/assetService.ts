@@ -306,7 +306,7 @@ export class AssetService {
             regions: [],
             generators: [],
             generatorSettings: {
-                generateCount: 1
+                generateCount: 40
             },
             version: appInfo.version,
             labelData: null,

@@ -265,6 +265,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         }));
 
         const allFields = [].concat.apply(this.props.project.tags, metadatas.map(m => m.generators));
+        // TODO nuke the generated file
         const fieldsPromise = projectService.saveFieldsFile(allFields, generatePath, assetService.storageProvider);
 
         const labelsAndOCRPromise = Promise.all(Object.keys(metadataDict).map(async (assetKey) => {
