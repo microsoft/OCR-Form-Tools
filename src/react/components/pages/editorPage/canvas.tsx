@@ -2,9 +2,9 @@
 // Licensed under the MIT license.
 
 import React, { ReactElement } from "react";
-import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
-import { Label } from "office-ui-fabric-react/lib/Label";
-import { IconButton } from "office-ui-fabric-react/lib/Button";
+import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
+import { Label } from "@fluentui/react/lib/Label";
+import { IconButton } from "@fluentui/react/lib/Button";
 import {
     EditorMode, IAssetMetadata,
     IProject, IRegion, RegionType,
@@ -24,18 +24,18 @@ import Text from "ol/style/Text";
 import { OCRService, OcrStatus } from "../../../../services/ocrService";
 import { Feature, DrawEvent } from "ol";
 import { Extent } from "ol/extent";
-import { KeyboardBinding } from "../../common/keyboardBinding/keyboardBinding";
-import { KeyEventType } from "../../common/keyboardManager/keyboardManager";
+import { TooltipHost, ITooltipHostStyles } from "@fluentui/react";
 import _ from "lodash";
-import Alert from "../../common/alert/alert";
 import * as pdfjsLib from "pdfjs-dist";
 import * as jsPDF from 'jspdf';
+import { KeyboardBinding } from "../../common/keyboardBinding/keyboardBinding";
+import { KeyEventType } from "../../common/keyboardManager/keyboardManager";
+import Alert from "../../common/alert/alert";
 import Polygon from "ol/geom/Polygon";
 import HtmlFileReader from "../../../../common/htmlFileReader";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas, getNextColor } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./canvasCommandBar";
-import { TooltipHost, ITooltipHostStyles } from "office-ui-fabric-react";
 import { generate, GeneratorTextStyle, styleToFont } from "../../common/generators/generateUtils";
 import { AssetService } from "../../../../services/assetService";
 

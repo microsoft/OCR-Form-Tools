@@ -387,6 +387,10 @@ export const spanish: IAppStrings = {
                 name: "Selección de palabras múltiples",
                 description: "Haga clic y mantenga presionada la palabra, luego desplace el cursor sobre otras palabras para seleccionar varias palabras a la vez.",
             },
+            deleteAllLabelsForTag: {
+                name: "Eliminar información asociada a una etiqueta",
+                description: "Seleccione todas las etiquetas para una etiqueta en el documento y presione la tecla 'delete'"
+            }
         },
         headers: {
             keyboardShortcuts: "Atajos de teclado",

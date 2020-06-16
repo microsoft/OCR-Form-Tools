@@ -5,7 +5,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
-import { FontIcon, PrimaryButton, Spinner, SpinnerSize} from "office-ui-fabric-react";
+import { FontIcon, PrimaryButton, Spinner, SpinnerSize} from "@fluentui/react";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
@@ -223,6 +223,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 sourcePrefix = await this.generateValues(sourcePrefix);
             }
             const trainRes = await this.train(sourcePrefix);
+            console.log(trainRes.headers);
             const trainStatusRes =
                 await this.getTrainStatus(trainRes.headers["location"]);
             const updatedProject = this.buildUpdatedProject(

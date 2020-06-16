@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license
 
-import { registerIcons as registerIcons_ } from "office-ui-fabric-react";
+import { registerIcons as registerIcons_ } from "@fluentui/react";
 
 export function registerIcons() {
     registerIcons_({

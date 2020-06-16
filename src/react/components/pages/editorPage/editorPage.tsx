@@ -7,7 +7,7 @@ import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import SplitPane from "react-split-pane";
 import { bindActionCreators } from "redux";
-import { PrimaryButton } from "office-ui-fabric-react";
+import { PrimaryButton } from "@fluentui/react";
 import HtmlFileReader from "../../../../common/htmlFileReader";
 import { strings } from "../../../../common/strings";
 import {
@@ -39,7 +39,7 @@ import { OCRService } from "../../../../services/ocrService";
 import { throttle } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
-import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
+import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
 import { getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/themes";
 import { SkipButton } from "../../shell/skipButton";
 import { AssetService } from "../../../../services/assetService";

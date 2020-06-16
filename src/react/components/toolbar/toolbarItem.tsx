@@ -7,7 +7,7 @@ import IProjectActions from "../../../redux/actions/projectActions";
 import { IKeyboardContext, KeyboardContext, KeyEventType } from "../common/keyboardManager/keyboardManager";
 import { KeyboardBinding } from "../common/keyboardBinding/keyboardBinding";
 import { ToolbarItemName, ToolbarItemGroup } from "../../../registerToolbar";
-import { IconButton } from "office-ui-fabric-react";
+import { IconButton } from "@fluentui/react";
 
 /**
  * Toolbar Item Metadata

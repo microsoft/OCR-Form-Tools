@@ -2,9 +2,9 @@
 // Licensed under the MIT license.
 
 import React, { useState } from "react";
-import { Modal } from "office-ui-fabric-react/lib/Modal";
-import { FontIcon } from "office-ui-fabric-react";
-import { ICustomizations, Customizer } from "office-ui-fabric-react/lib/Utilities";
+import { Modal } from "@fluentui/react/lib/Modal";
+import { FontIcon } from "@fluentui/react";
+import { ICustomizations, Customizer } from "@fluentui/react/lib/Utilities";
 import { getDarkGreyTheme } from "../../../common/themes";
 import { strings } from "../../../common/strings";
 
@@ -13,8 +13,12 @@ import "./keyboardShortcuts.scss";
 export interface IHotKeysModalState {
     showModal: boolean;
 }
-interface IKey {
+interface IKeyItem {
     key: string;
+    description: string;
+}
+interface ITipsItem {
+    name: string;
     description: string;
 }
 
@@ -29,7 +33,7 @@ export const KeyboardShortcuts: React.FC = () => {
     const [showModal, setShowModal] = useState(false);
     const closeModal = () => setShowModal(false);
 
-    const shortcutsItems: IKey[] = [
+    const shortcutsItems: IKeyItem[] = [
         {
             key: strings.shortcuts.squareBrackets.keys.leftBracket,
             description: strings.shortcuts.squareBrackets.description.prevWord,
@@ -69,7 +73,7 @@ export const KeyboardShortcuts: React.FC = () => {
 
     ];
 
-    const tipsItems = [
+    const tipsItems: ITipsItem[] = [
         {
             name: strings.shortcuts.tips.quickLabeling.name,
             description: strings.shortcuts.tips.quickLabeling.description,
@@ -82,6 +86,10 @@ export const KeyboardShortcuts: React.FC = () => {
             name: strings.shortcuts.tips.multipleWordSelection.name,
             description: strings.shortcuts.tips.multipleWordSelection.description,
         },
+        {
+            name: strings.shortcuts.tips.deleteAllLabelsForTag.name,
+            description: strings.shortcuts.tips.deleteAllLabelsForTag.description,
+        }
     ];
     const ShortcutsListItems = ({ items }): JSX.Element => {
         return items.map((item, idx) => (

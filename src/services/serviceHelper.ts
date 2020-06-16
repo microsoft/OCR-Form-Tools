@@ -69,7 +69,7 @@ export default class ServiceHelper {
         config?: AxiosRequestConfig,
         apiKey?: string,
     ): AxiosPromise<T> =>
-        ServiceHelper.sendRequestWithAutoRetry(() => axios.get(url, ServiceHelper.applyApiKey(config, apiKey)))
+        ServiceHelper.sendRequestWithAutoRetry(() => axios.get(url, ServiceHelper.applyApiKey(config, apiKey)));
 
     private static applyApiKey = (config?: AxiosRequestConfig, apiKey?: string) => ({
         ...config,
