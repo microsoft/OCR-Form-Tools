@@ -22,9 +22,10 @@ export function Sidebar({ project }) {
         <div className="bg-lighter-2 app-sidebar" id="appSidebar">
             <ul>
                 <li>
-                    <NavLink title={"Home"} to={`/`} exact role="button">
+                    {/* disabled for demo purposes */}
+                    <ConditionalNavLink disabled={true} title={"Home"} to={`/`} exact role="button" >
                         <FontIcon iconName="Home" />
-                    </NavLink>
+                    </ConditionalNavLink>
                 </li>
                 <li>
                     <ConditionalNavLink disabled={!projectId}
@@ -61,17 +62,19 @@ export function Sidebar({ project }) {
                     </NavLink>
                 </li>
                 <li>
-                    <NavLink title={strings.connections.title} to={`/connections`} role="button">
+                    {/* disabled for demo purposes */}
+                    <ConditionalNavLink disabled={true} title={strings.connections.title} to={`/connections`} role="button">
                         <FontIcon iconName="Plug" />
-                    </NavLink>
+                    </ConditionalNavLink>
                 </li>
             </ul>
             <div className="app-sidebar-fill"></div>
             <ul>
                 <li>
-                    <NavLink title={strings.appSettings.title} to={`/settings`} role="button">
+                    {/* disabled for demo purposes */}
+                    <ConditionalNavLink disabled={true} title={strings.appSettings.title} to={`/settings`} role="button">
                         <FontIcon iconName="Settings" />
-                    </NavLink>
+                    </ConditionalNavLink>
                 </li>
             </ul>
         </div>
