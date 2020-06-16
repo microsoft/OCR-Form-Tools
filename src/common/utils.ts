@@ -309,12 +309,12 @@ export function renderRotatedImageToCanvas(image: HTMLImageElement, orientation:
     return canvas;
 }
 
-export function joinPath(seperator: string, ...paths: string[]) {
-    const leadingSeperator = (paths && paths[0] && paths[0][0] === seperator) ? seperator : "";
-    const joined = paths.join(seperator);
-    const parts = joined.split(seperator);
-    const normalized = parts.filter((p) => p && p.trim() !== "").join(seperator);
-    return leadingSeperator + normalized;
+export function joinPath(separator: string, ...paths: string[]) {
+    const leadingSeparator = (paths && paths[0] && paths[0][0] === separator) ? separator : "";
+    const joined = paths.join(separator);
+    const parts = joined.split(separator);
+    const normalized = parts.filter((p) => p && p.trim() !== "").join(separator);
+    return leadingSeparator + normalized;
 }
 
 export function patch<T, K extends keyof T>(data: T[], diff: T[], key: K, properties: K[]): T[] {

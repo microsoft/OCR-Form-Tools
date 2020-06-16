@@ -242,9 +242,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                 onClick={this.handleDownloadClick}
                             />
                             <div className="alight-vertical-center mt-2">
-                                <div className="seperator"/>
+                                <div className="separator"/>
                                 or
-                                <div className="seperator" />
+                                <div className="separator"/>
                             </div>
                             {this.props.receiptMode &&
                                 <div>
@@ -430,7 +430,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     when={this.state.isPredicting}
                     message={"A prediction operation is currently in progress, are you sure you want to leave?"}
                 />
-            </div >
+            </div>
         );
     }
 
