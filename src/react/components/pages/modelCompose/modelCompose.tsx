@@ -315,13 +315,19 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                                         <div className="next-page-container">
                                             {
                                                 this.state.isLoading ?
-                                                <Spinner
-                                                    label="Model is loading..."
-                                                    className="commandbar-spinner"
-                                                    labelPosition="right"
-                                                    theme={getDefaultDarkTheme()}
-                                                    size={SpinnerSize.small}>
-                                                </Spinner> :
+                                                <div>
+                                                    {
+                                                        this.state.nextLink !== "*" &&
+                                                        <Spinner
+                                                            label="Model is loading..."
+                                                            className="commandbar-spinner"
+                                                            labelPosition="right"
+                                                            theme={getDefaultDarkTheme()}
+                                                            size={SpinnerSize.small}>
+                                                        </Spinner>
+                                                    }
+                                                </div>
+                                                :
                                                 <PrimaryButton
                                                     className="next-page-button"
                                                     onClick={this.getNextPage}>
@@ -449,7 +455,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     private async getResponse(nextLink?: string) {
         const baseURL = nextLink === undefined ? url.resolve(
             this.props.project.apiUriBase,
-            "/formrecognizer/v2.1-preview.1/custom/models"
+            "/formrecognizer/v2.1-preview.1/custom/models",
         ) : url.resolve(
             this.props.project.apiUriBase,
             nextLink,
@@ -528,7 +534,9 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
     private onTextChange = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string): void => {
         this.setState({
-            modelList: text ? this.allModels.filter((m) => (m.modelId.indexOf(text) > -1) || (m.modelName !== undefined ? m.modelName.indexOf(text) > -1 : false)) : this.allModels,
+            modelList: text ?
+                this.allModels.filter((m) => (m.modelId.indexOf(text) > -1) ||
+                (m.modelName !== undefined ? m.modelName.indexOf(text) > -1 : false)) : this.allModels,
             hasText: text ? true : false,
         });
     }
