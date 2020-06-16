@@ -6,7 +6,7 @@ import { NavLink } from "react-router-dom";
 import { FontIcon } from "@fluentui/react";
 import ConditionalNavLink from "../common/conditionalNavLink/conditionalNavLink";
 import { strings } from "../../../common/strings";
-import './sidebar.scss'
+import "./sidebar.scss";
 
 /**
  * Side bar that remains visible throughout app experience

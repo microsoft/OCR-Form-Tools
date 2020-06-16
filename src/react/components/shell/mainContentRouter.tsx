@@ -9,7 +9,7 @@ import TrainPage from "../pages/train/trainPage";
 import ConnectionPage from "../pages/connections/connectionsPage";
 import EditorPage from "../pages/editorPage/editorPage";
 import ProjectSettingsPage from "../pages/projectSettings/projectSettingsPage";
-import { PredictPageRoute } from './preditcPageRoute';
+import { PredictPageRoute } from "./preditcPageRoute";
 import PredictPage from "../pages/predict/predictPage";
 
 
