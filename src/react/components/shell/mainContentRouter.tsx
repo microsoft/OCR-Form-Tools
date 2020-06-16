@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { Switch, Route } from "react-router-dom";
+import { Switch, Route, Redirect } from "react-router-dom";
 import HomePage from "../pages/homepage/homePage";
 import AppSettingsPage from "../pages/appSettings/appSettingsPage";
 import TrainPage from "../pages/train/trainPage";
@@ -24,6 +24,7 @@ export function MainContentRouter() {
     return (
         <div className="app-content text-light">
             <Switch>
+                <Redirect from="/" to="/receipts" exact={true}/>
                 <Route path="/" exact component={HomePage} />
                 <Route path="/settings" component={AppSettingsPage} />
                 <Route path="/connections/:connectionId" component={ConnectionPage} />

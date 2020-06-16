@@ -231,7 +231,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             <span>Analyze {this.props.receiptMode ? " receipts (preview)" : ""}</span>
                         </h6>
                         <div className="p-3">
-                            <h5>
+                            {!this.props.receiptMode && <>
+                                <h5>
                                 {strings.predict.downloadScript}
                             </h5>
                             <PrimaryButton
@@ -245,7 +246,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                 <div className="separator"/>
                                 or
                                 <div className="separator"/>
-                            </div>
+                                </div>
+                            </>}
                             {this.props.receiptMode &&
                                 <div>
                                     <h5>
