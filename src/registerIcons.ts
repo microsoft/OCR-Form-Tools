@@ -59,7 +59,6 @@ export function registerIcons() {
             MapLayers: "\uE81E",
             BookAnswers: "\uF8A4",
             Cancel: "\uE711",
-            Refresh: "\uE72C",
             Documentation: "\uEC17",
             More: "\uE712",
         },
