@@ -1,4 +1,4 @@
-import {createTheme, IPalette} from "office-ui-fabric-react";
+import {createTheme, IPalette} from "@fluentui/react";
 
 const greenButtonPalette = {
     themePrimary: "#78ad0e",

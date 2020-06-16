@@ -5,9 +5,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
-import { FontIcon, PrimaryButton,
-        Spinner, SpinnerSize, IconButton,
-        TextField, IDropdownOption, Dropdown} from "office-ui-fabric-react";
+import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton, TextField, IDropdownOption, Dropdown} from "@fluentui/react";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
@@ -173,23 +171,24 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const urlInputDisabled: boolean = !this.state.predictionLoaded || this.state.isFetching;
         const predictDisabled: boolean = !this.state.predictionLoaded || !this.state.file;
         const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
-        const fetchDisabled: boolean = !this.state.predictionLoaded || this.state.isFetching ||
-                                        this.state.inputedFileURL.length === 0 ||
-                                        this.state.inputedFileURL === strings.predict.defaultURLInput;
+        const fetchDisabled: boolean =
+            !this.state.predictionLoaded ||
+            this.state.isFetching ||
+            this.state.inputedFileURL.length === 0 ||
+            this.state.inputedFileURL === strings.predict.defaultURLInput;
 
         const sourceOptions: IDropdownOption[] = [
             { key: "localFile", text: "Local file" },
             { key: "url", text: "URL" },
         ];
 
-        const modelOptions: IDropdownOption[] = [];
-
-        this.state.modelList.forEach((m) => modelOptions.push({
-            key: `${m.modelId}`, text: `${m.modelId}`},
-        ));
+        const onPredictionPath: boolean = this.props.match.path.includes("predict");
 
         return (
-            <div className="predict" id="pagePredict">
+            <div
+                className={`predict skipToMainContent ${onPredictionPath ? "" : "hidden"} `}
+                id="pagePredict"
+                style={{ display: `${onPredictionPath ? "flex" : "none"}` }} >
                 <div className="predict-main">
                     {this.state.file && this.state.imageUri && this.renderImageMap()}
                     {this.renderPrevPageButton()}
@@ -199,15 +198,15 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     <div className="condensed-list">
                         <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
                             <FontIcon className="mr-1" iconName="Insights" />
-                            <span>Predict</span>
+                            <span>Analyze</span>
                         </h6>
                         <div className="p-3">
-                            {/* <h5>
+                            <h5>
                                 {strings.predict.downloadScript}
                             </h5>
                             <PrimaryButton
                                 theme={getPrimaryGreenTheme()}
-                                text="Download python script"
+                                text="Download Python script"
                                 allowDisabledFocus
                                 autoFocus={true}
                                 onClick={this.handleDownloadClick}
@@ -216,7 +215,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                 <div className="seperator"/>
                                 or
                                 <div className="seperator"/>
-                            </div> */}
+                            </div>
                             <h5>
                                 {strings.predict.uploadFile}
                             </h5>
@@ -304,7 +303,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                     <PrimaryButton
                                         theme={getPrimaryWhiteTheme()}
                                         iconProps={{ iconName: "Insights" }}
-                                        text="Run prediction"
+                                        text="Run analysis"
                                         aria-label={!this.state.predictionLoaded ? strings.predict.inProgress : ""}
                                         allowDisabledFocus
                                         disabled={predictDisabled}
@@ -332,7 +331,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                     />
                                 </div>
                             }
-                            {Object.keys(predictions).length > 0 &&
+                            {Object.keys(predictions).length > 0 && this.props.project &&
                                 <PredictResult
                                     predictions={predictions}
                                     analyzeResult={this.state.analyzeResult}
@@ -368,7 +367,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     when={this.state.isPredicting}
                     message={"A prediction operation is currently in progress, are you sure you want to leave?"}
                 />
-                <SkipButton skipTo="pagePredict">{strings.common.skipToMainContent}</SkipButton>
             </div>
         );
     }
@@ -430,7 +428,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                         this.imageMap.removeAllFeatures();
                     }
                 });
-            }) .catch((error) => {
+            }).catch((error) => {
                 this.setState({
                     isFetching: false,
                     shouldShowAlert: true,
@@ -624,12 +622,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             }
             const endpointURL = this.props.project.apiUriBase as string;
             const apiKey = this.props.project.apiKey as string;
-            const analyzeScript = response.data.replace(/<endpoint>|<subsription_key>|<model_id>/gi,
+            const analyzeScript = response.data.replace(/<endpoint>|<subscription_key>|<model_id>/gi,
                 (matched: string) => {
                 switch (matched) {
                     case "<endpoint>":
                         return endpointURL;
-                    case "<subsription_key>":
+                    case "<subscription_key>":
                         return apiKey;
                     case "<model_id>":
                         return modelID;
@@ -638,8 +636,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             const fileURL = window.URL.createObjectURL(
                 new Blob([analyzeScript]));
             const fileLink = document.createElement("a");
-            const fileBaseName = "analysis";
-            const downloadFileName = fileBaseName + modelID.substring(0, 4) + ".py";
+            const fileBaseName = "analyze";
+            const downloadFileName = fileBaseName + "-" + modelID.substring(0, 4) + ".py";
 
             fileLink.href = fileURL;
             fileLink.setAttribute("download", downloadFileName);
@@ -931,14 +929,14 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         if (Number.isInteger(targetPage) && targetPage !== this.state.currPage) {
             this.setState({
                 currPage: targetPage,
-                highlightedField: predictedItem.fieldName,
+                highlightedField: predictedItem.fieldName ?? "",
             });
         }
     }
 
     private onPredictionMouseEnter = (predictedItem: any) => {
         this.setState({
-            highlightedField: predictedItem.fieldName,
+            highlightedField: predictedItem.fieldName ?? "",
         });
     }
 

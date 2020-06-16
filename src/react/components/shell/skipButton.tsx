@@ -9,20 +9,21 @@ export interface ISkipButtonProps {
 
 export class SkipButton extends React.Component<ISkipButtonProps> {
 
-    constructor(props: ISkipButtonProps) {
-        super(props);
-    }
-
     public render() {
         return (
-            <div className="skip-button">
+            <div className="skip-button" tabIndex={1}>
                 <a href="#" onClick={this.skipToId}>{this.props.children}</a>
             </div>);
     }
 
     private skipToId = (event: React.MouseEvent<HTMLAnchorElement>) => {
         event.preventDefault();
-        const element = document.getElementById(this.props.skipTo);
+
+        const collection: HTMLCollection = document.getElementsByClassName(this.props.skipTo);
+        const collectionWithoutHiddenElements = Array.prototype.filter.call(collection, (el: HTMLElement) => !el.classList.contains("hidden"))
+
+        const element = collection.length > 0 ? collectionWithoutHiddenElements[0] as HTMLElement : null;
+
         if (!element) {
             return;
         }

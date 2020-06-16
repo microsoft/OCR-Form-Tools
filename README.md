@@ -2,17 +2,17 @@
 
 [![Build Status](https://dev.azure.com/msazure/Cognitive%20Services/_apis/build/status/microsoft.OCR-Form-Tools?branchName=master)](https://dev.azure.com/msazure/Cognitive%20Services/_build/latest?definitionId=118293&branchName=master)
 
-An open source labeling tool for [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/), part of the Form OCR Test Toolset (FOTT). 
+An open source labeling tool for [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/), part of the Form OCR Test Toolset (FOTT).
 
 The purpose of this repo is to allow customers to test various tools when working with Microsoft Forms and OCR services.  Currently, Labeling tool is the first tool we present here.  Users could provide feedback, and make customer-specific changes to meet their unique needs.  Microsoft Azure Form Recognizer team will update the source code periodically.  If you would like to contribute, please check the contributing section.
 
-FOTT's Labeling Tool is a React + Redux Web application, written in [TypeScript](https://github.com/Microsoft/TypeScript). This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).  
+FOTT's Labeling Tool is a React + Redux Web application, written in [TypeScript](https://github.com/Microsoft/TypeScript). This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 Current Features of Labeling Tool: (you can view a short demo [here](https://youtu.be/GRGs18lZJ1E?t=462))
 
-* **Label** forms in PDF, JPEG or TIFF formats. 
+* **Label** forms in PDF, JPEG or TIFF formats.
 * **Train** model with labeled data through [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/)
-* **Predict** a single form with the trained model, to extract key/value predictions for the form. 
+* **Predict/Analyze** a single form with the trained model, to extract key-value predictions/analyses for the form.
 
 ## Getting Started
 
@@ -23,9 +23,9 @@ Form Labeling Tool requires [NodeJS (>= 10.x, Dubnium) and NPM](https://github.c
    ```bash
     git clone https://github.com/Microsoft/OCR-Form-Tools.git
     cd OCR-Form-Tools
-    npm install
-    npm run build
-    npm run react-start
+    yarn install
+    yarn build
+    yarn react-start
    ```
 
 ### Set up this tool with Docker
@@ -34,7 +34,7 @@ Please see instructions [here](https://docs.microsoft.com/en-us/azure/cognitive-
 
 ### Run as web application
 
-Using a modern Web browser, FOTT can be loaded from: https://fott.azurewebsites.net/
+Using a modern Web browser, FOTT can be run directly at: https://fott.azurewebsites.net/
 
 **Note: The site is for testing purpose only.**
 
@@ -42,7 +42,7 @@ Using a modern Web browser, FOTT can be loaded from: https://fott.azurewebsites.
 
 ### Set up input data
 
-To go thru a complete label-train-analyze scenario, you need a set of at least six forms of the same type. You will label five forms to train a model and one form to test the model.  You could upload the [sample files](https://go.microsoft.com/fwlink/?linkid=2090451) to the root of a blob storage container in an Azure Storage account.  For advanced scenarios where there are forms in quite different formats, you could organize them into subfolders based on similar format. When you set up your project to train a model from one format, you need to specify a subfolder in the project setting page. 
+To go thru a complete label-train-analyze scenario, you need a set of at least six forms of the same type. You will label five forms to train a model and one form to test the model.  You could upload the [sample files](https://go.microsoft.com/fwlink/?linkid=2090451) to the root of a blob storage container in an Azure Storage account. You can use [Azure Storage Explorer](https://azure.microsoft.com/en-us/features/storage-explorer/) to upload data.   For advanced scenarios where there are forms in quite different formats, you could organize them into subfolders based on similar format. When you set up your project to train a model from one format, you need to specify a subfolder in the project setting page.
 
 #### Configure cross-domain resource sharing (CORS)
 
@@ -69,7 +69,7 @@ Fill in the fields with the following values:
 
 * **Display Name** - The connection display name.
 * **Description** - Your project description.
-* **SAS URL** - The shared access signature (SAS) URL of your Azure blob storage container. To retrieve the SAS URL, open the Microsoft Azure Storage Explorer, right-click your container (note: not the parent storage node), and select Get shared access signature. Set the expiry time to some time after you'll have used the service. Make sure the Read, Write, Delete, and List permissions are checked, and click Create. Then copy the value in the URL section. It should have such format: https://&lt;storage account&gt;.blob.core.windows.net/&lt;container name&gt;?&lt;SAS value&gt;.
+* **SAS URL** - The shared access signature (SAS) URL of your Azure blob storage container. To retrieve the SAS URL, open the Microsoft Azure Storage Explorer, right-click your container (note: not the parent storage node, not the URL in your Azure portal), and select Get shared access signature. Set the expiry time to some time after you'll have used the service. Make sure the Read, Write, Delete, and List permissions are checked, and click Create. Then copy the value in the URL section. It should have such format: https://&lt;storage account&gt;.blob.core.windows.net/&lt;container name&gt;?&lt;SAS value&gt;.
 
 ![alt text](docs/images/new-connection.png "New Connection")
 
@@ -81,7 +81,7 @@ In this labeling tool, a project is used to store your configurations and settin
 * **Security Token** - Some project settings can include sensitive values, such as API keys or other shared secrets. Each project will generate a security token that can be used to encrypt/decrypt sensitive project settings. You can find security tokens in the Application Settings by clicking the gear icon in the lower corner of the left navigation bar.
 * **Source Connection** - The Azure blob storage container connection you created in the previous step that you would like to use for this project.
 * **Folder Path** - Optional - If your source forms are located in a sub-folder on the blob container, specify the folder name here
-* **Form Recognizer Service Uri** - Your Form Recognizer endpoint URL.  It should have such format: https://&lt;your-name&gt;.cognitiveservcices.azure.com. 
+* **Form Recognizer Service Uri** - Your Form Recognizer endpoint URL.  It should have such format: https://&lt;your-name&gt;.cognitiveservcices.azure.com.
 * **API Key** - Your Form Recognizer subscription key.
 * **Description** - Optional - Project description
 
@@ -101,11 +101,11 @@ Click **Run OCR on all files** on the left pane to get the text layout informati
 
 #### Apply labels to text
 
-Next, you'll create labels and apply them to the text elements that you want the model to recognize.  There are many key/value pairs in a document you would like to train a model to extract,  the first step is to label the value of the key/value pair.  For example, you see text `Charge: 1002.00` in a form, and you would like to label the value (1002.00),  so that AI model could be trained to extract such information on similar forms. 
+Next, you'll create labels and apply them to the text elements that you want the model to recognize.  There are many key-value pairs in a document you would like to train a model to extract,  the first step is to label the value of the key-value pair.  For example, you see text `Charge: 1002.00` in a form, and you would like to label the value (1002.00),  so that AI model could be trained to extract such information on similar forms.
 
-1. First, use the tags editor pane to create the tags (labels) you'd like to identify, e.g, "Cost". 
+1. First, use the tags editor pane to create the tags (labels) you'd like to identify, e.g, "Cost".
 
-2. In the main editor, click and drag to select one or multiple words from the highlighted text elements. e.g., "1002.00". Note: You cannot currently select text that spans across multiple pages.   
+2. In the main editor, click and drag to select one or multiple words from the highlighted text elements. e.g., "1002.00". Note: You cannot currently select text that spans across multiple pages.
 
 3. Click on the tag you want to apply, or press corresponding keyboard key (e.g., key '1' for the first tag). You can only apply one tag to each selected text element, and each tag can only be applied once per page.
 
@@ -123,7 +123,7 @@ You can specify tag type and format with tag contextual menu. The type and forma
 
 Click the Train icon on the left pane to open the Training page. Then click the **Train** button to begin training the model. Once the training process completes, you'll see the following information:
 
-* **Model ID** - The ID of the model that was created and trained. Each training call creates a new model with its own ID. Copy this string to a secure location; you'll need it if you want to do prediction calls through the REST API.
+* **Model ID** - The ID of the model that was created and trained. Each training call creates a new model with its own ID. Copy this string to a secure location; you'll need it if you want to do prediction/analysis calls through the REST API.
 * **Average Accuracy** - The model's average accuracy. You can improve model accuracy by labeling additional forms and training again to create a new model. We recommend starting by labeling five forms and adding more forms as needed.
 * The list of tags, and the estimated accuracy per tag.
 
@@ -135,7 +135,7 @@ Tip: You can also run the training process with a REST API call. To learn how to
 
 #### Analyze a form ####
 
-Click on the Predict icon on the left to test your model. Upload a form document that you haven't used in the training process. Then click the **Predict** button on the right to get key/value predictions for the form. The tool will highlight fields and its bounding boxes and will report the confidence of each value.
+Click on the Analyze icon on the left pane to open the Analyze page. Upload a form document that you haven't used in the training process. Then click the **Analyze** button on the right to get key-value predictions/analyses for the form. The tool will highlight fields and its bounding boxes and will report the confidence of each value.
 
 ![alt text](docs/images/analyze-form.png "Analyze Form")
 
@@ -157,9 +157,10 @@ When you want to resume your project, you first need to create a connection to t
 
 Finally, go to the main page (house icon) and click Open Cloud Project. Then select the blob storage connection, and select your project's .proj file. The application will load all of the project's settings because it has the security token.
 
-#### Keyboard Shortcuts ####
+#### Keyboard Shortcuts and useful tips ####
 
-Labeling tool allows a number of keyboard shortcuts to support accessibility and also sometimes make labeling easier and faster.
+Labeling tool allows a number of keyboard shortcuts to support accessibility and also sometimes make labeling easier and faster. You can view them by clicking the following icon on the right side of the title bar:\
+![alt text](docs/images/keyboard-shortcuts-icon.png "Keyboard shortcuts menu icon")
 
 Hotkeys of 1 through 0 and all letters are assigned to first 36 tags, after you selected one or multiple words from the highlighted text elements, by pressing these hotkeys, you can label the selected words.
 
@@ -170,6 +171,8 @@ Hotkeys of 1 through 0 and all letters are assigned to first 36 tags, after you 
 '-', '+' and '/' keys can be used to zoom in/out and reset zoom of editing page.
 
 Hold Alt key and click on tag name, user can change the tag's name.
+
+To delete all labels for a tag - select all labels for a tag on document then press 'delete' key.
 
 ## Collaborators
 

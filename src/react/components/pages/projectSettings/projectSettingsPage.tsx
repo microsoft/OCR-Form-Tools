@@ -6,7 +6,7 @@ import { Redirect } from "react-router";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { RouteComponentProps } from "react-router-dom";
-import { FontIcon } from "office-ui-fabric-react";
+import { FontIcon } from "@fluentui/react";
 import ProjectForm from "./projectForm";
 import { constants } from "../../../../common/constants";
 import { strings, interpolate } from "../../../../common/strings";
@@ -111,7 +111,7 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
     // Hide ProjectMetrics for private-preview
     public render() {
         return (
-            <div className="project-settings-page" id="pageProjectSettings">
+            <div className="project-settings-page skipToMainContent" id="pageProjectSettings">
                 <div className="project-settings-page-settings m-3">
                     <h3 className="flex-center">
                         <FontIcon iconName="DocumentManagement" />
@@ -130,7 +130,6 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
                             action={this.state.action} />
                     </div>
                 </div>
-                <SkipButton skipTo="pageProjectSettings">{strings.common.skipToMainContent}</SkipButton>
                 {this.state.isError &&
                     <Redirect to="/" />
                 }

@@ -7,8 +7,8 @@ import { strings } from "../../../../common/strings";
 import { ImageAsset } from "./imageAsset";
 import { PDFAsset } from "./pdfAsset";
 import { TiffAsset } from "./tiffAsset";
-import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
-import { Label } from "office-ui-fabric-react/lib/Label";
+import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
+import { Label } from "@fluentui/react/lib/Label";
 
 export interface IGenericContentSource {
     width: number;
@@ -29,7 +29,7 @@ export interface IAssetPreviewProps {
     /** Specifies whether the asset controls are enabled */
     controlsEnabled?: boolean;
     /** Event handler that fires when the asset has been loaded */
-    onLoaded?: (ContentSource: ContentSource) => void;
+    onLoaded?: (asset: IAsset, contentSource: ContentSource) => void;
     /** Event handler that fires when the asset has been activated (ex. Video resumes playing) */
     onActivated?: (contentSource: ContentSource) => void;
     /** Event handler that fires when the asset has been deactivated (ex. Canvas tools takes over) */
@@ -86,7 +86,7 @@ export class AssetPreview extends React.Component<IAssetPreviewProps, IAssetPrev
 
     public render() {
         const { loaded, hasError } = this.state;
-        const size = this.props.asset.size;
+        const { size } = this.props.asset;
         const classNames = ["asset-preview"];
         if (size) {
             if (size.width > size.height) {
@@ -159,12 +159,12 @@ export class AssetPreview extends React.Component<IAssetPreviewProps, IAssetPrev
      * Internal event handler for when the referenced asset has been loaded
      * @param contentSource The visual HTML element of the asset (img/video tag)
      */
-    private onAssetLoad = (contentSource: ContentSource) => {
+    private onAssetLoad = (asset: IAsset, contentSource: ContentSource) => {
         this.setState({
             loaded: true,
         }, () => {
             if (this.props.onLoaded) {
-                this.props.onLoaded(contentSource);
+                this.props.onLoaded(this.props.asset, contentSource);
             }
         });
     }

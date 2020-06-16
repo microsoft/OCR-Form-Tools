@@ -5,7 +5,7 @@ import React from "react";
 import { ITag } from "../../../../models/applicationState";
 import "./predictResult.scss";
 import { getPrimaryGreenTheme } from "../../../../common/themes";
-import { PrimaryButton } from "office-ui-fabric-react";
+import { PrimaryButton } from "@fluentui/react";
 
 export interface IPredictResultProps {
     predictions: { [key: string]: any };
@@ -59,6 +59,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
     }
 
     private renderItem = (item: any, key: any) => {
+        const postProcessedValue = this.getPostProcessedValue(item);
         const style: any = {
             marginLeft: "0px",
             marginRight: "0px",
@@ -77,9 +78,14 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                         {this.getPredictionTagContent(item)}
                     </div>
                 </li>
-                <li className="predictiontag-item-label">
-                    {item.text}
+                <li className={postProcessedValue ? "predictiontag-item-label mt-0" : "predictiontag-item-label mt-0 mb-1"}>
+                    {postProcessedValue ? "text: " + item.text : item.text}
                 </li>
+                {postProcessedValue &&
+                    <li className="predictiontag-item-label mb-1">
+                        {postProcessedValue}
+                    </li>
+                }
             </div>
         );
     }
@@ -109,25 +115,22 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         );
     }
 
-    // Helper: Sanitize the results of prediction in order to align it with API from the service
-    private sanitizeData = (result): {} => {
-        if (result.documents) {
-            const fields: {} = result.documentResults[0].fields;
-            // tslint:disable-next-line: forin
-            for (const i in fields) {
-                const obj = fields[i];
-                if (obj !== null) {
-                    if (obj.hasOwnProperty("displayOrder")) {
-                        delete obj.displayOrder;
+    // Helper: Sanitizes the results of prediction in order to align it with API from the service
+    private sanitizeData = (data: any): void => {
+        if (data.hasOwnProperty("analyzeResult")) {
+            const fields: {} = data.analyzeResult.documentResults[0].fields;
+            for (const key in fields) {
+                if (fields[key] !== null) {
+                    if (fields[key].hasOwnProperty("displayOrder")) {
+                        delete fields[key].displayOrder;
                     }
-                    if (obj.hasOwnProperty("fieldName")) {
-                        delete obj.fieldName;
+                    if (fields[key].hasOwnProperty("fieldName")) {
+                        delete fields[key].fieldName;
                     }
                 }
             }
         }
-        console.log("sanitized data:", result);
-        return result;
+        return data;
     }
 
     private triggerDownload = (): void => {
@@ -163,6 +166,45 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
     private onPredictionMouseLeave = (prediction: any) => {
         if (this.props.onPredictionMouseLeave) {
             this.props.onPredictionMouseLeave(prediction);
+        }
+    }
+
+    private getPostProcessedValue = (prediction: any) => {
+        if (!prediction.type || !prediction.text) {
+            return null;
+        }
+        const predictionType = prediction.type;
+        const predictionText = prediction.text;
+        let postProcessedValue;
+        let valueType;
+        switch (predictionType) {
+            case "string":
+                valueType = "valueString";
+                postProcessedValue =  prediction.valueString;
+                break;
+            case "date":
+                valueType = "valueDate";
+                postProcessedValue =  prediction.valueDate;
+                break;
+            case "number":
+                valueType = "valueNumber";
+                postProcessedValue =  prediction.valueNumber?.toString();
+                break;
+            case "integer":
+                valueType = "valueInteger";
+                postProcessedValue =  prediction.valueInteger?.toString();
+                break;
+            case "time":
+                valueType = "valueTime";
+                postProcessedValue =  prediction.valueTime;
+                break;
+            default:
+                return null;
+        }
+        if (typeof postProcessedValue === "string" && predictionText !== postProcessedValue) {
+            return valueType + ": " + postProcessedValue;
+        } else {
+            return null;
         }
     }
 }

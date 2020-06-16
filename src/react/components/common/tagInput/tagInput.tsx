@@ -11,7 +11,7 @@ import {
     ICustomizations,
     Spinner,
     SpinnerSize,
-} from "office-ui-fabric-react";
+} from "@fluentui/react";
 import { strings } from "../../../../common/strings";
 import { getDarkTheme } from "../../../../common/themes";
 import { AlignPortal } from "../align/alignPortal";
@@ -23,6 +23,7 @@ import "../condensedList/condensedList.scss";
 import TagInputItem, { ITagInputItemProps, ITagClickProps } from "./tagInputItem";
 import TagInputToolbar from "./tagInputToolbar";
 import { toast } from "react-toastify";
+import debounce from 'lodash/debounce';
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../../common/tagColors.json");
 
@@ -116,6 +117,11 @@ function isNameEqual(x: string, y: string) {
 }
 
 export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
+    debouncedSetTags: any;
+    constructor(props: Readonly<ITagInputProps>) {
+        super(props);
+        this.debouncedSetTags = debounce(this.setTags, 3000);
+    }
 
     public state: ITagInputState = {
         tags: this.props.tags || [],
@@ -263,6 +269,10 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         this.props.onLockedTagsChange(lockedTags);
     }
 
+    private setTags = (tags: ITag[]) => {
+        this.props.onChange(tags)
+    }
+
     private onReOrder = (tag: ITag, displacement: number) => {
         if (!tag) {
             return;
@@ -277,7 +287,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         tags.splice(newIndex, 0, tag);
         this.setState({
             tags,
-        }, () => this.props.onChange(tags));
+        }, () => this.debouncedSetTags(tags));
     }
 
     private handleColorChange = (color: string) => {
@@ -463,19 +473,41 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             let deselect = selected && oldTagOperation === TagOperationMode.None;
 
             // Only fire click event if a region is selected
-            if (this.props.selectedRegions &&
-                this.props.selectedRegions.length > 0 &&
-                this.props.onTagClick) {
-                deselect = false;
-                this.props.onTagClick(tag);
+            const { selectedRegions, onTagClick, labels } = this.props;
+            if (selectedRegions && selectedRegions.length && onTagClick) {
+                const { category } = selectedRegions[0];
+                const { format, type, documentCount, name } = tag;
+                const tagCategory = this.getTagCategory(type);
+                if (tagCategory === category ||
+                    (documentCount === 0 && type === FieldType.String && format === FieldFormat.NotSpecified)) {
+                    if (category === "checkbox" && this.labelAssigned(labels, name)) {
+                        toast.warn(strings.tags.warnings.checkboxPerTagLimit);
+                        return;
+                    }
+                    onTagClick(tag);
+                    deselect = false;
+                } else {
+                    toast.warn(strings.tags.warnings.notCompatibleTagType);
+                }
             }
-
             this.setState({
                 selectedTag: deselect ? null : tag,
                 tagOperation,
             });
+        }
+    }
 
-       }
+    private labelAssigned = (labels, name): boolean => {
+         return labels.find((label) => label.label === name ? true : false);
+    }
+
+    private getTagCategory = (tagType: string) => {
+        switch (tagType) {
+            case FieldType.SelectionMark:
+                return "checkbox";
+            default:
+                return "text";
+        }
     }
 
     private onSearchKeyDown = (event: KeyboardEvent): void => {
@@ -513,6 +545,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 color: getNextColor(this.state.tags),
                 type: FieldType.String,
                 format: FieldFormat.NotSpecified,
+                documentCount: 0,
         };
         if (newTag.name.length && ![...this.state.tags, newTag].containsDuplicates((t) => t.name)) {
             this.addTag(newTag);
@@ -610,17 +643,28 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         return menuItems;
     }
 
+    private isTypeCompatibleWithTag = (tag, type) => {
+        // If free tag we can assign any type
+        if (tag && tag.documentCount <= 0) {
+            return true;
+        }
+        const tagType = this.getTagCategory(tag.type);
+        const menuItemType = this.getTagCategory(type);
+        return tagType === menuItemType;
+    }
+
     private getTypeSubMenuItems = (): IContextualMenuItem[] => {
         const tag = this.state.selectedTag;
         const types = Object.values(FieldType);
-
         return types.map((type) => {
+            const isCompatible = this.isTypeCompatibleWithTag(tag, type);
             return {
                 key: type,
                 text: type,
-                canCheck: true,
+                canCheck: isCompatible,
                 isChecked: type === tag.type,
                 onClick: this.onTypeSelect,
+                disabled: !isCompatible,
             } as IContextualMenuItem;
         });
     }

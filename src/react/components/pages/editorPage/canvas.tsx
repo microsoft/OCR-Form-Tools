@@ -2,9 +2,9 @@
 // Licensed under the MIT license.
 
 import React, { ReactElement } from "react";
-import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
-import { Label } from "office-ui-fabric-react/lib/Label";
-import { IconButton } from "office-ui-fabric-react/lib/Button";
+import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
+import { Label } from "@fluentui/react/lib/Label";
+import { IconButton } from "@fluentui/react/lib/Button";
 import {
     EditorMode, IAssetMetadata,
     IProject, IRegion, RegionType,
@@ -33,7 +33,7 @@ import HtmlFileReader from "../../../../common/htmlFileReader";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./canvasCommandBar";
-import { TooltipHost, ITooltipHostStyles } from "office-ui-fabric-react";
+import { TooltipHost, ITooltipHostStyles } from "@fluentui/react";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -45,11 +45,14 @@ export interface ICanvasProps extends React.Props<Canvas> {
     lockedTags: string[];
     hoveredLabel: ILabel;
     children?: ReactElement<AssetPreview>;
+    setTableToView?: (tableToView: object, tableToViewId: string) => void;
+    closeTableView?: (state: string) => void;
     onAssetMetadataChanged?: (assetMetadata: IAssetMetadata) => void;
     onSelectedRegionsChanged?: (regions: IRegion[]) => void;
     onCanvasRendered?: (canvas: HTMLCanvasElement) => void;
     onRunningOCRStatusChanged?: (isRunning: boolean) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
+    runOcrForAllDocs?: (runForAllDocs:boolean) => void;
 }
 
 export interface ICanvasState {
@@ -129,7 +132,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private selectedRegionIds: string[] = [];
 
-    private regionOrders: Array<Record<string, number>> = [];
+    private regionOrders: Record<string, number>[] = [];
 
     private regionOrderById: string[][] = [];
 
@@ -138,6 +141,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private applyTagFlag: boolean = false;
 
     private pendingFlag: boolean = false;
+
+    private tableIDToIndexMap: object;
 
     public componentDidMount = async () => {
         this.ocrService = new OCRService(this.props.project);
@@ -208,6 +213,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleZoomIn={this.handleCanvasZoomIn}
                     handleZoomOut={this.handleCanvasZoomOut}
                     layers={this.state.layers}
+                    handleRunOcr={this.runOcr}
+                    handleRunOcrForAllDocuments={this.runOcrForAllDocuments}
                 />
                 <ImageMap
                     ref={(ref) => this.imageMap = ref}
@@ -281,8 +288,18 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         );
     }
 
+    private runOcrForAllDocuments = () => {
+        this.setState({ocrStatus: OcrStatus.runningOCR})
+        this.props.runOcrForAllDocs(true);
+    }
+
     public updateSize() {
         this.imageMap.updateSize();
+    }
+
+    public setTableState(viewedTableId, state) {
+        this.imageMap.getTableBorderFeatureByID(viewedTableId).set("state", state);
+        this.imageMap.getTableIconFeatureByID(viewedTableId).set("state", state);
     }
 
     /**
@@ -315,7 +332,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
 
         if (selectedRegions.length === 1 && selectedRegions[0].category === FeatureCategory.Checkbox) {
-            this.setTagType(inputTag[0], FieldType.Checkbox);
+            this.setTagType(inputTag[0], FieldType.SelectionMark);
         }
 
         this.redrawAllFeatures();
@@ -329,9 +346,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
         const newTag = {
             ...tag,
+            documentCount: 1,
             type : fieldType,
             format : FieldFormat.NotSpecified,
-        };
+        } as ITag;
         this.props.onTagChanged(tag, newTag);
     }
 
@@ -558,7 +576,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         return feature;
     }
 
-    private createBoundingBoxVectorTable = (boundingBox, imageExtent, ocrExtent, page, rows, columns) => {
+    private createBoundingBoxVectorTable = (boundingBox, imageExtent, ocrExtent, page, rows, columns, index) => {
         const coordinates: any[] = [];
         const polygonPoints: number[] = [];
         const imageWidth = imageExtent[2] - imageExtent[0];
@@ -577,6 +595,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             polygonPoints.push(boundingBox[i + 1] / ocrHeight);
         }
         const tableID = this.createRegionIdFromBoundingBox(polygonPoints, page);
+        this.tableIDToIndexMap[tableID] = index;
         const tableFeatures = {};
         tableFeatures["border"] = new Feature({
             geometry: new Polygon([coordinates]),
@@ -810,24 +829,23 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (category === FeatureCategory.Checkbox ||
             (category === FeatureCategory.Label && this.state.currentAsset.regions
             .find((r) => r.id === regionId).category === FeatureCategory.Checkbox)) {
-                selectedRegions.map((region) => this.removeFromSelectedRegions(region.id));
+                selectedRegions.forEach((region) => this.removeFromSelectedRegions(region.id));
         } else if (category === FeatureCategory.Text ||
             (category === FeatureCategory.Label && this.state.currentAsset.regions
             .find((r) => r.id === regionId).category === FeatureCategory.Text)) {
                 selectedRegions.filter((region) => region.category === FeatureCategory.Checkbox)
-                    .map((region) => this.removeFromSelectedRegions(region.id));
+                    .forEach((region) => this.removeFromSelectedRegions(region.id));
         }
     }
 
     private handleTableIconFeatureSelect = () => {
         if (this.state.hoveringFeature != null) {
             const tableState = this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).get("state");
-            if (tableState === "hovering") {
-                this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).set("state", "selected");
-                this.imageMap.getTableIconFeatureByID(this.state.hoveringFeature).set("state", "selected");
+            if (tableState === "hovering" || tableState === "rest") {
+                this.props.setTableToView(this.state.ocrForCurrentPage.pageResults
+                    .tables[this.tableIDToIndexMap[this.state.hoveringFeature]], this.state.hoveringFeature);
             } else {
-                this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).set("state", "hovering");
-                this.imageMap.getTableIconFeatureByID(this.state.hoveringFeature).set("state", "hovering");
+                this.props.closeTableView("hovering");
             }
         }
     }
@@ -928,14 +946,19 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         });
     }
 
-    private loadOcr = async () => {
+    private runOcr = () => {
+        this.loadOcr(true);
+    }
+
+    private loadOcr = async (force?: boolean) => {
         const asset = this.state.currentAsset.asset;
+
         if (asset.isRunningOCR) {
             // Skip loading OCR this time since it's running. This will be triggered again once it's finished.
             return;
         }
         try {
-            const ocr = await this.ocrService.getRecognizedText(asset.path, asset.name, this.setOCRStatus);
+            const ocr = await this.ocrService.getRecognizedText(asset.path, asset.name, this.setOCRStatus, force);
             if (asset.id === this.state.currentAsset.asset.id) {
                 // since get OCR is async, we only set currentAsset's OCR
                 this.setState({
@@ -1022,12 +1045,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private nextPage = async () => {
         if ((this.state.pdfFile !== null || this.state.tiffImages.length !== 0)
             && this.state.currentPage < this.state.numPages) {
+            this.props.closeTableView("rest");
             await this.goToPage(this.state.currentPage + 1);
         }
     }
 
     private prevPage = async () => {
         if ((this.state.pdfFile !== null || this.state.tiffImages.length !== 0) && this.state.currentPage > 1) {
+            this.props.closeTableView("rest");
             await this.goToPage(this.state.currentPage - 1);
         }
     }
@@ -1417,7 +1442,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const ocrReadResults = (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.readResults));
         const ocrPageResults =  (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.pageResults));
         const imageExtent = this.imageMap.getImageExtent();
-        ocrReadResults.map((ocr) => {
+        ocrReadResults.forEach((ocr) => {
             const ocrExtent = [0, 0, ocr.width, ocr.height];
             const pageIndex = ocr.page - 1;
             this.regionOrders[pageIndex] = {};
@@ -1437,11 +1462,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     }
                 });
             }
-            const checkboxes = ocrPageResults && ocrPageResults[pageIndex] && ocrPageResults[pageIndex].checkboxes;
+            const checkboxes = ocr.selectionMarks
+                || (ocrPageResults && ocrPageResults[pageIndex] && ocrPageResults[pageIndex].checkboxes);
             if (checkboxes) {
                 this.addCheckboxToRegionOrder(checkboxes, pageIndex, order, imageExtent, ocrExtent);
             }
-            return ocr;
         });
     }
 
@@ -1468,53 +1493,64 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const ocrReadResults = this.state.ocrForCurrentPage["readResults"];
         const ocrPageResults = this.state.ocrForCurrentPage["pageResults"];
         const imageExtent = this.imageMap.getImageExtent();
-        const ocrExtent = [0, 0, ocrReadResults.width, ocrReadResults.height];
-        if (ocrReadResults.lines) {
-            ocrReadResults.lines.forEach((line) => {
-                if (line.words) {
-                    line.words.forEach((word) => {
-                        if (this.shouldDisplayOcrWord(word.text)) {
-                            textFeatures.push(this.createBoundingBoxVectorFeature(
-                                word.text, word.boundingBox, imageExtent, ocrExtent, ocrReadResults.page));
-                        }
-                    });
-                }
-            });
-        }
-        if (ocrPageResults && ocrPageResults.tables) {
-            ocrPageResults.tables.forEach((table) => {
-                if (table.cells && table.columns && table.rows) {
-                    const tableBoundingBox = this.getTableBoundingBox(table.cells.map((cell) => cell.boundingBox));
-                    const createdTableFeatures = this.createBoundingBoxVectorTable(
-                        tableBoundingBox,
-                        imageExtent,
-                        ocrExtent,
-                        ocrPageResults.page, table.rows, table.columns);
-                    tableBorderFeatures.push(createdTableFeatures["border"]);
-                    tableIconFeatures.push(createdTableFeatures["icon"]);
-                    tableIconBorderFeatures.push(createdTableFeatures["iconBorder"]);
-                }
-            });
-        }
+        if (ocrReadResults) {
+            const ocrExtent = [0, 0, ocrReadResults.width, ocrReadResults.height];
+            if (ocrReadResults.lines) {
+                ocrReadResults.lines.forEach((line) => {
+                    if (line.words) {
+                        line.words.forEach((word) => {
+                            if (this.shouldDisplayOcrWord(word.text)) {
+                                textFeatures.push(this.createBoundingBoxVectorFeature(
+                                    word.text, word.boundingBox, imageExtent, ocrExtent, ocrReadResults.page));
+                            }
+                        });
+                    }
+                });
+            }
+            this.tableIDToIndexMap = {};
+            if (ocrPageResults && ocrPageResults.tables) {
+                ocrPageResults.tables.forEach((table, index) => {
+                    if (table.cells && table.columns && table.rows) {
+                        const tableBoundingBox = this.getTableBoundingBox(table.cells.map((cell) => cell.boundingBox));
+                        const createdTableFeatures = this.createBoundingBoxVectorTable(
+                            tableBoundingBox,
+                            imageExtent,
+                            ocrExtent,
+                            ocrPageResults.page,
+                            table.rows,
+                            table.columns,
+                            index);
+                        tableBorderFeatures.push(createdTableFeatures["border"]);
+                        tableIconFeatures.push(createdTableFeatures["icon"]);
+                        tableIconBorderFeatures.push(createdTableFeatures["iconBorder"]);
+                    }
+                });
+            }
 
-        if (ocrPageResults && ocrPageResults.checkboxes) {
-            ocrPageResults.checkboxes.forEach((checkbox) => {
-                checkboxFeatures.push(this.createBoundingBoxVectorFeature(
-                    checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, ocrPageResults.page));
-            });
-        }
+            if (ocrReadResults && ocrReadResults.selectionMarks) {
+                ocrReadResults.selectionMarks.forEach((checkbox) => {
+                    checkboxFeatures.push(this.createBoundingBoxVectorFeature(
+                        checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, ocrReadResults.page));
+                });
+            } else if (ocrPageResults && ocrPageResults.checkboxes) {
+                ocrPageResults.checkboxes.forEach((checkbox) => {
+                    checkboxFeatures.push(this.createBoundingBoxVectorFeature(
+                        checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, ocrPageResults.page));
+                });
+            }
 
-        if (tableBorderFeatures.length > 0 && tableBorderFeatures.length === tableIconFeatures.length
-            && tableBorderFeatures.length === tableIconBorderFeatures.length) {
-            this.imageMap.addTableBorderFeatures(tableBorderFeatures);
-            this.imageMap.addTableIconFeatures(tableIconFeatures);
-            this.imageMap.addTableIconBorderFeatures(tableIconBorderFeatures);
-        }
-        if (textFeatures.length > 0) {
-            this.imageMap.addFeatures(textFeatures);
-        }
-        if (checkboxFeatures.length > 0) {
-            this.imageMap.addCheckboxFeatures(checkboxFeatures);
+            if (tableBorderFeatures.length > 0 && tableBorderFeatures.length === tableIconFeatures.length
+                && tableBorderFeatures.length === tableIconBorderFeatures.length) {
+                this.imageMap.addTableBorderFeatures(tableBorderFeatures);
+                this.imageMap.addTableIconFeatures(tableIconFeatures);
+                this.imageMap.addTableIconBorderFeatures(tableIconBorderFeatures);
+            }
+            if (textFeatures.length > 0) {
+                this.imageMap.addFeatures(textFeatures);
+            }
+            if (checkboxFeatures.length > 0) {
+                this.imageMap.addCheckboxFeatures(checkboxFeatures);
+            }
         }
     }
 
@@ -1547,7 +1583,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const newRegion = {
             id: this.createRegionIdFromBoundingBox(boundingBox, pangeNumber),
             type: RegionType.Polygon,
-            category: tag.type === FieldType.Checkbox ? FeatureCategory.Checkbox : FeatureCategory.Text,
+            category: tag.type === FieldType.SelectionMark ? FeatureCategory.Checkbox : FeatureCategory.Text,
             tags: [tagName],
             boundingBox: {
                 height: bottom - top,
@@ -1669,7 +1705,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const prevType = prevTypes[name];
             const type = types[name];
             if (prevType !== type
-                && (prevType === FieldType.Checkbox || type === FieldType.Checkbox)) {
+                && (prevType === FieldType.SelectionMark || type === FieldType.SelectionMark)) {
                 // some tag change between checkbox and text
                 return true;
             }

@@ -5,7 +5,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
-import { FontIcon, PrimaryButton, Spinner, SpinnerSize, TextField} from "office-ui-fabric-react";
+import { FontIcon, PrimaryButton, Spinner, SpinnerSize, TextField} from "@fluentui/react";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
@@ -108,7 +108,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         const currTrainRecord = this.state.currTrainRecord;
 
         return (
-            <div className="train-page" id="pageTrain">
+            <div className="train-page skipToMainContent" id="pageTrain">
                 <main className="train-page-main">
                     {currTrainRecord &&
                         <div>
@@ -197,7 +197,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                     when={this.state.isTraining}
                     message={"A training operation is currently in progress, are you sure you want to leave?"}
                 />
-                <SkipButton skipTo="pageTrain">{strings.common.skipToMainContent}</SkipButton>
             </div>
         );
     }
@@ -370,7 +369,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private showCheckboxPreview = (project: IProject) => {
-        if (project.tags.find((t) => t.type === FieldType.Checkbox)) {
+        if (project.tags.find((t) => t.type === FieldType.SelectionMark)) {
             this.setState({
                 hasCheckbox: true,
             });

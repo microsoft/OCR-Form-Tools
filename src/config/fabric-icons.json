@@ -35,6 +35,14 @@
       "unicode": "E710"
     },
     {
+      "name": "Cancel",
+      "unicode": "E711"
+    },
+    {
+      "name": "More",
+      "unicode": "E712"
+    },
+    {
       "name": "Settings",
       "unicode": "E713"
     },
@@ -129,6 +137,10 @@
     {
       "name": "Info",
       "unicode": "E946"
+    },
+    {
+      "name": "Documentation",
+      "unicode": "EC17"
     },
     {
       "name": "AddTo",

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license
 
-import { registerIcons as registerIcons_ } from "office-ui-fabric-react";
+import { registerIcons as registerIcons_ } from "@fluentui/react";
 
 export function registerIcons() {
     registerIcons_({
@@ -57,6 +57,11 @@ export function registerIcons() {
             Filter: "\uE71C",
             Table: "\uED86",
             MapLayers: "\uE81E",
+            BookAnswers: "\uF8A4",
+            Cancel: "\uE711",
+            Refresh: "\uE72C",
+            Documentation: "\uEC17",
+            More: "\uE712",
         },
     });
 }

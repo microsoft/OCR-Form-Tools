@@ -125,9 +125,9 @@ export const spanish: IAppStrings = {
         backEndNotAvailable: "La función de casilla de verificación funcionará en la versión futura del servicio de reconocimiento de formularios, manténgase atento.",
     },
     predict: {
-        title: "Predecir",
-        uploadFile: "Subir archivo",
-        inProgress: "Predicción en progreso ...",
+        title: "Analizar",
+        uploadFile: "Cargar archivo y ejecutar análisis",
+        inProgress: "Análisis en curso...",
         downloadScript: "Usar script",
         defaultLocalFileInput: "Busca un archivo...",
         defaultURLInput: "Pegar o escribir URL...",
@@ -173,6 +173,8 @@ export const spanish: IAppStrings = {
             existingName: "Nombre de etiqueta ya existe. Elige otro nombre",
             emptyName: "El nombre de etiqueta no puede ser vacío",
             unknownTagName: "Desconocido",
+            notCompatibleTagType: "El tipo de etiqueta no es compatible con esta función",
+            checkboxPerTagLimit: "No se puede asignar más de una casilla de verificación por etiqueta",
         },
         toolbar: {
             add: "Agregar nueva etiqueta",
@@ -289,6 +291,12 @@ export const spanish: IAppStrings = {
             title: "Abrir/cerrar el menú de ayuda",
             escape: "Escapar el menú de ayuda",
         },
+        assetWarning: {
+            incorrectFileExtension: {
+                attention: "¡Atención!",
+                text: "-- la extensión de este archivo no corresponde al tipo MIME. Por favor revise el archivo:",
+            },
+        },
         assetError: "No se puede mostrar el activo",
         tags: {
             hotKey: {
@@ -311,6 +319,32 @@ export const spanish: IAppStrings = {
                 title: "Borrar Regiones",
                 confirmation: "¿Está seguro que quiere borrar todas las regiones?",
             },
+            canvasCommandBar: {
+                items: {
+                    layers:{
+                        text: "Capas",
+                        subMenuItems: {
+                            text: "Texto",
+                            tables: "Tablas",
+                            selectionMarks: "Marcas de selección (vista previa)",
+                            labels: "Etiquetas"
+                        },
+                    }
+                },
+                farItems: {
+                    zoom: {
+                        zoomOut: "Alejar",
+                        zoomIn: "Acercarse",
+                    },
+                    additionalActions: {
+                        text: "Acciones adicionales",
+                        subIMenuItems: {
+                            runOcrOnCurrentDocument: "Ejecutar OCR en el documento actual",
+                            runOcrOnAllDocuments: "Ejecute OCR en todos los documentos",
+                        }
+                    }
+                }
+            }
         },
         messages: {
             enforceTaggedRegions: {
@@ -322,6 +356,73 @@ export const spanish: IAppStrings = {
     },
     profile: {
         settings: "Configuración de Perfíl",
+    },
+    shortcuts: {
+        squareBrackets: {
+            keys: {
+                leftBracket: "[",
+                rightBracket: "]",
+            },
+            description: {
+                prevWord: "Mover la selección a la palabra anterior",
+                nextWord: "Mover la selección a la siguiente palabra",
+            },
+        },
+        greaterAndLessThan: {
+            keys: {
+                lessThan: "<",
+                greaterThan: ">",
+                },
+            description: {
+                prevPage: "Ir a la página anterior en documentos de varias páginas",
+                nextPage: "Ir a la página siguiente en documentos de varias páginas",
+            },
+        },
+        zoomKeys: {
+            keys: {
+                minus: "-",
+                plus: "=",
+                slash: "/",
+                },
+            description: {
+                in: "Acercarse",
+                out: "Disminuir el zoom",
+                reset: "Restablecer zoom",
+            },
+        },
+        deleteAndBackspace: {
+            keys: {
+                delete: "Delete",
+                backSpace: "Backspace",
+                },
+            description: {
+                delete: "Eliminar selección del mapa del documento o clave de selección de una etiqueta",
+                backSpace: "Eliminar selección del mapa del documento o clave de selección de una etiqueta",
+                },
+        },
+        tips: {
+            quickLabeling: {
+                name: "Etiquetado rápido",
+            description: "Las teclas de acceso rápido de 1 a 0 y todas las letras se asignan a las primeras 36 etiquetas, después de seleccionar una o varias palabras de los elementos de texto resaltados, al presionar estas teclas de acceso rápido, puede etiquetar las palabras seleccionadas.",
+            },
+            renameTag: {
+                name: "Rename Tag",
+                description: "Mantenga presionada la tecla Alt y haga clic en el nombre de la etiqueta, el usuario puede cambiar el nombre de la etiqueta.",
+            },
+            multipleWordSelection: {
+                name: "Selección de palabras múltiples",
+                description: "Haga clic y mantenga presionada la palabra, luego desplace el cursor sobre otras palabras para seleccionar varias palabras a la vez.",
+            },
+            deleteAllLabelsForTag: {
+                name: "Eliminar información asociada a una etiqueta",
+                description: "Seleccione todas las etiquetas para una etiqueta en el documento y presione la tecla 'delete'"
+            }
+        },
+        headers: {
+            keyboardShortcuts: "Atajos de teclado",
+            otherTips: "Otros consejos",
+        },
+        iconTitle: "Atajos de teclado y consejos útiles"
     },
     errors: {
         unknown: {
@@ -439,6 +540,10 @@ export const spanish: IAppStrings = {
             title: "",
             message: "",
         },
+        requestSendError: {
+            title: "solicitud enviar error",
+            message: "Error al enviar solicitud a Azure Blob Container. Problemas comunes: \n • SAS URI no válida \n • Cross-Origin Resource Sharing (CORS) no está configurado del lado del servidor \n • Error de red",
+        }
     },
 };
 

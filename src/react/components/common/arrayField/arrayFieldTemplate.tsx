@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import { ArrayFieldTemplateProps } from "react-jsonschema-form";
-import { FontIcon, PrimaryButton } from "office-ui-fabric-react";
+import { FontIcon, PrimaryButton } from "@fluentui/react";
 import { strings } from "../../../../common/strings";
 import { getPrimaryBlueTheme, getPrimaryGreenTheme } from "../../../../common/themes";
 
@@ -15,7 +15,7 @@ export function ArrayFieldTemplate(props: ArrayFieldTemplateProps) {
             document.getElementById("addSecurityToken").focus();
             setFocusFlag(false);
         }
-    });
+    }, [focusFlag]);
 
     return (
         <div>

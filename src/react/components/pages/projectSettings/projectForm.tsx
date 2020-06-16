@@ -14,7 +14,7 @@ import "vott-react/dist/css/tagsInput.css";
 import { IConnectionProviderPickerProps } from "../../common/connectionProviderPicker/connectionProviderPicker";
 import { ProjectSettingAction } from "./projectSettingAction";
 import { ProtectedInput } from "../../common/protectedInput/protectedInput";
-import { PrimaryButton } from "office-ui-fabric-react";
+import { PrimaryButton } from "@fluentui/react";
 import { getPrimaryGreenTheme, getPrimaryGreyTheme } from "../../../../common/themes";
 
 // tslint:disable-next-line:no-var-requires
@@ -175,6 +175,17 @@ export default class ProjectForm extends React.Component<IProjectFormProps, IPro
             Object.keys(project.sourceConnection).length === 0) {
             errors.sourceConnection.addError("is a required property");
         }
+        if (project.apiUriBase && errors.apiUriBase) {
+            const urlRegex = new RegExp(/^(\s*)?(https?:\/\/)/);
+            if (urlRegex.test(project.apiUriBase)) {
+                const urlRegexOnlyProtocalAndDomain = new RegExp(/^(\s*)?(https?:\/\/)([^\s\/])+(\/)?(\s*)?$/);
+                if (!urlRegexOnlyProtocalAndDomain.test(project.apiUriBase)) {
+                    errors.apiUriBase.addError("should contain only protocol and domain name");
+                }
+            } else {
+                errors.apiUriBase.addError("should match URI format");
+            }
+        }
 
         if (this.state.classNames.indexOf("was-validated") === -1) {
             this.setState({
@@ -194,10 +205,11 @@ export default class ProjectForm extends React.Component<IProjectFormProps, IPro
     private onFormSubmit(args: ISubmitEvent<IProject>) {
         const project: IProject = {
             ...args.formData,
+            name: args.formData.name.replace(/\s+/g, " ").trim(),
             sourceConnection: args.formData.sourceConnection,
             folderPath: this.normalizeFolderPath(args.formData.folderPath),
+            apiUriBase: args.formData.apiUriBase.trim(),
         };
-        project.name = project.name.replace(/\s+/g, " ").trim();
         this.props.onSubmit(project);
     }
 

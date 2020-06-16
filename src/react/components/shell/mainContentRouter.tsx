@@ -8,14 +8,16 @@ import AppSettingsPage from "../pages/appSettings/appSettingsPage";
 import TrainPage from "../pages/train/trainPage";
 import ConnectionPage from "../pages/connections/connectionsPage";
 import EditorPage from "../pages/editorPage/editorPage";
-import PredictPage from "../pages/predict/predictPage";
 import ProjectSettingsPage from "../pages/projectSettings/projectSettingsPage";
 import ModelComposePage from "../pages/modelCompose/modelCompose";
+import { PredictPageRoute } from './preditcPageRoute';
+
 
 /**
  * @name - Main Content Router
  * @description - Controls main content pane based on route
  */
+
 export function MainContentRouter() {
     return (
         <div className="app-content text-light">
@@ -28,10 +30,11 @@ export function MainContentRouter() {
                 <Route path="/projects/create" component={ProjectSettingsPage} />
                 <Route path="/projects/:projectId/modelcompose" component={ModelComposePage} />
                 <Route path="/projects/:projectId/train" component={TrainPage} />
-                <Route path="/projects/:projectId/predict" component={PredictPage} />
+                <Route path="/projects/:projectId/predict" />
                 <Route path="/projects/:projectId/settings" component={ProjectSettingsPage} />
                 <Route component={HomePage} />
             </Switch>
+            <PredictPageRoute />
         </div>
     );
 }

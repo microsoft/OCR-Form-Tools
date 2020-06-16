@@ -124,9 +124,9 @@ export const english: IAppStrings = {
         backEndNotAvailable: "Checkbox feature will work in future version of Form Recognizer service, please stay tuned.",
     },
     predict: {
-        title: "Predict",
-        uploadFile: "Upload image and run prediction",
-        inProgress: "Prediction in progress...",
+        title: "Analyze",
+        uploadFile: "Upload image and run analysis",
+        inProgress: "Analysis in progress...",
         downloadScript: "Use script",
         defaultLocalFileInput: "Browse for a file...",
         defaultURLInput: "Paste or type URL...",
@@ -172,6 +172,8 @@ export const english: IAppStrings = {
             existingName: "Tag name already exists. Choose another name",
             emptyName: "Cannot have an empty tag name",
             unknownTagName: "Unknown",
+            notCompatibleTagType: "Tag type is not compatible with this feature",
+            checkboxPerTagLimit: "Cannot assign more than one checkbox per tag",
         },
         toolbar: {
             add: "Add new tag",
@@ -287,6 +289,12 @@ export const english: IAppStrings = {
             title: "Toggle Help Menu",
             escape: "Escape Help Menu",
         },
+        assetWarning: {
+            incorrectFileExtension: {
+                attention: "Attention!",
+                text: "- extension of this file doesn't correspond MIME type. Please check file:",
+            },
+        },
         assetError: "Unable to load asset",
         tags: {
             hotKey: {
@@ -308,6 +316,32 @@ export const english: IAppStrings = {
                 title: "Remove All Regions",
                 confirmation: "Are you sure you want to remove all regions?",
             },
+            canvasCommandBar: {
+                items: {
+                    layers: {
+                        text: "Layers",
+                        subMenuItems: {
+                            text: "Text",
+                            tables: "Tables",
+                            selectionMarks: "Selection Marks (Preview)",
+                            labels: "Labels"
+                        },
+                    }
+                },
+                farItems: {
+                    zoom: {
+                        zoomOut: "Zoom out",
+                        zoomIn: "Zoom in",
+                    },
+                    additionalActions: {
+                        text: "Additional actions",
+                        subIMenuItems: {
+                            runOcrOnCurrentDocument: "Run OCR on current document",
+                            runOcrOnAllDocuments: "Run OCR on all documents",
+                        }
+                    }
+                }
+            }
         },
         messages: {
             enforceTaggedRegions: {
@@ -319,6 +353,73 @@ export const english: IAppStrings = {
     },
     profile: {
         settings: "Profile Settings",
+    },
+    shortcuts: {
+        squareBrackets: {
+            keys: {
+                leftBracket: "[",
+                rightBracket: "]",
+            },
+            description: {
+                prevWord: "Select previous word",
+                nextWord: "Select next word",
+            },
+        },
+        greaterAndLessThan: {
+            keys: {
+                lessThan: "<",
+                greaterThan: ">",
+                },
+            description: {
+                prevPage: "Go to previous page",
+                nextPage: "Go to next page",
+            },
+        },
+        zoomKeys: {
+            keys: {
+                minus: "-",
+                plus: "=",
+                slash: "/",
+                },
+            description: {
+                in: "Zoom in",
+                out: "Zoom out",
+                reset: "Reset zoom",
+            },
+        },
+        deleteAndBackspace: {
+            keys: {
+                delete: "Delete",
+                backSpace: "Backspace",
+                },
+            description: {
+                delete: "Remove selection and delete labels of selected words",
+                backSpace: "Remove selection and delete labels of selected words",
+                },
+        },
+        tips: {
+            quickLabeling: {
+                name: "Quick labeling",
+            description: "Hotkeys 1 through 0 and all letters are assigned to first 36 tags. After selecting one or multiple words, press tag's assigned hotkey.",
+            },
+            renameTag: {
+                name: "Rename tag",
+                description: "Hold Alt key and click on tag name.",
+            },
+            multipleWordSelection: {
+                name: "Select multiple words",
+                description: "Click and hold on word. Then, hover over additional words.",
+            },
+            deleteAllLabelsForTag: {
+                name: "Delete all labels for a tag",
+                description: "Select all labels for a tag on document and press 'delete' key"
+            }
+        },
+        headers: {
+            keyboardShortcuts: "Keyboard shortcuts",
+            otherTips: "Other tips",
+        },
+        iconTitle: "Keyboard shortcuts and useful tips"
     },
     errors: {
         unknown: {
@@ -436,6 +537,11 @@ export const english: IAppStrings = {
             title: "Too many models",
             message: "The number of models associated with the given API key has exceeded the maximum allowed value.",
         },
+        requestSendError: {
+            title: "Request send error",
+            message: "Failed to send request to Azure Blob Container. Common issues: \n • SAS URI not valid \n • Cross-Origin Resource Sharing (CORS) is not configured server-side \n • Network error",
+
+        }
     },
 };
 

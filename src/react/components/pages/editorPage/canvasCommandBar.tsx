@@ -1,11 +1,14 @@
 import * as React from "react";
-import { CommandBar, ICommandBarItemProps } from "office-ui-fabric-react/lib/CommandBar";
-import { ICustomizations, Customizer } from "office-ui-fabric-react/lib/Utilities";
+import { CommandBar, ICommandBarItemProps } from "@fluentui/react/lib/CommandBar";
+import { ICustomizations, Customizer } from "@fluentui/react/lib/Utilities";
 import { getDarkGreyTheme } from "../../../../common/themes";
+import { strings } from '../../../../common/strings';
 
 interface ICanvasCommandBarProps {
     handleZoomIn: () => void;
     handleZoomOut: () => void;
+    handleRunOcr: () => void;
+    handleRunOcrForAllDocuments: () => void;
     handleLayerChange: (layer: string) => void;
     layers: any;
 }
@@ -21,13 +24,13 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
     const commandBarItems: ICommandBarItemProps[] = [
         {
           key: "layers",
-          text: "Layers",
+          text: strings.editorPage.canvas.canvasCommandBar.items.layers.text,
           iconProps: { iconName: "MapLayers" },
           subMenuProps: {
             items: [
               {
                 key: "text",
-                text: "Text",
+                text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.text,
                 canCheck: true,
                 iconProps: { iconName: "TextField" },
                 isChecked: props.layers["text"],
@@ -35,15 +38,15 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
               },
               {
                 key: "table",
-                text: "Tables",
+                text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.tables,
                 canCheck: true,
                 iconProps: { iconName: "Table" },
                 isChecked: props.layers["tables"],
                 onClick: () => props.handleLayerChange("tables"),
               },
               {
-                key: "checkboxes",
-                text: "Checkboxes (Preview)",
+                key: "selectionMark",
+                text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.selectionMarks,
                 canCheck: true,
                 iconProps: { iconName: "CheckboxComposite" },
                 isChecked: props.layers["checkboxes"],
@@ -51,7 +54,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
               },
               {
                 key: "Label",
-                text: "Label",
+                text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.labels,
                 canCheck: true,
                 iconProps: { iconName: "LabelComposite" },
                 isChecked: props.layers["label"],
@@ -65,21 +68,45 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
     const commandBarFarItems: ICommandBarItemProps[] = [
         {
             key: "zoomOut",
-            text: "Zoom out",
+            text: strings.editorPage.canvas.canvasCommandBar.farItems.zoom.zoomOut,
             // This needs an ariaLabel since it's icon-only
-            ariaLabel: "Zoom out",
+            ariaLabel: strings.editorPage.canvas.canvasCommandBar.farItems.zoom.zoomOut,
             iconOnly: true,
             iconProps: { iconName: "ZoomOut" },
             onClick: () => props.handleZoomOut(),
         },
         {
             key: "zoomIn",
-            text: "Zoom in",
+            text: strings.editorPage.canvas.canvasCommandBar.farItems.zoom.zoomIn,
             // This needs an ariaLabel since it's icon-only
-            ariaLabel: "Zoom in",
+            ariaLabel: strings.editorPage.canvas.canvasCommandBar.farItems.zoom.zoomIn,
             iconOnly: true,
             iconProps: { iconName: "ZoomIn" },
             onClick: () => props.handleZoomIn(),
+        },
+        {
+            key: "additionalActions",
+            title: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.text,
+            // This needs an ariaLabel since it's icon-only
+            ariaLabel: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.text,
+            className: "additional-action-dropdown",
+            iconProps: { iconName: "More" },
+            subMenuProps: {
+                items: [
+                    {
+                        key: "runOcrForCurrentDocument",
+                        text: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runOcrOnCurrentDocument,
+                        iconProps: { iconName: "TextDocument" },
+                        onClick: () => props.handleRunOcr(),
+                    },
+                    {
+                        key: "runOcrForAllDocuments",
+                        text: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runOcrOnAllDocuments,
+                        iconProps: { iconName: "Documentation" },
+                        onClick: () => props.handleRunOcrForAllDocuments(),
+                    },
+                ],
+            },
         },
     ];
 

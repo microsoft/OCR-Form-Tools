@@ -7,7 +7,7 @@ import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import SplitPane from "react-split-pane";
 import { bindActionCreators } from "redux";
-import { PrimaryButton } from "office-ui-fabric-react";
+import { PrimaryButton } from "@fluentui/react";
 import HtmlFileReader from "../../../../common/htmlFileReader";
 import { strings } from "../../../../common/strings";
 import {
@@ -19,12 +19,13 @@ import {
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
-import { AssetPreview } from "../../common/assetPreview/assetPreview";
+import {AssetPreview, ContentSource} from "../../common/assetPreview/assetPreview";
 import { KeyboardBinding } from "../../common/keyboardBinding/keyboardBinding";
 import { KeyEventType } from "../../common/keyboardManager/keyboardManager";
 import { TagInput } from "../../common/tagInput/tagInput";
 import { tagIndexKeys } from "../../common/tagInput/tagIndexKeys";
 import Canvas from "./canvas";
+import { TableView } from "./tableView"
 import CanvasHelpers from "./canvasHelpers";
 import "./editorPage.scss";
 import EditorSideBar from "./editorSideBar";
@@ -34,9 +35,8 @@ import { OCRService } from "../../../../services/ocrService";
 import { throttle } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
-import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
+import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
 import { getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/themes";
-import { SkipButton } from "../../shell/skipButton";
 
 /**
  * Properties for Editor Page
@@ -90,6 +90,8 @@ export interface IEditorPageState {
     isError?: boolean;
     errorTitle?: string;
     errorMessage?: string;
+    tableToView: object;
+    tableToViewId: string;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -124,6 +126,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         showInvalidRegionWarning: false,
         tagsLoaded: false,
         hoveredLabel: null,
+        tableToView: null,
+        tableToViewId: null,
     };
 
     private tagInputRef: RefObject<TagInput>;
@@ -186,7 +190,13 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
 
         return (
-            <div className="editor-page" id="pageEditor">
+            <div className="editor-page skipToMainContent" id="pageEditor">
+                {this.state.tableToView !== null &&
+                    <TableView
+                        handleTableViewClose={this.handleTableViewClose}
+                        tableToView={this.state.tableToView}
+                    />
+                }
                 {
                     tagIndexKeys.map((index) =>
                         (<KeyboardBinding
@@ -199,8 +209,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 }
                 <SplitPane split="vertical"
                     defaultSize={this.state.thumbnailSize.width}
-                    minSize={175}
-                    maxSize={175}
+                    minSize={150}
+                    maxSize={325}
                     paneStyle={{ display: "flex" }}
                     onChange={this.onSideBarResize}
                     onDragFinished={this.onSideBarResizeComplete}>
@@ -210,7 +220,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                 theme={getPrimaryGreenTheme()}
                                 className="editor-page-sidebar-run-ocr"
                                 type="button"
-                                onClick={this.loadAllOCRs}
+                                onClick={() => this.loadOcrForNotVisited()}
                                 disabled={this.state.isRunningOCRs}>
                                 {this.state.isRunningOCRs ?
                                     <div>
@@ -220,7 +230,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             ariaLive="off"
                                             labelPosition="right"
                                         />
-                                    </div> : "Run OCR on all files"
+                                    </div> : "Run OCR on unvisited documents"
                                 }
                             </PrimaryButton>
                         </div>}
@@ -229,6 +239,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                             selectedAsset={selectedAsset ? selectedAsset.asset : null}
                             onBeforeAssetSelected={this.onBeforeAssetSelected}
                             onAssetSelected={this.selectAsset}
+                            onAssetLoaded={this.onAssetLoaded}
                             thumbnailSize={this.state.thumbnailSize}
                         />
                     </div>
@@ -255,7 +266,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             editorMode={this.state.editorMode}
                                             project={this.props.project}
                                             lockedTags={this.state.lockedTags}
-                                            hoveredLabel={this.state.hoveredLabel}>
+                                            hoveredLabel={this.state.hoveredLabel}
+                                            setTableToView={this.setTableToView}
+                                            closeTableView={this.closeTableView}
+                                            runOcrForAllDocs={this.loadOcrForNotVisited}>
                                             <AssetPreview
                                                 controlsEnabled={this.state.isValid}
                                                 onBeforeAssetChanged={this.onBeforeAssetSelected}
@@ -318,7 +332,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                     when={isRunningOCRs || isCanvasRunningOCR}
                     message={"An OCR operation is currently in progress, are you sure you want to leave?"}
                 />
-                <SkipButton skipTo = "pageEditor">{strings.common.skipToMainContent}</SkipButton>
             </div>
         );
     }
@@ -478,6 +491,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         // Only update asset metadata if state changes or is different
         if (initialState !== assetMetadata.asset.state || this.state.selectedAsset !== assetMetadata) {
+            if (this.state.selectedAsset.labelData && this.state.selectedAsset.labelData.labels &&
+                assetMetadata.labelData && assetMetadata.labelData.labels &&
+                assetMetadata.labelData.labels.toString() !== this.state.selectedAsset.labelData.labels.toString()) {
+                await this.updatedAssetMetadata(assetMetadata);
+            }
             await this.props.actions.saveAssetMetadata(this.props.project, assetMetadata);
             if (this.props.project.lastVisitedAssetId === assetMetadata.asset.id) {
                 this.setState({selectedAsset: assetMetadata});
@@ -500,6 +518,18 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         // Workaround for if component is unmounted
         if (!this.isUnmount) {
             this.props.appTitleActions.setTitle(`${this.props.project.name} - [ ${asset.name} ]`);
+        }
+    }
+
+    private onAssetLoaded = (asset: IAsset, contentSource: ContentSource) => {
+        const assets = [...this.state.assets];
+        const assetIndex = assets.findIndex((item) => item.id === asset.id);
+        if (assetIndex > -1) {
+            const assets = [...this.state.assets];
+            const item = {...assets[assetIndex]};
+            item.cachedImage = (contentSource as HTMLImageElement).src;
+            assets[assetIndex] = item;
+            this.setState({assets});
         }
     }
 
@@ -558,6 +588,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
 
         this.setState({
+            tableToView: null,
+            tableToViewId: null,
             selectedAsset: assetMetadata,
         }, async () => {
             await this.onAssetMetadataChanged(assetMetadata);
@@ -579,6 +611,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         if (this.state.assets.length === assets.length
             && JSON.stringify(this.state.assets) === JSON.stringify(assets)) {
             this.loadingProjectAssets = false;
+            this.setState({ tagsLoaded: true });
             return;
         }
 
@@ -596,11 +629,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         });
     }
 
-    private loadAllOCRs = async () => {
+    public loadOcrForNotVisited = async (runForAll?: boolean) => {
         if (this.state.isRunningOCRs) {
             return;
         }
-
         const { project } = this.props;
         const ocrService = new OCRService(project);
         if (this.state.assets) {
@@ -608,14 +640,16 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             try {
                 await throttle(
                     constants.maxConcurrentServiceRequests,
-                    this.state.assets.filter((asset) => asset.state === AssetState.NotVisited).map((asset) => asset.id),
+                    this.state.assets
+                        .filter((asset) => runForAll ? asset : asset.state === AssetState.NotVisited)
+                        .map((asset) => asset.id),
                     async (assetId) => {
                         // Get the latest version of asset.
                         const asset = this.state.assets.find((asset) => asset.id === assetId);
-                        if (asset && asset.state === AssetState.NotVisited) {
+                        if (asset && (asset.state === AssetState.NotVisited || runForAll)) {
                             try {
                                 this.updateAssetState(asset.id, true);
-                                await ocrService.getRecognizedText(asset.path, asset.name);
+                                await ocrService.getRecognizedText(asset.path, asset.name, undefined, runForAll);
                                 this.updateAssetState(asset.id, false, AssetState.Visited);
                             } catch (err) {
                                 this.updateAssetState(asset.id, false);
@@ -626,7 +660,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                 });
                             }
                         }
-                });
+                    }
+                );
             } finally {
                 this.setState({ isRunningOCRs: false });
             }
@@ -706,9 +741,57 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
     }
 
+    private setTableToView = async (tableToView, tableToViewId) => {
+        if (this.state.tableToViewId) {
+            this.canvas.current.setTableState(this.state.tableToViewId, "rest");
+        }
+        this.canvas.current.setTableState(tableToViewId, "selected");
+        this.setState({
+            tableToView,
+            tableToViewId,
+        });
+    }
+
+    private handleTableViewClose = () => {
+        this.closeTableView("rest");
+    }
+
+    private closeTableView = (state: string) => {
+        if (this.state.tableToView) {
+            this.canvas.current.setTableState(this.state.tableToViewId, state);
+            this.setState({
+                tableToView: null,
+                tableToViewId: null,
+            });
+        }
+    }
+
     private resizeCanvas = () => {
         if (this.canvas.current) {
             this.canvas.current.updateSize();
         }
+    }
+
+    private async updatedAssetMetadata(assetMetadata: IAssetMetadata) {
+        const assetDocumentCountDifference = {};
+        const updatedAssetLabels = {};
+        const currentAssetLabels = {};
+        assetMetadata.labelData.labels.forEach((label) => {
+            updatedAssetLabels[label.label] = true;
+        });
+        this.state.selectedAsset.labelData.labels.forEach((label) => {
+            currentAssetLabels[label.label] = true;
+        });
+        Object.keys(currentAssetLabels).forEach((label) => {
+            if (!updatedAssetLabels[label]) {
+                assetDocumentCountDifference[label] = -1;
+            }
+        });
+        Object.keys(updatedAssetLabels).forEach((label) => {
+            if (!currentAssetLabels[label]) {
+                assetDocumentCountDifference[label] = 1;
+            }
+        });
+        await this.props.actions.updatedAssetMetadata(this.props.project, assetDocumentCountDifference);
     }
 }

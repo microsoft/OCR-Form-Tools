@@ -118,6 +118,7 @@ export interface ITag {
     color: string;
     type: FieldType;
     format: FieldFormat;
+    documentCount?: number;
 }
 
 /**
@@ -159,6 +160,7 @@ export interface IAsset {
     predicted?: boolean;
     ocr?: any;
     isRunningOCR?: boolean;
+    cachedImage?: string;
 }
 
 /**
@@ -299,6 +301,7 @@ export enum ErrorCode {
     HttpStatusUnauthorized = "unauthorized",
     HttpStatusNotFound = "notFound",
     HttpStatusTooManyRequests = "tooManyRequests",
+    RequestSendError = "requestSendError",
 }
 
 /**
@@ -370,7 +373,7 @@ export enum FieldType {
     Date = "date",
     Time = "time",
     Integer = "integer",
-    Checkbox = "checkbox",
+    SelectionMark = "selectionMark",
 }
 
 export enum FieldFormat {

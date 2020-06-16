@@ -59,7 +59,7 @@ export class TiffAsset extends React.Component<IAssetPreviewProps, ITiffAsset> {
 
     private onLoad = () => {
         if (this.props.onLoaded) {
-            this.props.onLoaded(this.image.current);
+            this.props.onLoaded(this.props.asset, this.image.current);
         }
         if (this.props.onActivated) {
             this.props.onActivated(this.image.current);

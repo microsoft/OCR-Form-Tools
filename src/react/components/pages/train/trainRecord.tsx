@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { FontIcon } from "office-ui-fabric-react";
+import { FontIcon } from "@fluentui/react";
 
 export interface ITrainRecordProps {
     accuracies?: object;

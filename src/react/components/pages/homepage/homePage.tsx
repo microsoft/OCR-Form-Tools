@@ -5,7 +5,7 @@ import React, { SyntheticEvent } from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
-import { FontIcon } from "office-ui-fabric-react";
+import { FontIcon } from "@fluentui/react";
 import { strings, interpolate } from "../../../../common/strings";
 import { getPrimaryRedTheme } from "../../../../common/themes";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -87,8 +87,8 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                             {/* eslint-disable-next-line */}
                             <a ref={this.newProjectRef}
                                 id="home_newProject"
-                                href="#" onClick={this.createNewProject} className="p-5 new-project" role="button">
-                                <FontIcon iconName="AddTo" className="icon-9x" />
+                                href="#" onClick={this.createNewProject} className="p-5 new-project skipToMainContent" role="button">
+                                <FontIcon iconName="AddTo" className="icon-9x"  />
                                 <div>{strings.homePage.newProject}</div>
                             </a>
                         </li>
@@ -124,7 +124,6 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                     message={(project: IProject) => `${strings.homePage.deleteProject.confirmation} ${project.name}?`}
                     confirmButtonTheme={getPrimaryRedTheme()}
                     onConfirm={this.deleteProject} />
-                <SkipButton skipTo="pageHome">{strings.common.skipToMainContent}</SkipButton>
             </div>
         );
     }

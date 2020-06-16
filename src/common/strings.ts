@@ -186,6 +186,8 @@ export interface IAppStrings {
             existingName: string;
             emptyName: string;
             unknownTagName: string;
+            notCompatibleTagType: string;
+            checkboxPerTagLimit: string;
         }
     };
     connections: {
@@ -283,7 +285,14 @@ export interface IAppStrings {
         help: {
             title: string;
             escape: string;
+        },
+        assetWarning: {
+            incorrectFileExtension: {
+                attention: string,
+                text: string,
+            },
         }
+        ,
         assetError: string;
         tags: {
             hotKey: {
@@ -304,6 +313,32 @@ export interface IAppStrings {
                 title: string;
                 confirmation: string;
             },
+            canvasCommandBar: {
+                items: {
+                    layers: {
+                        text: string,
+                        subMenuItems: {
+                            text: string,
+                            tables: string,
+                            selectionMarks: string;
+                            labels: string,
+                        }
+                    },
+                },
+                farItems: {
+                    zoom: {
+                        zoomOut: string,
+                        zoomIn: string,
+                    },
+                    additionalActions: {
+                        text: string,
+                        subIMenuItems: {
+                            runOcrOnCurrentDocument: string,
+                            runOcrOnAllDocuments: string,
+                        }
+                    }
+                }
+            },
         },
         messages: {
             enforceTaggedRegions: {
@@ -314,6 +349,73 @@ export interface IAppStrings {
     };
     profile: {
         settings: string;
+    };
+    shortcuts: {
+        squareBrackets: {
+            keys: {
+                leftBracket: string,
+                rightBracket: string,
+            },
+            description: {
+                prevWord: string,
+                nextWord: string,
+            },
+        },
+        greaterAndLessThan: {
+            keys: {
+                lessThan: string,
+                greaterThan: string,
+            },
+            description: {
+                prevPage: string,
+                nextPage: string,
+            },
+        },
+        zoomKeys: {
+            keys: {
+                minus: string,
+                plus: string,
+                slash: string,
+            },
+            description: {
+                in: string,
+                out: string,
+                reset: string,
+            },
+        },
+        deleteAndBackspace: {
+            keys: {
+                delete: string,
+                backSpace: string,
+            },
+            description: {
+                delete: string,
+                backSpace: string,
+            },
+        },
+        tips: {
+            quickLabeling: {
+                name: string,
+                description: string,
+            },
+            renameTag: {
+                name: string,
+                description: string,
+            },
+            multipleWordSelection: {
+                name: string,
+                description: string,
+            },
+            deleteAllLabelsForTag: {
+                name: string,
+                description: string;
+            }
+        },
+        headers: {
+            keyboardShortcuts: string,
+            otherTips: string,
+        },
+        iconTitle: string;
     };
     errors: {
         unknown: IErrorMetadata,
@@ -343,6 +445,7 @@ export interface IAppStrings {
         endpointConnectionError: IErrorMetadata,
         tooManyRequests: IErrorMetadata,
         modelCountLimitExceeded: IErrorMetadata,
+        requestSendError: IErrorMetadata,
     };
 }
 
