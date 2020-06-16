@@ -8,7 +8,7 @@ import { IModel } from "../predict/predictPage";
 
 
 export interface IComposeModelViewProps {
-    onComposeConfirm: (composeModelName: string) => void
+    onComposeConfirm: (composeModelName: string) => void;
 }
 
 export interface IComposeModelViewState {

@@ -272,7 +272,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                             hasText={this.state.hasText}
                             handleCompose={this.onComposeButtonClick}
                             handleRefresh={this.onRreshButtonClick}
-                            GetComposedItemsOnTop={this.handleTopButtonClick}
                             filterTextChange={this.onTextChange}
                             />
                     </div>
@@ -315,7 +314,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                                         <div className="next-page-container">
                                             {
                                                 this.state.isLoading ?
-                                                <div>
+                                                <>
                                                     {
                                                         this.state.nextLink !== "*" &&
                                                         <Spinner
@@ -326,7 +325,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                                                             size={SpinnerSize.small}>
                                                         </Spinner>
                                                     }
-                                                </div>
+                                                </>
                                                 :
                                                 <PrimaryButton
                                                     className="next-page-button"
@@ -362,22 +361,28 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             });
 
             const composedModels = this.state.composedModelList;
+            composedModels.forEach(async (m) => {
+                if (m.status !== "ready" || "invalid") {
+                    m = await this.reloadModelStatus(m.modelId);
+                }
+            });
+            let composedIds = [];
             if (this.state.composedModelsId.length !== 0) {
-                const composedIds = this.getComposedIds();
+                composedIds = this.getComposedIds();
                 if (composedIds.indexOf(this.state.composedModelsId[0]) === -1) {
                     const idURL = constants.apiModelsPath + "/" + this.state.composedModelsId[0];
-                    const composedRes = await this.getResponse(idURL);
-                    const composedModel: IModel = composedRes.data.modelInfo;
-                    composedModel.iconName = "combine";
-                    composedModel.key = composedModel.modelId;
-                    composedModels.push(composedModel);
+                    const newComposeModel = await this.getComposedModelByURl(idURL);
+                    composedModels.push(newComposeModel);
+                    composedIds.push(this.state.composedModelsId[0]);
                 }
             }
             const res = await this.getResponse();
-            const models = res.data.modelList;
+            let models = res.data.modelList;
             const link = res.data.nextLink;
 
             models.map((m) => m.key = m.modelId);
+            models = models.filter((m) => composedIds.indexOf(m.modelId) === -1);
+
             const newList = composedModels.concat(models);
 
             this.allModels = newList;
@@ -393,6 +398,21 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         } catch (error) {
             console.log(error);
         }
+    }
+
+    private reloadModelStatus = async (id: string) => {
+        const url = constants.apiModelsPath + "/" + id;
+        const renewModel = await this.getComposedModelByURl(url);
+        console.log(renewModel);
+        return renewModel;
+    }
+
+    private getComposedModelByURl = async (idURL) => {
+        const composedRes = await this.getResponse(idURL);
+        const composedModel: IModel = composedRes.data.modelInfo;
+        composedModel.iconName = "combine";
+        composedModel.key = composedModel.modelId;
+        return composedModel;
     }
 
     private getNextPage = async () => {
@@ -455,7 +475,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     private async getResponse(nextLink?: string) {
         const baseURL = nextLink === undefined ? url.resolve(
             this.props.project.apiUriBase,
-            "/formrecognizer/v2.1-preview.1/custom/models",
+            constants.apiPreviewPath,
         ) : url.resolve(
             this.props.project.apiUriBase,
             nextLink,
@@ -532,6 +552,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         return "item selected";
     }
 
+    /** Handle filter when text changes in filter field */
     private onTextChange = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string): void => {
         this.setState({
             modelList: text ?
@@ -550,15 +571,15 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             isComposing: true,
         });
         const selections = this.selectedItems;
-        console.log(selections);
-        this.handleModelCompose(selections, composeModelName);
+        this.handleComposeModels(selections, composeModelName);
     }
 
     private passSelectedItems = (Items) => {
         this.selectedItems = Items;
     }
 
-    private handleModelCompose = async (selections: any[], name: string) => {
+    /** Handle the operation of composing a new model */
+    private handleComposeModels = async (selections: any[], name: string) => {
         setTimeout( async () => {
             try {
                 const idList = [];
@@ -567,12 +588,9 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     modelIds: idList,
                     modelName: name,
                 };
-                const link = "/formrecognizer/v2.1-preview.1/custom/models/compose";
+                const link = constants.apiPreviewComposePath;
                 const composeRes = await this.post(link, payload);
-                const composedLocation = composeRes["headers"]["location"].split("/");
-                console.log(composedLocation);
-                const composedId = composedLocation[composedLocation.length - 1];
-                console.log(composedId);
+                const composedId = this.getComposedModelId(composeRes);
                 const newCols = this.state.columns;
                 newCols.forEach((ncol) => {
                     ncol.isSorted = false;
@@ -582,11 +600,18 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     isComposing: false,
                     composedModelsId: [composedId],
                     columns: newCols,
-                },() => {console.log(this.state.composedModelsId)});
+                });
             } catch (error) {
                 console.log(error);
             }
         }, 5000);
+    }
+
+    /** get the model Id of new composed model */
+    private getComposedModelId = (composeRes: any): string => {
+        const location = composeRes["headers"]["location"];
+        const splitGroup = location.split("/");
+        return splitGroup[splitGroup.length - 1];
     }
 
     private async post(link, payload): Promise<any> {
@@ -619,35 +644,4 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             }, 1);
         }
     }
-
-    private handleTopButtonClick = () => {
-        if (this.state.composedModelsId) {
-            const newList = this.getComposedModelsOnTop(this.state.modelList);
-            const newCols = this.state.columns;
-            newCols.forEach((ncol) => {
-                ncol.isSorted = false;
-                ncol.isSortedDescending = true;
-            });
-            this.setState({
-                modelList: newList,
-                columns: newCols,
-            });
-        }
-    }
-
-    private getComposedModelsOnTop =  (modelList: IModel[]) => {
-        const composedModelCopy = [];
-        modelList.map((m) => {
-            if (this.state.composedModelsId.indexOf(m.modelId) !== -1) {
-                m.iconName = "combine";
-                composedModelCopy.push(m);
-            }
-        });
-
-        const uncomposedModelList = modelList.filter(
-            (m) => this.state.composedModelsId.indexOf(m.modelId) === -1 );
-        const newModelList = composedModelCopy.concat(uncomposedModelList);
-        return newModelList;
-    }
-
 }

@@ -4,7 +4,7 @@
 import * as React from "react";
 import { CommandBar, ICommandBarItemProps } from "office-ui-fabric-react/lib/CommandBar";
 import "./modelCompose.scss";
-import { TextField, SpinnerSize, Spinner, IconNames } from "office-ui-fabric-react";
+import { TextField, SpinnerSize, Spinner } from "office-ui-fabric-react";
 import { getPrimaryWhiteTheme, getDefaultDarkTheme } from "../../../../common/themes";
 
 interface IModelComposeCommandBarProps {
@@ -15,7 +15,6 @@ interface IModelComposeCommandBarProps {
     hasText: boolean;
     handleCompose: () => void;
     handleRefresh: () => void;
-    GetComposedItemsOnTop: () => void;
     filterTextChange: (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string) => void;
 }
 
@@ -50,8 +49,8 @@ export const ModelComposeCommandBar: React.FunctionComponent<IModelComposeComman
                         size={SpinnerSize.medium}>
                     </Spinner>
                 </div>
-            )
-        }
+            ),
+        },
     ];
 
     const commandBarFarItems: ICommandBarItemProps[] = [
@@ -68,7 +67,7 @@ export const ModelComposeCommandBar: React.FunctionComponent<IModelComposeComman
                         onChange={props.filterTextChange}>
                     </TextField>
                 </div>
-            )
+            ),
         },
     ];
 

@@ -159,7 +159,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                             className="flex-center"
                                             onClick={this.handleTrainClick}>
                                             <FontIcon iconName="MachineLearning" />
-                                            <h6 className="d-inline text-shadow-none ml-2 mb-0"> {strings.train.title} </h6>
+                                            <h6 className="d-inline text-shadow-none ml-2 mb-0">
+                                                {strings.train.title} </h6>
                                         </PrimaryButton>
                                     </div>
                                 ) : (
@@ -288,8 +289,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 { headers: { "cache-control": "no-cache" } },
                 this.props.project.apiKey as string);
         }, Math.max(extendedTimeoutInMs, minimumTimeoutInMs), 1000);
-
-        console.log(res);
         return res;
     }
 
