@@ -1,187 +1,202 @@
-@import "../../../../index.scss";
+@import '../../../../index.scss';
 
-.predictiontag {
+.prediction-item {
+  margin-bottom: 1rem;
+  border-radius: 2px;
+
+  .prediction-tag {
     &-item-block {
-        margin: 2px 0;
+      margin: 2px 0;
     }
-
     &-item {
+      display: flex;
+      border-radius: 2px 2px 0 0;
+      flex-direction: row;
+      height: 27px;
+      line-height: 27px;
+      margin: 0;
+
+      &-selected {
+        .tag-content {
+          color: white;
+          margin: 1px 1px 1px 0;
+          background: $darker-10 !important;
+        }
+      }
+
+      &-applied {
+        .tag-content {
+          color: #fff;
+          font-weight: 600;
+          background: $darker-10 !important;
+        }
+      }
+
+      &-label {
         display: flex;
         flex-direction: row;
-        height: 27px;
-        line-height: 27px;
-        margin-left: -1rem;
-        margin-right: -1rem;
-
-        &-selected {
-            .tag-content {
-                color: white;
-                margin: 1px 1px 1px 0;
-                background: $darker-10 !important;
-            }
+        padding: 2px 5px;
+        font-size: 0.95em;
+        &:last-child {
+          border-radius: 0 0 2px 2px;
         }
-
-        &-applied {
-            .tag-content {
-                color: #fff;
-                font-weight: 600;
-                background: $darker-10 !important;
-            }
+        .field-units {
+            color: rgba(255, 255, 255, 0.6);
+            margin-right: 0.2rem;
         }
-
-        &-label {
-            display: flex;
-            flex-direction: row;
-            margin-top: 2px;
-            margin-bottom: 2px;
-            padding-left: 3px;
-            font-size: 0.95em;
-        }
+      }
     }
 
     &-content {
-        flex: 1;
-        background: $darker-15;
+      border-radius: 0 2px 0 0px;
+      flex: 1;
+      background: $darker-15;
     }
 
     &-content:hover {
-        background: $darker-8;
+      background: $darker-8;
     }
 
     &-name {
-        &-body {
-            flex-grow: 1;
-        }
+      &-body {
+        flex-grow: 1;
+      }
 
-        &-editor {
-            background: transparent;
-            border: none;
-            color: #fff;
+      &-editor {
+        background: transparent;
+        border: none;
+        color: #fff;
 
-            &:focus {
-                outline: none;
-            }
+        &:focus {
+          outline: none;
         }
+      }
 
-        &-container {
-            display: flex;
-            flex-direction: row;
-            min-height: 1.8em;
-            align-items: center;
-        }
+      &-container {
+        display: flex;
+        flex-direction: row;
+        min-height: 1.8em;
+        align-items: center;
+      }
 
-        &-text {
-            max-width: 195px;
-            display: block;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            white-space: nowrap;
-        }
+      &-text {
+        max-width: 195px;
+        display: block;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+      }
     }
 
     &-confidence {
-        flex-basis: 70px;
-        padding: 0 5px;
-        text-align: right;
+      flex-basis: 70px;
+      padding: 0 5px;
+      text-align: right;
     }
 
     &-item:hover {
-        color: #fff;
-        background: $lighter-4;
-        cursor: pointer;
+      border-radius: 2px 2px 0 0;
+      color: #fff;
+      background: $lighter-4;
+      cursor: pointer;
     }
 
     &-item-label:hover {
-        color: #fff;
-        background: $lighter-4;
-        cursor: pointer;
+      color: #fff;
+      background: $lighter-4;
+      cursor: pointer;
+      &:last-child {
+        border-radius: 0 0 2px 2px;
+      }
     }
 
     &-color-edit:hover {
-        background: $darker-1;
-        cursor: pointer;
+      background: $darker-1;
+      cursor: pointer;
     }
 
     &-color {
-        width: 2.2rem;
-        font-size: xx-small;
-        text-align: center;
+      width: 2.2rem;
+      font-size: small;
+      color: rgba(255, 255, 255, 0.5);
+      text-align: center;
     }
 
     &-lock-icon {
-        font-size: 90%;
+      font-size: 90%;
     }
 
     &-input {
-        &-color-picker {
-            position: absolute;
-            z-index: 1;
-        }
+      &-color-picker {
+        position: absolute;
+        z-index: 1;
+      }
 
-        &-toolbar {
-            display: flex;
-            flex-direction: row;
-            &-item {
-                color: #ccc;
-                padding: 1px;
-            }
-            &-item:hover {
-                color: white;
-                cursor: pointer;
-            }
+      &-toolbar {
+        display: flex;
+        flex-direction: row;
+        &-item {
+          color: #ccc;
+          padding: 1px;
         }
+        &-item:hover {
+          color: white;
+          cursor: pointer;
+        }
+      }
     }
+  }
 }
 
 .prediction-header {
-    text-align: center;
+  text-align: center;
 }
 
 .prediction-header-result {
-    display: inline;
-    vertical-align: middle;
-    padding-right: 8px;
+  display: inline;
+  vertical-align: middle;
+  padding-right: 8px;
 }
 
 .prediction-header-download {
-    vertical-align: middle;
+  vertical-align: middle;
 }
 
 .prediction-field-header {
-    margin-bottom: 5px;
-    display: grid;
-    grid-template-columns: auto auto;
-    align-content: end;
+  margin-bottom: 5px;
+  display: grid;
+  grid-template-columns: auto auto;
+  align-content: end;
 }
 
 .prediction-field-header-field {
-    margin-bottom: 0px;
-    align-self: center;
+  margin-bottom: 0px;
+  align-self: center;
 }
 
 .prediction-field-header-confidence {
-    margin-bottom: 0px;
-    justify-self: end;
-    align-self: center;
+  margin-bottom: 0px;
+  justify-self: end;
+  align-self: center;
 }
 
 .prediction-header-clear {
-    height: 0;
-    clear: both;
+  height: 0;
+  clear: both;
 }
 
 div.github-picker > span > div {
-    margin: 2px;
+  margin: 2px;
 }
 
 div.circle-picker-container {
-    background: #252526;
+  background: #252526;
 }
 
 .results-container {
-    margin-top: 30px;
-    margin-bottom: 7px;
+  margin-top: 30px;
+  margin-bottom: 7px;
 }
 .results-header {
-    margin-bottom: 0px;
+  margin-bottom: 0px;
 }

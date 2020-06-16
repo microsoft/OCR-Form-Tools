@@ -6,6 +6,7 @@ import { ITag } from "../../../../models/applicationState";
 import "./predictResult.scss";
 import { getPrimaryGreenTheme } from "../../../../common/themes";
 import { PrimaryButton } from "@fluentui/react";
+import { hexToRGBA } from '../../../../common/utils';
 
 export interface IPredictResultProps {
     predictions: { [key: string]: any };
@@ -60,32 +61,31 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
 
     private renderItem = (item: any, key: any) => {
         const postProcessedValue = this.getPostProcessedValue(item);
-        const style: any = {
-            marginLeft: "0px",
-            marginRight: "0px",
-            background: this.getTagColor(item.fieldName),
-        };
+        const getColorWithOpacity = hexToRGBA(this.getTagColor(item.fieldName), 0.10);
+        const predictionTagItemStyle = { background: this.getTagColor(item.fieldName) };
+        const predictionItemStyle = { backgroundColor: getColorWithOpacity }
+
         return (
             <div key={key}
+                className="prediction-item"
+                style={predictionItemStyle}
                 onClick={() => this.onPredictionClick(item)}
                 onMouseEnter={() => this.onPredictionMouseEnter(item)}
                 onMouseLeave={() => this.onPredictionMouseLeave(item)}>
-                <li className="predictiontag-item" style={style}>
-                    <div className={"predictiontag-color"}>
+                <li className="prediction-tag-item" style={predictionTagItemStyle}>
+                    <div className={"prediction-tag-color"}>
                         <span>{item.page}</span>
                     </div>
-                    <div className={"predictiontag-content"}>
+                    <div className={"prediction-tag-content"}>
                         {this.getPredictionTagContent(item)}
                     </div>
                 </li>
-                <li className={postProcessedValue ? "predictiontag-item-label mt-0" : "predictiontag-item-label mt-0 mb-1"}>
-                    {postProcessedValue ? "text: " + item.text : item.text}
+                {!postProcessedValue &&
+                    <li className="prediction-tag-item-label mt-0 mb-1">
+                    <span className="field-units">{this.getPredictionValuePrefix(item.fieldName)}</span>{item.text}
                 </li>
-                {postProcessedValue &&
-                    <li className="predictiontag-item-label mb-1">
-                        {postProcessedValue}
-                    </li>
                 }
+                {postProcessedValue && this.renderPostProcessedValue(postProcessedValue, item)}
             </div>
         );
     }
@@ -100,15 +100,15 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
 
     private getPredictionTagContent = (item: any) => {
         return (
-            <div className={"predictiontag-name-container"}>
-                <div className="predictiontag-name-body">
+            <div className={"prediction-tag-name-container"}>
+                <div className="prediction-tag-name-body">
                     {
-                        <span title={item.fieldName} className="predictiontag-name-text px-2">
+                        <span title={item.fieldName} className="prediction-tag-name-text px-2">
                             {item.fieldName}
                         </span>
                     }
                 </div>
-                <div className={"predictiontag-confidence"}>
+                <div className={"prediction-tag-confidence"}>
                     <span>{this.toPercentage(item.confidence)}</span>
                 </div>
             </div>
@@ -206,5 +206,27 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         } else {
             return null;
         }
+    }
+
+    private getPredictionValuePrefix(fieldName: string) {
+        if (/price|Total|Tax|Subtotal/.test(fieldName)) {
+            return "$"
+        }
+        return "";
+    }
+
+    private renderPostProcessedValue(val: string, item) {
+        const valueName = val.split(/:(.+)/)[0];
+        const value = val.split(/:(.+)/)[1];
+        return (
+            <>
+                <li className="prediction-tag-item-label mt-0">
+                    <span className="field-units">text: </span>{item.text}
+                </li>
+                <li className="prediction-tag-item-label mb-1">
+                    <span className="field-units">{valueName}:</span>{value}
+                </li>
+            </>
+        )
     }
 }

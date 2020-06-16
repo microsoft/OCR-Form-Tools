@@ -390,7 +390,11 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                     />
                                 </div>
                             }
-                            {Object.keys(predictions).length > 0 && this.props.project &&
+                            {
+                                Object.keys(predictions).length > 0
+                                // commented bellow for demo purposes
+                                // && this.props.project
+                                &&
                                 <PredictResult
                                     predictions={predictions}
                                     analyzeResult={this.state.analyzeResult}
@@ -926,7 +930,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         });
     }
 
-    private createBoundingBoxVectorFeature = (text, boundingBox, imageExtent, ocrExtent) => {
+    private createBoundingBoxVectorFeature = (text: string, boundingBox: string | any[], imageExtent: number[], ocrExtent: number[]) => {
         const coordinates: number[][] = [];
 
         // extent is int[4] to represent image dimentions: [left, bottom, right, top]
@@ -945,7 +949,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const feature = new Feature({
             geometry: new Polygon([coordinates]),
         });
-        let tag;
+        let tag: ITag;
         if (this.props.receiptMode) {
             tag = this.state.receiptTags.find((tag) => tag.name.toLocaleLowerCase() === text.toLocaleLowerCase());
         } else {
@@ -965,10 +969,10 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         return new Style({
             stroke: new Stroke({
                 color: feature.get("color"),
-                width: feature.get("isHighlighted") ? 4 : 2,
+                width: feature.get("isHighlighted") ? 3 : 1,
             }),
             fill: new Fill({
-                color: "rgba(255, 255, 255, 0)",
+                color: feature.get("isHighlighted") ? "rgba(226, 238, 3, 0.25)" : "rgba(255, 255, 255, 0)",
             }),
         });
     }
