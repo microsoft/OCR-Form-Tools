@@ -569,6 +569,10 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 };
                 const link = "/formrecognizer/v2.1-preview.1/custom/models/compose";
                 const composeRes = await this.post(link, payload);
+                const composedLocation = composeRes["headers"]["location"].split("/");
+                console.log(composedLocation);
+                const composedId = composedLocation[composedLocation.length - 1];
+                console.log(composedId);
                 const newCols = this.state.columns;
                 newCols.forEach((ncol) => {
                     ncol.isSorted = false;
@@ -576,9 +580,9 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 });
                 this.setState({
                     isComposing: false,
-                    //composedModelsId: ["62ce2175-92b5-444c-b703-9bc2185684c7"],
+                    composedModelsId: [composedId],
                     columns: newCols,
-                });
+                },() => {console.log(this.state.composedModelsId)});
             } catch (error) {
                 console.log(error);
             }
