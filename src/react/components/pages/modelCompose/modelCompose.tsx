@@ -361,14 +361,16 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             });
 
             const composedModels = this.state.composedModelList;
-            composedModels.forEach(async (m) => {
-                if (m.status !== "ready" || "invalid") {
-                    m = await this.reloadModelStatus(m.modelId);
-                }
-            });
+            // composedModels.forEach(async (m) => {
+            //     if (m.status !== "ready" || "invalid") {
+            //         m = await this.reloadModelStatus(m.modelId);
+            //     }
+            // });
             let composedModelIds = [];
+            let predictModelFlag = false;
             if (this.state.composeModelId.length !== 0) {
                 composedModelIds = this.getComposedIds();
+                predictModelFlag = true;
                 if (composedModelIds.indexOf(this.state.composeModelId[0]) === -1) {
                     const idURL = constants.apiModelsPath + "/" + this.state.composeModelId[0];
                     const newComposeModel = await this.getComposeModelByURl(idURL);
@@ -386,10 +388,12 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             const newList = composedModels.concat(models);
 
             this.allModels = newList;
-            const updatedProject = this.buildUpdatedProject(
-                this.state.composeModelId[0],
-            );
-            await this.props.actions.saveProject(updatedProject, false, false);
+            if (predictModelFlag) {
+                const updatedProject = this.buildUpdatedProject(
+                    this.state.composeModelId[0],
+                );
+                await this.props.actions.saveProject(updatedProject, false, false);
+            }
             this.setState({
                 modelList: newList,
                 nextLink: link,
@@ -411,12 +415,12 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         };
     }
 
-    private reloadModelStatus = async (id: string) => {
-        const url = constants.apiModelsPath + "/" + id;
-        const renewModel = await this.getComposeModelByURl(url);
-        console.log(renewModel);
-        return renewModel;
-    }
+    // private reloadModelStatus = async (id: string) => {
+    //     const url = constants.apiModelsPath + "/" + id;
+    //     const renewModel = await this.getComposeModelByURl(url);
+    //     console.log(renewModel);
+    //     return renewModel;
+    // }
 
     private getComposeModelByURl = async (idURL) => {
         const composeRes = await this.getResponse(idURL);
