@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import React, { useState, useRef, useEffect, MouseEvent } from "react";
-import { FontIcon, IconButton } from "office-ui-fabric-react";
-import { ITag, ILabel, FieldType, FieldFormat, IGenerator } from "../../../../models/applicationState";
+import { FontIcon, IconButton } from "@fluentui/react";
+import { IGenerator } from "../../../../models/applicationState";
 import {
     ITagClickProps,
     onColorClick,

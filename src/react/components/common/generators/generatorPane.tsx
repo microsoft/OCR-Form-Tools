@@ -8,19 +8,16 @@ import {
     SpinnerSize,
     Customizer,
     PrimaryButton,
-} from "office-ui-fabric-react";
+} from "@fluentui/react";
 import "./generatorPane.scss";
 import "../condensedList/condensedList.scss";
 import GeneratorEditor from "./generatorEditor";
 import { dark, TagOperationMode, onItemRename, FormattedItemContextMenu, ColorPickerPortal } from "../tagInput/tagInput";
-import { toast } from "react-toastify";
 import { ITagClickProps } from "../tagInput/tagInputItem";
 import { getPrimaryGreenTheme } from "../../../../common/themes";
 
 import { FormattedItem, NamedItem, IGenerator, IGeneratorSettings } from "../../../../models/applicationState";
 import TagInputToolbar, { ItemToolbarOptions } from "../tagInput/tagInputToolbar";
-// tslint:disable-next-line:no-var-requires
-const tagColors = require("../../common/tagColors.json");
 
 export interface IGeneratorPaneProps {
     generators: IGenerator[],
