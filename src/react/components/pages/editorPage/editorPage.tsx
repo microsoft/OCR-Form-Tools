@@ -323,7 +323,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     primary="first"
                                     pane1Style = {{width: "100%"}}
                                     pane2Style = {{width: "auto"}}
-                                    minSize = {300}
+                                    minSize = {200}
                                     resizerStyle = {{height: "5px", margin: "0px", border: "2px", background: "transparent"}}>
                                     <div>
                                         <TagInput

@@ -319,12 +319,20 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                     // we flatten out the generators, since we only care about the generators
                     const flatOCRLines = [].concat.apply([], nestedOCRLines);
                     // contract - array of dicts
-                    const generatedPageReadResults = pageReadResults;
-                    generatedPageReadResults.lines = generatedPageReadResults.lines.concat(flatOCRLines);
+                    const generatedPageReadResults = {
+                        ...pageReadResults,
+                        lines: [...baseLines[pageReadResults.page], ...flatOCRLines]
+                    };
                     generatedReadResults.push(generatedPageReadResults);
                 });
-                ocr.analyzeResult.readResults = generatedReadResults;
-                savePromises.push(assetService.saveOCR(asset, ocr, prefix)); // ! careful with race between multiple copies
+                const generatedOcr = {
+                    ...ocr,
+                    analyzeResult: {
+                        ...ocr.analyzeResult,
+                        readResults: generatedReadResults
+                    }
+                }
+                savePromises.push(assetService.saveOCR(asset, generatedOcr, prefix)); // ! careful with race between multiple copies
             }
             return savePromises;
         }));
