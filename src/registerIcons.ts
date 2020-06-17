@@ -57,6 +57,11 @@ export function registerIcons() {
             Refresh: "\uE72C",
             Documentation: "\uEC17",
             More: "\uE712",
+            ChromeRestore: "\uE923",
+            ChromeMinimize: "\uE921",
+            System: "\uE770",
+            SquareShape: "\uF1A6",
+
         },
     });
 }

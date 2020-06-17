@@ -11,6 +11,8 @@ import { AssetService } from "../../../services/assetService";
 import { constants } from "../../../common/constants";
 import { strings } from "../../../common/strings";
 
+const FileType = require('file-type');
+
 export default class LocalFileSystem implements IStorageProvider {
 
     public storageType: StorageType.Local;
@@ -44,6 +46,10 @@ export default class LocalFileSystem implements IStorageProvider {
                 resolve(data.toString());
             });
         });
+    }
+
+    public getFileType(filePath: string): Promise<Buffer> {
+        return FileType.fromFile(filePath);
     }
 
     public readBinary(filePath: string): Promise<Buffer> {
@@ -146,11 +152,10 @@ export default class LocalFileSystem implements IStorageProvider {
         const result: IAsset[] = [];
         const files = await this.listFiles(path.normalize(folderPath));
         for (const file of files) {
-            const asset = await AssetService.createAssetFromFilePath(file);
-            if (this.isSupportedAssetType(asset.type)) {
-                const labelFileName = decodeURIComponent(`${asset.name}${constants.labelFileExtension}`);
-                const ocrFileName = decodeURIComponent(`${asset.name}${constants.ocrFileExtension}`);
-
+            const asset = await AssetService.createAssetFromFilePath(file, undefined, true);
+            if (this.isSupportedAssetType(asset.type)) {    
+                const labelFileName = decodeURIComponent(`${file}${constants.labelFileExtension}`);
+                const ocrFileName = decodeURIComponent(`${file}${constants.ocrFileExtension}`);
                 if (files.find((str) => str === labelFileName)) {
                     asset.state = AssetState.Tagged;
                 } else if (files.find((str) => str === ocrFileName)) {

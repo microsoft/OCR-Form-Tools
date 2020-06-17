@@ -302,6 +302,7 @@ export enum ErrorCode {
     HttpStatusNotFound = "notFound",
     HttpStatusTooManyRequests = "tooManyRequests",
     RequestSendError = "requestSendError",
+    ProjectUploadError = "ProjectUploadError"
 }
 
 /**

@@ -378,3 +378,12 @@
     }
   }
 }
+
+.app-close-icon {
+  display: inline-block;
+  &:hover {
+    color: white;
+      background-color: red;
+      cursor: pointer;
+  }
+}

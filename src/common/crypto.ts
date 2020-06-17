@@ -96,9 +96,14 @@ export async function decryptObject<T = any>(encodedMessage: string, secret: str
     return JSON.parse(json) as T;
 }
 
-export async function sha256Hash(message: string) {
-    const buffer = await crypto.subtle.digest("SHA-256", encodeUtf8(message));
-    return encodeHex(buffer);
+export async function sha256Hash(message: string, nodejsMode?: boolean) {
+    if (nodejsMode) {
+        const nodejsCrypto = await require('crypto');
+        return await nodejsCrypto.createHash('sha256').update(message).digest("hex");
+    } else {
+        const buffer = await crypto.subtle.digest("SHA-256", encodeUtf8(message));
+        return encodeHex(buffer);
+    }
 }
 
 async function importKey(secretBytes: ArrayBuffer) {

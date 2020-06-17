@@ -149,7 +149,9 @@ export default class ConnectionPage extends React.Component<IConnectionPageProps
 
     private onFormSubmit = async (connection: IConnection) => {
         try {
-            connection.providerOptions["sas"] = connection.providerOptions["sas"].trim();
+            if (connection.providerType === "azureBlobStorage") {
+                connection.providerOptions["sas"] = connection.providerOptions["sas"].trim();
+            }
             await this.props.actions.saveConnection(connection);
             toast.success(interpolate(strings.connections.messages.saveSuccess, { connection }));
 

@@ -197,6 +197,22 @@
       {
         "name": "BookAnswers",
         "unicode": "F8A4"
+      },
+      {
+        "name": "ChromeRestore",
+        "unicode": "E923"
+      },
+      {
+        "name": "ChromeMinimize",
+        "unicode": "E921"
+      },
+      {
+        "name": "System",
+        "unicode": "E770"
+      },
+      {
+        "name": "SquareShape",
+        "unicode": "F1A6"
       }
     ]
   }

@@ -82,10 +82,28 @@ export class OCRService {
 
     private fetchOcrUriResult = async (filePath: string, ocrFileName: string) => {
         try {
-            const headers = { "Content-Type": "application/json" };
+            let body;
+            let headers;
+            if (filePath.startsWith("file:")) {
+                const splitFilePath = filePath.split("/")
+                const fileName = splitFilePath[splitFilePath.length - 1];
+                const bodyAndType = await Promise.all(
+                    [
+                        this.storageProvider.readBinary(decodeURI(fileName)),
+                        this.storageProvider.getFileType((decodeURI(fileName)))
+                    ]
+                );
+                body = bodyAndType[0];
+                const fileType = bodyAndType[1].mime;
+                headers = { "Content-Type": fileType, "cache-control": "no-cache" };
+            }
+            else {
+                body = { url: filePath };
+                headers = { "Content-Type": "application/json" };
+            }
             const response = await ServiceHelper.postWithAutoRetry(
                 this.project.apiUriBase + "/formrecognizer/v2.0-preview/layout/analyze",
-                { url: filePath },
+                body,
                 { headers },
                 this.project.apiKey as string,
             );

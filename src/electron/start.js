@@ -15,7 +15,7 @@ const tryConnection = () => client.connect({ port: port }, () => {
         console.log("starting electron");
         startedElectron = true;
         const exec = require("child_process").exec;
-        const electron = exec("yarn electron:run:dev", (error, stdout, stderr) => {
+        const electron = exec("npm run electron:run:dev", (error, stdout, stderr) => {
             console.log("Electron Process Terminated");
         });
 
