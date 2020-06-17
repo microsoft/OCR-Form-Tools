@@ -133,7 +133,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             {
                 key: "column3",
                 name: "Model name",
-                fieldName: "model name",
+                fieldName: "modelname",
                 minWidth: 150,
                 isResizable: true,
                 onColumnClick: this.handleColumnClick,
@@ -386,6 +386,10 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             const newList = composedModels.concat(models);
 
             this.allModels = newList;
+            const updatedProject = this.buildUpdatedProject(
+                composedIds,
+            );
+            await this.props.actions.saveProject(updatedProject, false, false);
             this.setState({
                 modelList: newList,
                 nextLink: link,
@@ -398,6 +402,13 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         } catch (error) {
             console.log(error);
         }
+    }
+
+    private buildUpdatedProject = (modelIds: string[]): IProject => {
+        return {
+            ...this.props.project,
+            composedModelIds: modelIds,
+        };
     }
 
     private reloadModelStatus = async (id: string) => {
@@ -542,6 +553,22 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     }
                 }
             }));
+        } else if (key === "modelname") {
+            return (
+                modelList.slice(0).sort((a,b) => {
+                    if (a.modelName && b.modelName) {
+                        return isSortedDescending ? b.modelName.localeCompare(a.modelName) : -b.modelName.localeCompare(a.modelName)
+                    } else if (a.modelName || b.modelName) {
+                        if (a.modelName) {
+                            return -1;
+                        } else if (b.modelName) {
+                            return 1;
+                        }
+                    } else {
+                        return -1;
+                    }
+                })
+            )
         } else {
             return (modelList.slice(0)
             .sort((a: IModel, b: IModel) => ((isSortedDescending ? a[key] < b[key] : a[key] > b[key]) ? 1 : -1 )));

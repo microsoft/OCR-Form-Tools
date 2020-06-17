@@ -147,6 +147,7 @@ export default class MockFactory {
             apiUriBase: "localhost",
             folderPath: "",
             trainRecord: null,
+            composedModelIds: [],
         };
     }
 
