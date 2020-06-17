@@ -54,6 +54,8 @@ export function registerIcons() {
             ZoomIn: "\uE8A3",
             ZoomOut: "\uE71F",
             TextField: "\uEDC3",
+            StatusCircleCheckmark: "\uF13E",
+            CircleRing: "\uEA3A",
             Filter: "\uE71C",
             Table: "\uED86",
             MapLayers: "\uE81E",
@@ -61,6 +63,8 @@ export function registerIcons() {
             Cancel: "\uE711",
             Documentation: "\uEC17",
             More: "\uE712",
+            ReceiptProcessing: "\uE496",
+            KeyPhraseExtraction: "\uE395",
         },
     });
 }
