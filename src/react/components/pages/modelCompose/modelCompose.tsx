@@ -666,8 +666,14 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             this.refreshClicks = true;
             setTimeout(() => {
                 if (!this.state.refreshFlag && this.refreshClicks) {
+                    const newCols = this.state.columns;
+                    newCols.forEach((ncol) => {
+                    ncol.isSorted = false;
+                    ncol.isSortedDescending = true;
+                    });
                     this.setState({
                         refreshFlag: true,
+                        columns: newCols,
                     });
                 }
             }, 1);
