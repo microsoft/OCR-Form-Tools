@@ -95,6 +95,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                         <PrimaryButton
                             className="model-confirm"
                             theme={getPrimaryGreenTheme()}
+                            disabled={this.state.items.length <= 1 ? true : false}
                             onClick={this.confirm}>
                             Compose
                         </PrimaryButton>
@@ -125,7 +126,6 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
     }
 
     public confirm = () => {
-        console.log(this.modelName)
         this.props.onComposeConfirm(this.modelName);
         this.setState({
             hideModal: true,
