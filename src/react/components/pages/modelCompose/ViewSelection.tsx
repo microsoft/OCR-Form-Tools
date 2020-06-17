@@ -118,15 +118,15 @@ export class ViewSelection extends BaseComponent<
   }
 
   private restoreSelection(): void {
-    const indiceList = [];
+    const indicesList = [];
     this.selectedItems.forEach((i) => {
-      const indice = this.props.items.indexOf(i);
-      if (indice !== -1) {
-        indiceList.push(indice);
+      const index = this.props.items.indexOf(i);
+      if (index !== -1) {
+        indicesList.push(index);
       }
     });
 
-    const indices = indiceList
+    const indices = indicesList
       .map((index) => this.toViewIndex(index))
       .filter((index) => index !== -1);
     for (const index of indices) {

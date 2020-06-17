@@ -361,11 +361,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             });
 
             const composedModels = this.state.composedModelList;
-            // composedModels.forEach(async (m) => {
-            //     if (m.status !== "ready" || "invalid") {
-            //         m = await this.reloadModelStatus(m.modelId);
-            //     }
-            // });
+
             let composedModelIds = [];
             let predictModelFlag = false;
             if (this.state.composeModelId.length !== 0) {
@@ -415,19 +411,13 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         };
     }
 
-    // private reloadModelStatus = async (id: string) => {
-    //     const url = constants.apiModelsPath + "/" + id;
-    //     const renewModel = await this.getComposeModelByURl(url);
-    //     console.log(renewModel);
-    //     return renewModel;
-    // }
-
     private getComposeModelByURl = async (idURL) => {
-        const composeRes = await this.getResponse(idURL);
-        const composeModel: IModel = composeRes.data.modelInfo;
-        composeModel.iconName = "combine";
-        composeModel.key = composeModel.modelId;
-        return composeModel;
+        const composedRes = await this.getResponse(idURL);
+        const composedModel: IModel = composedRes.data.modelInfo;
+        composedModel.iconName = "combine";
+        composedModel.key = composedModel.modelId;
+        console.log("# composedModel:", composedModel)
+        return composedModel;
     }
 
     private getNextPage = async () => {
@@ -442,14 +432,14 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     const composedModels = this.state.composedModelList;
                     const composedIds = this.getComposedIds();
                     currentList = currentList.filter((m) => composedIds.indexOf(m.modelId) === -1);
-                    let reorderdList = this.copyAndSort(currentList, "modelId", false);
-                    reorderdList = composedModels.concat(reorderdList);
+                    let reorderList = this.copyAndSort(currentList, "modelId", false);
+                    reorderList = composedModels.concat(reorderList);
 
                     let nextPageList = nextPage.nextList;
                     nextPageList = nextPageList.filter((m) => composedIds.indexOf(m.modelId) === -1);
 
                     nextPageList.map((m) => m.key = m.modelId);
-                    const newList = reorderdList.concat(nextPageList);
+                    const newList = reorderList.concat(nextPageList);
 
                     this.allModels = newList;
                     const newCols = this.state.columns;
@@ -587,8 +577,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     private onTextChange = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string): void => {
         this.setState({
             modelList: text ?
-                this.allModels.filter((m) => (m.modelId.indexOf(text.toLocaleLowerCase()) > -1) ||
-                (m.modelName !== undefined ? m.modelName.toLocaleLowerCase().indexOf(text.toLocaleLowerCase()) > -1 : false)) : this.allModels,
+                this.allModels.filter(({ modelName, modelId }) => (modelId.indexOf(text.toLowerCase()) > -1) ||
+                (modelName !== undefined ? modelName.toLowerCase().indexOf(text.toLowerCase()) > -1 : false)) : this.allModels,
             hasText: text ? true : false,
         });
     }
