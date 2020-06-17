@@ -133,13 +133,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                         <div className="condensed-list-body">
                             <div className="m-3">
                                 <h4 className="text-shadow-none"> Train a new model </h4>
-                                {this.state.hasCheckbox &&
-                                    <div className="alert alert-warning warning train-notification">
-                                        <FontIcon iconName="WarningSolid"></FontIcon>
-                                        <span className="train-notification-text">
-                                            {strings.train.backEndNotAvailable}
-                                        </span>
-                                    </div>}
                                 {!this.state.isTraining ? (
                                     <div>
                                         <span>
