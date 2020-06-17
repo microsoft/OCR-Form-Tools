@@ -310,22 +310,17 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                                         onRenderDetailsHeader={onRenderDetailsHeader}
                                         >
                                     </DetailsList>
-                                    {this.state.nextLink && !this.state.hasText &&
+                                    {this.state.nextLink && this.state.nextLink !== "*" && !this.state.hasText &&
                                         <div className="next-page-container">
                                             {
                                                 this.state.isLoading ?
-                                                <>
-                                                    {
-                                                        this.state.nextLink !== "*" &&
-                                                        <Spinner
-                                                            label="Model is loading..."
-                                                            className="commandbar-spinner"
-                                                            labelPosition="right"
-                                                            theme={getDefaultDarkTheme()}
-                                                            size={SpinnerSize.small}>
-                                                        </Spinner>
-                                                    }
-                                                </>
+                                                <Spinner
+                                                    label="Model is loading..."
+                                                    className="commandbar-spinner"
+                                                    labelPosition="right"
+                                                    theme={getDefaultDarkTheme()}
+                                                    size={SpinnerSize.small}>
+                                                </Spinner>
                                                 :
                                                 <PrimaryButton
                                                     className="next-page-button"
