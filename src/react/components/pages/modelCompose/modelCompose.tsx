@@ -271,7 +271,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                             isLoading={this.state.isLoading}
                             hasText={this.state.hasText}
                             handleCompose={this.onComposeButtonClick}
-                            handleRefresh={this.onRreshButtonClick}
+                            handleRefresh={this.onRefreshButtonClick}
                             filterTextChange={this.onTextChange}
                             />
                     </div>
@@ -357,7 +357,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
             let composedModels = this.state.composedModelList;
 
-            composedModels=this.reloadCompsoedModel(composedModels);
+            composedModels=this.reloadComposedModel(composedModels);
 
             let composedModelIds = [];
             let predictModelFlag = false;
@@ -408,7 +408,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         };
     }
 
-    private reloadCompsoedModel = (models: IModel[]): IModel[] => {
+    private reloadComposedModel = (models: IModel[]): IModel[] => {
         models.forEach(async (m) => {
             if (m.status !== "ready" && m.status !== "invalid") {
                 const url = constants.apiPreviewPath + "/" + m.modelId;
@@ -662,7 +662,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         }
     }
 
-    private onRreshButtonClick = () => {
+    private onRefreshButtonClick = () => {
         if (!this.refreshClicks) {
             this.refreshClicks = true;
             setTimeout(() => {
