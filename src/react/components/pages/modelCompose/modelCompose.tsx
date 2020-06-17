@@ -538,7 +538,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
     private copyAndSort(modelList: IModel[], columnKey: string, isSortedDescending?: boolean): IModel[] {
         const key = columnKey;
-        if (key === "createdatetime" || key === "lastupdateddatetime") {
+        if (key === "created" || key === "lastupdated") {
             return (modelList.slice(0)
             .sort((a, b): number => {
                 if (isSortedDescending) {
