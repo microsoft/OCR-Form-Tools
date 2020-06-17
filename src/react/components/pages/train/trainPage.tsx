@@ -25,7 +25,6 @@ import url from "url";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
 import { getPrimaryGreenTheme } from "../../../../common/themes";
-import { SkipButton } from "../../shell/skipButton";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];

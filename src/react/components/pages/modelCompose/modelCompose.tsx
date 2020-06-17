@@ -26,7 +26,7 @@ import { IColumn,
          TooltipHost,
          StickyPositionType,
          ScrollablePane,
-         ScrollbarVisibility} from "office-ui-fabric-react";
+         ScrollbarVisibility} from "@fluentui/react";
 import "./modelCompose.scss";
 import { strings } from "../../../../common/strings";
 import { getDarkGreyTheme, getDefaultDarkTheme } from "../../../../common/themes";

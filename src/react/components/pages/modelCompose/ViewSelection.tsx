@@ -3,7 +3,7 @@
 
 // tslint:disable:no-empty-interface
 import { BaseComponent, IRefObject } from "@uifabric/utilities";
-import { ISelection } from "office-ui-fabric-react";
+import { ISelection } from "@fluentui/react";
 import * as React from "react";
 
 export interface IViewSelection {}

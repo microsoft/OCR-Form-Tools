@@ -2,9 +2,8 @@
 // Licensed under the MIT license.
 
 import * as React from "react";
-import { CommandBar, ICommandBarItemProps } from "office-ui-fabric-react/lib/CommandBar";
 import "./modelCompose.scss";
-import { TextField, SpinnerSize, Spinner } from "office-ui-fabric-react";
+import { TextField, SpinnerSize, Spinner, CommandBar, ICommandBarItemProps } from "@fluentui/react";
 import { getPrimaryWhiteTheme, getDefaultDarkTheme } from "../../../../common/themes";
 
 interface IModelComposeCommandBarProps {
