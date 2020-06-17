@@ -355,7 +355,9 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 isLoading: true,
             });
 
-            const composedModels = this.state.composedModelList;
+            let composedModels = this.state.composedModelList;
+
+            composedModels=this.reloadCompsoedModel(composedModels);
 
             let composedModelIds = [];
             let predictModelFlag = false;
@@ -404,6 +406,18 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             ...this.props.project,
             predictModelId: modelId,
         };
+    }
+
+    private reloadCompsoedModel = (models: IModel[]): IModel[] => {
+        models.forEach(async (m) => {
+            if (m.status !== "ready" && m.status !== "invalid") {
+                const url = constants.apiPreviewPath + "/" + m.modelId;
+                const newModel = await this.getComposeModelByURl(url);
+                const newStatus = newModel.status;
+                m.status = newStatus;
+            }
+        })
+        return models;
     }
 
     private getComposeModelByURl = async (idURL) => {
