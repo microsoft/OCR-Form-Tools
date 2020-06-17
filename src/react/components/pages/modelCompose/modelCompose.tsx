@@ -58,7 +58,7 @@ export interface IModelComposePageState {
     isModalSelection: boolean;
     isCompactMode: boolean;
     isComposing: boolean;
-    composedModelsId: string[];
+    composeModelId: string[];
     isLoading: boolean;
     refreshFlag: boolean;
     hasText: boolean;
@@ -192,7 +192,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             isModalSelection: false,
             isCompactMode: false,
             isComposing: false,
-            composedModelsId: [],
+            composeModelId: [],
             isLoading: false,
             refreshFlag: false,
             hasText: false,
@@ -265,7 +265,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 <Customizer {...dark}>
                     <div className="commandbar-container">
                         <ModelComposeCommandBar
-                            composedModels={this.state.composedModelsId}
+                            composedModels={this.state.composeModelId}
                             allModels={this.allModels}
                             isComposing={this.state.isComposing}
                             isLoading={this.state.isLoading}
@@ -366,14 +366,14 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     m = await this.reloadModelStatus(m.modelId);
                 }
             });
-            let composedIds = [];
-            if (this.state.composedModelsId.length !== 0) {
-                composedIds = this.getComposedIds();
-                if (composedIds.indexOf(this.state.composedModelsId[0]) === -1) {
-                    const idURL = constants.apiModelsPath + "/" + this.state.composedModelsId[0];
-                    const newComposeModel = await this.getComposedModelByURl(idURL);
+            let composedModelIds = [];
+            if (this.state.composeModelId.length !== 0) {
+                composedModelIds = this.getComposedIds();
+                if (composedModelIds.indexOf(this.state.composeModelId[0]) === -1) {
+                    const idURL = constants.apiModelsPath + "/" + this.state.composeModelId[0];
+                    const newComposeModel = await this.getComposeModelByURl(idURL);
                     composedModels.push(newComposeModel);
-                    composedIds.push(this.state.composedModelsId[0]);
+                    composedModelIds.push(this.state.composeModelId[0]);
                 }
             }
             const res = await this.getResponse();
@@ -381,13 +381,13 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             const link = res.data.nextLink;
 
             models.map((m) => m.key = m.modelId);
-            models = models.filter((m) => composedIds.indexOf(m.modelId) === -1);
+            models = models.filter((m) => composedModelIds.indexOf(m.modelId) === -1);
 
             const newList = composedModels.concat(models);
 
             this.allModels = newList;
             const updatedProject = this.buildUpdatedProject(
-                composedIds,
+                this.state.composeModelId[0],
             );
             await this.props.actions.saveProject(updatedProject, false, false);
             this.setState({
@@ -404,26 +404,26 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         }
     }
 
-    private buildUpdatedProject = (modelIds: string[]): IProject => {
+    private buildUpdatedProject = (modelId: string): IProject => {
         return {
             ...this.props.project,
-            composedModelIds: modelIds,
+            predictModelId: modelId,
         };
     }
 
     private reloadModelStatus = async (id: string) => {
         const url = constants.apiModelsPath + "/" + id;
-        const renewModel = await this.getComposedModelByURl(url);
+        const renewModel = await this.getComposeModelByURl(url);
         console.log(renewModel);
         return renewModel;
     }
 
-    private getComposedModelByURl = async (idURL) => {
-        const composedRes = await this.getResponse(idURL);
-        const composedModel: IModel = composedRes.data.modelInfo;
-        composedModel.iconName = "combine";
-        composedModel.key = composedModel.modelId;
-        return composedModel;
+    private getComposeModelByURl = async (idURL) => {
+        const composeRes = await this.getResponse(idURL);
+        const composeModel: IModel = composeRes.data.modelInfo;
+        composeModel.iconName = "combine";
+        composeModel.key = composeModel.modelId;
+        return composeModel;
     }
 
     private getNextPage = async () => {
@@ -598,7 +598,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             isComposing: true,
         });
         const selections = this.selectedItems;
-        this.handleComposeModels(selections, composeModelName);
+        this.handleModelsCompose(selections, composeModelName);
     }
 
     private passSelectedItems = (Items) => {
@@ -606,7 +606,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     /** Handle the operation of composing a new model */
-    private handleComposeModels = async (selections: any[], name: string) => {
+    private handleModelsCompose = async (selections: any[], name: string) => {
         setTimeout( async () => {
             try {
                 const idList = [];
@@ -617,7 +617,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 };
                 const link = constants.apiPreviewComposePath;
                 const composeRes = await this.post(link, payload);
-                const composedId = this.getComposedModelId(composeRes);
+                const composeModelId = this.getComposeModelId(composeRes);
                 const newCols = this.state.columns;
                 newCols.forEach((ncol) => {
                     ncol.isSorted = false;
@@ -625,7 +625,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 });
                 this.setState({
                     isComposing: false,
-                    composedModelsId: [composedId],
+                    composeModelId: [composeModelId],
                     columns: newCols,
                 });
             } catch (error) {
@@ -635,7 +635,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     /** get the model Id of new composed model */
-    private getComposedModelId = (composeRes: any): string => {
+    private getComposeModelId = (composeRes: any): string => {
         const location = composeRes["headers"]["location"];
         const splitGroup = location.split("/");
         return splitGroup[splitGroup.length - 1];

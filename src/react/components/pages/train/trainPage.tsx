@@ -295,6 +295,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         return {
             ...this.props.project,
             trainRecord: newTrainRecord,
+            predictModelId: newTrainRecord.modelInfo.modelId,
         };
     }
 

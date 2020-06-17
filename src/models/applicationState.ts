@@ -94,7 +94,7 @@ export interface IProject {
     apiKey?: string | ISecureString;
     folderPath: string;
     trainRecord: ITrainRecordProps;
-    composedModelIds: string[];
+    predictModelId: string;
 }
 
 /**
