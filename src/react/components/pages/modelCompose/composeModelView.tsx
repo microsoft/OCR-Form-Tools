@@ -92,6 +92,12 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                         </DetailsList>
                     }
                     </div>
+                    <>{
+                        this.state.items.length <= 2 &&
+                        <div className="modal-alert">
+                           {strings.modelCompose.modelView.NotEnoughModels}
+                        </div>
+                    }</>
                     <div className="model-button-container">
                         <PrimaryButton
                             className="model-confirm"
@@ -126,10 +132,12 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
     }
 
     public confirm = () => {
-        this.props.onComposeConfirm(this.modelName);
-        this.setState({
-            hideModal: true,
-        })
+        if (this.state.items.length > 1) {
+            this.props.onComposeConfirm(this.modelName);
+            this.setState({
+                hideModal: true,
+            })
+        }
     }
 
     private onTextChange = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string) => {

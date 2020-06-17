@@ -159,7 +159,8 @@ export const spanish: IAppStrings = {
         },
         modelView: {
             titleAria: "Componer vista de modelo",
-            addComposeModelName: "Añadir componer el nombre de modelo ..."
+            addComposeModelName: "Añadir componer el nombre de modelo ...",
+            NotEnoughModels: "Debe tener más de un modelo seleccionado para componer un nuevo modelo",
         },
         commandBar: {
             ariaLabel: "Utilice la barra de comandos para componer modelos",

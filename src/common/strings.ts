@@ -159,6 +159,7 @@ export interface IAppStrings {
         modelView: {
             titleAria: string;
             addComposeModelName: string;
+            NotEnoughModels: string;
         }
         commandBar: {
             ariaLabel: string;

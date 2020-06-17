@@ -159,6 +159,7 @@ export const english: IAppStrings = {
         modelView: {
             titleAria: "Compose Model View",
             addComposeModelName: "Add compose model name...",
+            NotEnoughModels: " Should have at least more than one selected model to compose a new model",
         },
         commandBar: {
             ariaLabel: "Please use command bar to compose models",
