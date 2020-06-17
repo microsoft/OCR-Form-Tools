@@ -4,7 +4,6 @@
 import React from "react";
 import {connect} from "react-redux";
 import url from "url";
-import _ from "lodash";
 import { RouteComponentProps } from "react-router-dom";
 import { IProject, IConnection, IAppSettings, IApplicationState } from "../../../../models/applicationState";
 import { constants } from "../../../../common/constants";
