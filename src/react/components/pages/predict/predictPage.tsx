@@ -650,7 +650,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
     private async getPrediction(): Promise<any> {
         const modelID = this.props.project.predictModelId;
-        //const modelID = _.get(this.props.project, "trainRecord.modelInfo.modelId");
         if (!modelID) {
             throw new AppError(
                 ErrorCode.PredictWithoutTrainForbidden,
