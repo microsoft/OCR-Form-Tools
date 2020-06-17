@@ -412,6 +412,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         const composedModel: IModel = composedRes.data.modelInfo;
         composedModel.iconName = "combine";
         composedModel.key = composedModel.modelId;
+        console.log("# composedModel:", composedModel)
         return composedModel;
     }
 
@@ -427,14 +428,14 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     const composedModels = this.state.composedModelList;
                     const composedIds = this.getComposedIds();
                     currentList = currentList.filter((m) => composedIds.indexOf(m.modelId) === -1);
-                    let reorderdList = this.copyAndSort(currentList, "modelId", false);
-                    reorderdList = composedModels.concat(reorderdList);
+                    let reorderList = this.copyAndSort(currentList, "modelId", false);
+                    reorderList = composedModels.concat(reorderList);
 
                     let nextPageList = nextPage.nextList;
                     nextPageList = nextPageList.filter((m) => composedIds.indexOf(m.modelId) === -1);
 
                     nextPageList.map((m) => m.key = m.modelId);
-                    const newList = reorderdList.concat(nextPageList);
+                    const newList = reorderList.concat(nextPageList);
 
                     this.allModels = newList;
                     const newCols = this.state.columns;
