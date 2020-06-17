@@ -151,3 +151,9 @@
         background-color: transparent;
     }
 }
+
+.ms-Check {
+    &::before {
+        background: transparent;
+    }
+}
