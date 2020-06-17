@@ -8,7 +8,7 @@
 .models-list {
     width: 100%;
     overflow-x: visible;
-} 
+}
 
 .compact-toggle {
     color: white;
@@ -46,7 +46,7 @@
 }
 
 .label-filter-field {
-    margin-left: auto; 
+    margin-left: auto;
     margin-right: 15px;
     background-color: #1E2024;
     max-width: 300px;
@@ -141,4 +141,13 @@
 .modal-cancel {
     width: 110px;
     float: right;
+}
+
+.is-checked {
+    i {
+        color: white;
+    }
+    &::before{
+        background-color: transparent;
+    }
 }
