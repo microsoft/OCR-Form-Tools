@@ -132,7 +132,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             {
                 key: "column3",
                 name: "Model name",
-                fieldName: "modelname",
+                fieldName: "modelName",
                 minWidth: 150,
                 isResizable: true,
                 onColumnClick: this.handleColumnClick,
@@ -155,8 +155,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             },
             {
                 key: "column5",
-                name: "Create Date Time",
-                fieldName: "createdatetime",
+                name: "Created",
+                fieldName: "created",
                 minWidth: 150,
                 maxWidth: 175,
                 isResizable: true,
@@ -170,8 +170,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             },
             {
                 key: "column6",
-                name: "Last Updated Date Time",
-                fieldName: "lastupdateddatetime",
+                name: "Last Updated",
+                fieldName: "lastUpdated",
                 minWidth: 175,
                 maxWidth: 175,
                 isResizable: true,
@@ -555,7 +555,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     }
                 }
             }));
-        } else if (key === "modelname") {
+        } else if (key === "modelName") {
             return (
                 modelList.slice(0).sort((a,b) => {
                     if (a.modelName && b.modelName) {
