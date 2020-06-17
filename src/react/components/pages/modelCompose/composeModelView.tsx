@@ -93,7 +93,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                     }
                     </div>
                     <>{
-                        this.state.items.length <= 2 &&
+                        this.state.items.length < 2 &&
                         <div className="modal-alert">
                            {strings.modelCompose.modelView.NotEnoughModels}
                         </div>
