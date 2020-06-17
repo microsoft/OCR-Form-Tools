@@ -135,9 +135,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             this.props.appTitleActions.setTitle(project.name);
         }
 
-        if (this.props.project) {
-            this.getModelList();
-        }
         document.title = strings.predict.title + " - " + strings.appName;
     }
 
@@ -220,19 +217,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             <h5>
                                 {strings.predict.uploadFile}
                             </h5>
-                            {/* <div style={{marginBottom: "3px"}}>Model source</div>
-                                {this.state.modelList.length !== 0 ?
-                                    <Dropdown
-                                        className="modelDropDown"
-                                        defaultSelectedKey={this.state.modelOption}
-                                        selectedKey={this.state.modelOption}
-                                        options={modelOptions}
-                                        onChange={this.selectModel}
-                                    /> : <Dropdown
-                                            defaultSelectedKey= ""
-                                            selectedKey= ""
-                                            options={modelOptions}/>
-                                } */}
                             <div style={{marginBottom: "3px"}}>Image source</div>
                             <div className="container-space-between">
                                 <Dropdown
@@ -955,47 +939,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             } else {
                 feature.set("isHighlighted", false);
             }
-        }
-    }
-
-    private getModelList = async () => {
-        try {
-            const res = await this.getReponse();
-            const modelList = res.data.modelList;
-            console.log(this.props.project.trainRecord.modelInfo.modelId);
-            this.setState({
-                modelList,
-            }, () => {this.setState({
-                modelOption: this.state.modelList[0].modelId,
-            }); });
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    private async getReponse() {
-        const baseURL = url.resolve(
-            this.props.project.apiUriBase,
-            constants.apiModelsPath,
-        );
-
-        try {
-            return await ServiceHelper.getWithAutoRetry(
-                baseURL,
-                {},
-                this.props.project.apiKey as string,
-            );
-        } catch (err) {
-            ServiceHelper.handleServiceError(err);
-        }
-    }
-
-    private selectModel = (event, option) => {
-        console.log("this is selecting model");
-        if (option.key !== this.state.sourceOption) {
-            this.setState({
-                modelOption: option.key,
-            });
         }
     }
 }
