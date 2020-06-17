@@ -139,7 +139,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     public componentDidUpdate(prevProps, prevState) {
-        console.log(this.props.project);
         if (this.state.file) {
             if (this.state.fileChanged) {
                 this.currPdf = null;
