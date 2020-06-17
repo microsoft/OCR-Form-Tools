@@ -156,7 +156,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             },
             {
                 key: "column5",
-                name: "Create Date Time",
+                name: "Created",
                 fieldName: "createdatetime",
                 minWidth: 150,
                 maxWidth: 175,
@@ -171,7 +171,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             },
             {
                 key: "column6",
-                name: "Last Updated Date Time",
+                name: "Last Updated",
                 fieldName: "lastupdateddatetime",
                 minWidth: 175,
                 maxWidth: 175,
