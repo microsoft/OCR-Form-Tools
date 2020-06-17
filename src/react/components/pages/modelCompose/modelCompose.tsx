@@ -4,7 +4,6 @@
 import React from "react";
 import {connect} from "react-redux";
 import url from "url";
-import _ from "lodash";
 import { RouteComponentProps } from "react-router-dom";
 import { IProject, IConnection, IAppSettings, IApplicationState } from "../../../../models/applicationState";
 import { constants } from "../../../../common/constants";
@@ -133,7 +132,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             {
                 key: "column3",
                 name: "Model name",
-                fieldName: "modelname",
+                fieldName: "modelName",
                 minWidth: 150,
                 isResizable: true,
                 onColumnClick: this.handleColumnClick,
@@ -157,7 +156,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             {
                 key: "column5",
                 name: "Created",
-                fieldName: "createdatetime",
+                fieldName: "created",
                 minWidth: 150,
                 maxWidth: 175,
                 isResizable: true,
@@ -172,7 +171,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             {
                 key: "column6",
                 name: "Last Updated",
-                fieldName: "lastupdateddatetime",
+                fieldName: "lastUpdated",
                 minWidth: 175,
                 maxWidth: 175,
                 isResizable: true,
@@ -271,7 +270,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                             isLoading={this.state.isLoading}
                             hasText={this.state.hasText}
                             handleCompose={this.onComposeButtonClick}
-                            handleRefresh={this.onRreshButtonClick}
+                            handleRefresh={this.onRefreshButtonClick}
                             filterTextChange={this.onTextChange}
                             />
                     </div>
@@ -357,7 +356,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
             let composedModels = this.state.composedModelList;
 
-            composedModels=this.reloadCompsoedModel(composedModels);
+            composedModels=this.reloadComposedModel(composedModels);
 
             let composedModelIds = [];
             let predictModelFlag = false;
@@ -408,7 +407,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         };
     }
 
-    private reloadCompsoedModel = (models: IModel[]): IModel[] => {
+    private reloadComposedModel = (models: IModel[]): IModel[] => {
         models.forEach(async (m) => {
             if (m.status !== "ready" && m.status !== "invalid") {
                 const url = constants.apiPreviewPath + "/" + m.modelId;
@@ -556,7 +555,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     }
                 }
             }));
-        } else if (key === "modelname") {
+        } else if (key === "modelName") {
             return (
                 modelList.slice(0).sort((a,b) => {
                     if (a.modelName && b.modelName) {
@@ -662,7 +661,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         }
     }
 
-    private onRreshButtonClick = () => {
+    private onRefreshButtonClick = () => {
         if (!this.refreshClicks) {
             this.refreshClicks = true;
             setTimeout(() => {
