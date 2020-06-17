@@ -123,6 +123,50 @@ export const spanish: IAppStrings = {
         pleaseWait: "Por favor espera",
         notTrainedYet: "Aún no entrenado",
         backEndNotAvailable: "La función de casilla de verificación funcionará en la versión futura del servicio de reconocimiento de formularios, manténgase atento.",
+        addName:"Agregar nombre de modelo ...",
+    },
+    modelCompose: {
+        title: "Modelo componer",
+        columnAria: {
+            icon: "Modelo con icono es un nuevo modelo compuesto",
+        },
+        loading: "La modelo se está cargando ...",
+        composing: "La modelo está componiendo, por favor espera ...",
+        column: {
+            icon: {
+                name: "Icono compuesto",
+            },
+            id: {
+                headerName: "ID del Modelo",
+                fieldName: "modelId",
+            },
+            name: {
+                headerName: "Nombre del Modelo",
+                fieldName: "modelName",
+            },
+            status: {
+                headerName: "Estado",
+                fieldName: "status",
+            },
+            created: {
+                headerName: "Creada",
+                fieldName: "created",
+            },
+            lastupdated: {
+                headerName: "Última Actualización",
+                fieldName: "lastUpdated",
+            },
+        },
+        modelView: {
+            titleAria: "Componer vista de modelo",
+            addComposeModelName: "Añadir componer el nombre de modelo ..."
+        },
+        commandBar: {
+            ariaLabel: "Utilice la barra de comandos para componer modelos",
+            composeAria: "Componer modelo",
+            refreshAria: "Actualizar la lista",
+            filter: "Filtrar por nombre ...",
+        }
     },
     predict: {
         title: "Analizar",

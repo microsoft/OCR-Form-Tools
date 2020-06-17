@@ -5,6 +5,7 @@ import * as React from "react";
 import "./modelCompose.scss";
 import { TextField, SpinnerSize, Spinner, CommandBar, ICommandBarItemProps } from "@fluentui/react";
 import { getPrimaryWhiteTheme, getDefaultDarkTheme } from "../../../../common/themes";
+import { strings } from "../../../../common/strings";
 
 interface IModelComposeCommandBarProps {
     composedModels: any[];
@@ -23,14 +24,14 @@ export const ModelComposeCommandBar: React.FunctionComponent<IModelComposeComman
         {
             key: "Compose",
             text: "Compose",
-            ariaLabel: "Compose Model",
+            ariaLabel: strings.modelCompose.commandBar.composeAria,
             iconProps: { iconName: "combine" },
             onClick: () => {props.handleCompose(); },
         },
         {
             key: "Refresh",
             text: "Refresh",
-            ariaLabel: "Refresh the list",
+            ariaLabel: strings.modelCompose.commandBar.refreshAria,
             disabled: props.isComposing || props.isLoading,
             iconProps: {iconName: "refresh"},
             onClick: () => {props.handleRefresh(); },
@@ -41,7 +42,7 @@ export const ModelComposeCommandBar: React.FunctionComponent<IModelComposeComman
                 props.isLoading &&
                 <div className="spinner-item">
                     <Spinner
-                        label="Model is loading..."
+                        label={strings.modelCompose.loading}
                         className="commandbar-spinner"
                         labelPosition="right"
                         theme={getDefaultDarkTheme()}
@@ -60,7 +61,7 @@ export const ModelComposeCommandBar: React.FunctionComponent<IModelComposeComman
                 <div className="commandbar-filter">
                     <TextField
                         className="label-filter-field"
-                        placeholder="Filter By Name..."
+                        placeholder={strings.modelCompose.commandBar.filter}
                         disabled={props.allModels ? false : true}
                         theme={getPrimaryWhiteTheme()}
                         onChange={props.filterTextChange}>
@@ -75,7 +76,7 @@ export const ModelComposeCommandBar: React.FunctionComponent<IModelComposeComman
                 className="commandbar"
                 items={commandBarItems}
                 farItems={commandBarFarItems}
-                ariaLabel="Please use command bar to compose models"
+                ariaLabel={strings.modelCompose.commandBar.ariaLabel}
             />
     );
 };

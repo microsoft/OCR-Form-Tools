@@ -104,10 +104,10 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         const columns: IColumn[] = [
             {
                 key: "column1",
-                name: "Composed Icon",
+                name: strings.modelCompose.column.icon.name,
                 className: "composed-icon-cell",
                 isIconOnly: true,
-                ariaLabel: "Model with icon is a new composed model",
+                ariaLabel: strings.modelCompose.columnAria.icon,
                 fieldName: "icon",
                 minWidth: 20,
                 maxWidth: 20,
@@ -119,8 +119,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             },
             {
                 key: "column2",
-                name: "Model ID",
-                fieldName: "modelId",
+                name: strings.modelCompose.column.id.headerName,
+                fieldName: strings.modelCompose.column.id.fieldName,
                 minWidth: 250,
                 maxWidth: 250,
                 isResizable: true,
@@ -131,8 +131,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             },
             {
                 key: "column3",
-                name: "Model name",
-                fieldName: "modelName",
+                name: strings.modelCompose.column.name.headerName,
+                fieldName: strings.modelCompose.column.name.fieldName,
                 minWidth: 150,
                 isResizable: true,
                 onColumnClick: this.handleColumnClick,
@@ -143,8 +143,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             },
             {
                 key: "column4",
-                name: "Status",
-                fieldName: "status",
+                name: strings.modelCompose.column.status.headerName,
+                fieldName: strings.modelCompose.column.status.fieldName,
                 minWidth: 50,
                 maxWidth: 100,
                 isResizable: true,
@@ -155,8 +155,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             },
             {
                 key: "column5",
-                name: "Created",
-                fieldName: "created",
+                name: strings.modelCompose.column.created.headerName,
+                fieldName: strings.modelCompose.column.created.fieldName,
                 minWidth: 150,
                 maxWidth: 175,
                 isResizable: true,
@@ -170,8 +170,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             },
             {
                 key: "column6",
-                name: "Last Updated",
-                fieldName: "lastUpdated",
+                name: strings.modelCompose.column.lastupdated.headerName,
+                fieldName: strings.modelCompose.column.lastupdated.fieldName,
                 minWidth: 175,
                 maxWidth: 175,
                 isResizable: true,
@@ -217,7 +217,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         if (this.props.project) {
             this.getModelList();
         }
-        document.title = "Model compose page - " + strings.appName;
+        document.title = strings.modelCompose.title + "-" + strings.appName;
     }
 
     public componentDidUpdate(prevProps, prevState) {
@@ -287,7 +287,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                                 passSelectedItems={this.passSelectedItems}>
                                 {this.state.isComposing ?
                                 <Spinner
-                                    label="Model is composing, please wait..."
+                                    label= {strings.modelCompose.composing}
                                     className="compose-spinner"
                                     theme={getDefaultDarkTheme()}
                                     size={SpinnerSize.large}>
@@ -314,7 +314,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                                             {
                                                 this.state.isLoading ?
                                                 <Spinner
-                                                    label="Model is loading..."
+                                                    label={strings.modelCompose.loading}
                                                     className="commandbar-spinner"
                                                     labelPosition="right"
                                                     theme={getDefaultDarkTheme()}
@@ -364,7 +364,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 composedModelIds = this.getComposedIds();
                 predictModelFlag = true;
                 if (composedModelIds.indexOf(this.state.composeModelId[0]) === -1) {
-                    const idURL = constants.apiModelsPath + "/" + this.state.composeModelId[0];
+                    const idURL = constants.apiPreviewPath + "/" + this.state.composeModelId[0];
                     const newComposeModel = await this.getComposeModelByURl(idURL);
                     composedModels.push(newComposeModel);
                     composedModelIds.push(this.state.composeModelId[0]);
@@ -424,7 +424,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         const composedModel: IModel = composedRes.data.modelInfo;
         composedModel.iconName = "combine";
         composedModel.key = composedModel.modelId;
-        console.log("# composedModel:", composedModel)
         return composedModel;
     }
 
@@ -440,7 +439,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     const composedModels = this.state.composedModelList;
                     const composedIds = this.getComposedIds();
                     currentList = currentList.filter((m) => composedIds.indexOf(m.modelId) === -1);
-                    let reorderList = this.copyAndSort(currentList, "modelId", false);
+                    let reorderList = this.copyAndSort(currentList, strings.modelCompose.column.id.fieldName, false);
                     reorderList = composedModels.concat(reorderList);
 
                     let nextPageList = nextPage.nextList;
@@ -538,7 +537,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
     private copyAndSort(modelList: IModel[], columnKey: string, isSortedDescending?: boolean): IModel[] {
         const key = columnKey;
-        if (key === "created" || key === "lastupdated") {
+        if (key === strings.modelCompose.column.created.fieldName || key === strings.modelCompose.column.lastupdated.fieldName) {
             return (modelList.slice(0)
             .sort((a, b): number => {
                 if (isSortedDescending) {
@@ -555,7 +554,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     }
                 }
             }));
-        } else if (key === "modelName") {
+        } else if (key === strings.modelCompose.column.name.fieldName) {
             return (
                 modelList.slice(0).sort((a,b) => {
                     if (a.modelName && b.modelName) {

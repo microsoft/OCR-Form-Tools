@@ -138,7 +138,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                             Model Name
                                         </span>
                                         <TextField
-                                            placeholder="Add model name..."
+                                            placeholder={strings.train.addName}
                                             autoComplete="off"
                                             onChange={this.onTextChanged}
                                             >

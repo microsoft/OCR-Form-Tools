@@ -5,6 +5,7 @@ import React from "react";
 import { Customizer, IColumn, ICustomizations, Modal, DetailsList, SelectionMode, DetailsListLayoutMode, PrimaryButton, TextField } from "@fluentui/react";
 import { getDarkGreyTheme, getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/themes";
 import { IModel } from "../predict/predictPage";
+import { strings } from "../../../../common/strings";
 
 
 export interface IComposeModelViewProps {
@@ -34,7 +35,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
         const columns: IColumn[] = [
             {
                 key: "column1",
-                name: "Model Id",
+                name: strings.modelCompose.column.id.headerName,
                 minWidth: 250,
                 maxWidth: 250,
                 isResizable: true,
@@ -44,7 +45,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
             },
             {
                 key: "column2",
-                name: "Model Name",
+                name: strings.modelCompose.column.name.headerName,
                 minWidth: 50,
                 isResizable: true,
                 onRender: (model) => {
@@ -61,7 +62,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
         return (
             <Customizer {...dark}>
                 <Modal
-                    titleAriaId={"Compose Model View"}
+                    titleAriaId={strings.modelCompose.modelView.titleAria}
                     isOpen={!this.state.hideModal}
                     isModeless={true}
                     containerClassName="modal-container"
@@ -70,7 +71,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                         <span>Add name for Compose model</span>
                         <TextField
                             className="modal-textfield"
-                            placeholder="Add compose model name..."
+                            placeholder={strings.modelCompose.modelView.addComposeModelName}
                             onChange={this.onTextChange}
                             >
                         </TextField>
@@ -95,7 +96,6 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                         <PrimaryButton
                             className="model-confirm"
                             theme={getPrimaryGreenTheme()}
-                            disabled={this.state.items.length <= 1 ? true : false}
                             onClick={this.confirm}>
                             Compose
                         </PrimaryButton>
