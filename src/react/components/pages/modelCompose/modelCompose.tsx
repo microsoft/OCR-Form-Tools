@@ -527,7 +527,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             }
         });
         const newList = this.copyAndSort(modelList, currColumn.fieldName!, currColumn.isSortedDescending);
-        this.allModels = newList;
         this.setState({
             columns: newColumns,
             modelList: newList,
