@@ -10,6 +10,7 @@ export interface ITrainRecordProps {
     modelInfo: {
         modelId: string;
         createdDateTime: string;
+        modelName: string;
     };
 }
 
@@ -21,15 +22,19 @@ export default class TrainRecord extends React.Component<ITrainRecordProps, ITra
             <aside className="mt-3">
                 <h5> Model information </h5>
                 <div>
-                    <h6> Model ID </h6>
+                    <h6> Model ID: </h6>
                     <p>
                         {this.props.modelInfo.modelId}
                     </p>
-                    <h6> Created date and time</h6>
+                    <h6> Model Name: </h6>
+                    <p>
+                        {this.props.modelInfo.modelName}
+                    </p>
+                    <h6> Created date and time: </h6>
                     <p>
                         {new Date(this.props.modelInfo.createdDateTime).toLocaleString()}
                     </p>
-                    <h6> Average accuracy </h6>
+                    <h6> Average accuracy: </h6>
                     <p>
                         {(this.props.averageAccuracy * 100).toFixed(2) + "%"}
                     </p>
