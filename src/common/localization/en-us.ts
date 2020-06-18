@@ -122,6 +122,51 @@ export const english: IAppStrings = {
         pleaseWait: "Please wait",
         notTrainedYet: "Not trained yet",
         backEndNotAvailable: "Checkbox feature will work in future version of Form Recognizer service, please stay tuned.",
+        addName: "Add model name...",
+    },
+    modelCompose: {
+        title: "Model compose",
+        columnAria: {
+            icon: "Model with icon is a new composed model",
+        },
+        loading: "Model is loading...",
+        composing: "Model is composing, please wait...",
+        column: {
+            icon: {
+                name:"Composed Icon",
+            },
+            id: {
+                headerName: "Model Id",
+                fieldName: "modelId",
+            },
+            name: {
+                headerName: "Model Name",
+                fieldName: "modelName",
+            },
+            status: {
+                headerName: "Status",
+                fieldName: "status",
+            },
+            created: {
+                headerName: "Created",
+                fieldName: "created",
+            },
+            lastupdated: {
+                headerName: "Last Updated",
+                fieldName: "lastUpdated",
+            },
+        },
+        modelView: {
+            titleAria: "Compose Model View",
+            addComposeModelName: "Add compose model name...",
+            NotEnoughModels: " Should have at least more than one selected model to compose a new model",
+        },
+        commandBar: {
+            ariaLabel: "Please use command bar to compose models",
+            composeAria: "Compose Model",
+            refreshAria: "Refresh the list",
+            filter: "Filter By Name...",
+        }
     },
     predict: {
         title: "Analyze",

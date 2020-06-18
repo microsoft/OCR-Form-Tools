@@ -41,6 +41,13 @@ export function Sidebar({ project }) {
                 </li>
                 <li>
                     <ConditionalNavLink disabled={!projectId}
+                        title={`Model Compose`}
+                        to={`/projects/${projectId}/modelcompose`}>
+                        <FontIcon iconName="combine"/>
+                    </ConditionalNavLink>
+                </li>
+                <li>
+                    <ConditionalNavLink disabled={!projectId}
                         title={`Analyze`}
                         to={`/projects/${projectId}/predict`}>
                         <FontIcon iconName="Insights" />

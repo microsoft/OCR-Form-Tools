@@ -122,7 +122,52 @@ export interface IAppStrings {
         pleaseWait: string;
         notTrainedYet: string;
         backEndNotAvailable: string;
+        addName: string;
     };
+    modelCompose: {
+        title: string;
+        columnAria: {
+            icon: string;
+        }
+        loading: string;
+        composing: string;
+        column: {
+            icon: {
+                name: string;
+            }
+            id: {
+                headerName: string;
+                fieldName: string;
+            }
+            name: {
+                headerName: string;
+                fieldName: string;
+            }
+            status: {
+                headerName: string;
+                fieldName: string;
+            }
+            created: {
+                headerName: string;
+                fieldName: string;
+            }
+            lastupdated: {
+                headerName: string;
+                fieldName: string;
+            }
+        }
+        modelView: {
+            titleAria: string;
+            addComposeModelName: string;
+            NotEnoughModels: string;
+        }
+        commandBar: {
+            ariaLabel: string;
+            composeAria: string;
+            refreshAria: string;
+            filter: string;
+        }
+    }
     predict: {
         title: string;
         uploadFile: string;

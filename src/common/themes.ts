@@ -1,4 +1,4 @@
-import {createTheme} from "@fluentui/react";
+import {createTheme, IPalette} from "@fluentui/react";
 
 const greenButtonPalette = {
     themePrimary: "#78ad0e",
@@ -201,6 +201,34 @@ const greenWithWhiteBackgroundPalette = {
     white: "#ffffff",
   };
 
+const DarkDefaultPalette: Partial<IPalette> = {
+    themeDarker: "#82c7ff",
+    themeDark: "#6cb8f6",
+    themeDarkAlt: "#3aa0f3",
+    themePrimary: "#2899f5",
+    themeSecondary: "#0078d4",
+    themeTertiary: "#235a85",
+    themeLight: "#004c87",
+    themeLighter: "#043862",
+    themeLighterAlt: "#092c47",
+    black: "#ffffff",
+    neutralDark: "#faf9f8",
+    neutralPrimary: "#f3f2f1",
+    neutralPrimaryAlt: "#c8c6c4",
+    neutralSecondary: "#a19f9d",
+    neutralSecondaryAlt: "#979693",
+    neutralTertiary: "#797775",
+    neutralTertiaryAlt: "#484644",
+    neutralQuaternary: "#3b3a39",
+    neutralQuaternaryAlt: "#323130",
+    neutralLight: "#292827",
+    neutralLighter: "#252423",
+    neutralLighterAlt: "#201f1e",
+    white: "#1b1a19",
+    redDark: "#F1707B",
+  };
+
+const defaultDarkTheme = createTheme({palette: DarkDefaultPalette});
 const whiteTheme = createTheme({palette: whiteButtonPalette});
 const redTheme = createTheme({palette: redButtonPalette});
 const greenTheme = createTheme({palette: greenButtonPalette});
@@ -240,4 +268,8 @@ export function getDarkTheme() {
 
 export function getGreenWithWhiteBackgroundTheme() {
     return greenWithWhiteBackgroundTheme;
+}
+
+export function getDefaultDarkTheme() {
+    return defaultDarkTheme;
 }
