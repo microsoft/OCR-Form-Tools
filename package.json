@@ -42,7 +42,6 @@
         "rimraf": "^3.0.2",
         "serialize-javascript": "^3.0.0",
         "shortid": "^2.2.15",
-        "utf8": "^3.0.0",
         "utif": "^3.1.0",
         "vott-react": "^0.2.12"
     },
@@ -57,9 +56,9 @@
         "webpack:prod": "webpack --config ./config/webpack.prod.js",
         "electron:run:dev": "electron . --remote-debugging-port=9223",
         "electron:run:prod": "yarn webpack:prod && electron . --remote-debugging-port=9223",
-        "electron:start:dev": "yarn webpack:dev && yarn electron-start",
+        "electron:start:dev": "yarn electron-start",
         "electron:start:prod": "yarn webpack:prod && yarn electron-start",
-        "electron-start": "node src/electron/start",
+        "electron-start": "yarn webpack:dev && node src/electron/start",
         "tslint": "./node_modules/.bin/tslint 'src/**/*.ts*'",
         "tslintfix": "./node_modules/.bin/tslint 'src/**/*.ts*' --fix"
     },

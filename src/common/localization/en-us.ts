@@ -117,6 +117,7 @@ export const english: IAppStrings = {
         },
     },
     train: {
+        defaultLabelFolderURL: "http://example.com/folder",
         title: "Train",
         training: "Training",
         pleaseWait: "Please wait",

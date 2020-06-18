@@ -86,8 +86,15 @@ export class AssetService {
         const extensionParts = fileNameParts[fileNameParts.length - 1].split(/[\?#]/);
         let assetFormat = extensionParts[0].toLowerCase();
 
-        if (!nodejsMode && supportedImageFormats.hasOwnProperty(assetFormat)) {
-            const types = await this.getMimeType(filePath);
+        if (supportedImageFormats.hasOwnProperty(assetFormat)) {
+            let types;
+            if (nodejsMode) {
+                const FileType = require('file-type');
+                const fileType = await FileType.fromFile(normalizedPath);
+                types = [fileType.ext];
+            } else {
+                types = await this.getMimeType(filePath);
+            }
 
             // If file was renamed/spoofed - fix file extension to true MIME type and show message
             if (!types.includes(assetFormat)) {

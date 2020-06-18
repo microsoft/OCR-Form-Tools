@@ -118,6 +118,7 @@ export const spanish: IAppStrings = {
         },
     },
     train: {
+        defaultLabelFolderURL: "http://example.com/folder",
         title: "Entrenar",
         training: "Entrenamiento",
         pleaseWait: "Por favor espera",

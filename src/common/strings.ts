@@ -117,6 +117,7 @@ export interface IAppStrings {
         },
     };
     train: {
+        defaultLabelFolderURL: string;
         title: string;
         training: string;
         pleaseWait: string;
