@@ -4,8 +4,8 @@
 import React from "react";
 import { Customizer, IColumn, ICustomizations, Modal, DetailsList, SelectionMode, DetailsListLayoutMode, PrimaryButton, TextField } from "@fluentui/react";
 import { getDarkGreyTheme, getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/themes";
-import { IModel } from "../predict/predictPage";
 import { strings } from "../../../../common/strings";
+import { IModel } from "./modelCompose";
 
 
 export interface IComposeModelViewProps {
