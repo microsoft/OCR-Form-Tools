@@ -35,8 +35,8 @@ import { bindActionCreators } from "redux";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
-import { ViewSelection } from "./ViewSelection";
 import ComposeModelView from "./composeModelView";
+import { ViewSelection } from "./viewSelection";
 
 export interface IModelComposePageProps extends RouteComponentProps, React.Props<ModelComposePage> {
     recentProjects: IProject[];
