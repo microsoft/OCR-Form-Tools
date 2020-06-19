@@ -380,10 +380,23 @@
 }
 
 .app-close-icon {
+  padding: 6px 18px;
   display: inline-block;
   &:hover {
     color: white;
       background-color: red;
+      cursor: pointer;
+  }
+}
+
+.end-icons {
+  padding: 6px 18px;
+  color: #ccc;
+  display: inline-block;
+
+  &:hover {
+      color: #fff;
+      background-color: $lighter-2;
       cursor: pointer;
   }
 }

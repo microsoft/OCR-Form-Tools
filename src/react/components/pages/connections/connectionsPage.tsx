@@ -16,7 +16,6 @@ import ConnectionForm from "./connectionForm";
 import ConnectionItem from "./connectionItem";
 import "./connectionsPage.scss";
 import { toast } from "react-toastify";
-import { SkipButton } from "../../shell/skipButton";
 
 /**
  * Properties for Connection Page

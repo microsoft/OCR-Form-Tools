@@ -3,11 +3,11 @@
 
 import React from "react";
 import { connect } from "react-redux";
-import { FontIcon, CommandBarButton, IButtonStyles, IOverflowSetItemProps, OverflowSet, Customizer, ICustomizations } from "@fluentui/react";
+import { FontIcon, CommandBarButton, IButtonStyles, IIconProps,  IOverflowSetItemProps, OverflowSet, Customizer, ICustomizations, Separator, ContextualMenuItemType } from "@fluentui/react";
 import { IApplicationState } from "../../../models/applicationState";
 import { PlatformType, isElectron } from "../../../common/hostProcess";
 import "./titleBar.scss";
-import { getLightGreyTheme } from "../../../common/themes";
+import { getLightGreyTheme, getSubMenuTheme } from "../../../common/themes";
 
 export interface ITitleBarProps extends React.Props<TitleBar> {
     icon?: string | JSX.Element;
@@ -66,7 +66,7 @@ export class TitleBar extends React.Component<ITitleBarProps, ITitleBarState> {
             return null;
         }
 
-        const dark: ICustomizations = {
+        const titleBarTheme: ICustomizations = {
             settings: {
               theme: getLightGreyTheme(),
             },
@@ -74,35 +74,35 @@ export class TitleBar extends React.Component<ITitleBarProps, ITitleBarState> {
         };
 
         const onRenderItem = (item: IOverflowSetItemProps): JSX.Element => {
-            if (item.onRender) {
-              return item.onRender(item);
-            }
-            return (
-              <CommandBarButton
-                menuProps={item.subMenuProps}
-                text={item.name}
-              />
-            );
-          };
-          
-          const onRenderOverflowButton = (overflowItems: any[] | undefined): JSX.Element => {
             const buttonStyles: Partial<IButtonStyles> = {
-              root: {
-                minWidth: 0,
-                padding: '0 4px',
-                alignSelf: 'stretch',
-                height: 'auto',
-              },
+                root: {
+                    padding: '0 5px',
+                    alignSelf: 'stretch',
+                }
             };
+            const iconStyles: Partial<IIconProps> = {
+                style: {display: "none"}
+            };
+
             return (
-              <CommandBarButton
-                ariaLabel="More items"
-                role="menuitem"
-                styles={buttonStyles}
-                menuProps={{ items: overflowItems! }}
-              />
+                <CommandBarButton
+                    menuProps={item.subMenuProps}
+                    styles={buttonStyles}
+                    text={item.name}
+                    menuIconProps={iconStyles}
+                />
             );
-          };
+        };
+          
+        const onRenderOverflowButton = (overflowItems: any[] | undefined): JSX.Element => {
+            return (
+                <CommandBarButton
+                    ariaLabel="More items"
+                    role="menuitem"
+                    menuProps={{ items: overflowItems! }}
+                />
+            );
+        };
 
         return (
             <div className="title-bar bg-lighter-3">
@@ -111,7 +111,7 @@ export class TitleBar extends React.Component<ITitleBarProps, ITitleBarState> {
                     {typeof (this.props.icon) !== "string" && this.props.icon}
                 </div>
                 {this.isElectron &&
-                    <Customizer {...dark}>
+                    <Customizer {...titleBarTheme}>
                         <OverflowSet
                             role="menubar"
                             items={this.addDefaultMenuItems(this.state.menu)}
@@ -124,14 +124,21 @@ export class TitleBar extends React.Component<ITitleBarProps, ITitleBarState> {
                 <div className="title-bar-controls">
                     {this.props.children}
                     {this.isElectron &&
-                        <div>
-                            <FontIcon className="app-close-icon" iconName="ChromeMinimize" onClick={this.minimizeWindow}/>
-                            {this.state.maximized
-                                ? <FontIcon className="app-close-icon" iconName="ChromeRestore" onClick={this.unmaximizeWindow}/>
-                                : <FontIcon className="app-close-icon" iconName="SquareShape" onClick={this.maximizeWindow}/>
-                            }
-                            <FontIcon className="app-close-icon" iconName="Cancel" onClick={this.closeWindow}/>
-                        </div>
+                        [
+                            <Separator vertical key="seperator" className="mr-2 ml-2"/>,
+                            <div key="minimizeDiv">
+                                <FontIcon className="end-icons" iconName="ChromeMinimize" onClick={this.minimizeWindow}/>
+                            </div>,
+                            <div key="resizeDiv">
+                                {this.state.maximized
+                                    ? <FontIcon  className="end-icons" iconName="ChromeRestore" onClick={this.unmaximizeWindow}/>
+                                    : <FontIcon className="end-icons" iconName="SquareShape" onClick={this.maximizeWindow}/>
+                                }
+                            </div>,
+                            <div key="closeDiv">
+                                <FontIcon className="app-close-icon" iconName="Cancel" onClick={this.closeWindow}/>
+                            </div>
+                        ]
                     }
                 </div>
             </div>
@@ -154,12 +161,19 @@ export class TitleBar extends React.Component<ITitleBarProps, ITitleBarState> {
         const itemType: string = menuItem["type"];
 
         switch (itemType) {
+            case "separator":
+                results.push({
+                    key: menuItem.label,
+                    itemType: ContextualMenuItemType.Divider,
+                })
+                break;
             case "submenu":
                 results.push({
                     key: menuItem.label,
                     name: menuItem.label,
                     subMenuProps: {
-                        items: this.addDefaultMenuItems(menuItem["submenu"])
+                        theme: getSubMenuTheme(),
+                        items: this.addDefaultMenuItems(menuItem["submenu"]),
                     }
                 });
                 break;
@@ -175,11 +189,11 @@ export class TitleBar extends React.Component<ITitleBarProps, ITitleBarState> {
     }
 
     private onMenuItemClick(e: any, menuItem: Electron.MenuItem) {
-        if (menuItem.label == "Zoom In") {
+        if (menuItem.label === "Zoom In") {
             this.currentWindow.webContents.setZoomLevel(this.currentWindow.webContents.zoomLevel + .3);
-        } else if (menuItem.label == "Zoom Out") {
+        } else if (menuItem.label === "Zoom Out") {
             this.currentWindow.webContents.setZoomLevel(this.currentWindow.webContents.zoomLevel - .3);
-        } else if (menuItem.label == "Reset Zoom") {
+        } else if (menuItem.label === "Reset Zoom") {
             this.currentWindow.webContents.setZoomLevel(-3);
         } else if (menuItem.click) {
             menuItem.click.call(menuItem, menuItem, this.currentWindow);

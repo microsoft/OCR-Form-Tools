@@ -12,6 +12,8 @@ async function createWindow() {
     const windowOptions: BrowserWindowConstructorOptions = {
         width: 1024,
         height: 768,
+        minWidth: 450,
+        minHeight: 100,
         frame: process.platform === "linux",
         titleBarStyle: "hidden",
         backgroundColor: "#272B30",
@@ -60,11 +62,11 @@ function registerContextMenu(browserWindow: BrowserWindow): void {
     const inputMenu = Menu.buildFromTemplate([
         { role: "undo", accelerator: "CmdOrCtrl+Z" },
         { role: "redo", accelerator: "CmdOrCtrl+Shift+Z" },
-        { type: "separator" },
+        { type: "separator", label: "separator1"},
         { role: "cut", accelerator: "CmdOrCtrl+X" },
         { role: "copy", accelerator: "CmdOrCtrl+C" },
         { role: "paste", accelerator: "CmdOrCtrl+V" },
-        { type: "separator" },
+        { type: "separator", label: "separator2"},
         { role: "selectAll", accelerator: "CmdOrCtrl+A" },
     ]);
 
@@ -91,10 +93,10 @@ function registerContextMenu(browserWindow: BrowserWindow): void {
         {
             label: "View", submenu: [
                 { role: "reload" },
-                // { type: "separator" },
+                { type: "separator", label: "separator1" },
                 { role: "toggleDevTools" },
                 { role: "togglefullscreen" },
-                // { type: "separator" },
+                { type: "separator", label: "separator2" },
                 { role: "resetZoom", label: "Reset Zoom" },
                 { role: "zoomIn" },
                 { role: "zoomOut" },

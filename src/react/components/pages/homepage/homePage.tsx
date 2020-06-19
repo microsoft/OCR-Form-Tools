@@ -25,7 +25,6 @@ import {
 import { StorageProviderFactory } from "../../../../providers/storage/storageProviderFactory";
 import { decryptProject } from "../../../../common/utils";
 import { toast } from "react-toastify";
-import { SkipButton } from "../../shell/skipButton";
 import { isElectron } from "../../../../common/hostProcess";
 
 export interface IHomePageProps extends RouteComponentProps, React.Props<HomePage> {

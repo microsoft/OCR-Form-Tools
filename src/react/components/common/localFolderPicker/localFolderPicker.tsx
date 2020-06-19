@@ -1,6 +1,8 @@
 import React from "react";
 import { LocalFileSystemProxy } from "../../../../providers/storage/localFileSystemProxy";
 import { strings } from "../../../../common/strings";
+import { TextField, PrimaryButton } from "@fluentui/react";
+import { getPrimaryGreenTheme, getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
 
 /**
  * Properties for Local Folder Picker
@@ -41,18 +43,25 @@ export default class LocalFolderPicker extends React.Component<ILocalFolderPicke
     }
 
     public render() {
-        const { id } = this.props;
         const { value } = this.state;
 
         return (
             <div className="input-group">
-                <input id={id} type="text" className="form-control" value={value} readOnly={true} />
-                <div className="input-group-append">
-                    <button className="btn btn-primary"
-                        type="button"
-                        onClick={this.selectLocalFolder}>{strings.connections.providers.local.selectFolder}
-                    </button>
-                </div>
+                <TextField
+                    className="mr-2 flex-textbox"
+                    theme={getGreenWithWhiteBackgroundTheme()}
+                    style={{cursor: "pointer"}}
+                    onClick={this.selectLocalFolder}
+                    readOnly={true}
+                    value={value}
+                />
+                <PrimaryButton
+                    className="keep-button-80px"
+                    theme={getPrimaryGreenTheme()}
+                    text={strings.connections.providers.local.folderPath}
+                    autoFocus={true}
+                    onClick={this.selectLocalFolder}
+                />
             </div>
         );
     }
