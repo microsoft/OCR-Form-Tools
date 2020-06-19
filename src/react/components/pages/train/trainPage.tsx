@@ -244,7 +244,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     private async train(): Promise<any> {
         const baseURL = url.resolve(
             this.props.project.apiUriBase,
-            constants.apiPreviewPath,
+            constants.apiModelsPath,
         );
         const provider = this.props.project.sourceConnection.providerOptions as any;
         const trainSourceURL = provider.sas;
