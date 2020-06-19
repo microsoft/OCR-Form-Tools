@@ -81,9 +81,8 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                     </div>
                 </li>
                 {!postProcessedValue &&
-                    <li className="prediction-tag-item-label mt-0 mb-1">
-                    <span className="field-units">{this.getPredictionValuePrefix(item.fieldName)}</span>{item.text}
-                </li>
+                    <li className="prediction-tag-item-label mt-0 mb-1">{item.text}
+                    </li>
                 }
                 {postProcessedValue && this.renderPostProcessedValue(postProcessedValue, item)}
             </div>
@@ -208,23 +207,16 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         }
     }
 
-    private getPredictionValuePrefix(fieldName: string) {
-        if (/price|Total|Tax|Subtotal/.test(fieldName)) {
-            return "$"
-        }
-        return "";
-    }
-
     private renderPostProcessedValue(val: string, item) {
         const valueName = val.split(/:(.+)/)[0];
         const value = val.split(/:(.+)/)[1];
         return (
             <>
                 <li className="prediction-tag-item-label mt-0">
-                    <span className="field-units">text: </span>{item.text}
+                    <span className="field-labels">text: </span>{item.text}
                 </li>
                 <li className="prediction-tag-item-label mb-1">
-                    <span className="field-units">{valueName}:</span>{value}
+                    <span className="field-labels">{valueName}:</span>{value}
                 </li>
             </>
         )
