@@ -76,6 +76,8 @@ const defaultStyle: GeneratorTextStyle = {
     outlineWidth: 0,
 };
 
+// TODO expose these in control panel
+// TODO add scroll to control panel
 const GEN_CONSTANTS = {
     weight: 100,
     weightJitter: 50,
@@ -87,15 +89,15 @@ const GEN_CONSTANTS = {
     heightScaleJitter: 1.2,
     sizeJitter: 2,
     offsetX: 10, // offset in canvas orientation, from center (rendering point)
-    offsetXJitter: 10,
+    offsetXJitter: 20,
     offsetY: 0, // offset
-    offsetYJitter: 5,
+    offsetYJitter: 6,
     // TODO better than linear lower bound (super long fields shouldn't have multiple)
     width_low: 0.3,
     width_high: 1.05,
     height_low: 0.2,
     height_high: 1,
-    sizing_samples: 10, // sample count for line sampling
+    sizing_samples: 12, // sample count for line sampling
     sizing_string: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890',
     sizing_range: [10, 30] // search range for font sizing
 }
@@ -287,7 +289,8 @@ const generateString: (g: IGenerator, l: number[][]) => string = (generator, lim
     const regexDict = {
         [FieldType.String]: {
             [FieldFormat.NotSpecified]: defaultRegex,
-            [FieldFormat.Alphanumeric]: `^[a-zA-Z0-9 ]{${low},${high}}$`,
+            [FieldFormat.Alphanumeric]: `^[a-zA-Z ]{${low},${high}}$`,
+            // [FieldFormat.Alphanumeric]: `^[a-zA-Z0-9 ]{${low},${high}}$`,
             [FieldFormat.NoWhiteSpaces]: `^[a-zA-Z0-9]{${low},${high}}$`,
         },
         [FieldType.Number]: {
@@ -297,9 +300,9 @@ const generateString: (g: IGenerator, l: number[][]) => string = (generator, lim
         [FieldType.Date]: {
             [FieldFormat.NotSpecified]: `^\\d\\d([- /.])\\d\\d\\1\\d{2,4}$
             `,
-            [FieldFormat.DMY]: `^${dd}([- /.])${mm}\\1${yy}$`,
-            [FieldFormat.MDY]: `^${mm}([- /.])${dd}\\1${yy}$`,
-            [FieldFormat.YMD]: `^${yy}([- /.])${mm}\\1${dd}$`,
+            [FieldFormat.DMY]: `^${dd}([- /.])${mm}\\2${yy}$`,
+            [FieldFormat.MDY]: `^${mm}([- /.])${dd}\\2${yy}$`,
+            [FieldFormat.YMD]: `^${yy}([- /.])${mm}\\2${dd}$`,
         },
         [FieldType.Time]: {
             [FieldFormat.NotSpecified]: "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$",
@@ -337,7 +340,7 @@ const getStringLimitsAndFormat: (g: IGenerator, mapUnitsPerChar: number[]) => Li
     const charWidthLow = Math.round(mapWidth * GEN_CONSTANTS.width_low / mapWidthPerChar);
     const charWidthHigh = Math.round(mapWidth * GEN_CONSTANTS.width_high / mapWidthPerChar);
     const charHeightLow = Math.max(1, Math.round(mapHeight * GEN_CONSTANTS.height_low / mapHeightPerChar));
-    const charHeightHigh = Math.round(mapHeight * GEN_CONSTANTS.height_high / mapHeightPerChar);
+    let charHeightHigh = Math.round(mapHeight * GEN_CONSTANTS.height_high / mapHeightPerChar);
 
     const fontWeight = GEN_CONSTANTS.weight + jitter(GEN_CONSTANTS.weightJitter, true);
     const lineHeight = GEN_CONSTANTS.height + jitter(GEN_CONSTANTS.heightJitter, true);
@@ -362,6 +365,7 @@ const getStringLimitsAndFormat: (g: IGenerator, mapUnitsPerChar: number[]) => Li
         }
     }
 
+
     const fontSize = `${bestSize + GEN_CONSTANTS.sizeJitter}px`;
 
     // Positioning - offset is in MAP UNITS
@@ -370,7 +374,13 @@ const getStringLimitsAndFormat: (g: IGenerator, mapUnitsPerChar: number[]) => Li
     const mapCenterHeight = (generator.canvasBbox[1] + generator.canvasBbox[5]) / 2;
     const mapTop = generator.canvasBbox[1];
     const offsetX = (mapLeft - mapCenterWidth + GEN_CONSTANTS.offsetX + jitter(GEN_CONSTANTS.offsetXJitter));
-    const offsetY = (mapTop - mapCenterHeight + GEN_CONSTANTS.offsetY + jitter(GEN_CONSTANTS.offsetYJitter));
+    let offsetY = (mapTop - mapCenterHeight + GEN_CONSTANTS.offsetY + jitter(GEN_CONSTANTS.offsetYJitter));
+
+    if (generator.type !== FieldType.String) {
+        offsetY = (mapHeightPerChar / 2 + GEN_CONSTANTS.offsetY + charHeightHigh * jitter(GEN_CONSTANTS.offsetYJitter));
+        charHeightHigh = 2;
+    }
+
     return {
         limits: [[charWidthLow, charWidthHigh], [charHeightLow, charHeightHigh]],
         format: {

@@ -4,6 +4,7 @@
 import { Feature, MapBrowserEvent, DrawEvent, View, Style} from "ol";
 import { Extent, getCenter } from "ol/extent";
 import { defaults as defaultInteractions, DragPan, Draw, Snap, Modify, Interaction } from "ol/interaction.js";
+import { createBox } from 'ol/interaction/Draw';
 import ImageLayer from "ol/layer/Image";
 import Layer from "ol/layer/Layer";
 import VectorLayer from "ol/layer/Vector";
@@ -455,9 +456,15 @@ export class ImageMap extends React.Component<IImageMapProps> {
         //     console.log(e); // Er, I'm not sure.
         // })
 
+        // const draw = new Draw({
+        //     source: generatorOptions.source, // using the label source doesn't appear to work either
+        //     type: "Polygon", // using Point doesn't work either
+        // });
+
         const draw = new Draw({
-            source: generatorOptions.source, // using the label source doesn't appear to work either
-            type: "Polygon", // using Point doesn't work either
+            soruce: generatorOptions.source,
+            type: "Circle",
+            geometryFunction: createBox(),
         });
 
         const snap = new Snap({source: generatorOptions.source});

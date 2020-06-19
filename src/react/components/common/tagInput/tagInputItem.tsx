@@ -244,6 +244,7 @@ export const FormattedItemEditor: React.FunctionComponent<IFormattedItemEditor> 
                         onKeyDown={(e) => onInputKeyDown(e)}
                         onBlur={onInputBlur}
                         autoFocus={true}
+                        onFocus={e => e.target.select()}
                     />
                     :
                     <span title={item.name} className={getFormattedContentClassName(item)}>

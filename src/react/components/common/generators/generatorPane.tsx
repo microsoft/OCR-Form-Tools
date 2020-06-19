@@ -18,6 +18,8 @@ import { getPrimaryGreenTheme } from "../../../../common/themes";
 
 import { FormattedItem, NamedItem, IGenerator, IGeneratorSettings } from "../../../../models/applicationState";
 import TagInputToolbar, { ItemToolbarOptions } from "../tagInput/tagInputToolbar";
+import { KeyboardBinding } from "../keyboardBinding/keyboardBinding";
+import { KeyEventType } from "../keyboardManager/keyboardManager";
 
 export interface IGeneratorPaneProps {
     generators: IGenerator[],
@@ -34,7 +36,7 @@ export interface IGeneratorPaneProps {
     onGenerateClick: () => void;
 }
 
-const MAX_GENERATE_COUNT = 40;
+const MAX_GENERATE_COUNT = 100;
 const strings = {
     generator: {
         title: "Generators",
@@ -149,10 +151,18 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
         setOperation(TagOperationMode.None);
     }
 
-    const toggleRenameMode = (item: FormattedItem) => {
+    const toggleRenameMode = () => {
         const newOperation = operation === TagOperationMode.Rename
             ? TagOperationMode.None : TagOperationMode.Rename;
         setOperation(newOperation);
+    }
+
+    const handleKeyDown = (keyEvent) => {
+        switch (keyEvent.key) {
+            case "R":
+                toggleRenameMode();
+                break;
+        }
     }
 
     const onItemChanged = (oldItem: IGenerator, newItem: Partial<IGenerator>) => {
@@ -214,6 +224,13 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
     ]
     return (
         <div className="tag-input">
+            <KeyboardBinding
+                displayName={"Generator tools"}
+                key={"Generator Tools"}
+                keyEventType={KeyEventType.KeyDown}
+                accelerators={["R"]}
+                handler={handleKeyDown}
+            />
             <div ref={headerRef} className="tag-input-header p-2">
                 <span className="tag-input-title">{strings.generator.title}</span>
                 <TagInputToolbar

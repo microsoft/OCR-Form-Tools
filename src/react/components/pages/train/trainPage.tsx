@@ -327,6 +327,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 });
                 const generatedOcr = {
                     ...ocr,
+                    lastUpdatedDateTime: new Date().toISOString(),
                     analyzeResult: {
                         ...ocr.analyzeResult,
                         readResults: generatedReadResults

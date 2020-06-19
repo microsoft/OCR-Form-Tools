@@ -216,7 +216,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.imageMap.getAllGeneratorFeatures().forEach((f) => this.updateGeneratorHighlight(f, this.props.hoveredGenerator));
         }
 
-        if (this.props.activeGeneratorRegionId !== prevProps.activeGeneratorRegionId) {
+        if (this.props.activeGeneratorRegionId !== prevProps.activeGeneratorRegionId
+            && this.imageMap.getAllGeneratorFeatures().map(f => f.get("id")).includes(this.props.activeGeneratorRegionId)
+        ) {
             this.redrawFeatures(this.imageMap.getAllGeneratorFeatures());
         }
 
@@ -256,7 +258,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         key={"CanvasTools"}
                         keyEventType={KeyEventType.KeyDown}
                         accelerators={["Delete", "Backspace", "<", ",", ">", ".",
-                            "{", "[", "}", "]", "+", "-", "/", "=", "_", "?", "R", "\\"]}
+                            "{", "[", "}", "]", "+", "-", "/", "=", "_", "?", "\\"]}
                         handler={this.handleKeyDown}
                 />
                 <CanvasCommandBar

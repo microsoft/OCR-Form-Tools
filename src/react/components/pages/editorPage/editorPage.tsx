@@ -321,11 +321,13 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                             <div className="editor-page-right-sidebar">
                                 <SplitPane split="horizontal"
                                     primary="first"
-                                    pane1Style = {{width: "100%"}}
-                                    pane2Style = {{width: "auto"}}
+                                    pane1Style = {{width: "100%", overflow: "auto"}}
+                                    pane2Style = {{width: "auto", overflow: "auto"}}
                                     minSize = {200}
                                     resizerStyle = {{height: "5px", margin: "0px", border: "2px", background: "transparent"}}>
-                                    <div>
+                                    <div style={{
+                                        width: "100%"
+                                    }}>
                                         <TagInput
                                             tagsLoaded={this.state.assetsLoaded}
                                             tags={this.props.project.tags}
@@ -356,7 +358,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             confirmButtonTheme={getPrimaryRedTheme()}
                                             onConfirm={this.onTagDeleted} />
                                     </div>
-                                    <div>
+                                    <div style={{
+                                        width: "100%"
+                                    }}>
                                         <GeneratorPane
                                             generatorsLoaded={!!this.state.selectedAsset}
                                             generators={generators}
@@ -848,10 +852,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     private addGeneratorRegion = (region: IGenerator) => {
         const generators = [ ...this.state.selectedAsset.generators, region];
-        this.onGeneratorsChanged(generators);
-        this.setState({
-            selectedGeneratorIndex: generators.length,
-        });
+        this.onGeneratorsChanged(generators, generators.length - 1);
     }
 
     private onSelectedGenerator = (selectedGenerator?: IGeneratorRegion) => {
@@ -869,16 +870,15 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const oldRegionIndex = generators.findIndex(r => r.id === selectedGenerator.id);
         const newRegion = { ...generators[oldRegionIndex], ...selectedGenerator };
         generators[oldRegionIndex] = newRegion;
-        this.onGeneratorsChanged(generators);
-        this.setState({
-            selectedGeneratorIndex: oldRegionIndex,
-        });
+        this.onGeneratorsChanged(generators, oldRegionIndex);
     }
 
-    private onGeneratorsChanged = (newGenerators?: IGenerator[]) => {
+    private onGeneratorsChanged = (newGenerators?: IGenerator[], index?: number) => {
         const generators = [...newGenerators]; // make a copy just in case
+        const selectedGeneratorIndex = index == null ? this.state.selectedGeneratorIndex : index;
         this.setState({
-            selectedAsset: { ...this.state.selectedAsset, generators }
+            selectedAsset: { ...this.state.selectedAsset, generators },
+            selectedGeneratorIndex
         });
     }
 
@@ -888,10 +888,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         // or a canvas delete (which is a bubble up)
         const oldGenerators = [...this.state.selectedAsset.generators];
         const newGenerators = oldGenerators.filter(g => deletedRegions.findIndex(r => r.id === g.id) === -1);
-        this.onGeneratorsChanged(newGenerators);
-        this.setState({
-            selectedGeneratorIndex: -1, // safe bet
-        });
+        this.onGeneratorsChanged(newGenerators, -1);
     }
 
     private getActiveGeneratorId = () => {
