@@ -61,7 +61,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
 
     private renderItem = (item: any, key: any) => {
         const postProcessedValue = this.getPostProcessedValue(item);
-        const getColorWithOpacity = hexToRGBA(this.getTagColor(item.fieldName), 0.10);
+        const getColorWithOpacity = hexToRGBA(this.getTagColor(item.fieldName), 0.075);
         const predictionTagItemStyle = { background: this.getTagColor(item.fieldName) };
         const predictionItemStyle = { backgroundColor: getColorWithOpacity }
 
