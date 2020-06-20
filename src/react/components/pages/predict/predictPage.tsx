@@ -32,7 +32,6 @@ import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../.
 import { constants } from "../../../../common/constants";
 import { getPrimaryGreenTheme, getPrimaryWhiteTheme,
          getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
-import { SkipButton } from "../../shell/skipButton";
 import axios from "axios";
 
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -220,7 +219,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             <div className="container-space-between">
                                 <Dropdown
                                     className="sourceDropdown"
-                                    defaultSelectedKey={this.state.sourceOption}
                                     selectedKey={this.state.sourceOption}
                                     options={sourceOptions}
                                     disabled={this.state.isPredicting || this.state.isFetching}

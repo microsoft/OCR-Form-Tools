@@ -6,6 +6,7 @@ import Form, { Widget, IChangeEvent, FormValidation } from "react-jsonschema-for
 import { FontIcon, PrimaryButton} from "@fluentui/react";
 import { IConnection } from "../../../../models/applicationState";
 import { strings, addLocValues } from "../../../../common/strings";
+import LocalFolderPicker from "../../common/localFolderPicker/localFolderPicker";
 import CustomFieldTemplate from "../../common/customField/customFieldTemplate";
 import ConnectionProviderPicker from "../../common/connectionProviderPicker/connectionProviderPicker";
 import { ProtectedInput } from "../../common/protectedInput/protectedInput";
@@ -53,6 +54,7 @@ export interface IConnectionFormState {
  */
 export default class ConnectionForm extends React.Component<IConnectionFormProps, IConnectionFormState> {
     private widgets = {
+        localFolderPicker: (LocalFolderPicker as any) as Widget,
         connectionProviderPicker: (ConnectionProviderPicker as any) as Widget,
         protectedInput: (ProtectedInput as any) as Widget,
         checkbox: CustomWidget(Checkbox, (props) => ({

@@ -176,3 +176,9 @@
 .align-self-end {
   align-self: flex-end;
 }
+
+.flex-textbox {
+  flex: 1;
+  cursor: pointer;
+  width: 100%;
+}

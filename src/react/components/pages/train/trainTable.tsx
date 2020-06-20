@@ -19,7 +19,7 @@ export default class TrainTable
                 {!this.props.accuracies && <table className="accuracytable">
                     <tbody>
                         <tr>
-                            <th> Train Message </th>
+                            <th> Train message </th>
                             <td> {this.props.trainMessage} </td>
                         </tr>
                     </tbody>
