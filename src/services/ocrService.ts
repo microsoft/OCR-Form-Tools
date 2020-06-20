@@ -90,7 +90,7 @@ export class OCRService {
                 const bodyAndType = await Promise.all(
                     [
                         this.storageProvider.readBinary(decodeURI(fileName)),
-                        this.storageProvider.getFileType((decodeURI(fileName)))
+                        this.storageProvider.getFileType(decodeURI(fileName))
                     ]
                 );
                 body = bodyAndType[0];

@@ -69,7 +69,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
     private newProjectRef = React.createRef<HTMLAnchorElement>();
     private deleteConfirmRef = React.createRef<Confirm>();
     private cloudFilePickerRef = React.createRef<CloudFilePicker>();
-    private importConfirm: React.RefObject<Confirm> = React.createRef();
+    private importConfirmRef: React.RefObject<Confirm> = React.createRef();
 
     public async componentDidMount() {
         this.props.appTitleActions.setTitle("Welcome");
@@ -212,7 +212,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
 
         if (projectJson.name === null || projectJson.name === undefined) {
             try {
-                await this.importConfirm.current.open(project);
+                await this.importConfirmRef.current.open(project);
             } catch (e) {
                 throw new Error(e.message);
             }
