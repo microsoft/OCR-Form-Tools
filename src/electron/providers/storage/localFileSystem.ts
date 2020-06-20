@@ -11,6 +11,7 @@ import { AssetService } from "../../../services/assetService";
 import { constants } from "../../../common/constants";
 import { strings } from "../../../common/strings";
 
+// tslint:disable-next-line:no-var-requires
 const FileType = require('file-type');
 
 export default class LocalFileSystem implements IStorageProvider {
@@ -153,7 +154,7 @@ export default class LocalFileSystem implements IStorageProvider {
         const files = await this.listFiles(path.normalize(folderPath));
         for (const file of files) {
             const asset = await AssetService.createAssetFromFilePath(file, undefined, true);
-            if (this.isSupportedAssetType(asset.type)) {    
+            if (this.isSupportedAssetType(asset.type)) {
                 const labelFileName = decodeURIComponent(`${file}${constants.labelFileExtension}`);
                 const ocrFileName = decodeURIComponent(`${file}${constants.ocrFileExtension}`);
                 if (files.find((str) => str === labelFileName)) {

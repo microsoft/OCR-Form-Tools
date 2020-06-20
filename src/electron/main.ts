@@ -23,7 +23,7 @@ async function createWindow() {
         titleBarStyle: "hidden",
         backgroundColor: "#272B30",
         show: false,
-        icon: "app-icons/Tag.png" 
+        icon: "app-icons/Tag.png"
     };
 
     const staticUrl = process.env.ELECTRON_START_URL || `file:///${__dirname}/index.html`;
@@ -108,11 +108,10 @@ function registerContextMenu(browserWindow: BrowserWindow): void {
                 { role: "zoomOut" },
             ],
         },
-        { 
+        {
             label: "Window", submenu: [
                 { role: "minimize" },
                 { role: "close" },
-
             ]
         },
     ];

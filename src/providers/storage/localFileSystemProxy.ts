@@ -53,7 +53,7 @@ export class LocalFileSystemProxy implements IStorageProvider, IAssetProvider {
         const filePath = [this.options.folderPath, fileName].join("/");
         return IpcRendererProxy.send(`${PROXY_NAME}:getFileType`, [filePath]);
     }
-    
+
     /**
      * Read buffer from file
      * @param fileName Name of file from which to read buffer
