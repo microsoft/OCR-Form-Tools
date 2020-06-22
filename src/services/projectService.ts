@@ -345,6 +345,15 @@ export default class ProjectService implements IProjectService {
     }
 
     // private async getAllTagsInProjectCount(project: IProject, tags: ITag[]) {}
+
+    public async deleteGeneratedFiles(path: string, storageProvider: IStorageProvider): Promise<void[]> {
+        const toDelete = await storageProvider.listFiles(path);
+        const deletePromises = toDelete.map(d => storageProvider.deleteFile(d));
+        return Promise.all(deletePromises);
+        // const toDelete = await this.assetProvider.getAssets(joinPath("/", this.project.folderPath, "generated"))
+        // await storageProvider.deleteFile(`${project.name}${constants.projectFileExtension}`);
+    }
+
     /**
      * Save fields.json
      * @param project the project we're trying to create

@@ -120,9 +120,7 @@ export class AzureBlobStorage implements IStorageProvider {
 
     /**
      * Lists files in container
-     * @param path - NOT USED IN CURRENT IMPLEMENTATION. Only uses container
-     * as specified in Azure Cloud Storage Options. Included to satisfy
-     * Storage Provider interface
+     * @param path - Exact directory path
      * @param ext - Extension of files to filter on when retrieving files
      * from container
      */
