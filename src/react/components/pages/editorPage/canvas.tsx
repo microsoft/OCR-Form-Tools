@@ -405,7 +405,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     public generate = (generators: IGenerator[]) => {
         const generatorTextStyles = {}
         generators.forEach(g => {
-            generatorTextStyles[g.id] = generate(g, this.state.ocrForCurrentPage.readResults).format;
+            const ocrForPage = this.getOcrResultForPage(this.state.ocr, g.page);
+            generatorTextStyles[g.id] = generate(g, ocrForPage.readResults).format;
         });
         this.setState({generatorTextStyles}, this.redrawGeneratorFeatures);
     }
@@ -1626,22 +1627,25 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.lastKeyBoardRegionId = nextRegionId;
     }
 
-    private getOcrResultForCurrentPage = (ocr: any): any => {
+    // TODO: refactor out this.state.ocrForCurrentPage. Single source of truth would be clearer.
+    private getOcrResultForPage = (ocr: any, page: number): any => {
         if (!ocr || !this.state.imageUri) {
             return {};
         }
-
-        if (ocr.analyzeResult && ocr.analyzeResult.readResults) {
+        if (ocr?.analyzeResult?.readResults) {
             // OCR schema with analyzeResult/readResults property
             const ocrResultsForCurrentPage = {};
             if (ocr.analyzeResult.pageResults) {
-                ocrResultsForCurrentPage["pageResults"] = ocr.analyzeResult.pageResults[this.state.currentPage - 1];
+                ocrResultsForCurrentPage["pageResults"] = ocr.analyzeResult.pageResults[page - 1];
             }
-            ocrResultsForCurrentPage["readResults"] = ocr.analyzeResult.readResults[this.state.currentPage - 1];
+            ocrResultsForCurrentPage["readResults"] = ocr.analyzeResult.readResults[page - 1];
             return ocrResultsForCurrentPage;
         }
-
         return {};
+    }
+
+    private getOcrResultForCurrentPage = (ocr: any): any => {
+        return this.getOcrResultForPage(ocr, this.state.currentPage);
     }
 
     private isLabelDataOrRegionsChanged = (newProps: ICanvasProps, prevProps: ICanvasProps): boolean => {
