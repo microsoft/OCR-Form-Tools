@@ -11,6 +11,7 @@ interface ICanvasCommandBarProps {
     toggleBoundingBoxMode: () => void,
     downloadPDF: () => void,
     isExporting: boolean,
+    hasOcr: boolean,
     editorMode: EditorMode,
     layers: any;
 }
@@ -81,7 +82,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
             text: "Download PDF",
             ariaLabel: "Download PDF",
             iconOnly: true,
-            iconProps: { iconName: "Annotation" }, // TODO is disabled
+            iconProps: { iconName: "Download" }, // TODO is disabled
             buttonStyles: {},
             disabled: props.isExporting,
             onClick: () => props.downloadPDF(),
@@ -94,6 +95,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
             iconProps: { iconName: "Annotation" },
             checked: props.editorMode === EditorMode.GeneratorRect,
             buttonStyles: {},
+            disabled: !props.hasOcr,
             onClick: () => props.toggleBoundingBoxMode(),
         },
         {

@@ -270,6 +270,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     downloadPDF={this.downloadPDF}
                     editorMode={this.props.editorMode}
                     layers={this.state.layers}
+                    hasOcr={!!this.state.ocr}
                     isExporting={this.state.isExporting}
                 />
                 <ImageMap
@@ -1342,12 +1343,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private initializeGenerator = (feature?: any) => {
         const regionInfo = this.extractGeneratorRegion(feature);
         const id = Math.random().toString(36).slice(8);
+        regionInfo.id = id;
         feature.setProperties({
             id,
         });
 
         const numberFlags = ["#", "number", "num.", "phone", "amount"];
-        let name = `Gen ${id}`;
+        const uniqueName = `Gen ${id}`;
+        let name = uniqueName;
         let type = FieldType.String;
         let format = FieldFormat.Alphanumeric;
         // A few quality of life heuristics
@@ -1378,6 +1381,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     }
                 });
             });
+        }
+
+        // Uniqueness guarantee
+        if (!!this.props.formattedItems.find(i => i.name === name)) {
+            name = uniqueName;
         }
 
         const metadata = {
@@ -2032,7 +2040,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.props.setEditorMode(EditorMode.Select);
             this.handleGeneratorRegionSelect();
         } else {
-            this.props.setEditorMode(EditorMode.GeneratorRect);
+            if (this.state.ocr) {
+                this.props.setEditorMode(EditorMode.GeneratorRect);
+            }
         }
     }
 
