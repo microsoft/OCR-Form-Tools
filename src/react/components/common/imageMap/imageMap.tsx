@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Feature, MapBrowserEvent, DrawEvent, View, Style} from "ol";
+import { Feature, MapBrowserEvent, DrawEvent, ModifyEvent, View, Style} from "ol";
 import { Extent, getCenter } from "ol/extent";
 import { defaults as defaultInteractions, DragPan, Draw, Snap, Modify, Interaction } from "ol/interaction.js";
 import { createBox } from 'ol/interaction/Draw';
@@ -36,6 +36,7 @@ interface IImageMapProps {
     hoveringFeature?: string;
     editorMode?: EditorMode;
     handleGeneratorRegionCompleted?: (drawEvent: DrawEvent) => void;
+    handleGeneratorRegionModified?: (modifyEvent: ModifyEvent) => void;
     handleGeneratorRegionSelect?: (feature?: any) => void;
 
     onMapReady: () => void;
@@ -474,7 +475,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
         modify.setActive(false);
 
         draw.on("drawend", this.props.handleGeneratorRegionCompleted);
-        // modify.on("modifystart", this.props.handleGeneratorRegionModified); // Do we need to update the object itself? Or will the reference update?
+        modify.on("modifyend", this.props.handleGeneratorRegionModified); // Do we need to update the object itself? Or will the reference update?
         this.addInteraction(draw);
         this.addInteraction(snap);
         this.addInteraction(modify);

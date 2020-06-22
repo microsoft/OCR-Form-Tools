@@ -303,6 +303,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             generators={generators}
                                             formattedItems={formattedItems}
                                             addGenerator={this.addGeneratorRegion}
+                                            updateGenerator={this.onGeneratorChanged}
                                             deleteGenerators={this.confirmGeneratorsDeleted}
                                             onSelectedGeneratorRegion={this.onSelectedGenerator}
                                             project={this.props.project}
@@ -862,13 +863,13 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             });
             return;
         }
-        // TODO only update on revision change - not sure about the UX here
-        // https://stackoverflow.com/questions/25993044/openlayers3-is-it-possible-to-combine-modify-draw-select-operations
-        // find and update the old one in case we modified
-        // the canvas will provide location information on update only, since it only handles the click event
+        this.onGeneratorChanged(selectedGenerator);
+    }
+
+    private onGeneratorChanged = (generator: IGeneratorRegion) => {
         const generators = [...this.state.selectedAsset.generators];
-        const oldRegionIndex = generators.findIndex(r => r.id === selectedGenerator.id);
-        const newRegion = { ...generators[oldRegionIndex], ...selectedGenerator };
+        const oldRegionIndex = generators.findIndex(r => r.id === generator.id);
+        const newRegion = { ...generators[oldRegionIndex], ...generator };
         generators[oldRegionIndex] = newRegion;
         this.onGeneratorsChanged(generators, oldRegionIndex);
     }

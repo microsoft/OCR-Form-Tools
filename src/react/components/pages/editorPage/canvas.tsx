@@ -22,7 +22,7 @@ import Stroke from "ol/style/Stroke";
 import Fill from "ol/style/Fill";
 import Text from "ol/style/Text";
 import { OCRService, OcrStatus } from "../../../../services/ocrService";
-import { Feature, DrawEvent } from "ol";
+import { Feature, DrawEvent, ModifyEvent } from "ol";
 import { Extent } from "ol/extent";
 import { TooltipHost, ITooltipHostStyles } from "@fluentui/react";
 import _ from "lodash";
@@ -62,6 +62,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onRunningOCRStatusChanged?: (isRunning: boolean) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
     addGenerator?: (info: IGenerator) => void;
+    updateGenerator?: (info: IGeneratorRegion) => void;
     deleteGenerators?: (generators: IGeneratorRegion[]) => void;
     onSelectedGeneratorRegion?: (info?: IGeneratorRegion) => void;
 }
@@ -290,6 +291,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     hoveringFeature={this.state.hoveringFeature}
                     editorMode={this.props.editorMode}
                     handleGeneratorRegionCompleted={this.handleGeneratorRegionCompleted}
+                    handleGeneratorRegionModified={this.handleGeneratorRegionModified}
                     handleGeneratorRegionSelect={this.handleGeneratorRegionSelect}
                 />
                 <TooltipHost
@@ -1306,9 +1308,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const ocrReadResults = this.state.ocrForCurrentPage["readResults"];
         const [ocrWidth, ocrHeight] = [ocrReadResults.width, ocrReadResults.height];
         const geometry = feature.getGeometry();
+        let points = geometry.flatCoordinates;
         // snap tool will make last 2 coords match first 2
-        const points = geometry.flatCoordinates.slice(0, -2);
-        const id = Math.random().toString(36).slice(8);
+        const lastTwo = geometry.flatCoordinates.slice(-2);
+        const firstTwo = geometry.flatCoordinates.slice(0, 2);
+        if (lastTwo[0] === firstTwo[0] && lastTwo[1] === firstTwo[1]) {
+            points = points.slice(0, -2);
+        }
+
         const [lowX, lowY, hiX, hiY] = geometry.getExtent();
         const canvasBbox = [lowX, hiY, hiX, hiY, hiX, lowY, lowX, lowY];
         const bbox = [];
@@ -1325,20 +1332,21 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             bbox,
             canvasBbox,
             resolution: this.imageMap.getResolution(),
-            id,
             canvas: [this.state.imageWidth, this.state.imageHeight],
             page: this.state.currentPage,
+            id: feature.get("id") // note, it will be nullable on initialize
         }
     }
 
     private initializeGenerator = (feature?: any) => {
         const regionInfo = this.extractGeneratorRegion(feature);
+        const id = Math.random().toString(36).slice(8);
         feature.setProperties({
-            id: regionInfo.id,
+            id,
         });
 
         const numberFlags = ["#", "number", "num.", "phone", "amount"];
-        let name = `Gen ${regionInfo.id}`;
+        let name = `Gen ${id}`;
         let type = FieldType.String;
         let format = FieldFormat.Alphanumeric;
         // A few quality of life heuristics
@@ -1383,6 +1391,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private handleGeneratorRegionCompleted = (drawEvent: DrawEvent) => {
         this.props?.addGenerator(this.initializeGenerator(drawEvent.feature));
+    }
+
+    private handleGeneratorRegionModified = (modifyEvent: ModifyEvent) => {
+        // https://gis.stackexchange.com/questions/329046/get-modified-feature-from-modify-interaction
+        const feature = modifyEvent.target.dragSegments_[0][0].feature;
+        this.props?.updateGenerator(this.extractGeneratorRegion(feature));
     }
 
     private handleGeneratorRegionSelect = (feature?: any) => {
