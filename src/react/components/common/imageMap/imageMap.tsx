@@ -476,8 +476,6 @@ export class ImageMap extends React.Component<IImageMapProps> {
         modify.setActive(false);
 
         // Note this fires before the feature is added
-        // ! Our feature never gets finished adding. Why?
-        this.generatorVectorLayer.getSource().on('addfeature', () => console.log("hi"));
         draw.on("drawend", this.props.handleGeneratorRegionCompleted);
         modify.on("modifyend", this.props.handleGeneratorRegionModified); // Do we need to update the object itself? Or will the reference update?
         this.addInteraction(draw);
