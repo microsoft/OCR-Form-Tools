@@ -37,6 +37,7 @@ import IApplicationActions, * as applicationActions from "../../../../redux/acti
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import ComposeModelView from "./composeModelView";
 import { ViewSelection } from "./viewSelection";
+import { KeyboardManager } from "../../common/keyboardManager/keyboardManager";
 
 export interface IModelComposePageProps extends RouteComponentProps, React.Props<ModelComposePage> {
     recentProjects: IProject[];
@@ -307,6 +308,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                                         selection={this.selection}
                                         selectionPreservedOnEmptyClick={true}
                                         onRenderDetailsHeader={onRenderDetailsHeader}
+                                        onItemInvoked={this.onItemInvoked}
                                         >
                                     </DetailsList>
                                     {this.state.nextLink && this.state.nextLink !== "*" && !this.state.hasText &&
@@ -346,6 +348,21 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
     private getKey = (item: any, index?: number): string => {
         return item.key;
+    }
+
+    private onItemInvoked = (item: any, index: number, ev: Event) => {
+        console.log(item.composedNames);
+        const list = [];
+        if (item.composedNames !== undefined) {
+            for (const k of Object.keys(item.composedNames)) {
+                const name = item.composedNames[k];
+                list.push({
+                    modelId: k,
+                    modelName: name,
+                })
+            }
+        }
+        this.composeModalRef.current.open(list, false);
     }
 
     private getModelList = async () => {
@@ -589,7 +606,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     private onComposeButtonClick = () => {
-        this.composeModalRef.current.open(this.selectedItems);
+        this.composeModalRef.current.open(this.selectedItems, true);
     }
 
     private onComposeConfirm = (composeModelName: string) => {

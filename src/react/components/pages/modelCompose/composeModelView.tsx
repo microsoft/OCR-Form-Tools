@@ -15,6 +15,7 @@ export interface IComposeModelViewProps {
 export interface IComposeModelViewState {
     hideModal: boolean;
     items: IModel[];
+    composeFlag: boolean;
 }
 
 export default class ComposeModelView extends React.Component<IComposeModelViewProps, IComposeModelViewState> {
@@ -28,6 +29,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
         this.state = {
             hideModal: true,
             items: [],
+            composeFlag: false,
         }
     }
 
@@ -99,12 +101,15 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                         </div>
                     }</>
                     <div className="model-button-container">
-                        <PrimaryButton
-                            className="model-confirm"
-                            theme={getPrimaryGreenTheme()}
-                            onClick={this.confirm}>
-                            Compose
-                        </PrimaryButton>
+                        {
+                            this.state.composeFlag &&
+                            <PrimaryButton
+                                className="model-confirm"
+                                theme={getPrimaryGreenTheme()}
+                                onClick={this.confirm}>
+                                Compose
+                            </PrimaryButton>
+                        }
                         <PrimaryButton
                             className="modal-cancel"
                             theme={getPrimaryRedTheme()}
@@ -118,16 +123,18 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
         )
     }
 
-    public open = (models) => {
+    public open = (models, flag) => {
         this.setState({
             hideModal: false,
             items: models,
+            composeFlag: flag,
         })
     }
 
     public close = () => {
         this.setState({
             hideModal: true,
+            composeFlag: false,
         })
     }
 
