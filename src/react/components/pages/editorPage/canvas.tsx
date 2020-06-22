@@ -1502,8 +1502,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         switch (keyEvent.key) {
             case "Delete":
             case "Backspace":
-                this.deleteRegions(this.getSelectedRegions());
-                this.props.deleteGenerators([this.getSelectedGenerator()]);
+                const selectedRegions = this.getSelectedRegions();
+                if (selectedRegions.length > 0) {
+                    this.deleteRegions(selectedRegions);
+                }
+                const selectedGenerator = this.getSelectedGenerator();
+                if (selectedGenerator !== null) {
+                    this.props.deleteGenerators([selectedGenerator]);
+                }
                 break;
 
             case "<":
