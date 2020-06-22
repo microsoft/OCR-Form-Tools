@@ -852,6 +852,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private addGeneratorRegion = (region: IGenerator) => {
+        if (this.state.selectedAsset.generators.find(g => g.id === region.id)) {
+            return;
+        }
         const generators = [ ...this.state.selectedAsset.generators, region];
         this.onGeneratorsChanged(generators, generators.length - 1);
     }

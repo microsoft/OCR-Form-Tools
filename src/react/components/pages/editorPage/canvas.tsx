@@ -194,7 +194,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 layers: { tables : true, text: true, checkboxes: true, label: true },
             }, this.initPage);
         } else {
-            // same asset - TODO - same page?
+            // same asset
             if (prevProps.project && this.needUpdateAssetRegionsFromTags(prevProps.project.tags, this.props.project.tags))  {
                 // first time label change - propagate to regions
                 const newRegions = this.convertLabelDataToRegions(this.props.selectedAsset.labelData);
@@ -204,8 +204,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             if (this.isLabelDataOrRegionsChanged(this.props, prevProps)) {
                 this.redrawLabelFeatures();
             }
-
-            // TODO generator redraw support for pages
         }
 
         if (this.props.hoveredLabel !== prevProps.hoveredLabel) {
@@ -220,6 +218,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (this.props.activeGeneratorRegionId !== prevProps.activeGeneratorRegionId
             && this.imageMap.getAllGeneratorFeatures().map(f => f.get("id")).includes(this.props.activeGeneratorRegionId)
         ) {
+            // Note - the image map doesn't hold onto the feature by the time it propagates here, not sure how that's possible
+            this.redrawGeneratorFeatures();
             this.redrawFeatures(this.imageMap.getAllGeneratorFeatures());
         }
 
@@ -237,6 +237,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             if (removedGenerators.length > 0) {
                 this.deleteGeneratorRegions(removedGenerators);
             }
+            // Can't figure out what's preventing new generators from getting drawn
+            // Workaround
+            this.redrawGeneratorFeatures();
         }
 
     }

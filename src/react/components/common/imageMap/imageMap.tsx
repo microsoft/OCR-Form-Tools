@@ -453,20 +453,21 @@ export class ImageMap extends React.Component<IImageMapProps> {
             view: this.createMapView(projection, this.imageExtent),
         });
 
-        // this.map.on("change", (e: any) => {
-        //     console.log(e); // Er, I'm not sure.
-        // })
+        const DRAW_MODE = "BOX";
+        let draw;
+        if (DRAW_MODE === "BOX") {
+            draw = new Draw({
+                soruce: generatorOptions.source,
+                type: "Circle",
+                geometryFunction: createBox(),
+            });
+        } else {
+            draw = new Draw({
+                source: generatorOptions.source, // using the label source doesn't appear to work either
+                type: "Polygon", // using Point doesn't work either
+            });
+        }
 
-        // const draw = new Draw({
-        //     source: generatorOptions.source, // using the label source doesn't appear to work either
-        //     type: "Polygon", // using Point doesn't work either
-        // });
-
-        const draw = new Draw({
-            soruce: generatorOptions.source,
-            type: "Circle",
-            geometryFunction: createBox(),
-        });
 
         const snap = new Snap({source: generatorOptions.source});
         const modify = new Modify({source: generatorOptions.source});
@@ -474,6 +475,9 @@ export class ImageMap extends React.Component<IImageMapProps> {
         snap.setActive(false);
         modify.setActive(false);
 
+        // Note this fires before the feature is added
+        // ! Our feature never gets finished adding. Why?
+        this.generatorVectorLayer.getSource().on('addfeature', () => console.log("hi"));
         draw.on("drawend", this.props.handleGeneratorRegionCompleted);
         modify.on("modifyend", this.props.handleGeneratorRegionModified); // Do we need to update the object itself? Or will the reference update?
         this.addInteraction(draw);
