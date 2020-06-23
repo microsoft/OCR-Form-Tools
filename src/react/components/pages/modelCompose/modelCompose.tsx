@@ -37,7 +37,6 @@ import IApplicationActions, * as applicationActions from "../../../../redux/acti
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import ComposeModelView from "./composeModelView";
 import { ViewSelection } from "./viewSelection";
-import { KeyboardManager } from "../../common/keyboardManager/keyboardManager";
 
 export interface IModelComposePageProps extends RouteComponentProps, React.Props<ModelComposePage> {
     recentProjects: IProject[];
