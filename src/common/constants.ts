@@ -8,7 +8,7 @@ const apiVersion = "v2.1-preview.1";
  */
 export const constants = {
     version: "pubpreview_1.0",
-    apiVersion: apiVersion,
+    apiVersion,
     projectFormTempKey: "projectForm",
     projectFileExtensionOld: ".vott",
     projectFileExtension: ".fott",
