@@ -24,7 +24,7 @@ import Alert from "../../common/alert/alert";
 import url from "url";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
-import { getPrimaryGreenTheme } from "../../../../common/themes";
+import { getPrimaryGreenTheme, getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -37,6 +37,7 @@ export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainP
 }
 
 export interface ITrainPageState {
+    inputedLabelFolderURL: string;
     trainMessage: string;
     isTraining: boolean;
     currTrainRecord: ITrainRecordProps;
@@ -79,6 +80,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         super(props);
 
         this.state = {
+            inputedLabelFolderURL: "",
             trainMessage: strings.train.notTrainedYet,
             isTraining: false,
             currTrainRecord: null,
@@ -105,6 +107,10 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
     public render() {
         const currTrainRecord = this.state.currTrainRecord;
+        const localFileSystemProvider: boolean = this.props.project && this.props.project.sourceConnection &&
+                                                 this.props.project.sourceConnection.providerType === "localFileSystemProxy";
+        const trainDisabled: boolean = localFileSystemProvider &&  (this.state.inputedLabelFolderURL.length === 0 ||
+                                       this.state.inputedLabelFolderURL === strings.train.defaultLabelFolderURL);
 
         return (
             <div className="train-page skipToMainContent" id="pageTrain">
@@ -132,24 +138,42 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                         <div className="condensed-list-body">
                             <div className="m-3">
                                 <h4 className="text-shadow-none"> Train a new model </h4>
-                                {!this.state.isTraining ? (
+                                {!this.state.isTraining && localFileSystemProvider &&
                                     <div>
                                         <span>
-                                            Model Name
+                                            {strings.train.labelFolderTitle}
                                         </span>
                                         <TextField
-                                            placeholder={strings.train.addName}
-                                            autoComplete="off"
-                                            onChange={this.onTextChanged}
-                                            >
-                                        </TextField>
+                                            className="label-folder-url-input"
+                                            theme={getGreenWithWhiteBackgroundTheme()}
+                                            onFocus={this.removeDefaultInputedLabelFolderURL}
+                                            onChange={this.setInputedLabelFolderURL}
+                                            placeholder={strings.train.defaultLabelFolderURL}
+                                            value={this.state.inputedLabelFolderURL}
+                                        />
+                                    </div>
+                                }
+                                <span>
+                                    {strings.train.modelNameTitle}
+                                </span>
+                                <TextField
+                                    theme={getGreenWithWhiteBackgroundTheme()}
+                                    placeholder={strings.train.addName}
+                                    autoComplete="off"
+                                    onChange={this.onTextChanged}
+                                    disabled={this.state.isTraining}
+                                >
+                                </TextField>
+                                {!this.state.isTraining ? (
+                                    <div  className="container-items-end">
                                         <PrimaryButton
-                                            style={{"margin": "10px 0px"}}
+                                            style={{"margin": "15px 0px"}}
                                             id="train_trainButton"
                                             theme={getPrimaryGreenTheme()}
                                             autoFocus={true}
                                             className="flex-center"
-                                            onClick={this.handleTrainClick}>
+                                            onClick={this.handleTrainClick}
+                                            disabled={trainDisabled}>
                                             <FontIcon iconName="MachineLearning" />
                                             <h6 className="d-inline text-shadow-none ml-2 mb-0">
                                                 {strings.train.title} </h6>
@@ -191,6 +215,16 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 />
             </div>
         );
+    }
+
+    private removeDefaultInputedLabelFolderURL = () => {
+        if (this.state.inputedLabelFolderURL === strings.train.defaultLabelFolderURL) {
+            this.setState({inputedLabelFolderURL: ""});
+        }
+    }
+
+    private setInputedLabelFolderURL = (event) => {
+        this.setState({inputedLabelFolderURL: event.target.value});
     }
 
     private onTextChanged = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string) => {
@@ -244,15 +278,23 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     private async train(): Promise<any> {
         const baseURL = url.resolve(
             this.props.project.apiUriBase,
-            constants.apiPreviewPath,
+            constants.apiModelsPath,
         );
         const provider = this.props.project.sourceConnection.providerOptions as any;
-        const trainSourceURL = provider.sas;
+        let trainSourceURL;
+        let trainPrefix;
 
+        if (this.props.project.sourceConnection.providerType === "localFileSystemProxy") {
+            trainSourceURL = this.state.inputedLabelFolderURL;
+            trainPrefix = ""
+        } else {
+            trainSourceURL = provider.sas;
+            trainPrefix = this.props.project.folderPath ? this.props.project.folderPath : "";
+        }
         const payload = {
             source: trainSourceURL,
             sourceFilter: {
-                prefix: this.props.project.folderPath ? this.props.project.folderPath : "",
+                prefix: trainPrefix,
                 includeSubFolders: false,
             },
             useLabelFile: true,

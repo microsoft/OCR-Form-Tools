@@ -380,7 +380,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 composedModelIds = this.getComposedIds();
                 predictModelFlag = true;
                 if (composedModelIds.indexOf(this.state.composeModelId[0]) === -1) {
-                    const idURL = constants.apiPreviewPath + "/" + this.state.composeModelId[0];
+                    const idURL = constants.apiModelsPath + "/" + this.state.composeModelId[0];
                     const newComposeModel = await this.getComposeModelByURl(idURL);
                     composedModels.push(newComposeModel);
                     composedModelIds.push(this.state.composeModelId[0]);
@@ -426,7 +426,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     private reloadComposedModel = (models: IModel[]): IModel[] => {
         models.forEach(async (m) => {
             if (m.status !== "ready" && m.status !== "invalid") {
-                const url = constants.apiPreviewPath + "/" + m.modelId;
+                const url = constants.apiModelsPath + "/" + m.modelId;
                 const newModel = await this.getComposeModelByURl(url);
                 const newStatus = newModel.status;
                 const newComposedNames = newModel.composedNames;
@@ -505,7 +505,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     private async getResponse(nextLink?: string) {
         const baseURL = nextLink === undefined ? url.resolve(
             this.props.project.apiUriBase,
-            constants.apiPreviewPath,
+            constants.apiModelsPath,
         ) : url.resolve(
             this.props.project.apiUriBase,
             nextLink,
@@ -632,7 +632,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     modelIds: idList,
                     modelName: name,
                 };
-                const link = constants.apiPreviewComposePath;
+                const link = constants.apiModelsPath + "/compose";
                 const composeRes = await this.post(link, payload);
                 const composeModelId = this.getComposeModelId(composeRes);
                 const newCols = this.state.columns;

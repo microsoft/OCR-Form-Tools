@@ -12,7 +12,6 @@ import { strings } from "../../../../common/strings";
 import { AppSettingsForm } from "./appSettingsForm";
 import { RouteComponentProps } from "react-router-dom";
 import { toast } from "react-toastify";
-import { SkipButton } from "../../shell/skipButton";
 
 /**
  * Props for App Settings Page
