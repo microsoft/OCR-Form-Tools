@@ -65,6 +65,10 @@ export function registerIcons() {
             More: "\uE712",
             ReceiptProcessing: "\uE496",
             KeyPhraseExtraction: "\uE395",
+            ChromeRestore: "\uE923",
+            ChromeMinimize: "\uE921",
+            System: "\uE770",
+            SquareShape: "\uF1A6",
         },
     });
 }

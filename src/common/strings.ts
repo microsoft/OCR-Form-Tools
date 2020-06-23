@@ -117,6 +117,9 @@ export interface IAppStrings {
         },
     };
     train: {
+        modelNameTitle: string;
+        labelFolderTitle: string;
+        defaultLabelFolderURL: string;
         title: string;
         training: string;
         pleaseWait: string;

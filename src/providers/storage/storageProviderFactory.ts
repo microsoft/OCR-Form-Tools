@@ -24,6 +24,7 @@ export interface IStorageProvider extends IAssetProvider {
     storageType: StorageType;
 
     readText(filePath: string, ignoreNotFound?: boolean): Promise<string>;
+    getFileType?(filePath: string): Promise<any>;
     readBinary(filePath: string): Promise<Buffer>;
     deleteFile(filePath: string, ignoreNotFound?: boolean, ignoreForbidden?: boolean): Promise<void>;
 

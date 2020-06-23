@@ -226,7 +226,58 @@ const DarkDefaultPalette: Partial<IPalette> = {
     neutralLighterAlt: "#201f1e",
     white: "#1b1a19",
     redDark: "#F1707B",
-  };
+};
+
+const lightGreyPalette = {
+    themePrimary: "#B8B8B9",
+    themeLighterAlt: "#070707",
+    themeLighter: "#1d1d1e",
+    themeLight: "#373738",
+    themeTertiary: "#6f6f70",
+    themeSecondary: "#a2a2a4",
+    themeDarkAlt: "#bfbfc1",
+    themeDark: "#c9c9cb",
+    themeDarker: "#d7d7d8",
+    neutralLighterAlt: "#4e5257",
+    neutralLighter: "#55595d",
+    neutralLight: "#606469",
+    neutralQuaternaryAlt: "#666b6f",
+    neutralQuaternary: "#6c7075",
+    neutralTertiaryAlt: "#83888c",
+    neutralTertiary: "#373738",
+    neutralSecondary: "#6f6f70",
+    neutralPrimaryAlt: "#a2a2a4",
+    neutralPrimary: "#B8B8B9",
+    neutralDark: "#c9c9cb",
+    black: "#d7d7d8",
+    white: "#474B4F"
+}
+
+const subMenuPalette = {
+    themePrimary: "#f5f5f5",
+    themeLighterAlt: "#dadada",
+    themeLighter: "#bfbfbf",
+    themeLight: "#a4a4a4",
+    themeTertiary: "#898989",
+    themeSecondary: "#6e6e6e",
+    themeDarkAlt: "#535353",
+    themeDark: "#383838",
+    themeDarker: "#1d1d1d",
+    neutralLighterAlt: "#3f4246",
+    neutralLighter: "#464a4d",
+    neutralLight: "#525559",
+    neutralQuaternaryAlt: "#595d61",
+    neutralQuaternary: "#5f6367",
+    neutralTertiaryAlt: "#787d81",
+    neutralTertiary: "#e9e9e9",
+    neutralSecondary: "#ececec",
+    neutralPrimaryAlt: "#f0f0f0",
+    neutralPrimary: "#dedede",
+    neutralDark: "#f7f7f7",
+    black: "#fbfbfb",
+    white: "#373a3d"
+}
+
 
 const defaultDarkTheme = createTheme({palette: DarkDefaultPalette});
 const whiteTheme = createTheme({palette: whiteButtonPalette});
@@ -237,6 +288,8 @@ const blueTheme = createTheme({palette: blueButtonPalette});
 const darkTheme = createTheme({palette: darkThemePalette});
 const darkGreyTheme = createTheme({palette: darkGreyPalette});
 const greenWithWhiteBackgroundTheme = createTheme({palette: greenWithWhiteBackgroundPalette});
+const lightGreyTheme = createTheme({palette: lightGreyPalette});
+const subMenuTheme = createTheme({palette: subMenuPalette})
 
 export function getPrimaryWhiteTheme() {
     return whiteTheme;
@@ -272,4 +325,12 @@ export function getGreenWithWhiteBackgroundTheme() {
 
 export function getDefaultDarkTheme() {
     return defaultDarkTheme;
+}
+
+export function getSubMenuTheme() {
+    return subMenuTheme;
+}
+
+export function getLightGreyTheme() {
+    return lightGreyTheme;
 }
