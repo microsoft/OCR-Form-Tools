@@ -14,7 +14,6 @@
     "private": true,
     "main": "build/main.js",
     "dependencies": {
-        "electron": "^8.3.0",
         "file-type": "^14.6.2",
         "@azure/storage-blob": "10.3.0",
         "@fluentui/react": "^7.117.2",
@@ -95,6 +94,7 @@
         "@types/redux-logger": "^3.0.7",
         "acorn": "^7.1.1",
         "foreman": "^3.0.1",
+        "electron": "^8.3.0",
         "electron-builder": "^22.6.1",
         "enzyme": "^3.10.0",
         "enzyme-adapter-react-16": "^1.15.1",
