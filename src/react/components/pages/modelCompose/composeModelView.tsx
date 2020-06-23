@@ -85,7 +85,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                             <span>FilterField</span>
                             <TextField
                                 className="composed-name-filter"
-                                placeholder="Filter by Id or Name..."
+                                placeholder={strings.modelCompose.filter}
                                 onChange={this.onFilterTextChange}>
                             </TextField>
                         </div>

@@ -131,6 +131,7 @@ export interface IAppStrings {
         }
         loading: string;
         composing: string;
+        filter: string;
         column: {
             icon: {
                 name: string;
@@ -165,7 +166,6 @@ export interface IAppStrings {
             ariaLabel: string;
             composeAria: string;
             refreshAria: string;
-            filter: string;
         }
     }
     predict: {

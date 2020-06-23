@@ -132,6 +132,7 @@ export const spanish: IAppStrings = {
         },
         loading: "La modelo se está cargando ...",
         composing: "La modelo está componiendo, por favor espera ...",
+        filter: "Filtrar por nombre ...",
         column: {
             icon: {
                 name: "Icono compuesto",
@@ -166,7 +167,6 @@ export const spanish: IAppStrings = {
             ariaLabel: "Utilice la barra de comandos para componer modelos",
             composeAria: "Componer modelo",
             refreshAria: "Actualizar la lista",
-            filter: "Filtrar por nombre ...",
         }
     },
     predict: {

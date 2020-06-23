@@ -61,7 +61,7 @@ export const ModelComposeCommandBar: React.FunctionComponent<IModelComposeComman
                 <div className="commandbar-filter">
                     <TextField
                         className="label-filter-field"
-                        placeholder={strings.modelCompose.commandBar.filter}
+                        placeholder={strings.modelCompose.filter}
                         disabled={props.allModels ? false : true}
                         theme={getPrimaryWhiteTheme()}
                         onChange={props.filterTextChange}>

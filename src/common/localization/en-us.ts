@@ -131,6 +131,7 @@ export const english: IAppStrings = {
         },
         loading: "Model is loading...",
         composing: "Model is composing, please wait...",
+        filter: "Filter by Id or Name...",
         column: {
             icon: {
                 name:"Composed Icon",
@@ -165,7 +166,6 @@ export const english: IAppStrings = {
             ariaLabel: "Please use command bar to compose models",
             composeAria: "Compose Model",
             refreshAria: "Refresh the list",
-            filter: "Filter by Id or Name...",
         }
     },
     predict: {
