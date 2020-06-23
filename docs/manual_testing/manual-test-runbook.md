@@ -95,3 +95,26 @@ ___
 **`Then`** I should see the column becomes sorted in either ascending or discending order.\
 **`When`** I type some text inside the fliter field on top right\
 **`Then`** I should see items whose id or name contains the text be filtered out. 
+
+___
+___
+
+## **Feat: add composedNames popup for each model**
+
+> ### Feature description ###
+- Add a composedName popup for each model to show which models we used to compose this model
+
+> ### Use Case ###
+
+**`As`** a user
+**`I want`** to know models we used to compose a model 
+**`So`** I can double click that model to invoke the pop up and checkout models we used  
+
+
+> ### Acceptance criteria ###
+
+#### Scenario One ####
+
+**`Given`** I've opened a project containing documents and I'm on the Model Compose page. There are at least more model in the list is composed by other models\
+**`When`** I type double click the row which the model is composed by other models\
+**`Then`** I should see a pop up shows up, it shows all models we used to compose in the list. Beside, there is also a filter field in the top to filter a specific model out of the list.\
