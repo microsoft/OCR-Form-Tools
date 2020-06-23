@@ -165,7 +165,7 @@ export const english: IAppStrings = {
             ariaLabel: "Please use command bar to compose models",
             composeAria: "Compose Model",
             refreshAria: "Refresh the list",
-            filter: "Filter By Name...",
+            filter: "Filter by Id or Name...",
         }
     },
     predict: {

@@ -68,6 +68,7 @@ export interface IModel {
     key: string;
     modelId: string;
     modelName: string;
+    composedNames: any;
     createdDateTime: string;
     lastUpdatedDateTime: string;
     status: string;
@@ -351,7 +352,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     private onItemInvoked = (item: any, index: number, ev: Event) => {
-        console.log(item.composedNames);
         const list = [];
         if (item.composedNames !== undefined) {
             for (const k of Object.keys(item.composedNames)) {
@@ -430,7 +430,9 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 const url = constants.apiPreviewPath + "/" + m.modelId;
                 const newModel = await this.getComposeModelByURl(url);
                 const newStatus = newModel.status;
+                const newComposedNames = newModel.composedNames;
                 m.status = newStatus;
+                m.composedNames = newComposedNames;
             }
         })
         return models;

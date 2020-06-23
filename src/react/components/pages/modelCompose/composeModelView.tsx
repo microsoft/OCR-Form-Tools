@@ -23,6 +23,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
      *
      */
     private modelName: string = "";
+    private allItems: IModel[] = [];
 
     constructor(props) {
         super(props);
@@ -69,16 +70,27 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                     isModeless={true}
                     containerClassName="modal-container"
                     >
+                    {
+                        this.state.composeFlag ?
+                        <div>
+                            <span>Add name for Compose model</span>
+                            <TextField
+                                className="modal-textfield"
+                                placeholder={strings.modelCompose.modelView.addComposeModelName}
+                                onChange={this.onTextChange}
+                                >
+                            </TextField>
+                        </div> :
+                        <div>
+                            <span>FilterField</span>
+                            <TextField
+                                className="composed-name-filter"
+                                placeholder="Filter by Id or Name..."
+                                onChange={this.onFilterTextChange}>
+                            </TextField>
+                        </div>
+                    }
                     <div>
-                        <span>Add name for Compose model</span>
-                        <TextField
-                            className="modal-textfield"
-                            placeholder={strings.modelCompose.modelView.addComposeModelName}
-                            onChange={this.onTextChange}
-                            >
-                        </TextField>
-                    </div>
-                    <div >
                     {
                         this.state.items &&
                         <DetailsList
@@ -95,7 +107,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                     }
                     </div>
                     <>{
-                        this.state.items.length < 2 &&
+                        this.state.items.length < 2 && this.state.composeFlag &&
                         <div className="modal-alert">
                            {strings.modelCompose.modelView.NotEnoughModels}
                         </div>
@@ -128,7 +140,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
             hideModal: false,
             items: models,
             composeFlag: flag,
-        })
+        }, () => {this.allItems = this.state.items})
     }
 
     public close = () => {
@@ -149,5 +161,13 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
 
     private onTextChange = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string) => {
         this.modelName = text;
+    }
+
+    private onFilterTextChange = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string): void => {
+        this.setState({
+            items: text ?
+                this.allItems.filter(({ modelName, modelId }) => (modelId.indexOf(text.toLowerCase()) > -1) ||
+                (modelName !== undefined ? modelName.toLowerCase().indexOf(text.toLowerCase()) > -1 : false)) : this.allItems,
+        });
     }
 }
