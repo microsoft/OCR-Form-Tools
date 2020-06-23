@@ -82,7 +82,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                             </TextField>
                         </div> :
                         <div>
-                            <span>FilterField</span>
+                            <span>Filter field</span>
                             <TextField
                                 className="composed-name-filter"
                                 placeholder={strings.modelCompose.filter}
