@@ -275,5 +275,10 @@ div.circle-picker-container {
 }
 
 .loading-tag {
-    height: 100%; 
+    height: 100%;
+}
+
+// * temp disabling SelectionMark feature
+.hidden {
+    display: none;
 }
