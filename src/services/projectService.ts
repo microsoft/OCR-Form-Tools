@@ -22,10 +22,9 @@ import { toast } from "react-toastify";
 const tagColors = require("../react/components/common/tagColors.json");
 
 function normalizeFieldType(type: string): string {
-    // * temp disabling SelectionMark feature
-    // if (type === "checkbox") {
-    //     return FieldType.SelectionMark;
-    // }
+    if (type === "checkbox") {
+        return FieldType.SelectionMark;
+    }
     return type;
 }
 
