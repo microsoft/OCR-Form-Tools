@@ -503,8 +503,9 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
     private getTagCategory = (tagType: string) => {
         switch (tagType) {
-            case FieldType.SelectionMark:
-                return "checkbox";
+            // * temp disabling SelectionMark feature
+            // case FieldType.SelectionMark:
+            //     return "checkbox";
             default:
                 return "text";
         }
@@ -665,6 +666,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 isChecked: type === tag.type,
                 onClick: this.onTypeSelect,
                 disabled: !isCompatible,
+                // * temp disabling SelectionMark feature
+                className: type === FieldType.SelectionMark ? "hidden" : "",
             } as IContextualMenuItem;
         });
     }
