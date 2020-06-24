@@ -281,6 +281,16 @@ export interface IFieldInfo {
     fields: IField[];
 }
 
+export interface IModel {
+    key: string;
+    modelId: string;
+    modelName: string;
+    createdDateTime: string;
+    lastUpdatedDateTime: string;
+    status: string;
+    iconName?: string;
+}
+
 /**
  * Enum of supported error codes
  */

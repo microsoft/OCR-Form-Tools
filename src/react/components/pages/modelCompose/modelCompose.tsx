@@ -5,7 +5,7 @@ import React from "react";
 import {connect} from "react-redux";
 import url from "url";
 import { RouteComponentProps } from "react-router-dom";
-import { IProject, IConnection, IAppSettings, IApplicationState, AppError, ErrorCode } from "../../../../models/applicationState";
+import { IProject, IConnection, IAppSettings, IApplicationState, AppError, ErrorCode, IModel } from "../../../../models/applicationState";
 import { constants } from "../../../../common/constants";
 import ServiceHelper from "../../../../services/serviceHelper";
 import { IColumn,
@@ -61,16 +61,6 @@ export interface IModelComposePageState {
     isLoading: boolean;
     refreshFlag: boolean;
     hasText: boolean;
-}
-
-export interface IModel {
-    key: string;
-    modelId: string;
-    modelName: string;
-    createdDateTime: string;
-    lastUpdatedDateTime: string;
-    status: string;
-    iconName?: string;
 }
 
 function mapStateToProps(state: IApplicationState) {

@@ -11,7 +11,7 @@ import IApplicationActions, * as applicationActions from "../../../../redux/acti
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import "./predictPage.scss";
 import {
-    IApplicationState, IConnection, IProject, IAppSettings, AppError, ErrorCode,
+    IApplicationState, IConnection, IProject, IAppSettings, AppError, ErrorCode, IModel,
 } from "../../../../models/applicationState";
 import { ImageMap } from "../../common/imageMap/imageMap";
 import Style from "ol/style/Style";
@@ -69,13 +69,6 @@ export interface IPredictPageState {
     highlightedField: string;
     modelList: IModel[];
     modelOption: string;
-}
-
-export interface IModel {
-    modelId: string;
-    createdDateTime: string;
-    lastUpdatedDateTime: string;
-    status: string;
 }
 
 function mapStateToProps(state: IApplicationState) {
