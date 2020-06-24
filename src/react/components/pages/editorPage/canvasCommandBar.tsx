@@ -44,14 +44,15 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                 isChecked: props.layers["tables"],
                 onClick: () => props.handleLayerChange("tables"),
               },
-              {
-                key: "selectionMark",
-                text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.selectionMarks,
-                canCheck: true,
-                iconProps: { iconName: "CheckboxComposite" },
-                isChecked: props.layers["checkboxes"],
-                onClick: () => props.handleLayerChange("checkboxes"),
-              },
+            // * temp disabling SelectionMark feature
+            //   {
+            //     key: "selectionMark",
+            //     text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.selectionMarks,
+            //     canCheck: true,
+            //     iconProps: { iconName: "CheckboxComposite" },
+            //     isChecked: props.layers["checkboxes"],
+            //     onClick: () => props.handleLayerChange("checkboxes"),
+            //   },
               {
                 key: "Label",
                 text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.labels,
