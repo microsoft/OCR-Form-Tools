@@ -94,6 +94,12 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
             subMenuProps: {
                 items: [
                     {
+                        key: "shareProject",
+                        text: "Share Project",
+                        iconProps: { iconName: "Share" },
+                        onClick: ()=>{""},
+                    },
+                    {
                         key: "runOcrForCurrentDocument",
                         text: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runOcrOnCurrentDocument,
                         iconProps: { iconName: "TextDocument" },

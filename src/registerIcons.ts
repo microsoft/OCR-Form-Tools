@@ -65,6 +65,7 @@ export function registerIcons() {
             More: "\uE712",
             ReceiptProcessing: "\uE496",
             KeyPhraseExtraction: "\uE395",
+            Share: "\uE72D",
         },
     });
 }
