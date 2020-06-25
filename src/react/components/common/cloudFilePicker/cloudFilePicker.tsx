@@ -83,7 +83,7 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
                     {this.state.condensedList}
                 </ModalBody>
                 <InputGroup style={{margin: "5%", width: "90%"}}>
-                    <Input placeholder="or you can paste project URI"
+                    <Input placeholder="Please paste shared project string here"
                         id="sharedURI"
                         type="text"
                         value={this.state.pastedUri}

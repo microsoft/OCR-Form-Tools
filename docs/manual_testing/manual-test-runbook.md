@@ -1,5 +1,31 @@
 # Test Runbook
 
+## **Feat: support project sharing via string**
+
+> ### Feature description ###
+- Support project sharing bettween users who have access to same storage container
+
+> ### Use Case ###
+
+**`As`** a user\
+**`I want`** to be able to share to a project via shared string\
+**`So`** receiving user don't have to manually copy-paste project info into app settings
+
+> ### Acceptance criteria ###
+
+#### Scenario One ####
+
+**`Given`** I've opened a project, clicked on "..." dropdow in Canvas Commandbar\
+**`When`** I click "Share Project" I should see tha message that shared string been saved to my clipboard\
+**`Then`** I can paste the string from clipboard
+#### Scenario Two ####
+
+**`Given`** I've received the string with a project\
+**`When`** I open the home page of the FOTT and click on "Open Cloud Project" icon, I can paste the string to the input field and click "OK"\
+**`Then`** FOTT should open the shared project as expected.
+
+___
+
 ## **Feat: support Electron for on premise solution**
 
 > ### Feature description ###
@@ -22,25 +48,25 @@
 
 **`Given`** I've installed new dependencies and started FoTT in Electron.\
 **`When`** I click a command item in the title bar.\
-**`Then`** FoTT should perform the command as expected.\
+**`Then`** FoTT should perform the command as expected.
 
 #### **Scenario Two** ####
 
 **`Given`** I've installed new dependencies and started FoTT in Electron.\
 **`When`** I perform an action for any existing feature.\
-**`Then`** FoTT should perform as expected (the same as through a browser).\
+**`Then`** FoTT should perform as expected (the same as through a browser).
 
 #### ***Scenario Three*** ####
 
 **`Given`** I've installed new dependencies and started FoTT in Electron.\
 **`When`** I create a new connection with local file system as the provider.\
-**`Then`** I should be able to create a project with the created connection.\
+**`Then`** I should be able to create a project with the created connection.
 
 #### ***Scenario Four*** ####
 
 **`Given`** I've installed new dependencies and started FoTT in Electron. And, I have an existing project in my local file system.\
 **`When`** I click "Open local project" on the home page and select the existing project.\
-**`Then`** FoTT should load the project as expected.\
+**`Then`** FoTT should load the project as expected.
 
 ___
 
@@ -105,12 +131,12 @@ ___
 > ### Use Case ###
 
 **`As`** a user
-**`I want`** to give the new train model a customerized name 
-**`So`** I can type the name in input field in train page before click train button.  
+**`I want`** to give the new train model a customerized name
+**`So`** I can type the name in input field in train page before click train button.
 
 **`As`** a user
-**`I want`** to generate a new mode through existing model 
-**`So`** I can use model compose 
+**`I want`** to generate a new mode through existing model
+**`So`** I can use model compose
 
 > ### Acceptance criteria ###
 
@@ -126,7 +152,7 @@ ___
 **`When`** I select more than one models then click compose button\
 **`Then`** I should see a pop up modal with a list contains selected models and a input field.\
 **`When`** I type customerized model name in input field and click compose button on modal\
-**`Then`** I should see "Model is composing, please wait...". After that the list shows up again, new composed model with given name will be on the top of the list. The new composed model also has a "combine" icon. 
+**`Then`** I should see "Model is composing, please wait...". After that the list shows up again, new composed model with given name will be on the top of the list. The new composed model also has a "combine" icon.
 
 #### ***Scenario Three*** ####
 
@@ -134,4 +160,4 @@ ___
 **`When`** I click the header of a column\
 **`Then`** I should see the column becomes sorted in either ascending or discending order.\
 **`When`** I type some text inside the fliter field on top right\
-**`Then`** I should see items whose id or name contains the text be filtered out. 
+**`Then`** I should see items whose id or name contains the text be filtered out.
