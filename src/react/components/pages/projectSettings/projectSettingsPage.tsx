@@ -19,7 +19,6 @@ import "./projectSettingsPage.scss";
 import { ProjectSettingAction } from "./projectSettingAction";
 import ProjectService from "../../../../services/projectService";
 import { getStorageItem, setStorageItem, removeStorageItem } from "../../../../redux/middleware/localStorage";
-import { SkipButton } from "../../shell/skipButton";
 
 /**
  * Properties for Project Settings Page

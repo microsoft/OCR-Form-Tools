@@ -62,7 +62,7 @@ export class AssetService {
      * @param filePath - filepath of asset
      * @param fileName - name of asset
      */
-    public static async createAssetFromFilePath(filePath: string, fileName?: string): Promise<IAsset> {
+    public static async createAssetFromFilePath(filePath: string, fileName?: string, nodejsMode?: boolean): Promise<IAsset> {
         Guard.empty(filePath);
 
         const normalizedPath = filePath.toLowerCase();
@@ -76,7 +76,7 @@ export class AssetService {
             filePath = encodeFileURI(filePath, true);
         }
 
-        const hash = await sha256Hash(filePath);
+        const hash = await sha256Hash(filePath, nodejsMode);
         // eslint-disable-next-line
         const pathParts = filePath.split(/[\\\/]/);
         fileName = fileName || pathParts[pathParts.length - 1];
@@ -87,7 +87,14 @@ export class AssetService {
         let assetFormat = extensionParts[0].toLowerCase();
 
         if (supportedImageFormats.hasOwnProperty(assetFormat)) {
-            const types = await this.getMimeType(filePath);
+            let types;
+            if (nodejsMode) {
+                const FileType = require('file-type');
+                const fileType = await FileType.fromFile(normalizedPath);
+                types = [fileType.ext];
+            } else {
+                types = await this.getMimeType(filePath);
+            }
 
             // If file was renamed/spoofed - fix file extension to true MIME type and show message
             if (!types.includes(assetFormat)) {

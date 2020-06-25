@@ -73,7 +73,10 @@
 @mixin ms-Icon--MachineLearning { content: "\E3B8"; }
 @mixin ms-Icon--TagGroup { content: "\E3F6"; }
 @mixin ms-Icon--BookAnswers { content: "\F8A4"; }
-
+@mixin ms-Icon--ChromeRestore { content: "\E923"; }
+@mixin ms-Icon--ChromeMinimize { content: "\E921"; }
+@mixin ms-Icon--System { content: "\E770"; }
+@mixin ms-Icon--SquareShape { content: "\F1A6"; }
 
 // Classes
 .ms-Icon--Combine:before { @include ms-Icon--Combine }
@@ -132,4 +135,7 @@
 .ms-Icon--MachineLearning:before { @include ms-Icon--MachineLearning }
 .ms-Icon--TagGroup:before { @include ms-Icon--TagGroup }
 .ms-Icon--BookAnswers:before { @include ms-Icon--BookAnswers }
-
+.ms-Icon--ChromeRestore:before { @include ms-Icon--ChromeRestore }
+.ms-Icon--ChromeMinimize:before { @include ms-Icon--ChromeMinimize }
+.ms-Icon--System:before { @include ms-Icon--System }
+.ms-Icon--SquareShape:before { @include ms-Icon--SquareShape }

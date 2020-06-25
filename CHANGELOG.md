@@ -1,6 +1,13 @@
 # FoTT Changelog 
 
-## 2.0.0-3b7f803 (06-18-2020)
+## 2.1-preview.1-6114d64 (06-23-2020)
+* fix: update OCR version ([#335](https://github.com/microsoft/OCR-Form-Tools/commit/6114d6456b27a59335e534eef72cefd1b2f15737))
+* feat: support electron for on premise solution ([#333](https://github.com/microsoft/OCR-Form-Tools/commit/ca0bd0c2ab46b7b587e5bfbc60c29b62bb325297))
+
+## 2.1-preview.1-8297b18 (06-19-2020)
+* refactor: put api version in constants ([#332](https://github.com/microsoft/OCR-Form-Tools/commit/8297b18a084be86bc4c986a1a332cb40bd807d1b))
+
+## 2.1-preview.1-3b7f803 (06-18-2020)
 * feat: enable model compose (preview) ([#328](https://github.com/microsoft/OCR-Form-Tools/commit/3b7f803407b82191706120bb9f12b82de1955704))
 * fix: quick reordering tags ([#322](https://github.com/microsoft/OCR-Form-Tools/commit/3cc5267ef8617590adb3d4966f75cfed64604f00))
 * feat: localization for canvas commandbar items ([#319](https://github.com/microsoft/OCR-Form-Tools/commit/253b9c90eb4923e7fde015a7216905fa32a8dcfa))
