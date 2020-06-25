@@ -1,6 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { appInfo } from "./appInfo"
+
+const appVersionArr = appInfo.version.split(".");
+const appVersionMinor = appVersionArr[1] + "-preview";
+appVersionArr[1] = appVersionMinor;
+const appVersion = appVersionArr.join(".");
+
 const apiVersion = "v2.1-preview.1";
 
 /**
@@ -8,6 +15,7 @@ const apiVersion = "v2.1-preview.1";
  */
 export const constants = {
     version: "pubpreview_1.0",
+    appVersion,
     apiVersion,
     projectFormTempKey: "projectForm",
     projectFileExtensionOld: ".vott",
