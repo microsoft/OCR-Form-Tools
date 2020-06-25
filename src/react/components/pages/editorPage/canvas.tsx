@@ -872,12 +872,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 this.state.generatorTextStyles[region.id]
             );
         }
+        const defaultColor = "rgb(0, 0, 0)";
         // Selected
         if (regionId && this.props?.activeGeneratorRegionId === regionId) {
             return new Style({
                 stroke: new Stroke({
                     // color: hexToRgba(region.color, 0),
-                    color: region.color,
+                    color: region.tag?.color || defaultColor,
                     width: feature.get("highlighted") ? 4 : 2,
                 }),
                 fill: new Fill({
@@ -891,17 +892,16 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const highlighted = feature.get("highlighted"); // hmm, we're getting something different since we have a dict and they use get
             let color = "rgb(255, 255, 255, 0)";
             if (highlighted) {
-                // color = hexToRgba(region.color, 0.0);
-                color = hexToRgba(region.color, 0.3);
+                color = hexToRgba(region.tag?.color || defaultColor, 0.3);
             }
             return new Style({
                 stroke: new Stroke({
-                    color: region.color,
+                    color: region.tag?.color || defaultColor,
                     // color: hexToRgba(region.color, 0.0),
                     width: highlighted ? 4 : 2,
                 }),
                 fill: new Fill({
-                    color,
+                    color: region.tag ? color : "rgb(255, 0, 0)"
                 }),
                 text,
             });
@@ -1391,13 +1391,16 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             name = uniqueName;
         }
 
-        const metadata = {
+        // ! The below isn't used right now. Not sure how to use it.
+        const tagProposal: ITag = {
             name,
             type,
             format,
             color: getNextColor(this.props.formattedItems),
+            documentCount: 1
         }
-        const regionAndMetadata: IGenerator = {...regionInfo, ...metadata};
+
+        const regionAndMetadata: IGenerator = {...regionInfo, tagProposal };
         return regionAndMetadata;
     }
 

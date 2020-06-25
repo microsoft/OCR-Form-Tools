@@ -5,7 +5,7 @@ import _ from "lodash";
 import Guard from "../common/guard";
 import {
     IAsset, AssetType, IProject, IAssetMetadata, AssetState,
-    ILabelData, ILabel,
+    ILabelData, ILabel, ITag, IGeneratorRegion, IGenerator, RegionType, NamedItem
 } from "../models/applicationState";
 import { AssetProviderFactory, IAssetProvider } from "../providers/storage/assetProviderFactory";
 import { StorageProviderFactory, IStorageProvider } from "../providers/storage/storageProviderFactory";
@@ -15,6 +15,7 @@ import { encodeFileURI } from "../common/utils";
 import { strings, interpolate } from "../common/strings";
 import { sha256Hash } from "../common/crypto";
 import { toast } from "react-toastify";
+import { generateBlobSASQueryParameters } from "@azure/storage-blob";
 
 const supportedImageFormats = {
     jpg: null, jpeg: null, null: null, png: null, bmp: null, tif: null, tiff: null, pdf: null,
@@ -316,6 +317,7 @@ export class AssetService {
         assetMetadata.labelData = await this.getLabelDataFromJSON(labelFilename, asset);
         const generatorFilename = this.getGeneratorFilename(asset);
         const generatorUpdate = await this.getGeneratorDataFromJSON(generatorFilename);
+        // ! Hack to write to tags
         assetMetadata = {...assetMetadata, ...generatorUpdate};
         return assetMetadata;
     }
@@ -393,6 +395,17 @@ export class AssetService {
 
             // TODO validate generator settings
             // TODO multiple page support
+            // ! Hack to convert form old format
+            generatorData.generators.forEach((g: any) => {
+                if (!g.tag) {
+                    g.tag = {
+                        color: g.color,
+                        type: g.type,
+                        format: g.format,
+                        name: g.name
+                    }
+                }
+            })
 
             toast.dismiss();
             return generatorData;
@@ -415,23 +428,63 @@ export class AssetService {
             labelData.labels = labelData.labels.filter((label) => label.label !== tagName);
             return labelData;
         };
-        return await this.getUpdatedAssets(tagName, transformer, labelTransformer);
+        const generatorTransformer = (generator: IGenerator) => {
+            return generator.tag?.name === tagName ? {
+                ...generator,
+                tag: null
+            } : generator;
+        }
+        return await this.getUpdatedAssets(
+            tagName,
+            transformer,
+            labelTransformer,
+            generatorTransformer
+        );
     }
 
     /**
      * Rename a tag within asset metadata files
      * @param tagName Name of tag to rename
+     * @param newTagName New name
      */
     public async renameTag(tagName: string, newTagName: string): Promise<IAssetMetadata[]> {
-        const transformer = (tags) => tags.map((t) => (t === tagName) ? newTagName : t);
-        const labelTransformer = (labelData: ILabelData) => {
-            const field = labelData.labels.find((label) => label.label === tagName);
-            if (field) {
-                field.label = newTagName;
-            }
-            return labelData;
-        };
-        return await this.getUpdatedAssets(tagName, transformer, labelTransformer);
+        return await this.updateTag({name: tagName}, {name: newTagName});
+    }
+
+    /**
+     * Update tag within asset metadata files
+     * Note: this doesn't save it, just fetches metadata and applies changes (see saveAssetMetadata)
+     * @param oldTag old tag info
+     * @param newTag new tag info (should share the same keys)
+     */
+    public async updateTag(oldTag: NamedItem & Partial<ITag>, newTag: NamedItem & Partial<ITag>): Promise<IAssetMetadata[]> {
+        let transformer;
+        let labelTransformer;
+        // transformer (for regions) and label transformer only update name
+        if (oldTag.name !== newTag.name) {
+            transformer = (tags) => tags.map((t) => (t === oldTag.name) ? newTag.name : t);
+            labelTransformer =  (labelData: ILabelData) => {
+                const field = labelData.labels.find((label) => label.label === oldTag.name);
+                if (field) {
+                    field.label = newTag.name;
+                }
+                return labelData;
+            };
+        }
+
+        // generator updates everything
+        const generatorTransformer = (generator: IGenerator) => {
+            return generator.tag?.name === oldTag.name ? {
+                ...generator, tag: { ...generator.tag, ...newTag}
+            } : generator;
+        }
+
+        return await this.getUpdatedAssets(
+            oldTag.name,
+            transformer,
+            labelTransformer,
+            generatorTransformer
+        );
     }
 
     /**
@@ -442,12 +495,19 @@ export class AssetService {
     private async getUpdatedAssets(
         tagName: string,
         transformer: (tags: string[]) => string[],
-        labelTransformer: (label: ILabelData) => ILabelData)
+        labelTransformer: (label: ILabelData) => ILabelData,
+        generatorTransformer: (g: IGenerator) => IGenerator)
         : Promise<IAssetMetadata[]> {
         // Loop over assets and update if necessary
         const updates = await _.values(this.project.assets).mapAsync(async (asset) => {
             const assetMetadata = await this.getAssetMetadata(asset);
-            const isUpdated = this.updateTagInAssetMetadata(assetMetadata, tagName, transformer, labelTransformer);
+            const isUpdated = this.updateTagInAssetMetadata(
+                assetMetadata,
+                tagName,
+                transformer,
+                labelTransformer,
+                generatorTransformer
+            );
 
             return isUpdated ? assetMetadata : null;
         });
@@ -466,7 +526,8 @@ export class AssetService {
         assetMetadata: IAssetMetadata,
         tagName: string,
         transformer: (tags: string[]) => string[],
-        labelTransformer: (labelData: ILabelData) => ILabelData): boolean {
+        labelTransformer: (labelData: ILabelData) => ILabelData,
+        generatorTransformer: (g: IGenerator) => IGenerator): boolean {
         let foundTag = false;
 
         for (const region of assetMetadata.regions) {
@@ -484,6 +545,9 @@ export class AssetService {
             }
         }
 
+        const oldGenerators = assetMetadata.generators;
+        assetMetadata.generators = assetMetadata.generators.map(generatorTransformer);
+
         if (foundTag) {
             assetMetadata.regions = assetMetadata.regions.filter((region) => region.tags.length > 0);
             assetMetadata.asset.state = _.get(assetMetadata, "labelData.labels.length")
@@ -491,6 +555,9 @@ export class AssetService {
             return true;
         }
 
+        if (oldGenerators.some((g, i) => g.tag?.name === tagName)) {
+            return true;
+        }
         return false;
     }
 

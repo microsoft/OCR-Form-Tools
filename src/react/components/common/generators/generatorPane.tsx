@@ -69,7 +69,6 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
     }
 
     const selectedGenerator = props.selectedIndex !== -1 ? props.generators[props.selectedIndex]: null;
-
     const onEditorClick = (region: IGenerator, clickProps: ITagClickProps) => {
         const selected = selectedGenerator && selectedGenerator.id === region.id;
         let newOperation;
@@ -109,8 +108,8 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
         const { generators, selectedIndex, namedItems } = props;
         let regions = generators;
         if (searchQuery.length) {
-            regions = regions.filter((r) => !r.name ||
-            r.name.toLowerCase().includes(searchQuery.toLowerCase()));
+            regions = regions.filter((r) => !r.tag?.name ||
+            r.tag?.name.toLowerCase().includes(searchQuery.toLowerCase()));
         }
         const onCancel = () => {
             setOperation(TagOperationMode.None);
@@ -123,16 +122,17 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
             onClick: onEditorClick.bind(this, r),
             cancelRename: onCancel,
             onRename: onItemRename.bind(this, namedItems, r, onCancel, handleNameChange),
-            setRef: (divRef) => setItemRef(divRef, r),
+            setRef: (divRef) => setItemRef(divRef, r.tag),
             onEnter: props.onEditorEnter.bind(this, r),
             onLeave: props.onEditorLeave.bind(this, r),
         }));
         itemRefs.current.clear();
-        return regions.map((r, index) =>
-            <GeneratorEditor
-                {...editorProps[index]}
-                key={r.id}
-            />);
+        return [];
+        // return regions.map((r, index) =>
+        //     <GeneratorEditor
+        //         {...editorProps[index]}
+        //         key={r.id}
+        //     />);
     }
 
     const onSearchKeyDown = (event: KeyboardEvent): void => {
@@ -165,35 +165,36 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
         }
     }
 
-    const onItemChanged = (oldItem: IGenerator, newItem: Partial<IGenerator>) => {
+    const onItemFormatChanged = (oldItem: FormattedItem, newItem: Partial<FormattedItem>) => {
         const newGenerators = props.generators.map(g => {
-            return g.id === oldItem.id ? {...g, ...newItem} : g;
+            return g.tag === oldItem ? {...g, tag: {...g.tag, ...newItem}} : g;
         })
         props.onGeneratorsChanged(newGenerators);
         // find the selected item and change it and call the generators changed
     }
 
-    const onReOrder = (item: IGenerator, displacement: number) => {
+    const onReOrder = (item: FormattedItem, displacement: number) => {
         if (!item) {
             return;
         }
         const items = [...props.generators];
-        const currentIndex = items.indexOf(item);
+        const currentIndex = items.findIndex(g => g.tag === item);
         const newIndex = currentIndex + displacement;
         if (newIndex < 0 || newIndex >= items.length) {
             return;
         }
-        items.splice(currentIndex, 1);
-        items.splice(newIndex, 0, item);
+        const splicedGen = items.splice(currentIndex, 1)[0];
+        items.splice(newIndex, 0, splicedGen);
         props.onSelectedGenerator(props.generators[newIndex]);
         props.onGeneratorsChanged(items);
     }
 
-    const onDelete = (item: IGenerator) => {
+    const onDelete = (item: FormattedItem) => {
         if (!item) {
             return;
         }
-        props.onGeneratorsDeleted([item]);
+        const deletedGen = props.generators.find(g => g.tag === item);
+        props.onGeneratorsDeleted([deletedGen]);
     }
 
     const handleColorChange = (color: string) => {
@@ -204,16 +205,16 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
             return;
         }
         setOperation(TagOperationMode.None);
-        onItemChanged(selectedGenerator, {color});
+        onItemFormatChanged(selectedGenerator.tag, {color});
     }
 
     // Odd arg due to tagInput format
-    const handleNameChange = (oldItem: IGenerator, newItem: IGenerator, cancelCallback: () => void) => {
-        onItemChanged(oldItem, newItem); // drop cancel since we have no confirmation box
+    const handleNameChange = (oldItem: FormattedItem, newItem: FormattedItem, cancelCallback: () => void) => {
+        onItemFormatChanged(oldItem, newItem); // drop cancel since we have no confirmation box
     }
 
     // TODO shouldn't the color portal be aligned to the itemref and not the headerref?
-    const selectedRef = selectedGenerator ? itemRefs.current.get(selectedGenerator.name) : null;
+    const selectedRef = selectedGenerator ? itemRefs.current.get(selectedGenerator.tag?.name) : null;
 
     const toolbarOpts = [
         ItemToolbarOptions.search,
@@ -234,7 +235,7 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
             <div ref={headerRef} className="tag-input-header p-2">
                 <span className="tag-input-title">{strings.generator.title}</span>
                 <TagInputToolbar
-                    selected={selectedGenerator}
+                    selected={selectedGenerator?.tag}
                     onSearch={() => {
                       setSearchOpen(!searchOpen);
                       setSearchQuery("");
@@ -299,18 +300,18 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
                                 {
                                     operation === TagOperationMode.ContextualMenu && selectedRef &&
                                     <FormattedItemContextMenu
-                                        item={selectedGenerator}
+                                        item={selectedGenerator?.tag}
                                         onRename={toggleRenameMode}
                                         onDelete={onDelete}
                                         onReOrder={onReOrder}
                                         selectedRef={selectedRef}
                                         onHideContextualMenu={onHideContextualMenu}
-                                        onItemChanged={onItemChanged}
+                                        onItemChanged={onItemFormatChanged}
                                     />
                                 }
                             </Customizer>
                             <ColorPickerPortal
-                                selectedItem={selectedGenerator}
+                                selectedItem={selectedGenerator?.tag}
                                 operation={operation}
                                 handleColorChange={handleColorChange}
                                 alignRef={headerRef}

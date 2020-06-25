@@ -273,6 +273,7 @@ describe("Asset Service", () => {
 
             const project = populateProjectAssets();
             const assetService = new AssetService(project);
+            // TODO convert this to actual tags and not just names
             const assetUpdates = await assetService.renameTag(tag1, newTag);
 
             expect(assetUpdates).toHaveLength(1);

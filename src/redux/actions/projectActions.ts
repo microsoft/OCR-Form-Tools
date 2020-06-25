@@ -271,7 +271,8 @@ export function saveAssetMetadata(
 }
 
 /**
- * Updates a project and all asset references from oldTagName to newTagName
+ * Updates a project and all asset references from oldTag to newTag
+ * Target label tag names and generators
  * @param project The project to update tags
  * @param oldTag The old tag
  * @param newTag The new tag
@@ -279,18 +280,23 @@ export function saveAssetMetadata(
 export function updateProjectTag(project: IProject, oldTag: ITag, newTag: ITag)
     : (dispatch: Dispatch, getState: () => IApplicationState) => Promise<IAssetMetadata[]> {
     return async (dispatch: Dispatch, getState: () => IApplicationState) => {
+        if (JSON.stringify(oldTag) === JSON.stringify(newTag)) {
+            return [];
+        }
+
         let assetUpdates: IAssetMetadata[] = [];
 
-        if (oldTag.name !== newTag.name) {
-            // Find tags to rename
-            const assetService = new AssetService(project);
-            assetUpdates = await assetService.renameTag(oldTag.name, newTag.name);
+        const assetService = new AssetService(project);
+        assetUpdates = await assetService.updateTag(oldTag, newTag);
 
-            // Save updated assets
-            await assetUpdates.forEachAsync(async (assetMetadata) => {
-                await saveAssetMetadata(project, assetMetadata)(dispatch);
-            });
-        }
+        // Save updated assets
+        // TODO - look at this - are we saving this and are we appropriately loading it back into state? Are we hooking into this with generators?
+        // Goal - simply sync the generator tag with the project tag for now (at least the name)
+        // Still trying to make it so we can test multiple forms to see what that would look like
+        // And prototyping all the other stuff
+        await assetUpdates.forEachAsync(async (assetMetadata) => {
+            await saveAssetMetadata(project, assetMetadata)(dispatch);
+        });
 
         const currentProject = getState().currentProject;
         const updatedProject = {

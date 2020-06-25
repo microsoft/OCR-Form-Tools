@@ -221,7 +221,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             generateCount: 40
         };
 
-        const formattedItems = [...this.props.project.tags, ...generators];
+        const formattedItems = [
+            ...this.props.project.tags
+        ];
         return (
             <div className="editor-page skipToMainContent" id="pageEditor">
                 {this.state.tableToView !== null &&
@@ -296,7 +298,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             onSelectedRegionsChanged={this.onSelectedRegionsChanged}
                                             onRunningOCRStatusChanged={this.onCanvasRunningOCRStatusChanged}
                                             onTagChanged={this.onTagChanged}
-                                            activeGeneratorRegionId={this.getActiveGeneratorId()}
+                                            activeGeneratorRegionId={this.getSelectedGenerator()?.id}
                                             hoveredGenerator={this.state.hoveredGenerator}
                                             editorMode={this.state.editorMode}
                                             setEditorMode={this.setEditorMode}
@@ -457,7 +459,17 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         this.setState({
             selectedTag: tag.name,
             lockedTags: [],
-        }, () => this.canvas.current.applyTag(tag.name));
+        }, () => {
+            if (this.state.selectedGeneratorIndex !== -1) {
+                const gen = this.getSelectedGenerator();
+                gen.tag = tag;
+                // update state
+                this.onGeneratorChanged(gen);
+                // tag.format = gen.tagProposal.format;
+                // tag.type = gen.tagProposal.type;
+            }
+            this.canvas.current.applyTag(tag.name);
+        });
     }
 
     /**
@@ -895,9 +907,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         this.onGeneratorsChanged(newGenerators, -1);
     }
 
-    private getActiveGeneratorId = () => {
-        const generator = this.state.selectedAsset.generators[this.state.selectedGeneratorIndex];
-        return generator?.id;
+    private getSelectedGenerator = () => {
+        if (this.state.selectedGeneratorIndex === -1) return;
+        return this.state.selectedAsset.generators[this.state.selectedGeneratorIndex];
     }
 
     private setTableToView = async (tableToView, tableToViewId) => {

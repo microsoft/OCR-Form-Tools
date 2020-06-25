@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import * as RandExp from "randexp";
+import * as randomWords from "random-words";
 
 import { IGenerator, FieldFormat, FieldType, ILabel } from "../../../../models/applicationState";
 import { randomIntInRange } from "../../../../common/utils";
@@ -122,7 +123,7 @@ export const generate:(g: IGenerator, ocr: any) => IGeneratedInfo = (generator, 
     const format = { ...defaultStyle, ...limitsAndFormat.format, text };
     const boundingBoxes = generateBoundingBoxes(generator, format, ocr, mapUnitsPerChar);
     return {
-        name: generator.name,
+        name: generator.tag.name,
         text,
         boundingBoxes,
         format,
@@ -282,6 +283,7 @@ const generateString: (g: IGenerator, l: number[][]) => string = (generator, lim
     const [ low, high ] = widthLimit;
     const [ heightLow, heightHigh ] = heightLimit;
     const linesUsed = randomIntInRange(heightLow, heightHigh);
+
     const defaultRegex = `^.{${low},${high}}$`;
     const dd = "(0[1-9]|[12][0-9]|3[01])";
     const mm = "(0[1-9]|1[012])";
@@ -295,7 +297,7 @@ const generateString: (g: IGenerator, l: number[][]) => string = (generator, lim
         },
         [FieldType.Number]: {
             [FieldFormat.NotSpecified]: `^\\d{${low},${high}}$`,
-            [FieldFormat.Currency]: `^\\$?((([1-9][0-9]){2},){${Math.round(low/4)},${Math.round(high/4)}}[0-9]{3}|[0-9]{${low},${high}})(\\.[0-9][0-9])?$`,
+            [FieldFormat.Currency]: `^\\$?((([1-9][0-9]){1,2},){${Math.round(low/5)},${Math.round(high/5)}}[0-9]{3}|[0-9]{${low},${high}})(\\.[0-9][0-9])?$`,
         },
         [FieldType.Date]: {
             [FieldFormat.NotSpecified]: `^\\d\\d([- /.])\\d\\d\\1\\d{2,4}$
@@ -315,18 +317,38 @@ const generateString: (g: IGenerator, l: number[][]) => string = (generator, lim
         },
     }
 
-    const fieldType = generator.type;
-    const fieldFormat = generator.format;
-    let regex = regexDict[FieldType.String][FieldFormat.NotSpecified];
-    if (fieldType in regexDict && fieldFormat in regexDict[fieldType]) {
-        regex = regexDict[fieldType][fieldFormat];
+    const fieldType = generator.tag.type;
+    const fieldFormat = generator.tag.format;
+    let instanceGenerator = () => {
+        let regex = regexDict[FieldType.String][FieldFormat.NotSpecified];
+        if (fieldType in regexDict && fieldFormat in regexDict[fieldType]) {
+            regex = regexDict[fieldType][fieldFormat];
+        }
+        // @ts-ignore - something is messed up with this import, satisfying it in lint breaks on runtime
+        const randexp = new RandExp(regex);
+        return randexp.gen();
     }
-    // @ts-ignore - something is messed up with this import, satisfying it in lint breaks on runtime
-    const randexp = new RandExp(regex);
-    // Best effort for multiline atm - just do multiple newlines
+    if (fieldType === FieldType.String && fieldFormat === FieldFormat.Alphanumeric) {
+        instanceGenerator = () => {
+            // low, high
+            const maxLength = Math.min(6, high);
+            const formatter = (word, index)=> {
+                return Math.random() < 0.3 ? word.slice(0,1).toUpperCase().concat(word.slice(1)) : word;
+            }
+            return randomWords({
+                min: Math.max(Math.round(low / maxLength), 1),
+                max: Math.round(high / maxLength),
+                maxLength,
+                join: " ",
+                formatter,
+            });
+        };
+    }
+
     const lineStrings = [];
+    // Best effort for multiline atm - just do multiple newlines
     for (let i = 0; i < linesUsed; i++) {
-        lineStrings.push(randexp.gen());
+        lineStrings.push(instanceGenerator());
     }
     return lineStrings.join("\n");
 }
@@ -376,7 +398,7 @@ const getStringLimitsAndFormat: (g: IGenerator, mapUnitsPerChar: number[]) => Li
     const offsetX = (mapLeft - mapCenterWidth + GEN_CONSTANTS.offsetX + jitter(GEN_CONSTANTS.offsetXJitter));
     let offsetY = (mapTop - mapCenterHeight + GEN_CONSTANTS.offsetY + jitter(GEN_CONSTANTS.offsetYJitter));
 
-    if (generator.type !== FieldType.String) {
+    if (generator.tag.type !== FieldType.String) {
         offsetY = (mapHeightPerChar / 2 + GEN_CONSTANTS.offsetY + charHeightHigh * jitter(GEN_CONSTANTS.offsetYJitter));
         charHeightHigh = 2;
     }

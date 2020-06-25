@@ -113,11 +113,7 @@ export interface IFileInfo {
  * @member name - User defined name
  * @member color - User editable color associated to tag
  */
-export interface ITag {
-    name: string;
-    color: string;
-    type: FieldType;
-    format: FieldFormat;
+export interface ITag extends FormattedItem {
     documentCount?: number;
 }
 
@@ -274,7 +270,10 @@ export interface IGeneratorRegion {
     id: string;
 }
 
-export type IGenerator = FormattedItem & IGeneratorRegion;
+export interface IGenerator extends IGeneratorRegion {
+    tag?: FormattedItem,
+    tagProposal: FormattedItem,
+}
 
 export interface IGeneratorSettings {
     generateCount: number;

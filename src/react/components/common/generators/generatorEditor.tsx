@@ -32,7 +32,7 @@ export interface IGeneratorEditorProps {
 
 const GeneratorEditor: React.FunctionComponent<IGeneratorEditorProps> = (props) => {
     const style = {
-        background: props.region.color,
+        background: props.region.tag?.color,
     };
 
     const itemRef = useRef<HTMLDivElement>();
@@ -90,7 +90,7 @@ const GeneratorEditor: React.FunctionComponent<IGeneratorEditorProps> = (props) 
                             className={"tag-content pr-2"}
                             onClick={onNameClick.bind(this, props.onClick)}>
                             <FormattedItemEditor
-                                item={props.region}
+                                item={props.region.tag}
                                 onMouseEnter={props.onEnter}
                                 onMouseLeave={props.onLeave}
                                 inputRef={inputElement}
