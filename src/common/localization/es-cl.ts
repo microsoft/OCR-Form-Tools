@@ -322,6 +322,32 @@ export const spanish: IAppStrings = {
                 title: "Borrar Regiones",
                 confirmation: "¿Está seguro que quiere borrar todas las regiones?",
             },
+            canvasCommandBar: {
+                items: {
+                    layers:{
+                        text: "Capas",
+                        subMenuItems: {
+                            text: "Texto",
+                            tables: "Tablas",
+                            selectionMarks: "Marcas de selección (vista previa)",
+                            labels: "Etiquetas"
+                        },
+                    }
+                },
+                farItems: {
+                    zoom: {
+                        zoomOut: "Alejar",
+                        zoomIn: "Acercarse",
+                    },
+                    additionalActions: {
+                        text: "Acciones adicionales",
+                        subIMenuItems: {
+                            runOcrOnCurrentDocument: "Ejecutar OCR en el documento actual",
+                            runOcrOnAllDocuments: "Ejecute OCR en todos los documentos",
+                        }
+                    }
+                }
+            }
         },
         messages: {
             enforceTaggedRegions: {
@@ -390,11 +416,16 @@ export const spanish: IAppStrings = {
                 name: "Selección de palabras múltiples",
                 description: "Haga clic y mantenga presionada la palabra, luego desplace el cursor sobre otras palabras para seleccionar varias palabras a la vez.",
             },
+            deleteAllLabelsForTag: {
+                name: "Eliminar información asociada a una etiqueta",
+                description: "Seleccione todas las etiquetas para una etiqueta en el documento y presione la tecla 'delete'"
+            }
         },
         headers: {
             keyboardShortcuts: "Atajos de teclado",
             otherTips: "Otros consejos",
         },
+        iconTitle: "Atajos de teclado y consejos útiles"
     },
     errors: {
         unknown: {
@@ -512,6 +543,10 @@ export const spanish: IAppStrings = {
             title: "",
             message: "",
         },
+        requestSendError: {
+            title: "solicitud enviar error",
+            message: "Error al enviar solicitud a Azure Blob Container. Problemas comunes: \n • SAS URI no válida \n • Cross-Origin Resource Sharing (CORS) no está configurado del lado del servidor \n • Error de red",
+        }
     },
 };
 

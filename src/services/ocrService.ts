@@ -32,7 +32,9 @@ export class OCRService {
     public async getRecognizedText(
         filePath: string,
         fileName: string,
-        onStatusChanged?: (ocrStatus: OcrStatus) => void): Promise<any> {
+        onStatusChanged?: (ocrStatus: OcrStatus) => void,
+        rewrite?: boolean
+    ): Promise<any> {
         Guard.empty(filePath);
         Guard.empty(this.project.apiUriBase);
 
@@ -43,7 +45,7 @@ export class OCRService {
         try {
             notifyStatusChanged(OcrStatus.loadingFromAzureBlob);
             ocrJson = await this.readOcrFile(ocrFileName);
-            if (!this.isValidOcrFormat(ocrJson)) {
+            if (!this.isValidOcrFormat(ocrJson) || rewrite) {
                 ocrJson = await this.fetchOcrUriResult(filePath, ocrFileName);
             }
         } catch (e) {
@@ -52,7 +54,6 @@ export class OCRService {
         } finally {
             notifyStatusChanged(OcrStatus.done);
         }
-
         return ocrJson;
     }
 

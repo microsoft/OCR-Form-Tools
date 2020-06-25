@@ -69,7 +69,7 @@ describe("Helper functions", () => {
                     "a=1&b=A%20string%20with%20a%20space&c=A%20string%20with%20a%20%23%20and%20a%20%26%20char&d=true",
                 );
         });
-        it("Joins path with seperator", () => {
+        it("Joins path with separator", () => {
             expect(joinPath("/", "", "b", "c")).toEqual("b/c");
             expect(joinPath("/", "a", "b", "c")).toEqual("a/b/c");
             expect(joinPath("/", "/a", "b", "c")).toEqual("a/b/c");

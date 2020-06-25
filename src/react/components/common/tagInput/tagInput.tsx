@@ -11,7 +11,7 @@ import {
     ICustomizations,
     Spinner,
     SpinnerSize,
-} from "office-ui-fabric-react";
+} from "@fluentui/react";
 import { strings } from "../../../../common/strings";
 import { getDarkTheme } from "../../../../common/themes";
 import { AlignPortal } from "../align/alignPortal";
@@ -23,6 +23,7 @@ import "../condensedList/condensedList.scss";
 import TagInputItem, { ITagInputItemProps, ITagClickProps } from "./tagInputItem";
 import TagInputToolbar from "./tagInputToolbar";
 import { toast } from "react-toastify";
+import debounce from 'lodash/debounce';
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../../common/tagColors.json");
 
@@ -116,6 +117,11 @@ function isNameEqual(x: string, y: string) {
 }
 
 export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
+    debouncedSetTags: any;
+    constructor(props: Readonly<ITagInputProps>) {
+        super(props);
+        this.debouncedSetTags = debounce(this.setTags, 3000);
+    }
 
     public state: ITagInputState = {
         tags: this.props.tags || [],
@@ -263,6 +269,10 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         this.props.onLockedTagsChange(lockedTags);
     }
 
+    private setTags = (tags: ITag[]) => {
+        this.props.onChange(tags)
+    }
+
     private onReOrder = (tag: ITag, displacement: number) => {
         if (!tag) {
             return;
@@ -277,7 +287,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         tags.splice(newIndex, 0, tag);
         this.setState({
             tags,
-        }, () => this.props.onChange(tags));
+        }, () => this.debouncedSetTags(tags));
     }
 
     private handleColorChange = (color: string) => {

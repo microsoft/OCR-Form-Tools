@@ -309,12 +309,12 @@ export function renderRotatedImageToCanvas(image: HTMLImageElement, orientation:
     return canvas;
 }
 
-export function joinPath(seperator: string, ...paths: string[]) {
-    const leadingSeperator = (paths && paths[0] && paths[0][0] === seperator) ? seperator : "";
-    const joined = paths.join(seperator);
-    const parts = joined.split(seperator);
-    const normalized = parts.filter((p) => p && p.trim() !== "").join(seperator);
-    return leadingSeperator + normalized;
+export function joinPath(separator: string, ...paths: string[]) {
+    const leadingSeparator = (paths && paths[0] && paths[0][0] === separator) ? separator : "";
+    const joined = paths.join(separator);
+    const parts = joined.split(separator);
+    const normalized = parts.filter((p) => p && p.trim() !== "").join(separator);
+    return leadingSeparator + normalized;
 }
 
 export function patch<T, K extends keyof T>(data: T[], diff: T[], key: K, properties: K[]): T[] {
@@ -346,3 +346,14 @@ export function getNextColor(tags: ITag[]) {
 
     return tagColors[randomIntInRange(0, tagColors.length - 1)];
 }
+
+export function hexToRGBA(hex: string, alpha: number): string {
+    const h = "0123456789ABCDEF";
+    const r = h.indexOf(hex[1]) * 16 + h.indexOf(hex[2]);
+    const g = h.indexOf(hex[3]) * 16 + h.indexOf(hex[4]);
+    const b = h.indexOf(hex[5]) * 16 + h.indexOf(hex[6]);
+    if (alpha) {
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`
+    }
+    return `rgba(${r}, ${g}, ${b})`;
+  }

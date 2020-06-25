@@ -3,7 +3,7 @@
 
 import React from "react";
 import { connect } from "react-redux";
-import { FontIcon } from "office-ui-fabric-react";
+import { FontIcon } from "@fluentui/react";
 import { IApplicationState } from "../../../models/applicationState";
 import { PlatformType } from "../../../common/hostProcess";
 import "./titleBar.scss";

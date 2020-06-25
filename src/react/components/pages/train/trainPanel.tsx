@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { FontIcon, PrimaryButton } from "office-ui-fabric-react";
+import { FontIcon, PrimaryButton } from "@fluentui/react";
 import TrainRecord, { ITrainRecordProps } from "./trainRecord";
 import { getPrimaryGreyTheme } from "../../../../common/themes";
 

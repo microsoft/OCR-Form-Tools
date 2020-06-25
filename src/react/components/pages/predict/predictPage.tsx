@@ -5,8 +5,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
-import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton, TextField, IDropdownOption,
-         Dropdown, DefaultButton} from "office-ui-fabric-react";
+import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton, TextField, IDropdownOption, DefaultButton, Dropdown} from "@fluentui/react";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
@@ -202,17 +201,24 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const urlInputDisabled: boolean = !this.state.predictionLoaded || this.state.isFetching || uploadImageDisabled;
         const predictDisabled: boolean = !this.state.predictionLoaded || !this.state.file;
         const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
-        const fetchDisabled: boolean = !this.state.predictionLoaded || this.state.isFetching ||
-                                        this.state.inputedFileURL.length === 0 ||
-                                        this.state.inputedFileURL === strings.predict.defaultURLInput;
+        const fetchDisabled: boolean =
+            !this.state.predictionLoaded ||
+            this.state.isFetching ||
+            this.state.inputedFileURL.length === 0 ||
+            this.state.inputedFileURL === strings.predict.defaultURLInput;
 
         const sourceOptions: IDropdownOption[] = [
             { key: "localFile", text: "Local file" },
             { key: "url", text: "URL" },
         ];
 
+        const showPredictionComponent: boolean = /receipts|predict/.test(this.props.match.path)
+
         return (
-            <div className="predict skipToMainContent" id="pagePredict">
+            <div
+                className={`predict skipToMainContent ${showPredictionComponent ? "" : "hidden"} `}
+                id="pagePredict"
+                style={{ display: `${showPredictionComponent ? "flex" : "none"}` }}>
                 <div className="predict-main">
                     {this.state.file && this.state.imageUri && this.renderImageMap()}
                     {this.renderPrevPageButton()}
@@ -225,21 +231,23 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             <span>Analyze {this.props.receiptMode ? " receipts (preview)" : ""}</span>
                         </h6>
                         <div className="p-3">
-                            {/* <h5>
+                            {!this.props.receiptMode && <>
+                                <h5>
                                 {strings.predict.downloadScript}
                             </h5>
                             <PrimaryButton
                                 theme={getPrimaryGreenTheme()}
-                                text="Download python script"
+                                text="Download Python script"
                                 allowDisabledFocus
                                 autoFocus={true}
                                 onClick={this.handleDownloadClick}
                             />
                             <div className="alight-vertical-center mt-2">
-                                <div className="seperator"/>
+                                <div className="separator"/>
                                 or
-                                <div className="seperator"/>
-                            </div> */}
+                                <div className="separator"/>
+                                </div>
+                            </>}
                             {this.props.receiptMode &&
                                 <div>
                                     <h5>
@@ -275,7 +283,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                             theme={getPrimaryGreyTheme()}
                                             type="button"
                                             title="Copy"
-                                            onClick={this.copyKey}
+                                            onClick={()=>this.copyKey()}
                                         >
                                             <FontIcon iconName="Copy" />
                                         </DefaultButton>
@@ -384,7 +392,11 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                     />
                                 </div>
                             }
-                            {Object.keys(predictions).length > 0 &&
+                            {
+                                Object.keys(predictions).length > 0
+                                // commented bellow for demo purposes
+                                // && this.props.project
+                                &&
                                 <PredictResult
                                     predictions={predictions}
                                     analyzeResult={this.state.analyzeResult}
@@ -720,12 +732,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             }
             const endpointURL = this.props.project.apiUriBase as string;
             const apiKey = this.props.project.apiKey as string;
-            const analyzeScript = response.data.replace(/<endpoint>|<subsription_key>|<model_id>/gi,
+            const analyzeScript = response.data.replace(/<endpoint>|<subscription_key>|<model_id>/gi,
                 (matched: string) => {
                 switch (matched) {
                     case "<endpoint>":
                         return endpointURL;
-                    case "<subsription_key>":
+                    case "<subscription_key>":
                         return apiKey;
                     case "<model_id>":
                         return modelID;
@@ -734,8 +746,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             const fileURL = window.URL.createObjectURL(
                 new Blob([analyzeScript]));
             const fileLink = document.createElement("a");
-            const fileBaseName = "analysis";
-            const downloadFileName = fileBaseName + modelID.substring(0, 4) + ".py";
+            const fileBaseName = "analyze";
+            const downloadFileName = fileBaseName + "-" + modelID.substring(0, 4) + ".py";
 
             fileLink.href = fileURL;
             fileLink.setAttribute("download", downloadFileName);
@@ -920,7 +932,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         });
     }
 
-    private createBoundingBoxVectorFeature = (text, boundingBox, imageExtent, ocrExtent) => {
+    private createBoundingBoxVectorFeature = (text: string, boundingBox: string | any[], imageExtent: number[], ocrExtent: number[]) => {
         const coordinates: number[][] = [];
 
         // extent is int[4] to represent image dimentions: [left, bottom, right, top]
@@ -939,7 +951,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const feature = new Feature({
             geometry: new Polygon([coordinates]),
         });
-        let tag;
+        let tag: ITag;
         if (this.props.receiptMode) {
             tag = this.state.receiptTags.find((tag) => tag.name.toLocaleLowerCase() === text.toLocaleLowerCase());
         } else {
@@ -959,10 +971,10 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         return new Style({
             stroke: new Stroke({
                 color: feature.get("color"),
-                width: feature.get("isHighlighted") ? 4 : 2,
+                width: feature.get("isHighlighted") ? 3 : 1,
             }),
             fill: new Fill({
-                color: "rgba(255, 255, 255, 0)",
+                color: feature.get("isHighlighted") ? "rgba(226, 238, 3, 0.25)" : "rgba(255, 255, 255, 0)",
             }),
         });
     }

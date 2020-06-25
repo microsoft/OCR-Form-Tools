@@ -2,23 +2,29 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { Switch, Route } from "react-router-dom";
+import { Switch, Route, Redirect } from "react-router-dom";
 import HomePage from "../pages/homepage/homePage";
 import AppSettingsPage from "../pages/appSettings/appSettingsPage";
 import TrainPage from "../pages/train/trainPage";
 import ConnectionPage from "../pages/connections/connectionsPage";
 import EditorPage from "../pages/editorPage/editorPage";
-import PredictPage from "../pages/predict/predictPage";
 import ProjectSettingsPage from "../pages/projectSettings/projectSettingsPage";
+import { PredictPageRoute } from "./preditcPageRoute";
+import PredictPage from "../pages/predict/predictPage";
+
+
+
 
 /**
  * @name - Main Content Router
  * @description - Controls main content pane based on route
  */
+
 export function MainContentRouter() {
     return (
         <div className="app-content text-light">
             <Switch>
+                <Redirect from="/" to="/receipts" exact={true}/>
                 <Route path="/" exact component={HomePage} />
                 <Route path="/settings" component={AppSettingsPage} />
                 <Route path="/connections/:connectionId" component={ConnectionPage} />
@@ -26,11 +32,11 @@ export function MainContentRouter() {
                 <Route path="/projects/:projectId/edit" component={EditorPage} />
                 <Route path="/projects/create" component={ProjectSettingsPage} />
                 <Route path="/projects/:projectId/train" component={TrainPage} />
-                <Route path="/projects/:projectId/predict" component={PredictPage} />
-                <Route path="/receipts" render={(props) => <PredictPage {...props} receiptMode={true} />}/>
+                <Route path="/receipts" render={(props) => <PredictPage {...props} receiptMode={true}/>}
+                />
                 <Route path="/projects/:projectId/settings" component={ProjectSettingsPage} />
-                <Route component={HomePage} />
             </Switch>
+            <PredictPageRoute />
         </div>
     );
 }

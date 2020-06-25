@@ -19,8 +19,10 @@ export class SkipButton extends React.Component<ISkipButtonProps> {
     private skipToId = (event: React.MouseEvent<HTMLAnchorElement>) => {
         event.preventDefault();
 
-        const collection = document.getElementsByClassName(this.props.skipTo);
-        const element = collection.length > 0 ? collection[0] as HTMLElement : null;
+        const collection: HTMLCollection = document.getElementsByClassName(this.props.skipTo);
+        const collectionWithoutHiddenElements = Array.prototype.filter.call(collection, (el: HTMLElement) => !el.classList.contains("hidden"))
+
+        const element = collection.length > 0 ? collectionWithoutHiddenElements[0] as HTMLElement : null;
 
         if (!element) {
             return;
