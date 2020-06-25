@@ -4,8 +4,7 @@
 import { appInfo } from "./appInfo"
 
 const appVersionArr = appInfo.version.split(".");
-const appVersionMinor = appVersionArr[1] + "-preview";
-appVersionArr[1] = appVersionMinor;
+appVersionArr[1] = appVersionArr[1] + "-preview";
 const appVersion = appVersionArr.join(".");
 
 const apiVersion = "v2.1-preview.1";
