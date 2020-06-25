@@ -9,7 +9,7 @@ import {
     EditorMode, IAssetMetadata,
     IProject, IRegion, RegionType,
     AssetType, ILabelData, ILabel,
-    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat,
+    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, IApplicationState, ISecurityToken,
 } from "../../../../models/applicationState";
 import CanvasHelpers from "./canvasHelpers";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
@@ -30,15 +30,20 @@ import Alert from "../../common/alert/alert";
 import * as pdfjsLib from "pdfjs-dist";
 import Polygon from "ol/geom/Polygon";
 import HtmlFileReader from "../../../../common/htmlFileReader";
-import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
+import { parseTiffData, renderTiffToCanvas, loadImageToCanvas, getSasFolderString, fixedEncodeURIComponent } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./canvasCommandBar";
 import { TooltipHost, ITooltipHostStyles } from "@fluentui/react";
+import { connect } from "react-redux";
+import { IAppSettings } from '../../../../models/applicationState';
+import { toast } from "react-toastify";
+
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
 
 export interface ICanvasProps extends React.Props<Canvas> {
+    appSettings: IAppSettings,
     selectedAsset: IAssetMetadata;
     editorMode: EditorMode;
     project: IProject;
@@ -52,7 +57,8 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onCanvasRendered?: (canvas: HTMLCanvasElement) => void;
     onRunningOCRStatusChanged?: (isRunning: boolean) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
-    runOcrForAllDocs?: (runForAllDocs:boolean) => void;
+    runOcrForAllDocs?: (runForAllDocs: boolean) => void;
+    shareProject?: () => void;
 }
 
 export interface ICanvasState {
@@ -98,6 +104,13 @@ function hexToRgba(color: string, a: number) {
     return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 
+function mapStateToProps(state: IApplicationState) {
+    return {
+        appSettings: state.appSettings,
+    };
+}
+
+@connect(mapStateToProps)
 export default class Canvas extends React.Component<ICanvasProps, ICanvasState> {
     public static defaultProps: ICanvasProps = {
         editorMode: EditorMode.Select,
@@ -105,6 +118,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         project: null,
         lockedTags: [],
         hoveredLabel: null,
+        appSettings: null,
+        shareProject: null,
     };
 
     public state: ICanvasState = {
@@ -215,6 +230,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     layers={this.state.layers}
                     handleRunOcr={this.runOcr}
                     handleRunOcrForAllDocuments={this.runOcrForAllDocuments}
+                    handleShareProject={this.shareProject}
                 />
                 <ImageMap
                     ref={(ref) => this.imageMap = ref}
@@ -291,6 +307,25 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private runOcrForAllDocuments = () => {
         this.setState({ocrStatus: OcrStatus.runningOCR})
         this.props.runOcrForAllDocs(true);
+    }
+
+    // creates URI for sharing project
+    private shareProject = (): void => {
+        const project: IProject = this.props.project;
+        const sasFolderString = getSasFolderString(project.sourceConnection.providerOptions["sas"]);
+        const projectToken: ISecurityToken = this.props.appSettings.securityTokens
+        .find((securityToken) => securityToken.name === project.securityToken);
+        const shareProjectUriString = encodeURI(`/projects/${project.id}/edit/?SAS=${fixedEncodeURIComponent(sasFolderString)}&name=${fixedEncodeURIComponent(project.name)}&tokenName=${(project.securityToken)}&key=${fixedEncodeURIComponent(projectToken.key)}`);
+
+        this.copyToClipboard(shareProjectUriString)
+    }
+
+    private async copyToClipboard(value: string) {
+        const clipboard = (navigator as any).clipboard;
+        if (clipboard && clipboard.writeText) {
+            await clipboard.writeText(btoa(value));
+            toast.success("String for sharing your project have been saved to clipboard. In order to use it paste it in appropriate section of the 'Open Cloud Project' popup.");
+        }
     }
 
     public updateSize() {

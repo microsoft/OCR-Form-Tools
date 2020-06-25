@@ -3,7 +3,7 @@
 
 import React from "react";
 import { toast } from "react-toastify";
-import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
+import { Button, Modal, ModalBody, ModalFooter, ModalHeader, InputGroup, Input } from "reactstrap";
 import { strings, interpolate } from "../../../../common/strings";
 import { IConnection, StorageType, ErrorCode, AppError } from "../../../../models/applicationState";
 import { StorageProviderFactory } from "../../../../providers/storage/storageProviderFactory";
@@ -18,7 +18,7 @@ import CondensedList, { ListItem } from "../condensedList/condensedList";
  */
 export interface ICloudFilePickerProps {
     connections: IConnection[];
-    onSubmit: (content: string) => void;
+    onSubmit: (content: string, token?: {}) => void;
 
     onCancel?: () => void;
     fileExtension?: string;
@@ -42,6 +42,8 @@ export interface ICloudFilePickerState {
     selectedFile: string;
     okDisabled: boolean;
     backDisabled: boolean;
+    pastedUri: string,
+    pasting: boolean,
 }
 
 /**
@@ -50,7 +52,7 @@ export interface ICloudFilePickerState {
  */
 export class CloudFilePicker extends React.Component<ICloudFilePickerProps, ICloudFilePickerState> {
 
-    constructor(props) {
+    constructor(props: Readonly<ICloudFilePickerProps>) {
         super(props);
 
         this.open = this.open.bind(this);
@@ -63,6 +65,8 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
         this.onClickConnection = this.onClickConnection.bind(this);
         this.fileList = this.fileList.bind(this);
         this.onClickFile = this.onClickFile.bind(this);
+        this.handleChangeUri= this.handleChangeUri.bind(this);
+        this.handlePasteUri= this.handlePasteUri.bind(this);
 
         this.state = this.getInitialState();
     }
@@ -78,6 +82,15 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
                 <ModalBody>
                     {this.state.condensedList}
                 </ModalBody>
+                <InputGroup style={{margin: "5%", width: "90%"}}>
+                    <Input placeholder="or you can paste project URI"
+                        id="sharedURI"
+                        type="text"
+                        value={this.state.pastedUri}
+                        onChange={this.handleChangeUri}
+                        onPaste={this.handlePasteUri}
+                    />
+                    </InputGroup>
                 <ModalFooter>
                     {this.state.selectedFile || ""}
                     <Button
@@ -125,6 +138,8 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
             selectedFile: null,
             okDisabled: true,
             backDisabled: true,
+            pastedUri: "",
+            pasting: false,
         };
     }
 
@@ -133,7 +148,62 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
             const storageProvider = StorageProviderFactory.createFromConnection(this.state.selectedConnection);
             const content = await storageProvider.readText(this.state.selectedFile);
             this.props.onSubmit(content);
+        } else if (this.state.pastedUri) {
+            // console.log("#i",this.getSharedProjectConnectionInfo().connection)
+            const { connection, projectName, token } = this.getSharedProjectConnectionInfo()
+            await this.readFile(connection, projectName);
+            const storageProvider = StorageProviderFactory.createFromConnection(connection);
+            const content = await storageProvider.readText(this.state.selectedFile);
+            this.props.onSubmit(content, token);
+
         }
+    }
+
+    private getSharedProjectConnectionInfo() {
+        const uri = this.state.pastedUri;
+        const { token, sasFolder, projectName } = this.getSharedUriParams(uri);
+        const connection = this.haveConnection(this.props.connections, sasFolder)
+        return {token, projectName, connection}
+    }
+
+    private haveConnection(connections: IConnection[], sasFolder: string) {
+        const connection: IConnection[] = connections.filter(({ providerOptions }) => providerOptions["sas"].includes(sasFolder));
+        if (connection.length) {
+            return connection[0];
+        }
+    }
+
+    private getSharedUriParams(sharedSting: string) {
+
+        const location = window.location.origin
+        const uri = location + atob(sharedSting)
+        const url = new URL(uri);
+        if (url) {
+            return {
+                sasFolder: decodeURIComponent(url.searchParams.get("SAS")),
+                projectName: decodeURIComponent(url.searchParams.get("name")),
+                token: {
+                    name: decodeURIComponent(url.searchParams.get("tokenName")),
+                    key: decodeURIComponent(url.searchParams.get("key"))
+                }
+            }
+        }
+    }
+
+    private handlePasteUri(ev) {
+        this.setState({pasting:true, pastedUri: ev.target.value})
+    }
+
+    private handleChangeUri(ev) {
+        if (this.state.pasting) {
+            this.setState({pastedUri: ev.target.value, okDisabled: false});
+        }
+    }
+
+    private async readFile(connection: IConnection, projectName: string) {
+        const storageProvider = StorageProviderFactory.createFromConnection(connection);
+        const files = await storageProvider.listFiles(undefined, ".fott")
+        this.setState({selectedFile: files.filter((file) => file.includes(projectName))[0]})
     }
 
     private back() {

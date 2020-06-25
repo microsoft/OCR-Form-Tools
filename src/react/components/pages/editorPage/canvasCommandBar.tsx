@@ -10,6 +10,7 @@ interface ICanvasCommandBarProps {
     handleRunOcr: () => void;
     handleRunOcrForAllDocuments: () => void;
     handleLayerChange: (layer: string) => void;
+    handleShareProject: () => void;
     layers: any;
 }
 
@@ -97,7 +98,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         key: "shareProject",
                         text: "Share Project",
                         iconProps: { iconName: "Share" },
-                        onClick: ()=>{""},
+                        onClick: ()=> props.handleShareProject(),
                     },
                     {
                         key: "runOcrForCurrentDocument",
