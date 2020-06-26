@@ -133,7 +133,7 @@ export const spanish: IAppStrings = {
         columnAria: {
             icon: "Modelo con icono es un nuevo modelo compuesto",
         },
-        loading: "La modelo se está cargando ...",
+        loading: "Cargando modelos...",
         composing: "La modelo está componiendo, por favor espera ...",
         column: {
             icon: {
