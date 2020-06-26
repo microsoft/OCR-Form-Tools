@@ -1,5 +1,30 @@
 # Test Runbook
 
+ ## Feat: support distributable releasing
+
+> ### Feature description ###
+- Support distributable releasing for Windows, Mac, and Linux
+
+> ### Use Case ###
+
+**As** a user  
+**I want** to release my project as a distributable  
+**So** I can easily set up FOTT
+
+> ### Acceptance criteria ###
+
+#### Scenario One ####
+
+**Given** I've updated dependencies.  
+**When** I run `yarn release`.  
+**Then** a distributable installer should be created in the releases folder.
+
+**Given** I've created a distributable installer.  
+**When** I execute the installer.  
+**Then** a the FOTT desktop application should install and run as expected.
+
+___
+
 ## Feat: support Electron for on premise solution
 
 > ### Feature description ###
