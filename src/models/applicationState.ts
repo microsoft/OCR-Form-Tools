@@ -263,7 +263,7 @@ export interface IBoundingBox {
  */
 export interface IGeneratorRegion {
     points: number[];
-    bbox: number[]; // bbox in inches - origin TL
+    bbox: number[]; // bbox in inches - origin TL (for OCR)
     resolution: number; // resolution at definition (used to convert to pixels for measures)
     canvasBbox: number[]; // bbox in canvas units, as at definition
     page: number;
@@ -272,6 +272,7 @@ export interface IGeneratorRegion {
 
 export interface IGenerator extends IGeneratorRegion {
     tag?: FormattedItem,
+    ocrLine: number, // index of matched ocr line
     tagProposal: FormattedItem,
 }
 

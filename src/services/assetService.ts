@@ -530,14 +530,16 @@ export class AssetService {
         generatorTransformer: (g: IGenerator) => IGenerator): boolean {
         let foundTag = false;
 
-        for (const region of assetMetadata.regions) {
-            if (region.tags.find((t) => t === tagName)) {
-                foundTag = true;
-                region.tags = transformer(region.tags);
+        if (!!transformer) {
+            for (const region of assetMetadata.regions) {
+                if (region.tags.find((t) => t === tagName)) {
+                    foundTag = true;
+                    region.tags = transformer(region.tags);
+                }
             }
         }
 
-        if (assetMetadata.labelData && assetMetadata.labelData.labels) {
+        if (!!labelTransformer && assetMetadata.labelData && assetMetadata.labelData.labels) {
             const field = assetMetadata.labelData.labels.find((field) => field.label === tagName);
             if (field) {
                 foundTag = true;

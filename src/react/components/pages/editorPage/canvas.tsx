@@ -1311,12 +1311,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const imageWidth = imageExtent[2] - imageExtent[0];
         const imageHeight = imageExtent[3] - imageExtent[1];
         const ocrReadResults = this.state.ocrForCurrentPage["readResults"];
-        const [ocrWidth, ocrHeight] = [ocrReadResults.width, ocrReadResults.height];
         const geometry = feature.getGeometry();
         let points = geometry.flatCoordinates;
-        // snap tool will make last 2 coords match first 2
         const lastTwo = geometry.flatCoordinates.slice(-2);
         const firstTwo = geometry.flatCoordinates.slice(0, 2);
+        // snap tool will make last 2 coords match first 2
         if (lastTwo[0] === firstTwo[0] && lastTwo[1] === firstTwo[1]) {
             points = points.slice(0, -2);
         }
@@ -1328,8 +1327,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         // Canvas has BL origin (which is why we flip) - note order of coords doesn't need to change
         for (let i = 0; i < canvasBbox.length; i += 2) {
             bbox.push(
-                (canvasBbox[i] / imageWidth * ocrWidth),
-                ((1 - canvasBbox[i + 1] / imageHeight) * ocrHeight),
+                (canvasBbox[i] / imageWidth * ocrReadResults.width),
+                ((1 - canvasBbox[i + 1] / imageHeight) * ocrReadResults.height),
             );
         }
         return {
@@ -1356,17 +1355,20 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         let name = uniqueName;
         let type = FieldType.String;
         let format = FieldFormat.Alphanumeric;
+
+        let ocrLine = -1;
         // A few quality of life heuristics
         if (this.state.ocrForCurrentPage) {
             // Find the closest text
             let closestDist = 1; // at most half an inch away
             const refLoc = [regionInfo.bbox[0], regionInfo.bbox[1]];
             const ocrRead = this.state.ocrForCurrentPage.readResults;
-            ocrRead.lines.forEach(line => {
+            ocrRead.lines.forEach((line, index) => {
                 line.words.forEach(word => {
                     const loc = [word.boundingBox[0], word.boundingBox[1]]; // TL
                     const dist = Math.hypot(loc[0] - refLoc[0], loc[1] - refLoc[1]);
                     if (dist < closestDist) {
+                        // TODO add a check for box is contained, which trumps TL
                         if (line.text.length > 20) {
                             name = _.camelCase(word.text);
                         } else {
@@ -1381,6 +1383,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                             format = FieldFormat.Alphanumeric;
                         }
                         closestDist = dist;
+                        // Also, capture the line on the generator so we can match statistics
+                        // do this here rather than on generation for convenience
+                        ocrLine = index;
                     }
                 });
             });
@@ -1400,7 +1405,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             documentCount: 1
         }
 
-        const regionAndMetadata: IGenerator = {...regionInfo, tagProposal };
+        const regionAndMetadata: IGenerator = {...regionInfo, ocrLine, tagProposal };
         return regionAndMetadata;
     }
 
@@ -1408,6 +1413,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.props?.addGenerator(this.initializeGenerator(drawEvent.feature));
     }
 
+    // TODO adjust for OCR
     private handleGeneratorRegionModified = (modifyEvent: ModifyEvent) => {
         // https://gis.stackexchange.com/questions/329046/get-modified-feature-from-modify-interaction
         const feature = modifyEvent.target.dragSegments_[0][0].feature;

@@ -241,6 +241,29 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         }
     }
 
+    private isBoxCenterInBbox(box1: number[], box2: number[]) {
+        const centerX = (box1[0] + box1[2]) / 2;
+        const centerY = (box1[1] + box1[5]) / 2;
+        return centerX > box2[0] && centerX < box2[2] && centerY > box2[1] && centerY < box2[5];
+    }
+
+    private fuzzyScaledBboxEqual(ocrReadResults: any, labelBox: number[], ocrBox: number[]) {
+        const ocrBoxScaled = ocrBox.map((coord, i) => i % 2 === 0 ? coord / ocrReadResults.width : coord / ocrReadResults.height);
+        return ocrBoxScaled.every((coord, i) => Math.abs(coord - labelBox[i]) < 0.01);
+    }
+
+    private unionBbox(boxes: number[][]) {
+        const boxXCoords = boxes.map(b => b.filter((_, i) => i % 2 === 0));
+        const boxYCoords = boxes.map(b => b.filter((_, i) => i % 2 === 1));
+        const flatXCoords = [].concat.apply([], boxXCoords);
+        const flatYCoords = [].concat.apply([], boxYCoords);
+        const minX = Math.min(...flatXCoords);
+        const maxX = Math.max(...flatXCoords);
+        const minY = Math.min(...flatYCoords);
+        const maxY = Math.max(...flatYCoords);
+        return [minX, minY, maxX, minY, maxX, maxY, minX, maxY];
+    }
+
     private async generateValues(sourcePrefix: string): Promise<string> {
         // Generate values from project generators and create a new folder with the appropriate data
         /**
@@ -258,15 +281,16 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         const projectService = new ProjectService();
         const ocrService = new OCRService(this.props.project);
         const metadataDict: {[key: string]: IAssetMetadata} = {}
-        const metadatas = await Promise.all(Object.keys(assets).map(async (assetKey) => {
+        // const metadatas = await Promise.all(Object.keys(assets).map(async (assetKey) => {
+        await Promise.all(Object.keys(assets).map(async (assetKey) => {
             const asset = assets[assetKey];
             const metadata = await assetService.getAssetMetadata(asset);
             metadataDict[assetKey] = metadata;
             return metadata;
         }));
 
-        const allFields = [].concat.apply(this.props.project.tags, metadatas.map(m => m.generators));
-        // TODO nuke the generated folder
+        const allFields = this.props.project.tags;
+        // const allFields = [].concat.apply(this.props.project.tags, metadatas.map(m => m.generators));
         await projectService.deleteGeneratedFiles(generatePath, assetService.storageProvider);
 
         const fieldsPromise = projectService.saveFieldsFile(allFields, generatePath, assetService.storageProvider);
@@ -274,6 +298,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         const labelsAndOCRPromise = Promise.all(Object.keys(metadataDict).map(async (assetKey) => {
             const asset = assets[assetKey];
             const metadata = metadataDict[assetKey];
+
             const ocr = await ocrService.getRecognizedText(asset.path, asset.name); // this is the blob
             // somehow pages isn't tracked on the asset, so we find it here
             // just grab it from OCR since things are going to break if OCR isn't present anyway
@@ -291,6 +316,15 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             pagesReadResults.forEach( pageReadResults => {
                 baseLines[pageReadResults.page] = [...pageReadResults.lines];
             });
+
+            if (metadata.generators.length === 0) {
+                // port over the given labels if there's no generation
+                const prefix = `${generatePath}/`;
+                savePromises.push(assetService.saveLabels(asset, metadata.labelData, prefix));
+                savePromises.push(assetService.saveOCR(asset, ocr, prefix));
+                return savePromises;
+            }
+
             for (let i = 0; i < metadata.generatorSettings.generateCount; i++) {
                 // Generate info for the asset
                 let assetGeneratorInfo: IGeneratedInfo[] = [];
@@ -308,8 +342,14 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 const prefix = `${generatePath}/${i}_`;
                 const curLabelData = assetGeneratorInfo.map(generatorInfoToLabel);
                 const docprefix = prefix.split('/').slice(-1)[0];
-                metadata.labelData.document = `${docprefix}${docbase}`
-                metadata.labelData.labels = baseLabels.concat(curLabelData);
+                metadata.labelData.document = `${docprefix}${docbase}`;
+
+                // Merge in the generated label data
+                // Any marked data under the label is wiped (intentionally)
+                const generatedLabelsStrings = curLabelData.map(l => l.label);
+                const notGeneratedLabels = baseLabels.filter(l => !generatedLabelsStrings.includes(l.label));
+                const overwrittenLabels = baseLabels.filter(l => generatedLabelsStrings.includes(l.label));
+                metadata.labelData.labels = notGeneratedLabels.concat(curLabelData);
                 savePromises.push(assetService.saveLabels(asset, metadata.labelData, prefix));
 
                 // Generate ocr.json (direct editing instead of reusing API)
@@ -318,12 +358,58 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                     const nestedOCRLines = assetGeneratorInfo.filter(
                         gi => gi.page === pageReadResults.page
                     ).map(generatorInfoToOCRLines); // for each generator, return the lines created
-                    // we flatten out the generators, since we only care about the generators
+                    // we flatten out the lines of each generators
                     const flatOCRLines = [].concat.apply([], nestedOCRLines);
+
+                    let lines = [ ...baseLines[pageReadResults.page], ...flatOCRLines];
+
+                    if (overwrittenLabels.length > 0) {
+                        // To erase the marked words in OCR, we need to map labels to ocr coordinates, and find the right entry
+                        // To reduce search space, we'll narrow search to affected OCR lines
+                        const affectedLines = baseLines[pageReadResults.page].filter(
+                            l => metadata.generators.some(g => this.isBoxCenterInBbox(l.boundingBox, g.bbox))
+                        );
+
+                        const unaffectedLines = baseLines[pageReadResults.page].filter(
+                            l => !affectedLines.includes(l)
+                        );
+
+                        const modifiedAffectedLines = [];
+                        // ! If you want to auto erase these words, alter this algo
+                        // find the marked words in the lines and erase them
+                        affectedLines.forEach(l => {
+                            // find the (unique) overlapping generator
+                            const overlappingGenerator = metadata.generators.find(g => this.isBoxCenterInBbox(l.boundingBox, g.bbox));
+
+                            // Here are the potential overlaps. Match by bbox.
+                            const labelCandidates = overwrittenLabels.filter(l => l.label === overlappingGenerator.tag.name);
+                            let labelBboxes = [];
+                            // Of course, this thing is ridiculously nested
+                            labelCandidates.forEach(lc => {
+                                labelBboxes = labelBboxes.concat(([].concat.apply([],lc.value.map(lcv => lcv.boundingBoxes))));
+                            });
+
+                            const newLineWords = l.words.filter(w =>
+                                !labelBboxes.some(lbb => this.fuzzyScaledBboxEqual(pageReadResults, lbb, w.boundingBox))
+                            );
+
+                            if (newLineWords.length === 0) return;
+
+                            // Next, reduce the line bbox
+                            const newLineBbox = this.unionBbox(newLineWords.map(w => w.boundingBox));
+
+                            // TODO debug
+
+                            const newLine = { ...l, boundingBox: newLineBbox, words: newLineWords };
+                            modifiedAffectedLines.push(newLine);
+                        });
+
+                        lines = [...unaffectedLines, ...modifiedAffectedLines, ...flatOCRLines];
+                    }
                     // contract - array of dicts
                     const generatedPageReadResults = {
                         ...pageReadResults,
-                        lines: [...baseLines[pageReadResults.page], ...flatOCRLines]
+                        lines
                     };
                     generatedReadResults.push(generatedPageReadResults);
                 });
