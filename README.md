@@ -62,7 +62,6 @@ FOTT can be released as a distributable desktop application.
     yarn release
    ```
 
-
 **Note: the site is for testing purpose only.**
 
 ## Using labeling tool
