@@ -68,7 +68,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                     containerClassName="modal-container"
                     >
                     <div>
-                        <span>Add name for Compose model</span>
+                        <span>Add name for composed model</span>
                         <TextField
                             className="modal-textfield"
                             placeholder={strings.modelCompose.modelView.addComposeModelName}
