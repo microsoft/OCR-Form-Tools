@@ -160,7 +160,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 minWidth: 150,
                 maxWidth: 175,
                 isResizable: true,
-                isRowHeader: true,
                 isSorted: false,
                 isSortedDescending: true,
                 onColumnClick: this.handleColumnClick,
