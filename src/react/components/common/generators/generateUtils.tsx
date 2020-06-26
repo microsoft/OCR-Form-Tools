@@ -85,10 +85,12 @@ const GEN_CONSTANTS = {
     height: 1,
     heightJitter: .2,
     widthScale: 1,
-    widthScaleJitter: .1,
+    widthScaleJitter: .05,
     heightScale: 1,
-    heightScaleJitter: .1,
-    sizeJitter: 2,
+    heightScaleJitter: .05,
+    // https://stackoverflow.com/questions/14061228/remove-white-space-above-and-below-large-text-in-an-inline-block-element
+    leadingLineHeightScale: 1.25,
+    sizeJitter: 1,
     offsetX: 10, // offset in canvas orientation, from center (rendering point)
     offsetXJitter: 20,
     offsetY: 0, // offset
@@ -134,7 +136,6 @@ export const generate:(g: IGenerator, ocr: any) => IGeneratedInfo = (generator, 
 
 
 const getMapUnitsPerChar: (g: IGenerator, ocr: any) => number[] = (generator, ocr) => {
-    // ! With this current alg, we should only need to do once per page, not per generator
     // "font size" approximated by the median font size of the document
     // can probably be elaborated, i.e. font long strings of text or closest form elements...
     const sampledLines = [];
@@ -145,7 +146,8 @@ const getMapUnitsPerChar: (g: IGenerator, ocr: any) => number[] = (generator, oc
     } else {
         sampledLines.push(ocr.lines[generator.ocrLine]);
     }
-    const sampledWords = sampledLines.map(l => l.words[0]);
+    const sampledNestedWords = sampledLines.map(l => l.words);
+    const sampledWords = [].concat.apply([], sampledNestedWords);
     const widths = [];
     const heights = [];
     sampledWords.forEach(w => {
@@ -214,9 +216,10 @@ const generateBoundingBoxes: (g: IGenerator, format: GeneratorTextStyle, ocr: an
             const withoutMetrics = getTextMetrics(accumulatedString, styleToFont(format));
             accumulatedString += wordString + " ";
             const wordMetrics = getTextMetrics(wordString, styleToFont(format));
-            const mapTextOffsetX = withoutMetrics.width / generator.resolution;
-            const mapWordWidth = wordMetrics.width / generator.resolution;
-            const mapWordHeight = (wordMetrics.actualBoundingBoxAscent + wordMetrics.actualBoundingBoxDescent) / generator.resolution;
+            // resolution is map units per pixel
+            const mapTextOffsetX = withoutMetrics.width * generator.resolution;
+            const mapWordWidth = wordMetrics.width * generator.resolution;
+            const mapWordHeight = (wordMetrics.actualBoundingBoxAscent + wordMetrics.actualBoundingBoxDescent) * generator.resolution;
 
             const imageOffsetX = (mapOffsetX + mapTextOffsetX) * widthScale;
             const imageOffsetY = (mapOffsetY + mapTextOffsetY) * heightScale;
@@ -257,7 +260,7 @@ const generateBoundingBoxes: (g: IGenerator, format: GeneratorTextStyle, ocr: an
             });
         });
 
-        mapTextOffsetY += mapHeightPerChar * format.lineHeight;
+        mapTextOffsetY += mapHeightPerChar * format.lineHeight * GEN_CONSTANTS.leadingLineHeightScale;
 
         // get line extent from first and last words
         const tl = lineWords[0].boundingBox.slice(0, 2);
@@ -360,19 +363,21 @@ const generateString: (g: IGenerator, l: number[][]) => string = (generator, lim
 }
 
 const getStringLimitsAndFormat: (g: IGenerator, mapUnitsPerChar: number[]) => LimitsAndFormat = (generator, mapUnitsPerChar) => {
+    const fontWeight = GEN_CONSTANTS.weight + jitter(GEN_CONSTANTS.weightJitter, true);
+    const lineHeight = GEN_CONSTANTS.height + jitter(GEN_CONSTANTS.heightJitter, true);
+
+    // Map Units to Font size - Search for the right size by measuring canvas
     const [ mapWidthPerChar, mapHeightPerChar ] = mapUnitsPerChar;
 
     const mapWidth = generator.canvasBbox[2] - generator.canvasBbox[0];
     const mapHeight = generator.canvasBbox[1] - generator.canvasBbox[5];
+    const effectiveLineHeight = mapHeightPerChar * lineHeight * GEN_CONSTANTS.leadingLineHeightScale;
 
     const charWidthLow = Math.round(mapWidth * GEN_CONSTANTS.width_low / mapWidthPerChar);
     const charWidthHigh = Math.round(mapWidth * GEN_CONSTANTS.width_high / mapWidthPerChar);
-    const charHeightLow = Math.max(1, Math.round(mapHeight * GEN_CONSTANTS.height_low / mapHeightPerChar));
-    let charHeightHigh = Math.round(mapHeight * GEN_CONSTANTS.height_high / mapHeightPerChar);
+    const charHeightLow = Math.max(1, Math.round(mapHeight * GEN_CONSTANTS.height_low / effectiveLineHeight));
+    let charHeightHigh = Math.round(mapHeight * GEN_CONSTANTS.height_high / effectiveLineHeight);
 
-    const fontWeight = GEN_CONSTANTS.weight + jitter(GEN_CONSTANTS.weightJitter, true);
-    const lineHeight = GEN_CONSTANTS.height + jitter(GEN_CONSTANTS.heightJitter, true);
-    // Map Units to Font size - Search for the right size by measuring canvas
     // Using height since that's more important for visual fit
     let bestSize = GEN_CONSTANTS.sizing_range[0];
     let bestDistance = 1000;
