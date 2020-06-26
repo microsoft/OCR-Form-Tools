@@ -191,11 +191,15 @@ export class TitleBar extends React.Component<ITitleBarProps, ITitleBarState> {
 
     private onMenuItemClick(e: any, menuItem: Electron.MenuItem) {
         if (menuItem.label === "Zoom In") {
-            this.currentWindow.webContents.setZoomLevel(this.currentWindow.webContents.zoomLevel + .3);
+            this.currentWindow.webContents.getZoomLevel((level) => {
+                this.currentWindow.webContents.setZoomLevel(level + .3);
+            });
         } else if (menuItem.label === "Zoom Out") {
-            this.currentWindow.webContents.setZoomLevel(this.currentWindow.webContents.zoomLevel - .3);
+            this.currentWindow.webContents.getZoomLevel((level) => {
+                this.currentWindow.webContents.setZoomLevel(level - .3);
+            });
         } else if (menuItem.label === "Reset Zoom") {
-            this.currentWindow.webContents.setZoomLevel(-3);
+            this.currentWindow.webContents.setZoomLevel(0);
         } else if (menuItem.click) {
             menuItem.click.call(menuItem, menuItem, this.currentWindow);
         }

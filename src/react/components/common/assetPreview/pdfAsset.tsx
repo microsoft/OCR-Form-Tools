@@ -3,12 +3,9 @@
 
 import React from "react";
 import { IAssetPreviewProps } from "./assetPreview";
-import * as pdfjsLib from "pdfjs-dist";
+import * as pdfjsLib from "pdfjs-dist/webpack";
 import { constants } from "../../../../common/constants";
 import {resizeCanvas} from "../../../../common/utils";
-
-// temp hack for enabling worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 
 export interface IPDFAssetState {
     imageUri: string;
