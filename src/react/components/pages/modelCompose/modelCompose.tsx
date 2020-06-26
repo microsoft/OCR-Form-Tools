@@ -57,7 +57,7 @@ export interface IModelComposePageState {
     isModalSelection: boolean;
     isCompactMode: boolean;
     isComposing: boolean;
-    composeModelId: string[];
+    composeModelId: string;
     isLoading: boolean;
     refreshFlag: boolean;
     hasText: boolean;
@@ -86,6 +86,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     private allModels: IModel[];
     private refreshClicks: boolean;
     private selectedItems: any[];
+    private updatePredictModelIds: boolean = false;
     private listRef = React.createRef<IDetailsList>();
     private composeModalRef: React.RefObject<ComposeModelView> = React.createRef();
 
@@ -181,7 +182,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             isModalSelection: false,
             isCompactMode: false,
             isComposing: false,
-            composeModelId: [],
+            composeModelId: "",
             isLoading: false,
             refreshFlag: false,
             hasText: false,
@@ -254,7 +255,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 <Customizer {...dark}>
                     <div className="commandbar-container">
                         <ModelComposeCommandBar
-                            composedModels={this.state.composeModelId}
                             allModels={this.allModels}
                             isComposing={this.state.isComposing}
                             isLoading={this.state.isLoading}
@@ -345,41 +345,39 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             });
 
             let composedModels = this.state.composedModelList;
+            let composedModelIds = [];
 
             composedModels=this.reloadComposedModel(composedModels);
 
-            let composedModelIds = [];
-            let predictModelFlag = false;
             if (this.state.composeModelId.length !== 0) {
                 composedModelIds = this.getComposedIds();
-                predictModelFlag = true;
-                if (composedModelIds.indexOf(this.state.composeModelId[0]) === -1) {
-                    const idURL = constants.apiModelsPath + "/" + this.state.composeModelId[0];
+                this.updatePredictModelIds = true;
+                if (composedModelIds.indexOf(this.state.composeModelId) === -1) {
+                    const idURL = constants.apiModelsPath + "/" + this.state.composeModelId;
                     const newComposeModel = await this.getComposeModelByURl(idURL);
                     composedModels.push(newComposeModel);
-                    composedModelIds.push(this.state.composeModelId[0]);
+                    composedModelIds.push(this.state.composeModelId);
                 }
             }
             const res = await this.getResponse();
             let models = res.data.modelList;
             const link = res.data.nextLink;
-
             models.map((m) => m.key = m.modelId);
             models = models.filter((m) => composedModelIds.indexOf(m.modelId) === -1);
-
             const newList = composedModels.concat(models);
-
             this.allModels = newList;
-            if (predictModelFlag) {
+            if (this.updatePredictModelIds) {
                 const updatedProject = this.buildUpdatedProject(
-                    this.state.composeModelId[0],
+                    this.state.composeModelId,
                 );
+                this.updatePredictModelIds = false;
                 await this.props.actions.saveProject(updatedProject, false, false);
             }
             this.setState({
                 modelList: newList,
                 nextLink: link,
                 composedModelList: composedModels,
+                composeModelId: "",
             }, () => {
                 this.setState({
                     isLoading: false,
@@ -393,7 +391,11 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     private buildUpdatedProject = (modelId: string): IProject => {
         return {
             ...this.props.project,
-            predictModelId: modelId,
+            predictModelIds: this.props.project.predictModelIds ?
+                ( this.props.project.predictModelIds.length < 10 ?
+                    [...this.props.project.predictModelIds, modelId] :
+                    [...this.props.project.predictModelIds.slice(1,10), modelId]) :
+                [modelId],
         };
     }
 
@@ -606,7 +608,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 };
                 const link = constants.apiModelsPath + "/compose";
                 const composeRes = await this.post(link, payload);
-                const composeModelId = this.getComposeModelId(composeRes);
+                const newComposeModelId = this.getComposeModelId(composeRes);
                 const newCols = this.state.columns;
                 newCols.forEach((ncol) => {
                     ncol.isSorted = false;
@@ -614,7 +616,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 });
                 this.setState({
                     isComposing: false,
-                    composeModelId: [composeModelId],
+                    composeModelId: newComposeModelId,
                     columns: newCols,
                 });
             } catch (error) {

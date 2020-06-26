@@ -131,6 +131,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     public componentDidUpdate(prevProps, prevState) {
+        if (this.props.project.predictModelIds) {
+            console.log(this.props.project.predictModelIds);
+        }
         if (this.state.file) {
             if (this.state.fileChanged) {
                 this.currPdf = null;
@@ -588,7 +591,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
     private async triggerDownload(): Promise<any> {
         axios.get("/analyze.py").then((response) => {
-            const modelID = this.props.project.predictModelId as string;
+            const modelID = this.props.project.predictModelIds[this.props.project.predictModelIds.length - 1] as string;
             if (!modelID) {
                 throw new AppError(
                     ErrorCode.PredictWithoutTrainForbidden,
@@ -640,7 +643,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private async getPrediction(): Promise<any> {
-        const modelID = this.props.project.predictModelId;
+        const modelID = this.props.project.predictModelIds;
         if (!modelID) {
             throw new AppError(
                 ErrorCode.PredictWithoutTrainForbidden,

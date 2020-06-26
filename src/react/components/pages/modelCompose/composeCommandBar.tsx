@@ -8,7 +8,6 @@ import { getPrimaryWhiteTheme, getDefaultDarkTheme } from "../../../../common/th
 import { strings } from "../../../../common/strings";
 
 interface IModelComposeCommandBarProps {
-    composedModels: any[];
     allModels: any[];
     isComposing: boolean;
     isLoading: boolean;
