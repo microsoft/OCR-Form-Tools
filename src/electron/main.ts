@@ -49,6 +49,10 @@ async function createWindow() {
         ipcMainProxy.unregisterAll();
     });
 
+    mainWindow.webContents.on('did-fail-load', () => {
+        mainWindow.loadURL(staticUrl);
+    });
+
     mainWindow.once("ready-to-show", () => {
         mainWindow.show();
     });
