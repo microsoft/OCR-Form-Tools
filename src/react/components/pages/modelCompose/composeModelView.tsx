@@ -67,7 +67,6 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                     isModeless={false}
                     containerClassName="modal-container"
                     >
-                    <div>
                         <span>Add name for composed model</span>
                         <TextField
                             className="modal-textfield"
@@ -75,7 +74,6 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                             onChange={this.onTextChange}
                             >
                         </TextField>
-                    </div>
                     <div >
                     {
                         this.state.items &&
@@ -92,12 +90,12 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                         </DetailsList>
                     }
                     </div>
-                    <>{
+                    {
                         this.state.items.length < 2 &&
                         <div className="modal-alert">
                            {strings.modelCompose.modelView.NotEnoughModels}
                         </div>
-                    }</>
+                    }
                     <div className="model-button-container">
                         <PrimaryButton
                             className="model-confirm"
