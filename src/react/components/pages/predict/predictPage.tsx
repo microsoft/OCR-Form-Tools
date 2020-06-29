@@ -5,7 +5,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
-import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton, TextField, IDropdownOption, Dropdown} from "@fluentui/react";
+import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton, TextField, IDropdownOption, Dropdown } from "@fluentui/react";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
@@ -33,6 +33,8 @@ import { constants } from "../../../../common/constants";
 import { getPrimaryGreenTheme, getPrimaryWhiteTheme,
          getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
 import axios from "axios";
+import PredictModelList from "./predictModelList";
+import ModelComposePage from "../modelCompose/modelCompose";
 
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
 
@@ -69,6 +71,7 @@ export interface IPredictPageState {
     highlightedField: string;
     modelList: IModel[];
     modelOption: string;
+    predictModelsItems: IModel[];
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -112,12 +115,16 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         highlightedField: "",
         modelList: [],
         modelOption: "",
+        predictModelsItems: [],
     };
 
     private fileInput: React.RefObject<HTMLInputElement> = React.createRef();
     private currPdf: any;
     private tiffImages: any[];
     private imageMap: ImageMap;
+    private predictModelIds: string[];
+    private predictModels: IModel[];
+    private latestModel: IModel;
 
     public async componentDidMount() {
         const projectId = this.props.match.params["projectId"];
@@ -133,6 +140,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     public componentDidUpdate(prevProps, prevState) {
         if (this.props.project.predictModelIds) {
             console.log(this.props.project.predictModelIds);
+            console.log(this.state.predictModelsItems);
+            console.log(this.predictModels);
         }
         if (this.state.file) {
             if (this.state.fileChanged) {
@@ -155,6 +164,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             if (prevState.highlightedField !== this.state.highlightedField) {
                 this.setPredictedFieldHighlightStatus(this.state.highlightedField);
             }
+        }
+        if (JSON.stringify(this.predictModelIds) !== JSON.stringify([...this.props.project.predictModelIds])) {
+            this.getPredictModels();
         }
     }
 
@@ -182,9 +194,15 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 id="pagePredict"
                 style={{ display: `${onPredictionPath ? "flex" : "none"}` }} >
                 <div className="predict-main">
-                    {this.state.file && this.state.imageUri && this.renderImageMap()}
-                    {this.renderPrevPageButton()}
-                    {this.renderNextPageButton()}
+                        {this.state.file && this.state.imageUri && this.renderImageMap() ? this.renderImageMap() :
+                         <div className="predict-model-list">
+                            <PredictModelList
+                                items={this.state.predictModelsItems}
+                                onExpandListClick={this.onExpandListClick}>
+                            </PredictModelList>
+                        </div> }
+                        {this.renderPrevPageButton()}
+                        {this.renderNextPageButton()}
                 </div>
                 <div className="predict-sidebar bg-lighter-1">
                     <div className="condensed-list">
@@ -349,6 +367,73 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         );
     }
 
+    private getPredictModels = () => {
+        const predictIds = [...this.props.project.predictModelIds];
+        this.predictModelIds = [...predictIds];
+        const latestModelId = this.predictModelIds[this.predictModelIds.length-1];
+        predictIds.reverse();
+        const modelList: IModel[] = [];
+        predictIds.map((id) => {
+            const url = constants.apiModelsPath + "/" + id;
+            setTimeout(async () => {
+                const result = await this.getResponse(url);
+                const newModel = result.data.modelInfo;
+                if (newModel.modelId === latestModelId) {
+                    this.latestModel = newModel;
+                    const modelCopy = newModel;
+                    modelCopy.iconName = "ChevronDown"
+                    modelList.unshift(newModel);
+                    this.setState({
+                        predictModelsItems: [newModel],
+                    })
+                } else {
+                    modelList.push(newModel);
+                }
+            },1000);
+        });
+        console.log(modelList);
+        this.predictModels = modelList;
+        console.log(this.predictModels);
+        console.log(this.predictModels.length);
+    }
+
+    private getResponse = async (apiPath: string) => {
+        const baseURL = url.resolve(
+            this.props.project.apiUriBase,
+            apiPath,
+        );
+        const config = {
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "withCredentials": "true",
+            },
+        };
+
+        try {
+            return await ServiceHelper.getWithAutoRetry(
+                baseURL,
+                config,
+                this.props.project.apiKey as string,
+            );
+        } catch (err) {
+            ServiceHelper.handleServiceError(err);
+        }
+    }
+
+    private onExpandListClick = () => {
+        if (this.state.predictModelsItems) {
+            if (this.state.predictModelsItems.length === 1) {
+                this.setState({
+                    predictModelsItems: [...this.predictModels],
+                });
+            } else {
+                this.setState({
+                    predictModelsItems: [this.latestModel],
+                });
+            }
+        }
+    }
+
     private handleDummyInputClick = () => {
         document.getElementById("hiddenInputFile").click();
     }
@@ -510,7 +595,14 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
     private renderImageMap = () => {
         return (
-            <ImageMap
+            <div>
+                <div className="predict-model-list">
+                    <PredictModelList
+                        items={this.state.predictModelsItems}
+                        onExpandListClick={this.onExpandListClick}>
+                    </PredictModelList>
+                </div>
+                <ImageMap
                 ref={(ref) => this.imageMap = ref}
                 imageUri={this.state.imageUri || ""}
                 imageWidth={this.state.imageWidth}
@@ -519,6 +611,16 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 featureStyler={this.featureStyler}
                 onMapReady={this.noOp}
             />
+            </div>
+            // <ImageMap
+            //     ref={(ref) => this.imageMap = ref}
+            //     imageUri={this.state.imageUri || ""}
+            //     imageWidth={this.state.imageWidth}
+            //     imageHeight={this.state.imageHeight}
+
+            //     featureStyler={this.featureStyler}
+            //     onMapReady={this.noOp}
+            // />
         );
     }
 
@@ -643,7 +745,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private async getPrediction(): Promise<any> {
-        const modelID = this.props.project.predictModelIds;
+        const modelID = this.latestModel.modelId;
         if (!modelID) {
             throw new AppError(
                 ErrorCode.PredictWithoutTrainForbidden,
@@ -668,6 +770,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             response = await ServiceHelper.postWithAutoRetry(
                 endpointURL, body, { headers }, this.props.project.apiKey as string);
         } catch (err) {
+            console.log(err);
+            console.log(err.data.response);
             ServiceHelper.handleServiceError(err);
         }
 

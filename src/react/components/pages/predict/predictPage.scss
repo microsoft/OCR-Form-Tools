@@ -72,3 +72,11 @@
 .predict-button {
   margin-bottom: 20px;
 }
+
+.predict-model-list {
+  z-index: 1;
+}
+
+.predict-main-render {
+  height: calc(100% - 220px);
+}
