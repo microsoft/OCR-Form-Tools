@@ -13,13 +13,16 @@ import LocalFileSystem from "./providers/storage/localFileSystem";
 let mainWindow: BrowserWindow | null;
 let ipcMainProxy: IpcMainProxy;
 
+const isMac = process.platform === "darwin"
+const isLinux = process.platform === "linux"
+
 async function createWindow() {
     const windowOptions: BrowserWindowConstructorOptions = {
         width: 1024,
         height: 768,
         minWidth: 450,
         minHeight: 100,
-        frame: process.platform === "linux",
+        frame: isLinux,
         titleBarStyle: "hidden",
         backgroundColor: "#272B30",
         show: false,
@@ -40,7 +43,7 @@ async function createWindow() {
         ipcMainProxy.unregisterAll();
     });
 
-    mainWindow.webContents.on('did-fail-load', () => {
+    mainWindow.webContents.on("did-fail-load", () => {
         mainWindow.loadURL(staticUrl);
     });
 
@@ -93,7 +96,7 @@ function registerContextMenu(browserWindow: BrowserWindow): void {
     const menuItems: MenuItemConstructorOptions[] = [
         {
             label: "File", submenu: [
-                { role: "quit" },
+                isMac ? { role: "close" } : { role: "quit" }
             ],
         },
         // { role: "editMenu" },
@@ -110,10 +113,16 @@ function registerContextMenu(browserWindow: BrowserWindow): void {
             ],
         },
         {
-            label: "Window", submenu: [
-                { role: "minimize" },
-                { role: "close" },
-            ]
+            label: "Window", submenu:
+                (isMac ? [
+                    { role: "minimize" },
+                    { role: "front" },
+                    { type: "separator" },
+                    { role: "window" }
+                ] : [
+                    { role: "minimize" },
+                    { role: "close" }
+                ])
         },
     ];
     const menu = Menu.buildFromTemplate(menuItems);
