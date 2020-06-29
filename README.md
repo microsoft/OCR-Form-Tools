@@ -61,6 +61,7 @@ FOTT can be released as a distributable desktop application.
    ```bash
     yarn release
    ```
+The distributable will saved in the releases folder of the cloned repository.
 
 **Note: the site is for testing purpose only.**
 
