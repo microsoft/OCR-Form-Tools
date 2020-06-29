@@ -186,6 +186,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                             ariaLive="assertive"
                                             labelPosition="right"
                                             size={SpinnerSize.large}
+                                            className={"training-spinner"}
                                         />
                                     </div>
                                 )
