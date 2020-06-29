@@ -142,7 +142,15 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 maxWidth: 100,
                 isResizable: true,
                 onColumnClick: this.handleColumnClick,
-                onRender: (model: IModel) => <span>{model.status}</span>,
+                onRender: (model: IModel) => model.status === "ready" ?
+                    <span>{model.status}</span>
+                    :
+                    <Spinner
+                        label={"creating "}
+                        className="commandbar-spinner "
+                        theme={getDefaultDarkTheme()}
+                        size={SpinnerSize.xSmall}>
+            </Spinner>,
             },
             {
                 key: "column5",
@@ -372,6 +380,12 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     isLoading: false,
                 });
             });
+
+            if (this.state.modelList.some((model) => model.status !== "ready")) {
+                setTimeout(() => {
+                    this.getModelList();
+                }, 1000);
+            }
         } catch (error) {
             console.log(error);
         }
