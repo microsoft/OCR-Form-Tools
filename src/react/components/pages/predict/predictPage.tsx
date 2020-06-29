@@ -138,11 +138,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     public componentDidUpdate(prevProps, prevState) {
-        if (this.props.project.predictModelIds) {
-            console.log(this.props.project.predictModelIds);
-            console.log(this.state.predictModelsItems);
-            console.log(this.predictModels);
-        }
         if (this.state.file) {
             if (this.state.fileChanged) {
                 this.currPdf = null;
@@ -391,10 +386,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 }
             },1000);
         });
-        console.log(modelList);
         this.predictModels = modelList;
-        console.log(this.predictModels);
-        console.log(this.predictModels.length);
     }
 
     private getResponse = async (apiPath: string) => {
@@ -612,15 +604,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 onMapReady={this.noOp}
             />
             </div>
-            // <ImageMap
-            //     ref={(ref) => this.imageMap = ref}
-            //     imageUri={this.state.imageUri || ""}
-            //     imageWidth={this.state.imageWidth}
-            //     imageHeight={this.state.imageHeight}
-
-            //     featureStyler={this.featureStyler}
-            //     onMapReady={this.noOp}
-            // />
         );
     }
 

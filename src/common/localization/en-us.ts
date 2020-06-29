@@ -134,31 +134,6 @@ export const english: IAppStrings = {
         },
         loading: "Model is loading...",
         composing: "Model is composing, please wait...",
-        column: {
-            icon: {
-                name:"Composed Icon",
-            },
-            id: {
-                headerName: "Model Id",
-                fieldName: "modelId",
-            },
-            name: {
-                headerName: "Model Name",
-                fieldName: "modelName",
-            },
-            status: {
-                headerName: "Status",
-                fieldName: "status",
-            },
-            created: {
-                headerName: "Created",
-                fieldName: "created",
-            },
-            lastupdated: {
-                headerName: "Last Updated",
-                fieldName: "lastUpdated",
-            },
-        },
         modelView: {
             titleAria: "Compose Model View",
             addComposeModelName: "Add compose model name...",
@@ -171,6 +146,42 @@ export const english: IAppStrings = {
             filter: "Filter By Name...",
         }
     },
+    column: {
+        icon: {
+            name:"Composed Icon",
+        },
+        id: {
+            headerName: "Model Id",
+            fieldName: "modelId",
+            idAria: "Model Id of models",
+
+        },
+        name: {
+            headerName: "Model Name",
+            fieldName: "modelName",
+            nameAria: "Model name of models",
+        },
+        status: {
+            headerName: "Status",
+            fieldName: "status",
+            statusAria: "Status of models",
+        },
+        created: {
+            headerName: "Created",
+            fieldName: "created",
+            createdAria: "Created time of models",
+        },
+        lastupdated: {
+            headerName: "Last Updated",
+            fieldName: "lastUpdated",
+            lastUpdatedAria: "Lastupdated time of models",
+        },
+        expand: {
+            headerName: "Expand",
+            fieldName: "expand",
+            label:  "Expand Icon, Can expand the list by clicking icon",
+        }
+    },
     predict: {
         title: "Analyze",
         uploadFile: "Upload image and run analysis",
@@ -178,6 +189,9 @@ export const english: IAppStrings = {
         downloadScript: "Use script",
         defaultLocalFileInput: "Browse for a file...",
         defaultURLInput: "Paste or type URL...",
+        predictModelList: {
+            ariaLabel: "Five latest models created either by training or composing",
+        }
     },
     projectMetrics: {
         title: "Project Metrics",

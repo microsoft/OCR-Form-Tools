@@ -95,7 +95,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         const columns: IColumn[] = [
             {
                 key: "column1",
-                name: strings.modelCompose.column.icon.name,
+                name: strings.column.icon.name,
                 className: "composed-icon-cell",
                 isIconOnly: true,
                 ariaLabel: strings.modelCompose.columnAria.icon,
@@ -110,8 +110,9 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             },
             {
                 key: "column2",
-                name: strings.modelCompose.column.id.headerName,
-                fieldName: strings.modelCompose.column.id.fieldName,
+                name: strings.column.id.headerName,
+                fieldName: strings.column.id.fieldName,
+                ariaLabel: strings.column.id.idAria,
                 minWidth: 250,
                 maxWidth: 250,
                 isResizable: true,
@@ -122,8 +123,9 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             },
             {
                 key: "column3",
-                name: strings.modelCompose.column.name.headerName,
-                fieldName: strings.modelCompose.column.name.fieldName,
+                name: strings.column.name.headerName,
+                fieldName: strings.column.name.fieldName,
+                ariaLabel: strings.column.name.nameAria,
                 minWidth: 150,
                 isResizable: true,
                 onColumnClick: this.handleColumnClick,
@@ -134,8 +136,9 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             },
             {
                 key: "column4",
-                name: strings.modelCompose.column.status.headerName,
-                fieldName: strings.modelCompose.column.status.fieldName,
+                name: strings.column.status.headerName,
+                fieldName: strings.column.status.fieldName,
+                ariaLabel: strings.column.status.statusAria,
                 minWidth: 50,
                 maxWidth: 100,
                 isResizable: true,
@@ -146,8 +149,9 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             },
             {
                 key: "column5",
-                name: strings.modelCompose.column.created.headerName,
-                fieldName: strings.modelCompose.column.created.fieldName,
+                name: strings.column.created.headerName,
+                fieldName: strings.column.created.fieldName,
+                ariaLabel: strings.column.created.createdAria,
                 minWidth: 150,
                 maxWidth: 175,
                 isResizable: true,
@@ -161,8 +165,9 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             },
             {
                 key: "column6",
-                name: strings.modelCompose.column.lastupdated.headerName,
-                fieldName: strings.modelCompose.column.lastupdated.fieldName,
+                name: strings.column.lastupdated.headerName,
+                fieldName: strings.column.lastupdated.fieldName,
+                ariaLabel: strings.column.lastupdated.lastUpdatedAria,
                 minWidth: 175,
                 maxWidth: 175,
                 isResizable: true,
@@ -431,7 +436,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     const composedModels = this.state.composedModelList;
                     const composedIds = this.getComposedIds();
                     currentList = currentList.filter((m) => composedIds.indexOf(m.modelId) === -1);
-                    let reorderList = this.copyAndSort(currentList, strings.modelCompose.column.id.fieldName, false);
+                    let reorderList = this.copyAndSort(currentList, strings.column.id.fieldName, false);
                     reorderList = composedModels.concat(reorderList);
 
                     let nextPageList = nextPage.nextList;
@@ -527,7 +532,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
     private copyAndSort(modelList: IModel[], columnKey: string, isSortedDescending?: boolean): IModel[] {
         const key = columnKey;
-        if (key === strings.modelCompose.column.created.fieldName || key === strings.modelCompose.column.lastupdated.fieldName) {
+        if (key === strings.column.created.fieldName || key === strings.column.lastupdated.fieldName) {
             return (modelList.slice(0)
             .sort((a, b): number => {
                 if (isSortedDescending) {
@@ -544,7 +549,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     }
                 }
             }));
-        } else if (key === strings.modelCompose.column.name.fieldName) {
+        } else if (key === strings.column.name.fieldName) {
             return (
                 modelList.slice(0).sort((a,b) => {
                     if (a.modelName && b.modelName) {

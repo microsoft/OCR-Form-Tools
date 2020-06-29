@@ -134,31 +134,6 @@ export interface IAppStrings {
         }
         loading: string;
         composing: string;
-        column: {
-            icon: {
-                name: string;
-            }
-            id: {
-                headerName: string;
-                fieldName: string;
-            }
-            name: {
-                headerName: string;
-                fieldName: string;
-            }
-            status: {
-                headerName: string;
-                fieldName: string;
-            }
-            created: {
-                headerName: string;
-                fieldName: string;
-            }
-            lastupdated: {
-                headerName: string;
-                fieldName: string;
-            }
-        }
         modelView: {
             titleAria: string;
             addComposeModelName: string;
@@ -170,7 +145,42 @@ export interface IAppStrings {
             refreshAria: string;
             filter: string;
         }
-    }
+    };
+    column: {
+        icon: {
+            name: string;
+        }
+        id: {
+            headerName: string;
+            fieldName: string;
+            idAria: string;
+        }
+        name: {
+            headerName: string;
+            fieldName: string;
+            nameAria: string;
+        }
+        status: {
+            headerName: string;
+            fieldName: string;
+            statusAria: string;
+        }
+        created: {
+            headerName: string;
+            fieldName: string;
+            createdAria: string;
+        }
+        lastupdated: {
+            headerName: string;
+            fieldName: string;
+            lastUpdatedAria: string;
+        };
+        expand: {
+            headerName: string;
+            fieldName: string;
+            label: string;
+        }
+    };
     predict: {
         title: string;
         uploadFile: string;
@@ -178,6 +188,9 @@ export interface IAppStrings {
         downloadScript: string;
         defaultLocalFileInput: string;
         defaultURLInput: string;
+        predictModelList: {
+            ariaLabel: string;
+        };
     };
     projectMetrics: {
         title: string;

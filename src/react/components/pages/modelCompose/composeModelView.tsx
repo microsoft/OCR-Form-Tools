@@ -35,7 +35,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
         const columns: IColumn[] = [
             {
                 key: "column1",
-                name: strings.modelCompose.column.id.headerName,
+                name: strings.column.id.headerName,
                 minWidth: 250,
                 maxWidth: 250,
                 isResizable: true,
@@ -45,7 +45,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
             },
             {
                 key: "column2",
-                name: strings.modelCompose.column.name.headerName,
+                name: strings.column.name.headerName,
                 minWidth: 50,
                 isResizable: true,
                 onRender: (model) => {

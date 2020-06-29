@@ -135,31 +135,6 @@ export const spanish: IAppStrings = {
         },
         loading: "La modelo se está cargando ...",
         composing: "La modelo está componiendo, por favor espera ...",
-        column: {
-            icon: {
-                name: "Icono compuesto",
-            },
-            id: {
-                headerName: "ID del Modelo",
-                fieldName: "modelId",
-            },
-            name: {
-                headerName: "Nombre del Modelo",
-                fieldName: "modelName",
-            },
-            status: {
-                headerName: "Estado",
-                fieldName: "status",
-            },
-            created: {
-                headerName: "Creada",
-                fieldName: "created",
-            },
-            lastupdated: {
-                headerName: "Última Actualización",
-                fieldName: "lastUpdated",
-            },
-        },
         modelView: {
             titleAria: "Componer vista de modelo",
             addComposeModelName: "Añadir componer el nombre de modelo ...",
@@ -172,6 +147,41 @@ export const spanish: IAppStrings = {
             filter: "Filtrar por nombre ...",
         }
     },
+    column: {
+        icon: {
+            name: "Icono compuesto",
+        },
+        id: {
+            headerName: "Modelo ID",
+            fieldName: "modelId",
+            idAria: "modelo ID de modelos",
+        },
+        name: {
+            headerName: "Nombre del Modelo",
+            fieldName: "modelName",
+            nameAria: "Nombre del modelo de modelos",
+        },
+        status: {
+            headerName: "Estado",
+            fieldName: "status",
+            statusAria: "Estado de los modelos",
+        },
+        created: {
+            headerName: "Creada",
+            fieldName: "created",
+            createdAria: "Tiempo creado de modelos",
+        },
+        lastupdated: {
+            headerName: "Última Actualización",
+            fieldName: "lastUpdated",
+            lastUpdatedAria: "Última hora actualizada de modelos",
+        },
+        expand: {
+            headerName: "Expandir",
+            fieldName: "expand",
+            label: "Expandir icono, puede expandir la lista haciendo clic en el icono",
+        }
+    },
     predict: {
         title: "Analizar",
         uploadFile: "Cargar archivo y ejecutar análisis",
@@ -179,6 +189,9 @@ export const spanish: IAppStrings = {
         downloadScript: "Usar script",
         defaultLocalFileInput: "Busca un archivo...",
         defaultURLInput: "Pegar o escribir URL...",
+        predictModelList: {
+            ariaLabel: "Cinco últimos modelos creados por entrenamiento o composición",
+        }
     },
     projectMetrics: {
         title: "Métricas del proyecto",

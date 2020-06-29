@@ -21,56 +21,68 @@ export default class PredictModelList extends React.Component<IPredictModelListP
         const columns: IColumn[] = [
             {
                 key: "column1",
-                name: strings.modelCompose.column.id.headerName,
-                minWidth: 250,
-                maxWidth: 250,
+                name: strings.column.id.headerName,
+                ariaLabel: strings.column.id.idAria,
+                minWidth: 200,
+                maxWidth: 200,
                 isResizable: true,
-                onRender: (model) => {
+                onRender: (model: IModel) => {
                 return <span>{model.modelId}</span>
                 }
             },
             {
                 key: "column2",
-                name: strings.modelCompose.column.name.headerName,
-                minWidth: 50,
+                name: strings.column.name.headerName,
+                ariaLabel: strings.column.name.nameAria,
+                minWidth: 100,
+                maxWidth: 100,
                 isResizable: true,
-                onRender: (model) => {
+                onRender: (model: IModel) => {
                     return <span>{model.modelName}</span>
                 }
             },
             {
                 key: "column3",
-                name: strings.modelCompose.column.status.headerName,
+                name: strings.column.status.headerName,
+                ariaLabel: strings.column.status.statusAria,
                 minWidth: 50,
+                maxWidth: 50,
                 isResizable: true,
-                onRender: (model) => {
+                onRender: (model: IModel) => {
                     return <span>{model.status}</span>
                 }
             },
             {
                 key: "column4",
-                name: strings.modelCompose.column.created.headerName,
+                name: strings.column.created.headerName,
+                ariaLabel: strings.column.created.createdAria,
                 minWidth: 50,
+                maxWidth: 50,
                 isResizable: true,
-                onRender: (model) => {
+                onRender: (model: IModel) => {
                     return <span>{model.createdDateTime}</span>
                 }
             },
             {
                 key: "column5",
-                name: strings.modelCompose.column.lastupdated.headerName,
+                name: strings.column.lastupdated.headerName,
+                ariaLabel: strings.column.lastupdated.lastUpdatedAria,
                 minWidth: 50,
+                maxWidth: 50,
                 isResizable: true,
-                onRender: (model) => {
+                onRender: (model: IModel) => {
                     return <span>{model.lastUpdatedDateTime}</span>
                 }
             },
             {
                 key: "column6",
-                name: "Expand",
+                name: strings.column.expand.headerName,
+                ariaLabel: strings.column.expand.label,
                 isIconOnly: true,
-                minWidth: 50,
-                onRender: (model) =>{
+                minWidth: 43,
+                maxWidth: 43,
+                isResizable: true,
+                onRender: (model: IModel) =>{
                     return <FontIcon iconName={model.iconName} onClick={this.props.onExpandListClick}></FontIcon>
                 }
             },
@@ -87,6 +99,7 @@ export default class PredictModelList extends React.Component<IPredictModelListP
                     <DetailsList
                         items={this.props.items}
                         columns={columns}
+                        ariaLabel={strings.predict.predictModelList.ariaLabel}
                         compact={true}
                         setKey="none"
                         selectionMode={SelectionMode.none}
