@@ -138,19 +138,20 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 key: "column4",
                 name: strings.modelCompose.column.status.headerName,
                 fieldName: strings.modelCompose.column.status.fieldName,
-                minWidth: 50,
+                minWidth: 60,
                 maxWidth: 100,
                 isResizable: true,
                 onColumnClick: this.handleColumnClick,
+                className: "status-column",
                 onRender: (model: IModel) => model.status === "ready" ?
                     <span>{model.status}</span>
                     :
-                    <Spinner
-                        label={"creating "}
-                        className="commandbar-spinner "
+                    (<>
+                        <Spinner
                         theme={getDefaultDarkTheme()}
                         size={SpinnerSize.xSmall}>
-            </Spinner>,
+                        </Spinner><span>creating...</span>
+                    </>),
             },
             {
                 key: "column5",

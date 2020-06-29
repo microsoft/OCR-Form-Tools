@@ -80,6 +80,15 @@ h4 {
     color: white;
 }
 
+.status-column {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    span {
+        margin-left: 0.25rem;
+    }
+}
+
 .next-page-container {
     height: 40px;
     background-color: #1E2024 ;
