@@ -29,11 +29,11 @@ export default class LocalFileSystem implements IStorageProvider {
                 properties: ["openDirectory", "createDirectory"],
             });
 
-            if (!result || result.length !== 1) {
+            if (!result || result.filePaths.length !== 1) {
                 return reject();
             }
 
-            resolve(result[0]);
+            resolve(result.filePaths[0]);
         });
     }
 

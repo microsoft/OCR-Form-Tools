@@ -8,12 +8,6 @@ import {
 import { IpcMainProxy } from "./common/ipcMainProxy";
 import LocalFileSystem from "./providers/storage/localFileSystem";
 
-const electronVersion = process.versions.electron
-if ( !electronVersion.startsWith("3.") ) {
-    console.log("Electron v" + electronVersion + " not supported");
-    console.log("Please use supported v^3.0.13");
-    process.exit();
-}
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow: BrowserWindow | null;
@@ -31,15 +25,12 @@ async function createWindow() {
         show: false,
         icon: "app-icons/icon.png"
     };
+    windowOptions.webPreferences = {
+        nodeIntegration: true,
+        webSecurity: false,
+    };
 
     const staticUrl = process.env.ELECTRON_START_URL || `file:///${__dirname}/index.html`;
-    if (process.env.ELECTRON_START_URL) {
-        windowOptions.webPreferences = {
-            nodeIntegration: true,
-            webSecurity: false,
-        };
-    }
-
     mainWindow = new BrowserWindow(windowOptions);
     mainWindow.loadURL(staticUrl);
     mainWindow.maximize();
