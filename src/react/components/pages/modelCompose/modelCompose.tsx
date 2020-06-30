@@ -138,11 +138,10 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 key: "column4",
                 name: strings.modelCompose.column.status.headerName,
                 fieldName: strings.modelCompose.column.status.fieldName,
-                minWidth: 60,
+                minWidth: 50,
                 maxWidth: 100,
                 isResizable: true,
                 onColumnClick: this.handleColumnClick,
-                className: "status-column",
                 onRender: (model: IModel) => <span>{model.status}</span>
             },
             {
