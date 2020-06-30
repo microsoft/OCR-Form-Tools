@@ -330,7 +330,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             ...this.props.project,
             trainRecord: newTrainRecord,
             predictModelIds: this.props.project.predictModelIds ?
-                ( this.props.project.predictModelIds.length < 5 ?
+                (this.props.project.predictModelIds.length < 5 ?
                     [...this.props.project.predictModelIds, newTrainRecord.modelInfo.modelId] :
                     [...this.props.project.predictModelIds.slice(1,5), newTrainRecord.modelInfo.modelId]) :
                     [newTrainRecord.modelInfo.modelId],

@@ -195,7 +195,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                 items={this.state.predictModelsItems}
                                 onExpandListClick={this.onExpandListClick}>
                             </PredictModelList>
-                        </div> }
+                        </div>}
                         {this.renderPrevPageButton()}
                         {this.renderNextPageButton()}
                 </div>
@@ -370,7 +370,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const modelList: IModel[] = [];
         predictIds.map((id) => {
             const url = constants.apiModelsPath + "/" + id;
-            setTimeout(async () => {
+            setTimeout( async () => {
                 const result = await this.getResponse(url);
                 const newModel = result.data.modelInfo;
                 if (newModel.modelId === latestModelId) {

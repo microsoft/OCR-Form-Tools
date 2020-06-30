@@ -397,7 +397,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         return {
             ...this.props.project,
             predictModelIds: this.props.project.predictModelIds ?
-                ( this.props.project.predictModelIds.length < 5 ?
+                (this.props.project.predictModelIds.length < 5 ?
                     [...this.props.project.predictModelIds, modelId] :
                     [...this.props.project.predictModelIds.slice(1,5), modelId]) :
                 [modelId],
