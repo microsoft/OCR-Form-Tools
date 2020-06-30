@@ -59,6 +59,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
     private mapElement: HTMLDivElement | null = null;
 
     private imageExtent: number[];
+    private initialResolution: number;
 
     private countPointerDown: number = 0;
     private isSwiping: boolean = false;
@@ -138,6 +139,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
     // ! Temp
     public getSize() {
         return this.map.getSize();
+    }
+
+    public getInitialResolution() {
+        return this.initialResolution;
     }
 
     public getResolution() {
@@ -452,6 +457,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
             ],
             view: this.createMapView(projection, this.imageExtent),
         });
+        this.initialResolution = this.map.getView().getResolution();
 
         const DRAW_MODE = "BOX";
         let draw;
@@ -467,7 +473,6 @@ export class ImageMap extends React.Component<IImageMapProps> {
                 type: "Polygon", // using Point doesn't work either
             });
         }
-
 
         const snap = new Snap({source: generatorOptions.source});
         const modify = new Modify({source: generatorOptions.source});
@@ -493,6 +498,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.imageLayer.setSource(this.createImageSource(imageUri, projection, imageExtent));
         const mapView = this.createMapView(projection, imageExtent);
         this.map.setView(mapView);
+        this.initialResolution = mapView.getResolution();
     }
 
     private createProjection = (imageExtend: number[]) => {

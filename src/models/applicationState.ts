@@ -264,17 +264,20 @@ export interface IBoundingBox {
 export interface IGeneratorRegion {
     points: number[];
     bbox: number[]; // bbox in inches - origin TL (for OCR)
+    // TODO phase this out - my thinking was wrong
     resolution: number; // resolution at definition (used to convert to pixels for measures)
     canvasBbox: number[]; // bbox in canvas units, as at definition
     page: number;
     id: string;
 }
 
-export interface IGenerator extends IGeneratorRegion {
-    tag?: FormattedItem,
+export interface IGeneratorTagInfo {
+    tag?: ITag,
     ocrLine: number, // index of matched ocr line
-    tagProposal: FormattedItem,
+    tagProposal: Partial<ITag>,
 }
+
+export type IGenerator = IGeneratorRegion & IGeneratorTagInfo;
 
 export interface IGeneratorSettings {
     generateCount: number;

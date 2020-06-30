@@ -36,7 +36,7 @@ import HtmlFileReader from "../../../../common/htmlFileReader";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas, getNextColor } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./canvasCommandBar";
-import { generate, GeneratorTextStyle, styleToFont } from "../../common/generators/generateUtils";
+import { generate, GeneratorTextStyle, styleToFont, matchBboxToOcr } from "../../common/generators/generateUtils";
 import { AssetService } from "../../../../services/assetService";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
@@ -410,7 +410,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const generatorTextStyles = {}
         generators.forEach(g => {
             const ocrForPage = this.getOcrResultForPage(this.state.ocr, g.page);
-            generatorTextStyles[g.id] = generate(g, ocrForPage.readResults).format;
+            generatorTextStyles[g.id] = generate(g, ocrForPage.readResults, this.imageMap.getInitialResolution()).format;
         });
         this.setState({generatorTextStyles}, this.redrawGeneratorFeatures);
     }
@@ -1331,6 +1331,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 ((1 - canvasBbox[i + 1] / imageHeight) * ocrReadResults.height),
             );
         }
+
         return {
             points,
             bbox,
@@ -1350,60 +1351,19 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             id,
         });
 
-        const numberFlags = ["#", "number", "num.", "phone", "amount"];
         const uniqueName = `Gen ${id}`;
-        let name = uniqueName;
-        let type = FieldType.String;
-        let format = FieldFormat.Alphanumeric;
 
-        let ocrLine = -1;
-        // A few quality of life heuristics
-        if (this.state.ocrForCurrentPage) {
-            // Find the closest text
-            let closestDist = 1; // at most half an inch away
-            const refLoc = [regionInfo.bbox[0], regionInfo.bbox[1]];
-            const ocrRead = this.state.ocrForCurrentPage.readResults;
-            ocrRead.lines.forEach((line, index) => {
-                line.words.forEach(word => {
-                    const loc = [word.boundingBox[0], word.boundingBox[1]]; // TL
-                    const dist = Math.hypot(loc[0] - refLoc[0], loc[1] - refLoc[1]);
-                    if (dist < closestDist) {
-                        // TODO add a check for box is contained, which trumps TL
-                        if (line.text.length > 20) {
-                            name = _.camelCase(word.text);
-                        } else {
-                            name = _.camelCase(line.text);
-                        }
-
-                        if (numberFlags.some(flag => line.text.toLowerCase().includes(flag))) {
-                            type = FieldType.Number;
-                            format = FieldFormat.NotSpecified;
-                        } else {
-                            type = FieldType.String;
-                            format = FieldFormat.Alphanumeric;
-                        }
-                        closestDist = dist;
-                        // Also, capture the line on the generator so we can match statistics
-                        // do this here rather than on generation for convenience
-                        ocrLine = index;
-                    }
-                });
-            });
-        }
+        const { tagProposal, ocrLine } = matchBboxToOcr(regionInfo.bbox, this.state.ocrForCurrentPage)
 
         // Uniqueness guarantee
-        if (!!this.props.formattedItems.find(i => i.name === name)) {
-            name = uniqueName;
+        if (tagProposal.name === ""
+            || !!this.props.formattedItems.find(i => i.name === tagProposal.name)) {
+            tagProposal.name = uniqueName;
         }
 
         // ! The below isn't used right now. Not sure how to use it.
-        const tagProposal: ITag = {
-            name,
-            type,
-            format,
-            color: getNextColor(this.props.formattedItems),
-            documentCount: 1
-        }
+        tagProposal.color = getNextColor(this.props.formattedItems);
+        tagProposal.documentCount = 1; // TODO treat <- more seriously
 
         const regionAndMetadata: IGenerator = {...regionInfo, ocrLine, tagProposal };
         return regionAndMetadata;

@@ -10,7 +10,7 @@ import IProjectActions, * as projectActions from "../../../../redux/actions/proj
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import {
-    IApplicationState, IConnection, IProject, IAppSettings, FieldType, IAssetMetadata
+    IApplicationState, IConnection, IProject, IAppSettings, FieldType, IAssetMetadata, IGenerator, ITag
 } from "../../../../models/applicationState";
 import TrainChart from "./trainChart";
 import TrainPanel from "./trainPanel";
@@ -29,8 +29,11 @@ import { SkipButton } from "../../shell/skipButton";
 import { AssetService } from "../../../../services/assetService";
 import ProjectService from "../../../../services/projectService";
 import Guard from "../../../../common/guard";
-import { generate, generatorInfoToLabel, generatorInfoToOCRLines, IGeneratedInfo } from "../../common/generators/generateUtils";
+import { generate, generatorInfoToLabel, generatorInfoToOCRLines, IGeneratedInfo, matchBboxToOcr } from "../../common/generators/generateUtils";
 import { OCRService } from "../../../../services/ocrService";
+
+const shouldGenerate = true;
+const shouldGenerateForLabels = true;
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -216,7 +219,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private async trainProcess(): Promise<any> {
-        const shouldGenerate = true;
         try {
             let sourcePrefix = this.props.project.folderPath ? this.props.project.folderPath : "";
             if (shouldGenerate) {
@@ -262,6 +264,26 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         const minY = Math.min(...flatYCoords);
         const maxY = Math.max(...flatYCoords);
         return [minX, minY, maxX, minY, maxX, maxY, minX, maxY];
+    }
+
+    private padBbox(bbox: number[], xRatio, yRatio) {
+        let x1 = bbox[0];
+        let x2 = bbox[2];
+        let y1 = bbox[1];
+        let y2 = bbox[5];
+        const width = x2 - x1;
+        const height = y2 - y1;
+        const xPad = height * xRatio;
+        const yPad = width * yRatio;
+        x1 -= xPad;
+        x2 += xPad;
+        y1 -= yPad;
+        y2 += yPad;
+        return [x1, y1, x2, y1, x2, y2, x1, y2];
+    }
+
+    private scaleBbox(bbox: number[], xRatio, yRatio) {
+        return bbox.map((c, i) => i % 2 ? c * yRatio: c * xRatio);
     }
 
     private async generateValues(sourcePrefix: string): Promise<string> {
@@ -317,7 +339,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 baseLines[pageReadResults.page] = [...pageReadResults.lines];
             });
 
-            if (metadata.generators.length === 0) {
+            if (metadata.generators.length === 0 && !shouldGenerateForLabels) {
                 // port over the given labels if there's no generation
                 const prefix = `${generatePath}/`;
                 savePromises.push(assetService.saveLabels(asset, metadata.labelData, prefix));
@@ -325,12 +347,16 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 return savePromises;
             }
 
+            let generators = metadata.generators;
+            if (shouldGenerateForLabels) {
+                generators = this.assetMetadataLabelsToGenerators(metadata, pagesReadResults, allFields);
+            }
             for (let i = 0; i < metadata.generatorSettings.generateCount; i++) {
                 // Generate info for the asset
                 let assetGeneratorInfo: IGeneratedInfo[] = [];
                 pagesReadResults.forEach( pageReadResults => {
                     assetGeneratorInfo = assetGeneratorInfo.concat(
-                        metadata.generators.filter(
+                        generators.filter(
                             g => g.page === pageReadResults.page
                         ).map(
                             g => generate(g, pageReadResults)
@@ -367,7 +393,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                         // To erase the marked words in OCR, we need to map labels to ocr coordinates, and find the right entry
                         // To reduce search space, we'll narrow search to affected OCR lines
                         const affectedLines = baseLines[pageReadResults.page].filter(
-                            l => metadata.generators.some(g => this.isBoxCenterInBbox(l.boundingBox, g.bbox))
+                            l => generators.some(g => this.isBoxCenterInBbox(l.boundingBox, g.bbox))
                         );
 
                         const unaffectedLines = baseLines[pageReadResults.page].filter(
@@ -379,7 +405,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                         // find the marked words in the lines and erase them
                         affectedLines.forEach(l => {
                             // find the (unique) overlapping generator
-                            const overlappingGenerator = metadata.generators.find(g => this.isBoxCenterInBbox(l.boundingBox, g.bbox));
+                            const overlappingGenerator = generators.find(g => this.isBoxCenterInBbox(l.boundingBox, g.bbox));
 
                             // Here are the potential overlaps. Match by bbox.
                             const labelCandidates = overwrittenLabels.filter(l => l.label === overlappingGenerator.tag.name);
@@ -430,7 +456,48 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         return generatePath;
     }
 
-    private
+    // TODO implement
+    private assetMetadataLabelsToGenerators(metadata: IAssetMetadata, ocr: any, tags: ITag[]): IGenerator[] {
+        const labelData = metadata.labelData; // precisely JSON.parse of the file
+        const existingGeneratorKeys = metadata.generators.map(g => g.tag.name);
+        const newGeneratorData = labelData.labels.filter(l => existingGeneratorKeys.includes(l.label));
+
+        const newGenerators = newGeneratorData.map(d => {
+            const tag = tags.find(t => t.name === d.label);
+            const id = Math.random().toString(36).slice(8);
+            const page = d.value[0].page;
+            const pageOcr = ocr.find(doc => doc.page === page);
+            if (!pageOcr) {
+                throw new Error("No ocr page found for label");
+            }
+
+            // labels are in ratio
+            const bboxes = d.value.map(v => v.boundingBoxes);
+            const flatBboxes = [].concat.apply([], bboxes);
+            const union = this.unionBbox(flatBboxes);
+
+            // Current "expansion" algorith - a tiny bit of vertical padding, a bit of horizontal padding
+            const unionPadded = this.padBbox(union, 0.1, 0.05);
+            const bbox = this.scaleBbox(unionPadded, pageOcr.width, pageOcr.height);
+            const { ocrLine } = matchBboxToOcr(bbox, pageOcr); // this can be any of the relevant lines, ideally the first
+
+            // wha... how do we do this without map units?
+            const canvasBbox = [];
+
+            return {
+                tag,
+                tagProposal: tag,
+                ocrLine,
+                canvasBbox,
+                bbox,
+                points: [], // only used on canvas
+                id,
+                resolution: 1,
+                page,
+            };
+        });
+        return metadata.generators.concat(newGenerators);
+    }
 
     private async train(sourcePrefix: string): Promise<any> {
         const baseURL = url.resolve(
