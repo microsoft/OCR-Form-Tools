@@ -8,6 +8,7 @@ import { strings, interpolate } from "../../../../common/strings";
 import { IConnection, StorageType, ErrorCode, AppError } from "../../../../models/applicationState";
 import { StorageProviderFactory } from "../../../../providers/storage/storageProviderFactory";
 import CondensedList, { ListItem } from "../condensedList/condensedList";
+import "./cloudFilePicker.scss"
 
 /**
  * Properties for Cloud File Picker
@@ -82,7 +83,7 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
                 <ModalBody>
                     {this.state.condensedList}
                 </ModalBody>
-                <InputGroup style={{margin: "5%", width: "90%"}}>
+                <InputGroup className="input-uri">
                     <Input placeholder="Please paste shared project string here"
                         id="sharedURI"
                         type="text"
