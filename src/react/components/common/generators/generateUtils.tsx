@@ -452,7 +452,7 @@ const getStringLimitsAndFormat: (g: IGenerator, unitsPerChar: number[], ocr: any
 
     if (generator.tag.type !== FieldType.String) {
         // center text if not string (no multiline non-string assumption)
-        offsetY = (heightPerChar / 2 + GEN_CONSTANTS.offsetY + charHeightHigh * jitter(GEN_CONSTANTS.offsetYJitter));
+        offsetY = -1 * (heightPerChar / 2 + GEN_CONSTANTS.offsetY + charHeightHigh * jitter(GEN_CONSTANTS.offsetYJitter));
         charHeightHigh = 2;
     }
 
