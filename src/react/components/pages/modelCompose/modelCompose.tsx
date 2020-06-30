@@ -143,15 +143,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 isResizable: true,
                 onColumnClick: this.handleColumnClick,
                 className: "status-column",
-                onRender: (model: IModel) => model.status === "ready" ?
-                    <span>{model.status}</span>
-                    :
-                    (<>
-                        <Spinner
-                        theme={getDefaultDarkTheme()}
-                        size={SpinnerSize.xSmall}>
-                        </Spinner><span>creating...</span>
-                    </>),
+                onRender: (model: IModel) => <span>{model.status}</span>
             },
             {
                 key: "column5",
@@ -346,7 +338,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             });
 
             let composedModels = this.state.composedModelList;
-
             composedModels = this.reloadComposedModel(composedModels);
 
             let composedModelIds = [];
@@ -381,12 +372,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     isLoading: false,
                 });
             });
-
-            if (this.state.modelList.some((model) => model.status !== "ready")) {
-                setTimeout(() => {
-                    this.getModelList();
-                }, 1000);
-            }
         } catch (error) {
             console.log(error);
         }
@@ -596,6 +581,47 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         this.selectedItems = Items;
     }
 
+    /**
+     * Poll function to repeatly check if request succeeded
+     * @param func - function that will be called repeatly
+     * @param timeout - timeout
+     * @param interval - interval
+     */
+    private poll = (func, timeout, interval): Promise<any> => {
+        const endTime = Number(new Date()) + (timeout || 10000);
+        interval = interval || 100;
+
+        const checkSucceeded = (resolve, reject) => {
+            const ajax = func();
+            ajax.then((response) => {
+                if (response.data.modelInfo.status.toLowerCase() === constants.statusCodeReady) {
+                    resolve(response.data);
+                } else if (Number(new Date()) < endTime) {
+                    // If the request isn't succeeded and the timeout hasn't elapsed, go again
+                    setTimeout(checkSucceeded, interval, resolve, reject);
+                } else {
+                    // Didn't succeeded after too much time, reject
+                    reject(new Error("Timed out for creating composed model"));
+                }
+            });
+        };
+
+        return new Promise(checkSucceeded);
+    }
+
+    private async waitUntilModelIsReady(operationLocation: string): Promise<any> {
+        const timeoutPerFileInMs = 1000;  // 1 second for each model
+        const minimumTimeoutInMs = 300000;  // 5 minutes minimum waiting time  for each composing process
+        const extendedTimeoutInMs = timeoutPerFileInMs * Object.keys(this.props.project.assets || []).length;
+        const res = this.poll(() => {
+            return ServiceHelper.getWithAutoRetry(
+                operationLocation,
+                { headers: { "cache-control": "no-cache" } },
+                this.props.project.apiKey as string);
+        }, Math.max(extendedTimeoutInMs, minimumTimeoutInMs), 1000);
+        return res;
+    }
+
     /** Handle the operation of composing a new model */
     private handleModelsCompose = async (selections: any[], name: string) => {
         setTimeout( async () => {
@@ -608,7 +634,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 };
                 const link = constants.apiModelsPath + "/compose";
                 const composeRes = await this.post(link, payload);
-                const composeModelId = this.getComposeModelId(composeRes);
+                await this.waitUntilModelIsReady(composeRes["headers"]["location"]);
+                const composedModelId = this.getComposeModelId(composeRes);
                 const newCols = this.state.columns;
                 newCols.forEach((ncol) => {
                     ncol.isSorted = false;
@@ -616,7 +643,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 });
                 this.setState({
                     isComposing: false,
-                    composeModelId: [composeModelId],
+                    composeModelId: [composedModelId],
                     columns: newCols,
                 });
             } catch (error) {
