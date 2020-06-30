@@ -64,9 +64,9 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
 
     const itemRefs = useRef<Map<string, React.MutableRefObject<HTMLDivElement>>>(new Map()); // er...
 
-    if (props.generators.length === 0) {
-        return null;
-    }
+    // if (props.generators.length === 0) {
+    //     return null;
+    // }
 
     const selectedGenerator = props.selectedIndex !== -1 ? props.generators[props.selectedIndex]: null;
     const onEditorClick = (region: IGenerator, clickProps: ITagClickProps) => {
@@ -223,6 +223,7 @@ const GeneratorPane: React.FunctionComponent<IGeneratorPaneProps> = (props) => {
         ItemToolbarOptions.moveUp,
         ItemToolbarOptions.delete,
     ]
+
     return (
         <div className="tag-input">
             <KeyboardBinding

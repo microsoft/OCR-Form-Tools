@@ -604,3 +604,72 @@ export const padBbox = (bbox: number[], xRatio, yRatio) => {
 export const scaleBbox = (bbox: number[], xRatio, yRatio) => {
     return bbox.map((c, i) => i % 2 ? c * yRatio: c * xRatio);
 }
+
+const EXPAND_LIMITS = {
+    "right": 1.0,
+    "left": 1.0,
+    "top": 0.5,
+    "bottom": 0.5,
+    "padding": 0.05,
+}
+
+const getExtent = (bbox: number[]) => {
+    return {
+        "left": bbox[0],
+        "right": bbox[2],
+        "top": bbox[1],
+        "bottom": bbox[5],  // higher than top
+    }
+}
+
+const getBbox = (extent: any) => {
+    return [extent.left, extent.top,
+        extent.right, extent.top,
+        extent.right, extent.bottom,
+        extent.left, extent.bottom,
+    ];
+}
+
+export const expandBbox = (bbox: number[], boxes: number[][]) => {
+    // Basic algorithm
+    // For each direction - cast a ray
+    // Stop the box at the earliest collision, or corresponding EXPAND_LIMIT
+    // However, if no collision, crop at margins of page
+
+    // naive margins - this will fail to extend free-text at the edge of the page
+    const extents: any = {}
+    const boxExtent = getExtent(bbox);
+    const boxesExtents = boxes.map(getExtent);
+    extents.left = Math.min(...boxesExtents.map(b => b.left));
+    extents.top = Math.min(...boxesExtents.map(b => b.top));
+    extents.right = Math.max(...boxesExtents.map(b => b.right));
+    extents.bottom = Math.max(...boxesExtents.map(b => b.bottom));
+
+    extents.left = Math.max(extents.left, boxExtent.left - EXPAND_LIMITS.left);
+    extents.top = Math.max(extents.top, boxExtent.top - EXPAND_LIMITS.top);
+    extents.right = Math.min(extents.right, boxExtent.right + EXPAND_LIMITS.right);
+    extents.bottom = Math.min(extents.bottom, boxExtent.bottom + EXPAND_LIMITS.bottom);
+
+
+    const toLeft = boxesExtents.filter(e => (e.right < boxExtent.left
+        && (e.bottom > boxExtent.top && e.top < boxExtent.bottom)))
+            .map(e => e.right + EXPAND_LIMITS.padding);
+    extents.left = Math.max(extents.left, ...toLeft);
+
+    const toTop = boxesExtents.filter(e => (e.bottom < boxExtent.top
+        && (e.right > boxExtent.left && e.left < boxExtent.right)))
+            .map(e => e.bottom + EXPAND_LIMITS.padding);
+    extents.top = Math.max(extents.top, ...toTop);
+
+    const toRight = boxesExtents.filter(e => (e.left > boxExtent.right
+        && (e.bottom > boxExtent.top && e.top < boxExtent.bottom)))
+            .map(e => e.left - EXPAND_LIMITS.padding);
+    extents.right = Math.min(extents.right, ...toRight);
+
+    const toBottom = boxesExtents.filter(e => (e.top > boxExtent.bottom
+        && (e.right > boxExtent.left && e.left < boxExtent.right)))
+            .map(e => e.top - EXPAND_LIMITS.padding);
+    extents.bottom = Math.min(extents.bottom, ...toBottom);
+
+    return getBbox(extents);
+}

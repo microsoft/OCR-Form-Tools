@@ -29,11 +29,12 @@ import { SkipButton } from "../../shell/skipButton";
 import { AssetService } from "../../../../services/assetService";
 import ProjectService from "../../../../services/projectService";
 import Guard from "../../../../common/guard";
-import { generate, generatorInfoToLabel, generatorInfoToOCRLines, IGeneratedInfo, matchBboxToOcr, isBoxCenterInBbox, fuzzyScaledBboxEqual, unionBbox, padBbox, scaleBbox } from "../../common/generators/generateUtils";
+import { generate, generatorInfoToLabel, generatorInfoToOCRLines, IGeneratedInfo, matchBboxToOcr, isBoxCenterInBbox, fuzzyScaledBboxEqual, unionBbox, padBbox, scaleBbox, expandBbox } from "../../common/generators/generateUtils";
 import { OCRService } from "../../../../services/ocrService";
 
 const shouldGenerate = true;
 const shouldGenerateForLabels = true;
+const shouldExpandLabelGenerators = true;
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -422,6 +423,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         const existingGeneratorKeys = metadata.generators.map(g => g.tag.name);
         const newGeneratorData = labelData.labels.filter(l => !existingGeneratorKeys.includes(l.label));
 
+        // TODO bottom-up precedence?
+        const pagesBoxes = {}
         const newGenerators = newGeneratorData.map(d => {
             const tag = tags.find(t => t.name === d.label);
             const id = Math.random().toString(36).slice(8);
@@ -430,16 +433,18 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             if (!pageOcr) {
                 throw new Error("No ocr page found for label");
             }
+            pagesBoxes[page] = pageOcr.lines.map(l => l.boundingBox);
 
             // labels are in ratio
             const bboxes = d.value.map(v => v.boundingBoxes);
             const flatBboxes = [].concat.apply([], bboxes);
             const union = unionBbox(flatBboxes);
+            const bbox = scaleBbox(union, pageOcr.width, pageOcr.height);
 
             // Current "expansion" alg - a tiny bit of vertical padding, a bit of horizontal padding
             // TODO - expand optimistically (or at least try)
-            const unionPadded = padBbox(union, 0.1, 0.05);
-            const bbox = scaleBbox(unionPadded, pageOcr.width, pageOcr.height);
+            const paddedBbox = shouldExpandLabelGenerators ? expandBbox(bbox, pagesBoxes[page]) : padBbox(bbox, 0.1, 0.05);
+            pagesBoxes[page].push(paddedBbox);
             // TODO upgrade this alg to make sure the text matches... like we don't need the top-left heuristic
             const { ocrLine } = matchBboxToOcr(bbox, pageOcr); // this can be any of the relevant lines, ideally the first
 
