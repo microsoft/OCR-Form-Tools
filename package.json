@@ -59,7 +59,7 @@
         "electron:run:prod": "yarn webpack:prod && electron . --remote-debugging-port=9223",
         "electron:start:dev": "yarn electron-start",
         "electron:start:prod": "yarn webpack:prod && yarn electron-start",
-        "electron-start": "yarn webpack:dev && node src/electron/start",
+        "electron-start": "node src/electron/start",
         "release": "yarn build && yarn webpack:prod && yarn electron-builder",
         "tslint": "./node_modules/.bin/tslint 'src/**/*.ts*'",
         "tslintfix": "./node_modules/.bin/tslint 'src/**/*.ts*' --fix"

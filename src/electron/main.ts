@@ -99,7 +99,7 @@ function registerContextMenu(browserWindow: BrowserWindow): void {
                 isMac ? { role: "close" } : { role: "quit" }
             ],
         },
-        // { role: "editMenu" },
+        { role: "editMenu" },
         {
             label: "View", submenu: [
                 { role: "reload" },
