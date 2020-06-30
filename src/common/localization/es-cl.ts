@@ -339,6 +339,12 @@ export const spanish: IAppStrings = {
             title: "Abrir/cerrar el menú de ayuda",
             escape: "Escapar el menú de ayuda",
         },
+        asset: {
+            delete: {
+                title: "Eliminar documento",
+                confirmation: "¿Estás seguro de que deseas eliminar el documento?",
+            }
+        },
         assetWarning: {
             incorrectFileExtension: {
                 attention: "¡Atención!",

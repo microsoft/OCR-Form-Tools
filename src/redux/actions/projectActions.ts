@@ -25,6 +25,7 @@ export default interface IProjectActions {
     saveProject(project: IProject, saveTags?: boolean, updateTagsFromFiles?: boolean): Promise<IProject>;
     deleteProject(project: IProject): Promise<void>;
     closeProject(): void;
+    deleteAsset(project: IProject, assetMetadata: IAssetMetadata): Promise<void>;
     loadAssets(project: IProject): Promise<IAsset[]>;
     loadAssetMetadata(project: IProject, asset: IAsset): Promise<IAssetMetadata>;
     saveAssetMetadata(project: IProject, assetMetadata: IAssetMetadata): Promise<IAssetMetadata>;
@@ -142,6 +143,20 @@ export function deleteProject(project: IProject)
 export function closeProject(): (dispatch: Dispatch) => void {
     return (dispatch: Dispatch): void => {
         dispatch({ type: ActionTypes.CLOSE_PROJECT_SUCCESS });
+    };
+}
+
+/**
+ * Dispatches Delete Asset action
+ */
+export function deleteAsset(project: IProject, assetMetadata: IAssetMetadata): (dispatch: Dispatch) => void {
+    return async (dispatch: Dispatch) => {
+        const assetService = new AssetService(project);
+        await assetService.delete(assetMetadata);
+        const assets = await assetService.getAssets();
+        if (!areAssetsEqual(assets, project.assets)) {
+            dispatch(deleteProjectAssetAction(assets));
+        }
     };
 }
 
@@ -320,6 +335,13 @@ export interface ILoadProjectAssetsAction extends IPayloadAction<string, IAsset[
 }
 
 /**
+ * Delete project asset action type
+ */
+export interface IDeleteProjectAssetAction extends IPayloadAction<string, IAsset[]> {
+    type: ActionTypes.DELETE_PROJECT_ASSET_SUCCESS;
+}
+
+/**
  * Load asset metadata action type
  */
 export interface ILoadAssetMetadataAction extends IPayloadAction<string, IAssetMetadata> {
@@ -368,6 +390,11 @@ export const deleteProjectAction = createPayloadAction<IDeleteProjectAction>(Act
  */
 export const loadProjectAssetsAction =
     createPayloadAction<ILoadProjectAssetsAction>(ActionTypes.LOAD_PROJECT_ASSETS_SUCCESS);
+/**
+ * Instance of Delete Project Asset action
+ */
+export const deleteProjectAssetAction =
+    createPayloadAction<IDeleteProjectAssetAction>(ActionTypes.DELETE_PROJECT_ASSET_SUCCESS);
 /**
  * Instance of Load Asset Metadata action
  */

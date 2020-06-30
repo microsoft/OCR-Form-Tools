@@ -333,6 +333,12 @@ export const english: IAppStrings = {
                 tooltip: "Next Frame",
             },
         },
+        asset: {
+            delete: {
+                title: "Delete document",
+                confirmation: "Are you sure you want to delete document?",
+            }
+        },
         help: {
             title: "Toggle Help Menu",
             escape: "Escape Help Menu",

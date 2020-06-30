@@ -10,6 +10,7 @@ interface ICanvasCommandBarProps {
     handleRunOcr: () => void;
     handleRunOcrForAllDocuments: () => void;
     handleLayerChange: (layer: string) => void;
+    handleAssetDeleted?: () => void;
     layers: any;
 }
 
@@ -105,6 +106,12 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         iconProps: { iconName: "Documentation" },
                         onClick: () => props.handleRunOcrForAllDocuments(),
                     },
+                    {
+                      key: "deleteAsset",
+                      text: strings.editorPage.asset.delete.title,
+                      iconProps: { iconName: "Delete" },
+                      onClick: () => props.handleAssetDeleted(),
+                    }
                 ],
             },
         },
