@@ -39,20 +39,17 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                 minWidth: 250,
                 maxWidth: 250,
                 isResizable: true,
-                onRender: (model) => {
-                return <span>{model.modelId}</span>
-                }
+                onRender: (model) => <span>{model.modelId}</span>,
             },
             {
                 key: "column2",
                 name: strings.modelCompose.column.name.headerName,
                 minWidth: 50,
                 isResizable: true,
-                onRender: (model) => {
-                    return <span>{model.modelName}</span>
-                }
+                onRender: (model) => <span>{model.modelName}</span>,
             }
         ];
+
         const dark: ICustomizations = {
             settings: {
               theme: getDarkGreyTheme(),
@@ -64,18 +61,16 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                 <Modal
                     titleAriaId={strings.modelCompose.modelView.titleAria}
                     isOpen={!this.state.hideModal}
-                    isModeless={true}
+                    isModeless={false}
                     containerClassName="modal-container"
                     >
-                    <div>
-                        <span>Add name for Compose model</span>
+                        <h4>Add name for composed model</h4>
                         <TextField
                             className="modal-textfield"
                             placeholder={strings.modelCompose.modelView.addComposeModelName}
                             onChange={this.onTextChange}
                             >
                         </TextField>
-                    </div>
                     <div >
                     {
                         this.state.items &&
@@ -92,12 +87,12 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                         </DetailsList>
                     }
                     </div>
-                    <>{
+                    {
                         this.state.items.length < 2 &&
                         <div className="modal-alert">
                            {strings.modelCompose.modelView.NotEnoughModels}
                         </div>
-                    }</>
+                    }
                     <div className="model-button-container">
                         <PrimaryButton
                             className="model-confirm"
@@ -118,7 +113,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
         )
     }
 
-    public open = (models) => {
+    public open = (models: any) => {
         this.setState({
             hideModal: false,
             items: models,
