@@ -753,8 +753,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             response = await ServiceHelper.postWithAutoRetry(
                 endpointURL, body, { headers }, this.props.project.apiKey as string);
         } catch (err) {
-            console.log(err);
-            console.log(err.data.response);
             ServiceHelper.handleServiceError(err);
         }
 

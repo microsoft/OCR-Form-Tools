@@ -6,11 +6,9 @@
 
 .predict {
   display: flex;
-  //flex-grow: 1;
   flex-direction: row;
   width: calc( 100vw - 53px );
   height: calc( 100vh - 57.98px );
-  //height: 10px; // Not sure why it helps
 }
 
 .predict-main {
