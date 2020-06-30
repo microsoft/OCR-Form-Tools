@@ -149,21 +149,23 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
             const storageProvider = StorageProviderFactory.createFromConnection(this.state.selectedConnection);
             const content = await storageProvider.readText(this.state.selectedFile);
             this.props.onSubmit(content);
-        } else if (this.state.pastedUri) {
+        } else if (this.state.pastedUri && this.getSharedProjectConnectionInfo() !== null) {
             const { connection, projectName, token } = this.getSharedProjectConnectionInfo()
             await this.readFile(connection, projectName);
             const storageProvider = StorageProviderFactory.createFromConnection(connection);
             const content = await storageProvider.readText(this.state.selectedFile);
             this.props.onSubmit(content, token);
-
         }
     }
 
     private getSharedProjectConnectionInfo() {
         const uri = this.state.pastedUri;
-        const { token, sasFolder, projectName } = this.getSharedUriParams(uri);
-        const connection = this.haveConnection(this.props.connections, sasFolder)
-        return {token, projectName, connection}
+        if (this.getSharedUriParams(uri)) {
+            const { token, sasFolder, projectName } = this.getSharedUriParams(uri);
+            const connection = this.haveConnection(this.props.connections, sasFolder)
+            return {token, projectName, connection}
+        }
+        return null
     }
 
     private haveConnection(connections: IConnection[], sasFolder: string) {
@@ -175,8 +177,15 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
 
     private getSharedUriParams(sharedSting: string) {
 
-        const location = window.location.origin
-        const uri = location + atob(sharedSting)
+        const location = window.location.origin;
+        let uri = location;
+
+        try {
+            uri = location + atob(sharedSting);
+        } catch (error) {
+            toast.error("Cannot decode shared string! Please, check if your string has been modified.");
+            return;
+        }
         const url = new URL(uri);
         if (url) {
             return {
