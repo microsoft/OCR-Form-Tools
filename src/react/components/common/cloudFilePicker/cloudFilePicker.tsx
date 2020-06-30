@@ -149,7 +149,7 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
             const storageProvider = StorageProviderFactory.createFromConnection(this.state.selectedConnection);
             const content = await storageProvider.readText(this.state.selectedFile);
             this.props.onSubmit(content);
-        } else if (this.state.pastedUri && this.getSharedProjectConnectionInfo() !== null) {
+        } else if (this.state.pastedUri && this.getSharedProjectConnectionInfo()) {
             const { connection, projectName, token } = this.getSharedProjectConnectionInfo()
             await this.readFile(connection, projectName);
             const storageProvider = StorageProviderFactory.createFromConnection(connection);
@@ -159,24 +159,32 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
     }
 
     private getSharedProjectConnectionInfo() {
-        const uri = this.state.pastedUri;
+        const uri: string = this.state.pastedUri;
         if (this.getSharedUriParams(uri)) {
             const { token, sasFolder, projectName } = this.getSharedUriParams(uri);
-            const connection = this.haveConnection(this.props.connections, sasFolder)
-            return {token, projectName, connection}
+            const connection = this.getSharedConnection(this.props.connections, sasFolder)
+            if (connection) {
+                return { token, projectName, connection };
+            }
         }
         return null
     }
 
-    private haveConnection(connections: IConnection[], sasFolder: string) {
-        const connection: IConnection[] = connections.filter(({ providerOptions }) => providerOptions["sas"].includes(sasFolder));
+    private getSharedConnection(connections: IConnection[], sasFolder: string) {
+        const connection: IConnection[] = connections.filter(({ providerOptions }) => {
+            if (providerOptions) {
+                 providerOptions["sas"].includes(sasFolder)
+            }
+        });
         if (connection.length) {
             return connection[0];
+        } else {
+            toast.error("You do not have access to project folder");
+            return null
         }
     }
 
     private getSharedUriParams(sharedSting: string) {
-
         const location = window.location.origin;
         let uri = location;
 
