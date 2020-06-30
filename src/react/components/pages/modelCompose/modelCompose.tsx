@@ -336,8 +336,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 isLoading: true,
             });
 
-            let composedModels = this.state.composedModelList;
-            composedModels = this.reloadComposedModel(composedModels);
+            const composedModels = this.reloadComposedModel(this.state.composedModelList);
 
             let composedModelIds = [];
             let predictModelFlag = false;
