@@ -595,14 +595,14 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     </PredictModelList>
                 </div>
                 <ImageMap
-                ref={(ref) => this.imageMap = ref}
-                imageUri={this.state.imageUri || ""}
-                imageWidth={this.state.imageWidth}
-                imageHeight={this.state.imageHeight}
+                    ref={(ref) => this.imageMap = ref}
+                    imageUri={this.state.imageUri || ""}
+                    imageWidth={this.state.imageWidth}
+                    imageHeight={this.state.imageHeight}
 
-                featureStyler={this.featureStyler}
-                onMapReady={this.noOp}
-            />
+                    featureStyler={this.featureStyler}
+                    onMapReady={this.noOp}
+                />
             </div>
         );
     }

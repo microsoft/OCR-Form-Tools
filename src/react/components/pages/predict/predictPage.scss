@@ -6,16 +6,19 @@
 
 .predict {
   display: flex;
-  flex-grow: 1;
+  //flex-grow: 1;
   flex-direction: row;
-  height: 10px; // Not sure why it helps
+  width: calc( 100vw - 53px );
+  height: calc( 100vh - 57.98px );
+  //height: 10px; // Not sure why it helps
 }
 
 .predict-main {
+  width: calc( 100vw - 453px );
   position: relative;
   display: flex;
+  overflow: auto;
   flex-grow: 1;
-  height: 100%;
   justify-content: center;
   > i {
     font-size: 36pt;
@@ -75,8 +78,7 @@
 
 .predict-model-list {
   z-index: 1;
-}
-
-.predict-main-render {
-  height: calc(100% - 220px);
+  width: 100%;
+  left: 0;
+  position: absolute;
 }

@@ -35,7 +35,6 @@ export default class PredictModelList extends React.Component<IPredictModelListP
                 name: strings.column.name.headerName,
                 ariaLabel: strings.column.name.nameAria,
                 minWidth: 100,
-                maxWidth: 100,
                 isResizable: true,
                 onRender: (model: IModel) => {
                     return <span>{model.modelName}</span>
