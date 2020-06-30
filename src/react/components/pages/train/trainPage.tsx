@@ -29,7 +29,7 @@ import { SkipButton } from "../../shell/skipButton";
 import { AssetService } from "../../../../services/assetService";
 import ProjectService from "../../../../services/projectService";
 import Guard from "../../../../common/guard";
-import { generate, generatorInfoToLabel, generatorInfoToOCRLines, IGeneratedInfo, matchBboxToOcr } from "../../common/generators/generateUtils";
+import { generate, generatorInfoToLabel, generatorInfoToOCRLines, IGeneratedInfo, matchBboxToOcr, isBoxCenterInBbox, fuzzyScaledBboxEqual, unionBbox, padBbox, scaleBbox } from "../../common/generators/generateUtils";
 import { OCRService } from "../../../../services/ocrService";
 
 const shouldGenerate = true;
@@ -243,49 +243,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         }
     }
 
-    private isBoxCenterInBbox(box1: number[], box2: number[]) {
-        const centerX = (box1[0] + box1[2]) / 2;
-        const centerY = (box1[1] + box1[5]) / 2;
-        return centerX > box2[0] && centerX < box2[2] && centerY > box2[1] && centerY < box2[5];
-    }
-
-    private fuzzyScaledBboxEqual(ocrReadResults: any, labelBox: number[], ocrBox: number[]) {
-        const ocrBoxScaled = ocrBox.map((coord, i) => i % 2 === 0 ? coord / ocrReadResults.width : coord / ocrReadResults.height);
-        return ocrBoxScaled.every((coord, i) => Math.abs(coord - labelBox[i]) < 0.01);
-    }
-
-    private unionBbox(boxes: number[][]) {
-        const boxXCoords = boxes.map(b => b.filter((_, i) => i % 2 === 0));
-        const boxYCoords = boxes.map(b => b.filter((_, i) => i % 2 === 1));
-        const flatXCoords = [].concat.apply([], boxXCoords);
-        const flatYCoords = [].concat.apply([], boxYCoords);
-        const minX = Math.min(...flatXCoords);
-        const maxX = Math.max(...flatXCoords);
-        const minY = Math.min(...flatYCoords);
-        const maxY = Math.max(...flatYCoords);
-        return [minX, minY, maxX, minY, maxX, maxY, minX, maxY];
-    }
-
-    private padBbox(bbox: number[], xRatio, yRatio) {
-        let x1 = bbox[0];
-        let x2 = bbox[2];
-        let y1 = bbox[1];
-        let y2 = bbox[5];
-        const width = x2 - x1;
-        const height = y2 - y1;
-        const xPad = height * xRatio;
-        const yPad = width * yRatio;
-        x1 -= xPad;
-        x2 += xPad;
-        y1 -= yPad;
-        y2 += yPad;
-        return [x1, y1, x2, y1, x2, y2, x1, y2];
-    }
-
-    private scaleBbox(bbox: number[], xRatio, yRatio) {
-        return bbox.map((c, i) => i % 2 ? c * yRatio: c * xRatio);
-    }
-
     private async generateValues(sourcePrefix: string): Promise<string> {
         // Generate values from project generators and create a new folder with the appropriate data
         /**
@@ -393,7 +350,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                         // To erase the marked words in OCR, we need to map labels to ocr coordinates, and find the right entry
                         // To reduce search space, we'll narrow search to affected OCR lines
                         const affectedLines = baseLines[pageReadResults.page].filter(
-                            l => generators.some(g => this.isBoxCenterInBbox(l.boundingBox, g.bbox))
+                            l => generators.some(g =>
+                                isBoxCenterInBbox(l.boundingBox, g.bbox) || isBoxCenterInBbox(g.bbox, l.boundingBox))
                         );
 
                         const unaffectedLines = baseLines[pageReadResults.page].filter(
@@ -402,10 +360,12 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
                         const modifiedAffectedLines = [];
                         // ! If you want to auto erase these words, alter this algo
-                        // find the marked words in the lines and erase them
+                        // find the marked words in the lines and erase them (this breaks the lines)
+                        // * Hopefully the line breakage doesn't affect the wordCombiner on the backend
                         affectedLines.forEach(l => {
                             // find the (unique) overlapping generator
-                            const overlappingGenerator = generators.find(g => this.isBoxCenterInBbox(l.boundingBox, g.bbox));
+                            const overlappingGenerator = generators.find(g =>
+                                isBoxCenterInBbox(l.boundingBox, g.bbox) || isBoxCenterInBbox(g.bbox, l.boundingBox));
 
                             // Here are the potential overlaps. Match by bbox.
                             const labelCandidates = overwrittenLabels.filter(l => l.label === overlappingGenerator.tag.name);
@@ -416,17 +376,17 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                             });
 
                             const newLineWords = l.words.filter(w =>
-                                !labelBboxes.some(lbb => this.fuzzyScaledBboxEqual(pageReadResults, lbb, w.boundingBox))
+                                !labelBboxes.some(lbb => fuzzyScaledBboxEqual(pageReadResults, lbb, w.boundingBox))
                             );
 
                             if (newLineWords.length === 0) return;
 
                             // Next, reduce the line bbox
-                            const newLineBbox = this.unionBbox(newLineWords.map(w => w.boundingBox));
+                            const newLineBbox = unionBbox(newLineWords.map(w => w.boundingBox));
+                            // * And reduce the text - assumes only spaces
+                            const text = newLineWords.map(w => w.text).join(" ");
 
-                            // TODO debug
-
-                            const newLine = { ...l, boundingBox: newLineBbox, words: newLineWords };
+                            const newLine = { ...l, text, boundingBox: newLineBbox, words: newLineWords };
                             modifiedAffectedLines.push(newLine);
                         });
 
@@ -456,11 +416,11 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         return generatePath;
     }
 
-    // TODO implement
+    // Note - this only makes generators from one label, does not aggregate data across docs
     private assetMetadataLabelsToGenerators(metadata: IAssetMetadata, ocr: any, tags: ITag[]): IGenerator[] {
         const labelData = metadata.labelData; // precisely JSON.parse of the file
         const existingGeneratorKeys = metadata.generators.map(g => g.tag.name);
-        const newGeneratorData = labelData.labels.filter(l => existingGeneratorKeys.includes(l.label));
+        const newGeneratorData = labelData.labels.filter(l => !existingGeneratorKeys.includes(l.label));
 
         const newGenerators = newGeneratorData.map(d => {
             const tag = tags.find(t => t.name === d.label);
@@ -474,22 +434,21 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             // labels are in ratio
             const bboxes = d.value.map(v => v.boundingBoxes);
             const flatBboxes = [].concat.apply([], bboxes);
-            const union = this.unionBbox(flatBboxes);
+            const union = unionBbox(flatBboxes);
 
-            // Current "expansion" algorith - a tiny bit of vertical padding, a bit of horizontal padding
-            const unionPadded = this.padBbox(union, 0.1, 0.05);
-            const bbox = this.scaleBbox(unionPadded, pageOcr.width, pageOcr.height);
+            // Current "expansion" alg - a tiny bit of vertical padding, a bit of horizontal padding
+            // TODO - expand optimistically (or at least try)
+            const unionPadded = padBbox(union, 0.1, 0.05);
+            const bbox = scaleBbox(unionPadded, pageOcr.width, pageOcr.height);
+            // TODO upgrade this alg to make sure the text matches... like we don't need the top-left heuristic
             const { ocrLine } = matchBboxToOcr(bbox, pageOcr); // this can be any of the relevant lines, ideally the first
-
-            // wha... how do we do this without map units?
-            const canvasBbox = [];
 
             return {
                 tag,
                 tagProposal: tag,
                 ocrLine,
-                canvasBbox,
                 bbox,
+                canvasBbox: [], // only used on canvas
                 points: [], // only used on canvas
                 id,
                 resolution: 1,

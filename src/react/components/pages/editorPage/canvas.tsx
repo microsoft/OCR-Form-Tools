@@ -410,7 +410,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const generatorTextStyles = {}
         generators.forEach(g => {
             const ocrForPage = this.getOcrResultForPage(this.state.ocr, g.page);
-            generatorTextStyles[g.id] = generate(g, ocrForPage.readResults, this.imageMap.getInitialResolution()).format;
+            const format = generate(g, ocrForPage.readResults, this.imageMap.getInitialResolution()).format;
+            // Adjust format for canvas
+            const scaleX = (g.canvasBbox[2] - g.canvasBbox[0]) / (g.bbox[2] - g.bbox[0]);
+            const scaleY = (g.canvasBbox[1] - g.canvasBbox[5]) / (g.bbox[1] - g.bbox[5]);
+            format.offsetX *= scaleX;
+            format.offsetY *= scaleY;
+            generatorTextStyles[g.id] = format;
         });
         this.setState({generatorTextStyles}, this.redrawGeneratorFeatures);
     }
@@ -1353,7 +1359,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
         const uniqueName = `Gen ${id}`;
 
-        const { tagProposal, ocrLine } = matchBboxToOcr(regionInfo.bbox, this.state.ocrForCurrentPage)
+        const { tagProposal, ocrLine } = matchBboxToOcr(regionInfo.bbox, this.state.ocrForCurrentPage.readResults)
 
         // Uniqueness guarantee
         if (tagProposal.name === ""
