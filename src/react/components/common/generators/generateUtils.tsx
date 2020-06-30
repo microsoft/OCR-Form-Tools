@@ -510,7 +510,7 @@ export const generatorInfoToLabel: (g: IGeneratedInfo) => ILabel = (generatedInf
     };
 }
 
-export const matchBboxToOcr: (bbox: number[], pageOcr: any) => IGeneratorTagInfo = (bbox, pageOcr) => {
+export const matchBboxToOcr: (bbox: number[], pageOcr: any, text?: string) => IGeneratorTagInfo = (bbox, pageOcr, text) => {
     const numberFlags = ["#", "number", "num.", "phone", "amount"];
 
     let name = "";
@@ -524,6 +524,12 @@ export const matchBboxToOcr: (bbox: number[], pageOcr: any) => IGeneratorTagInfo
         const refLoc = [bbox[0], bbox[1]];
         const ocrRead = pageOcr;
         ocrRead.lines.forEach((line, index) => {
+            if (closestDist === 0) return;
+            if (isBoxCenterInBbox(line.boundingBox, bbox) || isBoxCenterInBbox(bbox, line.boundingBox)) {
+                ocrLine = index;
+                closestDist = 0;
+                return;
+            }
             line.words.forEach(word => {
                 const loc = [word.boundingBox[0], word.boundingBox[1]]; // TL
                 const dist = Math.hypot(loc[0] - refLoc[0], loc[1] - refLoc[1]);
