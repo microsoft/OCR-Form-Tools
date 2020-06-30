@@ -24,6 +24,7 @@ export const constants = {
     fieldsFileName: "fields.json",
     maxConcurrentServiceRequests: 3,
     statusCodeSucceeded: "succeeded",
+    statusCodeReady: "ready",
     statusCodeFailed: "failed",
     apiKeyHeader: "Ocp-Apim-Subscription-Key",
     maxRetry: 8,

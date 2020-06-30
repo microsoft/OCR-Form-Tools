@@ -112,9 +112,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 minWidth: 20,
                 maxWidth: 20,
                 isResizable: true,
-                onRender: (model: IModel) => {
-                    return <FontIcon iconName={model.iconName} className="model-fontIcon"/> ;
-                },
+                onRender: (model: IModel) => <FontIcon iconName={model.iconName} className="model-fontIcon"/>,
                 headerClassName: "list-header",
             },
             {
@@ -125,9 +123,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 maxWidth: 250,
                 isResizable: true,
                 onColumnClick: this.handleColumnClick,
-                onRender: (model: IModel) => {
-                return <span>{model.modelId}</span>;
-                },
+                onRender: (model: IModel) => <span>{model.modelId}</span>,
             },
             {
                 key: "column3",
@@ -136,10 +132,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 minWidth: 150,
                 isResizable: true,
                 onColumnClick: this.handleColumnClick,
-                onRender: (model: IModel) => {
-                return (<span>{model.modelName}</span>);
-                },
-
+                onRender: (model: IModel) => <span>{model.modelName}</span>,
             },
             {
                 key: "column4",
@@ -149,9 +142,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 maxWidth: 100,
                 isResizable: true,
                 onColumnClick: this.handleColumnClick,
-                onRender: (model: IModel) => {
-                return (<span>{model.status}</span>);
-                },
+                onRender: (model: IModel) => <span>{model.status}</span>
             },
             {
                 key: "column5",
@@ -163,9 +154,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 isSorted: false,
                 isSortedDescending: true,
                 onColumnClick: this.handleColumnClick,
-                onRender: (model: IModel) => {
-                    return <span>{new Date(model.createdDateTime).toLocaleString()}</span>;
-                },
+                onRender: (model: IModel) => <span>{new Date(model.createdDateTime).toLocaleString()}</span>,
             },
             {
                 key: "column6",
@@ -175,9 +164,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 maxWidth: 175,
                 isResizable: true,
                 onColumnClick: this.handleColumnClick,
-                onRender: (model: IModel) => {
-                    return (<span>{new Date(model.lastUpdatedDateTime).toLocaleString()}</span>);
-                },
+                onRender: (model: IModel) => <span>{new Date(model.lastUpdatedDateTime).toLocaleString()}</span>,
             },
         ];
 
@@ -233,7 +220,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     public render() {
-        const {modelList, isCompactMode, columns} = this.state;
+        const { modelList, isCompactMode, columns } = this.state;
         const dark: ICustomizations = {
             settings: {
               theme: getDarkGreyTheme(),
@@ -248,18 +235,15 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 (tooltipHostProps) => (
               <TooltipHost {...tooltipHostProps} />
             );
-            return (
-              <Sticky stickyPosition={StickyPositionType.Header} isScrollSynced>
-                {defaultRender!({
-                  ...props,
-                  onRenderColumnHeaderTooltip,
-                })}
+            return <Sticky
+                stickyPosition={StickyPositionType.Header}
+                isScrollSynced>
+                {defaultRender!({ ...props, onRenderColumnHeaderTooltip })}
               </Sticky>
-            );
+            ;
           };
 
-        return (
-            <Fabric className="modelCompose-page">
+        return <Fabric className="modelCompose-page">
                 <Customizer {...dark}>
                     <div className="commandbar-container">
                         <ModelComposeCommandBar
@@ -340,7 +324,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                             />
                 </Customizer>
             </Fabric>
-        );
     }
 
     private getKey = (item: any, index?: number): string => {
@@ -353,9 +336,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 isLoading: true,
             });
 
-            let composedModels = this.state.composedModelList;
-
-            composedModels=this.reloadComposedModel(composedModels);
+            const composedModels = this.reloadComposedModel(this.state.composedModelList);
 
             let composedModelIds = [];
             let predictModelFlag = false;
@@ -364,8 +345,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 predictModelFlag = true;
                 if (composedModelIds.indexOf(this.state.composeModelId[0]) === -1) {
                     const idURL = constants.apiModelsPath + "/" + this.state.composeModelId[0];
-                    const newComposeModel = await this.getComposeModelByURl(idURL);
-                    composedModels.push(newComposeModel);
+                    composedModels.push(await this.getComposeModelByURl(idURL));
                     composedModelIds.push(this.state.composeModelId[0]);
                 }
             }
@@ -376,17 +356,13 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             models.map((m) => m.key = m.modelId);
             models = models.filter((m) => composedModelIds.indexOf(m.modelId) === -1);
 
-            const newList = composedModels.concat(models);
-
-            this.allModels = newList;
+            this.allModels = composedModels.concat(models);
             if (predictModelFlag) {
-                const updatedProject = this.buildUpdatedProject(
-                    this.state.composeModelId[0],
-                );
+                const updatedProject = this.buildUpdatedProject(this.state.composeModelId[0]);
                 await this.props.actions.saveProject(updatedProject, false, false);
             }
             this.setState({
-                modelList: newList,
+                modelList: this.allModels,
                 nextLink: link,
                 composedModelList: composedModels,
             }, () => {
@@ -407,7 +383,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     private reloadComposedModel = (models: IModel[]): IModel[] => {
-        models.forEach(async (m) => {
+        models.forEach(async (m: IModel) => {
             if (m.status !== "ready" && m.status !== "invalid") {
                 const url = constants.apiModelsPath + "/" + m.modelId;
                 const newModel = await this.getComposeModelByURl(url);
@@ -599,8 +575,49 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         this.handleModelsCompose(selections, composeModelName);
     }
 
-    private passSelectedItems = (Items) => {
+    private passSelectedItems = (Items: any[]) => {
         this.selectedItems = Items;
+    }
+
+    /**
+     * Poll function to repeatly check if request succeeded
+     * @param func - function that will be called repeatly
+     * @param timeout - timeout
+     * @param interval - interval
+     */
+    private poll = (func, timeout, interval): Promise<any> => {
+        const endTime = Number(new Date()) + (timeout || 10000);
+        interval = interval || 100;
+
+        const checkSucceeded = (resolve, reject) => {
+            const ajax = func();
+            ajax.then((response) => {
+                if (response.data.modelInfo.status.toLowerCase() === constants.statusCodeReady) {
+                    resolve(response.data);
+                } else if (Number(new Date()) < endTime) {
+                    // If the request isn't succeeded and the timeout hasn't elapsed, go again
+                    setTimeout(checkSucceeded, interval, resolve, reject);
+                } else {
+                    // Didn't succeeded after too much time, reject
+                    reject(new Error("Timed out for creating composed model"));
+                }
+            });
+        };
+
+        return new Promise(checkSucceeded);
+    }
+
+    private async waitUntilModelIsReady(operationLocation: string): Promise<any> {
+        const timeoutPerFileInMs = 1000;  // 1 second for each model
+        const minimumTimeoutInMs = 300000;  // 5 minutes minimum waiting time  for each composing process
+        const extendedTimeoutInMs = timeoutPerFileInMs * Object.keys(this.props.project.assets || []).length;
+        const res = this.poll(() => {
+            return ServiceHelper.getWithAutoRetry(
+                operationLocation,
+                { headers: { "cache-control": "no-cache" } },
+                this.props.project.apiKey as string);
+        }, Math.max(extendedTimeoutInMs, minimumTimeoutInMs), 1000);
+        return res;
     }
 
     /** Handle the operation of composing a new model */
@@ -615,7 +632,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 };
                 const link = constants.apiModelsPath + "/compose";
                 const composeRes = await this.post(link, payload);
-                const composeModelId = this.getComposeModelId(composeRes);
+                await this.waitUntilModelIsReady(composeRes["headers"]["location"]);
+                const composedModelId = this.getComposeModelId(composeRes);
                 const newCols = this.state.columns;
                 newCols.forEach((ncol) => {
                     ncol.isSorted = false;
@@ -623,7 +641,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 });
                 this.setState({
                     isComposing: false,
-                    composeModelId: [composeModelId],
+                    composeModelId: [composedModelId],
                     columns: newCols,
                 });
             } catch (error) {
