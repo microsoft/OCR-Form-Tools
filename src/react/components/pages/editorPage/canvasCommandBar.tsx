@@ -3,6 +3,7 @@ import { CommandBar, ICommandBarItemProps } from "@fluentui/react/lib/CommandBar
 import { ICustomizations, Customizer } from "@fluentui/react/lib/Utilities";
 import { getDarkGreyTheme } from "../../../../common/themes";
 import { strings } from '../../../../common/strings';
+import { ContextualMenuItemType } from "@fluentui/react";
 
 interface ICanvasCommandBarProps {
     handleZoomIn: () => void;
@@ -105,6 +106,10 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         text: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runOcrOnAllDocuments,
                         iconProps: { iconName: "Documentation" },
                         onClick: () => props.handleRunOcrForAllDocuments(),
+                    },
+                    {
+                      key: 'divider_1',
+                      itemType: ContextualMenuItemType.Divider,
                     },
                     {
                       key: "deleteAsset",
