@@ -231,6 +231,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleRunOcr={this.runOcr}
                     handleRunOcrForAllDocuments={this.runOcrForAllDocuments}
                     handleShareProject={this.shareProject}
+                    connectionType={this.props.project.sourceConnection.providerType}
                 />
                 <ImageMap
                     ref={(ref) => this.imageMap = ref}

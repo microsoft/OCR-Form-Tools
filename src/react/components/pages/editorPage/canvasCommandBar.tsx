@@ -11,10 +11,11 @@ interface ICanvasCommandBarProps {
     handleRunOcrForAllDocuments: () => void;
     handleLayerChange: (layer: string) => void;
     handleShareProject: () => void;
+    connectionType: string;
     layers: any;
 }
 
-export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> = (props) => {
+export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> = (props:ICanvasCommandBarProps) => {
     const dark: ICustomizations = {
         settings: {
           theme: getDarkGreyTheme(),
@@ -97,7 +98,9 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                     {
                         key: "shareProject",
                         text: "Share Project",
+                        disabled: props.connectionType !== "azureBlobStorage",
                         iconProps: { iconName: "Share" },
+                        className: props.connectionType === "azureBlobStorage" ? "disabled" : "",
                         onClick: ()=> props.handleShareProject(),
                     },
                     {
