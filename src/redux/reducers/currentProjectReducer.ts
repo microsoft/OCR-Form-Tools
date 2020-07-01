@@ -34,6 +34,7 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
                 ...state,
                 lastVisitedAssetId: action.payload.asset.id,
             };
+        case ActionTypes.DELETE_PROJECT_ASSET_SUCCESS:
         case ActionTypes.LOAD_PROJECT_ASSETS_SUCCESS:
             const assets = {};
             action.payload.forEach((asset) => {
