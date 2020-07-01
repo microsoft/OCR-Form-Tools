@@ -500,6 +500,8 @@ export interface IAppStrings {
     shareProject: {
         errors: {
             cannotDecodeString: string,
+            connectionNotFound: string,
+            noConnections: string,
         },
         copy: {
             success: string,

@@ -596,6 +596,8 @@ export const english: IAppStrings = {
     shareProject: {
         errors: {
             cannotDecodeString: "Cannot decode shared string! Please, check if your string has been modified.",
+            connectionNotFound: "Connection not found. Add shared project's connection to connections",
+            noConnections: "Connection is required for project sharing",
         },
         copy: {
             success: "String for sharing your project have been saved to clipboard. In order to use it paste it in appropriate section of the 'Open Cloud Project' popup.",

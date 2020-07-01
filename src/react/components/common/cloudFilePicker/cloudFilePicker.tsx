@@ -85,6 +85,9 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
                     <div className="condensed-list-header bg-darker-2 shared-uri-header">
                         Shared Project URI
                 </div>
+                    {!this.props.connections.length &&
+                        <div className="p-3 text-center">{strings.shareProject.errors.noConnections}</div>
+                    }
                     <InputGroup className="input-uri">
                         <Input placeholder={strings.homePage.openCloudProject.pasteSharedUri}
                             id="sharedURI"
@@ -92,6 +95,7 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
                             value={this.state.pastedUri}
                             onChange={this.handleChangeUri}
                             onPaste={this.handlePasteUri}
+                            disabled={!this.props.connections.length}
                         />
                     </InputGroup>
                 </div>
@@ -188,7 +192,7 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
         if (connection.length) {
             return connection[0];
         } else {
-            toast.error("You do not have access to project folder");
+            toast.error(strings.shareProject.errors.connectionNotFound);
             return null
         }
     }
