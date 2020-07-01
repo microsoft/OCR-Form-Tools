@@ -3,6 +3,7 @@ import { CommandBar, ICommandBarItemProps } from "@fluentui/react/lib/CommandBar
 import { ICustomizations, Customizer } from "@fluentui/react/lib/Utilities";
 import { getDarkGreyTheme } from "../../../../common/themes";
 import { strings } from '../../../../common/strings';
+import { ContextualMenuItemType } from "@fluentui/react";
 
 interface ICanvasCommandBarProps {
     handleZoomIn: () => void;
@@ -102,6 +103,10 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         iconProps: { iconName: "Share" },
                         className: props.connectionType !== "azureBlobStorage" ? "disabled" : "",
                         onClick: () => props.handleShareProject(),
+                    },
+                    {
+                        key: 'divider_0',
+                        itemType: ContextualMenuItemType.Divider,
                     },
                     {
                         key: "runOcrForCurrentDocument",
