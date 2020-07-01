@@ -42,6 +42,7 @@ export const english: IAppStrings = {
         openCloudProject: {
             title: "Open Cloud Project",
             selectConnection: "Select a Connection",
+            pasteSharedUri: "Please paste shared project string here",
         },
         recentProjects: "Recent Projects",
         deleteProject: {
@@ -377,6 +378,7 @@ export const english: IAppStrings = {
                     }
                 },
                 farItems: {
+                    share: "Share Project",
                     zoom: {
                         zoomOut: "Zoom out",
                         zoomIn: "Zoom in",
@@ -589,6 +591,14 @@ export const english: IAppStrings = {
             title: "Request send error",
             message: "Failed to send request to Azure Blob Container. Common issues: \n • SAS URI not valid \n • Cross-Origin Resource Sharing (CORS) is not configured server-side \n • Network error",
 
+        }
+    },
+    shareProject: {
+        errors: {
+            cannotDecodeString: "Cannot decode shared string! Please, check if your string has been modified.",
+        },
+        copy: {
+            success: "String for sharing your project have been saved to clipboard. In order to use it paste it in appropriate section of the 'Open Cloud Project' popup.",
         }
     },
 };

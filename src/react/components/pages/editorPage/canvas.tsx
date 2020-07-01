@@ -37,6 +37,7 @@ import { TooltipHost, ITooltipHostStyles } from "@fluentui/react";
 import { connect } from "react-redux";
 import { IAppSettings } from '../../../../models/applicationState';
 import { toast } from "react-toastify";
+import { strings } from "../../../../common/strings";
 
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
@@ -325,7 +326,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const clipboard = (navigator as any).clipboard;
         if (clipboard && clipboard.writeText) {
             await clipboard.writeText(btoa(value));
-            toast.success("String for sharing your project have been saved to clipboard. In order to use it paste it in appropriate section of the 'Open Cloud Project' popup.");
+            toast.success(strings.shareProject.copy.success);
         }
     }
 

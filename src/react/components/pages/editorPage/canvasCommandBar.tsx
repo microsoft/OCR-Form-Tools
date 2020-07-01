@@ -97,11 +97,11 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                 items: [
                     {
                         key: "shareProject",
-                        text: "Share Project",
+                        text: strings.editorPage.canvas.canvasCommandBar.farItems.share,
                         disabled: props.connectionType !== "azureBlobStorage",
                         iconProps: { iconName: "Share" },
-                        className: props.connectionType === "azureBlobStorage" ? "disabled" : "",
-                        onClick: ()=> props.handleShareProject(),
+                        className: props.connectionType !== "azureBlobStorage" ? "disabled" : "",
+                        onClick: () => props.handleShareProject(),
                     },
                     {
                         key: "runOcrForCurrentDocument",

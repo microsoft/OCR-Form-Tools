@@ -84,7 +84,7 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
                     {this.state.condensedList}
                 </ModalBody>
                 <InputGroup className="input-uri">
-                    <Input placeholder="Please paste shared project string here"
+                    <Input placeholder={strings.homePage.openCloudProject.pasteSharedUri}
                         id="sharedURI"
                         type="text"
                         value={this.state.pastedUri}
@@ -191,7 +191,7 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
         try {
             uri = location + atob(sharedSting);
         } catch (error) {
-            toast.error("Cannot decode shared string! Please, check if your string has been modified.");
+            toast.error(strings.shareProject.errors.cannotDecodeString);
             return;
         }
         const url = new URL(uri);
