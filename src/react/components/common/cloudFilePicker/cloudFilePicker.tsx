@@ -9,6 +9,7 @@ import { IConnection, StorageType, ErrorCode, AppError } from "../../../../model
 import { StorageProviderFactory } from "../../../../providers/storage/storageProviderFactory";
 import CondensedList, { ListItem } from "../condensedList/condensedList";
 import "./cloudFilePicker.scss"
+import { Separator } from "@fluentui/react";
 
 /**
  * Properties for Cloud File Picker
@@ -80,18 +81,25 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
                 <ModalHeader toggle={this.close} close={closeBtn}>
                     {this.state.modalHeader}
                 </ModalHeader>
-                <ModalBody>
+                <div className={`share-container ${this.state.selectedConnection ? "hide" : ""}`}>
+                    <div className="condensed-list-header bg-darker-2 shared-uri-header">
+                        Shared Project URI
+                </div>
+                    <InputGroup className="input-uri">
+                        <Input placeholder={strings.homePage.openCloudProject.pasteSharedUri}
+                            id="sharedURI"
+                            type="text"
+                            value={this.state.pastedUri}
+                            onChange={this.handleChangeUri}
+                            onPaste={this.handlePasteUri}
+                        />
+                    </InputGroup>
+                </div>
+                <Separator className="separator">or</Separator>
+                <ModalBody className={`${this.state.pastedUri ? "hide": ""}`}>
                     {this.state.condensedList}
                 </ModalBody>
-                <InputGroup className="input-uri">
-                    <Input placeholder={strings.homePage.openCloudProject.pasteSharedUri}
-                        id="sharedURI"
-                        type="text"
-                        value={this.state.pastedUri}
-                        onChange={this.handleChangeUri}
-                        onPaste={this.handlePasteUri}
-                    />
-                    </InputGroup>
+
                 <ModalFooter>
                     {this.state.selectedFile || ""}
                     <Button
@@ -100,9 +108,8 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
                         disabled={this.state.okDisabled}>
                         Ok
                     </Button>
-                    {this.state.backDisabled ?
-                        <Button onClick={this.close}>Close</Button>
-                    :
+                    {(this.state.backDisabled) && !this.state.pastedUri ?
+                            <Button onClick={this.close}>Close</Button> :
                         <Button onClick={this.back}>Go Back</Button>
                     }
                 </ModalFooter>
@@ -132,7 +139,7 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
 
     private getInitialState(): ICloudFilePickerState {
         return {
-            isOpen: false,
+            isOpen: true,
             modalHeader: strings.homePage.openCloudProject.selectConnection,
             condensedList: this.connectionList(),
             selectedConnection: null,
