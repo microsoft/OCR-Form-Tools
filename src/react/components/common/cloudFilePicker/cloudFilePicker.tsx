@@ -108,7 +108,7 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
                         disabled={this.state.okDisabled}>
                         Ok
                     </Button>
-                    {(this.state.backDisabled) && !this.state.pastedUri ?
+                    {this.state.backDisabled && !this.state.pastedUri ?
                             <Button onClick={this.close}>Close</Button> :
                         <Button onClick={this.back}>Go Back</Button>
                     }
@@ -139,7 +139,7 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
 
     private getInitialState(): ICloudFilePickerState {
         return {
-            isOpen: true,
+            isOpen: false,
             modalHeader: strings.homePage.openCloudProject.selectConnection,
             condensedList: this.connectionList(),
             selectedConnection: null,
