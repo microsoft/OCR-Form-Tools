@@ -342,7 +342,7 @@ export const spanish: IAppStrings = {
         asset: {
             delete: {
                 title: "Eliminar documento",
-                confirmation: "¿Estás seguro de que deseas eliminar el documento?",
+                confirmation: "Estás seguro de que quieres eliminar ",
             }
         },
         assetWarning: {

@@ -214,7 +214,7 @@ export class AssetService {
     }
 
     /**
-     * Save metadata for asset
+     * Delete asset
      * @param metadata - Metadata for asset
      */
     public async delete(metadata: IAssetMetadata): Promise<void> {

@@ -313,13 +313,19 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     confirmButtonTheme={getPrimaryRedTheme()}
                                     onConfirm={this.onTagDeleted} 
                                 />
-                                <Confirm
-                                    title={strings.editorPage.asset.delete.title}
-                                    ref={this.deleteDocumentConfirm}
-                                    message={strings.editorPage.asset.delete.confirmation}
-                                    confirmButtonTheme={getPrimaryRedTheme()}
-                                    onConfirm={this.onAssetDeleted} 
-                                />                            </div>
+                                {this.state.selectedAsset &&
+                                    <Confirm
+                                        title={strings.editorPage.asset.delete.title}
+                                        ref={this.deleteDocumentConfirm}
+                                        message={
+                                                    strings.editorPage.asset.delete.confirmation +
+                                                    "\"" + this.state.selectedAsset.asset.name + "\"?"
+                                                }
+                                        confirmButtonTheme={getPrimaryRedTheme()}
+                                        onConfirm={this.onAssetDeleted}
+                                    />
+                                }
+                          </div>
                         </SplitPane>
                     </div>
                 </SplitPane>
@@ -435,7 +441,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     /**
-     * Open Confirm dialog for tag deletion
+     * Open Confirm dialog for document deletion
      */
     private confirmDocumentDeleted = (): void => {
         this.deleteDocumentConfirm.current.open();

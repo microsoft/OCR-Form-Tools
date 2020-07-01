@@ -336,7 +336,7 @@ export const english: IAppStrings = {
         asset: {
             delete: {
                 title: "Delete document",
-                confirmation: "Are you sure you want to delete document?",
+                confirmation: "Are you sure you want to delete ",
             }
         },
         help: {
