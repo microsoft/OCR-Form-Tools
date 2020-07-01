@@ -160,7 +160,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 this.setPredictedFieldHighlightStatus(this.state.highlightedField);
             }
         }
-        if (JSON.stringify(this.predictModelIds) !== JSON.stringify([...this.props.project.predictModelIds])) {
+        if (this.predictModelIds && JSON.stringify(this.predictModelIds) !== JSON.stringify([...this.props.project.predictModelIds])) {
             this.getPredictModels();
         }
     }
