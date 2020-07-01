@@ -76,7 +76,7 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
     public render() {
         const closeBtn = <button className="close" onClick={this.close}>&times;</button>;
 
-        return(
+        return (
             <Modal isOpen={this.state.isOpen} centered={true}>
                 <ModalHeader toggle={this.close} close={closeBtn}>
                     {this.state.modalHeader}
@@ -95,8 +95,10 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
                         />
                     </InputGroup>
                 </div>
-                <Separator className="separator">or</Separator>
-                <ModalBody className={`${this.state.pastedUri ? "hide": ""}`}>
+                {
+                    (!this.state.selectedConnection && !this.state.pastedUri) && <Separator className="separator">or</Separator>
+                }
+                <ModalBody className={`${this.state.pastedUri ? "hide" : ""}`}>
                     {this.state.condensedList}
                 </ModalBody>
 
@@ -109,7 +111,7 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
                         Ok
                     </Button>
                     {this.state.backDisabled && !this.state.pastedUri ?
-                            <Button onClick={this.close}>Close</Button> :
+                        <Button onClick={this.close}>Close</Button> :
                         <Button onClick={this.back}>Go Back</Button>
                     }
                 </ModalFooter>
