@@ -105,7 +105,7 @@
         "kind-of": "^6.0.3",
         "minimist": "^1.2.2",
         "node-sass": "^4.14.1",
-        "pdfjs-dist": "2.3.200",
+        "pdfjs-dist": "^2.4.456",
         "react-scripts": "3.4.1",
         "redux-immutable-state-invariant": "^2.1.0",
         "redux-logger": "^3.0.6",
