@@ -487,12 +487,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      */
     private onTagRenamed = async (tag: ITag, newTag: ITag): Promise<void> => {
         this.renameCanceled = null;
-        const assetUpdates = await this.props.actions.updateProjectTag(this.props.project, tag, newTag);
-        const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
-
-        if (selectedAsset) {
-            this.setState({ selectedAsset });
-        }
+        this.onTagChanged(tag, newTag);
     }
 
     private onTagRenameCanceled = () => {
@@ -840,9 +835,14 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
 
         if (selectedAsset) {
-            this.setState({
-                selectedAsset,
-            });
+            // Don't overwrite existing regions, since these asset updates don't hold any info about regions
+            // Wait! That's not strictly true...for renames - however, that's controlled in the canvas
+            // (When it registers tag update, it'll reset according to label data - see `isLabelDataChanged`)
+            // Anyway, the incoming info here definitely has nothing informative about regions
+            this.setState({ selectedAsset: {
+                ...selectedAsset,
+                regions: this.state.selectedAsset.regions
+            } });
         }
     }
 

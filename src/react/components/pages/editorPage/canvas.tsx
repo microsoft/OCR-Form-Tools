@@ -195,13 +195,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             }, this.initPage);
         } else {
             // same asset
-            if (prevProps.project && this.needUpdateAssetRegionsFromTags(prevProps.project.tags, this.props.project.tags))  {
-                // first time label change - propagate to regions
+            if (this.isLabelDataChanged(this.props, prevProps) || prevProps.project && this.needUpdateAssetRegionsFromTags(prevProps.project.tags, this.props.project.tags))  {
+                // tag change - redraw regions from source
                 const newRegions = this.convertLabelDataToRegions(this.props.selectedAsset.labelData);
                 this.updateAssetRegions(newRegions);
                 this.redrawAllFeatures();
-            }
-            if (this.isLabelDataOrRegionsChanged(this.props, prevProps)) {
+            } else if (this.isRegionsChanged(this.props, prevProps)) {
                 this.redrawLabelFeatures();
             }
         }
@@ -220,7 +219,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         ) {
             // Note - the image map doesn't hold onto the feature by the time it propagates here, not sure how that's possible
             this.redrawGeneratorFeatures();
-            this.redrawFeatures(this.imageMap.getAllGeneratorFeatures());
         }
 
         // Generic generator update from editorpage
@@ -1634,7 +1632,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         return this.getOcrResultForPage(ocr, this.state.currentPage);
     }
 
-    private isLabelDataOrRegionsChanged = (newProps: ICanvasProps, prevProps: ICanvasProps): boolean => {
+    private isRegionsChanged = (newProps: ICanvasProps, prevProps: ICanvasProps): boolean => {
         if (newProps.selectedAsset.regions.length !== prevProps.selectedAsset.regions.length) return true;
         // shallow check each region
         for (let i = 0; i < newProps.selectedAsset.regions.length; i+= 1) {
@@ -1642,6 +1640,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 return true;
             }
         }
+    }
+
+    private isLabelDataChanged = (newProps: ICanvasProps, prevProps: ICanvasProps): boolean => {
 
         const newLabels = _.get(newProps, "selectedAsset.labelData.labels", []) as ILabel[];
         const prevLabels = _.get(prevProps, "selectedAsset.labelData.labels", []) as ILabel[];

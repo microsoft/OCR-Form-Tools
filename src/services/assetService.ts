@@ -304,7 +304,7 @@ export class AssetService {
         Guard.null(asset);
         let assetMetadata: IAssetMetadata = {
             asset: { ...asset },
-            regions: [],
+            regions: [], // No region information is stored
             generators: [],
             generatorSettings: {
                 generateCount: 40
