@@ -334,6 +334,12 @@ export interface IAppStrings {
             title: string;
             escape: string;
         },
+        asset: {
+            delete: {
+                title: string;
+                confirmation: string;
+            }
+        },
         assetWarning: {
             incorrectFileExtension: {
                 attention: string,
