@@ -445,7 +445,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      */
     private confirmDocumentDeleted = (): void => {
         this.deleteDocumentConfirm.current.open();
-    }  
+    }
 
     /**
      * Removes tag from assets and projects and saves files
