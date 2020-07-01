@@ -32,7 +32,6 @@ import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../.
 import { constants } from "../../../../common/constants";
 import { getPrimaryGreenTheme, getPrimaryWhiteTheme,
          getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
-import { SkipButton } from "../../shell/skipButton";
 import axios from "axios";
 
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -68,6 +67,15 @@ export interface IPredictPageState {
     isPredicting: boolean;
     file?: File;
     highlightedField: string;
+    modelList: IModel[];
+    modelOption: string;
+}
+
+export interface IModel {
+    modelId: string;
+    createdDateTime: string;
+    lastUpdatedDateTime: string;
+    status: string;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -109,6 +117,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         predictRun: false,
         isPredicting: false,
         highlightedField: "",
+        modelList: [],
+        modelOption: "",
     };
 
     private fileInput: React.RefObject<HTMLInputElement> = React.createRef();
@@ -123,6 +133,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             await this.props.actions.loadProject(project);
             this.props.appTitleActions.setTitle(project.name);
         }
+
         document.title = strings.predict.title + " - " + strings.appName;
     }
 
@@ -191,7 +202,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             </h5>
                             <PrimaryButton
                                 theme={getPrimaryGreenTheme()}
-                                text="Download python script"
+                                text="Download Python script"
                                 allowDisabledFocus
                                 autoFocus={true}
                                 onClick={this.handleDownloadClick}
@@ -208,7 +219,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             <div className="container-space-between">
                                 <Dropdown
                                     className="sourceDropdown"
-                                    defaultSelectedKey={this.state.sourceOption}
                                     selectedKey={this.state.sourceOption}
                                     options={sourceOptions}
                                     disabled={this.state.isPredicting || this.state.isFetching}
@@ -585,7 +595,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
     private async triggerDownload(): Promise<any> {
         axios.get("/analyze.py").then((response) => {
-            const modelID = _.get(this.props.project, "trainRecord.modelInfo.modelId") as string;
+            const modelID = this.props.project.predictModelId as string;
             if (!modelID) {
                 throw new AppError(
                     ErrorCode.PredictWithoutTrainForbidden,
@@ -594,12 +604,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             }
             const endpointURL = this.props.project.apiUriBase as string;
             const apiKey = this.props.project.apiKey as string;
-            const analyzeScript = response.data.replace(/<endpoint>|<subsription_key>|<model_id>/gi,
+            const analyzeScript = response.data.replace(/<endpoint>|<subscription_key>|<model_id>/gi,
                 (matched: string) => {
                 switch (matched) {
                     case "<endpoint>":
                         return endpointURL;
-                    case "<subsription_key>":
+                    case "<subscription_key>":
                         return apiKey;
                     case "<model_id>":
                         return modelID;
@@ -637,7 +647,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private async getPrediction(): Promise<any> {
-        const modelID = _.get(this.props.project, "trainRecord.modelInfo.modelId");
+        const modelID = this.props.project.predictModelId;
         if (!modelID) {
             throw new AppError(
                 ErrorCode.PredictWithoutTrainForbidden,
@@ -859,6 +869,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             ajax.then((response) => {
                 if (response.data.status.toLowerCase() === constants.statusCodeSucceeded) {
                     resolve(response.data);
+                    // prediction response from API
+                    console.log("raw data", JSON.parse(response.request.response));
                 } else if (response.data.status.toLowerCase() === constants.statusCodeFailed) {
                     reject(_.get(
                         response,

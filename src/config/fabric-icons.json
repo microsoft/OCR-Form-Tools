@@ -7,36 +7,96 @@
   "hashFontFileName": true,
   "glyphs": [
     {
-      "name": "Insights",
-      "unicode": "E3AF"
+      "name": "SortUp",
+      "unicode": "EE68"
     },
     {
-      "name": "MachineLearning",
-      "unicode": "E3B8"
+      "name": "SortDown",
+      "unicode": "EE69"
     },
     {
-      "name": "TagGroup",
-      "unicode": "E3F6"
+      "name": "Table",
+      "unicode": "ED86"
     },
     {
-      "name": "ChevronDown",
-      "unicode": "E70D"
+      "name": "TextField",
+      "unicode": "EDC3"
     },
     {
-      "name": "ChevronUp",
-      "unicode": "E70E"
+      "name": "Combine",
+      "unicode": "EDBB"
     },
     {
-      "name": "Edit",
-      "unicode": "E70F"
+      "name": "TextDocument",
+      "unicode": "F029"
     },
     {
-      "name": "Add",
-      "unicode": "E710"
+      "name": "StatusCircleCheckmark",
+      "unicode": "F13E"
     },
     {
-      "name": "Cancel",
-      "unicode": "E711"
+      "name": "DocumentManagement",
+      "unicode": "EFFC"
+    },
+    {
+      "name": "CircleRing",
+      "unicode": "EA3A"
+    },
+    {
+      "name": "Label",
+      "unicode": "E932"
+    },
+    {
+      "name": "Info",
+      "unicode": "E946"
+    },
+    {
+      "name": "Documentation",
+      "unicode": "EC17"
+    },
+    {
+      "name": "OpenFolderHorizontal",
+      "unicode": "ED25"
+    },
+    {
+      "name": "AddTo",
+      "unicode": "ECC8"
+    },
+    {
+      "name": "Hide3",
+      "unicode": "F6AC"
+    },
+    {
+      "name": "WarningSolid",
+      "unicode": "F736"
+    },
+    {
+      "name": "BranchMerge",
+      "unicode": "F295"
+    },
+    {
+      "name": "PlugConnected",
+      "unicode": "F302"
+    },
+    {
+      "name": "Plug",
+      "unicode": "F300"
+    },
+    {
+      "name": "AlertSolid",
+      "unicode": "F331"
+    },
+    {
+      "name": "Refresh",
+      "unicode": "E72C"
+    },
+    {
+      "name": "CheckboxComposite",
+      "unicode": "E73A"
+    },
+    {
+      "name": "More",
+      "unicode": "E712"
     },
     {
       "name": "Settings",
@@ -59,12 +119,20 @@
       "unicode": "E721"
     },
     {
-      "name": "CheckboxComposite",
-      "unicode": "E73A"
-    },
-    {
       "name": "CheckMark",
       "unicode": "E73E"
+    },
+    {
+      "name": "ChevronRight",
+      "unicode": "E76C"
+    },
+    {
+      "name": "ChevronLeft",
+      "unicode": "E76B"
+    },
+    {
+      "name": "Cancel",
+      "unicode": "E711"
     },
     {
       "name": "Up",
@@ -83,20 +151,40 @@
       "unicode": "E753"
     },
     {
-      "name": "ChevronLeft",
-      "unicode": "E76B"
+      "name": "Add",
+      "unicode": "E710"
     },
     {
-      "name": "ChevronRight",
-      "unicode": "E76C"
+      "name": "ChevronUp",
+      "unicode": "E70E"
     },
     {
-      "name": "Home",
-      "unicode": "E80F"
+      "name": "ReceiptProcessing",
+      "unicode": "E496"
     },
     {
-      "name": "MapLayers",
-      "unicode": "E81E"
+      "name": "ChevronDown",
+      "unicode": "E70D"
+    },
+    {
+      "name": "Edit",
+      "unicode": "E70F"
+    },
+    {
+      "name": "Copy",
+      "unicode": "E8C8"
+    },
+    {
+      "name": "ZoomIn",
+      "unicode": "E8A3"
+    },
+    {
+      "name": "Rename",
+      "unicode": "E8AC"
+    },
+    {
+      "name": "Tag",
+      "unicode": "E8EC"
     },
     {
       "name": "View",
@@ -111,80 +199,48 @@
       "unicode": "E897"
     },
     {
-      "name": "ZoomIn",
-      "unicode": "E8A3"
+      "name": "Home",
+      "unicode": "E80F"
     },
     {
-      "name": "Rename",
-      "unicode": "E8AC"
+      "name": "MapLayers",
+      "unicode": "E81E"
     },
     {
-      "name": "Copy",
-      "unicode": "E8C8"
+      "name": "KeyPhraseExtraction",
+      "unicode": "E395"
     },
     {
-      "name": "Tag",
-      "unicode": "E8EC"
+      "name": "Insights",
+      "unicode": "E3AF"
     },
     {
-      "name": "Label",
-      "unicode": "E932"
+      "name": "MachineLearning",
+      "unicode": "E3B8"
     },
     {
-      "name": "Info",
-      "unicode": "E946"
-    },
-    {
-      "name": "AddTo",
-      "unicode": "ECC8"
-    },
-    {
-      "name": "OpenFolderHorizontal",
-      "unicode": "ED25"
-    },
-    {
-      "name": "Table",
-      "unicode": "ED86"
-    },
-    {
-      "name": "TextField",
-      "unicode": "EDC3"
-    },
-    {
-      "name": "DocumentManagement",
-      "unicode": "EFFC"
-    },
-    {
-      "name": "TextDocument",
-      "unicode": "F029"
-    },
-    {
-      "name": "BranchMerge",
-      "unicode": "F295"
-    },
-    {
-      "name": "Plug",
-      "unicode": "F300"
-    },
-    {
-      "name": "PlugConnected",
-      "unicode": "F302"
-    },
-    {
-      "name": "AlertSolid",
-      "unicode": "F331"
-    },
-    {
-      "name": "Hide3",
-      "unicode": "F6AC"
-    },
-    {
-      "name": "WarningSolid",
-      "unicode": "F736"
+      "name": "TagGroup",
+      "unicode": "E3F6"
     },
     {
       "name": "BookAnswers",
       "unicode": "F8A4"
+    },
+    {
+      "name": "ChromeRestore",
+      "unicode": "E923"
+    },
+    {
+      "name": "ChromeMinimize",
+      "unicode": "E921"
+    },
+    {
+      "name": "System",
+      "unicode": "E770"
+    },
+    {
+      "name": "SquareShape",
+      "unicode": "F1A6"
     }
   ]
 }

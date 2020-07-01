@@ -118,11 +118,59 @@ export const spanish: IAppStrings = {
         },
     },
     train: {
+        modelNameTitle: "Nombre del modelo",
+        labelFolderTitle: "URI de carpeta de etiquetas",
+        defaultLabelFolderURL: "https://example.com/folder",
         title: "Entrenar",
         training: "Entrenamiento",
         pleaseWait: "Por favor espera",
         notTrainedYet: "Aún no entrenado",
         backEndNotAvailable: "La función de casilla de verificación funcionará en la versión futura del servicio de reconocimiento de formularios, manténgase atento.",
+        addName:"Agregar nombre de modelo ...",
+    },
+    modelCompose: {
+        title: "Modelo componer",
+        columnAria: {
+            icon: "Modelo con icono es un nuevo modelo compuesto",
+        },
+        loading: "Cargando modelos...",
+        composing: "La modelo está componiendo, por favor espera ...",
+        column: {
+            icon: {
+                name: "Icono compuesto",
+            },
+            id: {
+                headerName: "ID del Modelo",
+                fieldName: "modelId",
+            },
+            name: {
+                headerName: "Nombre del Modelo",
+                fieldName: "modelName",
+            },
+            status: {
+                headerName: "Estado",
+                fieldName: "status",
+            },
+            created: {
+                headerName: "Creada",
+                fieldName: "created",
+            },
+            lastupdated: {
+                headerName: "Última Actualización",
+                fieldName: "lastUpdated",
+            },
+        },
+        modelView: {
+            titleAria: "Componer vista de modelo",
+            addComposeModelName: "Añadir componer el nombre de modelo ...",
+            NotEnoughModels: "Debe tener más de un modelo seleccionado para componer un nuevo modelo",
+        },
+        commandBar: {
+            ariaLabel: "Utilice la barra de comandos para componer modelos",
+            composeAria: "Componer modelo",
+            refreshAria: "Actualizar la lista",
+            filter: "Filtrar por nombre ...",
+        }
     },
     predict: {
         title: "Analizar",
@@ -291,6 +339,12 @@ export const spanish: IAppStrings = {
             title: "Abrir/cerrar el menú de ayuda",
             escape: "Escapar el menú de ayuda",
         },
+        asset: {
+            delete: {
+                title: "Eliminar documento",
+                confirmation: "Estás seguro de que quieres eliminar ",
+            }
+        },
         assetWarning: {
             incorrectFileExtension: {
                 attention: "¡Atención!",
@@ -319,6 +373,32 @@ export const spanish: IAppStrings = {
                 title: "Borrar Regiones",
                 confirmation: "¿Está seguro que quiere borrar todas las regiones?",
             },
+            canvasCommandBar: {
+                items: {
+                    layers:{
+                        text: "Capas",
+                        subMenuItems: {
+                            text: "Texto",
+                            tables: "Tablas",
+                            selectionMarks: "Marcas de selección (vista previa)",
+                            labels: "Etiquetas"
+                        },
+                    }
+                },
+                farItems: {
+                    zoom: {
+                        zoomOut: "Alejar",
+                        zoomIn: "Acercarse",
+                    },
+                    additionalActions: {
+                        text: "Acciones adicionales",
+                        subIMenuItems: {
+                            runOcrOnCurrentDocument: "Ejecutar OCR en el documento actual",
+                            runOcrOnAllDocuments: "Ejecute OCR en todos los documentos",
+                        }
+                    }
+                }
+            }
         },
         messages: {
             enforceTaggedRegions: {

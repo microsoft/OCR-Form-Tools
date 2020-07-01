@@ -16,7 +16,6 @@ import ConnectionForm from "./connectionForm";
 import ConnectionItem from "./connectionItem";
 import "./connectionsPage.scss";
 import { toast } from "react-toastify";
-import { SkipButton } from "../../shell/skipButton";
 
 /**
  * Properties for Connection Page
@@ -149,7 +148,9 @@ export default class ConnectionPage extends React.Component<IConnectionPageProps
 
     private onFormSubmit = async (connection: IConnection) => {
         try {
-            connection.providerOptions["sas"] = connection.providerOptions["sas"].trim();
+            if (connection.providerType === "azureBlobStorage") {
+                connection.providerOptions["sas"] = connection.providerOptions["sas"].trim();
+            }
             await this.props.actions.saveConnection(connection);
             toast.success(interpolate(strings.connections.messages.saveSuccess, { connection }));
 

@@ -117,11 +117,59 @@ export const english: IAppStrings = {
         },
     },
     train: {
+        modelNameTitle: "Model name",
+        labelFolderTitle: "Label folder URI",
+        defaultLabelFolderURL: "https://example.com/folder",
         title: "Train",
         training: "Training",
         pleaseWait: "Please wait",
         notTrainedYet: "Not trained yet",
         backEndNotAvailable: "Checkbox feature will work in future version of Form Recognizer service, please stay tuned.",
+        addName: "Add a model name...",
+    },
+    modelCompose: {
+        title: "Model compose",
+        columnAria: {
+            icon: "Model with icon is a new composed model",
+        },
+        loading: "Loading models...",
+        composing: "Model is composing, please wait...",
+        column: {
+            icon: {
+                name:"Composed Icon",
+            },
+            id: {
+                headerName: "Model Id",
+                fieldName: "modelId",
+            },
+            name: {
+                headerName: "Model Name",
+                fieldName: "modelName",
+            },
+            status: {
+                headerName: "Status",
+                fieldName: "status",
+            },
+            created: {
+                headerName: "Created",
+                fieldName: "created",
+            },
+            lastupdated: {
+                headerName: "Last Updated",
+                fieldName: "lastUpdated",
+            },
+        },
+        modelView: {
+            titleAria: "Compose Model View",
+            addComposeModelName: "Add compose model name...",
+            NotEnoughModels: " Should have at least more than one selected model to compose a new model",
+        },
+        commandBar: {
+            ariaLabel: "Please use command bar to compose models",
+            composeAria: "Compose Model",
+            refreshAria: "Refresh the list",
+            filter: "Filter by name...",
+        }
     },
     predict: {
         title: "Analyze",
@@ -242,10 +290,10 @@ export const english: IAppStrings = {
                 },
             },
             local: {
-                title: "Local File System",
-                folderPath: "Folder Path",
-                selectFolder: "Select Folder",
-                chooseFolder: "Choose Folder",
+                title: "Local file system",
+                folderPath: "Browse",
+                selectFolder: "Select folder",
+                chooseFolder: "Choose folder",
             },
         },
     },
@@ -285,6 +333,12 @@ export const english: IAppStrings = {
                 tooltip: "Next Frame",
             },
         },
+        asset: {
+            delete: {
+                title: "Delete document",
+                confirmation: "Are you sure you want to delete ",
+            }
+        },
         help: {
             title: "Toggle Help Menu",
             escape: "Escape Help Menu",
@@ -316,6 +370,32 @@ export const english: IAppStrings = {
                 title: "Remove All Regions",
                 confirmation: "Are you sure you want to remove all regions?",
             },
+            canvasCommandBar: {
+                items: {
+                    layers: {
+                        text: "Layers",
+                        subMenuItems: {
+                            text: "Text",
+                            tables: "Tables",
+                            selectionMarks: "Selection Marks (Preview)",
+                            labels: "Labels"
+                        },
+                    }
+                },
+                farItems: {
+                    zoom: {
+                        zoomOut: "Zoom out",
+                        zoomIn: "Zoom in",
+                    },
+                    additionalActions: {
+                        text: "Additional actions",
+                        subIMenuItems: {
+                            runOcrOnCurrentDocument: "Run OCR on current document",
+                            runOcrOnAllDocuments: "Run OCR on all documents",
+                        }
+                    }
+                }
+            }
         },
         messages: {
             enforceTaggedRegions: {

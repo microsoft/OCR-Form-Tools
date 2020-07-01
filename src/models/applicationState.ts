@@ -94,6 +94,7 @@ export interface IProject {
     apiKey?: string | ISecureString;
     folderPath: string;
     trainRecord: ITrainRecordProps;
+    predictModelId: string;
 }
 
 /**
@@ -302,6 +303,7 @@ export enum ErrorCode {
     HttpStatusNotFound = "notFound",
     HttpStatusTooManyRequests = "tooManyRequests",
     RequestSendError = "requestSendError",
+    ProjectUploadError = "ProjectUploadError",
 }
 
 /**

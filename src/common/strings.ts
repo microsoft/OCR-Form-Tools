@@ -117,12 +117,60 @@ export interface IAppStrings {
         },
     };
     train: {
+        modelNameTitle: string;
+        labelFolderTitle: string;
+        defaultLabelFolderURL: string;
         title: string;
         training: string;
         pleaseWait: string;
         notTrainedYet: string;
         backEndNotAvailable: string;
+        addName: string;
     };
+    modelCompose: {
+        title: string;
+        columnAria: {
+            icon: string;
+        }
+        loading: string;
+        composing: string;
+        column: {
+            icon: {
+                name: string;
+            }
+            id: {
+                headerName: string;
+                fieldName: string;
+            }
+            name: {
+                headerName: string;
+                fieldName: string;
+            }
+            status: {
+                headerName: string;
+                fieldName: string;
+            }
+            created: {
+                headerName: string;
+                fieldName: string;
+            }
+            lastupdated: {
+                headerName: string;
+                fieldName: string;
+            }
+        }
+        modelView: {
+            titleAria: string;
+            addComposeModelName: string;
+            NotEnoughModels: string;
+        }
+        commandBar: {
+            ariaLabel: string;
+            composeAria: string;
+            refreshAria: string;
+            filter: string;
+        }
+    }
     predict: {
         title: string;
         uploadFile: string;
@@ -286,6 +334,12 @@ export interface IAppStrings {
             title: string;
             escape: string;
         },
+        asset: {
+            delete: {
+                title: string;
+                confirmation: string;
+            }
+        },
         assetWarning: {
             incorrectFileExtension: {
                 attention: string,
@@ -312,6 +366,32 @@ export interface IAppStrings {
             removeAllRegions: {
                 title: string;
                 confirmation: string;
+            },
+            canvasCommandBar: {
+                items: {
+                    layers: {
+                        text: string,
+                        subMenuItems: {
+                            text: string,
+                            tables: string,
+                            selectionMarks: string;
+                            labels: string,
+                        }
+                    },
+                },
+                farItems: {
+                    zoom: {
+                        zoomOut: string,
+                        zoomIn: string,
+                    },
+                    additionalActions: {
+                        text: string,
+                        subIMenuItems: {
+                            runOcrOnCurrentDocument: string,
+                            runOcrOnAllDocuments: string,
+                        }
+                    }
+                }
             },
         },
         messages: {

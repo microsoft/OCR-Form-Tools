@@ -15,6 +15,7 @@ import { encodeFileURI } from "../common/utils";
 import { strings, interpolate } from "../common/strings";
 import { sha256Hash } from "../common/crypto";
 import { toast } from "react-toastify";
+import allSettled from "promise.allsettled"
 
 const supportedImageFormats = {
     jpg: null, jpeg: null, null: null, png: null, bmp: null, tif: null, tiff: null, pdf: null,
@@ -62,7 +63,7 @@ export class AssetService {
      * @param filePath - filepath of asset
      * @param fileName - name of asset
      */
-    public static async createAssetFromFilePath(filePath: string, fileName?: string): Promise<IAsset> {
+    public static async createAssetFromFilePath(filePath: string, fileName?: string, nodejsMode?: boolean): Promise<IAsset> {
         Guard.empty(filePath);
 
         const normalizedPath = filePath.toLowerCase();
@@ -76,7 +77,7 @@ export class AssetService {
             filePath = encodeFileURI(filePath, true);
         }
 
-        const hash = await sha256Hash(filePath);
+        const hash = await sha256Hash(filePath, nodejsMode);
         // eslint-disable-next-line
         const pathParts = filePath.split(/[\\\/]/);
         fileName = fileName || pathParts[pathParts.length - 1];
@@ -87,7 +88,14 @@ export class AssetService {
         let assetFormat = extensionParts[0].toLowerCase();
 
         if (supportedImageFormats.hasOwnProperty(assetFormat)) {
-            const types = await this.getMimeType(filePath);
+            let types;
+            if (nodejsMode) {
+                const FileType = require('file-type');
+                const fileType = await FileType.fromFile(normalizedPath);
+                types = [fileType.ext];
+            } else {
+                types = await this.getMimeType(filePath);
+            }
 
             // If file was renamed/spoofed - fix file extension to true MIME type and show message
             if (!types.includes(assetFormat)) {
@@ -203,6 +211,25 @@ export class AssetService {
         }).filter((asset) => this.isInExactFolderPath(asset.name, folderPath));
 
         return returnedAssets;
+    }
+
+    /**
+     * Delete asset
+     * @param metadata - Metadata for asset
+     */
+    public async delete(metadata: IAssetMetadata): Promise<void> {
+        Guard.null(metadata);
+
+        const labelFileName = decodeURIComponent(`${metadata.asset.name}${constants.labelFileExtension}`);
+        const ocrFileName = decodeURIComponent(`${metadata.asset.name}${constants.ocrFileExtension}`);
+        const assetFileName = decodeURIComponent(`${metadata.asset.name}`);
+        await allSettled(
+            [
+                this.storageProvider.deleteFile(labelFileName, true, true),
+                this.storageProvider.deleteFile(ocrFileName, true, true),
+                this.storageProvider.deleteFile(assetFileName, true, true)
+            ]
+        );
     }
 
     /**

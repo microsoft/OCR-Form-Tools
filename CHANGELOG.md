@@ -1,5 +1,21 @@
 # FoTT Changelog 
 
+## 2.1-preview.1-6114d64 (06-23-2020)
+* fix: update OCR version ([#335](https://github.com/microsoft/OCR-Form-Tools/commit/6114d6456b27a59335e534eef72cefd1b2f15737))
+* feat: support electron for on premise solution ([#333](https://github.com/microsoft/OCR-Form-Tools/commit/ca0bd0c2ab46b7b587e5bfbc60c29b62bb325297))
+
+## 2.1-preview.1-8297b18 (06-19-2020)
+* refactor: put api version in constants ([#332](https://github.com/microsoft/OCR-Form-Tools/commit/8297b18a084be86bc4c986a1a332cb40bd807d1b))
+
+## 2.1-preview.1-3b7f803 (06-18-2020)
+* feat: enable model compose (preview) ([#328](https://github.com/microsoft/OCR-Form-Tools/commit/3b7f803407b82191706120bb9f12b82de1955704))
+* fix: quick reordering tags ([#322](https://github.com/microsoft/OCR-Form-Tools/commit/3cc5267ef8617590adb3d4966f75cfed64604f00))
+* feat: localization for canvas commandbar items ([#319](https://github.com/microsoft/OCR-Form-Tools/commit/253b9c90eb4923e7fde015a7216905fa32a8dcfa))
+* feat: enable re-run OCR ([#297](https://github.com/microsoft/OCR-Form-Tools/commit/cbe9b0ed1c48f54c100b31b7f04706a969df2dd5))
+* fix: capitalize python in analyze page ([#320](https://github.com/microsoft/OCR-Form-Tools/commit/96626636a96a3d19030df283ac794fa9c2aab18c))
+* fix: fix spelling correction for string match ([#318](https://github.com/microsoft/OCR-Form-Tools/commit/28e53cefcf0bb462d547d6e38b24c480c03b946f))
+* feature: keep prediction in UI ([#285](https://github.com/microsoft/OCR-Form-Tools/commit/dad98b9bd1d305a6bfeb2846ef4067da186ff801))
+
 ## 2.0.0-1c39800 (06-05-2020)
 * feat: add description - how to delete info ([#292](https://github.com/microsoft/OCR-Form-Tools/commit/1c39800b1152f186dfc19834bb969abbc4fe0ac2))
 * feat: enable download analyze script ([#304](https://github.com/microsoft/OCR-Form-Tools/commit/9c97ed0ff9b0aa72ec9a197fc92f3a5998135c36))

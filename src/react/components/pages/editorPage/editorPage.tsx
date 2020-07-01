@@ -37,7 +37,6 @@ import { constants } from "../../../../common/constants";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
 import { getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/themes";
-import { SkipButton } from "../../shell/skipButton";
 
 /**
  * Properties for Editor Page
@@ -138,6 +137,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private renameTagConfirm: React.RefObject<Confirm> = React.createRef();
     private renameCanceled: () => void;
     private deleteTagConfirm: React.RefObject<Confirm> = React.createRef();
+    private deleteDocumentConfirm: React.RefObject<Confirm> = React.createRef();
     private isUnmount: boolean = false;
 
     constructor(props) {
@@ -221,7 +221,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                 theme={getPrimaryGreenTheme()}
                                 className="editor-page-sidebar-run-ocr"
                                 type="button"
-                                onClick={this.loadAllOCRs}
+                                onClick={() => this.loadOcrForNotVisited()}
                                 disabled={this.state.isRunningOCRs}>
                                 {this.state.isRunningOCRs ?
                                     <div>
@@ -231,7 +231,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             ariaLive="off"
                                             labelPosition="right"
                                         />
-                                    </div> : "Run OCR on all files"
+                                    </div> : "Run OCR on unvisited documents"
                                 }
                             </PrimaryButton>
                         </div>}
@@ -264,12 +264,14 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             onSelectedRegionsChanged={this.onSelectedRegionsChanged}
                                             onRunningOCRStatusChanged={this.onCanvasRunningOCRStatusChanged}
                                             onTagChanged={this.onTagChanged}
+                                            onAssetDeleted={this.confirmDocumentDeleted}
                                             editorMode={this.state.editorMode}
                                             project={this.props.project}
                                             lockedTags={this.state.lockedTags}
                                             hoveredLabel={this.state.hoveredLabel}
                                             setTableToView={this.setTableToView}
-                                            closeTableView={this.closeTableView}>
+                                            closeTableView={this.closeTableView}
+                                            runOcrForAllDocs={this.loadOcrForNotVisited}>
                                             <AssetPreview
                                                 controlsEnabled={this.state.isValid}
                                                 onBeforeAssetChanged={this.onBeforeAssetSelected}
@@ -296,18 +298,34 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     onTagChanged={this.onTagChanged}
                                     ref = {this.tagInputRef}
                                 />
-                                <Confirm title={strings.editorPage.tags.rename.title}
-                                ref={this.renameTagConfirm}
-                                message={strings.editorPage.tags.rename.confirmation}
-                                confirmButtonTheme={getPrimaryRedTheme()}
-                                onCancel={this.onTagRenameCanceled}
-                                onConfirm={this.onTagRenamed} />
-                                <Confirm title={strings.editorPage.tags.delete.title}
+                                <Confirm
+                                    title={strings.editorPage.tags.rename.title}
+                                    ref={this.renameTagConfirm}
+                                    message={strings.editorPage.tags.rename.confirmation}
+                                    confirmButtonTheme={getPrimaryRedTheme()}
+                                    onCancel={this.onTagRenameCanceled}
+                                    onConfirm={this.onTagRenamed}
+                                />
+                                <Confirm
+                                    title={strings.editorPage.tags.delete.title}
                                     ref={this.deleteTagConfirm}
                                     message={strings.editorPage.tags.delete.confirmation}
                                     confirmButtonTheme={getPrimaryRedTheme()}
-                                    onConfirm={this.onTagDeleted} />
-                            </div>
+                                    onConfirm={this.onTagDeleted}
+                                />
+                                {this.state.selectedAsset &&
+                                    <Confirm
+                                        title={strings.editorPage.asset.delete.title}
+                                        ref={this.deleteDocumentConfirm}
+                                        message={
+                                                    strings.editorPage.asset.delete.confirmation +
+                                                    "\"" + this.state.selectedAsset.asset.name + "\"?"
+                                                }
+                                        confirmButtonTheme={getPrimaryRedTheme()}
+                                        onConfirm={this.onAssetDeleted}
+                                    />
+                                }
+                          </div>
                         </SplitPane>
                     </div>
                 </SplitPane>
@@ -420,6 +438,13 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      */
     private confirmTagDeleted = (tagName: string): void => {
         this.deleteTagConfirm.current.open(tagName);
+    }
+
+    /**
+     * Open Confirm dialog for document deletion
+     */
+    private confirmDocumentDeleted = (): void => {
+        this.deleteDocumentConfirm.current.open();
     }
 
     /**
@@ -629,11 +654,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         });
     }
 
-    private loadAllOCRs = async () => {
+    public loadOcrForNotVisited = async (runForAll?: boolean) => {
         if (this.state.isRunningOCRs) {
             return;
         }
-
         const { project } = this.props;
         const ocrService = new OCRService(project);
         if (this.state.assets) {
@@ -641,14 +665,16 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             try {
                 await throttle(
                     constants.maxConcurrentServiceRequests,
-                    this.state.assets.filter((asset) => asset.state === AssetState.NotVisited).map((asset) => asset.id),
+                    this.state.assets
+                        .filter((asset) => runForAll ? asset : asset.state === AssetState.NotVisited)
+                        .map((asset) => asset.id),
                     async (assetId) => {
                         // Get the latest version of asset.
                         const asset = this.state.assets.find((asset) => asset.id === assetId);
-                        if (asset && asset.state === AssetState.NotVisited) {
+                        if (asset && (asset.state === AssetState.NotVisited || runForAll)) {
                             try {
                                 this.updateAssetState(asset.id, true);
-                                await ocrService.getRecognizedText(asset.path, asset.name);
+                                await ocrService.getRecognizedText(asset.path, asset.name, undefined, runForAll);
                                 this.updateAssetState(asset.id, false, AssetState.Visited);
                             } catch (err) {
                                 this.updateAssetState(asset.id, false);
@@ -659,7 +685,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                 });
                             }
                         }
-                });
+                    }
+                );
             } finally {
                 this.setState({ isRunningOCRs: false });
             }
@@ -726,6 +753,12 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     private onFocused = () => {
         this.loadProjectAssets();
+    }
+
+    private onAssetDeleted = () => {
+        this.props.actions.deleteAsset(this.props.project, this.state.selectedAsset).then(() => {
+            this.loadProjectAssets();
+        });
     }
 
     private onTagChanged = async (oldTag: ITag, newTag: ITag) => {

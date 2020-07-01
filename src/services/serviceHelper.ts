@@ -6,6 +6,7 @@ import { AppError, ErrorCode } from "../models/applicationState";
 import { delay } from "../common/utils";
 import axios, { AxiosRequestConfig, AxiosPromise } from "axios";
 import { strings } from "../common/strings";
+import { toast } from "react-toastify";
 
 export default class ServiceHelper {
     public static handleServiceError = (err: any) => {
@@ -49,6 +50,7 @@ export default class ServiceHelper {
             }
         } else {
             // Network Error
+            toast.warn("Over rate limitation, please try again later",{autoClose: 10000})
             throw new AppError(
                 ErrorCode.HttpStatusNotFound,
                 "Cannot resolve the host name. Please make sure the service endpoint is correct.",

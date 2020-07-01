@@ -32,7 +32,9 @@ export class OCRService {
     public async getRecognizedText(
         filePath: string,
         fileName: string,
-        onStatusChanged?: (ocrStatus: OcrStatus) => void): Promise<any> {
+        onStatusChanged?: (ocrStatus: OcrStatus) => void,
+        rewrite?: boolean
+    ): Promise<any> {
         Guard.empty(filePath);
         Guard.empty(this.project.apiUriBase);
 
@@ -43,7 +45,7 @@ export class OCRService {
         try {
             notifyStatusChanged(OcrStatus.loadingFromAzureBlob);
             ocrJson = await this.readOcrFile(ocrFileName);
-            if (!this.isValidOcrFormat(ocrJson)) {
+            if (!this.isValidOcrFormat(ocrJson) || rewrite) {
                 ocrJson = await this.fetchOcrUriResult(filePath, ocrFileName);
             }
         } catch (e) {
@@ -52,7 +54,6 @@ export class OCRService {
         } finally {
             notifyStatusChanged(OcrStatus.done);
         }
-
         return ocrJson;
     }
 
@@ -81,10 +82,28 @@ export class OCRService {
 
     private fetchOcrUriResult = async (filePath: string, ocrFileName: string) => {
         try {
-            const headers = { "Content-Type": "application/json" };
+            let body;
+            let headers;
+            if (filePath.startsWith("file:")) {
+                const splitFilePath = filePath.split("/")
+                const fileName = splitFilePath[splitFilePath.length - 1];
+                const bodyAndType = await Promise.all(
+                    [
+                        this.storageProvider.readBinary(decodeURI(fileName)),
+                        this.storageProvider.getFileType(decodeURI(fileName))
+                    ]
+                );
+                body = bodyAndType[0];
+                const fileType = bodyAndType[1].mime;
+                headers = { "Content-Type": fileType, "cache-control": "no-cache" };
+            }
+            else {
+                body = { url: filePath };
+                headers = { "Content-Type": "application/json" };
+            }
             const response = await ServiceHelper.postWithAutoRetry(
-                this.project.apiUriBase + "/formrecognizer/v2.0-preview/layout/analyze",
-                { url: filePath },
+                this.project.apiUriBase + `/formrecognizer/${constants.apiVersion}/layout/analyze`,
+                body,
                 { headers },
                 this.project.apiKey as string,
             );

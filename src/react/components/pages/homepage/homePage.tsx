@@ -12,6 +12,7 @@ import IProjectActions, * as projectActions from "../../../../redux/actions/proj
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import { CloudFilePicker } from "../../common/cloudFilePicker/cloudFilePicker";
+import FilePicker from "../../common/filePicker/filePicker";
 import CondensedList from "../../common/condensedList/condensedList";
 import Confirm from "../../common/confirm/confirm";
 import "./homePage.scss";
@@ -24,7 +25,7 @@ import {
 import { StorageProviderFactory } from "../../../../providers/storage/storageProviderFactory";
 import { decryptProject } from "../../../../common/utils";
 import { toast } from "react-toastify";
-import { SkipButton } from "../../shell/skipButton";
+import { isElectron } from "../../../../common/hostProcess";
 
 export interface IHomePageProps extends RouteComponentProps, React.Props<HomePage> {
     recentProjects: IProject[];
@@ -64,9 +65,11 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
         cloudPickerOpen: false,
     };
 
+    private filePicker: React.RefObject<FilePicker> = React.createRef();
     private newProjectRef = React.createRef<HTMLAnchorElement>();
     private deleteConfirmRef = React.createRef<Confirm>();
     private cloudFilePickerRef = React.createRef<CloudFilePicker>();
+    private importConfirmRef: React.RefObject<Confirm> = React.createRef();
 
     public async componentDidMount() {
         this.props.appTitleActions.setTitle("Welcome");
@@ -92,6 +95,18 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                                 <div>{strings.homePage.newProject}</div>
                             </a>
                         </li>
+                        {isElectron() &&
+                            <li>
+                                <a href="#" className="p-5 file-upload"
+                                    onClick={() => this.filePicker.current.upload()} >
+                                    <FontIcon iconName="System" className="icon-9x" />
+                                    <h6>{strings.homePage.openLocalProject.title}</h6>
+                                </a>
+                                <FilePicker ref={this.filePicker}
+                                    onChange={this.onProjectFileUpload}
+                                    onError={this.onProjectFileUploadError} />
+                            </li>
+                        }
                         <li>
                             {/*Open Cloud Project*/}
                             {/* eslint-disable-next-line */}
@@ -184,5 +199,31 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
 
     private deleteProject = async (project: IProject) => {
         await this.props.actions.deleteProject(project);
+    }
+
+    private onProjectFileUpload = async (e, project) => {
+        let projectJson: IProject;
+
+        try {
+            projectJson = JSON.parse(project.content);
+        } catch (error) {
+            throw new AppError(ErrorCode.ProjectInvalidJson, "Error parsing JSON");
+        }
+
+        if (projectJson.name === null || projectJson.name === undefined) {
+            try {
+                await this.importConfirmRef.current.open(project);
+            } catch (e) {
+                throw new Error(e.message);
+            }
+        } else {
+            await this.loadSelectedProject(projectJson);
+        }
+    }
+
+    private onProjectFileUploadError = (e, error: any) => {
+        if (error instanceof AppError) {
+            throw error;
+        }
     }
 }
