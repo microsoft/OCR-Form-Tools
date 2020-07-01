@@ -304,14 +304,14 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     message={strings.editorPage.tags.rename.confirmation}
                                     confirmButtonTheme={getPrimaryRedTheme()}
                                     onCancel={this.onTagRenameCanceled}
-                                    onConfirm={this.onTagRenamed} 
+                                    onConfirm={this.onTagRenamed}
                                 />
                                 <Confirm
                                     title={strings.editorPage.tags.delete.title}
                                     ref={this.deleteTagConfirm}
                                     message={strings.editorPage.tags.delete.confirmation}
                                     confirmButtonTheme={getPrimaryRedTheme()}
-                                    onConfirm={this.onTagDeleted} 
+                                    onConfirm={this.onTagDeleted}
                                 />
                                 {this.state.selectedAsset &&
                                     <Confirm
