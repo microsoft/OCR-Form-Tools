@@ -1,5 +1,32 @@
 # Test Runbook
 
+ ## Feat: support distributable releasing
+
+> ### Feature description ###
+- Support distributable releasing for Windows, Mac, and Linux
+
+> ### Use Case ###
+
+**As** a user  
+**I want** to release my project as a distributable  
+**So** I can easily set up FOTT
+
+> ### Acceptance criteria ###
+
+#### Scenario One ####
+
+**Given** I've updated dependencies.  
+**When** I run `yarn release`.  
+**Then** a distributable installer should be created in the releases folder.
+
+#### Scenario Two ####
+
+**Given** I've created a distributable installer.  
+**When** I execute the installer.  
+**Then** a the FOTT desktop application should install and run as expected.
+
+___
+
 ## Feat: support document management
 
 > ### Feature description ###
@@ -10,8 +37,6 @@
 **As** a user  
 **I want** to delete a document and it's files through FOTT  
 **So** I don't have to delete the document through a storage provider
-
-> ### Acceptance criteria ###
 
 #### Scenario One ####
 

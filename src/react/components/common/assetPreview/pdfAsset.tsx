@@ -7,7 +7,6 @@ import * as pdfjsLib from "pdfjs-dist";
 import { constants } from "../../../../common/constants";
 import {resizeCanvas} from "../../../../common/utils";
 
-// temp hack for enabling worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 
 export interface IPDFAssetState {

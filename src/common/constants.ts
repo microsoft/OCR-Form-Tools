@@ -3,8 +3,10 @@
 
 import { appInfo } from "./appInfo"
 
+const appVersionArr = appInfo.version.split(".");
+appVersionArr[1] = appVersionArr[1] + "-preview";
+const appVersion = appVersionArr.join(".");
 
-const appVersion = "2.1-preview.1";
 const apiVersion = "v2.1-preview.1";
 
 /**
@@ -34,10 +36,10 @@ export const constants = {
     apiModelsPath: `/formrecognizer/${apiVersion}/custom/models`,
 
     pdfjsWorkerSrc(version: string) {
-        return `//fotts.azureedge.net/npm/pdfjs-dist/${version}/pdf.worker.js`;
+        return `http://fotts.azureedge.net/npm/pdfjs-dist/${version}/pdf.worker.js`;
     },
 
     pdfjsCMapUrl(version: string) {
-        return `//fotts.azureedge.net/npm/pdfjs-dist/${version}/cmaps/`;
+        return `http://fotts.azureedge.net/npm/pdfjs-dist/${version}/cmaps/`;
     },
 };
