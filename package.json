@@ -1,6 +1,6 @@
 {
     "name": "oflt",
-    "version": "2.0.0",
+    "version": "2.1.1",
     "author": {
         "name": "Microsoft",
         "url": "https://github.com/microsoft/OCR-Form-Tools"
@@ -23,6 +23,7 @@
         "exif-js": "^2.3.0",
         "lodash": "^4.17.15",
         "ol": "^5.3.3",
+        "promise.allsettled": "^1.0.2",
         "rc-align": "^2.4.5",
         "rc-checkbox": "^2.1.8",
         "react": "^16.13.1",

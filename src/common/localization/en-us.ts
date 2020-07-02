@@ -132,7 +132,7 @@ export const english: IAppStrings = {
         columnAria: {
             icon: "Model with icon is a new composed model",
         },
-        loading: "Model is loading...",
+        loading: "Loading models...",
         composing: "Model is composing, please wait...",
         modelView: {
             titleAria: "Compose Model View",
@@ -143,7 +143,7 @@ export const english: IAppStrings = {
             ariaLabel: "Please use command bar to compose models",
             composeAria: "Compose Model",
             refreshAria: "Refresh the list",
-            filter: "Filter By Name...",
+            filter: "Filter by name...",
         }
     },
     column: {
@@ -346,6 +346,12 @@ export const english: IAppStrings = {
             nextExpectedFrame: {
                 tooltip: "Next Frame",
             },
+        },
+        asset: {
+            delete: {
+                title: "Delete document",
+                confirmation: "Are you sure you want to delete ",
+            }
         },
         help: {
             title: "Toggle Help Menu",

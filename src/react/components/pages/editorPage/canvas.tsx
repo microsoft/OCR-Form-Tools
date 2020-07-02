@@ -52,6 +52,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onCanvasRendered?: (canvas: HTMLCanvasElement) => void;
     onRunningOCRStatusChanged?: (isRunning: boolean) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
+    onAssetDeleted?: () => void;
     runOcrForAllDocs?: (runForAllDocs:boolean) => void;
 }
 
@@ -214,6 +215,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleZoomOut={this.handleCanvasZoomOut}
                     layers={this.state.layers}
                     handleRunOcr={this.runOcr}
+                    handleAssetDeleted={this.props.onAssetDeleted}
                     handleRunOcrForAllDocuments={this.runOcrForAllDocuments}
                 />
                 <ImageMap

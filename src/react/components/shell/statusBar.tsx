@@ -3,7 +3,7 @@
 
 import React from "react";
 import { FontIcon } from "@fluentui/react";
-import { appInfo } from "../../../common/appInfo";
+import { constants } from "../../../common/constants";
 import "./statusBar.scss";
 
 export class StatusBar extends React.Component {
@@ -16,7 +16,7 @@ export class StatusBar extends React.Component {
                         <li>
                             <a href="https://github.com/microsoft/OCR-Form-Tools/blob/master/CHANGELOG.md" target="blank" rel="noopener noreferrer">
                                 <FontIcon iconName="BranchMerge" />
-                                <span>{appInfo.version}-3b7f803</span>
+                                <span>{constants.appVersion}-6114d64</span>
                             </a>
                         </li>
                     </ul>
