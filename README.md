@@ -46,13 +46,15 @@ Using a modern Web browser, FOTT can be run directly at: https://fott.azurewebsi
 
 ### Run as desktop application
 
-Using the installed dependency Electron, FOTT can be run as a desktop application after initial set up. 
+FOTT can be run as a desktop application after initial set up.
 
    ```bash
     yarn electron-start
    ```
 
-**Note: currently, only Electron v3.1.13 is supported.**
+The desktop application has additional features, such as:
+- Support for local file system as provider storage
+- Support for cross-domain resource requests
 
 ### Release as desktop application
 
