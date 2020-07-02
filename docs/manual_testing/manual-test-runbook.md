@@ -1,5 +1,26 @@
 # Test Runbook
 
+## Feat: support document management
+
+> ### Feature description ###
+- Add menu item to canvas command bar for deleting documents
+
+> ### Use Case ###
+
+**As** a user  
+**I want** to delete a document and it's files through FOTT  
+**So** I don't have to delete the document through a storage provider
+
+> ### Acceptance criteria ###
+
+#### Scenario One ####
+
+**Given** I've selected a document in the editor page.  
+**When** I click the overflow menu item on the canvas command bar and then click "Delete document."  
+**Then** FoTT should delete the document in the storage provider, remove it from FOTT's current project, and select the project's first document.  
+
+___
+
 ## Feat: support Electron for on premise solution
 
 > ### Feature description ###

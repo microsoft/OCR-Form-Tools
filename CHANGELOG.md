@@ -1,5 +1,11 @@
 # FoTT Changelog 
 
+## 2.1-preview.1-978dabc (07-01-2020)
+* feat: support document managment ([#374](https://github.com/microsoft/OCR-Form-Tools/commit/978dabc3ba877ed4215865cba2a583fb785a2894))
+
+## 2.1-preview.1-56a4b89 (06-30-2020)
+* fix: wait until composed model is ready ([#369](https://github.com/microsoft/OCR-Form-Tools/commit/56a4b89f370f2fd72c6bc275376205e7fffe6a9e))
+
 ## 2.1-preview.1-6114d64 (06-23-2020)
 * fix: update OCR version ([#335](https://github.com/microsoft/OCR-Form-Tools/commit/6114d6456b27a59335e534eef72cefd1b2f15737))
 * feat: support electron for on premise solution ([#333](https://github.com/microsoft/OCR-Form-Tools/commit/ca0bd0c2ab46b7b587e5bfbc60c29b62bb325297))
