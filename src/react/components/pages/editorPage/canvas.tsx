@@ -60,6 +60,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
     runOcrForAllDocs?: (runForAllDocs: boolean) => void;
     shareProject?: () => void;
+    onAssetDeleted?: () => void;
 }
 
 export interface ICanvasState {
@@ -230,6 +231,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleZoomOut={this.handleCanvasZoomOut}
                     layers={this.state.layers}
                     handleRunOcr={this.runOcr}
+                    handleAssetDeleted={this.props.onAssetDeleted}
                     handleRunOcrForAllDocuments={this.runOcrForAllDocuments}
                     handleShareProject={this.shareProject}
                     connectionType={this.props.project.sourceConnection.providerType}

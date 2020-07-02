@@ -13,6 +13,7 @@ interface ICanvasCommandBarProps {
     handleLayerChange: (layer: string) => void;
     handleShareProject: () => void;
     connectionType: string;
+    handleAssetDeleted?: () => void;
     layers: any;
 }
 
@@ -120,6 +121,16 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         iconProps: { iconName: "Documentation" },
                         onClick: () => props.handleRunOcrForAllDocuments(),
                     },
+                    {
+                      key: 'divider_1',
+                      itemType: ContextualMenuItemType.Divider,
+                    },
+                    {
+                      key: "deleteAsset",
+                      text: strings.editorPage.asset.delete.title,
+                      iconProps: { iconName: "Delete" },
+                      onClick: () => props.handleAssetDeleted(),
+                    }
                 ],
             },
         },
