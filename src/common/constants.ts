@@ -24,6 +24,7 @@ export const constants = {
     fieldsFileName: "fields.json",
     maxConcurrentServiceRequests: 3,
     statusCodeSucceeded: "succeeded",
+    statusCodeReady: "ready",
     statusCodeFailed: "failed",
     apiKeyHeader: "Ocp-Apim-Subscription-Key",
     maxRetry: 8,
@@ -34,4 +35,11 @@ export const constants = {
 
     apiModelsPath: `/formrecognizer/${apiVersion}/custom/models`,
 
+    pdfjsWorkerSrc(version: string) {
+        return `http://fotts.azureedge.net/npm/pdfjs-dist/${version}/pdf.worker.js`;
+    },
+
+    pdfjsCMapUrl(version: string) {
+        return `http://fotts.azureedge.net/npm/pdfjs-dist/${version}/cmaps/`;
+    },
 };

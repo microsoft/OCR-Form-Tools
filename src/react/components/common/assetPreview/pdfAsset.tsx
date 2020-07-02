@@ -3,9 +3,11 @@
 
 import React from "react";
 import { IAssetPreviewProps } from "./assetPreview";
-import * as pdfjsLib from "pdfjs-dist/webpack";
+import * as pdfjsLib from "pdfjs-dist";
 import { constants } from "../../../../common/constants";
 import {resizeCanvas} from "../../../../common/utils";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 
 export interface IPDFAssetState {
     imageUri: string;

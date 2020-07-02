@@ -19,7 +19,7 @@ import Stroke from "ol/style/Stroke";
 import Fill from "ol/style/Fill";
 import PredictResult from "./predictResult";
 import _ from "lodash";
-import pdfjsLib from "pdfjs-dist/webpack";
+import pdfjsLib from "pdfjs-dist";
 import Alert from "../../common/alert/alert";
 import url from "url";
 import HtmlFileReader from "../../../../common/htmlFileReader";
@@ -33,6 +33,9 @@ import { constants } from "../../../../common/constants";
 import { getPrimaryGreenTheme, getPrimaryWhiteTheme,
          getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
 import axios from "axios";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
+const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
 
 export interface IPredictPageProps extends RouteComponentProps, React.Props<PredictPage> {
     recentProjects: IProject[];
@@ -748,7 +751,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
         fileReader.onload = (e: any) => {
             const typedArray = new Uint8Array(e.target.result);
-            const loadingTask = pdfjsLib.getDocument({data: typedArray, cMapPacked: true});
+            const loadingTask = pdfjsLib.getDocument({data: typedArray, cMapUrl, cMapPacked: true});
             loadingTask.promise.then((pdf) => {
                 this.currPdf = pdf;
                 this.loadPdfPage(pdf, this.state.currPage);

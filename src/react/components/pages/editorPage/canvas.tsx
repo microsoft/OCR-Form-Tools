@@ -27,13 +27,16 @@ import { KeyboardBinding } from "../../common/keyboardBinding/keyboardBinding";
 import { KeyEventType } from "../../common/keyboardManager/keyboardManager";
 import _ from "lodash";
 import Alert from "../../common/alert/alert";
-import * as pdfjsLib from "pdfjs-dist/webpack";
+import * as pdfjsLib from "pdfjs-dist";
 import Polygon from "ol/geom/Polygon";
 import HtmlFileReader from "../../../../common/htmlFileReader";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./canvasCommandBar";
 import { TooltipHost, ITooltipHostStyles } from "@fluentui/react";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
+const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
 
 export interface ICanvasProps extends React.Props<Canvas> {
     selectedAsset: IAssetMetadata;
@@ -49,6 +52,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onCanvasRendered?: (canvas: HTMLCanvasElement) => void;
     onRunningOCRStatusChanged?: (isRunning: boolean) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
+    onAssetDeleted?: () => void;
     runOcrForAllDocs?: (runForAllDocs:boolean) => void;
 }
 
@@ -211,6 +215,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleZoomOut={this.handleCanvasZoomOut}
                     layers={this.state.layers}
                     handleRunOcr={this.runOcr}
+                    handleAssetDeleted={this.props.onAssetDeleted}
                     handleRunOcrForAllDocuments={this.runOcrForAllDocuments}
                 />
                 <ImageMap
@@ -998,7 +1003,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private loadPdfFile = async (assetId, url) => {
         try {
-            const pdf = await pdfjsLib.getDocument({url, cMapPacked: true}).promise;
+            const pdf = await pdfjsLib.getDocument({url, cMapUrl, cMapPacked: true}).promise;
             // Fetch current page
             if (assetId === this.state.currentAsset.asset.id) {
                 await this.loadPdfPage(assetId, pdf, this.state.currentPage);

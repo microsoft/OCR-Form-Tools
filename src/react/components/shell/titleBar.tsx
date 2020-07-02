@@ -9,14 +9,19 @@ import { PlatformType, isElectron } from "../../../common/hostProcess";
 import { getLightGreyTheme, getSubMenuTheme } from "../../../common/themes";
 import "./titleBar.scss";
 
+const isElectronCheck = isElectron();
+const platform = global && global.process && global.process.platform ? global.process.platform : PlatformType.Web;
+const isMac = platform === "darwin";
+const isLinux = platform === "linux";
+const isElectronAndNotMacOrLinux = isElectronCheck && !(isMac || isLinux);
+const isNotElectronAndMacOrLinux = !(isElectronCheck && (isMac || isLinux));
+
 export interface ITitleBarProps extends React.Props<TitleBar> {
     icon?: string | JSX.Element;
     title?: string;
 }
 
 export interface ITitleBarState {
-    isElectron: boolean;
-    platform: string;
     maximized: boolean;
     fullscreen: boolean;
     menu: Electron.Menu;
@@ -31,21 +36,16 @@ function mapStateToProps(state: IApplicationState) {
 @connect(mapStateToProps, null)
 export class TitleBar extends React.Component<ITitleBarProps, ITitleBarState> {
     public state: ITitleBarState = {
-        isElectron: false,
-        platform: global && global.process && global.process.platform ? global.process.platform : PlatformType.Web,
         maximized: false,
         fullscreen: false,
         menu: null,
     };
 
-    private isElectron: boolean;
     private remote: Electron.Remote;
     private currentWindow: Electron.BrowserWindow;
 
     public componentDidMount() {
-        this.isElectron = isElectron();
-
-        if (this.isElectron) {
+        if (isElectronCheck) {
             this.remote = window.require("electron").remote as Electron.Remote;
             this.currentWindow = this.remote.getCurrentWindow();
             this.currentWindow.on("maximize", () => this.onMaximize(true));
@@ -106,11 +106,13 @@ export class TitleBar extends React.Component<ITitleBarProps, ITitleBarState> {
 
         return (
             <div className="title-bar bg-lighter-3">
-                <div className="title-bar-icon">
-                    {typeof (this.props.icon) === "string" && <FontIcon iconName={this.props.icon} />}
-                    {typeof (this.props.icon) !== "string" && this.props.icon}
-                </div>
-                {this.isElectron &&
+                {isNotElectronAndMacOrLinux &&
+                    <div className="title-bar-icon">
+                        {typeof (this.props.icon) === "string" && <FontIcon iconName={this.props.icon} />}
+                        {typeof (this.props.icon) !== "string" && this.props.icon}
+                    </div>
+                }
+                {isElectronAndNotMacOrLinux &&
                     <Customizer {...titleBarTheme}>
                         <OverflowSet
                             role="menubar"
@@ -123,7 +125,7 @@ export class TitleBar extends React.Component<ITitleBarProps, ITitleBarState> {
                 <div className="title-bar-main">{this.props.title || "Welcome"}</div>
                 <div className="title-bar-controls">
                     {this.props.children}
-                    {this.isElectron &&
+                    {isElectronAndNotMacOrLinux &&
                         [
                             <Separator vertical key="seperator" className="mr-2 ml-2"/>,
                             <div key="minimizeDiv">

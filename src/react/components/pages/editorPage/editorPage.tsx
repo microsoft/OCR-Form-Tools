@@ -137,6 +137,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private renameTagConfirm: React.RefObject<Confirm> = React.createRef();
     private renameCanceled: () => void;
     private deleteTagConfirm: React.RefObject<Confirm> = React.createRef();
+    private deleteDocumentConfirm: React.RefObject<Confirm> = React.createRef();
     private isUnmount: boolean = false;
 
     constructor(props) {
@@ -263,6 +264,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             onSelectedRegionsChanged={this.onSelectedRegionsChanged}
                                             onRunningOCRStatusChanged={this.onCanvasRunningOCRStatusChanged}
                                             onTagChanged={this.onTagChanged}
+                                            onAssetDeleted={this.confirmDocumentDeleted}
                                             editorMode={this.state.editorMode}
                                             project={this.props.project}
                                             lockedTags={this.state.lockedTags}
@@ -296,18 +298,34 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     onTagChanged={this.onTagChanged}
                                     ref = {this.tagInputRef}
                                 />
-                                <Confirm title={strings.editorPage.tags.rename.title}
-                                ref={this.renameTagConfirm}
-                                message={strings.editorPage.tags.rename.confirmation}
-                                confirmButtonTheme={getPrimaryRedTheme()}
-                                onCancel={this.onTagRenameCanceled}
-                                onConfirm={this.onTagRenamed} />
-                                <Confirm title={strings.editorPage.tags.delete.title}
+                                <Confirm
+                                    title={strings.editorPage.tags.rename.title}
+                                    ref={this.renameTagConfirm}
+                                    message={strings.editorPage.tags.rename.confirmation}
+                                    confirmButtonTheme={getPrimaryRedTheme()}
+                                    onCancel={this.onTagRenameCanceled}
+                                    onConfirm={this.onTagRenamed}
+                                />
+                                <Confirm
+                                    title={strings.editorPage.tags.delete.title}
                                     ref={this.deleteTagConfirm}
                                     message={strings.editorPage.tags.delete.confirmation}
                                     confirmButtonTheme={getPrimaryRedTheme()}
-                                    onConfirm={this.onTagDeleted} />
-                            </div>
+                                    onConfirm={this.onTagDeleted}
+                                />
+                                {this.state.selectedAsset &&
+                                    <Confirm
+                                        title={strings.editorPage.asset.delete.title}
+                                        ref={this.deleteDocumentConfirm}
+                                        message={
+                                                    strings.editorPage.asset.delete.confirmation +
+                                                    "\"" + this.state.selectedAsset.asset.name + "\"?"
+                                                }
+                                        confirmButtonTheme={getPrimaryRedTheme()}
+                                        onConfirm={this.onAssetDeleted}
+                                    />
+                                }
+                          </div>
                         </SplitPane>
                     </div>
                 </SplitPane>
@@ -420,6 +438,13 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      */
     private confirmTagDeleted = (tagName: string): void => {
         this.deleteTagConfirm.current.open(tagName);
+    }
+
+    /**
+     * Open Confirm dialog for document deletion
+     */
+    private confirmDocumentDeleted = (): void => {
+        this.deleteDocumentConfirm.current.open();
     }
 
     /**
@@ -728,6 +753,12 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     private onFocused = () => {
         this.loadProjectAssets();
+    }
+
+    private onAssetDeleted = () => {
+        this.props.actions.deleteAsset(this.props.project, this.state.selectedAsset).then(() => {
+            this.loadProjectAssets();
+        });
     }
 
     private onTagChanged = async (oldTag: ITag, newTag: ITag) => {
