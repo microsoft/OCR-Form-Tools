@@ -18,7 +18,7 @@
 .train-page-menu {
     display: flex;
     width: 400px;
-    overflow-y: scroll;
+    overflow: auto;
 }
 
 .train-message {
