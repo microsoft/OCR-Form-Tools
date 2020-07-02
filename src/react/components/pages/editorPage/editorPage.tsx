@@ -337,6 +337,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             namedItems={formattedItems}
                                             lockedTags={this.state.lockedTags}
                                             selectedRegions={this.state.selectedRegions}
+                                            selectedGenerator={this.getSelectedGenerator()}
                                             labels={labels}
                                             onChange={this.onTagsChanged}
                                             onLockedTagsChange={this.onLockedTagsChanged}

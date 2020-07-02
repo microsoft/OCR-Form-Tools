@@ -29,7 +29,7 @@ import { SkipButton } from "../../shell/skipButton";
 import { AssetService } from "../../../../services/assetService";
 import ProjectService from "../../../../services/projectService";
 import Guard from "../../../../common/guard";
-import { generate, generatorInfoToLabel, generatorInfoToOCRLines, IGeneratedInfo, matchBboxToOcr, isBoxCenterInBbox, fuzzyScaledBboxEqual, unionBbox, padBbox, scaleBbox, expandBbox } from "../../common/generators/generateUtils";
+import { generate, generatorInfoToLabel, generatorInfoToOCRLines, IGeneratedInfo, matchBboxToOcr, isBoxCenterInBbox, fuzzyScaledBboxEqual, unionBbox, padBbox, scaleBbox, expandBbox, fuzzyBboxEqual } from "../../common/generators/generateUtils";
 import { OCRService } from "../../../../services/ocrService";
 
 const shouldGenerate = true;
@@ -292,9 +292,11 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             const labelData = metadata.labelData; // precisely JSON.parse of the file
             const baseLabels = [...labelData.labels]; // make a copy of the array, we don't need copies of objects
             const baseLines = {};
+            const baseSelectionMarks = {};
             // Make a first pass to save OCR lines
             pagesReadResults.forEach( pageReadResults => {
                 baseLines[pageReadResults.page] = [...pageReadResults.lines];
+                baseSelectionMarks[pageReadResults.page] = [...pageReadResults.selectionMarks];
             });
 
             if (metadata.generators.length === 0 && !shouldGenerateForLabels) {
@@ -339,14 +341,30 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 // Generate ocr.json (direct editing instead of reusing API)
                 const generatedReadResults = [];
                 pagesReadResults.forEach( pageReadResults => {
-                    const nestedOCRLines = assetGeneratorInfo.filter(
+                    const pageGeneratorInfo = assetGeneratorInfo.filter(
                         gi => gi.page === pageReadResults.page
-                    ).map(generatorInfoToOCRLines); // for each generator, return the lines created
+                    );
+
+                    // Process selection marks first
+                    const selectionMarks = [];
+
+                    const selectionInfo = pageGeneratorInfo.filter(
+                        gi => generators.find(g => g.tag.name === gi.name).tag.type === FieldType.SelectionMark
+                    );
+
+                    baseSelectionMarks[pageReadResults.page].forEach((mark) => {
+                        // Find the corresponding label
+                        const labelInfo = selectionInfo.find(
+                            si => fuzzyBboxEqual(si.boundingBoxes.words[0].boundingBox, mark.boundingBox)
+                        );
+                        selectionMarks.push({ ...mark, state: labelInfo ? labelInfo.text : mark.state });
+                    });
+
+                    const nestedOCRLines = pageGeneratorInfo.map(generatorInfoToOCRLines);
                     // we flatten out the lines of each generators
                     const flatOCRLines = [].concat.apply([], nestedOCRLines);
 
                     let lines = [ ...baseLines[pageReadResults.page], ...flatOCRLines];
-
                     if (overwrittenLabels.length > 0) {
                         // To erase the marked words in OCR, we need to map labels to ocr coordinates, and find the right entry
                         // To reduce search space, we'll narrow search to affected OCR lines
@@ -396,7 +414,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                     // contract - array of dicts
                     const generatedPageReadResults = {
                         ...pageReadResults,
-                        lines
+                        lines,
+                        selectionMarks,
                     };
                     generatedReadResults.push(generatedPageReadResults);
                 });

@@ -678,13 +678,17 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     /**
-     * Method called when deleting a region from the editor
-     * @param {string} id the id of the selected region
+     * Method called when selecting a region from the editor
+     * @param {IRegion} region selected region
      * @param {boolean} multiSelect boolean whether region was selected with multi selection
      * @returns {void}
      */
-    private onRegionSelected = (id: string, multiSelect: boolean) => {
+    private onRegionSelected = (region: IRegion, multiSelect: boolean) => {
         const selectedRegions = this.getSelectedRegions();
+        // Only used when selected regions go out of sync
+        if (!selectedRegions.find(r => r.id === region.id)) {
+            selectedRegions.push(region);
+        }
         if (this.props.onSelectedRegionsChanged) {
             this.props.onSelectedRegionsChanged(selectedRegions);
         }
@@ -1095,7 +1099,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                                     text: string,
                                     polygon: number[],
                                     regionCategory: FeatureCategory) => {
-        let selectedRegion;
+        let selectedRegion: IRegion;
         if (this.isRegionSelected(regionId)) {
             // skip if it's already existed in selected regions
             return;
@@ -1124,8 +1128,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.addRegions([selectedRegion]);
         }
 
+        // Note - this tracking method goes out of sync with the asset, which is what I've sort of migrated to
+        // Thus we can't use it as a source of truth anymore
         this.selectedRegionIds.push(regionId);
-        this.onRegionSelected(regionId, false);
+        this.onRegionSelected(selectedRegion, false);
     }
 
     private isRegionSelected = (regionId: string) => {
@@ -1640,6 +1646,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 return true;
             }
         }
+        return false;
     }
 
     private isLabelDataChanged = (newProps: ICanvasProps, prevProps: ICanvasProps): boolean => {

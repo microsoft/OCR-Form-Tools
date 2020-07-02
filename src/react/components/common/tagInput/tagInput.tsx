@@ -16,7 +16,7 @@ import { strings } from "../../../../common/strings";
 import { getDarkTheme } from "../../../../common/themes";
 import { AlignPortal } from "../align/alignPortal";
 import { getNextColor } from "../../../../common/utils";
-import { IRegion, ITag, ILabel, FieldType, FieldFormat, NamedItem, FormattedItem } from "../../../../models/applicationState";
+import { IRegion, ITag, ILabel, FieldType, FieldFormat, NamedItem, FormattedItem, IGenerator } from "../../../../models/applicationState";
 import { ColorPicker } from "../colorPicker";
 import "./tagInput.scss";
 import "../condensedList/condensedList.scss";
@@ -49,6 +49,8 @@ export interface ITagInputProps {
     onChange: (tags: ITag[]) => void;
     /** Currently selected regions in canvas */
     selectedRegions?: IRegion[];
+    /** Currently selected generator in canvas */
+    selectedGenerator?: IGenerator;
     /** The labels in the canvas */
     labels: ILabel[];
     /** Tags that are currently locked for editing experience */
@@ -433,22 +435,28 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             const tagOperation = selected ? oldTagOperation : TagOperationMode.None;
             let deselect = selected && oldTagOperation === TagOperationMode.None;
 
-            // Only fire click event if a region is selected
-            const { selectedRegions, onTagClick, labels } = this.props;
-            if (selectedRegions && selectedRegions.length && onTagClick) {
-                const { category } = selectedRegions[0];
-                const { format, type, documentCount, name } = tag;
-                const tagCategory = getTagCategory(type);
-                if (tagCategory === category ||
-                    (documentCount === 0 && type === FieldType.String && format === FieldFormat.NotSpecified)) {
-                    if (category === "checkbox" && this.labelAssigned(labels, name)) {
-                        toast.warn(strings.tags.warnings.checkboxPerTagLimit);
-                        return;
-                    }
+            // Only fire click event if a region is selected or a generator is selected
+            const { selectedRegions, selectedGenerator, onTagClick, labels } = this.props;
+            if ((selectedRegions?.length || selectedGenerator) && onTagClick) {
+                // TODO more rigorous assignment logic like with checkboxes
+                if (selectedGenerator) {
                     onTagClick(tag);
                     deselect = false;
                 } else {
-                    toast.warn(strings.tags.warnings.notCompatibleTagType);
+                    const { category } = selectedRegions[0];
+                    const { format, type, documentCount, name } = tag;
+                    const tagCategory = getTagCategory(type);
+                    if (tagCategory === category ||
+                        (documentCount === 0 && type === FieldType.String && format === FieldFormat.NotSpecified)) {
+                        if (category === "checkbox" && this.labelAssigned(labels, name)) {
+                            toast.warn(strings.tags.warnings.checkboxPerTagLimit);
+                            return;
+                        }
+                        onTagClick(tag);
+                        deselect = false;
+                    } else {
+                        toast.warn(strings.tags.warnings.notCompatibleTagType);
+                    }
                 }
             }
             this.setState({

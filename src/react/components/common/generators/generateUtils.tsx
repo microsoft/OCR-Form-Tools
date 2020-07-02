@@ -11,6 +11,8 @@ import { randomIntInRange } from "../../../../common/utils";
 const DO_JITTER = true;
 const USE_RANDOM_WORDS = true;
 
+// Note - for selectionMarks, text will indicate selection state (as used by labels)
+// We'll need to format appropriately for OCR
 export interface IGeneratedInfo {
     name: string,
     text: string,
@@ -118,8 +120,6 @@ interface LimitsAndFormat {
 }
 
 // TODO seeding
-// TODO add conversion step for rendering
-// TODO scale constants appropriately
 export const generate:(g: IGenerator, ocr: any, resolution?: any) => IGeneratedInfo = (generator, ocr, resolution=1) => {
     /**
      * Generation step - provides all generation info. From generator + context (ocr) to generated data.
@@ -138,6 +138,9 @@ export const generate:(g: IGenerator, ocr: any, resolution?: any) => IGeneratedI
     const limitsAndFormat = getStringLimitsAndFormat(generator, ocrUnitsPerChar, ocr, adjustedResolution);
     // Generate string from bounds
     const text = generateString(generator, limitsAndFormat.limits);
+    // if (generator.tag.type === FieldType.SelectionMark) {
+    //     console.log(text);
+    // }
     const format = { ...defaultStyle, ...limitsAndFormat.format, text };
     // Translate string into precise OCR boxes
     const boundingBoxes = generateBoundingBoxes(generator, format, ocr, ocrUnitsPerChar, adjustedResolution);
@@ -153,8 +156,9 @@ export const generate:(g: IGenerator, ocr: any, resolution?: any) => IGeneratedI
 
 
 const getOcrUnitsPerChar: (g: IGenerator, ocr: any) => number[] = (generator, ocr) => {
-    // "font size" approximated by the median font size of the document
-    // can probably be elaborated, i.e. font long strings of text or closest form elements...
+    // "font size" approximated by replaced OCR line or median font size of doc
+    if (generator.tag.type === FieldType.SelectionMark) return [1, 1];
+
     const sampledLines = [];
     if (!("ocrLine" in generator) || generator.ocrLine === -1) {
         for (let i = 0; i < GEN_CONSTANTS.sizing_samples; i++) {
@@ -200,8 +204,23 @@ const median: (a: number[]) => number = (rawArray) => {
  */
 const generateBoundingBoxes: (g: IGenerator, format: GeneratorTextStyle, ocr: any, unitsPerChar: number[], resolution?: number) => GeneratedBboxInfo =
     (generator, format, ocr, unitsPerChar, resolution=1) => {
+
     const text = format.text;
     const full = generator.bbox;
+    if (generator.tag.type === FieldType.SelectionMark) {
+        // return a single "word" that is the original bbox for label
+        const selectionWord = {
+            boundingBox: full,
+            boundingBoxPercentage: scaleBbox(full, 1/ocr.width, 1/ocr.height),
+            text,
+        };
+        return {
+            full,
+            lines: [], // omit ocr lines - we'll use what's given without edits
+            words: [selectionWord]
+        }
+    }
+
     const center = [(full[0] + full[2]) / 2, (full[1] + full[5]) / 2];
     const offsetX = format.offsetX;
     const offsetY = format.offsetY; // center + map offset y should get y of top box
@@ -305,7 +324,7 @@ const generateString: (g: IGenerator, l: number[][]) => string = (generator, lim
     const [ heightLow, heightHigh ] = heightLimit;
     const linesUsed = randomIntInRange(heightLow, heightHigh);
 
-    const defaultRegex = `^.{${low},${high}}$`;
+    const defaultRegex = `^[a-zA-Z ]{${low},${high}}$`; // `^.{${low},${high}}$`;
     const dd = "(0[1-9]|[12][0-9]|3[01])";
     const mm = "(0[1-9]|1[012])";
     const yy = "(19|20)\\d\\d";
@@ -334,7 +353,7 @@ const generateString: (g: IGenerator, l: number[][]) => string = (generator, lim
             [FieldFormat.NotSpecified]: `^\\d{${low},${high}}$`,
         },
         [FieldType.SelectionMark]: {
-            // no support
+            [FieldFormat.NotSpecified]: `^selected|unselected$`,
         },
     }
 
@@ -350,16 +369,16 @@ const generateString: (g: IGenerator, l: number[][]) => string = (generator, lim
         return randexp.gen();
     }
 
-    if (USE_RANDOM_WORDS && fieldType === FieldType.String && fieldFormat === FieldFormat.Alphanumeric) {
+    if (USE_RANDOM_WORDS && fieldType === FieldType.String && [FieldFormat.NotSpecified, FieldFormat.Alphanumeric].includes(fieldFormat)) {
         instanceGenerator = () => {
             // low, high
-            const maxLength = high;
+            const maxLength = 12; // there's a weird balance to strike here...
             const formatter = (word, index)=> {
                 return Math.random() < 0.3 ? word.slice(0,1).toUpperCase().concat(word.slice(1)) : word;
             }
             return randomWords({
                 min: Math.max(Math.round(low / maxLength), 1),
-                max: Math.round(high / maxLength),
+                max: Math.round(high / 8), // Assume average length is 4.7, buff for the min (should do a reroll if too long)
                 maxLength,
                 minLength: 6,
                 join: " ",
@@ -385,6 +404,13 @@ const generateString: (g: IGenerator, l: number[][]) => string = (generator, lim
  */
 const getStringLimitsAndFormat: (g: IGenerator, unitsPerChar: number[], ocr: any, resolution?: number) => LimitsAndFormat =
     (generator, unitsPerChar, ocr, resolution = 1) => {
+    if (generator.tag.type === FieldType.SelectionMark) {
+        return {
+            format: {},
+            limits: [[0, 0], [1, 2]]
+        }
+    }
+
     const fontWeight = GEN_CONSTANTS.weight + jitter(GEN_CONSTANTS.weightJitter, true);
     const lineHeight = GEN_CONSTANTS.lineHeight + jitter(GEN_CONSTANTS.lineHeightJitter, true);
 
@@ -576,7 +602,11 @@ export const isBoxCenterInBbox = (box1: number[], box2: number[]) => {
 
 export const fuzzyScaledBboxEqual = (ocrReadResults: any, labelBox: number[], ocrBox: number[]) => {
     const ocrBoxScaled = ocrBox.map((coord, i) => i % 2 === 0 ? coord / ocrReadResults.width : coord / ocrReadResults.height);
-    return ocrBoxScaled.every((coord, i) => Math.abs(coord - labelBox[i]) < 0.01);
+    return fuzzyBboxEqual(ocrBoxScaled, labelBox);
+}
+
+export const fuzzyBboxEqual = (box1: number[], box2: number[], threshold = 0.01) => {
+    return box1.every((coord, i) => Math.abs(coord - box2[i]) < threshold);
 }
 
 export const unionBbox = (boxes: number[][]) => {
