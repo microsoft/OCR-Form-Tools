@@ -16,7 +16,7 @@ export class StatusBar extends React.Component {
                         <li>
                             <a href="https://github.com/microsoft/OCR-Form-Tools/blob/master/CHANGELOG.md" target="blank" rel="noopener noreferrer">
                                 <FontIcon iconName="BranchMerge" />
-                                <span>{constants.appVersion}-6114d64</span>
+                                <span>{constants.appVersion}-978dabc</span>
                             </a>
                         </li>
                     </ul>
