@@ -9,7 +9,7 @@ import {
     EditorMode, IAssetMetadata,
     IProject, IRegion, RegionType,
     AssetType, ILabelData, ILabel,
-    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, IApplicationState, ISecurityToken,
+    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, ISecurityToken,
 } from "../../../../models/applicationState";
 import CanvasHelpers from "./canvasHelpers";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
@@ -34,7 +34,6 @@ import { parseTiffData, renderTiffToCanvas, loadImageToCanvas, getSasFolderStrin
 import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./canvasCommandBar";
 import { TooltipHost, ITooltipHostStyles } from "@fluentui/react";
-import { connect } from "react-redux";
 import { IAppSettings } from '../../../../models/applicationState';
 import { toast } from "react-toastify";
 import { strings } from "../../../../common/strings";
@@ -106,13 +105,6 @@ function hexToRgba(color: string, a: number) {
     return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 
-function mapStateToProps(state: IApplicationState) {
-    return {
-        appSettings: state.appSettings,
-    };
-}
-
-@connect(mapStateToProps)
 export default class Canvas extends React.Component<ICanvasProps, ICanvasState> {
     public static defaultProps: ICanvasProps = {
         editorMode: EditorMode.Select,
