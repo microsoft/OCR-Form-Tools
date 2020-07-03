@@ -34,6 +34,7 @@ import { getPrimaryGreenTheme, getPrimaryWhiteTheme,
          getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
 import axios from "axios";
 
+pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
 
 export interface IPredictPageProps extends RouteComponentProps, React.Props<PredictPage> {

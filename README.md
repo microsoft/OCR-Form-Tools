@@ -33,7 +33,7 @@ Form Labeling Tool requires [NodeJS (>= 10.x, Dubnium) and NPM](https://github.c
     cd OCR-Form-Tools
     yarn install
     yarn build
-    yarn react-start
+    yarn start
    ```
 
 ### Set up this tool with Docker
@@ -44,7 +44,28 @@ Please see instructions [here](https://docs.microsoft.com/en-us/azure/cognitive-
 
 Using a modern Web browser, FOTT can be run directly at: https://fott.azurewebsites.net/
 
-**Note: The site is for testing purpose only.**
+### Run as desktop application
+
+FOTT can be run as a desktop application after initial set up.
+
+   ```bash
+    yarn electron-start
+   ```
+
+The desktop application has additional features, such as:
+- Support for local file system as provider storage
+- Support for cross-domain resource requests
+
+### Release as desktop application
+
+FOTT can be released as a distributable desktop application.
+
+   ```bash
+    yarn release
+   ```
+The distributable will saved in the releases folder of the cloned repository.
+
+**Note: the site is for testing purpose only.**
 
 ## Using labeling tool
 

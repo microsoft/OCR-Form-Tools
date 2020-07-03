@@ -50,5 +50,6 @@ const tryConnection = () => client.connect({ port: port }, () => {
 tryConnection();
 
 client.on("error", (error) => {
-    setTimeout(tryConnection, 1000);
+    console.log(`Trying to connect to ${process.env.ELECTRON_START_URL}... (start web service with 'yarn react-start')`);
+    setTimeout(tryConnection, 10000);
 });

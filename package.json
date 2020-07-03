@@ -6,6 +6,7 @@
         "url": "https://github.com/microsoft/OCR-Form-Tools"
     },
     "description": "OCR Form Labeling Tool - an labeling tool for forms.",
+    "homepage": ".",
     "repository": {
         "type": "git",
         "url": "https://github.com/microsoft/OCR-Form-Tools"
@@ -59,7 +60,8 @@
         "electron:run:prod": "yarn webpack:prod && electron . --remote-debugging-port=9223",
         "electron:start:dev": "yarn electron-start",
         "electron:start:prod": "yarn webpack:prod && yarn electron-start",
-        "electron-start": "yarn webpack:dev && node src/electron/start",
+        "electron-start": "node src/electron/start",
+        "release": "yarn build && yarn webpack:prod && yarn electron-builder",
         "tslint": "./node_modules/.bin/tslint 'src/**/*.ts*'",
         "tslintfix": "./node_modules/.bin/tslint 'src/**/*.ts*' --fix"
     },
@@ -94,7 +96,7 @@
         "@types/reactstrap": "^8.2.0",
         "@types/redux-logger": "^3.0.7",
         "acorn": "^7.1.1",
-        "electron": "^8.3.0",
+        "electron": "8.3.0",
         "electron-builder": "^22.6.1",
         "enzyme": "^3.10.0",
         "enzyme-adapter-react-16": "^1.15.1",
@@ -104,7 +106,7 @@
         "kind-of": "^6.0.3",
         "minimist": "^1.2.2",
         "node-sass": "^4.14.1",
-        "pdfjs-dist": "2.3.200",
+        "pdfjs-dist": "^2.4.456",
         "react-scripts": "3.4.1",
         "redux-immutable-state-invariant": "^2.1.0",
         "redux-logger": "^3.0.6",
