@@ -184,17 +184,12 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
     }
 
     private getSharedConnection(connections: IConnection[], sasFolder: string) {
-        const connection: IConnection[] = connections.filter(({ providerOptions }) => {
-            if (providerOptions) {
-                 providerOptions["sas"].includes(sasFolder)
-            }
-        });
+        const connection: IConnection[] = connections.filter(({ providerOptions }) => providerOptions["sas"].includes(sasFolder));
         if (connection.length) {
             return connection[0];
-        } else {
-            toast.error(strings.shareProject.errors.connectionNotFound);
-            return null
         }
+        toast.error(strings.shareProject.errors.connectionNotFound);
+        return null
     }
 
     private getSharedUriParams(sharedSting: string) {
