@@ -169,7 +169,13 @@ export interface IAppStrings {
             composeAria: string;
             refreshAria: string;
             filter: string;
-        }
+            filterAria: string;
+        },
+        modelsList: {
+            headerAria: string,
+            checkButtonAria: string,
+            checkAllButtonAria: string,
+        },
     }
     predict: {
         title: string;
