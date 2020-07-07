@@ -45,20 +45,20 @@ export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState
     }
 
     public componentDidMount() {
-            setTimeout(() => {
-                if (this.unmounted || this.pendingRelease) {
-                    return;
-                }
-                if (this.props.asset) {
-                    if (this.props.asset.cachedImage) {
-                        this.setState({
-                            imageUri: this.props.asset.cachedImage,
-                        });
-                    } else {
-                        this.loadPdfFile(this.props.asset.path);
-                    }
-                }
-            }, 1000);
+        if (this.unmounted || this.pendingRelease) {
+            return;
+        }
+        if (this.props.asset) {
+            if (this.props.asset.cachedImage) {
+                this.setState({
+                    imageUri: this.props.asset.cachedImage,
+                });
+            } else {
+                setTimeout(() => {
+                    this.loadPdfFile(this.props.asset.path);
+                }, 1000);
+            }
+        }
     }
 
     public render() {
