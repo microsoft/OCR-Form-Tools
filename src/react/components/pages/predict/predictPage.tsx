@@ -33,6 +33,7 @@ import { constants } from "../../../../common/constants";
 import { getPrimaryGreenTheme, getPrimaryWhiteTheme,
          getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
 import axios from "axios";
+import { IAnalyzeModelInfo } from './predictResult';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -168,6 +169,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const urlInputDisabled: boolean = !this.state.predictionLoaded || this.state.isFetching;
         const predictDisabled: boolean = !this.state.predictionLoaded || !this.state.file;
         const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
+        const modelInfo: IAnalyzeModelInfo = this.getAnalyzeModelInfo(this.state.analyzeResult);
         const fetchDisabled: boolean =
             !this.state.predictionLoaded ||
             this.state.isFetching ||
@@ -318,6 +320,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                 <PredictResult
                                     predictions={predictions}
                                     analyzeResult={this.state.analyzeResult}
+                                    analyzeModelInfo={modelInfo}
                                     page={this.state.currPage}
                                     tags={this.props.project.tags}
                                     downloadResultLabel={this.state.fileLabel}
@@ -892,6 +895,11 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
     private getPredictionsFromAnalyzeResult(analyzeResult: any) {
         return _.get(analyzeResult, "analyzeResult.documentResults[0].fields", {});
+    }
+
+    private getAnalyzeModelInfo(analyzeResult) {
+        const { modelId, docType, docTypeConfidence } = _.get(analyzeResult, "analyzeResult.documentResults[0]", {})
+        return { modelId, docType, docTypeConfidence };
     }
 
     private getOcrFromAnalyzeResult(analyzeResult: any) {
