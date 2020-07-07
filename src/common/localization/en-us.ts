@@ -169,6 +169,13 @@ export const english: IAppStrings = {
             composeAria: "Compose Model",
             refreshAria: "Refresh the list",
             filter: "Filter by name...",
+            filterAria: "Filter by name input area",
+        },
+        modelsList: {
+            headerAria: "List of models header",
+            checkButtonAria: "Select model check button",
+            checkAllButtonAria: "Select all models check button",
+
         }
     },
     predict: {

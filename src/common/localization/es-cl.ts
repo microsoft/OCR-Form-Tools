@@ -170,6 +170,13 @@ export const spanish: IAppStrings = {
             composeAria: "Componer modelo",
             refreshAria: "Actualizar la lista",
             filter: "Filtrar por nombre ...",
+            filterAria: "Filtrar por área de entrada de nombre"
+        },
+        modelsList: {
+            headerAria: "Lista de encabezado de modelos",
+            checkButtonAria: "Seleccionar botón de verificación del modelo",
+            checkAllButtonAria: "Botón de verificación Seleccionar todos los modelos",
+
         }
     },
     predict: {
