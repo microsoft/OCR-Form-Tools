@@ -44,7 +44,6 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
 
         return (
             <div>
-                <PredictModelInfo modelInfo={analyzeModelInfo} />
                 <div className="container-items-center container-space-between results-container">
                     <h5 className="results-header">Prediction results</h5>
                     <PrimaryButton
@@ -56,6 +55,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                         onClick={this.triggerDownload}
                     />
                 </div>
+                <PredictModelInfo modelInfo={analyzeModelInfo} />
                 <div className="prediction-field-header">
                     <h6 className="prediction-field-header-field"> Page # / Field name / Value</h6>
                     <h6 className="prediction-field-header-confidence"> Confidence %</h6>
