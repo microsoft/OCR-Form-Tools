@@ -49,7 +49,7 @@ export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState
                 if (this.unmounted || this.pendingRelease) {
                     return;
                 }
-                if (this.props.asset != null) {
+                if (this.props.asset) {
                     if (this.props.asset.cachedImage) {
                         this.setState({
                             imageUri: this.props.asset.cachedImage,
