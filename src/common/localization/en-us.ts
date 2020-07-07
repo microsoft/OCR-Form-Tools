@@ -9,7 +9,7 @@ import { IAppStrings } from "../strings";
  * App Strings for English language
  */
 export const english: IAppStrings = {
-    appName: "OCR Form Labeling Tool",
+    appName: "Form OCR Testing Tool",
     common: {
         displayName: "Display name",
         description: "Description",

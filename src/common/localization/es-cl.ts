@@ -9,7 +9,7 @@ import { IAppStrings } from "../strings";
  * App Strings for Spanish language
  */
 export const spanish: IAppStrings = {
-    appName: "Herramienta de etiquetado de formularios OCR",
+    appName: "Herramienta de prueba de formulario OCR",
     projectService: {
         existingLabelFiles: "",
     },
