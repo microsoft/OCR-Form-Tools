@@ -326,7 +326,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     primary="first"
                                     pane1Style = {{width: "100%", overflow: "auto"}}
                                     pane2Style = {{width: "auto", overflow: "auto"}}
-                                    minSize = {200}
+                                    minSize = {800}
                                     resizerStyle = {{height: "5px", margin: "0px", border: "2px", background: "transparent"}}>
                                     <div style={{
                                         width: "100%"

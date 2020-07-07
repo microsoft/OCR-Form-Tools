@@ -29,7 +29,7 @@ import { SkipButton } from "../../shell/skipButton";
 import { AssetService } from "../../../../services/assetService";
 import ProjectService from "../../../../services/projectService";
 import Guard from "../../../../common/guard";
-import { generate, generatorInfoToLabel, generatorInfoToOCRLines, IGeneratedInfo, matchBboxToOcr, isBoxCenterInBbox, fuzzyScaledBboxEqual, unionBbox, padBbox, scaleBbox, expandBbox, fuzzyBboxEqual } from "../../common/generators/generateUtils";
+import { generate, generatorInfoToLabel, generatorInfoToOCRLines, IGeneratedInfo, matchBboxToOcr, isBoxCenterInBbox, fuzzyScaledBboxEqual, unionBbox, padBbox, scaleBbox, expandBbox, fuzzyBboxEqual, flattenOne, selectSomeWhenMultiple, mergeLabels } from "../../common/generators/generateUtils";
 import { OCRService } from "../../../../services/ocrService";
 
 const shouldGenerate = true;
@@ -296,7 +296,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             // Make a first pass to save OCR lines
             pagesReadResults.forEach( pageReadResults => {
                 baseLines[pageReadResults.page] = [...pageReadResults.lines];
-                baseSelectionMarks[pageReadResults.page] = [...pageReadResults.selectionMarks];
+                if (pageReadResults.selectionMarks) {
+                    baseSelectionMarks[pageReadResults.page] = [...pageReadResults.selectionMarks];
+                }
             });
 
             if (metadata.generators.length === 0 && !shouldGenerateForLabels) {
@@ -307,13 +309,21 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 return savePromises;
             }
 
-            let generators = metadata.generators;
+            // we need to support both modes
+            // user draws one generator over multi-lines, or user draws multiple generators over individual lines? (or what, user draws multi-partial...)
+            // how about let's do this simple case first - generator does NOT automatically fragment
+            // instead, expect multiple generators as supervision if we want explicit multi-lines as in cc auth
+            // and the label to gen shoudl reflect this
+            let metadataGenerators = metadata.generators;
             if (shouldGenerateForLabels) {
-                generators = this.assetMetadataLabelsToGenerators(metadata, pagesReadResults, allFields);
+                metadataGenerators = this.assetMetadataLabelsToGenerators(metadata, pagesReadResults, allFields);
             }
             for (let i = 0; i < metadata.generatorSettings.generateCount; i++) {
                 // Generate info for the asset
                 let assetGeneratorInfo: IGeneratedInfo[] = [];
+
+                const generators = selectSomeWhenMultiple(metadataGenerators); // For labels with multiple generators, select some
+
                 pagesReadResults.forEach( pageReadResults => {
                     assetGeneratorInfo = assetGeneratorInfo.concat(
                         generators.filter(
@@ -326,7 +336,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
                 // Generate label.json
                 const prefix = `${generatePath}/${i}_`;
-                const curLabelData = assetGeneratorInfo.map(generatorInfoToLabel);
+                const multiGenLabelData = assetGeneratorInfo.map(generatorInfoToLabel);
+                // We may have multiple generators for a given label - in that event, we'll need to merge them
+                const curLabelData = mergeLabels(multiGenLabelData);
                 const docprefix = prefix.split('/').slice(-1)[0];
                 metadata.labelData.document = `${docprefix}${docbase}`;
 
@@ -347,18 +359,20 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
                     // Process selection marks first
                     const selectionMarks = [];
+                    if (pageReadResults.page in baseSelectionMarks) {
 
-                    const selectionInfo = pageGeneratorInfo.filter(
-                        gi => generators.find(g => g.tag.name === gi.name).tag.type === FieldType.SelectionMark
-                    );
-
-                    baseSelectionMarks[pageReadResults.page].forEach((mark) => {
-                        // Find the corresponding label
-                        const labelInfo = selectionInfo.find(
-                            si => fuzzyBboxEqual(si.boundingBoxes.words[0].boundingBox, mark.boundingBox)
+                        const selectionInfo = pageGeneratorInfo.filter(
+                            gi => generators.find(g => g.tag.name === gi.name).tag.type === FieldType.SelectionMark
                         );
-                        selectionMarks.push({ ...mark, state: labelInfo ? labelInfo.text : mark.state });
-                    });
+
+                        baseSelectionMarks[pageReadResults.page].forEach((mark) => {
+                            // Find the corresponding label
+                            const labelInfo = selectionInfo.find(
+                                si => fuzzyBboxEqual(si.boundingBoxes.words[0].boundingBox, mark.boundingBox, 0.5) // extra threshold since benchmark data isn't matching up
+                            );
+                            selectionMarks.push({ ...mark, state: labelInfo ? labelInfo.text : mark.state });
+                        });
+                    }
 
                     const nestedOCRLines = pageGeneratorInfo.map(generatorInfoToOCRLines);
                     // we flatten out the lines of each generators
@@ -415,8 +429,10 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                     const generatedPageReadResults = {
                         ...pageReadResults,
                         lines,
-                        selectionMarks,
                     };
+                    if (pageReadResults.page in baseSelectionMarks) {
+                        generatedPageReadResults.selectionMarks = selectionMarks;
+                    }
                     generatedReadResults.push(generatedPageReadResults);
                 });
                 const generatedOcr = {
@@ -442,7 +458,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         const existingGeneratorKeys = metadata.generators.map(g => g.tag.name);
         const newGeneratorData = labelData.labels.filter(l => !existingGeneratorKeys.includes(l.label));
 
-        // TODO bottom-up precedence?
         const pagesBoxes = {}
         const newGenerators = newGeneratorData.map(d => {
             const tag = tags.find(t => t.name === d.label);
@@ -457,26 +472,44 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             // labels are in ratio
             const bboxes = d.value.map(v => v.boundingBoxes);
             const flatBboxes = [].concat.apply([], bboxes);
-            const union = unionBbox(flatBboxes);
-            const bbox = scaleBbox(union, pageOcr.width, pageOcr.height);
+            // check ocr lines for each box in the label
+            const ocrLines = flatBboxes.map(singleBox => {
+                const scaledAndPaddedBox = padBbox(scaleBbox(singleBox, pageOcr.width, pageOcr.height), 0.1, 0.05);
+                return matchBboxToOcr(scaledAndPaddedBox, pageOcr).ocrLine;
+            });
 
-            const paddedBbox = shouldExpandLabelGenerators ? expandBbox(bbox, pagesBoxes[page]) : padBbox(bbox, 0.1, 0.05);
-            pagesBoxes[page].push(paddedBbox);
-            const { ocrLine } = matchBboxToOcr(bbox, pageOcr); // this can be any of the relevant lines, ideally the first
+            const boxesByOcrLine = {};
+            flatBboxes.forEach((singleBox, i) => {
+                if (ocrLines[i] in boxesByOcrLine) {
+                    boxesByOcrLine[ocrLines[i]].push(singleBox);
+                }
+                boxesByOcrLine[ocrLines[i]] = [singleBox];
+            });
 
-            return {
-                tag,
-                tagProposal: tag,
-                ocrLine,
-                bbox,
-                canvasBbox: [], // only used on canvas
-                points: [], // only used on canvas
-                id,
-                resolution: 1,
-                page,
-            };
+            return Object.keys(boxesByOcrLine).map(ocrLine => {
+                const boxes = boxesByOcrLine[ocrLine];
+                // group the boxes by ocrlines and run the following procedure on them
+                const union = unionBbox(boxes);
+                const bbox = scaleBbox(union, pageOcr.width, pageOcr.height);
+
+                const paddedBbox = shouldExpandLabelGenerators ? expandBbox(bbox, pagesBoxes[page]) : padBbox(bbox, 0.1, 0.05);
+                pagesBoxes[page].push(paddedBbox);
+
+                return {
+                    tag,
+                    tagProposal: tag,
+                    ocrLine,
+                    bbox,
+                    canvasBbox: [], // only used on canvas
+                    points: [], // only used on canvas
+                    id,
+                    resolution: 1,
+                    page,
+                };
+            });
         });
-        return metadata.generators.concat(newGenerators);
+
+        return metadata.generators.concat(flattenOne(newGenerators));
     }
 
     private async train(sourcePrefix: string): Promise<any> {

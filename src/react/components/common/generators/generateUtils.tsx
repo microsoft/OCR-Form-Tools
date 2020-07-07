@@ -89,24 +89,25 @@ const GEN_CONSTANTS = {
     weight: 100,
     weightJitter: 25,
     lineHeight: 1,
-    lineHeightJitter: .3,
+    lineHeightJitter: .2,
     widthScale: 1,
     widthScaleJitter: .05,
     heightScale: 1,
     heightScaleJitter: .05,
+    digitWidthScale: 1.3, // digits are a little wider, accommodate
     // https://stackoverflow.com/questions/14061228/remove-white-space-above-and-below-large-text-in-an-inline-block-element
-    leadingLineHeightScale: 1.35, // account for the font-to-full height discrepancy with our default font
+    leadingLineHeightScale: 1.25, // account for the font-to-full height discrepancy with our default font
     sizeJitter: 1,
-    offsetX: .1,
-    offsetXJitter: .2,
-    offsetY: .03,
-    offsetYJitter: .03,
+    offsetX: .05, // ratio offset
+    offsetXJitter: .05,
+    offsetY: .05,
+    offsetYJitter: .1, // ratio offset
     // Char limits
     // TODO better than linear lower bound (super long fields shouldn't have multiple)
-    width_low: 0.3,
-    width_high: 1.05,
+    width_low: 0.2,
+    width_high: .95,
     height_low: 0.2,
-    height_high: 0.9, // try not to bleed past the box due to scaling inaccs
+    height_high: 0.95, // try not to bleed past the box due to scaling inaccs
     sizing_samples: 12, // sample count for line sampling
     sizing_string: 'abcdefghiklmnorstuvwxzABCDEFGHIJKLMNOPQRSTUVWXYZ', // we drop the baselines so we can be a little bigger
     sizing_range: [10, 100] // search range for font sizing
@@ -178,7 +179,7 @@ const getOcrUnitsPerChar: (g: IGenerator, ocr: any) => number[] = (generator, oc
 
     // - scale to map units, which we can convert to pixels
     const widthPerChar = median(widths);
-    const heightPerChar = median(heights);
+    const heightPerChar = Math.max(...heights); // better hope we get the spread somewhere in the line
     const scaledWidth = widthPerChar * GEN_CONSTANTS.widthScale * (1 + jitter(GEN_CONSTANTS.widthScaleJitter));
     const scaledHeight = heightPerChar * GEN_CONSTANTS.heightScale * (1 + jitter(GEN_CONSTANTS.heightScaleJitter));
     return [ scaledWidth, scaledHeight ];
@@ -318,7 +319,11 @@ const generateBoundingBoxes: (g: IGenerator, format: GeneratorTextStyle, ocr: an
 }
 
 
-const generateString: (g: IGenerator, l: number[][]) => string = (generator, limits) => {
+const generateString: (g: IGenerator, l: number[][], sampledLines?: string[]) => string = (generator, limits, sampledLines) => {
+
+    // heuristic algorithm, with an attempt at reflecting underlying distribution if existing
+
+
     const [ widthLimit, heightLimit ] = limits;
     const [ low, high ] = widthLimit;
     const [ heightLow, heightHigh ] = heightLimit;
@@ -337,7 +342,9 @@ const generateString: (g: IGenerator, l: number[][]) => string = (generator, lim
         },
         [FieldType.Number]: {
             [FieldFormat.NotSpecified]: `^\\d{${low},${high}}$`,
-            [FieldFormat.Currency]: `^\\$?((([1-9][0-9]){1,2},){${Math.round(low/5)},${Math.round(high/5)}}[0-9]{3}|[0-9]{${low},${high}})(\\.[0-9][0-9])?$`,
+            // [FieldFormat.Currency]: `^\\$?((([1-9][0-9]){1,2},){${Math.round(low/5)},${Math.round(high/5)}}[0-9]{3}|[0-9]{${low},${high}})(\\.[0-9][0-9])?$`,
+            // While generating actual currency is nice, regular numbers are much more stable
+            [FieldFormat.Currency]: `^\\$?([0-9]{${low},${high-2}})(\\.[0-9][0-9])?$`,
         },
         [FieldType.Date]: {
             [FieldFormat.NotSpecified]: `^\\d\\d([- /.])\\d\\d\\1\\d{2,4}$
@@ -415,17 +422,22 @@ const getStringLimitsAndFormat: (g: IGenerator, unitsPerChar: number[], ocr: any
     const lineHeight = GEN_CONSTANTS.lineHeight + jitter(GEN_CONSTANTS.lineHeightJitter, true);
 
     // Map Units to Font size - Search for the right size by measuring canvas
-    const [ widthPerChar, heightPerChar ] = unitsPerChar;
+    let [ widthPerChar, heightPerChar ] = unitsPerChar;
+    if ([FieldType.Number, FieldType.Integer, FieldType.Date, FieldType.Time].includes(generator.tag.type)) {
+        widthPerChar *= GEN_CONSTANTS.digitWidthScale;
+    }
 
     const boxWidth = generator.bbox[2] - generator.bbox[0];
     const boxHeight = generator.bbox[5] - generator.bbox[1];
     const effectiveLineHeight = heightPerChar * lineHeight * GEN_CONSTANTS.leadingLineHeightScale;
 
     const charWidthLow = Math.round(boxWidth * GEN_CONSTANTS.width_low / widthPerChar);
-    const charWidthHigh = Math.round(boxWidth * GEN_CONSTANTS.width_high / widthPerChar);
+    const charWidthHigh = Math.round(boxWidth * GEN_CONSTANTS.width_high / widthPerChar) + 1;
     const charHeightLow = Math.max(1, Math.round(boxHeight * GEN_CONSTANTS.height_low / effectiveLineHeight));
-    let charHeightHigh = Math.round(boxHeight * GEN_CONSTANTS.height_high / effectiveLineHeight);
-
+    let charHeightHigh = Math.floor(boxHeight * GEN_CONSTANTS.height_high / effectiveLineHeight) + 1; // +1 for exlcusive, floor for pessimistic
+    if (charHeightHigh < 4) {
+        charHeightHigh = 2;
+    }
     // Using height since that's more important for visual fit
     let bestSize = GEN_CONSTANTS.sizing_range[0];
     let bestDistance = 1000;
@@ -470,15 +482,24 @@ const getStringLimitsAndFormat: (g: IGenerator, unitsPerChar: number[], ocr: any
     const left = generator.bbox[0];
     const centerHeight = (generator.bbox[1] + generator.bbox[5]) / 2;
     const top = generator.bbox[1];
-    const offsetX = (left - centerWidth + GEN_CONSTANTS.offsetX + jitter(GEN_CONSTANTS.offsetXJitter));
+    const ratioOffsetX = GEN_CONSTANTS.offsetX + jitter(GEN_CONSTANTS.offsetXJitter);
+    const randomOffsetX = (generator.bbox[2] - generator.bbox[0]) * ratioOffsetX;
+
+    const offsetX = (left - centerWidth + randomOffsetX);
 
     // OffsetY - passively represents positive distance from top to center (positive due to map coords)
     // Thus if you add it, you move your point from the center to the top
-    let offsetY = (top - centerHeight + GEN_CONSTANTS.offsetY + jitter(GEN_CONSTANTS.offsetYJitter));
+    let ratioOffsetY = GEN_CONSTANTS.offsetY + jitter(GEN_CONSTANTS.offsetYJitter);
+    if (charHeightHigh > 4) {
+        // if free-response, reduce offsetY ratio
+        ratioOffsetY /= 2;
+    }
+    const randomOffsetY = (generator.bbox[5] - generator.bbox[1]) * ratioOffsetY;
+    let offsetY = (top - centerHeight) + randomOffsetY;
 
-    if (generator.tag.type !== FieldType.String) {
-        // center text if not string (no multiline non-string assumption)
-        offsetY = -1 * (heightPerChar / 2 + GEN_CONSTANTS.offsetY + charHeightHigh * jitter(GEN_CONSTANTS.offsetYJitter));
+    if (charHeightHigh <= 2 || generator.tag.type !== FieldType.String) { // Assume no multi-line dates
+        // center text if not multiline - ignore fixed offset (just use jitter)
+        offsetY = -1 * (heightPerChar / 2) + jitter(GEN_CONSTANTS.offsetYJitter) * (top - centerHeight);
         charHeightHigh = 2;
     }
 
@@ -612,8 +633,8 @@ export const fuzzyBboxEqual = (box1: number[], box2: number[], threshold = 0.01)
 export const unionBbox = (boxes: number[][]) => {
     const boxXCoords = boxes.map(b => b.filter((_, i) => i % 2 === 0));
     const boxYCoords = boxes.map(b => b.filter((_, i) => i % 2 === 1));
-    const flatXCoords = [].concat.apply([], boxXCoords);
-    const flatYCoords = [].concat.apply([], boxYCoords);
+    const flatXCoords = flattenOne(boxXCoords);
+    const flatYCoords = flattenOne(boxYCoords);
     const minX = Math.min(...flatXCoords);
     const maxX = Math.max(...flatXCoords);
     const minY = Math.min(...flatYCoords);
@@ -644,8 +665,8 @@ export const scaleBbox = (bbox: number[], xRatio, yRatio) => {
 const EXPAND_LIMITS = {
     "right": 1.0,
     "left": 1.0,
-    "top": 0.5,
-    "bottom": 0.5,
+    "top": 0.1, // only expand a little - don't expand to multiline extents
+    "bottom": 0.1,
     "padding": 0.05,
 }
 
@@ -686,7 +707,7 @@ export const expandBbox = (bbox: number[], boxes: number[][]) => {
     extents.right = Math.min(extents.right, boxExtent.right + EXPAND_LIMITS.right);
     extents.bottom = Math.min(extents.bottom, boxExtent.bottom + EXPAND_LIMITS.bottom);
 
-
+    // I suspect this will break if there's a little overlap..
     const toLeft = boxesExtents.filter(e => (e.right < boxExtent.left
         && (e.bottom > boxExtent.top && e.top < boxExtent.bottom)))
             .map(e => e.right + EXPAND_LIMITS.padding);
@@ -708,4 +729,49 @@ export const expandBbox = (bbox: number[], boxes: number[][]) => {
     extents.bottom = Math.min(extents.bottom, ...toBottom);
 
     return getBbox(extents);
+}
+
+// TODO implement these, then vet CC Auth and Accord
+// re:
+export const selectSomeWhenMultiple: (generators: IGenerator[]) => IGenerator[] = (generators) => {
+    const tagGroups: {[tag: string]: IGenerator[]} = {};
+    generators.forEach(g => {
+        if (g.tag.name in tagGroups) {
+            tagGroups[g.tag.name].push(g);
+        } else {
+            tagGroups[g.tag.name] = [g];
+        }
+    });
+    const nestedGens = Object.keys(tagGroups).map(tag => {
+        const tagGens = tagGroups[tag];
+        const guaranteedIndex = randomIntInRange(0, tagGens.length); // at least one
+        return tagGens.filter((g, i) => i === guaranteedIndex || Math.random() > 0.5);
+    });
+    return flattenOne(nestedGens);
+}
+
+export const mergeLabels: (labels: ILabel[]) => ILabel[] = (labels) => {
+    // merge keys and values under a shared label
+    const tagGroups: {[tag: string]: ILabel[]} = {};
+    labels.forEach(l => {
+        if (l.label in tagGroups) {
+            tagGroups[l.label].push(l);
+        } else {
+            tagGroups[l.label] = [l];
+        }
+    });
+    return Object.keys(tagGroups).map(label => {
+        const tagLabels = tagGroups[label];
+        const key = tagLabels.map(l => l.key).filter(k => !!k);
+
+        return {
+            label,
+            key: key.length > 0 ? flattenOne(key) : null,
+            value: flattenOne(tagLabels.map(l => l.value))
+        }
+    });
+}
+
+export const flattenOne: (nestedList: any[][]) => any[] = (nestedList) => {
+    return [].concat.apply([], nestedList);
 }
