@@ -63,14 +63,14 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                     isOpen={!this.state.hideModal}
                     isModeless={false}
                     containerClassName="modal-container"
+                    scrollableContentClassName="scrollable-content"
                     >
                     <h4>Add name for composed model</h4>
                     <TextField
                         className="modal-textfield"
                         placeholder={strings.modelCompose.modelView.addComposeModelName}
                         onChange={this.onTextChange}
-                        >
-                    </TextField>
+                        />
                     {
                         this.state.items &&
                         <DetailsList

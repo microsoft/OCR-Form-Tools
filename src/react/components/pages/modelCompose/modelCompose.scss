@@ -115,13 +115,16 @@ h4 {
     width: 80%;
     max-width: 64rem;
     padding: 1.5rem;
-    overflow: auto;
 
+}
+
+.scrollable-content{
+    overflow: hidden;
 }
 
 .modal-list-container {
     margin: 0.5rem;
-    max-height: 24rem;
+    max-height: 40vh;
     overflow-x: hidden;
 }
 
