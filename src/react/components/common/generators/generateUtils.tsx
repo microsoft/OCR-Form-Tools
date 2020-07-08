@@ -110,7 +110,7 @@ const GEN_CONSTANTS = {
     height_high: 0.95, // try not to bleed past the box due to scaling inaccs
     sizing_samples: 12, // sample count for line sampling
     sizing_string: 'abcdefghiklmnorstuvwxzABCDEFGHIJKLMNOPQRSTUVWXYZ', // we drop the baselines so we can be a little bigger
-    sizing_range: [10, 100] // search range for font sizing
+    sizing_range: [4, 100] // search range for font sizing
 }
 
 // the generation step formatting should be done when calibrating the text to display
@@ -160,19 +160,24 @@ const getOcrUnitsPerChar: (g: IGenerator, ocr: any) => number[] = (generator, oc
     // "font size" approximated by replaced OCR line or median font size of doc
     if (generator.tag.type === FieldType.SelectionMark) return [1, 1];
 
-    const sampledLines = [];
-    if (!("ocrLine" in generator) || generator.ocrLine === -1) {
+    let sampledLines = [];
+    if (generator.ocrLines?.length > 0) {
+        sampledLines = sampledLines.concat(generator.ocrLines.map(ln => ocr.lines[ln]));
+    } else {
         for (let i = 0; i < GEN_CONSTANTS.sizing_samples; i++) {
             sampledLines.push(ocr.lines[randomIntInRange(0, ocr.lines.length)]);
         }
-    } else {
-        sampledLines.push(ocr.lines[generator.ocrLine]);
     }
     const sampledNestedWords = sampledLines.map(l => l.words);
-    const sampledWords = [].concat.apply([], sampledNestedWords);
+    let sampledWords = [].concat.apply([], sampledNestedWords);
+    if (generator.ocrLines?.length > 0) {
+        // filter out only the words that are truly inside the generator - ocr can combine chunks with multiple sizes
+        sampledWords = sampledWords.filter(w => isBoxCenterInBbox(w.boundingBox, generator.bbox));
+    }
     const widths = [];
     const heights = [];
     sampledWords.forEach(w => {
+        // one character text is typically anomalous (i.e. non-standard char) (this may need revision outside of english)
         widths.push((w.boundingBox[2] - w.boundingBox[0]) / w.text.length);
         heights.push((w.boundingBox[5] - w.boundingBox[1]));
     });
@@ -431,11 +436,12 @@ const getStringLimitsAndFormat: (g: IGenerator, unitsPerChar: number[], ocr: any
     const boxHeight = generator.bbox[5] - generator.bbox[1];
     const effectiveLineHeight = heightPerChar * lineHeight * GEN_CONSTANTS.leadingLineHeightScale;
 
-    const charWidthLow = Math.round(boxWidth * GEN_CONSTANTS.width_low / widthPerChar);
+    const charWidthLow = Math.max(1, Math.round(boxWidth * GEN_CONSTANTS.width_low / widthPerChar));
     const charWidthHigh = Math.round(boxWidth * GEN_CONSTANTS.width_high / widthPerChar) + 1;
-    const charHeightLow = Math.max(1, Math.round(boxHeight * GEN_CONSTANTS.height_low / effectiveLineHeight));
+
+    const charHeightLow = 1; // Math.max(1, Math.round(boxHeight * GEN_CONSTANTS.height_low / effectiveLineHeight));
     let charHeightHigh = Math.floor(boxHeight * GEN_CONSTANTS.height_high / effectiveLineHeight) + 1; // +1 for exlcusive, floor for pessimistic
-    if (charHeightHigh < 4) {
+    if (charHeightHigh < 4 && (!generator.ocrLines || generator.ocrLines.length <= 1)) { // unless we know it's multiline, be passive
         charHeightHigh = 2;
     }
     // Using height since that's more important for visual fit
@@ -459,8 +465,10 @@ const getStringLimitsAndFormat: (g: IGenerator, unitsPerChar: number[], ocr: any
     const targetPixelHeight = heightPerChar / resolution;
     while (curSize < GEN_CONSTANTS.sizing_range[1]) {
         const font = `${fontWeight} ${curSize}px/${lineHeight} sans-serif`;
-        const sizingString = ("ocrLine" in generator && generator.ocrLine !== -1) ?
-            ocr.lines[generator.ocrLine].text : GEN_CONSTANTS.sizing_string;
+        let sizingString = GEN_CONSTANTS.sizing_string;
+        if (generator.ocrLines?.length > 0) {
+            sizingString = generator.ocrLines.map(ln => ocr.lines[ln]).join("");
+        }
         const metrics = getTextMetrics(sizingString, font);
         const newHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
         const newDistance = Math.abs(newHeight - targetPixelHeight);
@@ -499,7 +507,7 @@ const getStringLimitsAndFormat: (g: IGenerator, unitsPerChar: number[], ocr: any
 
     if (charHeightHigh <= 2 || generator.tag.type !== FieldType.String) { // Assume no multi-line dates
         // center text if not multiline - ignore fixed offset (just use jitter)
-        offsetY = -1 * (heightPerChar / 2) + jitter(GEN_CONSTANTS.offsetYJitter) * (top - centerHeight);
+        offsetY = -1 * (heightPerChar / 2) + jitter(0.4) * (generator.bbox[5] - generator.bbox[1]);
         charHeightHigh = 2;
     }
 
@@ -557,55 +565,65 @@ export const generatorInfoToLabel: (g: IGeneratedInfo) => ILabel = (generatedInf
     };
 }
 
+/**
+ *
+ * @param bbox ratio bbox (label)
+ * @param pageOcr
+ * @param text
+ */
 export const matchBboxToOcr: (bbox: number[], pageOcr: any, text?: string) => IGeneratorTagInfo = (bbox, pageOcr, text) => {
     const numberFlags = ["#", "number", "num.", "phone", "amount"];
 
     let name = "";
     let type = FieldType.String;
     let format = FieldFormat.Alphanumeric;
-    let ocrLine = -1;
+    const ocrLines = [];
+    let ocrLine = -1; // closest
     // A few quality of life heuristics
+    let foundWordsInside = false;
     if (pageOcr) {
         // Find the closest text
         let closestDist = 1; // at most half an inch away
         const refLoc = [bbox[0], bbox[1]];
         const ocrRead = pageOcr;
         ocrRead.lines.forEach((line, index) => {
-            if (closestDist === 0) return;
             if (isBoxCenterInBbox(line.boundingBox, bbox) || isBoxCenterInBbox(bbox, line.boundingBox)) {
-                ocrLine = index;
-                closestDist = 0;
-                return;
+                ocrLines.push(index);
+                foundWordsInside = true;
             }
-            line.words.forEach(word => {
-                const loc = [word.boundingBox[0], word.boundingBox[1]]; // TL
-                const dist = Math.hypot(loc[0] - refLoc[0], loc[1] - refLoc[1]);
-                if (dist < closestDist) {
-                    // TODO add a check for box is contained, which trumps TL
-                    if (line.text.length > 20) {
-                        name = _.camelCase(word.text);
-                    } else {
-                        name = _.camelCase(line.text);
-                    }
+            if (!foundWordsInside) {
+                line.words.forEach(word => {
+                    const loc = [word.boundingBox[0], word.boundingBox[1]]; // TL
+                    const dist = Math.hypot(loc[0] - refLoc[0], loc[1] - refLoc[1]);
+                    if (dist < closestDist) {
+                        if (line.text.length > 20) {
+                            name = _.camelCase(word.text);
+                        } else {
+                            name = _.camelCase(line.text);
+                        }
 
-                    if (numberFlags.some(flag => line.text.toLowerCase().includes(flag))) {
-                        type = FieldType.Number;
-                        format = FieldFormat.NotSpecified;
-                    } else {
-                        type = FieldType.String;
-                        format = FieldFormat.Alphanumeric;
+                        if (numberFlags.some(flag => line.text.toLowerCase().includes(flag))) {
+                            type = FieldType.Number;
+                            format = FieldFormat.NotSpecified;
+                        } else {
+                            type = FieldType.String;
+                            format = FieldFormat.Alphanumeric;
+                        }
+                        closestDist = dist;
+                        // Also, capture the line on the generator so we can match statistics
+                        // do this here rather than on generation for convenience
+                        ocrLine = index;
                     }
-                    closestDist = dist;
-                    // Also, capture the line on the generator so we can match statistics
-                    // do this here rather than on generation for convenience
-                    ocrLine = index;
-                }
-            });
+                });
+            }
         });
     };
 
+    if (ocrLine !== -1 && !foundWordsInside) {
+        ocrLines.push(ocrLine);
+    }
     const tagProposal = { name, type, format };
-    return { tagProposal, ocrLine };
+    return { tagProposal, ocrLines };
 }
 
 
@@ -745,7 +763,7 @@ export const selectSomeWhenMultiple: (generators: IGenerator[]) => IGenerator[] 
     const nestedGens = Object.keys(tagGroups).map(tag => {
         const tagGens = tagGroups[tag];
         const guaranteedIndex = randomIntInRange(0, tagGens.length); // at least one
-        return tagGens.filter((g, i) => i === guaranteedIndex || Math.random() > 0.5);
+        return tagGens.filter((g, i) => i === guaranteedIndex || Math.random() < 0.5); // rare drops
     });
     return flattenOne(nestedGens);
 }

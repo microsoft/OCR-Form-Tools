@@ -273,7 +273,7 @@ export interface IGeneratorRegion {
 
 export interface IGeneratorTagInfo {
     tag?: ITag,
-    ocrLine: number, // index of matched ocr line
+    ocrLines: number[], // index of matched ocr line(s)
     tagProposal: Partial<ITag>,
 }
 

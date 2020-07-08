@@ -344,6 +344,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
                 // Merge in the generated label data
                 // Any marked data under the label is wiped (intentionally)
+                // TODO - how do we treat data we want to preserve? (i.e. empty form pieces people want as part of label?)
                 const generatedLabelsStrings = curLabelData.map(l => l.label);
                 const notGeneratedLabels = baseLabels.filter(l => !generatedLabelsStrings.includes(l.label));
                 const overwrittenLabels = baseLabels.filter(l => generatedLabelsStrings.includes(l.label));
@@ -456,9 +457,10 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     private assetMetadataLabelsToGenerators(metadata: IAssetMetadata, ocr: any, tags: ITag[]): IGenerator[] {
         const labelData = metadata.labelData; // precisely JSON.parse of the file
         const existingGeneratorKeys = metadata.generators.map(g => g.tag.name);
+        // Will not convert labels with generators made
         const newGeneratorData = labelData.labels.filter(l => !existingGeneratorKeys.includes(l.label));
 
-        const pagesBoxes = {}
+        const pagesBoxes = {};
         const newGenerators = newGeneratorData.map(d => {
             const tag = tags.find(t => t.name === d.label);
             const id = Math.random().toString(36).slice(8);
@@ -475,7 +477,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             // check ocr lines for each box in the label
             const ocrLines = flatBboxes.map(singleBox => {
                 const scaledAndPaddedBox = padBbox(scaleBbox(singleBox, pageOcr.width, pageOcr.height), 0.1, 0.05);
-                return matchBboxToOcr(scaledAndPaddedBox, pageOcr).ocrLine;
+                return matchBboxToOcr(scaledAndPaddedBox, pageOcr).ocrLines[0]; // max one hit
             });
 
             const boxesByOcrLine = {};
