@@ -250,6 +250,7 @@ export const spanish: IAppStrings = {
         title: "Conexiones",
         new: "Nueva conexión",
         save: "Guardar Conexión",
+        genericInvalid: "\"${project.sourceConnection.name}\" es una conexión no válida. Por favor verifíquelo en la página Conexiones",
         details: "Detalles de Conexión",
         settings: "Configuración de Conexión",
         instructions: "Por favor seleccione una conexión para editar",
@@ -284,6 +285,7 @@ export const spanish: IAppStrings = {
                     title: "Crear contenedor",
                     description: "Crea el contenedor de blobs si aún no existe",
                 },
+                invalidSASMessage: "\"${project.sourceConnection.name}\" no tiene cuenta de almacenamiento. Verifique su token SAS en la página de Conexiones",
             },
             bing: {
                 title: "Búsqueda de Imágenes Bing",
@@ -301,8 +303,10 @@ export const spanish: IAppStrings = {
             local: {
                 title: "Sistema de Archivos Local",
                 folderPath: "Ruta de la carpeta",
+                browse: "vistazo",
                 selectFolder: "Seleccionar la carpeta",
                 chooseFolder: "Elijir la carpeta",
+                invalidFolderMessage: "\"${project.sourceConnection.name}\" tiene una carpeta no válida Por favor verifique su carpeta seleccionada en la página de Conexiones",
             },
         },
     },
