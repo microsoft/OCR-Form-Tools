@@ -52,7 +52,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
 
         const dark: ICustomizations = {
             settings: {
-              theme: getDarkGreyTheme(),
+                theme: getDarkGreyTheme(),
             },
             scopedSettings: {},
         };
@@ -63,15 +63,14 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                     isOpen={!this.state.hideModal}
                     isModeless={false}
                     containerClassName="modal-container"
+                    scrollableContentClassName="scrollable-content"
                     >
-                        <h4>Add name for composed model</h4>
-                        <TextField
-                            className="modal-textfield"
-                            placeholder={strings.modelCompose.modelView.addComposeModelName}
-                            onChange={this.onTextChange}
-                            >
-                        </TextField>
-                    <div >
+                    <h4>Add name for composed model</h4>
+                    <TextField
+                        className="modal-textfield"
+                        placeholder={strings.modelCompose.modelView.addComposeModelName}
+                        onChange={this.onTextChange}
+                        />
                     {
                         this.state.items &&
                         <DetailsList
@@ -86,14 +85,11 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                             >
                         </DetailsList>
                     }
-                    </div>
                     {
                         this.state.items.length < 2 &&
-                        <div className="modal-alert">
-                           {strings.modelCompose.modelView.NotEnoughModels}
-                        </div>
+                        <div className="modal-alert">{strings.modelCompose.modelView.NotEnoughModels}</div>
                     }
-                    <div className="model-button-container">
+                    <div className="modal-buttons-container">
                         <PrimaryButton
                             className="model-confirm"
                             theme={getPrimaryGreenTheme()}

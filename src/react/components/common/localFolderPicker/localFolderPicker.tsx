@@ -58,7 +58,7 @@ export default class LocalFolderPicker extends React.Component<ILocalFolderPicke
                 <PrimaryButton
                     className="keep-button-80px"
                     theme={getPrimaryGreenTheme()}
-                    text={strings.connections.providers.local.folderPath}
+                    text={strings.connections.providers.local.browse}
                     autoFocus={true}
                     onClick={this.selectLocalFolder}
                 />

@@ -5,7 +5,7 @@
         "name": "Microsoft",
         "url": "https://github.com/microsoft/OCR-Form-Tools"
     },
-    "description": "OCR Form Labeling Tool - an labeling tool for forms.",
+    "description": "Form OCR Testing Tool - an labeling tool for forms.",
     "homepage": ".",
     "repository": {
         "type": "git",

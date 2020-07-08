@@ -9,7 +9,7 @@ import { IAppStrings } from "../strings";
  * App Strings for English language
  */
 export const english: IAppStrings = {
-    appName: "OCR Form Labeling Tool",
+    appName: "Form OCR Testing Tool",
     common: {
         displayName: "Display name",
         description: "Description",
@@ -169,6 +169,13 @@ export const english: IAppStrings = {
             composeAria: "Compose Model",
             refreshAria: "Refresh the list",
             filter: "Filter by name...",
+            filterAria: "Filter by name input area",
+        },
+        modelsList: {
+            headerAria: "List of models header",
+            checkButtonAria: "Select model check button",
+            checkAllButtonAria: "Select all models check button",
+
         }
     },
     predict: {
@@ -245,6 +252,7 @@ export const english: IAppStrings = {
         instructions: "Please select a connection to edit",
         new: "New Connection",
         save: "Save Connection",
+        genericInvalid: "\"${project.sourceConnection.name}\" is an invalid connection. Please check it in the Connections page",
         messages: {
             saveSuccess: "Successfully saved ${connection.name}",
             deleteSuccess: "Successfully deleted ${connection.name}",
@@ -275,6 +283,7 @@ export const english: IAppStrings = {
                     title: "Create Container",
                     description: "Creates the blob container if it does not already exist",
                 },
+                invalidSASMessage: "\"${project.sourceConnection.name}\" has no storage account. Please check it's SAS token in the Connections page",
             },
             bing: {
                 title: "Bing Image Search",
@@ -291,9 +300,11 @@ export const english: IAppStrings = {
             },
             local: {
                 title: "Local file system",
-                folderPath: "Browse",
+                folderPath: "Folder",
+                browse: "Browse",
                 selectFolder: "Select folder",
                 chooseFolder: "Choose folder",
+                invalidFolderMessage: "\"${project.sourceConnection.name}\" has an invalid folder. Please check it's selected folder in the Connections page",
             },
         },
     },

@@ -169,7 +169,13 @@ export interface IAppStrings {
             composeAria: string;
             refreshAria: string;
             filter: string;
-        }
+            filterAria: string;
+        },
+        modelsList: {
+            headerAria: string,
+            checkButtonAria: string,
+            checkAllButtonAria: string,
+        },
     }
     predict: {
         title: string;
@@ -245,6 +251,7 @@ export interface IAppStrings {
         instructions: string;
         new: string;
         save: string;
+        genericInvalid: string;
         messages: {
             saveSuccess: string;
             deleteSuccess: string;
@@ -271,7 +278,8 @@ export interface IAppStrings {
                 createContainer: {
                     title: string,
                     description: string,
-                }
+                },
+                invalidSASMessage: string;
             },
             bing: {
                 title: string;
@@ -289,8 +297,10 @@ export interface IAppStrings {
             local: {
                 title: string;
                 folderPath: string;
+                browse: string;
                 selectFolder: string;
                 chooseFolder: string;
+                invalidFolderMessage: string;
             },
         }
     };
