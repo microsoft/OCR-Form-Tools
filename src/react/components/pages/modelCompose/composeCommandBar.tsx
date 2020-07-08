@@ -60,6 +60,7 @@ export const ModelComposeCommandBar: React.FunctionComponent<IModelComposeComman
             onRender: () => (
                 <div className="commandbar-filter">
                     <TextField
+                        ariaLabel={strings.modelCompose.commandBar.filterAria}
                         className="label-filter-field"
                         placeholder={strings.modelCompose.commandBar.filter}
                         disabled={props.allModels ? false : true}

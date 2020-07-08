@@ -9,7 +9,7 @@ import { IAppStrings } from "../strings";
  * App Strings for Spanish language
  */
 export const spanish: IAppStrings = {
-    appName: "Herramienta de etiquetado de formularios OCR",
+    appName: "Herramienta de prueba de formulario OCR",
     projectService: {
         existingLabelFiles: "",
     },
@@ -170,6 +170,13 @@ export const spanish: IAppStrings = {
             composeAria: "Componer modelo",
             refreshAria: "Actualizar la lista",
             filter: "Filtrar por nombre ...",
+            filterAria: "Filtrar por área de entrada de nombre"
+        },
+        modelsList: {
+            headerAria: "Lista de encabezado de modelos",
+            checkButtonAria: "Seleccionar botón de verificación del modelo",
+            checkAllButtonAria: "Botón de verificación Seleccionar todos los modelos",
+
         }
     },
     predict: {

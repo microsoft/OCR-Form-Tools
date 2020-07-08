@@ -277,6 +277,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                                 </Spinner> :
                                 <div>
                                     <DetailsList
+                                        checkButtonAriaLabel={strings.modelCompose.modelsList.checkButtonAria}
+                                        ariaLabelForSelectAllCheckbox={strings.modelCompose.modelsList.checkAllButtonAria}
                                         componentRef={this.listRef}
                                         className="models-list"
                                         items = {modelList}

@@ -9,7 +9,7 @@ import { IAppStrings } from "../strings";
  * App Strings for English language
  */
 export const english: IAppStrings = {
-    appName: "OCR Form Labeling Tool",
+    appName: "Form OCR Testing Tool",
     common: {
         displayName: "Display name",
         description: "Description",
@@ -169,6 +169,13 @@ export const english: IAppStrings = {
             composeAria: "Compose Model",
             refreshAria: "Refresh the list",
             filter: "Filter by name...",
+            filterAria: "Filter by name input area",
+        },
+        modelsList: {
+            headerAria: "List of models header",
+            checkButtonAria: "Select model check button",
+            checkAllButtonAria: "Select all models check button",
+
         }
     },
     predict: {
