@@ -66,7 +66,7 @@ export class AzureBlobStorage implements IStorageProvider {
             await new ServiceURL(this.options.sas, StorageURL.newPipeline(this.getCredential())).getAccountInfo(Aborter.none);
             return (true);
         } catch {
-            return (false)
+            return (false);
         }
     }
 
