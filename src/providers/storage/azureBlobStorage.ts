@@ -7,7 +7,7 @@ import { IAsset, AssetType, StorageType, AssetState, AppError } from "../../mode
 import { AssetService } from "../../services/assetService";
 import {
     TokenCredential, AnonymousCredential, ContainerURL,
-    StorageURL, Credential, Aborter, BlockBlobURL,
+    StorageURL, Credential, Aborter, BlockBlobURL, ServiceURL
 } from "@azure/storage-blob";
 import { constants } from "../../common/constants";
 import { ErrorCode } from "../../models/applicationState";
@@ -58,6 +58,15 @@ export class AzureBlobStorage implements IStorageProvider {
             return await this.bodyToString(downloadResponse);
         } catch (exception) {
             this.azureBlobStorageErrorHandler(exception, ignoreNotFound);
+        }
+    }
+
+    public async isValidProjectConnection() {
+        try {
+            await new ServiceURL(this.options.sas, StorageURL.newPipeline(this.getCredential())).getAccountInfo(Aborter.none);
+            return (true);
+        } catch {
+            return (false);
         }
     }
 

@@ -251,6 +251,7 @@ export interface IAppStrings {
         instructions: string;
         new: string;
         save: string;
+        genericInvalid: string;
         messages: {
             saveSuccess: string;
             deleteSuccess: string;
@@ -277,7 +278,8 @@ export interface IAppStrings {
                 createContainer: {
                     title: string,
                     description: string,
-                }
+                },
+                invalidSASMessage: string;
             },
             bing: {
                 title: string;
@@ -295,8 +297,10 @@ export interface IAppStrings {
             local: {
                 title: string;
                 folderPath: string;
+                browse: string;
                 selectFolder: string;
                 chooseFolder: string;
+                invalidFolderMessage: string;
             },
         }
     };

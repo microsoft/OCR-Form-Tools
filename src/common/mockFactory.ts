@@ -311,6 +311,7 @@ export default class MockFactory {
             readBinary: jest.fn(),
             deleteFile: jest.fn(),
             writeText: jest.fn(),
+            isValidProjectConnection: jest.fn(),
             writeBinary: jest.fn(),
             listFiles: jest.fn(() => Promise.resolve(MockFactory.createFileList())),
             listContainers: jest.fn(),

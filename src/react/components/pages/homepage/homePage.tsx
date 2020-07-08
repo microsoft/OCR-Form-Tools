@@ -26,6 +26,7 @@ import { StorageProviderFactory } from "../../../../providers/storage/storagePro
 import { decryptProject } from "../../../../common/utils";
 import { toast } from "react-toastify";
 import { isElectron } from "../../../../common/hostProcess";
+import ProjectService from "../../../../services/projectService";
 
 export interface IHomePageProps extends RouteComponentProps, React.Props<HomePage> {
     recentProjects: IProject[];
@@ -174,6 +175,10 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
         try {
             let projectStr: string;
             try {
+                const projectService = new ProjectService();
+                if (!(await projectService.isValidProjectConnection(project))) {
+                    return;
+                }
                 projectStr = await storageProvider.readText(
                     `${decryptedProject.name}${constants.projectFileExtension}`);
             } catch (err) {

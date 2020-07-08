@@ -1,5 +1,33 @@
 # Test Runbook
 
+ ## Fix: check invalid connection provider options before project actions
+
+> ### Feature description ###
+- check connection provider options are valid before creating a project
+- check connection provider options are valid before opening a recent project 
+
+> ### Use Case ###
+
+**As** a user  
+**I want** a notification when I try to open or create a project with invalid provider options  
+**So** I know how to fix invalid provider options issue  
+
+> ### Acceptance criteria ###
+
+#### Scenario One ####
+
+**Given** I've created a connection with invalid provider options (e.g. invalid SAS token for Azure provider).  
+**When** I try to create a new project with that connection.  
+**Then** a notification will be displayed telling me my connection is invalid.
+
+#### Scenario Two ####
+
+**Given** I've created a connection with invalid provider options (e.g. invalid SAS token for Azure provider).  
+**When** I try to open a recent project that now has an invalid connection provider options (e.g. the Azure container was deleted)  
+**Then** a notification will be displayed telling me my connection is invalid.
+
+___
+
  ## Feat: support distributable releasing
 
 > ### Feature description ###

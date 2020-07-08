@@ -14,6 +14,7 @@ import getHostProcess, { HostProcessType } from "../../common/hostProcess";
  * @member deleteFile - Delete file from path
  * @member writeText - Write text to file at path
  * @member writeBinary - Write buffer to file at path
+ * @member isValidProjectConnection
  * @member listFiles - List files in container within storage provider
  * @member listContainers - List containers in storage provider
  * @member createContainer - Create container within storage provider
@@ -30,6 +31,8 @@ export interface IStorageProvider extends IAssetProvider {
 
     writeText(filePath: string, contents: string): Promise<void>;
     writeBinary(filePath: string, contents: Buffer): Promise<void>;
+
+    isValidProjectConnection(filepath?): Promise<boolean>;
 
     listFiles(folderPath?: string, ext?: string): Promise<string[]>;
     listContainers(folderPath?: string): Promise<string[]>;
