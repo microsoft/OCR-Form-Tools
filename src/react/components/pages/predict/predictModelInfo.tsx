@@ -10,8 +10,8 @@ export default function PredictModelInfo({ modelInfo }) {
         const percents = 100 * value;
         return percents % 1 !== 0 ? percents.toFixed(2) : percents;
     };
-    const modeType = docType.split(":")[0]
-    const modelName = docType.split(":")[1]
+    const modeType = docType.split(":")[0];
+    const modelName = docType.split(":")[1];
 
     return (
         <div className="model-info-container">
@@ -21,10 +21,10 @@ export default function PredictModelInfo({ modelInfo }) {
             </div>
             {
                 modelName !== modelId &&
-            <div className="model-info-item">
-                <span className="title" >Model name:</span>
-                <span className="value" >{modelName}</span>
-            </div>
+                <div className="model-info-item">
+                    <span className="title" >Model name:</span>
+                    <span className="value" >{modelName}</span>
+                </div>
             }
             <div className="model-info-item">
                 <span className="title" >Model id:</span>
