@@ -143,6 +143,17 @@ h4 {
     margin-bottom: 1rem;
 }
 
+.excluded-items-container {
+    border-radius: 2px;
+    border: 1px rgba(255, 255, 255, 0.25) solid;
+    background-color: rgba(255, 0, 0, 0.295);
+    text-align: center;
+    color: white;
+    h6 {
+        padding-top: .25rem;
+    }
+}
+
 .modal-buttons-container {
     justify-content: space-between;
     margin-top: 1.5rem;

@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { Customizer, IColumn, ICustomizations, Modal, DetailsList, SelectionMode, DetailsListLayoutMode, PrimaryButton, TextField } from "@fluentui/react";
+import { Customizer, IColumn, ICustomizations, Modal, DetailsList, SelectionMode, DetailsListLayoutMode, PrimaryButton, TextField, VerticalDivider } from "@fluentui/react";
 import { getDarkGreyTheme, getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/themes";
 import { strings } from "../../../../common/strings";
 import { IModel } from "./modelCompose";
@@ -15,6 +15,7 @@ export interface IComposeModelViewProps {
 export interface IComposeModelViewState {
     hideModal: boolean;
     items: IModel[];
+    cannotBeIncludeModels: IModel[];
 }
 
 export default class ComposeModelView extends React.Component<IComposeModelViewProps, IComposeModelViewState> {
@@ -28,10 +29,12 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
         this.state = {
             hideModal: true,
             items: [],
+            cannotBeIncludeModels: [],
         }
     }
 
     public render() {
+        console.log("# state", this.state)
         const columns: IColumn[] = [
             {
                 key: "column1",
@@ -82,8 +85,22 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                             selectionMode={SelectionMode.none}
                             isHeaderVisible={true}
                             layoutMode={DetailsListLayoutMode.justified}
-                            >
-                        </DetailsList>
+                            />
+                    }
+                    {
+                        this.state.cannotBeIncludeModels.length &&
+                        <div className="excluded-items-container">
+                            <h6>Warning: These models will not be included in this composed model!</h6>
+                            <DetailsList
+                                items={this.state.cannotBeIncludeModels}
+                                columns={columns}
+                                compact={true}
+                                setKey="none"
+                                selectionMode={SelectionMode.none}
+                                isHeaderVisible={false}
+                                layoutMode={DetailsListLayoutMode.justified}
+                            />
+                        </div>
                     }
                     {
                         this.state.items.length < 2 &&
@@ -109,10 +126,11 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
         )
     }
 
-    public open = (models: any) => {
+    public open = (models: any, cannotBeIncludeModels: any) => {
         this.setState({
             hideModal: false,
             items: models,
+            cannotBeIncludeModels,
         })
     }
 

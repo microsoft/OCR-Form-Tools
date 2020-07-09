@@ -573,7 +573,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     private onComposeButtonClick = () => {
-        this.composeModalRef.current.open(this.selectedItems);
+        this.composeModalRef.current.open(this.selectedItems, this.cannotBeIncludedItems);
     }
 
     private onComposeConfirm = (composeModelName: string) => {
