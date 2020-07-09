@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { Customizer, IColumn, ICustomizations, Modal, DetailsList, SelectionMode, DetailsListLayoutMode, PrimaryButton, TextField, VerticalDivider } from "@fluentui/react";
+import { Customizer, IColumn, ICustomizations, Modal, DetailsList, SelectionMode, DetailsListLayoutMode, PrimaryButton, TextField } from "@fluentui/react";
 import { getDarkGreyTheme, getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/themes";
 import { strings } from "../../../../common/strings";
 import { IModel } from "./modelCompose";
