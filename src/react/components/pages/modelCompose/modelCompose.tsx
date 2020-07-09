@@ -353,7 +353,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             let models = res.data.modelList;
             const link = res.data.nextLink;
 
-            models.map((m) => m.key = m.modelId);
             models = models.filter((m) => composedModelIds.indexOf(m.modelId) === -1);
 
             this.allModels = composedModels.concat(models);
@@ -433,7 +432,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     let nextPageList = nextPage.nextList;
                     nextPageList = nextPageList.filter((m) => composedIds.indexOf(m.modelId) === -1);
 
-                    nextPageList.map((m) => m.key = m.modelId);
                     const newList = reorderList.concat(nextPageList);
 
                     this.allModels = newList;
