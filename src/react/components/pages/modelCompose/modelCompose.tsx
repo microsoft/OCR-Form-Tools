@@ -585,15 +585,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     private passSelectedItems = (Items: any[]) => {
-        Items.forEach((item: IModel) => {
-            const status = item.status;
-            if (status === "ready" && !this.selectedItems.includes(item)) {
-                this.selectedItems.push(item)
-            }
-             else if (status !== "ready" && !this.cannotBeIncludedItems.includes(item)) {
-                this.cannotBeIncludedItems.push(item)
-            }
-        });
+        this.cannotBeIncludedItems = Items.filter((item: IModel) => item.status !== "ready");
+        this.selectedItems = Items.filter((item: IModel) => item.status === "ready");
     }
 
     /**
