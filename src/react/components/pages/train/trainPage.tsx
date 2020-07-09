@@ -10,7 +10,7 @@ import IProjectActions, * as projectActions from "../../../../redux/actions/proj
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import {
-    IApplicationState, IConnection, IProject, IAppSettings, FieldType,
+    IApplicationState, IConnection, IProject, IAppSettings, FieldType, IRecentModel,
 } from "../../../../models/applicationState";
 import TrainChart from "./trainChart";
 import TrainPanel from "./trainPanel";
@@ -327,8 +327,16 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private buildUpdatedProject = (newTrainRecord: ITrainRecordProps): IProject => {
+        const recentModelRecords: IRecentModel[] = this.props.project.recentModelRecords ?
+                                                   [...this.props.project.recentModelRecords] : [];
+        recentModelRecords.unshift({...newTrainRecord, isComposed: false} as IRecentModel);
+        if (recentModelRecords.length > 5) {
+            recentModelRecords.pop();
+        }
+
         return {
             ...this.props.project,
+            recentModelRecords,
             trainRecord: newTrainRecord,
             predictModelId: newTrainRecord.modelInfo.modelId,
         };
@@ -356,6 +364,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 modelId: response["modelInfo"]["modelId"],
                 createdDateTime: response["modelInfo"]["createdDateTime"],
                 modelName: response["modelInfo"]["modelName"],
+                isComposed: false,
             },
             averageAccuracy: response["trainResult"]["averageModelAccuracy"],
             accuracies: this.buildAccuracies(response["trainResult"]["fields"]),

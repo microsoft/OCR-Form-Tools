@@ -94,6 +94,7 @@ export interface IProject {
     apiKey?: string | ISecureString;
     folderPath: string;
     trainRecord: ITrainRecordProps;
+    recentModelRecords: IRecentModel[];
     predictModelId: string;
 }
 
@@ -279,6 +280,18 @@ export interface IField {
 
 export interface IFieldInfo {
     fields: IField[];
+}
+
+export interface IRecentModel { 
+    readonly composedTrainResults?: object;
+    readonly accuracies?: object;
+    readonly averageAccuracy?: number;
+    readonly modelInfo: {
+        readonly isComposed: boolean;
+        readonly modelId: string;
+        readonly createdDateTime: string;
+        readonly modelName: string;
+    };
 }
 
 /**
