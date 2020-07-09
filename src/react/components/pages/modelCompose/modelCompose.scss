@@ -132,6 +132,11 @@ h4 {
     margin-top: 10px;
 }
 
+.model-not-ready {
+    color: rgb(255, 104, 104);
+    pointer-events: none;
+}
+
 .modal-alert {
     color: #ff4040;
     font-size: small;

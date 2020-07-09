@@ -26,7 +26,8 @@ import { IColumn,
          TooltipHost,
          StickyPositionType,
          ScrollablePane,
-         ScrollbarVisibility} from "@fluentui/react";
+         ScrollbarVisibility,
+         IDetailsRowProps } from "@fluentui/react";
 import "./modelCompose.scss";
 import { strings } from "../../../../common/strings";
 import { getDarkGreyTheme, getDefaultDarkTheme } from "../../../../common/themes";
@@ -192,6 +193,11 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
           });
     }
 
+    onRenderRow = (props: IDetailsRowProps, defaultRender?: IRenderFunction<IDetailsRowProps>): JSX.Element => {
+        const modelNotReady = props.item.status !== "ready";
+        return defaultRender && defaultRender({...props, className: `${modelNotReady ? "model-not-ready" : ""}`})
+      };
+
     public async componentDidMount() {
         const projectId = this.props.match.params["projectId"];
         if (projectId) {
@@ -292,7 +298,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                                         selection={this.selection}
                                         selectionPreservedOnEmptyClick={true}
                                         onRenderDetailsHeader={onRenderDetailsHeader}
-                                        >
+                                        onRenderRow={this.onRenderRow}>
                                     </DetailsList>
                                     {this.state.nextLink && this.state.nextLink !== "*" && !this.state.hasText &&
                                         <div className="next-page-container">
