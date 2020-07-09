@@ -647,10 +647,10 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 const link = constants.apiModelsPath + "/compose";
                 const composeRes = await this.post(link, payload);
                 const composedModel = await this.waitUntilModelIsReady(composeRes["headers"]["location"]);
-                
+
                 const updatedProject = this.buildUpdatedProject(composedModel);
                 await this.props.actions.saveProject(updatedProject, false, false);
-                
+
                 const newCols = this.state.columns;
                 newCols.forEach((ncol) => {
                     ncol.isSorted = false;
