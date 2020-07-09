@@ -96,7 +96,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     private selection: Selection;
     private allModels: IModel[];
     private refreshClicks: boolean;
-    private selectedItems: any[];
+    private selectedItems: IModel[] = [];
+    private cannotBeIncludedItems: IModel[] = [];
     private listRef = React.createRef<IDetailsList>();
     private composeModalRef: React.RefObject<ComposeModelView> = React.createRef();
 
@@ -584,7 +585,15 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     private passSelectedItems = (Items: any[]) => {
-        this.selectedItems = Items;
+        Items.forEach((item: IModel) => {
+            const status = item.status;
+            if (status === "ready" && !this.selectedItems.includes(item)) {
+                this.selectedItems.push(item)
+            }
+             else if (status !== "ready" && !this.cannotBeIncludedItems.includes(item)) {
+                this.cannotBeIncludedItems.push(item)
+            }
+        });
     }
 
     /**
