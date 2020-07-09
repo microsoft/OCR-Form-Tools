@@ -282,7 +282,7 @@ export interface IFieldInfo {
     fields: IField[];
 }
 
-export interface IRecentModel { 
+export interface IRecentModel {
     readonly composedTrainResults?: object;
     readonly accuracies?: object;
     readonly averageAccuracy?: number;
