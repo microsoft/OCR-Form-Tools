@@ -330,7 +330,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         const recentModelRecords: IRecentModel[] = this.props.project.recentModelRecords ?
                                                    [...this.props.project.recentModelRecords] : [];
         recentModelRecords.unshift({...newTrainRecord, isComposed: false} as IRecentModel);
-        if (recentModelRecords.length > 5) {
+        if (recentModelRecords.length > constants.recentModelRecordsCount) {
             recentModelRecords.pop();
         }
 

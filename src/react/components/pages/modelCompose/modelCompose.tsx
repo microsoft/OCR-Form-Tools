@@ -384,7 +384,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         const recentModelRecords: IRecentModel[] = this.props.project.recentModelRecords ?
                                                    [...this.props.project.recentModelRecords] : [];
         recentModelRecords.unshift(newTrainRecord);
-        if (recentModelRecords.length > 5) {
+        if (recentModelRecords.length > constants.recentModelRecordsCount) {
             recentModelRecords.pop();
         }
 

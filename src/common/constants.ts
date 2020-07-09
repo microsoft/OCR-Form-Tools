@@ -32,7 +32,7 @@ export const constants = {
     convertedImageFormat: "image/jpeg",
     convertedImageQuality: 0.7,
     convertedThumbnailQuality: 0.2,
-
+    recentModelRecordsCount: 5,
     apiModelsPath: `/formrecognizer/${apiVersion}/custom/models`,
 
     pdfjsWorkerSrc(version: string) {
