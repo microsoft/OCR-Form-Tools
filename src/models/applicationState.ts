@@ -275,6 +275,7 @@ export interface IGeneratorTagInfo {
     tag?: ITag,
     ocrLines: number[], // index of matched ocr line(s)
     tagProposal: Partial<ITag>,
+    containsText: boolean, // better be true in label->generator
 }
 
 export type IGenerator = IGeneratorRegion & IGeneratorTagInfo;

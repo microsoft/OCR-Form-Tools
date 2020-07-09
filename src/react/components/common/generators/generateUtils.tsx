@@ -161,7 +161,7 @@ const getOcrUnitsPerChar: (g: IGenerator, ocr: any) => number[] = (generator, oc
     if (generator.tag.type === FieldType.SelectionMark) return [1, 1];
 
     let sampledLines = [];
-    if (generator.ocrLines?.length > 0) {
+    if (generator.containsText) {
         sampledLines = sampledLines.concat(generator.ocrLines.map(ln => ocr.lines[ln]));
     } else {
         for (let i = 0; i < GEN_CONSTANTS.sizing_samples; i++) {
@@ -170,7 +170,7 @@ const getOcrUnitsPerChar: (g: IGenerator, ocr: any) => number[] = (generator, oc
     }
     const sampledNestedWords = sampledLines.map(l => l.words);
     let sampledWords = [].concat.apply([], sampledNestedWords);
-    if (generator.ocrLines?.length > 0) {
+    if (generator.containsText) {
         // filter out only the words that are truly inside the generator - ocr can combine chunks with multiple sizes
         sampledWords = sampledWords.filter(w => isBoxCenterInBbox(w.boundingBox, generator.bbox));
     }
@@ -466,7 +466,8 @@ const getStringLimitsAndFormat: (g: IGenerator, unitsPerChar: number[], ocr: any
     while (curSize < GEN_CONSTANTS.sizing_range[1]) {
         const font = `${fontWeight} ${curSize}px/${lineHeight} sans-serif`;
         let sizingString = GEN_CONSTANTS.sizing_string;
-        if (generator.ocrLines?.length > 0) {
+        if (generator.containsText) {
+            // TODO filter out actual text (not super important)
             sizingString = generator.ocrLines.map(ln => ocr.lines[ln]).join("");
         }
         const metrics = getTextMetrics(sizingString, font);
@@ -580,7 +581,7 @@ export const matchBboxToOcr: (bbox: number[], pageOcr: any, text?: string) => IG
     const ocrLines = [];
     let ocrLine = -1; // closest
     // A few quality of life heuristics
-    let foundWordsInside = false;
+    let containsText = false;
     if (pageOcr) {
         // Find the closest text
         let closestDist = 1; // at most half an inch away
@@ -589,9 +590,9 @@ export const matchBboxToOcr: (bbox: number[], pageOcr: any, text?: string) => IG
         ocrRead.lines.forEach((line, index) => {
             if (isBoxCenterInBbox(line.boundingBox, bbox) || isBoxCenterInBbox(bbox, line.boundingBox)) {
                 ocrLines.push(index);
-                foundWordsInside = true;
+                containsText = true;
             }
-            if (!foundWordsInside) {
+            if (!containsText) {
                 line.words.forEach(word => {
                     const loc = [word.boundingBox[0], word.boundingBox[1]]; // TL
                     const dist = Math.hypot(loc[0] - refLoc[0], loc[1] - refLoc[1]);
@@ -618,12 +619,11 @@ export const matchBboxToOcr: (bbox: number[], pageOcr: any, text?: string) => IG
             }
         });
     };
-
-    if (ocrLine !== -1 && !foundWordsInside) {
+    if (ocrLine !== -1 && !containsText) {
         ocrLines.push(ocrLine);
     }
     const tagProposal = { name, type, format };
-    return { tagProposal, ocrLines };
+    return { tagProposal, ocrLines, containsText };
 }
 
 
@@ -680,12 +680,20 @@ export const scaleBbox = (bbox: number[], xRatio, yRatio) => {
     return bbox.map((c, i) => i % 2 ? c * yRatio: c * xRatio);
 }
 
+const isFuzzyContained = (container: number[], contained: number[], threshold=0.05) => {
+    return contained[0] > container[0] - threshold
+        && contained[1] > container[1] - threshold
+        && contained[2] < container[2] + threshold
+        && contained[5] < container[5] + threshold;
+}
+
+// Left right assumption (will fail on vertical texts... - but so will multiline assumptions)
 const EXPAND_LIMITS = {
-    "right": 1.0,
-    "left": 1.0,
+    "right": 1.5,
+    "left": 1.5,
     "top": 0.1, // only expand a little - don't expand to multiline extents
     "bottom": 0.1,
-    "padding": 0.05,
+    "padding": 0.1,
 }
 
 const getExtent = (bbox: number[]) => {
@@ -705,11 +713,14 @@ const getBbox = (extent: any) => {
     ];
 }
 
-export const expandBbox = (bbox: number[], boxes: number[][]) => {
+export const expandBbox = (bbox: number[], allBoxes: number[][]) => {
     // Basic algorithm
     // For each direction - cast a ray
     // Stop the box at the earliest collision, or corresponding EXPAND_LIMIT
     // However, if no collision, crop at margins of page
+
+    // We check to make sure drop boxes that are essentially contained (i.e. our source labels)
+    const boxes = allBoxes.filter(b => !isFuzzyContained(bbox, b));
 
     // naive margins - this will fail to extend free-text at the edge of the page
     const extents: any = {}
@@ -725,32 +736,36 @@ export const expandBbox = (bbox: number[], boxes: number[][]) => {
     extents.right = Math.min(extents.right, boxExtent.right + EXPAND_LIMITS.right);
     extents.bottom = Math.min(extents.bottom, boxExtent.bottom + EXPAND_LIMITS.bottom);
 
-    // I suspect this will break if there's a little overlap..
-    const toLeft = boxesExtents.filter(e => (e.right < boxExtent.left
+    const toLeft = boxesExtents.filter(e => (e.right < boxExtent.right
         && (e.bottom > boxExtent.top && e.top < boxExtent.bottom)))
             .map(e => e.right + EXPAND_LIMITS.padding);
     extents.left = Math.max(extents.left, ...toLeft);
+    extents.left = Math.min(boxExtent.left, extents.left); // don't regress the GT
 
-    const toTop = boxesExtents.filter(e => (e.bottom < boxExtent.top
-        && (e.right > boxExtent.left && e.left < boxExtent.right)))
-            .map(e => e.bottom + EXPAND_LIMITS.padding);
-    extents.top = Math.max(extents.top, ...toTop);
-
-    const toRight = boxesExtents.filter(e => (e.left > boxExtent.right
+    const toRight = boxesExtents.filter(e => (e.left > boxExtent.left
         && (e.bottom > boxExtent.top && e.top < boxExtent.bottom)))
             .map(e => e.left - EXPAND_LIMITS.padding);
     extents.right = Math.min(extents.right, ...toRight);
+    extents.right = Math.max(boxExtent.right, extents.right); // don't regress the GT
 
-    const toBottom = boxesExtents.filter(e => (e.top > boxExtent.bottom
-        && (e.right > boxExtent.left && e.left < boxExtent.right)))
+    // Corner resolution - do horizontal first
+
+    const toTop = boxesExtents.filter(e => (e.bottom < boxExtent.bottom
+        && (e.right > extents.left && e.left < extents.right)))
+        // && (e.right > boxExtent.left && e.left < boxExtent.right)))
+            .map(e => e.bottom + EXPAND_LIMITS.padding);
+    extents.top = Math.max(extents.top, ...toTop);
+    extents.top = Math.min(boxExtent.top, extents.top); // don't regress the GT
+
+    const toBottom = boxesExtents.filter(e => (e.top > boxExtent.top
+        && (e.right > extents.left && e.left < extents.right)))
             .map(e => e.top - EXPAND_LIMITS.padding);
     extents.bottom = Math.min(extents.bottom, ...toBottom);
+    extents.bottom = Math.max(boxExtent.bottom, extents.bottom); // don't regress the GT
 
     return getBbox(extents);
 }
 
-// TODO implement these, then vet CC Auth and Accord
-// re:
 export const selectSomeWhenMultiple: (generators: IGenerator[]) => IGenerator[] = (generators) => {
     const tagGroups: {[tag: string]: IGenerator[]} = {};
     generators.forEach(g => {

@@ -307,7 +307,7 @@ export class AssetService {
             regions: [], // No region information is stored
             generators: [],
             generatorSettings: {
-                generateCount: 40
+                generateCount: this.project?.assets && Object.keys(this.project.assets).length > 0 ? 40 / Object.keys(this.project.assets).length : 40
             },
             version: appInfo.version,
             labelData: null,

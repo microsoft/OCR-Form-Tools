@@ -36,7 +36,7 @@ import HtmlFileReader from "../../../../common/htmlFileReader";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas, getNextColor } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./canvasCommandBar";
-import { generate, GeneratorTextStyle, styleToFont, matchBboxToOcr } from "../../common/generators/generateUtils";
+import { generate, GeneratorTextStyle, styleToFont, matchBboxToOcr, expandBbox } from "../../common/generators/generateUtils";
 import { AssetService } from "../../../../services/assetService";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
@@ -415,6 +415,24 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             format.offsetX *= scaleX;
             format.offsetY *= scaleY;
             generatorTextStyles[g.id] = format;
+
+            // Expansion debug
+            const imageExtent = this.imageMap.getImageExtent();
+            const imageWidth = imageExtent[2] - imageExtent[0];
+            const imageHeight = imageExtent[3] - imageExtent[1];
+            // use words instead of lines so boxes that are part of a line don't get messed up
+            // (not very optimized)
+            let allBoxes = ocrForPage.readResults.lines.map(l => l.words.map(lw => lw.boundingBox));
+            allBoxes = [].concat.apply([], allBoxes);
+            g.bbox = expandBbox(g.bbox, allBoxes);
+            g.canvasBbox = [];
+            for (let i = 0; i < g.bbox.length; i+= 2) {
+                g.canvasBbox.push(
+                    (g.bbox[i] * imageWidth / ocrForPage.readResults.width),
+                    ((1 - (g.bbox[i+1] / ocrForPage.readResults.height)) * imageHeight),
+                );
+            }
+            g.points = g.canvasBbox;
         });
         this.setState({generatorTextStyles}, this.redrawGeneratorFeatures);
     }
@@ -1363,7 +1381,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
         const uniqueName = `Gen ${id}`;
 
-        const { tagProposal, ocrLines } = matchBboxToOcr(regionInfo.bbox, this.state.ocrForCurrentPage.readResults)
+        const { tagProposal, ocrLines, containsText } = matchBboxToOcr(regionInfo.bbox, this.state.ocrForCurrentPage.readResults)
 
         // Uniqueness guarantee
         if (tagProposal.name === ""
@@ -1375,7 +1393,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         tagProposal.color = getNextColor(this.props.formattedItems);
         tagProposal.documentCount = 1; // TODO treat <- more seriously
 
-        const regionAndMetadata: IGenerator = {...regionInfo, ocrLines, tagProposal };
+        const regionAndMetadata: IGenerator = {...regionInfo, ocrLines, tagProposal, containsText };
         return regionAndMetadata;
     }
 

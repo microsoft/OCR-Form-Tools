@@ -34,7 +34,7 @@ import { OCRService } from "../../../../services/ocrService";
 
 const shouldGenerate = true;
 const shouldGenerateForLabels = true;
-const shouldExpandLabelGenerators = false;
+const shouldExpandLabelGenerators = true;
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -469,7 +469,12 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             if (!pageOcr) {
                 throw new Error("No ocr page found for label");
             }
-            pagesBoxes[page] = pageOcr.lines.map(l => l.boundingBox);
+            // pagesBoxes[page] = pageOcr.lines.map(l => l.boundingBox);
+
+            // use words instead of lines so boxes that are part of a line don't get messed up
+            // (not optimized)
+            const allBoxes = pageOcr.lines.map(l => l.words.map(lw => lw.boundingBox));
+            pagesBoxes[page] = [].concat.apply([], allBoxes);
 
             // labels are in ratio
             const bboxes = d.value.map(v => v.boundingBoxes);
@@ -500,6 +505,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 return {
                     tag,
                     tagProposal: tag,
+                    containsText: true,
                     ocrLine,
                     bbox,
                     canvasBbox: [], // only used on canvas
