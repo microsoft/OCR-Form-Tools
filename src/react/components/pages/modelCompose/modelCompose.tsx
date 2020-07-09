@@ -195,7 +195,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     onRenderRow = (props: IDetailsRowProps, defaultRender?: IRenderFunction<IDetailsRowProps>): JSX.Element => {
-        const modelNotReady = props.item.status !== "ready";
+        const modelNotReady = props.item.status !== constants.statusCodeReady;
         return defaultRender && defaultRender({...props, className: `${modelNotReady ? "model-not-ready" : ""}`})
       };
 
@@ -404,7 +404,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
     private reloadComposedModel = (models: IModel[]): IModel[] => {
         models.forEach(async (m: IModel) => {
-            if (m.status !== "ready" && m.status !== "invalid") {
+            if (m.status !== constants.statusCodeReady && m.status !== "invalid") {
                 const url = constants.apiModelsPath + "/" + m.modelId;
                 const newModel = await this.getComposeModelByURl(url);
                 const newStatus = newModel.status;
@@ -596,8 +596,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     private passSelectedItems = (Items: any[]) => {
-        this.cannotBeIncludedItems = Items.filter((item: IModel) => item.status !== "ready");
-        this.selectedItems = Items.filter((item: IModel) => item.status === "ready");
+        this.cannotBeIncludedItems = Items.filter((item: IModel) => item.status !== constants.statusCodeReady);
+        this.selectedItems = Items.filter((item: IModel) => item.status === constants.statusCodeReady);
     }
 
     /**
