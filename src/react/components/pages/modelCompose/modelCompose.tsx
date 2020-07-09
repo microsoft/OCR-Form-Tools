@@ -5,7 +5,7 @@ import React from "react";
 import {connect} from "react-redux";
 import url from "url";
 import { RouteComponentProps } from "react-router-dom";
-import { IProject, IConnection, IAppSettings, IApplicationState, AppError, ErrorCode } from "../../../../models/applicationState";
+import { IProject, IConnection, IAppSettings, IApplicationState, AppError, ErrorCode, IRecentModel } from "../../../../models/applicationState";
 import { constants } from "../../../../common/constants";
 import ServiceHelper from "../../../../services/serviceHelper";
 import { IColumn,
@@ -341,10 +341,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             const composedModels = this.reloadComposedModel(this.state.composedModelList);
 
             let composedModelIds = [];
-            let predictModelFlag = false;
             if (this.state.composeModelId.length !== 0) {
                 composedModelIds = this.getComposedIds();
-                predictModelFlag = true;
                 if (composedModelIds.indexOf(this.state.composeModelId[0]) === -1) {
                     const idURL = constants.apiModelsPath + "/" + this.state.composeModelId[0];
                     composedModels.push(await this.getComposeModelByURl(idURL));
@@ -359,10 +357,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             models = models.filter((m) => composedModelIds.indexOf(m.modelId) === -1);
 
             this.allModels = composedModels.concat(models);
-            if (predictModelFlag) {
-                const updatedProject = this.buildUpdatedProject(this.state.composeModelId[0]);
-                await this.props.actions.saveProject(updatedProject, false, false);
-            }
             this.setState({
                 modelList: this.allModels,
                 nextLink: link,
@@ -377,10 +371,27 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         }
     }
 
-    private buildUpdatedProject = (modelId: string): IProject => {
+    private buildUpdatedProject = (composedModel: object): IProject => {
+        const newTrainRecord = {
+            modelInfo: {
+                createdDateTime: composedModel["modelInfo"]["createdDateTime"],
+                modelId: composedModel["modelInfo"]["modelId"],
+                modelName: composedModel["modelInfo"]["modelName"],
+                isComposed: true,
+            },
+            composedTrainResults: composedModel["composedTrainResults"]
+        } as IRecentModel;
+        const recentModelRecords: IRecentModel[] = this.props.project.recentModelRecords ?
+                                                   [...this.props.project.recentModelRecords] : [];
+        recentModelRecords.unshift(newTrainRecord);
+        if (recentModelRecords.length > constants.recentModelRecordsCount) {
+            recentModelRecords.pop();
+        }
+
         return {
             ...this.props.project,
-            predictModelId: modelId,
+            recentModelRecords,
+            predictModelId: newTrainRecord.modelInfo.modelId,
         };
     }
 
@@ -399,7 +410,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     private getComposeModelByURl = async (idURL) => {
         const composedRes = await this.getResponse(idURL);
         const composedModel: IModel = composedRes.data.modelInfo;
-        composedModel.iconName = "combine";
+        composedModel.iconName = "Combine";
         composedModel.key = composedModel.modelId;
         return composedModel;
     }
@@ -632,18 +643,23 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     modelIds: idList,
                     modelName: name,
                 };
+
                 const link = constants.apiModelsPath + "/compose";
                 const composeRes = await this.post(link, payload);
-                await this.waitUntilModelIsReady(composeRes["headers"]["location"]);
-                const composedModelId = this.getComposeModelId(composeRes);
+                const composedModel = await this.waitUntilModelIsReady(composeRes["headers"]["location"]);
+
+                const updatedProject = this.buildUpdatedProject(composedModel);
+                await this.props.actions.saveProject(updatedProject, false, false);
+
                 const newCols = this.state.columns;
                 newCols.forEach((ncol) => {
                     ncol.isSorted = false;
                     ncol.isSortedDescending = true;
                 });
+
                 this.setState({
                     isComposing: false,
-                    composeModelId: [composedModelId],
+                    composeModelId: [composedModel["modelInfo"]["modelId"]],
                     columns: newCols,
                 });
             } catch (error) {
@@ -653,13 +669,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 throw new AppError(ErrorCode.ModelNotFound, error.message);
             }
         }, 5000);
-    }
-
-    /** get the model Id of new composed model */
-    private getComposeModelId = (composeRes: any): string => {
-        const location = composeRes["headers"]["location"];
-        const splitGroup = location.split("/");
-        return splitGroup[splitGroup.length - 1];
     }
 
     private async post(link, payload): Promise<any> {
