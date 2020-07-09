@@ -34,7 +34,6 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
     }
 
     public render() {
-        console.log("# state", this.state)
         const columns: IColumn[] = [
             {
                 key: "column1",
