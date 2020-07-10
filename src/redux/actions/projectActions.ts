@@ -18,6 +18,7 @@ import {
 import { createAction, createPayloadAction, IPayloadAction } from "./actionCreators";
 import { appInfo } from "../../common/appInfo";
 import { saveAppSettingsAction } from "./applicationActions";
+import { toast } from 'react-toastify';
 
 /**
  * Actions to be performed in relation to projects
@@ -51,7 +52,9 @@ export function loadProject(project: IProject, sharedToken?: ISecurityToken):
         // Lookup security token used to decrypt project settings
         if (sharedToken) {
             projectToken = sharedToken;
-            if (!appState.appSettings.securityTokens.find((t) => projectToken.name === t.name && projectToken.key === t.key)) {
+            const existingToken = appState.appSettings.securityTokens.find((token) => token.name === projectToken.name);
+
+            if (!existingToken) {
                 // if we do not have project sharedToken, we need update security tokens in appState
                 dispatch(saveAppSettingsAction({
                     securityTokens: [
@@ -59,10 +62,13 @@ export function loadProject(project: IProject, sharedToken?: ISecurityToken):
                         sharedToken
                     ]
                 }));
+            } else if (existingToken.key !== sharedToken.key) {
+                toast.warn(`❗Warning you already have token with same name as in shared project. Please create a new token, and update the existing project which uses "${sharedToken.name}" with new token name.`, { autoClose: false, closeOnClick: false,
+                });
+                return null;
             }
         } else {
-            projectToken = appState.appSettings.securityTokens
-                .find((securityToken) => securityToken.name === project.securityToken);
+            projectToken = appState.appSettings.securityTokens.find((token) => token.name === project.securityToken);
         }
 
         if (!projectToken) {

@@ -155,8 +155,10 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
     }
 
     private loadSelectedProject = async (project: IProject, sharedToken?: {}) => {
-        await this.props.actions.loadProject(project, sharedToken);
-        this.props.history.push(`/projects/${project.id}/edit`);
+        const loadedProject = await this.props.actions.loadProject(project, sharedToken);
+        if (loadedProject !== null) {
+            this.props.history.push(`/projects/${project.id}/edit`);
+        }
     }
 
     private freshLoadSelectedProject = async (project: IProject) => {
