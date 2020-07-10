@@ -344,7 +344,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
     private getTrainMessage = (trainingResult): string => {
         if (trainingResult !== undefined && trainingResult.modelInfo !== undefined
-            && trainingResult.modelInfo.status === "ready") {
+            && trainingResult.modelInfo.status === constants.statusCodeReady) {
             return "Trained successfully";
         }
         return "Training failed";
@@ -392,7 +392,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         const checkSucceeded = (resolve, reject) => {
             const ajax = func();
             ajax.then((response) => {
-                if (response.data.modelInfo && response.data.modelInfo.status === "ready") {
+                if (response.data.modelInfo && response.data.modelInfo.status === constants.statusCodeReady) {
                     resolve(response.data);
                 } else if (response.data.modelInfo && response.data.modelInfo.status === "invalid") {
                     const message = _.get(
