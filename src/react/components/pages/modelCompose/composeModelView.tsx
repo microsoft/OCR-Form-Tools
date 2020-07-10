@@ -91,6 +91,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                         <div className="excluded-items-container">
                             <h6>{this.state.cannotBeIncludeModels.length > 1 ? strings.modelCompose.modelView.modelsCannotBeIncluded : strings.modelCompose.modelView.modelCannotBeIncluded}</h6>
                             <DetailsList
+                                className="excluded-items-list"
                                 items={this.state.cannotBeIncludeModels}
                                 columns={columns}
                                 compact={true}

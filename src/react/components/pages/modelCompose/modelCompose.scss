@@ -144,13 +144,23 @@ h4 {
 }
 
 .excluded-items-container {
+    display: flex;
+    flex-direction: column;
     border-radius: 2px;
-    border: 1px rgba(255, 255, 255, 0.25) solid;
-    background-color: rgba(255, 0, 0, 0.295);
-    text-align: center;
-    color: white;
+    border: 2px rgba(255, 0, 0, 0.3) solid;
+    margin: 1rem .25rem;
+    overflow-x: hidden;
     h6 {
-        padding-top: .25rem;
+        background-color: rgba(255, 0, 0, 0.3);
+        padding: .25rem;
+        text-align: center;
+        margin: 0;
+    }
+    .excluded-items-list {
+        display: flex;
+        overflow-x: hidden;
+        max-height: 6rem;
+        margin: 1px;
     }
 }
 
