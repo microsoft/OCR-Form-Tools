@@ -11,8 +11,8 @@ import { randomIntInRange } from "../../../../common/utils";
 const DO_JITTER = true;
 const USE_RANDOM_WORDS = true;
 const DO_MATCH_TEXT_STATISTICS = true;
-const DIGIT_DROPOUT = 0.3;
-const MATCH_TEXT_PROB = 0.3; // probability of matching source text length when when text has no digits
+const DIGIT_DROPOUT = 0.0;
+const USE_TEXT_PROB = 0.0; // probability of using word gen when text has no digits
 
 // Note - for selectionMarks, text will indicate selection state (as used by labels)
 // We'll need to format appropriately for OCR
@@ -102,8 +102,7 @@ const GEN_CONSTANTS = {
     // https://stackoverflow.com/questions/14061228/remove-white-space-above-and-below-large-text-in-an-inline-block-element
     leadingLineHeightScale: 1.25, // account for the font-to-full height discrepancy with our default font
     sizeJitter: 1, // 1,
-    offsetX: .05, // ratio offset
-    offsetXJitter: .05,
+    offsetX: 0, // ratio offset
     offsetY: .05,
     offsetYJitter: .05, // ratio offset
     // Char limits
@@ -124,6 +123,7 @@ interface LimitsAndFormat {
     limits: number[][]
 }
 
+// ! Still have a problem with SSN, and we're not really generating enough numbers
 // TODO seeding
 export const generate:(g: IGenerator, ocr: any, resolution?: any) => IGeneratedInfo = (generator, ocr, resolution=1) => {
     /**
@@ -144,7 +144,10 @@ export const generate:(g: IGenerator, ocr: any, resolution?: any) => IGeneratedI
     // Generate string from bounds
     const text = generateString(generator, limitsAndFormat.limits, ocr);
 
-    const format = { ...defaultStyle, ...limitsAndFormat.format, text };
+    const leftAlignedFormat = { ...defaultStyle, ...limitsAndFormat.format, text };
+
+    const format = randomizeAlignment(limitsAndFormat.limits, leftAlignedFormat, text, ocrUnitsPerChar);
+
     // Translate string into precise OCR boxes
     const boundingBoxes = generateBoundingBoxes(generator, format, ocr, ocrUnitsPerChar, adjustedResolution);
     // If we wanted to be more careful about existing characters, we'd need to merge the last two steps
@@ -184,6 +187,9 @@ const getOcrUnitsPerChar: (g: IGenerator, ocr: any) => number[] = (generator, oc
         heights.push((w.boundingBox[5] - w.boundingBox[1]));
     });
 
+    if (widths.length === 0) {
+        throw new Error(`No words found in box. Mismatch between contained OCR word and labeled box. Check ${generator.tag.name}`);
+    }
     // - scale to map units, which we can convert to pixels
     const widthPerChar = median(widths);
     const heightPerChar = Math.max(...heights); // better hope we get the spread somewhere in the line
@@ -344,8 +350,7 @@ const regexGenerator = (low, high, fieldType, fieldFormat) => {
             [FieldFormat.Currency]: `^\\$?([0-9]{${low},${high-2}})(\\.[0-9][0-9])?$`,
         },
         [FieldType.Date]: {
-            [FieldFormat.NotSpecified]: `^\\d\\d([- /.])\\d\\d\\1\\d{2,4}$
-            `,
+            [FieldFormat.NotSpecified]: `^\\d\\d([- /.])\\d\\d\\1\\d{2,4}$`,
             [FieldFormat.DMY]: `^${dd}([- /.])${mm}\\2${yy}$`,
             [FieldFormat.MDY]: `^${mm}([- /.])${dd}\\2${yy}$`,
             [FieldFormat.YMD]: `^${yy}([- /.])${mm}\\2${dd}$`,
@@ -370,7 +375,12 @@ const regexGenerator = (low, high, fieldType, fieldFormat) => {
     return randexp.gen();
 }
 
-const wordGenerator = (low: number, high: number) => {
+const wordGenerator = (low: number, high: number, fieldType?: FieldType, fieldFormat?: FieldFormat) => {
+
+    // if fieldType is number, forward to regex
+    if (fieldType && fieldType !== FieldType.String) {
+        return regexGenerator(low, high, fieldType, fieldFormat);
+    }
     // low, high
     const maxWordLength = 12; // there's a weird balance to strike here...
     const formatter = (word, index)=> {
@@ -404,15 +414,18 @@ const generateString: (g: IGenerator, l: number[][], ocr: any) => string = (gene
     const fieldType = generator.tag.type;
     const fieldFormat = generator.tag.format;
 
-    const isBaseCase = fieldType === FieldType.String && [FieldFormat.NotSpecified, FieldFormat.Alphanumeric].includes(fieldFormat);
+    const canMatchStatistics = [FieldType.String, FieldType.Number].includes(fieldType)
+        && [FieldFormat.NotSpecified].includes(fieldFormat);
 
-    const tokenGenerator = USE_RANDOM_WORDS && isBaseCase ? wordGenerator : regexGenerator;
+    const tokenGenerator = USE_RANDOM_WORDS && canMatchStatistics ? wordGenerator : regexGenerator;
 
     const instanceGenerator = (srcText) => {
+        if (srcText.length === 1) return srcText; // hard-coded return of standalone symbols
         if (!DO_MATCH_TEXT_STATISTICS
-            || !isBaseCase
+            || !canMatchStatistics
             || srcText === ""
-            || !(/(\d+)/.test(srcText) && Math.random() < MATCH_TEXT_PROB))
+            || !(/(\d+)/.test(srcText))
+            || Math.random() < USE_TEXT_PROB)
             return tokenGenerator(widthLow, widthHigh, fieldType, fieldFormat);
         // heuristic algorithm, with an attempt at reflecting underlying distribution
         // Split text into tokens
@@ -421,19 +434,18 @@ const generateString: (g: IGenerator, l: number[][], ocr: any) => string = (gene
             // ideally we can split on recognized "language sets" (like english) and mutate.
             // let's not over-engineer, though (just doing digits for now)
 
+            // No digits in token - generate a random word for it
+            if (!/(\d+)/.test(t)) return "";
+            // has digits - scramble them and return the string otherwise (should work on dates etc)
             // Extract digits
-            const splitTokens = t.split(/(\d+)/);
-            if (splitTokens.length > 1 && Math.random() < DIGIT_DROPOUT) { // has digits
-                return splitTokens.map(st => {
-                    if (/(\d+)/.test(st)) {
-                        return regexGenerator(0, st.length + 1, FieldType.Number, FieldFormat.NotSpecified);
-                    }
-                    return st;
-                }).join(" ");
-            }
-
-            // else, we have a default token - process separately
-            return "";
+            const splitTokens = t.split(/(\d+)/).filter(st => st.length > 0);
+            return splitTokens.map(st => {
+                if (/(\d+)/.test(st)) {
+                    if (Math.random() < DIGIT_DROPOUT) return "";
+                    return regexGenerator(Math.max(st.length - 1, 1), st.length + 1, FieldType.Number, FieldFormat.NotSpecified);
+                }
+                return st;
+            }).join("");
         });
 
         // generate words and randomly fill into empty slots
@@ -443,7 +455,6 @@ const generateString: (g: IGenerator, l: number[][], ocr: any) => string = (gene
         const proposals = wordGenerator(budgetLow, budgetHigh).split(" ");
 
         let proposalIndex = 0;
-        // Problem - this won't generate free text since we're following templates
         mutatedTokens = mutatedTokens.map(t => {
             if (t.length > 0 || proposalIndex >= proposals.length) return t;
             return proposals[proposalIndex++];
@@ -465,6 +476,23 @@ const generateString: (g: IGenerator, l: number[][], ocr: any) => string = (gene
         }
     }
     return lineStrings.join("\n");
+}
+
+const randomizeAlignment: (limits: number[][], format: GeneratorTextStyle, text: string, unitsPerChar: number[]) => GeneratorTextStyle
+    = (limits, format, text, unitsPerChar) => {
+    // Using the longest line (can't easily apply to separate lines)
+    // randomize alignment within limits
+    const widthHigh = limits[0][1];
+    const lines = text.split("\n");
+    // Character ratio should approximate actual length well enough for jitter
+    const maxLength = Math.max(...lines.map(l => l.length));
+    const charBudget = Math.max(widthHigh - maxLength, 0);
+    const xBudget = charBudget * unitsPerChar[0];
+    const offsetX = format.offsetX + (xBudget / 2) + jitter(xBudget / 2);
+    return {
+        ...format,
+        offsetX,
+    };
 }
 
 /**
@@ -555,7 +583,8 @@ const getStringLimitsAndFormat: (g: IGenerator, unitsPerChar: number[], ocr: any
     const left = generator.bbox[0];
     const centerHeight = (generator.bbox[1] + generator.bbox[5]) / 2;
     const top = generator.bbox[1];
-    const ratioOffsetX = GEN_CONSTANTS.offsetX + jitter(GEN_CONSTANTS.offsetXJitter);
+
+    const ratioOffsetX = GEN_CONSTANTS.offsetX;
     const randomOffsetX = (generator.bbox[2] - generator.bbox[0]) * ratioOffsetX;
 
     const offsetX = (left - centerWidth + randomOffsetX);
@@ -637,9 +666,10 @@ export const generatorInfoToLabel: (g: IGeneratedInfo) => ILabel = (generatedInf
  *
  * @param bbox ratio bbox (label)
  * @param pageOcr
- * @param text
+ * @param text when generating, make sure we text match the line we're looking for
  */
-export const matchBboxToOcr: (bbox: number[], pageOcr: any, text?: string) => IGeneratorTagInfo = (bbox, pageOcr, text) => {
+export const matchBboxToOcr: (bbox: number[], pageOcr: any, text?: string) => IGeneratorTagInfo
+    = (bbox, pageOcr, text) => {
     const numberFlags = ["#", "number", "num.", "phone", "amount"];
 
     let name = "";
@@ -655,7 +685,8 @@ export const matchBboxToOcr: (bbox: number[], pageOcr: any, text?: string) => IG
         const refLoc = [bbox[0], bbox[1]];
         const ocrRead = pageOcr;
         ocrRead.lines.forEach((line, index) => {
-            if (isBoxCenterInBbox(line.boundingBox, bbox) || isBoxCenterInBbox(bbox, line.boundingBox)) {
+            if (isFuzzyContained(bbox, line.boundingBox, 0.1)
+            || (text && line.words.includes(text))) {
                 ocrLines.push(index);
                 containsText = true;
             }
@@ -760,7 +791,7 @@ const EXPAND_LIMITS = {
     "left": 1.5,
     "top": 0.1, // only expand a little - don't expand to multiline extents
     "bottom": 0.1,
-    "padding": 0.1,
+    "padding": 0.15,
 }
 
 const getExtent = (bbox: number[]) => {
@@ -803,6 +834,8 @@ export const expandBbox = (bbox: number[], allBoxes: number[][]) => {
     extents.right = Math.min(extents.right, boxExtent.right + EXPAND_LIMITS.right);
     extents.bottom = Math.min(extents.bottom, boxExtent.bottom + EXPAND_LIMITS.bottom);
 
+    // Corner resolution - do horizontal first
+
     const toLeft = boxesExtents.filter(e => (e.right < boxExtent.right
         && (e.bottom > boxExtent.top && e.top < boxExtent.bottom)))
             .map(e => e.right + EXPAND_LIMITS.padding);
@@ -814,8 +847,6 @@ export const expandBbox = (bbox: number[], allBoxes: number[][]) => {
             .map(e => e.left - EXPAND_LIMITS.padding);
     extents.right = Math.min(extents.right, ...toRight);
     extents.right = Math.max(boxExtent.right, extents.right); // don't regress the GT
-
-    // Corner resolution - do horizontal first
 
     const toTop = boxesExtents.filter(e => (e.bottom < boxExtent.bottom
         && (e.right > extents.left && e.left < extents.right)))

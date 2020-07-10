@@ -460,29 +460,32 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         // Will not convert labels with generators made
         const newGeneratorData = labelData.labels.filter(l => !existingGeneratorKeys.includes(l.label));
 
-        const pagesBoxes = {};
+        const pagesBoxes: {[page: number]: number[][]} = {};
+
+        // grab existing generators and page ocr lines bounding boxes
+        // (not optimized) use words instead of lines so boxes that are part of a line don't get messed up
+        // pagesBoxes[page] = pageOcr.lines.map(l => l.boundingBox); // (lines instead of boxes)
+        ocr.forEach(pageOcr => {
+            const page = pageOcr.page;
+            const allBoxes = pageOcr.lines.map(l => l.words.map(lw => lw.boundingBox));
+            pagesBoxes[page] = [].concat.apply([], allBoxes);
+            // also append existing generators
+            pagesBoxes[page].push(...metadata.generators.filter(g => g.page === page).map(g => g.bbox));
+        })
+
         const newGenerators = newGeneratorData.map(d => {
             const tag = tags.find(t => t.name === d.label);
             const id = Math.random().toString(36).slice(8);
             const page = d.value[0].page;
             const pageOcr = ocr.find(doc => doc.page === page);
-            if (!pageOcr) {
-                throw new Error("No ocr page found for label");
-            }
-            // pagesBoxes[page] = pageOcr.lines.map(l => l.boundingBox);
-
-            // use words instead of lines so boxes that are part of a line don't get messed up
-            // (not optimized)
-            const allBoxes = pageOcr.lines.map(l => l.words.map(lw => lw.boundingBox));
-            pagesBoxes[page] = [].concat.apply([], allBoxes);
 
             // labels are in ratio
             const bboxes = d.value.map(v => v.boundingBoxes);
             const flatBboxes = [].concat.apply([], bboxes);
-            // check ocr lines for each box in the label
-            const ocrLines = flatBboxes.map(singleBox => {
+            // match ocr lines for each box in the label (can be different)
+            const ocrLines = flatBboxes.map((singleBox, i) => {
                 const scaledAndPaddedBox = padBbox(scaleBbox(singleBox, pageOcr.width, pageOcr.height), 0.1, 0.05);
-                return matchBboxToOcr(scaledAndPaddedBox, pageOcr).ocrLines[0]; // max one hit
+                return matchBboxToOcr(scaledAndPaddedBox, pageOcr, d.value[i].text).ocrLines[0];
             });
 
             const boxesByOcrLine = {};
@@ -506,8 +509,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                     tag,
                     tagProposal: tag,
                     containsText: true,
-                    ocrLine,
-                    bbox,
+                    ocrLines: [ocrLine],
+                    bbox: paddedBbox,
                     canvasBbox: [], // only used on canvas
                     points: [], // only used on canvas
                     id,

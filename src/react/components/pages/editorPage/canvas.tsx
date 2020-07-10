@@ -424,6 +424,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             // // use words instead of lines so boxes that are part of a line don't get messed up
             // // (not very optimized)
             // let allBoxes = ocrForPage.readResults.lines.map(l => l.words.map(lw => lw.boundingBox));
+            // doesn't include other generators and made boxes
             // allBoxes = [].concat.apply([], allBoxes);
             // g.bbox = expandBbox(g.bbox, allBoxes);
             // g.canvasBbox = [];
