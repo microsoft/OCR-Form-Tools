@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React from "react";
+import React, { ReactElement } from "react";
 import {connect} from "react-redux";
 import url from "url";
 import { RouteComponentProps } from "react-router-dom";
@@ -71,7 +71,9 @@ export interface IModel {
     createdDateTime: string;
     lastUpdatedDateTime: string;
     status: string;
-    iconName?: string;
+    attributes?: {
+        isComposed: boolean;
+    };
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -114,7 +116,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 minWidth: 20,
                 maxWidth: 20,
                 isResizable: true,
-                onRender: (model: IModel) => <FontIcon iconName={model.iconName} className="model-fontIcon"/>,
+                onRender: this.renderComposedIcon,
                 headerClassName: "list-header",
             },
             {
@@ -416,7 +418,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     private getComposeModelByURl = async (idURL) => {
         const composedRes = await this.getResponse(idURL);
         const composedModel: IModel = composedRes.data.modelInfo;
-        composedModel.iconName = "Combine";
         composedModel.key = composedModel.modelId;
         return composedModel;
     }
@@ -711,6 +712,14 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     });
                 }
             }, 1);
+        }
+    }
+
+    private renderComposedIcon = (model: IModel): ReactElement => {
+        if (model.attributes && model.attributes.isComposed) {
+            return <FontIcon iconName={"Combine"} className="model-fontIcon"/>;
+        } else {
+            return null;
         }
     }
 }
