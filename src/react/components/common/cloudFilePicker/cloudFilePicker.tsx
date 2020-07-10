@@ -81,7 +81,7 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
                 <ModalHeader toggle={this.close} close={closeBtn}>
                     {this.state.modalHeader}
                 </ModalHeader>
-                <div className={`share-container ${this.state.selectedConnection ? "hide" : ""}`}>
+                <div className={`shared-string-input-container ${this.state.selectedConnection ? "hide" : ""}`}>
                     <div className="condensed-list-header bg-darker-2 shared-uri-header">
                         Shared Project URI
                 </div>
