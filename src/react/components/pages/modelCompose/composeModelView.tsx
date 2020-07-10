@@ -15,6 +15,7 @@ export interface IComposeModelViewProps {
 export interface IComposeModelViewState {
     hideModal: boolean;
     items: IModel[];
+    cannotBeIncludeModels: IModel[];
 }
 
 export default class ComposeModelView extends React.Component<IComposeModelViewProps, IComposeModelViewState> {
@@ -28,6 +29,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
         this.state = {
             hideModal: true,
             items: [],
+            cannotBeIncludeModels: [],
         }
     }
 
@@ -82,8 +84,22 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                             selectionMode={SelectionMode.none}
                             isHeaderVisible={true}
                             layoutMode={DetailsListLayoutMode.justified}
-                            >
-                        </DetailsList>
+                            />
+                    }
+                    {
+                        this.state.cannotBeIncludeModels.length > 0 &&
+                        <div className="excluded-items-container">
+                            <h6>{this.state.cannotBeIncludeModels.length > 1 ? strings.modelCompose.modelView.modelsCannotBeIncluded : strings.modelCompose.modelView.modelCannotBeIncluded}</h6>
+                            <DetailsList
+                                items={this.state.cannotBeIncludeModels}
+                                columns={columns}
+                                compact={true}
+                                setKey="none"
+                                selectionMode={SelectionMode.none}
+                                isHeaderVisible={false}
+                                layoutMode={DetailsListLayoutMode.justified}
+                            />
+                        </div>
                     }
                     {
                         this.state.items.length < 2 &&
@@ -109,10 +125,11 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
         )
     }
 
-    public open = (models: any) => {
+    public open = (models: any, cannotBeIncludeModels: any) => {
         this.setState({
             hideModal: false,
             items: models,
+            cannotBeIncludeModels,
         })
     }
 

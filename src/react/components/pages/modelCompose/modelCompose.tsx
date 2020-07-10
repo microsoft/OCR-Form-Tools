@@ -26,7 +26,8 @@ import { IColumn,
          TooltipHost,
          StickyPositionType,
          ScrollablePane,
-         ScrollbarVisibility} from "@fluentui/react";
+         ScrollbarVisibility,
+         IDetailsRowProps } from "@fluentui/react";
 import "./modelCompose.scss";
 import { strings } from "../../../../common/strings";
 import { getDarkGreyTheme, getDefaultDarkTheme } from "../../../../common/themes";
@@ -95,7 +96,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     private selection: Selection;
     private allModels: IModel[];
     private refreshClicks: boolean;
-    private selectedItems: any[];
+    private selectedItems: IModel[] = [];
+    private cannotBeIncludedItems: IModel[] = [];
     private listRef = React.createRef<IDetailsList>();
     private composeModalRef: React.RefObject<ComposeModelView> = React.createRef();
 
@@ -191,6 +193,11 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             },
           });
     }
+
+    onRenderRow = (props: IDetailsRowProps, defaultRender?: IRenderFunction<IDetailsRowProps>): JSX.Element => {
+        const modelNotReady = props.item.status !== constants.statusCodeReady;
+        return defaultRender && defaultRender({...props, className: `${modelNotReady ? "model-not-ready" : ""}`})
+      };
 
     public async componentDidMount() {
         const projectId = this.props.match.params["projectId"];
@@ -292,7 +299,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                                         selection={this.selection}
                                         selectionPreservedOnEmptyClick={true}
                                         onRenderDetailsHeader={onRenderDetailsHeader}
-                                        >
+                                        onRenderRow={this.onRenderRow}>
                                     </DetailsList>
                                     {this.state.nextLink && this.state.nextLink !== "*" && !this.state.hasText &&
                                         <div className="next-page-container">
@@ -396,7 +403,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
     private reloadComposedModel = (models: IModel[]): IModel[] => {
         models.forEach(async (m: IModel) => {
-            if (m.status !== "ready" && m.status !== "invalid") {
+            if (m.status !== constants.statusCodeReady && m.status !== "invalid") {
                 const url = constants.apiModelsPath + "/" + m.modelId;
                 const newModel = await this.getComposeModelByURl(url);
                 const newStatus = newModel.status;
@@ -575,7 +582,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     private onComposeButtonClick = () => {
-        this.composeModalRef.current.open(this.selectedItems);
+        this.composeModalRef.current.open(this.selectedItems, this.cannotBeIncludedItems);
     }
 
     private onComposeConfirm = (composeModelName: string) => {
@@ -587,7 +594,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     private passSelectedItems = (Items: any[]) => {
-        this.selectedItems = Items;
+        this.cannotBeIncludedItems = Items.filter((item: IModel) => item.status !== constants.statusCodeReady);
+        this.selectedItems = Items.filter((item: IModel) => item.status === constants.statusCodeReady);
     }
 
     /**
