@@ -193,16 +193,18 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
     }
 
     private getSharedUriParams(sharedSting: string) {
-        const location = window.location.origin;
-        let uri = location;
+        const location: string = window.location.origin;
+        let uri: string;
+        let url: URL;
 
         try {
             uri = location + atob(sharedSting);
+            url = new URL(uri);
         } catch (error) {
             toast.error(strings.shareProject.errors.cannotDecodeString);
             return;
         }
-        const url = new URL(uri);
+
         if (url) {
             return {
                 sasFolder: decodeURIComponent(url.searchParams.get("SAS")),
