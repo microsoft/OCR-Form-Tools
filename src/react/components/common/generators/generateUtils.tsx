@@ -10,6 +10,9 @@ import { randomIntInRange } from "../../../../common/utils";
 // Debugging controls
 const DO_JITTER = true;
 const USE_RANDOM_WORDS = true;
+const DO_MATCH_TEXT_STATISTICS = true;
+const DIGIT_DROPOUT = 0.3;
+const MATCH_TEXT_PROB = 0.3; // probability of matching source text length when when text has no digits
 
 // Note - for selectionMarks, text will indicate selection state (as used by labels)
 // We'll need to format appropriately for OCR
@@ -95,13 +98,14 @@ const GEN_CONSTANTS = {
     heightScale: 1,
     heightScaleJitter: .05,
     digitWidthScale: 1.3, // digits are a little wider, accommodate
+    defaultWidthScale: 1.2,
     // https://stackoverflow.com/questions/14061228/remove-white-space-above-and-below-large-text-in-an-inline-block-element
     leadingLineHeightScale: 1.25, // account for the font-to-full height discrepancy with our default font
-    sizeJitter: 1,
+    sizeJitter: 1, // 1,
     offsetX: .05, // ratio offset
     offsetXJitter: .05,
     offsetY: .05,
-    offsetYJitter: .1, // ratio offset
+    offsetYJitter: .05, // ratio offset
     // Char limits
     // TODO better than linear lower bound (super long fields shouldn't have multiple)
     width_low: 0.2,
@@ -138,10 +142,8 @@ export const generate:(g: IGenerator, ocr: any, resolution?: any) => IGeneratedI
     // Translate to rough character bounds and format
     const limitsAndFormat = getStringLimitsAndFormat(generator, ocrUnitsPerChar, ocr, adjustedResolution);
     // Generate string from bounds
-    const text = generateString(generator, limitsAndFormat.limits);
-    // if (generator.tag.type === FieldType.SelectionMark) {
-    //     console.log(text);
-    // }
+    const text = generateString(generator, limitsAndFormat.limits, ocr);
+
     const format = { ...defaultStyle, ...limitsAndFormat.format, text };
     // Translate string into precise OCR boxes
     const boundingBoxes = generateBoundingBoxes(generator, format, ocr, ocrUnitsPerChar, adjustedResolution);
@@ -323,17 +325,7 @@ const generateBoundingBoxes: (g: IGenerator, format: GeneratorTextStyle, ocr: an
     };
 }
 
-
-const generateString: (g: IGenerator, l: number[][], sampledLines?: string[]) => string = (generator, limits, sampledLines) => {
-
-    // heuristic algorithm, with an attempt at reflecting underlying distribution if existing
-
-
-    const [ widthLimit, heightLimit ] = limits;
-    const [ low, high ] = widthLimit;
-    const [ heightLow, heightHigh ] = heightLimit;
-    const linesUsed = randomIntInRange(heightLow, heightHigh);
-
+const regexGenerator = (low, high, fieldType, fieldFormat) => {
     const defaultRegex = `^[a-zA-Z ]{${low},${high}}$`; // `^.{${low},${high}}$`;
     const dd = "(0[1-9]|[12][0-9]|3[01])";
     const mm = "(0[1-9]|1[012])";
@@ -369,40 +361,108 @@ const generateString: (g: IGenerator, l: number[][], sampledLines?: string[]) =>
         },
     }
 
+    let regex = regexDict[FieldType.String][FieldFormat.NotSpecified];
+    if (fieldType in regexDict && fieldFormat in regexDict[fieldType]) {
+        regex = regexDict[fieldType][fieldFormat];
+    }
+    // @ts-ignore - something is messed up with this import, satisfying it in lint breaks on runtime
+    const randexp = new RandExp(regex);
+    return randexp.gen();
+}
+
+const wordGenerator = (low: number, high: number) => {
+    // low, high
+    const maxWordLength = 12; // there's a weird balance to strike here...
+    const formatter = (word, index)=> {
+        return Math.random() < 0.3 ? word.slice(0,1).toUpperCase().concat(word.slice(1)) : word;
+    }
+
+    let tries = 0;
+    let candidate = "";
+    while (tries < 8) {
+        candidate = randomWords({
+            min: Math.max(Math.round(low / maxWordLength), 1),
+            max: high / 8, // max number of words - don't make it too many
+            maxLength: maxWordLength,
+            minLength: 3,
+            join: " ",
+            formatter,
+        });
+        if (candidate.length < high) return candidate;
+        tries += 1;
+    }
+    return candidate;
+};
+
+const generateString: (g: IGenerator, l: number[][], ocr: any) => string = (generator, limits, ocr) => {
+
+    // Default: regex map
+    const [ widthLimit, heightLimit ] = limits;
+    const [ widthLow, widthHigh ] = widthLimit;
+    const [ heightLow, heightHigh ] = heightLimit;
+    const linesUsed = randomIntInRange(heightLow, heightHigh);
     const fieldType = generator.tag.type;
     const fieldFormat = generator.tag.format;
-    let instanceGenerator = () => {
-        let regex = regexDict[FieldType.String][FieldFormat.NotSpecified];
-        if (fieldType in regexDict && fieldFormat in regexDict[fieldType]) {
-            regex = regexDict[fieldType][fieldFormat];
-        }
-        // @ts-ignore - something is messed up with this import, satisfying it in lint breaks on runtime
-        const randexp = new RandExp(regex);
-        return randexp.gen();
-    }
 
-    if (USE_RANDOM_WORDS && fieldType === FieldType.String && [FieldFormat.NotSpecified, FieldFormat.Alphanumeric].includes(fieldFormat)) {
-        instanceGenerator = () => {
-            // low, high
-            const maxLength = 12; // there's a weird balance to strike here...
-            const formatter = (word, index)=> {
-                return Math.random() < 0.3 ? word.slice(0,1).toUpperCase().concat(word.slice(1)) : word;
+    const isBaseCase = fieldType === FieldType.String && [FieldFormat.NotSpecified, FieldFormat.Alphanumeric].includes(fieldFormat);
+
+    const tokenGenerator = USE_RANDOM_WORDS && isBaseCase ? wordGenerator : regexGenerator;
+
+    const instanceGenerator = (srcText) => {
+        if (!DO_MATCH_TEXT_STATISTICS
+            || !isBaseCase
+            || srcText === ""
+            || !(/(\d+)/.test(srcText) && Math.random() < MATCH_TEXT_PROB))
+            return tokenGenerator(widthLow, widthHigh, fieldType, fieldFormat);
+        // heuristic algorithm, with an attempt at reflecting underlying distribution
+        // Split text into tokens
+        const tokens = srcText.split(" ");
+        let mutatedTokens = tokens.map(t => {
+            // ideally we can split on recognized "language sets" (like english) and mutate.
+            // let's not over-engineer, though (just doing digits for now)
+
+            // Extract digits
+            const splitTokens = t.split(/(\d+)/);
+            if (splitTokens.length > 1 && Math.random() < DIGIT_DROPOUT) { // has digits
+                return splitTokens.map(st => {
+                    if (/(\d+)/.test(st)) {
+                        return regexGenerator(0, st.length + 1, FieldType.Number, FieldFormat.NotSpecified);
+                    }
+                    return st;
+                }).join(" ");
             }
-            return randomWords({
-                min: Math.max(Math.round(low / maxLength), 1),
-                max: Math.round(high / 8), // Assume average length is 4.7, buff for the min (should do a reroll if too long)
-                maxLength,
-                minLength: 6,
-                join: " ",
-                formatter,
-            });
-        };
-    }
+
+            // else, we have a default token - process separately
+            return "";
+        });
+
+        // generate words and randomly fill into empty slots
+        const subtotal = mutatedTokens.join(" ").length;
+        const budgetLow = Math.max(widthLow - subtotal, 1);
+        const budgetHigh = Math.max(widthHigh - subtotal, budgetLow + 1);
+        const proposals = wordGenerator(budgetLow, budgetHigh).split(" ");
+
+        let proposalIndex = 0;
+        // Problem - this won't generate free text since we're following templates
+        mutatedTokens = mutatedTokens.map(t => {
+            if (t.length > 0 || proposalIndex >= proposals.length) return t;
+            return proposals[proposalIndex++];
+        });
+
+        return mutatedTokens.filter(t => t.length > 0).join(" ");
+    };
+
 
     const lineStrings = [];
-    // Best effort for multiline atm - just do multiple newlines
+    // Treat each line independently
     for (let i = 0; i < linesUsed; i++) {
-        lineStrings.push(instanceGenerator());
+        if (!generator.containsText) {
+            lineStrings.push(instanceGenerator(""));
+        } else {
+            const srcLine = generator.ocrLines[randomIntInRange(0, generator.ocrLines.length)];
+            const srcText = generator.containsText ? ocr.lines[srcLine].text : "";
+            lineStrings.push(instanceGenerator(srcText));
+        }
     }
     return lineStrings.join("\n");
 }
@@ -424,12 +484,15 @@ const getStringLimitsAndFormat: (g: IGenerator, unitsPerChar: number[], ocr: any
     }
 
     const fontWeight = GEN_CONSTANTS.weight + jitter(GEN_CONSTANTS.weightJitter, true);
+    // TODO update according to source ocr
     const lineHeight = GEN_CONSTANTS.lineHeight + jitter(GEN_CONSTANTS.lineHeightJitter, true);
 
     // Map Units to Font size - Search for the right size by measuring canvas
     let [ widthPerChar, heightPerChar ] = unitsPerChar;
     if ([FieldType.Number, FieldType.Integer, FieldType.Date, FieldType.Time].includes(generator.tag.type)) {
         widthPerChar *= GEN_CONSTANTS.digitWidthScale;
+    } else {
+        widthPerChar *= GEN_CONSTANTS.defaultWidthScale;
     }
 
     const boxWidth = generator.bbox[2] - generator.bbox[0];
@@ -462,13 +525,14 @@ const getStringLimitsAndFormat: (g: IGenerator, unitsPerChar: number[], ocr: any
     // TODO deal with this ^
     // and when we use it for measuring boxes later
     // This is all captured in the resolution factor
-    const targetPixelHeight = heightPerChar / resolution;
+    let targetPixelHeight = heightPerChar / resolution;
+    if (targetPixelHeight < 10) targetPixelHeight += 1; // Not sure why things start to break down at small sizes;
     while (curSize < GEN_CONSTANTS.sizing_range[1]) {
         const font = `${fontWeight} ${curSize}px/${lineHeight} sans-serif`;
         let sizingString = GEN_CONSTANTS.sizing_string;
         if (generator.containsText) {
             // TODO filter out actual text (not super important)
-            sizingString = generator.ocrLines.map(ln => ocr.lines[ln]).join("");
+            sizingString = generator.ocrLines.map(ln => ocr.lines[ln].text).join("");
         }
         const metrics = getTextMetrics(sizingString, font);
         const newHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
@@ -508,7 +572,10 @@ const getStringLimitsAndFormat: (g: IGenerator, unitsPerChar: number[], ocr: any
 
     if (charHeightHigh <= 2 || generator.tag.type !== FieldType.String) { // Assume no multi-line dates
         // center text if not multiline - ignore fixed offset (just use jitter)
-        offsetY = -1 * (heightPerChar / 2) + jitter(0.4) * (generator.bbox[5] - generator.bbox[1]);
+        // jitter such that the character doesn't nudge out of box
+        // i.e. half of remaining space
+        const jitterWithin = (1 - heightPerChar / (generator.bbox[5] - generator.bbox[1])) / 2;
+        offsetY = -1 * (heightPerChar / 2) + jitter(jitterWithin) * (generator.bbox[5] - generator.bbox[1]);
         charHeightHigh = 2;
     }
 

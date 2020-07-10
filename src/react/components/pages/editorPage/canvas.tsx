@@ -417,22 +417,23 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             generatorTextStyles[g.id] = format;
 
             // Expansion debug
-            const imageExtent = this.imageMap.getImageExtent();
-            const imageWidth = imageExtent[2] - imageExtent[0];
-            const imageHeight = imageExtent[3] - imageExtent[1];
-            // use words instead of lines so boxes that are part of a line don't get messed up
-            // (not very optimized)
-            let allBoxes = ocrForPage.readResults.lines.map(l => l.words.map(lw => lw.boundingBox));
-            allBoxes = [].concat.apply([], allBoxes);
-            g.bbox = expandBbox(g.bbox, allBoxes);
-            g.canvasBbox = [];
-            for (let i = 0; i < g.bbox.length; i+= 2) {
-                g.canvasBbox.push(
-                    (g.bbox[i] * imageWidth / ocrForPage.readResults.width),
-                    ((1 - (g.bbox[i+1] / ocrForPage.readResults.height)) * imageHeight),
-                );
-            }
-            g.points = g.canvasBbox;
+
+            // const imageExtent = this.imageMap.getImageExtent();
+            // const imageWidth = imageExtent[2] - imageExtent[0];
+            // const imageHeight = imageExtent[3] - imageExtent[1];
+            // // use words instead of lines so boxes that are part of a line don't get messed up
+            // // (not very optimized)
+            // let allBoxes = ocrForPage.readResults.lines.map(l => l.words.map(lw => lw.boundingBox));
+            // allBoxes = [].concat.apply([], allBoxes);
+            // g.bbox = expandBbox(g.bbox, allBoxes);
+            // g.canvasBbox = [];
+            // for (let i = 0; i < g.bbox.length; i+= 2) {
+            //     g.canvasBbox.push(
+            //         (g.bbox[i] * imageWidth / ocrForPage.readResults.width),
+            //         ((1 - (g.bbox[i+1] / ocrForPage.readResults.height)) * imageHeight),
+            //     );
+            // }
+            // g.points = g.canvasBbox;
         });
         this.setState({generatorTextStyles}, this.redrawGeneratorFeatures);
     }
