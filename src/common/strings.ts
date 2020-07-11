@@ -508,6 +508,7 @@ export interface IAppStrings {
             cannotDecodeString: string,
             connectionNotFound: string,
             noConnections: string,
+            tokenNameExist: string,
         },
         copy: {
             success: string,
