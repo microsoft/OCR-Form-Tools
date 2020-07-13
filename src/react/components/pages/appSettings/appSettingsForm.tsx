@@ -119,9 +119,9 @@ export class AppSettingsForm extends React.Component<IAppSettingsFormProps, IApp
                     duplicateSecurityTokenErrorName.addError(strings.appSettings.securityToken.duplicateNameErrorMessage);
                 }
                 if (initialSecurityTokenErrorName.__errors.length === 0) {
-                    initialSecurityTokenErrorName.addError("Token name must be unique for all tokens");
+                    initialSecurityTokenErrorName.addError(strings.appSettings.securityToken.duplicateNameErrorMessage);
                 }
-            }else{
+            } else{
                 tokensMap[tokenName] = index;
             }
         });
