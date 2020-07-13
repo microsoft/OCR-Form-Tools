@@ -605,7 +605,8 @@ export const spanish: IAppStrings = {
         errors: {
             cannotDecodeString: "¡No se puede decodificar la cadena compartida! Por favor, verifique si su cadena ha sido modificada.",
             connectionNotFound: "Conexión no encontrada. Agregar la conexión del proyecto compartido a las conexiones",
-            noConnections: "Se requiere conexión para compartir proyectos"
+            noConnections: "Se requiere conexión para compartir proyectos",
+            tokenNameExist: "¡Advertencia! Ya tiene token con el mismo nombre que en el proyecto compartido. Cree un nuevo token y actualice el proyecto existente que usa ''${sharedTokenName}'' con el nuevo nombre del token.",
         },
         copy: {
             success: "La cadena para compartir su proyecto se ha guardado en el portapapeles. Para usarlo, péguelo en la sección correspondiente de la ventana emergente 'Open Cloud Project'.",

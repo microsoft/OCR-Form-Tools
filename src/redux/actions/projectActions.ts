@@ -19,6 +19,7 @@ import { createAction, createPayloadAction, IPayloadAction } from "./actionCreat
 import { appInfo } from "../../common/appInfo";
 import { saveAppSettingsAction } from "./applicationActions";
 import { toast } from 'react-toastify';
+import { strings, interpolate } from "../../common/strings";
 
 /**
  * Actions to be performed in relation to projects
@@ -63,8 +64,8 @@ export function loadProject(project: IProject, sharedToken?: ISecurityToken):
                     ]
                 }));
             } else if (existingToken.key !== sharedToken.key) {
-                toast.warn(`❗Warning you already have token with same name as in shared project. Please create a new token, and update the existing project which uses "${sharedToken.name}" with new token name.`, { autoClose: false, closeOnClick: false,
-                });
+                const reason = interpolate(strings.shareProject.errors.tokenNameExist, {sharedTokenName: sharedToken.name})
+                toast.error(reason, { autoClose: false, closeOnClick: false });
                 return null;
             }
         } else {
