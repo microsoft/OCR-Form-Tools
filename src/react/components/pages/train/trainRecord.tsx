@@ -15,7 +15,7 @@ export interface ITrainRecordProps {
     };
 }
 
-export interface ITrainRecordState {}
+export interface ITrainRecordState { }
 
 export default class TrainRecord extends React.Component<ITrainRecordProps, ITrainRecordState> {
     public render() {
@@ -28,12 +28,12 @@ export default class TrainRecord extends React.Component<ITrainRecordProps, ITra
                         {this.props.modelInfo.modelId}
                     </p>
                     {this.props.modelInfo.modelName &&
-                        [
-                            <h6> Model Name: </h6>,
+                        <>
+                            <h6> Model Name: </h6>
                             <p>
                                 {this.props.modelInfo.modelName}
                             </p>
-                        ]
+                        </>
                     }
                     <h6> Created date and time: </h6>
                     <p>
