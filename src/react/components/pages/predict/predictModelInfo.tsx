@@ -18,7 +18,7 @@ export default function PredictModelInfo({ modelInfo }) {
             </div>
             <div className="model-info-item">
                 <span className="title" >docTypeConfidence:</span>
-                <span className="value" >{docTypeConfidence}</span>
+                <span className="value" >{(100 * docTypeConfidence).toFixed(2) + "%"}</span>
             </div>
         </div>
     )
