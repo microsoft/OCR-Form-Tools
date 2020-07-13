@@ -726,9 +726,10 @@ export const matchBboxToOcr: (bbox: number[], pageOcr: any, text?: string) => IG
         const refLoc = [bbox[0], bbox[1]];
         const ocrRead = pageOcr;
         ocrRead.lines.forEach((line, index) => {
+            // there are cases where the overlapping line contains our words, but also where it doesn't (i.e. underscores)
             if ((isFuzzyContained(bbox, line.boundingBox, 0.05)
-            && (!text || line.words.includes(text)))
-            || (isFuzzyContained(line.boundingBox, bbox, 0.05))) {
+            || isFuzzyContained(line.boundingBox, bbox, 0.05))
+            && (!text || line.words.includes(text))) {
                 ocrLines.push(index);
                 containsText = true;
             }
