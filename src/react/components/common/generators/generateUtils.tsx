@@ -8,7 +8,7 @@ import { IGenerator, FieldFormat, FieldType, ILabel, IGeneratorTagInfo } from ".
 import { randomIntInRange } from "../../../../common/utils";
 
 // Debugging controls
-const DO_JITTER = true;
+const DO_JITTER = false;
 const USE_RANDOM_WORDS = true;
 const DO_MATCH_TEXT_STATISTICS = true;
 const DIGIT_DROPOUT = 0.0;
@@ -72,7 +72,7 @@ const defaultStyle: GeneratorTextStyle = {
     text: "SAMPLE",
     fontWeight: 100,
     fontSize: '14px',
-    lineHeight: 1,
+    lineHeight: 1.2,
     fontFamily: 'sans-serif',
     align: "left",
     baseline: "top", // kinda arbitrary reference but easier to think about
@@ -99,19 +99,16 @@ const GEN_CONSTANTS = {
     heightScaleJitter: .05,
     digitWidthScale: 1.3, // digits are a little wider, accommodate
     defaultWidthScale: 1.2,
-    // https://stackoverflow.com/questions/14061228/remove-white-space-above-and-below-large-text-in-an-inline-block-element
-    leadingLineHeightScale: 1.25, // account for the font-to-full height discrepancy with our default font
     sizeJitter: 1, // 1,
     offsetX: 0, // ratio offset
     offsetY: .05,
     offsetYJitter: .05, // ratio offset
     // Char limits
-    // TODO better than linear lower bound (super long fields shouldn't have multiple)
     width_low: 0.2,
     width_high: .95,
     height_low: 0.2,
-    height_high: 0.95, // try not to bleed past the box due to scaling inaccs
-    sizing_samples: 12, // sample count for line sampling
+    height_high: 0.9, // try not to bleed past the box due to scaling inaccs
+    sizing_samples: 1, // sample count for line sampling (smaller => more random)
     sizing_range: [4, 100] // search range for font sizing
 }
 
@@ -122,7 +119,6 @@ interface LimitsAndFormat {
     limits: number[][]
 }
 
-// ! Still have a problem with SSN, and we're not really generating enough numbers
 // TODO seeding
 export const generate:(g: IGenerator, ocr: any, resolution?: any) => IGeneratedInfo = (generator, ocr, resolution=1) => {
     /**
@@ -139,7 +135,7 @@ export const generate:(g: IGenerator, ocr: any, resolution?: any) => IGeneratedI
     const { units, sampledWords, sampledNestedWords } = getOcrUnitsPerChar(generator, ocr);
 
     // Translate to rough character bounds and format
-    const limitsAndFormat = getStringLimitsAndFormat(generator, units, ocr, sampledWords, adjustedResolution);
+    const limitsAndFormat = getStringLimitsAndFormat(generator, units, ocr, sampledNestedWords, sampledWords, adjustedResolution);
     // Generate string from bounds
     const text = generateString(generator, limitsAndFormat.limits, ocr, sampledNestedWords);
 
@@ -177,6 +173,9 @@ const getOcrUnitsPerChar: (g: IGenerator, ocr: any) => UnitsAndWords = (generato
         sampledLines = sampledLines.concat(generator.ocrLines.map(ln => ocr.lines[ln]));
     } else {
         for (let i = 0; i < GEN_CONSTANTS.sizing_samples; i++) {
+            // Try to sample among words that are close by. (doesn't really work on 1035)
+            // const closeLines = ocr.lines.filter(l => isFuzzyContained(generator.bbox, l.boundingBox, 2.0));
+            // sampledLines.push(closeLines[randomIntInRange(0, closeLines.length)]);
             sampledLines.push(ocr.lines[randomIntInRange(0, ocr.lines.length)]);
         }
     }
@@ -202,7 +201,7 @@ const getOcrUnitsPerChar: (g: IGenerator, ocr: any) => UnitsAndWords = (generato
     }
     // - scale to map units, which we can convert to pixels
     const widthPerChar = median(widths);
-    const heightPerChar = Math.max(...heights); // better hope we get the spread somewhere in the line
+    const heightPerChar = median(heights);
     const scaledWidth = widthPerChar * GEN_CONSTANTS.widthScale * (1 + jitter(GEN_CONSTANTS.widthScaleJitter));
     const scaledHeight = heightPerChar * GEN_CONSTANTS.heightScale * (1 + jitter(GEN_CONSTANTS.heightScaleJitter));
     return {
@@ -394,8 +393,8 @@ const randomizeAlignment: (limits: number[][], format: GeneratorTextStyle, text:
  * @param sampledWords words used to deduce ocr units
  * @param resolution current canvas resolution (omitted on training gen)
  */
-const getStringLimitsAndFormat: (g: IGenerator, unitsPerChar: number[], ocr: any, sampledWords: any, resolution?: number) => LimitsAndFormat =
-    (generator, unitsPerChar, ocr, sampledWords, resolution = 1) => {
+const getStringLimitsAndFormat: (g: IGenerator, unitsPerChar: number[], ocr: any, sampledNestedWords: any, sampledWords: any, resolution?: number) => LimitsAndFormat =
+    (generator, unitsPerChar, ocr, sampledNestedWords, sampledWords, resolution = 1) => {
     if (generator.tag.type === FieldType.SelectionMark) {
         return {
             format: {},
@@ -405,7 +404,37 @@ const getStringLimitsAndFormat: (g: IGenerator, unitsPerChar: number[], ocr: any
 
     const fontWeight = GEN_CONSTANTS.weight + jitter(GEN_CONSTANTS.weightJitter, true);
     // TODO update according to source ocr
-    const lineHeight = GEN_CONSTANTS.lineHeight + jitter(GEN_CONSTANTS.lineHeightJitter, true);
+    let lineHeight = GEN_CONSTANTS.lineHeight
+    if (generator.containsText && sampledNestedWords.length > 1) {
+        // find distinct "lines" (non-overlapping) and measure lineHeight as
+        // 1 + line dist / box height (averaged)
+        const distinctLineBoxes = [];
+        sampledNestedWords.forEach(lw => {
+            const wordBb = lw[0].boundingBox;
+            if (!distinctLineBoxes.some(dlBb => isOverlapping(dlBb, wordBb))) {
+                distinctLineBoxes.push(wordBb);
+            }
+        });
+
+        if (distinctLineBoxes.length > 1) {
+            // sort by centers and measure distance between consecutives
+            distinctLineBoxes.sort((a, b) => (a[1] + a[5]) - (b[1] + b[5]));
+            const lineHeightVotes = [];
+            for (let i = 0; i < distinctLineBoxes.length - 1; i++) {
+                const b1 = distinctLineBoxes[i];
+                const b2 = distinctLineBoxes[i + 1];
+                const avgHeight = ((b2[5] - b2[1]) + (b1[5] - b1[1])) / 2;
+                const diff = b2[1] - b1[5];
+                lineHeightVotes.push(1 + diff / avgHeight);
+            }
+            lineHeight = median(lineHeightVotes);
+        }
+    }
+    lineHeight += jitter(GEN_CONSTANTS.lineHeightJitter);
+    // https://github.com/openlayers/openlayers/pull/9307 - line height doesn't preview due to openlayers
+    // further - there's a diff between CSS leading and document leading
+    // document leading is as anticipated here (I think), CSS uses half-leading (splits the lead on top and bottom)
+    // https://joshnh.com/weblog/how-does-line-height-actually-work/
 
     // Map Units to Font size - Search for the right size by measuring canvas
     let [ widthPerChar, heightPerChar ] = unitsPerChar;
@@ -417,7 +446,7 @@ const getStringLimitsAndFormat: (g: IGenerator, unitsPerChar: number[], ocr: any
 
     const boxWidth = generator.bbox[2] - generator.bbox[0];
     const boxHeight = generator.bbox[5] - generator.bbox[1];
-    const effectiveLineHeight = heightPerChar * lineHeight * GEN_CONSTANTS.leadingLineHeightScale;
+    const effectiveLineHeight = heightPerChar * lineHeight;
 
     const charWidthLow = Math.max(1, Math.round(boxWidth * GEN_CONSTANTS.width_low / widthPerChar));
     const charWidthHigh = Math.round(boxWidth * GEN_CONSTANTS.width_high / widthPerChar) + 1;
@@ -447,7 +476,7 @@ const getStringLimitsAndFormat: (g: IGenerator, unitsPerChar: number[], ocr: any
     // and when we use it for measuring boxes later
     // This is all captured in the resolution factor
     let targetPixelHeight = heightPerChar / resolution;
-    if (targetPixelHeight < 10) targetPixelHeight += 1; // Not sure why things start to break down at small sizes;
+    if (targetPixelHeight < 10) targetPixelHeight += 2; // Not sure why things start to break down at small sizes;
     while (curSize < GEN_CONSTANTS.sizing_range[1]) {
         const font = `${fontWeight} ${curSize}px/${lineHeight} sans-serif`;
         const sizingString = sampledWords.map(w => w.text).join("");
@@ -606,7 +635,7 @@ const generateBoundingBoxes: (g: IGenerator, format: GeneratorTextStyle, ocr: an
             });
         });
 
-        textOffsetY += heightPerChar * format.lineHeight * GEN_CONSTANTS.leadingLineHeightScale;
+        textOffsetY += heightPerChar * format.lineHeight;
 
         // get line extent from first and last words
         const tl = lineWords[0].boundingBox.slice(0, 2);
@@ -918,4 +947,20 @@ export const mergeLabels: (labels: ILabel[]) => ILabel[] = (labels) => {
 
 export const flattenOne: (nestedList: any[][]) => any[] = (nestedList) => {
     return [].concat.apply([], nestedList);
+}
+
+const containsPoint = (box: number[], point: number[], threshold=0.0) => {
+    return point[0] > box[0] - threshold
+        && point[1] > box[1] - threshold
+        && point[0] < box[2] + threshold
+        && point[1] < box[5] + threshold
+}
+
+const isOverlapping = (box1: number[], box2: number[]) => {
+    // check if any of box1 corners are in box2
+    const corners = [];
+    for (let i = 0; i < box1.length; i += 2) {
+        corners.push([box1[i], box1[i+1]]);
+    }
+    return corners.some(c => containsPoint(box2, c));
 }
