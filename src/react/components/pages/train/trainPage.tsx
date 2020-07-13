@@ -484,8 +484,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             const flatBboxes = [].concat.apply([], bboxes);
             // match ocr lines for each box in the label (can be different)
             const ocrLines = flatBboxes.map((singleBox, i) => {
-                const scaledAndPaddedBox = padBbox(scaleBbox(singleBox, pageOcr.width, pageOcr.height), 0.1, 0.05);
-                return matchBboxToOcr(scaledAndPaddedBox, pageOcr, d.value[i].text).ocrLines[0];
+                const scaledBox = scaleBbox(singleBox, pageOcr.width, pageOcr.height);
+                // only take the first (there should only be one, unless we have highly overlapped repeating text, in which case we don't care)
+                return matchBboxToOcr(scaledBox, pageOcr, d.value[i].text).ocrLines[0];
             });
 
             const boxesByOcrLine = {};
@@ -496,6 +497,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 boxesByOcrLine[ocrLines[i]] = [singleBox];
             });
 
+            // we make separate generators per cluster
             return Object.keys(boxesByOcrLine).map(ocrLine => {
                 const boxes = boxesByOcrLine[ocrLine];
                 // group the boxes by ocrlines and run the following procedure on them

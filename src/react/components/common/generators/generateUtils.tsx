@@ -112,7 +112,6 @@ const GEN_CONSTANTS = {
     height_low: 0.2,
     height_high: 0.95, // try not to bleed past the box due to scaling inaccs
     sizing_samples: 12, // sample count for line sampling
-    sizing_string: 'abcdefghiklmnorstuvwxzABCDEFGHIJKLMNOPQRSTUVWXYZ', // we drop the baselines so we can be a little bigger
     sizing_range: [4, 100] // search range for font sizing
 }
 
@@ -137,19 +136,19 @@ export const generate:(g: IGenerator, ocr: any, resolution?: any) => IGeneratedI
     const adjustedResolution = 1/66; // resolution * 1.2;
     // Make smaller to make font size smaller
      // Calculate a sizing first pass
-    const ocrUnitsPerChar = getOcrUnitsPerChar(generator, ocr);
+    const { units, sampledWords, sampledNestedWords } = getOcrUnitsPerChar(generator, ocr);
 
     // Translate to rough character bounds and format
-    const limitsAndFormat = getStringLimitsAndFormat(generator, ocrUnitsPerChar, ocr, adjustedResolution);
+    const limitsAndFormat = getStringLimitsAndFormat(generator, units, ocr, sampledWords, adjustedResolution);
     // Generate string from bounds
-    const text = generateString(generator, limitsAndFormat.limits, ocr);
+    const text = generateString(generator, limitsAndFormat.limits, ocr, sampledNestedWords);
 
     const leftAlignedFormat = { ...defaultStyle, ...limitsAndFormat.format, text };
 
-    const format = randomizeAlignment(limitsAndFormat.limits, leftAlignedFormat, text, ocrUnitsPerChar);
+    const format = randomizeAlignment(limitsAndFormat.limits, leftAlignedFormat, text, units);
 
     // Translate string into precise OCR boxes
-    const boundingBoxes = generateBoundingBoxes(generator, format, ocr, ocrUnitsPerChar, adjustedResolution);
+    const boundingBoxes = generateBoundingBoxes(generator, format, ocr, units, adjustedResolution);
     // If we wanted to be more careful about existing characters, we'd need to merge the last two steps
     return {
         name: generator.tag.name,
@@ -160,10 +159,18 @@ export const generate:(g: IGenerator, ocr: any, resolution?: any) => IGeneratedI
     };
 }
 
-
-const getOcrUnitsPerChar: (g: IGenerator, ocr: any) => number[] = (generator, ocr) => {
+interface UnitsAndWords {
+    units: number[],
+    sampledNestedWords: any, // words, nested in arrays per ocr line
+    sampledWords: any // words, flattened
+}
+const getOcrUnitsPerChar: (g: IGenerator, ocr: any) => UnitsAndWords = (generator, ocr) => {
     // "font size" approximated by replaced OCR line or median font size of doc
-    if (generator.tag.type === FieldType.SelectionMark) return [1, 1];
+    if (generator.tag.type === FieldType.SelectionMark) return {
+        units: [1, 1],
+        sampledWords: [],
+        sampledNestedWords: []
+    }
 
     let sampledLines = [];
     if (generator.containsText) {
@@ -173,12 +180,15 @@ const getOcrUnitsPerChar: (g: IGenerator, ocr: any) => number[] = (generator, oc
             sampledLines.push(ocr.lines[randomIntInRange(0, ocr.lines.length)]);
         }
     }
-    const sampledNestedWords = sampledLines.map(l => l.words);
-    let sampledWords = [].concat.apply([], sampledNestedWords);
+
+    let sampledNestedWords = sampledLines.map(l => l.words);
     if (generator.containsText) {
         // filter out only the words that are truly inside the generator - ocr can combine chunks with multiple sizes
-        sampledWords = sampledWords.filter(w => isBoxCenterInBbox(w.boundingBox, generator.bbox));
+        sampledNestedWords = sampledNestedWords.map(lw => lw.filter(
+            w => isBoxCenterInBbox(w.boundingBox, generator.bbox)
+        ));
     }
+    const sampledWords = [].concat.apply([], sampledNestedWords);
     const widths = [];
     const heights = [];
     sampledWords.forEach(w => {
@@ -195,7 +205,11 @@ const getOcrUnitsPerChar: (g: IGenerator, ocr: any) => number[] = (generator, oc
     const heightPerChar = Math.max(...heights); // better hope we get the spread somewhere in the line
     const scaledWidth = widthPerChar * GEN_CONSTANTS.widthScale * (1 + jitter(GEN_CONSTANTS.widthScaleJitter));
     const scaledHeight = heightPerChar * GEN_CONSTANTS.heightScale * (1 + jitter(GEN_CONSTANTS.heightScaleJitter));
-    return [ scaledWidth, scaledHeight ];
+    return {
+        units: [ scaledWidth, scaledHeight ],
+        sampledWords,
+        sampledNestedWords,
+    };
 }
 
 const median: (a: number[]) => number = (rawArray) => {
@@ -207,6 +221,293 @@ const median: (a: number[]) => number = (rawArray) => {
         return array[(array.length - 1) / 2]; // array with odd number elements
     }
 };
+
+const regexGenerator = (low, high, fieldType, fieldFormat) => {
+    const defaultRegex = `^[a-zA-Z ]{${low},${high}}$`; // `^.{${low},${high}}$`;
+    const dd = "(0[1-9]|[12][0-9]|3[01])";
+    const mm = "(0[1-9]|1[012])";
+    const yy = "(19|20)\\d\\d";
+    const regexDict = {
+        [FieldType.String]: {
+            [FieldFormat.NotSpecified]: defaultRegex,
+            [FieldFormat.Alphanumeric]: `^[a-zA-Z ]{${low},${high}}$`,
+            // [FieldFormat.Alphanumeric]: `^[a-zA-Z0-9 ]{${low},${high}}$`,
+            [FieldFormat.NoWhiteSpaces]: `^[a-zA-Z0-9]{${low},${high}}$`,
+        },
+        [FieldType.Number]: {
+            [FieldFormat.NotSpecified]: `^\\d{${low},${high}}$`,
+            // [FieldFormat.Currency]: `^\\$?((([1-9][0-9]){1,2},){${Math.round(low/5)},${Math.round(high/5)}}[0-9]{3}|[0-9]{${low},${high}})(\\.[0-9][0-9])?$`,
+            // While generating actual currency is nice, regular numbers are much more stable
+            [FieldFormat.Currency]: `^\\$?([0-9]{${low},${high-2}})(\\.[0-9][0-9])?$`,
+        },
+        [FieldType.Date]: {
+            [FieldFormat.NotSpecified]: `^\\d\\d([- /.])\\d\\d\\1\\d{2,4}$`,
+            [FieldFormat.DMY]: `^${dd}([- /.])${mm}\\2${yy}$`,
+            [FieldFormat.MDY]: `^${mm}([- /.])${dd}\\2${yy}$`,
+            [FieldFormat.YMD]: `^${yy}([- /.])${mm}\\2${dd}$`,
+        },
+        [FieldType.Time]: {
+            [FieldFormat.NotSpecified]: "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$",
+        },
+        [FieldType.Integer]: {
+            [FieldFormat.NotSpecified]: `^\\d{${low},${high}}$`,
+        },
+        [FieldType.SelectionMark]: {
+            [FieldFormat.NotSpecified]: `^selected|unselected$`,
+        },
+    }
+
+    let regex = regexDict[FieldType.String][FieldFormat.NotSpecified];
+    if (fieldType in regexDict && fieldFormat in regexDict[fieldType]) {
+        regex = regexDict[fieldType][fieldFormat];
+    }
+    // @ts-ignore - something is messed up with this import, satisfying it in lint breaks on runtime
+    const randexp = new RandExp(regex);
+    return randexp.gen();
+}
+
+const wordGenerator = (low: number, high: number, fieldType?: FieldType, fieldFormat?: FieldFormat) => {
+
+    // if fieldType is number, forward to regex
+    if (fieldType && fieldType !== FieldType.String) {
+        return regexGenerator(low, high, fieldType, fieldFormat);
+    }
+    // low, high
+    const maxWordLength = 12; // there's a weird balance to strike here...
+    const formatter = (word, index)=> {
+        return Math.random() < 0.3 ? word.slice(0,1).toUpperCase().concat(word.slice(1)) : word;
+    }
+
+    let tries = 0;
+    let candidate = "";
+    while (tries < 8) {
+        candidate = randomWords({
+            min: Math.max(Math.round(low / maxWordLength), 1),
+            max: high / 8, // max number of words - don't make it too many
+            maxLength: maxWordLength,
+            minLength: 3,
+            join: " ",
+            formatter,
+        });
+        if (candidate.length < high) return candidate;
+        tries += 1;
+    }
+    return candidate;
+};
+
+const generateString: (g: IGenerator, l: number[][], ocr: any, sampledNestedWords: any) => string
+    = (generator, limits, ocr, sampledNestedWords) => {
+
+    // Default: regex map
+    const [ widthLimit, heightLimit ] = limits;
+    const [ widthLow, widthHigh ] = widthLimit;
+    const [ heightLow, heightHigh ] = heightLimit;
+    const linesUsed = randomIntInRange(heightLow, heightHigh);
+    const fieldType = generator.tag.type;
+    const fieldFormat = generator.tag.format;
+
+    const canMatchStatistics = [FieldType.String, FieldType.Number].includes(fieldType)
+        && [FieldFormat.NotSpecified].includes(fieldFormat);
+
+    const tokenGenerator = USE_RANDOM_WORDS && canMatchStatistics ? wordGenerator : regexGenerator;
+
+    const instanceGenerator = (srcText) => {
+        if (srcText.length === 1) return srcText; // hard-coded return of standalone symbols
+        if (!DO_MATCH_TEXT_STATISTICS
+            || !canMatchStatistics
+            || srcText === ""
+            || !(/(\d+)/.test(srcText))
+            || Math.random() < USE_TEXT_PROB)
+            return tokenGenerator(widthLow, widthHigh, fieldType, fieldFormat);
+        // heuristic algorithm, with an attempt at reflecting underlying distribution
+        // Split text into tokens
+        const tokens = srcText.split(" ");
+        let mutatedTokens = tokens.map(t => {
+            // ideally we can split on recognized "language sets" (like english) and mutate.
+            // let's not over-engineer, though (just doing digits for now)
+
+            // No digits in token - generate a random word for it
+            if (!/(\d+)/.test(t)) return "";
+            // has digits - scramble them and return the string otherwise (should work on dates etc)
+            // Extract digits
+            const splitTokens = t.split(/(\d+)/).filter(st => st.length > 0);
+            return splitTokens.map(st => {
+                if (/(\d+)/.test(st)) {
+                    if (Math.random() < DIGIT_DROPOUT) return "";
+                    return regexGenerator(Math.max(st.length - 1, 1), st.length + 1, FieldType.Number, FieldFormat.NotSpecified);
+                }
+                return st;
+            }).join("");
+        });
+
+        // generate words and randomly fill into empty slots
+        const subtotal = mutatedTokens.join(" ").length;
+        const budgetLow = Math.max(widthLow - subtotal, 1);
+        const budgetHigh = Math.max(widthHigh - subtotal, budgetLow + 1);
+        const proposals = wordGenerator(budgetLow, budgetHigh).split(" ");
+
+        let proposalIndex = 0;
+        mutatedTokens = mutatedTokens.map(t => {
+            if (t.length > 0 || proposalIndex >= proposals.length) return t;
+            return proposals[proposalIndex++];
+        });
+
+        return mutatedTokens.filter(t => t.length > 0).join(" ");
+    };
+
+
+    const lineStrings = [];
+    // Treat each line independently
+    for (let i = 0; i < linesUsed; i++) {
+        if (!generator.containsText || !canMatchStatistics) {
+            lineStrings.push(instanceGenerator(""));
+        } else {
+            const srcText = sampledNestedWords[randomIntInRange(0, generator.ocrLines.length)].map(w => w.text).join(" ");
+            lineStrings.push(instanceGenerator(srcText));
+        }
+    }
+    return lineStrings.join("\n");
+}
+
+const randomizeAlignment: (limits: number[][], format: GeneratorTextStyle, text: string, unitsPerChar: number[]) => GeneratorTextStyle
+    = (limits, format, text, unitsPerChar) => {
+    // Using the longest line (can't easily apply to separate lines)
+    // randomize alignment within limits
+    const widthHigh = limits[0][1];
+    const lines = text.split("\n");
+    // Character ratio should approximate actual length well enough for jitter
+    const maxLength = Math.max(...lines.map(l => l.length));
+    const charBudget = Math.max(widthHigh - maxLength, 0);
+    const xBudget = charBudget * unitsPerChar[0];
+    const offsetX = format.offsetX + (xBudget / 2) + jitter(xBudget / 2);
+    return {
+        ...format,
+        offsetX,
+    };
+}
+
+/**
+ * Returns string limits as determined by absolute units, and format, as determined by current canvas resolution
+ * @param generator generator to use
+ * @param unitsPerChar absolute scaling in OCR units
+ * @param ocr used as reference for font sizing
+ * @param sampledWords words used to deduce ocr units
+ * @param resolution current canvas resolution (omitted on training gen)
+ */
+const getStringLimitsAndFormat: (g: IGenerator, unitsPerChar: number[], ocr: any, sampledWords: any, resolution?: number) => LimitsAndFormat =
+    (generator, unitsPerChar, ocr, sampledWords, resolution = 1) => {
+    if (generator.tag.type === FieldType.SelectionMark) {
+        return {
+            format: {},
+            limits: [[0, 0], [1, 2]]
+        }
+    }
+
+    const fontWeight = GEN_CONSTANTS.weight + jitter(GEN_CONSTANTS.weightJitter, true);
+    // TODO update according to source ocr
+    const lineHeight = GEN_CONSTANTS.lineHeight + jitter(GEN_CONSTANTS.lineHeightJitter, true);
+
+    // Map Units to Font size - Search for the right size by measuring canvas
+    let [ widthPerChar, heightPerChar ] = unitsPerChar;
+    if ([FieldType.Number, FieldType.Integer, FieldType.Date, FieldType.Time].includes(generator.tag.type)) {
+        widthPerChar *= GEN_CONSTANTS.digitWidthScale;
+    } else {
+        widthPerChar *= GEN_CONSTANTS.defaultWidthScale;
+    }
+
+    const boxWidth = generator.bbox[2] - generator.bbox[0];
+    const boxHeight = generator.bbox[5] - generator.bbox[1];
+    const effectiveLineHeight = heightPerChar * lineHeight * GEN_CONSTANTS.leadingLineHeightScale;
+
+    const charWidthLow = Math.max(1, Math.round(boxWidth * GEN_CONSTANTS.width_low / widthPerChar));
+    const charWidthHigh = Math.round(boxWidth * GEN_CONSTANTS.width_high / widthPerChar) + 1;
+
+    const charHeightLow = 1; // Math.max(1, Math.round(boxHeight * GEN_CONSTANTS.height_low / effectiveLineHeight));
+    let charHeightHigh = Math.floor(boxHeight * GEN_CONSTANTS.height_high / effectiveLineHeight) + 1; // +1 for exlcusive, floor for pessimistic
+    if (charHeightHigh < 4 && (!generator.ocrLines || generator.ocrLines.length <= 1)) {
+        // unless we know it's multiline, be pessimistic
+        charHeightHigh = 2;
+    }
+    // Using height since that's more important for visual fit
+    let bestSize = GEN_CONSTANTS.sizing_range[0];
+    let bestDistance = 1000;
+    let curSize = bestSize;
+    // ! The target pixel height shouldn't change wrt the zoom the generator was created at
+    // So - map units correspond in a fixed way with OCR, which is good
+    // We introduce pixels because we need it to measure rendered text to calculate bboxes and size things (actually just for the preview)
+    // The pixel metrics of the text we measure is on an arbitrary canvas
+    // But pixels are constant across canvases, so it's effectively the pixel metrics on our canvas
+    // Which we can validate as the proper pixel metrics we expect given current resolution
+    // But pixels AREN'T constant across canvases,
+    // As on this canvas, font size doesn't have a fixed pixel height!
+    // So the actual conversion from pixels to image units is arbitrary,
+    // but the important bit is that it's consistent between when we set it
+    // we'll probably need to add an adjustment factor for different screens
+    // TODO deal with this ^
+    // and when we use it for measuring boxes later
+    // This is all captured in the resolution factor
+    let targetPixelHeight = heightPerChar / resolution;
+    if (targetPixelHeight < 10) targetPixelHeight += 1; // Not sure why things start to break down at small sizes;
+    while (curSize < GEN_CONSTANTS.sizing_range[1]) {
+        const font = `${fontWeight} ${curSize}px/${lineHeight} sans-serif`;
+        const sizingString = sampledWords.map(w => w.text).join("");
+        const metrics = getTextMetrics(sizingString, font);
+        const newHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+        const newDistance = Math.abs(newHeight - targetPixelHeight);
+        if (newDistance <= bestDistance) {
+            bestDistance = newDistance;
+            bestSize = curSize;
+            curSize += 1;
+            // linear search best search
+        } else {
+            break;
+        }
+    }
+
+    const fontSize = `${bestSize + jitter(GEN_CONSTANTS.sizeJitter)}px`;
+
+    // Positioning - offset is in OCR Units
+
+    const centerWidth = (generator.bbox[2] + generator.bbox[0]) / 2;
+    const left = generator.bbox[0];
+    const centerHeight = (generator.bbox[1] + generator.bbox[5]) / 2;
+    const top = generator.bbox[1];
+
+    const ratioOffsetX = GEN_CONSTANTS.offsetX;
+    const randomOffsetX = (generator.bbox[2] - generator.bbox[0]) * ratioOffsetX;
+
+    const offsetX = (left - centerWidth + randomOffsetX);
+
+    // OffsetY - passively represents positive distance from top to center (positive due to map coords)
+    // Thus if you add it, you move your point from the center to the top
+    let ratioOffsetY = GEN_CONSTANTS.offsetY + jitter(GEN_CONSTANTS.offsetYJitter);
+    if (charHeightHigh > 4) {
+        // if free-response, reduce offsetY ratio
+        ratioOffsetY /= 2;
+    }
+    const randomOffsetY = (generator.bbox[5] - generator.bbox[1]) * ratioOffsetY;
+    let offsetY = (top - centerHeight) + randomOffsetY;
+
+    if (charHeightHigh <= 2 || generator.tag.type !== FieldType.String) { // Assume no multi-line dates
+        // center text if not multiline - ignore fixed offset (just use jitter)
+        // jitter such that the character doesn't nudge out of box
+        // i.e. half of remaining space
+        const jitterWithin = (1 - heightPerChar / (generator.bbox[5] - generator.bbox[1])) / 2;
+        offsetY = -1 * (heightPerChar / 2) + jitter(jitterWithin) * (generator.bbox[5] - generator.bbox[1]);
+        charHeightHigh = 2;
+    }
+
+    return {
+        limits: [[charWidthLow, charWidthHigh], [charHeightLow, charHeightHigh]],
+        format: {
+            fontSize,
+            fontWeight,
+            lineHeight,
+            offsetX,
+            offsetY,
+        },
+    };
+}
 
 /**
  * Define bounding boxes for a given sampled format on a generator.
@@ -331,295 +632,6 @@ const generateBoundingBoxes: (g: IGenerator, format: GeneratorTextStyle, ocr: an
     };
 }
 
-const regexGenerator = (low, high, fieldType, fieldFormat) => {
-    const defaultRegex = `^[a-zA-Z ]{${low},${high}}$`; // `^.{${low},${high}}$`;
-    const dd = "(0[1-9]|[12][0-9]|3[01])";
-    const mm = "(0[1-9]|1[012])";
-    const yy = "(19|20)\\d\\d";
-    const regexDict = {
-        [FieldType.String]: {
-            [FieldFormat.NotSpecified]: defaultRegex,
-            [FieldFormat.Alphanumeric]: `^[a-zA-Z ]{${low},${high}}$`,
-            // [FieldFormat.Alphanumeric]: `^[a-zA-Z0-9 ]{${low},${high}}$`,
-            [FieldFormat.NoWhiteSpaces]: `^[a-zA-Z0-9]{${low},${high}}$`,
-        },
-        [FieldType.Number]: {
-            [FieldFormat.NotSpecified]: `^\\d{${low},${high}}$`,
-            // [FieldFormat.Currency]: `^\\$?((([1-9][0-9]){1,2},){${Math.round(low/5)},${Math.round(high/5)}}[0-9]{3}|[0-9]{${low},${high}})(\\.[0-9][0-9])?$`,
-            // While generating actual currency is nice, regular numbers are much more stable
-            [FieldFormat.Currency]: `^\\$?([0-9]{${low},${high-2}})(\\.[0-9][0-9])?$`,
-        },
-        [FieldType.Date]: {
-            [FieldFormat.NotSpecified]: `^\\d\\d([- /.])\\d\\d\\1\\d{2,4}$`,
-            [FieldFormat.DMY]: `^${dd}([- /.])${mm}\\2${yy}$`,
-            [FieldFormat.MDY]: `^${mm}([- /.])${dd}\\2${yy}$`,
-            [FieldFormat.YMD]: `^${yy}([- /.])${mm}\\2${dd}$`,
-        },
-        [FieldType.Time]: {
-            [FieldFormat.NotSpecified]: "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$",
-        },
-        [FieldType.Integer]: {
-            [FieldFormat.NotSpecified]: `^\\d{${low},${high}}$`,
-        },
-        [FieldType.SelectionMark]: {
-            [FieldFormat.NotSpecified]: `^selected|unselected$`,
-        },
-    }
-
-    let regex = regexDict[FieldType.String][FieldFormat.NotSpecified];
-    if (fieldType in regexDict && fieldFormat in regexDict[fieldType]) {
-        regex = regexDict[fieldType][fieldFormat];
-    }
-    // @ts-ignore - something is messed up with this import, satisfying it in lint breaks on runtime
-    const randexp = new RandExp(regex);
-    return randexp.gen();
-}
-
-const wordGenerator = (low: number, high: number, fieldType?: FieldType, fieldFormat?: FieldFormat) => {
-
-    // if fieldType is number, forward to regex
-    if (fieldType && fieldType !== FieldType.String) {
-        return regexGenerator(low, high, fieldType, fieldFormat);
-    }
-    // low, high
-    const maxWordLength = 12; // there's a weird balance to strike here...
-    const formatter = (word, index)=> {
-        return Math.random() < 0.3 ? word.slice(0,1).toUpperCase().concat(word.slice(1)) : word;
-    }
-
-    let tries = 0;
-    let candidate = "";
-    while (tries < 8) {
-        candidate = randomWords({
-            min: Math.max(Math.round(low / maxWordLength), 1),
-            max: high / 8, // max number of words - don't make it too many
-            maxLength: maxWordLength,
-            minLength: 3,
-            join: " ",
-            formatter,
-        });
-        if (candidate.length < high) return candidate;
-        tries += 1;
-    }
-    return candidate;
-};
-
-const generateString: (g: IGenerator, l: number[][], ocr: any) => string = (generator, limits, ocr) => {
-
-    // Default: regex map
-    const [ widthLimit, heightLimit ] = limits;
-    const [ widthLow, widthHigh ] = widthLimit;
-    const [ heightLow, heightHigh ] = heightLimit;
-    const linesUsed = randomIntInRange(heightLow, heightHigh);
-    const fieldType = generator.tag.type;
-    const fieldFormat = generator.tag.format;
-
-    const canMatchStatistics = [FieldType.String, FieldType.Number].includes(fieldType)
-        && [FieldFormat.NotSpecified].includes(fieldFormat);
-
-    const tokenGenerator = USE_RANDOM_WORDS && canMatchStatistics ? wordGenerator : regexGenerator;
-
-    const instanceGenerator = (srcText) => {
-        if (srcText.length === 1) return srcText; // hard-coded return of standalone symbols
-        if (!DO_MATCH_TEXT_STATISTICS
-            || !canMatchStatistics
-            || srcText === ""
-            || !(/(\d+)/.test(srcText))
-            || Math.random() < USE_TEXT_PROB)
-            return tokenGenerator(widthLow, widthHigh, fieldType, fieldFormat);
-        // heuristic algorithm, with an attempt at reflecting underlying distribution
-        // Split text into tokens
-        const tokens = srcText.split(" ");
-        let mutatedTokens = tokens.map(t => {
-            // ideally we can split on recognized "language sets" (like english) and mutate.
-            // let's not over-engineer, though (just doing digits for now)
-
-            // No digits in token - generate a random word for it
-            if (!/(\d+)/.test(t)) return "";
-            // has digits - scramble them and return the string otherwise (should work on dates etc)
-            // Extract digits
-            const splitTokens = t.split(/(\d+)/).filter(st => st.length > 0);
-            return splitTokens.map(st => {
-                if (/(\d+)/.test(st)) {
-                    if (Math.random() < DIGIT_DROPOUT) return "";
-                    return regexGenerator(Math.max(st.length - 1, 1), st.length + 1, FieldType.Number, FieldFormat.NotSpecified);
-                }
-                return st;
-            }).join("");
-        });
-
-        // generate words and randomly fill into empty slots
-        const subtotal = mutatedTokens.join(" ").length;
-        const budgetLow = Math.max(widthLow - subtotal, 1);
-        const budgetHigh = Math.max(widthHigh - subtotal, budgetLow + 1);
-        const proposals = wordGenerator(budgetLow, budgetHigh).split(" ");
-
-        let proposalIndex = 0;
-        mutatedTokens = mutatedTokens.map(t => {
-            if (t.length > 0 || proposalIndex >= proposals.length) return t;
-            return proposals[proposalIndex++];
-        });
-
-        return mutatedTokens.filter(t => t.length > 0).join(" ");
-    };
-
-
-    const lineStrings = [];
-    // Treat each line independently
-    for (let i = 0; i < linesUsed; i++) {
-        if (!generator.containsText) {
-            lineStrings.push(instanceGenerator(""));
-        } else {
-            const srcLine = generator.ocrLines[randomIntInRange(0, generator.ocrLines.length)];
-            const srcText = generator.containsText ? ocr.lines[srcLine].text : "";
-            lineStrings.push(instanceGenerator(srcText));
-        }
-    }
-    return lineStrings.join("\n");
-}
-
-const randomizeAlignment: (limits: number[][], format: GeneratorTextStyle, text: string, unitsPerChar: number[]) => GeneratorTextStyle
-    = (limits, format, text, unitsPerChar) => {
-    // Using the longest line (can't easily apply to separate lines)
-    // randomize alignment within limits
-    const widthHigh = limits[0][1];
-    const lines = text.split("\n");
-    // Character ratio should approximate actual length well enough for jitter
-    const maxLength = Math.max(...lines.map(l => l.length));
-    const charBudget = Math.max(widthHigh - maxLength, 0);
-    const xBudget = charBudget * unitsPerChar[0];
-    const offsetX = format.offsetX + (xBudget / 2) + jitter(xBudget / 2);
-    return {
-        ...format,
-        offsetX,
-    };
-}
-
-/**
- * Returns string limits as determined by absolute units, and format, as determined by current canvas resolution
- * @param generator generator to use
- * @param unitsPerChar absolute scaling in OCR units
- * @param ocr used as reference for font sizing
- * @param resolution current canvas resolution (omitted on training gen)
- */
-const getStringLimitsAndFormat: (g: IGenerator, unitsPerChar: number[], ocr: any, resolution?: number) => LimitsAndFormat =
-    (generator, unitsPerChar, ocr, resolution = 1) => {
-    if (generator.tag.type === FieldType.SelectionMark) {
-        return {
-            format: {},
-            limits: [[0, 0], [1, 2]]
-        }
-    }
-
-    const fontWeight = GEN_CONSTANTS.weight + jitter(GEN_CONSTANTS.weightJitter, true);
-    // TODO update according to source ocr
-    const lineHeight = GEN_CONSTANTS.lineHeight + jitter(GEN_CONSTANTS.lineHeightJitter, true);
-
-    // Map Units to Font size - Search for the right size by measuring canvas
-    let [ widthPerChar, heightPerChar ] = unitsPerChar;
-    if ([FieldType.Number, FieldType.Integer, FieldType.Date, FieldType.Time].includes(generator.tag.type)) {
-        widthPerChar *= GEN_CONSTANTS.digitWidthScale;
-    } else {
-        widthPerChar *= GEN_CONSTANTS.defaultWidthScale;
-    }
-
-    const boxWidth = generator.bbox[2] - generator.bbox[0];
-    const boxHeight = generator.bbox[5] - generator.bbox[1];
-    const effectiveLineHeight = heightPerChar * lineHeight * GEN_CONSTANTS.leadingLineHeightScale;
-
-    const charWidthLow = Math.max(1, Math.round(boxWidth * GEN_CONSTANTS.width_low / widthPerChar));
-    const charWidthHigh = Math.round(boxWidth * GEN_CONSTANTS.width_high / widthPerChar) + 1;
-
-    const charHeightLow = 1; // Math.max(1, Math.round(boxHeight * GEN_CONSTANTS.height_low / effectiveLineHeight));
-    let charHeightHigh = Math.floor(boxHeight * GEN_CONSTANTS.height_high / effectiveLineHeight) + 1; // +1 for exlcusive, floor for pessimistic
-    if (charHeightHigh < 4 && (!generator.ocrLines || generator.ocrLines.length <= 1)) { // unless we know it's multiline, be passive
-        charHeightHigh = 2;
-    }
-    // Using height since that's more important for visual fit
-    let bestSize = GEN_CONSTANTS.sizing_range[0];
-    let bestDistance = 1000;
-    let curSize = bestSize;
-    // ! The target pixel height shouldn't change wrt the zoom the generator was created at
-    // So - map units correspond in a fixed way with OCR, which is good
-    // We introduce pixels because we need it to measure rendered text to calculate bboxes and size things (actually just for the preview)
-    // The pixel metrics of the text we measure is on an arbitrary canvas
-    // But pixels are constant across canvases, so it's effectively the pixel metrics on our canvas
-    // Which we can validate as the proper pixel metrics we expect given current resolution
-    // But pixels AREN'T constant across canvases,
-    // As on this canvas, font size doesn't have a fixed pixel height!
-    // So the actual conversion from pixels to image units is arbitrary,
-    // but the important bit is that it's consistent between when we set it
-    // we'll probably need to add an adjustment factor for different screens
-    // TODO deal with this ^
-    // and when we use it for measuring boxes later
-    // This is all captured in the resolution factor
-    let targetPixelHeight = heightPerChar / resolution;
-    if (targetPixelHeight < 10) targetPixelHeight += 1; // Not sure why things start to break down at small sizes;
-    while (curSize < GEN_CONSTANTS.sizing_range[1]) {
-        const font = `${fontWeight} ${curSize}px/${lineHeight} sans-serif`;
-        let sizingString = GEN_CONSTANTS.sizing_string;
-        if (generator.containsText) {
-            // TODO filter out actual text (not super important)
-            sizingString = generator.ocrLines.map(ln => ocr.lines[ln].text).join("");
-        }
-        const metrics = getTextMetrics(sizingString, font);
-        const newHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
-        const newDistance = Math.abs(newHeight - targetPixelHeight);
-        if (newDistance <= bestDistance) {
-            bestDistance = newDistance;
-            bestSize = curSize;
-            curSize += 1;
-            // linear search best search
-        } else {
-            break;
-        }
-    }
-
-    const fontSize = `${bestSize + jitter(GEN_CONSTANTS.sizeJitter)}px`;
-
-    // Positioning - offset is in OCR Units
-
-    const centerWidth = (generator.bbox[2] + generator.bbox[0]) / 2;
-    const left = generator.bbox[0];
-    const centerHeight = (generator.bbox[1] + generator.bbox[5]) / 2;
-    const top = generator.bbox[1];
-
-    const ratioOffsetX = GEN_CONSTANTS.offsetX;
-    const randomOffsetX = (generator.bbox[2] - generator.bbox[0]) * ratioOffsetX;
-
-    const offsetX = (left - centerWidth + randomOffsetX);
-
-    // OffsetY - passively represents positive distance from top to center (positive due to map coords)
-    // Thus if you add it, you move your point from the center to the top
-    let ratioOffsetY = GEN_CONSTANTS.offsetY + jitter(GEN_CONSTANTS.offsetYJitter);
-    if (charHeightHigh > 4) {
-        // if free-response, reduce offsetY ratio
-        ratioOffsetY /= 2;
-    }
-    const randomOffsetY = (generator.bbox[5] - generator.bbox[1]) * ratioOffsetY;
-    let offsetY = (top - centerHeight) + randomOffsetY;
-
-    if (charHeightHigh <= 2 || generator.tag.type !== FieldType.String) { // Assume no multi-line dates
-        // center text if not multiline - ignore fixed offset (just use jitter)
-        // jitter such that the character doesn't nudge out of box
-        // i.e. half of remaining space
-        const jitterWithin = (1 - heightPerChar / (generator.bbox[5] - generator.bbox[1])) / 2;
-        offsetY = -1 * (heightPerChar / 2) + jitter(jitterWithin) * (generator.bbox[5] - generator.bbox[1]);
-        charHeightHigh = 2;
-    }
-
-    return {
-        limits: [[charWidthLow, charWidthHigh], [charHeightLow, charHeightHigh]],
-        format: {
-            fontSize,
-            fontWeight,
-            lineHeight,
-            offsetX,
-            offsetY,
-        },
-    };
-}
-
 const jitter = (max: number, round: boolean = false) => {
     if (!DO_JITTER) return 0;
     const val = (Math.random() * 2 - 1) * max;
@@ -685,8 +697,9 @@ export const matchBboxToOcr: (bbox: number[], pageOcr: any, text?: string) => IG
         const refLoc = [bbox[0], bbox[1]];
         const ocrRead = pageOcr;
         ocrRead.lines.forEach((line, index) => {
-            if (isFuzzyContained(bbox, line.boundingBox, 0.1)
-            || (text && line.words.includes(text))) {
+            if ((isFuzzyContained(bbox, line.boundingBox, 0.05)
+            && (!text || line.words.includes(text)))
+            || (isFuzzyContained(line.boundingBox, bbox, 0.05))) {
                 ocrLines.push(index);
                 containsText = true;
             }

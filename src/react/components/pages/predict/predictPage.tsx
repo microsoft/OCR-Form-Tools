@@ -663,7 +663,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         // Make the second REST API call and get the response.
         return this.poll(() =>
             ServiceHelper.getWithAutoRetry(
-                operationLocation, { headers }, this.props.project.apiKey as string), 120000, 500);
+                operationLocation, { headers }, this.props.project.apiKey as string), 240000, 500);
     }
 
     private loadFile = (file: File) => {
