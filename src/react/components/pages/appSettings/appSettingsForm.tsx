@@ -106,6 +106,26 @@ export class AppSettingsForm extends React.Component<IAppSettingsFormProps, IApp
     }
 
     private onFormValidate(appSettings: IAppSettings, errors: FormValidation) {
+        const tokensMap = {};
+        appSettings.securityTokens.forEach((token, index) => {
+            if (!token.name) {
+                return;
+            }
+            const tokenName = token.name;  // not trimmed because user's might already have non trimmed token names
+            if(tokensMap[tokenName] !== undefined) {
+                const initialSecurityTokenErrorName = errors.securityTokens[tokensMap[tokenName]].name;
+                const duplicateSecurityTokenErrorName = errors.securityTokens[index.toString()].name
+                if (duplicateSecurityTokenErrorName) {
+                    duplicateSecurityTokenErrorName.addError(strings.appSettings.securityToken.duplicateNameErrorMessage);
+                }
+                if (initialSecurityTokenErrorName.__errors.length === 0) {
+                    initialSecurityTokenErrorName.addError("Token name must be unique for all tokens");
+                }
+            }else{
+                tokensMap[tokenName] = index;
+            }
+        });
+
         if (this.state.classNames.indexOf("was-validated") === -1) {
             this.setState({
                 classNames: [...this.state.classNames, "was-validated"],

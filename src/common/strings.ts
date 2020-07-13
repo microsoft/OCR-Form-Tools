@@ -69,6 +69,7 @@ export interface IAppStrings {
             key: {
                 title: string;
             },
+            duplicateNameErrorMessage: string,
         },
         securityTokens: {
             title: string;
