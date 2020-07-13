@@ -112,7 +112,7 @@ export class AppSettingsForm extends React.Component<IAppSettingsFormProps, IApp
                 return;
             }
             const tokenName = token.name;  // not trimmed because user's might already have non trimmed token names
-            if(tokensMap[tokenName] !== undefined) {
+            if (tokensMap[tokenName] !== undefined) {
                 const initialSecurityTokenErrorName = errors.securityTokens[tokensMap[tokenName]].name;
                 const duplicateSecurityTokenErrorName = errors.securityTokens[index.toString()].name
                 if (duplicateSecurityTokenErrorName) {
@@ -121,7 +121,7 @@ export class AppSettingsForm extends React.Component<IAppSettingsFormProps, IApp
                 if (initialSecurityTokenErrorName.__errors.length === 0) {
                     initialSecurityTokenErrorName.addError(strings.appSettings.securityToken.duplicateNameErrorMessage);
                 }
-            } else{
+            } else {
                 tokensMap[tokenName] = index;
             }
         });
