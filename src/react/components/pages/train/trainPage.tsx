@@ -35,6 +35,7 @@ import { OCRService } from "../../../../services/ocrService";
 const shouldGenerate = true;
 const shouldGenerateForLabels = true;
 const shouldExpandLabelGenerators = true;
+const useGT = true;
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -246,12 +247,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
     private async generateValues(sourcePrefix: string): Promise<string> {
         // Generate values from project generators and create a new folder with the appropriate data
-        /**
-         * copy files over to folder
-         * write new pdfs
-         * call ocr service to regen
-         * proper shouldGenerate clause
-         */
         const assets = this.props.project.assets;
         Guard.null(assets);
         const generatePath = sourcePrefix.concat("/generated");
@@ -301,24 +296,20 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 }
             });
 
-            if (metadata.generators.length === 0 && !shouldGenerateForLabels) {
+            if ((metadata.generators.length === 0 && !shouldGenerateForLabels) || useGT) {
                 // port over the given labels if there's no generation
                 const prefix = `${generatePath}/`;
                 savePromises.push(assetService.saveLabels(asset, metadata.labelData, prefix));
                 savePromises.push(assetService.saveOCR(asset, ocr, prefix));
-                return savePromises;
+                if (metadata.generators.length === 0 && !shouldGenerateForLabels)
+                    return savePromises;
             }
 
-            // we need to support both modes
-            // user draws one generator over multi-lines, or user draws multiple generators over individual lines? (or what, user draws multi-partial...)
-            // how about let's do this simple case first - generator does NOT automatically fragment
-            // instead, expect multiple generators as supervision if we want explicit multi-lines as in cc auth
-            // and the label to gen shoudl reflect this
             let metadataGenerators = metadata.generators;
             if (shouldGenerateForLabels) {
                 metadataGenerators = this.assetMetadataLabelsToGenerators(metadata, pagesReadResults, allFields);
             }
-            for (let i = 0; i < metadata.generatorSettings.generateCount; i++) {
+            for (let i = 0; i < metadata.generatorSettings.generateCount - 1; i++) {
                 // Generate info for the asset
                 let assetGeneratorInfo: IGeneratedInfo[] = [];
 
