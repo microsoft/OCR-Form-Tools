@@ -1,6 +1,9 @@
 # FoTT Changelog
 
 ## 2.0.0-0541a32 (06-24-2020)
+* docs: README.md and DEBUG.md update to use **yarn** ([#410](https://github.com/microsoft/OCR-Form-Tools/commit/41a0f231cd05eab30b0e8a1983bbf70a7abe09f5))
+
+## 2.0.0-0541a32 (06-24-2020)
 * feat: selectionMark (checkbox) functionality disabled ([#337](https://github.com/microsoft/OCR-Form-Tools/commit/0541a32ccefcb03d76523835603977a886f91b71))
 
 ## 2.0.0-1c39800 (06-05-2020)
