@@ -10,9 +10,9 @@ FOTT 的标注工具是一个由 React + Redux 开发的 Web 应用程序， 该
 
 当前标注工具具有下面这些特性：
 
-* **标注** PDF、JPEG、TIFF等文档格式里的表单。 
+* **标注** PDF、JPEG、TIFF等文档格式里的表单。
 * 通过 [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/) 和标注数据来 **训练** 模型。
-* 使用训练模型**预测**上述文档里的单张表单，进而从中提取表单里的 key/value 数据。 
+* 使用训练模型**预测**上述文档里的单张表单，进而从中提取表单里的 key/value 数据。
 
 ## 开始( Getting Started )
 
@@ -23,9 +23,9 @@ FOTT 的标注工具是一个由 React + Redux 开发的 Web 应用程序， 该
    ```bash
     git clone https://github.com/Microsoft/OCR-Form-Tools.git
     cd OCR-Form-Tools
-    npm install
-    npm run build
-    npm run react-start
+    yarn install
+    yarn build
+    yarn react-start
    ```
 
 ### 使用Docker安装（Set up this tool with Docker）
@@ -46,7 +46,7 @@ FOTT 的标注工具是一个由 React + Redux 开发的 Web 应用程序， 该
 
 #### 配置跨域资源共享( Configure cross-domain resource sharing, CORS )
 
-在你的存储账号上允许 CORS. 选择你在Azure上的存储账号，在左侧的面板上点击 **CORS** 标签。在下面一行填入下面的配置。 然后点击顶部的 **保存** 按钮。 
+在你的存储账号上允许 CORS. 选择你在Azure上的存储账号，在左侧的面板上点击 **CORS** 标签。在下面一行填入下面的配置。 然后点击顶部的 **保存** 按钮。
 
 ```
 * Allowed origins = *
@@ -180,5 +180,5 @@ OCR 表单标注工具是一个 'Bring Your Own data' (BYOD) 应用。在这个�
 本项目遵守[微软开源行为准则(Microsoft Open Source Code of Conduct)](https://opensource.microsoft.com/codeofconduct/). 更需信息请参考[行为准则常见问题解答(Code of Conduct FAQ)](https://opensource.microsoft.com/codeofconduct/faq/) 或者联系 [opencode@microsoft.com](mailto:opencode@microsoft.com) 查看任何其他问题和意见。
 
 
-[English Version](https://github.com/microsoft/OCR-Form-Tools/blob/master/README.md) 
+[English Version](https://github.com/microsoft/OCR-Form-Tools/blob/master/README.md)
 

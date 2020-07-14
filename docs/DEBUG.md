@@ -2,7 +2,7 @@
 
 ## Renderer Process  
 ### Chrome Debugger  
-1. Start app: `npm run react-start`.  
+1. Start app: `yarn react-start`.  
 2. Open Chrome Dev Tools: `F12` in browser, `Ctrl + Shift + I` in electron.  
 3. Open `Sources` tab.  
 4. `Ctrl + Shift + F` and search for the file/function/code you would like to break into.  
@@ -12,7 +12,7 @@
 
 ### VSCode Debugger  
 1. Download & install the `Debugger for Chrome` VSCode plugin.  
-2. Start app: `npm run react-start`.  
+2. Start app: `yarn react-start`.  
 3. `F5`  
 4. Select `Chrome`  
 5. Change `http://localhost:8080` to `http://localhost:3000`  
