@@ -183,9 +183,14 @@ const getOcrUnitsPerChar: (g: IGenerator, ocr: any) => UnitsAndWords = (generato
     let sampledNestedWords = sampledLines.map(l => l.words);
     if (generator.containsText) {
         // filter out only the words that are truly inside the generator - ocr can combine chunks with multiple sizes
-        sampledNestedWords = sampledNestedWords.map(lw => lw.filter(
+        const filteredNestedWords = sampledNestedWords.map(lw => lw.filter(
             w => isBoxCenterInBbox(w.boundingBox, generator.bbox)
         ));
+        if (filteredNestedWords.some(lw => lw.length > 0)) {
+            sampledNestedWords = filteredNestedWords;
+        } else {
+            console.warn(`No words found in box. Mismatch between contained OCR word and labeled box. Check ${generator.tag.name}`);
+        }
     }
     const sampledWords = [].concat.apply([], sampledNestedWords);
     const widths = [];
@@ -197,7 +202,7 @@ const getOcrUnitsPerChar: (g: IGenerator, ocr: any) => UnitsAndWords = (generato
     });
 
     if (widths.length === 0) {
-        throw new Error(`No words found in box. Mismatch between contained OCR word and labeled box. Check ${generator.tag.name}`);
+        throw new Error("empty widths. somehow, things are still empty");
     }
     // - scale to map units, which we can convert to pixels
     const widthPerChar = median(widths);
@@ -560,7 +565,7 @@ const generateBoundingBoxes: (g: IGenerator, format: GeneratorTextStyle, ocr: an
         };
         return {
             full,
-            lines: [], // omit ocr lines - we'll use what's given without edits
+            lines: [], // omit ocr lines - we'll only be overriding the text.
             words: [selectionWord]
         }
     }
@@ -720,16 +725,18 @@ export const matchBboxToOcr: (bbox: number[], pageOcr: any, text?: string) => IG
     let ocrLine = -1; // closest
     // A few quality of life heuristics
     let containsText = false;
+    const textGuess = text.split(/(\s+)/)[0]; // when text is brought in with whitespace, use the first one as reference
     if (pageOcr) {
         // Find the closest text
         let closestDist = 1; // at most half an inch away
         const refLoc = [bbox[0], bbox[1]];
         const ocrRead = pageOcr;
+        const thresh = text ? 0.3 : 0.05;
         ocrRead.lines.forEach((line, index) => {
             // there are cases where the overlapping line contains our words, but also where it doesn't (i.e. underscores)
-            if ((isFuzzyContained(bbox, line.boundingBox, 0.05)
-            || isFuzzyContained(line.boundingBox, bbox, 0.05))
-            && (!text || line.words.includes(text))) {
+            if ((isFuzzyContained(bbox, line.boundingBox, thresh)
+            || isFuzzyContained(line.boundingBox, bbox, thresh))
+            && (!text || line.text.includes(textGuess))) {
                 ocrLines.push(index);
                 containsText = true;
             }

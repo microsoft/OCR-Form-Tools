@@ -307,6 +307,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
             let metadataGenerators = metadata.generators;
             if (shouldGenerateForLabels) {
+                // create generators for non-selection marks.
                 metadataGenerators = this.assetMetadataLabelsToGenerators(metadata, pagesReadResults, allFields);
             }
             for (let i = 0; i < metadata.generatorSettings.generateCount - 1; i++) {
@@ -358,9 +359,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                         );
 
                         baseSelectionMarks[pageReadResults.page].forEach((mark) => {
-                            // Find the corresponding label
+                            // Find the corresponding label - we do this with a separate OCR matching step (we should ideally move this logic to map)
                             const labelInfo = selectionInfo.find(
-                                si => fuzzyBboxEqual(si.boundingBoxes.words[0].boundingBox, mark.boundingBox, 0.5) // extra threshold since benchmark data isn't matching up
+                                si => fuzzyBboxEqual(si.boundingBoxes.words[0].boundingBox, mark.boundingBox, 0.4) // extra threshold since benchmark data isn't matching up
                             );
                             selectionMarks.push({ ...mark, state: labelInfo ? labelInfo.text : mark.state });
                         });
@@ -445,6 +446,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     // Note - this only makes generators from one label, does not aggregate data across docs
+    // Selection marks are filtered out
     private assetMetadataLabelsToGenerators(metadata: IAssetMetadata, ocr: any, tags: ITag[]): IGenerator[] {
         const labelData = metadata.labelData; // precisely JSON.parse of the file
         const existingGeneratorKeys = metadata.generators.map(g => g.tag.name);
@@ -474,10 +476,33 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             const bboxes = d.value.map(v => v.boundingBoxes);
             const flatBboxes = [].concat.apply([], bboxes);
             // match ocr lines for each box in the label (can be different)
+
+            // Short circuit tag - don't even use a bbox
+            if (tag.type === FieldType.SelectionMark) {
+                return [{
+                    tag,
+                    tagProposal: tag,
+                    containsText: true,
+                    ocrLines: [],
+                    bbox: scaleBbox(flatBboxes[0], pageOcr.width, pageOcr.height),
+                    canvasBbox: [], // only used on canvas
+                    points: [], // only used on canvas
+                    id,
+                    resolution: 1,
+                    page,
+                }];
+            }
+
             const ocrLines = flatBboxes.map((singleBox, i) => {
+
                 const scaledBox = scaleBbox(singleBox, pageOcr.width, pageOcr.height);
                 // only take the first (there should only be one, unless we have highly overlapped repeating text, in which case we don't care)
-                return matchBboxToOcr(scaledBox, pageOcr, d.value[i].text).ocrLines[0];
+                const res = matchBboxToOcr(scaledBox, pageOcr, d.value[i].text);
+                // how do we map a checkbox label to the appropriate ocr?
+                if (!res.containsText) {
+                    throw new Error(`No OCR found for label, check ${d.value[i].text} label (${d.label})`)
+                }
+                return res.ocrLines[0];
             });
 
             const boxesByOcrLine = {};
