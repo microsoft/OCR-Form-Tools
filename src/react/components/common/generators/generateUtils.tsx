@@ -8,7 +8,7 @@ import { IGenerator, FieldFormat, FieldType, ILabel, IGeneratorTagInfo } from ".
 import { randomIntInRange } from "../../../../common/utils";
 
 // Debugging controls
-const DO_JITTER = false;
+const DO_JITTER = true;
 const USE_RANDOM_WORDS = true;
 const DO_MATCH_TEXT_STATISTICS = true;
 const DIGIT_DROPOUT = 0.0;
@@ -99,7 +99,6 @@ const GEN_CONSTANTS = {
     heightScaleJitter: .05,
     digitWidthScale: 1.3, // digits are a little wider, accommodate
     defaultWidthScale: 1.2,
-    sizeJitter: 1, // 1,
     offsetX: 0, // ratio offset
     offsetY: .05,
     offsetYJitter: .05, // ratio offset
@@ -108,7 +107,8 @@ const GEN_CONSTANTS = {
     width_high: .95,
     height_low: 0.2,
     height_high: 0.9, // try not to bleed past the box due to scaling inaccs
-    sizing_samples: 1, // sample count for line sampling (smaller => more random)
+    sizing_samples: 7, // sample count for line sampling (smaller => more random)
+    sizeJitter: 2, // 1,
     sizing_range: [4, 100] // search range for font sizing
 }
 
