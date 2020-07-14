@@ -18,14 +18,14 @@ Current Features of Labeling Tool: (you can view a short demo [here](https://you
 
 ### Build and run from source
 
-Form Labeling Tool requires [NodeJS (>= 10.x, Dubnium) and NPM](https://github.com/nodejs/Release)
+Form Labeling Tool requires [NodeJS (>= 10.x, Dubnium) and Yarn](https://github.com/nodejs/Release)
 
    ```bash
     git clone https://github.com/Microsoft/OCR-Form-Tools.git
     cd OCR-Form-Tools
-    npm install
-    npm run build
-    npm run react-start
+    yarn install
+    yarn build
+    yarn react-start
    ```
 
 ### Set up this tool with Docker
