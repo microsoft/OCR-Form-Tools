@@ -41,8 +41,12 @@ const imageMimes: IMime[] = [
         pattern: [0xff, 0xd8, 0xff],
     },
     {
-        types: ["tif", "tiff"],
-        pattern: [0x49, 0x49, 0x42, 0x00],
+        types: ["tif"],
+        pattern: [0x49, 0x49, 0x2a, 0x00],
+    },
+    {
+        types: ["tiff"],
+        pattern: [0x4d, 0x4d, 0x00, 0x2a],
     },
     {
         types: ["pdf"],
@@ -93,9 +97,8 @@ export class AssetService {
             if (!types.includes(assetFormat)) {
                 assetFormat = types[0];
                 const corruptFileName = fileName.split("%2F").pop().replace(/%20/g, " ");
-                setTimeout(() => {
-                    toast.info(`${strings.editorPage.assetWarning.incorrectFileExtension.attention} ${corruptFileName.toLocaleUpperCase()} ${strings.editorPage.assetWarning.incorrectFileExtension.text} ${corruptFileName.toLocaleUpperCase()}`);
-                }, 3000);
+
+                toast.info(`${strings.editorPage.assetWarning.incorrectFileExtension.attention} ${corruptFileName.toLocaleUpperCase()} ${strings.editorPage.assetWarning.incorrectFileExtension.text} ${corruptFileName.toLocaleUpperCase()}`, { delay: 3000 });
             }
         }
 
@@ -117,7 +120,7 @@ export class AssetService {
      * @param format - File extension of asset
      */
     public static getAssetType(format: string): AssetType {
-        switch (format.toLowerCase()) {
+        switch (format?.toLowerCase()) {
             case "jpg":
             case "jpeg":
             case "png":
