@@ -65,6 +65,7 @@ export function loadProject(project: IProject):
 export function saveProject(project: IProject, saveTags?: boolean, updateTagsFromFiles?: boolean)
     : (dispatch: Dispatch, getState: () => IApplicationState) => Promise<IProject> {
     return async (dispatch: Dispatch, getState: () => IApplicationState) => {
+        project = Object.assign({}, project);
         const appState = getState();
         const projectService = new ProjectService();
 
