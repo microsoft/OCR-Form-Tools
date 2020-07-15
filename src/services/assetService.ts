@@ -101,9 +101,8 @@ export class AssetService {
             if (!types.includes(assetFormat)) {
                 assetFormat = types[0];
                 const corruptFileName = fileName.split("%2F").pop().replace(/%20/g, " ");
-                setTimeout(() => {
-                    toast.info(`${strings.editorPage.assetWarning.incorrectFileExtension.attention} ${corruptFileName.toLocaleUpperCase()} ${strings.editorPage.assetWarning.incorrectFileExtension.text} ${corruptFileName.toLocaleUpperCase()}`);
-                }, 3000);
+
+                toast.info(`${strings.editorPage.assetWarning.incorrectFileExtension.attention} ${corruptFileName.toLocaleUpperCase()} ${strings.editorPage.assetWarning.incorrectFileExtension.text} ${corruptFileName.toLocaleUpperCase()}`, { delay: 3000 });
             }
         }
 
