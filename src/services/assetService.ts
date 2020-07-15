@@ -42,8 +42,12 @@ const imageMimes: IMime[] = [
         pattern: [0xff, 0xd8, 0xff],
     },
     {
-        types: ["tif", "tiff"],
-        pattern: [0x49, 0x49, 0x42, 0x00],
+        types: ["tif"],
+        pattern: [0x49, 0x49, 0x2a, 0x00],
+    },
+    {
+        types: ["tiff"],
+        pattern: [0x4d, 0x4d, 0x00, 0x2a],
     },
     {
         types: ["pdf"],
@@ -96,6 +100,7 @@ export class AssetService {
             } else {
                 types = await this.getMimeType(filePath);
             }
+
 
             // If file was renamed/spoofed - fix file extension to true MIME type and show message
             if (!types.includes(assetFormat)) {
