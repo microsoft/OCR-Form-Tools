@@ -1383,7 +1383,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
         const uniqueName = `Gen ${id}`;
 
-        const { tagProposal, ocrLines, containsText } = matchBboxToOcr(regionInfo.bbox, this.state.ocrForCurrentPage.readResults)
+        const { tagProposal, ocrLines, srcText } = matchBboxToOcr(regionInfo.bbox, this.state.ocrForCurrentPage.readResults)
 
         // Uniqueness guarantee
         if (tagProposal.name === ""
@@ -1395,7 +1395,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         tagProposal.color = getNextColor(this.props.formattedItems);
         tagProposal.documentCount = 1; // TODO treat <- more seriously
 
-        const regionAndMetadata: IGenerator = {...regionInfo, ocrLines, tagProposal, containsText };
+        const regionAndMetadata: IGenerator = {...regionInfo, ocrLines, tagProposal, srcText };
         return regionAndMetadata;
     }
 

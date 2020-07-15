@@ -473,7 +473,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             const pageOcr = ocr.find(doc => doc.page === page);
 
             // labels are in ratio
-            const bboxes = d.value.map(v => v.boundingBoxes);
+            const filteredValues = d.value.filter(v => v.text.length > 0);
+            const bboxes = filteredValues.map(v => v.boundingBoxes);
             const flatBboxes = [].concat.apply([], bboxes);
             // match ocr lines for each box in the label (can be different)
 
@@ -497,10 +498,10 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
                 const scaledBox = scaleBbox(singleBox, pageOcr.width, pageOcr.height);
                 // only take the first (there should only be one, unless we have highly overlapped repeating text, in which case we don't care)
-                const res = matchBboxToOcr(scaledBox, pageOcr, d.value[i].text);
+                const res = matchBboxToOcr(scaledBox, pageOcr, filteredValues[i].text);
                 // how do we map a checkbox label to the appropriate ocr?
-                if (!res.containsText) {
-                    throw new Error(`No OCR found for label, check ${d.value[i].text} label (${d.label})`)
+                if (!res.srcText) {
+                    throw new Error(`No OCR found for label "${filteredValues[i].text}" with tag (${d.label}). On page ${page} of ${metadata.asset.name}`)
                 }
                 return res.ocrLines[0];
             });

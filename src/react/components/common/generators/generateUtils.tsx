@@ -169,7 +169,7 @@ const getOcrUnitsPerChar: (g: IGenerator, ocr: any) => UnitsAndWords = (generato
     }
 
     let sampledLines = [];
-    if (generator.containsText) {
+    if (generator.srcText) {
         sampledLines = sampledLines.concat(generator.ocrLines.map(ln => ocr.lines[ln]));
     } else {
         for (let i = 0; i < GEN_CONSTANTS.sizing_samples; i++) {
@@ -181,10 +181,14 @@ const getOcrUnitsPerChar: (g: IGenerator, ocr: any) => UnitsAndWords = (generato
     }
 
     let sampledNestedWords = sampledLines.map(l => l.words);
-    if (generator.containsText) {
+    if (generator.srcText) {
         // filter out only the words that are truly inside the generator - ocr can combine chunks with multiple sizes
         const filteredNestedWords = sampledNestedWords.map(lw => lw.filter(
-            w => isBoxCenterInBbox(w.boundingBox, generator.bbox)
+            // we do box center check for words that are parts of labels
+            // and text search for labels that are parts of words (we can't fracture bad OCR well - welllll we coulllld)
+            // TODO think about the above..
+            w => (isBoxCenterInBbox(w.boundingBox, generator.bbox)
+            || (generator.srcText && fuzzyTextMatch(w.text, generator.srcText)))
         ));
         if (filteredNestedWords.some(lw => lw.length > 0)) {
             sampledNestedWords = filteredNestedWords;
@@ -363,7 +367,7 @@ const generateString: (g: IGenerator, l: number[][], ocr: any, sampledNestedWord
     const lineStrings = [];
     // Treat each line independently
     for (let i = 0; i < linesUsed; i++) {
-        if (!generator.containsText || !canMatchStatistics) {
+        if (!generator.srcText || !canMatchStatistics) {
             lineStrings.push(instanceGenerator(""));
         } else {
             const srcText = sampledNestedWords[randomIntInRange(0, generator.ocrLines.length)].map(w => w.text).join(" ");
@@ -410,7 +414,7 @@ const getStringLimitsAndFormat: (g: IGenerator, unitsPerChar: number[], ocr: any
     const fontWeight = GEN_CONSTANTS.weight + jitter(GEN_CONSTANTS.weightJitter, true);
     // TODO update according to source ocr
     let lineHeight = GEN_CONSTANTS.lineHeight
-    if (generator.containsText && sampledNestedWords.length > 1) {
+    if (generator.srcText && sampledNestedWords.length > 1) {
         // find distinct "lines" (non-overlapping) and measure lineHeight as
         // 1 + line dist / box height (averaged)
         const distinctLineBoxes = [];
@@ -736,7 +740,7 @@ export const matchBboxToOcr: (bbox: number[], pageOcr: any, text?: string) => IG
             // there are cases where the overlapping line contains our words, but also where it doesn't (i.e. underscores)
             if ((isFuzzyContained(bbox, line.boundingBox, thresh)
             || isFuzzyContained(line.boundingBox, bbox, thresh))
-            && (!text || line.text.includes(textGuess))) {
+            && (!text || fuzzyTextMatch(line.text, textGuess))) {
                 ocrLines.push(index);
                 containsText = true;
             }
@@ -771,7 +775,7 @@ export const matchBboxToOcr: (bbox: number[], pageOcr: any, text?: string) => IG
         ocrLines.push(ocrLine);
     }
     const tagProposal = { name, type, format };
-    return { tagProposal, ocrLines, containsText };
+    return { tagProposal, ocrLines, srcText: containsText ? text : "" };
 }
 
 
@@ -971,4 +975,39 @@ const isOverlapping = (box1: number[], box2: number[]) => {
         corners.push([box1[i], box1[i+1]]);
     }
     return corners.some(c => containsPoint(box2, c));
+}
+
+// https://stackoverflow.com/questions/51262663/how-to-check-substring-in-a-string-with-fuzziness/51262894
+function levenstein(a, b) {
+    var m = [], i, j, min = Math.min;
+
+    if (!(a && b)) return (b || a).length;
+
+    for (i = 0; i <= b.length; m[i] = [i++]);
+    for (j = 0; j <= a.length; m[0][j] = j++);
+
+    for (i = 1; i <= b.length; i++) {
+        for (j = 1; j <= a.length; j++) {
+            m[i][j] = b.charAt(i - 1) == a.charAt(j - 1)
+                ? m[i - 1][j - 1]
+                : m[i][j] = min(
+                    m[i - 1][j - 1] + 1,
+                    min(m[i][j - 1] + 1, m[i - 1 ][j] + 1))
+        }
+    }
+
+    return m[b.length][a.length];
+}
+function fuzzyContains(a, b, error) {
+    var matchLength = a.length - b.length;
+    var distanceToMatch = levenstein(a, b) - matchLength;
+    if(distanceToMatch - error > 0) {
+      return false;
+    } else {
+      return true;
+    }
+}
+
+const fuzzyTextMatch = (searchStr: string, queryStr: string) => {
+    return fuzzyContains(searchStr, queryStr, 2);
 }
