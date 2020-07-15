@@ -725,7 +725,7 @@ export const matchBboxToOcr: (bbox: number[], pageOcr: any, text?: string) => IG
     let ocrLine = -1; // closest
     // A few quality of life heuristics
     let containsText = false;
-    const textGuess = text.split(/(\s+)/)[0]; // when text is brought in with whitespace, use the first one as reference
+    const textGuess = text ? text.split(/(\s+)/)[0] : ""; // when text is brought in with whitespace, use the first one as reference
     if (pageOcr) {
         // Find the closest text
         let closestDist = 1; // at most half an inch away
