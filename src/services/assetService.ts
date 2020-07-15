@@ -101,7 +101,6 @@ export class AssetService {
                 types = await this.getMimeType(filePath);
             }
 
-
             // If file was renamed/spoofed - fix file extension to true MIME type and show message
             if (!types.includes(assetFormat)) {
                 assetFormat = types[0];
