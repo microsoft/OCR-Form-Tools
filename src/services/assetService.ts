@@ -125,19 +125,21 @@ export class AssetService {
      * @param format - File extension of asset
      */
     public static getAssetType(format: string): AssetType {
-        switch (format.toLowerCase()) {
-            case "jpg":
-            case "jpeg":
-            case "png":
-            case "bmp":
-                return AssetType.Image;
-            case "tif":
-            case "tiff":
-                return AssetType.TIFF;
-            case "pdf":
-                return AssetType.PDF;
-            default:
-                return AssetType.Unknown;
+        if (format) {
+            switch (format.toLowerCase()) {
+                case "jpg":
+                case "jpeg":
+                case "png":
+                case "bmp":
+                    return AssetType.Image;
+                case "tif":
+                case "tiff":
+                    return AssetType.TIFF;
+                case "pdf":
+                    return AssetType.PDF;
+                default:
+                    return AssetType.Unknown;
+            }
         }
     }
 
