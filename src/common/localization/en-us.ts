@@ -69,6 +69,7 @@ export const english: IAppStrings = {
             key: {
                 title: "Key",
             },
+            duplicateNameErrorMessage: "Token name must be unique for all tokens",
         },
         securityTokens: {
             title: "Security Tokens",
