@@ -144,20 +144,35 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
     public async componentDidMount() {
         const projectId = this.props.match.params["projectId"];
-        let project = this.props.project;   // initialize for cases when the page isn't mounted on url endpoing 
         if (projectId) {
-            project = this.props.recentProjects.find((project) => project.id === projectId);
-            project = await this.props.actions.loadProject(project);
-            this.props.appTitleActions.setTitle(project.name);
+            await this.loadProject(projectId);
         } 
-        if (project) {
-            this.updateRecentModelsViewer(project);
-        }
-
         document.title = strings.predict.title + " - " + strings.appName;
     }
 
-    public componentDidUpdate(prevProps, prevState) {
+    public async componentDidUpdate(prevProps, prevState) {
+        const onPredictPage = (new RegExp("predict$")).test(this.props.match.url)
+        if (!onPredictPage) {
+            return; // don't update if not on the predict page
+        }
+
+        if (!this.props.project) {
+            const projectId = this.props.match.params["projectId"];
+            if (projectId) {
+                await this.loadProject(projectId);
+            }
+        }
+
+        if (this.props.project?.predictModelId && !(this.props.project?.recentModelRecords)) {
+            this.updateRecentModels(this.props.project)
+        }
+        if (this.props.project?.recentModelRecords && this.props.project?.predictModelId &&
+            this.state.selectedRecentModelIndex === -1) {
+            this.updateRecentModelsViewer(this.props.project);
+        } else if (this.state.loadingRecentModel) {
+            this.setState({loadingRecentModel: false});
+        }
+
         if (this.state.file) {
             if (this.state.fileChanged) {
                 this.currPdf = null;
@@ -1044,7 +1059,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private async getRecentModelFromPredictModelId(): Promise<any> {
-        console.log("getting lattest model ID")
         const modelID = this.props.project.predictModelId;
         const endpointURL = url.resolve(
             this.props.project.apiUriBase,
@@ -1057,6 +1071,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         } catch (err) {
             ServiceHelper.handleServiceError(err);
         }
+        response = response["data"];
         return {
             modelInfo: {
                 createdDateTime: response["modelInfo"]["createdDateTime"],
@@ -1073,39 +1088,38 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private async updateRecentModelsViewer(project) {
-        if (project.predictModelId && !project.recentModelRecords) {
-            const recentModelRecords: IRecentModel[] = [await this.getRecentModelFromPredictModelId()]
-            await this.props.actions.saveProject({
-                ...project,
-                recentModelRecords,
-            }, false, false);
-        }
-        if (project.recentModelRecords && project.predictModelId) {
-            this.selectionHandler = new Selection({
-                selectionMode: SelectionMode.single,
-                onSelectionChanged: this.handleModelSelection,
-            })
-            const recentModelRecordsWithKey = [];
-            let predictModelIndex;
-            project.recentModelRecords.forEach((model: IRecentModel, index) => {
-                if (model.modelInfo.modelId === project.predictModelId) {
-                    predictModelIndex = index
-                }
-                recentModelRecordsWithKey[index] = Object.assign({key: index}, model);
-            })
-            this.selectionHandler.setItems(recentModelRecordsWithKey, false);
-            this.selectionHandler.setIndexSelected(predictModelIndex, true, false);
-            this.setState({
-                loadingRecentModel: false,
-                selectedRecentModelIndex: predictModelIndex,
-                selectionIndexTracker: predictModelIndex
-            });
-        } else {
-            this.setState({
-                loadingRecentModel: false,
-                selectionIndexTracker: -1,
-                selectedRecentModelIndex: -1,
-            });
-        }
+        this.selectionHandler = new Selection({
+            selectionMode: SelectionMode.single,
+            onSelectionChanged: this.handleModelSelection,
+        })
+        const recentModelRecordsWithKey = [];
+        let predictModelIndex;
+        project.recentModelRecords.forEach((model: IRecentModel, index) => {
+            if (model.modelInfo.modelId === project.predictModelId) {
+                predictModelIndex = index
+            }
+            recentModelRecordsWithKey[index] = Object.assign({key: index}, model);
+        })
+        this.selectionHandler.setItems(recentModelRecordsWithKey, false);
+        this.selectionHandler.setIndexSelected(predictModelIndex, true, false);
+        this.setState({
+            loadingRecentModel: false,
+            selectedRecentModelIndex: predictModelIndex,
+            selectionIndexTracker: predictModelIndex
+        });
+    }
+
+    private async updateRecentModels(project) {
+        const recentModelRecords: IRecentModel[] = [await this.getRecentModelFromPredictModelId()]
+        project = await this.props.actions.saveProject({
+            ...project,
+            recentModelRecords,
+        }, false, false);
+    }
+
+    private async loadProject(projectId: string) {
+        const project = this.props.recentProjects.find((project) => project.id === projectId);
+        await this.props.actions.loadProject(project);
+        this.props.appTitleActions.setTitle(project.name);
     }
 }
