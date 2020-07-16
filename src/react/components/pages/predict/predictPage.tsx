@@ -34,7 +34,7 @@ import ServiceHelper from "../../../../services/serviceHelper";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import { getPrimaryGreenTheme, getPrimaryWhiteTheme,
-         getGreenWithWhiteBackgroundTheme, 
+         getGreenWithWhiteBackgroundTheme,
          getrightPaneDefaultButtonTheme} from "../../../../common/themes";
 import axios from "axios";
 import { IAnalyzeModelInfo } from './predictResult';
@@ -146,7 +146,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const projectId = this.props.match.params["projectId"];
         if (projectId) {
             await this.loadProject(projectId);
-        } 
+        }
         document.title = strings.predict.title + " - " + strings.appName;
     }
 
@@ -239,8 +239,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                     <div className="bg-darker-2 pl-3 pr-3 flex-center" >
                                         <div className="alert alert-warning warning no-models-warning" role="alert">
                                             {strings.predict.noRecentModels}
-                                        </div>    
-                                    </div> : 
+                                        </div>
+                                    </div> :
                                     <>
                                         <div className="bg-darker-2 pl-3 pr-3 flex-center model-selection-container">
                                             <div>
@@ -250,11 +250,11 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                 <h6 className="model-selection-info-header" >
                                                     <span className="model-selection-info-key">
                                                         {strings.predict.modelIDPrefix}
-                                                    </span> 
+                                                    </span>
                                                     <span className="model-selection-info-value">
                                                         {mostRecentModel.modelInfo.modelId.substring(0,8) + "..."}
                                                     </span>
-                                                </h6> 
+                                                </h6>
                                                 {mostRecentModel.modelInfo.modelName &&
                                                     <h6 className="model-selection-info-header" >
                                                         <span className="model-selection-info-key">
@@ -262,9 +262,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                         </span>
                                                         <span className="model-selection-info-value">
                                                             {mostRecentModel.modelInfo.modelName}
-                                                        </span>  
+                                                        </span>
                                                     </h6>
-                                                }    
+                                                }
                                             </div>
                                             <DefaultButton
                                                 style={{width: "80px"}}
@@ -412,7 +412,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                             }
                                         </div>
                                     </>
-                                } 
+                                }
                             </> : <Spinner className="loading-tag" size={SpinnerSize.large}/>
                         }
                     </div>
