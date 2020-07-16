@@ -69,7 +69,7 @@ The distributable will saved in the releases folder of the cloned repository.
 
 ___
 
->##### ❗ If you are behind a firewall, please add  [Azure IP ranges](https://go.microsoft.com/fwlink/?linkid=2090451) you can whitelist those IPs with your service.
+>##### ❗ If you are behind a firewall, please add  [Azure IP ranges](https://www.microsoft.com/en-us/download/details.aspx?id=56519) you can whitelist those IPs with your service.
 
 ___
 
