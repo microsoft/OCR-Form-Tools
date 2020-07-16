@@ -1,5 +1,67 @@
 # Test Runbook
 
+ ## Fix: support model selection for analyzing
+
+> ### Feature description ###
+- track the five most recent trained or composed models  
+- display currently selected model in the analyze page right pane header  
+- display no models message when user has no recent models in the analyze page right pane header  
+- display button for selecting model in the analyze page right pane header  
+- display pop-up for selecting a model from a list of the five most recenet models  
+- support analyzing with selected model  
+
+> ### Use Case ###
+
+**As** a user  
+**I want** to be able to select a model to analyze with    
+**So** I can use that model to analyze with    
+
+> ### Acceptance criteria ###
+
+#### Scenario One ####
+
+**Given** I've not trained or composed a model for my current project  
+**When** I go to the analyze page  
+**Then** I should see a message letting me know I don't have any recenet models  
+
+#### Scenario Two ####
+
+**Given** I've trained or composed a model for my current project    
+**When**  I got to the analyze page  
+**Then** I should see my most recent model in the right pane header  
+
+#### Scenario Three ####
+
+**Given** I've trained or composed a model before pulling this change  
+**When** I pull this change and go to the analyze page  
+**Then** I should see my most recent model in the right pane header
+
+#### Scenario Four ####
+
+**Given** I've selected a different model  
+**When** I go to another page for this project and then click on the analyze page  
+**Then** I should still see the same selected project  
+
+#### Scenario Five ####
+
+**Given** I've opened the model selection pop-up  
+**When** I deselect all models from the list  
+**Then** I should not be able to click apply  
+
+#### Scenario Six ####
+
+**Given**  I've selected a different model  
+**When** I run an analysis on a document  
+**Then** I should see results for the selected model  
+
+#### Scenario Seven ####
+
+**Given** I've trained or composed at least one model  
+**When** I train or compose another model, go to the analyze page, and click the choose model button  
+**Then** I should see the top five most recently change models (since pulling this change)  
+
+___
+
  ## Fix: check invalid connection provider options before project actions
 
 > ### Feature description ###
