@@ -63,9 +63,15 @@ FOTT can be released as a distributable desktop application.
    ```bash
     yarn release
    ```
-The distributable will saved in the releases folder of the cloned repository.
 
+The distributable will saved in the releases folder of the cloned repository.
 **Note: the site is for testing purpose only.**
+
+___
+
+>##### ❗ If you are behind a firewall, please add  [Azure IP ranges](https://www.microsoft.com/en-us/download/details.aspx?id=56519) you can whitelist those IPs with your service.
+
+___
 
 ## Using labeling tool
 
