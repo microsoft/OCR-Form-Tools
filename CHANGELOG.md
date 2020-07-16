@@ -1,7 +1,11 @@
 # FoTT Changelog
 
-## 2.0.0-0541a32 (06-24-2020)
-* docs: README.md and DEBUG.md update to use **yarn** ([#410](https://github.com/microsoft/OCR-Form-Tools/commit/41a0f231cd05eab30b0e8a1983bbf70a7abe09f5))
+## 2.0.0-0541a32 (07-16-2020)
+* fix: optimise pdf loading ([#418](https://github.com/microsoft/OCR-Form-Tools/commit/b148062f690ff99d957e60449bcafcab7be7a6d1))
+* fix: handle version change state mutation error ([#417](https://github.com/microsoft/OCR-Form-Tools/commit/c33925a1e3cb1e92373e0beefab6fe68dab41e1d))
+* fix: handle pdf worker terminated error ([#416](https://github.com/microsoft/OCR-Form-Tools/commit/35714d02e2a30012831ad1fec5ff03cbf956b1cd))
+* docs: README.md and DEBUG.md update to use **yarn** ([#415](https://github.com/microsoft/OCR-Form-Tools/commit/18332f53c3ff8ea8a78987d7bf38894bf246f6fd))
+
 
 ## 2.0.0-0541a32 (06-24-2020)
 * feat: selectionMark (checkbox) functionality disabled ([#337](https://github.com/microsoft/OCR-Form-Tools/commit/0541a32ccefcb03d76523835603977a886f91b71))
