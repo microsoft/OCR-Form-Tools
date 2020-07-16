@@ -67,11 +67,11 @@ FOTT can be released as a distributable desktop application.
 The distributable will saved in the releases folder of the cloned repository.
 **Note: the site is for testing purpose only.**
 
-<style
-  type="text/css">
-h5 {color:#FE6400;}
-</style>
-##### ❗ If you are behind a firewall, please add  [Azure IP ranges](https://go.microsoft.com/fwlink/?linkid=2090451) you can whitelist those IPs with your service.
+___
+
+>##### ❗ If you are behind a firewall, please add  [Azure IP ranges](https://go.microsoft.com/fwlink/?linkid=2090451) you can whitelist those IPs with your service.
+
+___
 
 ## Using labeling tool
 
