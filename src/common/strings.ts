@@ -183,10 +183,17 @@ export interface IAppStrings {
         title: string;
         uploadFile: string;
         inProgress: string;
+        noRecentModels: string;
+        selectModelHeader: string;
+        modelIDPrefix: string;
+        modelNamePrefix: string;
         downloadScript: string;
         defaultLocalFileInput: string;
         defaultURLInput: string;
     };
+    recentModelsView: {
+        header: string;
+    }
     projectMetrics: {
         title: string;
         assetsSectionTitle: string

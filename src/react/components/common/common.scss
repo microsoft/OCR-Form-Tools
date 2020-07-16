@@ -182,3 +182,17 @@
   cursor: pointer;
   width: 100%;
 }
+
+.separator-right-pane-main {
+  margin: 0 1rem;
+  div{
+      background-color: #32363B;
+      color: #E9ECEF;
+      font-weight: 600;
+  }
+}
+
+.model-confirm {
+  width: 110px;
+  margin-right: 20px;
+}
