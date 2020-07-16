@@ -1,4 +1,4 @@
-# Contributing to OCR Form Labeling Tool
+# Contributing to Form OCR Testing Tool
 
 We welcome [issues](https://github.com/Microsoft/OCR-Form-Tools/issues) and [pull requests](https://github.com/Microsoft/OCR-Form-Tools/pulls) into the project. We ask that you follow these simple guidelines:
 

@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React from "react";
+import React, { ReactElement } from "react";
 import {connect} from "react-redux";
 import url from "url";
 import { RouteComponentProps } from "react-router-dom";
-import { IProject, IConnection, IAppSettings, IApplicationState, AppError, ErrorCode } from "../../../../models/applicationState";
+import { IProject, IConnection, IAppSettings, IApplicationState, AppError, ErrorCode, IRecentModel } from "../../../../models/applicationState";
 import { constants } from "../../../../common/constants";
 import ServiceHelper from "../../../../services/serviceHelper";
 import { IColumn,
@@ -26,7 +26,8 @@ import { IColumn,
          TooltipHost,
          StickyPositionType,
          ScrollablePane,
-         ScrollbarVisibility} from "@fluentui/react";
+         ScrollbarVisibility,
+         IDetailsRowProps } from "@fluentui/react";
 import "./modelCompose.scss";
 import { strings } from "../../../../common/strings";
 import { getDarkGreyTheme, getDefaultDarkTheme } from "../../../../common/themes";
@@ -70,7 +71,9 @@ export interface IModel {
     createdDateTime: string;
     lastUpdatedDateTime: string;
     status: string;
-    iconName?: string;
+    attributes?: {
+        isComposed: boolean;
+    };
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -95,7 +98,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     private selection: Selection;
     private allModels: IModel[];
     private refreshClicks: boolean;
-    private selectedItems: any[];
+    private selectedItems: IModel[] = [];
+    private cannotBeIncludedItems: IModel[] = [];
     private listRef = React.createRef<IDetailsList>();
     private composeModalRef: React.RefObject<ComposeModelView> = React.createRef();
 
@@ -112,7 +116,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 minWidth: 20,
                 maxWidth: 20,
                 isResizable: true,
-                onRender: (model: IModel) => <FontIcon iconName={model.iconName} className="model-fontIcon"/>,
+                onRender: this.renderComposedIcon,
                 headerClassName: "list-header",
             },
             {
@@ -191,6 +195,11 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             },
           });
     }
+
+    onRenderRow = (props: IDetailsRowProps, defaultRender?: IRenderFunction<IDetailsRowProps>): JSX.Element => {
+        const modelNotReady = props.item.status !== constants.statusCodeReady;
+        return defaultRender && defaultRender({...props, className: `${modelNotReady ? "model-not-ready" : ""}`})
+      };
 
     public async componentDidMount() {
         const projectId = this.props.match.params["projectId"];
@@ -277,6 +286,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                                 </Spinner> :
                                 <div>
                                     <DetailsList
+                                        checkButtonAriaLabel={strings.modelCompose.modelsList.checkButtonAria}
+                                        ariaLabelForSelectAllCheckbox={strings.modelCompose.modelsList.checkAllButtonAria}
                                         componentRef={this.listRef}
                                         className="models-list"
                                         items = {modelList}
@@ -290,7 +301,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                                         selection={this.selection}
                                         selectionPreservedOnEmptyClick={true}
                                         onRenderDetailsHeader={onRenderDetailsHeader}
-                                        >
+                                        onRenderRow={this.onRenderRow}>
                                     </DetailsList>
                                     {this.state.nextLink && this.state.nextLink !== "*" && !this.state.hasText &&
                                         <div className="next-page-container">
@@ -339,10 +350,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             const composedModels = this.reloadComposedModel(this.state.composedModelList);
 
             let composedModelIds = [];
-            let predictModelFlag = false;
             if (this.state.composeModelId.length !== 0) {
                 composedModelIds = this.getComposedIds();
-                predictModelFlag = true;
                 if (composedModelIds.indexOf(this.state.composeModelId[0]) === -1) {
                     const idURL = constants.apiModelsPath + "/" + this.state.composeModelId[0];
                     composedModels.push(await this.getComposeModelByURl(idURL));
@@ -353,14 +362,9 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             let models = res.data.modelList;
             const link = res.data.nextLink;
 
-            models.map((m) => m.key = m.modelId);
             models = models.filter((m) => composedModelIds.indexOf(m.modelId) === -1);
 
             this.allModels = composedModels.concat(models);
-            if (predictModelFlag) {
-                const updatedProject = this.buildUpdatedProject(this.state.composeModelId[0]);
-                await this.props.actions.saveProject(updatedProject, false, false);
-            }
             this.setState({
                 modelList: this.allModels,
                 nextLink: link,
@@ -375,16 +379,33 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         }
     }
 
-    private buildUpdatedProject = (modelId: string): IProject => {
+    private buildUpdatedProject = (composedModel: object): IProject => {
+        const newTrainRecord = {
+            modelInfo: {
+                createdDateTime: composedModel["modelInfo"]["createdDateTime"],
+                modelId: composedModel["modelInfo"]["modelId"],
+                modelName: composedModel["modelInfo"]["modelName"],
+                isComposed: true,
+            },
+            composedTrainResults: composedModel["composedTrainResults"]
+        } as IRecentModel;
+        const recentModelRecords: IRecentModel[] = this.props.project.recentModelRecords ?
+                                                   [...this.props.project.recentModelRecords] : [];
+        recentModelRecords.unshift(newTrainRecord);
+        if (recentModelRecords.length > constants.recentModelRecordsCount) {
+            recentModelRecords.pop();
+        }
+
         return {
             ...this.props.project,
-            predictModelId: modelId,
+            recentModelRecords,
+            predictModelId: newTrainRecord.modelInfo.modelId,
         };
     }
 
     private reloadComposedModel = (models: IModel[]): IModel[] => {
         models.forEach(async (m: IModel) => {
-            if (m.status !== "ready" && m.status !== "invalid") {
+            if (m.status !== constants.statusCodeReady && m.status !== "invalid") {
                 const url = constants.apiModelsPath + "/" + m.modelId;
                 const newModel = await this.getComposeModelByURl(url);
                 const newStatus = newModel.status;
@@ -397,7 +418,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     private getComposeModelByURl = async (idURL) => {
         const composedRes = await this.getResponse(idURL);
         const composedModel: IModel = composedRes.data.modelInfo;
-        composedModel.iconName = "combine";
         composedModel.key = composedModel.modelId;
         return composedModel;
     }
@@ -420,7 +440,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     let nextPageList = nextPage.nextList;
                     nextPageList = nextPageList.filter((m) => composedIds.indexOf(m.modelId) === -1);
 
-                    nextPageList.map((m) => m.key = m.modelId);
                     const newList = reorderList.concat(nextPageList);
 
                     this.allModels = newList;
@@ -564,7 +583,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     private onComposeButtonClick = () => {
-        this.composeModalRef.current.open(this.selectedItems);
+        this.composeModalRef.current.open(this.selectedItems, this.cannotBeIncludedItems);
     }
 
     private onComposeConfirm = (composeModelName: string) => {
@@ -576,7 +595,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     private passSelectedItems = (Items: any[]) => {
-        this.selectedItems = Items;
+        this.cannotBeIncludedItems = Items.filter((item: IModel) => item.status !== constants.statusCodeReady);
+        this.selectedItems = Items.filter((item: IModel) => item.status === constants.statusCodeReady);
     }
 
     /**
@@ -630,18 +650,23 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     modelIds: idList,
                     modelName: name,
                 };
+
                 const link = constants.apiModelsPath + "/compose";
                 const composeRes = await this.post(link, payload);
-                await this.waitUntilModelIsReady(composeRes["headers"]["location"]);
-                const composedModelId = this.getComposeModelId(composeRes);
+                const composedModel = await this.waitUntilModelIsReady(composeRes["headers"]["location"]);
+
+                const updatedProject = this.buildUpdatedProject(composedModel);
+                await this.props.actions.saveProject(updatedProject, false, false);
+
                 const newCols = this.state.columns;
                 newCols.forEach((ncol) => {
                     ncol.isSorted = false;
                     ncol.isSortedDescending = true;
                 });
+
                 this.setState({
                     isComposing: false,
-                    composeModelId: [composedModelId],
+                    composeModelId: [composedModel["modelInfo"]["modelId"]],
                     columns: newCols,
                 });
             } catch (error) {
@@ -651,13 +676,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 throw new AppError(ErrorCode.ModelNotFound, error.message);
             }
         }, 5000);
-    }
-
-    /** get the model Id of new composed model */
-    private getComposeModelId = (composeRes: any): string => {
-        const location = composeRes["headers"]["location"];
-        const splitGroup = location.split("/");
-        return splitGroup[splitGroup.length - 1];
     }
 
     private async post(link, payload): Promise<any> {
@@ -694,6 +712,14 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     });
                 }
             }, 1);
+        }
+    }
+
+    private renderComposedIcon = (model: IModel): ReactElement => {
+        if (model.attributes && model.attributes.isComposed) {
+            return <FontIcon iconName={"Combine"} className="model-fontIcon"/>;
+        } else {
+            return null;
         }
     }
 }

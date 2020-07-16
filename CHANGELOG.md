@@ -1,7 +1,23 @@
 # FoTT Changelog 
 
+## 2.1-preview.1-b67191c (07-09-2020)
+* fix: don't allow choosing not-ready models for compose ([#394](https://github.com/microsoft/OCR-Form-Tools/commit/b67191cdbc872b9004be30aa4b4dfde9a88dfe37))
+* feat: track five most recent project models ([#395](https://github.com/microsoft/OCR-Form-Tools/commit/05850603d51a6786c8b6e8b4a553db020df56158))
+
+## 2.1-preview.1-abc6376 (07-08-2020)
+* feat: enable model info in analyze results ([#383](https://github.com/microsoft/OCR-Form-Tools/commit/abc63767e97dd28a6bb9028e03f2225e6ac0f1ab))
+* fix: check invalid provider options before project actions ([#390](https://github.com/microsoft/OCR-Form-Tools/commit/212647d4327d9e18e9248a2d39086eeaab404979))
+
+## 2.1-preview.1-a334cfc (07-07-2020)
+* fix: hide extra scrollbars for model compose view ([#380](https://github.com/microsoft/OCR-Form-Tools/commit/a334cfc45fc5ab137682ad2b48dd0ec1585055dc))
+* fix: handle version change state mutation error ([#382](https://github.com/microsoft/OCR-Form-Tools/commit/8991cc0c92f2f5cbd226f7e1c5c0825b7af8937c))
+* fix: handle pdf worker terminated error ([#381](https://github.com/microsoft/OCR-Form-Tools/commit/adc0498c31bfd5ba57ab98c373e73575589ab1e1)) 
+
+## 2.1-preview.1-7192170 (07-02-2020)
+* feat: support release ([#361](https://github.com/microsoft/OCR-Form-Tools/commit/7192170d73d24a43e7fff18cd2c6bae7f208f1b0))
+
 ## 2.1-preview.1-978dabc (07-01-2020)
-* feat: support document managment ([#374](https://github.com/microsoft/OCR-Form-Tools/commit/978dabc3ba877ed4215865cba2a583fb785a2894))
+* feat: support document management ([#374](https://github.com/microsoft/OCR-Form-Tools/commit/978dabc3ba877ed4215865cba2a583fb785a2894))
 
 ## 2.1-preview.1-56a4b89 (06-30-2020)
 * fix: wait until composed model is ready ([#369](https://github.com/microsoft/OCR-Form-Tools/commit/56a4b89f370f2fd72c6bc275376205e7fffe6a9e))

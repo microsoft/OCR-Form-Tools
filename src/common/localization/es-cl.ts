@@ -9,7 +9,7 @@ import { IAppStrings } from "../strings";
  * App Strings for Spanish language
  */
 export const spanish: IAppStrings = {
-    appName: "Herramienta de etiquetado de formularios OCR",
+    appName: "Herramienta de prueba de formulario OCR",
     projectService: {
         existingLabelFiles: "",
     },
@@ -70,6 +70,7 @@ export const spanish: IAppStrings = {
             key: {
                 title: "Clave",
             },
+            duplicateNameErrorMessage: "El nombre del token debe ser único para todos los tokens",
         },
         securityTokens: {
             title: "Tokens de seguridad",
@@ -165,12 +166,21 @@ export const spanish: IAppStrings = {
             titleAria: "Componer vista de modelo",
             addComposeModelName: "Añadir componer el nombre de modelo ...",
             NotEnoughModels: "Debe tener más de un modelo seleccionado para componer un nuevo modelo",
+            modelsCannotBeIncluded: "Advertencia: ¡estos modelos no se incluirán en el modelo compuesto!",
+            modelCannotBeIncluded: "Advertencia: ¡Este modelo no se incluirá en el modelo compuesto!",
         },
         commandBar: {
             ariaLabel: "Utilice la barra de comandos para componer modelos",
             composeAria: "Componer modelo",
             refreshAria: "Actualizar la lista",
             filter: "Filtrar por nombre ...",
+            filterAria: "Filtrar por área de entrada de nombre"
+        },
+        modelsList: {
+            headerAria: "Lista de encabezado de modelos",
+            checkButtonAria: "Seleccionar botón de verificación del modelo",
+            checkAllButtonAria: "Botón de verificación Seleccionar todos los modelos",
+
         }
     },
     predict: {
@@ -244,6 +254,7 @@ export const spanish: IAppStrings = {
         title: "Conexiones",
         new: "Nueva conexión",
         save: "Guardar Conexión",
+        genericInvalid: "\"${project.sourceConnection.name}\" es una conexión no válida. Por favor verifíquelo en la página Conexiones",
         details: "Detalles de Conexión",
         settings: "Configuración de Conexión",
         instructions: "Por favor seleccione una conexión para editar",
@@ -278,6 +289,7 @@ export const spanish: IAppStrings = {
                     title: "Crear contenedor",
                     description: "Crea el contenedor de blobs si aún no existe",
                 },
+                invalidSASMessage: "\"${project.sourceConnection.name}\" no tiene cuenta de almacenamiento. Verifique su token SAS en la página de Conexiones",
             },
             bing: {
                 title: "Búsqueda de Imágenes Bing",
@@ -295,8 +307,10 @@ export const spanish: IAppStrings = {
             local: {
                 title: "Sistema de Archivos Local",
                 folderPath: "Ruta de la carpeta",
+                browse: "vistazo",
                 selectFolder: "Seleccionar la carpeta",
                 chooseFolder: "Elijir la carpeta",
+                invalidFolderMessage: "\"${project.sourceConnection.name}\" tiene una carpeta no válida Por favor verifique su carpeta seleccionada en la página de Conexiones",
             },
         },
     },

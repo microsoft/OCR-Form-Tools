@@ -32,14 +32,14 @@ export const constants = {
     convertedImageFormat: "image/jpeg",
     convertedImageQuality: 0.7,
     convertedThumbnailQuality: 0.2,
-
+    recentModelRecordsCount: 5,
     apiModelsPath: `/formrecognizer/${apiVersion}/custom/models`,
 
     pdfjsWorkerSrc(version: string) {
-        return `http://fotts.azureedge.net/npm/pdfjs-dist/${version}/pdf.worker.js`;
+        return `https://fotts.azureedge.net/npm/pdfjs-dist/${version}/pdf.worker.js`;
     },
 
     pdfjsCMapUrl(version: string) {
-        return `http://fotts.azureedge.net/npm/pdfjs-dist/${version}/cmaps/`;
+        return `https://fotts.azureedge.net/npm/pdfjs-dist/${version}/cmaps/`;
     },
 };

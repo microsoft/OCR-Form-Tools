@@ -49,6 +49,20 @@ export default class LocalFileSystem implements IStorageProvider {
         });
     }
 
+    public isValidProjectConnection(folderPath) {
+        return new Promise<boolean>((resolve, reject) => {
+            try {
+                if (fs.existsSync(folderPath)) {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
+            } catch (err) {
+                reject(err);
+            }
+        });
+    }
+
     public getFileType(filePath: string): Promise<Buffer> {
         return FileType.fromFile(filePath);
     }

@@ -3,6 +3,7 @@
 ## **Feat: support project sharing via string**
 
 > ### Feature description ###
+
 - Support project sharing bettween users who have access to same storage container
 
 > ### Use Case ###
@@ -26,6 +27,33 @@
 
 ___
 
+ ## Fix: check invalid connection provider options before project actions
+
+> ### Feature description ###
+- check connection provider options are valid before creating a project
+- check connection provider options are valid before opening a recent project
+
+> ### Use Case ###
+
+**As** a user
+**I want** a notification when I try to open or create a project with invalid provider options
+**So** I know how to fix invalid provider options issue
+
+> ### Acceptance criteria ###
+
+#### Scenario One ####
+
+**Given** I've created a connection with invalid provider options (e.g. invalid SAS token for Azure provider).
+**When** I try to create a new project with that connection.
+**Then** a notification will be displayed telling me my connection is invalid.
+
+#### Scenario Two ####
+
+**Given** I've created a connection with invalid provider options (e.g. invalid SAS token for Azure provider).
+**When** I try to open a recent project that now has an invalid connection provider options (e.g. the Azure container was deleted)
+**Then** a notification will be displayed telling me my connection is invalid.
+
+___
 
  ## Feat: support distributable releasing
 
@@ -34,8 +62,8 @@ ___
 
 > ### Use Case ###
 
-**As** a user  
-**I want** to release my project as a distributable  
+**As** a user
+**I want** to release my project as a distributable
 **So** I can easily set up FOTT
 
 > ### Acceptance criteria ###
@@ -43,15 +71,15 @@ ___
 #### Scenario One ####
 
 
-**Given** I've updated dependencies.  
-**When** I run `yarn release`.  
+**Given** I've updated dependencies.
+**When** I run `yarn release`.
 **Then** a distributable installer should be created in the releases folder.
 
 #### Scenario Two ####
 
 
-**Given** I've created a distributable installer.  
-**When** I execute the installer.  
+**Given** I've created a distributable installer.
+**When** I execute the installer.
 **Then** a the FOTT desktop application should install and run as expected.
 
 ___
@@ -63,15 +91,15 @@ ___
 
 > ### Use Case ###
 
-**As** a user  
-**I want** to delete a document and it's files through FOTT  
+**As** a user
+**I want** to delete a document and it's files through FOTT
 **So** I don't have to delete the document through a storage provider
 
 #### Scenario One ####
 
-**Given** I've selected a document in the editor page.  
-**When** I click the overflow menu item on the canvas command bar and then click "Delete document."  
-**Then** FoTT should delete the document in the storage provider, remove it from FOTT's current project, and select the project's first document.  
+**Given** I've selected a document in the editor page.
+**When** I click the overflow menu item on the canvas command bar and then click "Delete document."
+**Then** FoTT should delete the document in the storage provider, remove it from FOTT's current project, and select the project's first document.
 
 ___
 

@@ -15,6 +15,7 @@ export interface IComposeModelViewProps {
 export interface IComposeModelViewState {
     hideModal: boolean;
     items: IModel[];
+    cannotBeIncludeModels: IModel[];
 }
 
 export default class ComposeModelView extends React.Component<IComposeModelViewProps, IComposeModelViewState> {
@@ -28,6 +29,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
         this.state = {
             hideModal: true,
             items: [],
+            cannotBeIncludeModels: [],
         }
     }
 
@@ -52,7 +54,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
 
         const dark: ICustomizations = {
             settings: {
-              theme: getDarkGreyTheme(),
+                theme: getDarkGreyTheme(),
             },
             scopedSettings: {},
         };
@@ -63,15 +65,14 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                     isOpen={!this.state.hideModal}
                     isModeless={false}
                     containerClassName="modal-container"
+                    scrollableContentClassName="scrollable-content"
                     >
-                        <h4>Add name for composed model</h4>
-                        <TextField
-                            className="modal-textfield"
-                            placeholder={strings.modelCompose.modelView.addComposeModelName}
-                            onChange={this.onTextChange}
-                            >
-                        </TextField>
-                    <div >
+                    <h4>Add name for composed model</h4>
+                    <TextField
+                        className="modal-textfield"
+                        placeholder={strings.modelCompose.modelView.addComposeModelName}
+                        onChange={this.onTextChange}
+                        />
                     {
                         this.state.items &&
                         <DetailsList
@@ -83,17 +84,29 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                             selectionMode={SelectionMode.none}
                             isHeaderVisible={true}
                             layoutMode={DetailsListLayoutMode.justified}
-                            >
-                        </DetailsList>
+                            />
                     }
-                    </div>
                     {
-                        this.state.items.length < 2 &&
-                        <div className="modal-alert">
-                           {strings.modelCompose.modelView.NotEnoughModels}
+                        this.state.cannotBeIncludeModels.length > 0 &&
+                        <div className="excluded-items-container">
+                            <h6>{this.state.cannotBeIncludeModels.length > 1 ? strings.modelCompose.modelView.modelsCannotBeIncluded : strings.modelCompose.modelView.modelCannotBeIncluded}</h6>
+                            <DetailsList
+                                className="excluded-items-list"
+                                items={this.state.cannotBeIncludeModels}
+                                columns={columns}
+                                compact={true}
+                                setKey="none"
+                                selectionMode={SelectionMode.none}
+                                isHeaderVisible={false}
+                                layoutMode={DetailsListLayoutMode.justified}
+                            />
                         </div>
                     }
-                    <div className="model-button-container">
+                    {
+                        this.state.items.length < 2 &&
+                        <div className="modal-alert">{strings.modelCompose.modelView.NotEnoughModels}</div>
+                    }
+                    <div className="modal-buttons-container">
                         <PrimaryButton
                             className="model-confirm"
                             theme={getPrimaryGreenTheme()}
@@ -113,10 +126,11 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
         )
     }
 
-    public open = (models: any) => {
+    public open = (models: any, cannotBeIncludeModels: any) => {
         this.setState({
             hideModal: false,
             items: models,
+            cannotBeIncludeModels,
         })
     }
 
