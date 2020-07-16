@@ -6,7 +6,6 @@
 * fix: handle pdf worker terminated error ([#416](https://github.com/microsoft/OCR-Form-Tools/commit/35714d02e2a30012831ad1fec5ff03cbf956b1cd))
 * docs: README.md and DEBUG.md update to use **yarn** ([#415](https://github.com/microsoft/OCR-Form-Tools/commit/18332f53c3ff8ea8a78987d7bf38894bf246f6fd))
 
-
 ## 2.0.0-0541a32 (06-24-2020)
 * feat: selectionMark (checkbox) functionality disabled ([#337](https://github.com/microsoft/OCR-Form-Tools/commit/0541a32ccefcb03d76523835603977a886f91b71))
 
