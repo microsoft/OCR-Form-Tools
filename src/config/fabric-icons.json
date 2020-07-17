@@ -7,6 +7,14 @@
   "hashFontFileName": true,
   "glyphs": [
     {
+      "name": "Combine",
+      "unicode": "EDBB"
+    },
+    {
+      "name": "TextField",
+      "unicode": "EDC3"
+    },
+    {
       "name": "SortUp",
       "unicode": "EE68"
     },
@@ -15,28 +23,20 @@
       "unicode": "EE69"
     },
     {
+      "name": "OpenFolderHorizontal",
+      "unicode": "ED25"
+    },
+    {
       "name": "Table",
       "unicode": "ED86"
     },
     {
-      "name": "TextField",
-      "unicode": "EDC3"
-    },
-    {
-      "name": "Combine",
-      "unicode": "EDBB"
+      "name": "DocumentManagement",
+      "unicode": "EFFC"
     },
     {
       "name": "TextDocument",
       "unicode": "F029"
-    },
-    {
-      "name": "StatusCircleCheckmark",
-      "unicode": "F13E"
-    },
-    {
-      "name": "DocumentManagement",
-      "unicode": "EFFC"
     },
     {
       "name": "CircleRing",
@@ -55,10 +55,6 @@
       "unicode": "EC17"
     },
     {
-      "name": "OpenFolderHorizontal",
-      "unicode": "ED25"
-    },
-    {
       "name": "AddTo",
       "unicode": "ECC8"
     },
@@ -75,36 +71,56 @@
       "unicode": "F295"
     },
     {
-      "name": "PlugConnected",
-      "unicode": "F302"
-    },
-    {
-      "name": "Plug",
-      "unicode": "F300"
+      "name": "StatusCircleCheckmark",
+      "unicode": "F13E"
     },
     {
       "name": "AlertSolid",
       "unicode": "F331"
     },
     {
-      "name": "Refresh",
-      "unicode": "E72C"
+      "name": "Plug",
+      "unicode": "F300"
     },
     {
-      "name": "CheckboxComposite",
-      "unicode": "E73A"
+      "name": "PlugConnected",
+      "unicode": "F302"
+    },
+    {
+      "name": "ChevronDown",
+      "unicode": "E70D"
+    },
+    {
+      "name": "ChevronUp",
+      "unicode": "E70E"
+    },
+    {
+      "name": "Edit",
+      "unicode": "E70F"
+    },
+    {
+      "name": "Add",
+      "unicode": "E710"
+    },
+    {
+      "name": "Cancel",
+      "unicode": "E711"
     },
     {
       "name": "More",
       "unicode": "E712"
     },
     {
+      "name": "Link",
+      "unicode": "E71B"
+    },
+    {
       "name": "Settings",
       "unicode": "E713"
     },
     {
-      "name": "Link",
-      "unicode": "E71B"
+      "name": "ReceiptProcessing",
+      "unicode": "E496"
     },
     {
       "name": "Filter",
@@ -115,24 +131,12 @@
       "unicode": "E71F"
     },
     {
-      "name": "Search",
-      "unicode": "E721"
+      "name": "CheckboxComposite",
+      "unicode": "E73A"
     },
     {
       "name": "CheckMark",
       "unicode": "E73E"
-    },
-    {
-      "name": "ChevronRight",
-      "unicode": "E76C"
-    },
-    {
-      "name": "ChevronLeft",
-      "unicode": "E76B"
-    },
-    {
-      "name": "Cancel",
-      "unicode": "E711"
     },
     {
       "name": "Up",
@@ -151,44 +155,16 @@
       "unicode": "E753"
     },
     {
-      "name": "Add",
-      "unicode": "E710"
+      "name": "Search",
+      "unicode": "E721"
     },
     {
-      "name": "ChevronUp",
-      "unicode": "E70E"
+      "name": "Refresh",
+      "unicode": "E72C"
     },
     {
-      "name": "ReceiptProcessing",
-      "unicode": "E496"
-    },
-    {
-      "name": "ChevronDown",
-      "unicode": "E70D"
-    },
-    {
-      "name": "Edit",
-      "unicode": "E70F"
-    },
-    {
-      "name": "Copy",
-      "unicode": "E8C8"
-    },
-    {
-      "name": "ZoomIn",
-      "unicode": "E8A3"
-    },
-    {
-      "name": "Rename",
-      "unicode": "E8AC"
-    },
-    {
-      "name": "Tag",
-      "unicode": "E8EC"
-    },
-    {
-      "name": "View",
-      "unicode": "E890"
+      "name": "Share",
+      "unicode": "E72D"
     },
     {
       "name": "Download",
@@ -199,12 +175,40 @@
       "unicode": "E897"
     },
     {
-      "name": "Home",
-      "unicode": "E80F"
+      "name": "Rename",
+      "unicode": "E8AC"
+    },
+    {
+      "name": "ZoomIn",
+      "unicode": "E8A3"
+    },
+    {
+      "name": "View",
+      "unicode": "E890"
     },
     {
       "name": "MapLayers",
       "unicode": "E81E"
+    },
+    {
+      "name": "Tag",
+      "unicode": "E8EC"
+    },
+    {
+      "name": "Copy",
+      "unicode": "E8C8"
+    },
+    {
+      "name": "ChevronLeft",
+      "unicode": "E76B"
+    },
+    {
+      "name": "ChevronRight",
+      "unicode": "E76C"
+    },
+    {
+      "name": "Home",
+      "unicode": "E80F"
     },
     {
       "name": "KeyPhraseExtraction",

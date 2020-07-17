@@ -3,7 +3,7 @@
 
 import React from "react";
 import { Customizer, IColumn, ICustomizations, Modal, DetailsList, SelectionMode, DetailsListLayoutMode, PrimaryButton, TextField } from "@fluentui/react";
-import { getDarkGreyTheme, getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/themes";
+import { getDarkGreyTheme, getPrimaryGreenTheme, getPrimaryGreyTheme } from "../../../../common/themes";
 import { strings } from "../../../../common/strings";
 import { IModel } from "./modelCompose";
 
@@ -84,7 +84,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                             selectionMode={SelectionMode.none}
                             isHeaderVisible={true}
                             layoutMode={DetailsListLayoutMode.justified}
-                            />
+                        />
                     }
                     {
                         this.state.cannotBeIncludeModels.length > 0 &&
@@ -115,7 +115,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                         </PrimaryButton>
                         <PrimaryButton
                             className="modal-cancel"
-                            theme={getPrimaryRedTheme()}
+                            theme={getPrimaryGreyTheme()}
                             onClick={this.close}
                             >
                             Close
