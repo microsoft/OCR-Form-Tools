@@ -30,7 +30,7 @@ export default function RecentModelsView(props: IRecentModelsViewProps) {
         {
             key: "column2",
             name: "Model name",
-            minWidth: 250,
+            minWidth: 150,
             maxWidth: 250,
             isResizable: true,
             onRender: (model) => <span>{model.modelInfo?.modelName}</span>,
@@ -38,7 +38,7 @@ export default function RecentModelsView(props: IRecentModelsViewProps) {
         {
             key: "column3",
             name: "Created date",
-            minWidth: 100,
+            minWidth: 150,
             isResizable: true,
             onRender: (model) => <span>{model.modelInfo.createdDateTime}</span>,
         }

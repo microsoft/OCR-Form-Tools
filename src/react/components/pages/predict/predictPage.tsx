@@ -165,8 +165,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             }
         }
 
-        if (this.props.project?.predictModelId && !(this.props.project?.recentModelRecords) &&
-            !(this.state.couldNotGetRecentModel)) {
+        if (this.props.project?.predictModelId && !this.props.project?.recentModelRecords &&
+            !this.state.couldNotGetRecentModel) {
             await this.updateRecentModels(this.props.project)
         }
         if (this.props.project?.recentModelRecords && this.props.project?.predictModelId &&
