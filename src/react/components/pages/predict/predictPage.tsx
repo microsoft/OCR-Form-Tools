@@ -35,7 +35,7 @@ import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../.
 import { constants } from "../../../../common/constants";
 import { getPrimaryGreenTheme, getPrimaryWhiteTheme,
          getGreenWithWhiteBackgroundTheme,
-         getrightPaneDefaultButtonTheme} from "../../../../common/themes";
+         getRightPaneDefaultButtonTheme} from "../../../../common/themes";
 import axios from "axios";
 import { IAnalyzeModelInfo } from './predictResult';
 import RecentModelsView from "./recentModelsView";
@@ -271,7 +271,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                             </div>
                                             <DefaultButton
                                                 className="keep-button-80px"
-                                                theme={getrightPaneDefaultButtonTheme()}
+                                                theme={getRightPaneDefaultButtonTheme()}
                                                 text="Change"
                                                 onClick={() => {this.setState({showRecentModelsView: true})}}
                                                 disabled={!mostRecentModel || browseFileDisabled}

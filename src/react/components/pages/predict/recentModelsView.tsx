@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { Customizer, IColumn, ICustomizations, Modal, DetailsList, SelectionMode, DetailsListLayoutMode, PrimaryButton, TextField, ISelection, IDetailsCheckboxProps, IRenderFunction } from "@fluentui/react";
+import { Customizer, IColumn, ICustomizations, Modal, DetailsList, SelectionMode, DetailsListLayoutMode, PrimaryButton, ISelection } from "@fluentui/react";
 import { getDarkGreyTheme, getPrimaryGreenTheme, getPrimaryGreyTheme } from "../../../../common/themes";
 import { strings } from "../../../../common/strings";
 import { IRecentModel } from "../../../../models/applicationState";
@@ -22,7 +22,7 @@ export default function RecentModelsView(props: IRecentModelsViewProps) {
         {
             key: "column1",
             name: "Model ID",
-            minWidth: 250,
+            minWidth: 100,
             maxWidth: 250,
             isResizable: true,
             onRender: (model) => <span>{model.modelInfo.modelId}</span>,
@@ -39,6 +39,7 @@ export default function RecentModelsView(props: IRecentModelsViewProps) {
             key: "column3",
             name: "Created date",
             minWidth: 150,
+            isCollapsable: true,
             isResizable: true,
             onRender: (model) => <span>{model.modelInfo.createdDateTime}</span>,
         }
@@ -68,7 +69,6 @@ export default function RecentModelsView(props: IRecentModelsViewProps) {
                     className="modal-list-container"
                     items={props.recentModels ||  []}
                     columns={columns}
-                    compact={true}
                     selection={props.selectionHandler}
                     isHeaderVisible={true}
                     layoutMode={DetailsListLayoutMode.justified}

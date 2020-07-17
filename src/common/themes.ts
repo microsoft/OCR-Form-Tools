@@ -317,7 +317,7 @@ const greenWithWhiteBackgroundTheme = createTheme({palette: greenWithWhiteBackgr
 const lightGreyTheme = createTheme({palette: lightGreyPalette});
 const subMenuTheme = createTheme({palette: subMenuPalette})
 
-export function getrightPaneDefaultButtonTheme() {
+export function getRightPaneDefaultButtonTheme() {
     return rightPaneDefaultButtonTheme;
 }
 
