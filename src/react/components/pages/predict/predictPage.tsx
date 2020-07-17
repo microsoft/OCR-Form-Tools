@@ -690,7 +690,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
     private async triggerDownload(): Promise<any> {
         axios.get("/analyze.py").then((response) => {
-            const modelID = this.props.project.predictModelId as string;
+            const modelID = this.props.project?.recentModelRecords?.[this.state.selectedRecentModelIndex].modelInfo.modelId;
             if (!modelID) {
                 throw new AppError(
                     ErrorCode.PredictWithoutTrainForbidden,
@@ -742,7 +742,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private async getPrediction(): Promise<any> {
-        const modelID = this.props.project.predictModelId;
+        const modelID = this.props.project?.recentModelRecords?.[this.state.selectedRecentModelIndex].modelInfo.modelId;
         if (!modelID) {
             throw new AppError(
                 ErrorCode.PredictWithoutTrainForbidden,
