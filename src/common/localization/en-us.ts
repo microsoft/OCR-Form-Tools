@@ -621,7 +621,7 @@ export const english: IAppStrings = {
             tokenNameExist: "Warning! You already have token with same name as in shared project. Please create a new token, and update the existing project which uses ''${sharedTokenName}'' with new token name."
         },
         copy: {
-            success: "String for sharing your project have been saved to clipboard. In order to use it paste it in appropriate section of the 'Open Cloud Project' popup.",
+            success: "String for sharing your project has been saved to clipboard. In order to use it, paste it in appropriate section of the 'Open Cloud Project' popup.",
         }
     },
 };
