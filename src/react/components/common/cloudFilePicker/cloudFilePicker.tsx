@@ -172,7 +172,7 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
         } else if (this.state.pastedUri && this.getSharedProjectConnectionInfo()) {
             const { connection, projectName, token } = this.getSharedProjectConnectionInfo();
             const storageProvider = StorageProviderFactory.createFromConnection(connection);
-            const content = await storageProvider.readText(this.state.selectedFile);
+            const content = await storageProvider.readText(projectName + ".fott");
             this.props.onSubmit(content, token);
         }
     }
