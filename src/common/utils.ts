@@ -346,3 +346,14 @@ export function getNextColor(tags: ITag[]) {
 
     return tagColors[randomIntInRange(0, tagColors.length - 1)];
 }
+
+export function getSasFolderString(sas:string): string {
+    return sas.substr(0, sas.indexOf("?"))
+}
+
+
+export function fixedEncodeURIComponent(str: string) {
+    return encodeURIComponent(str).replace(/[!'()*]/g, (c) => {
+      return '%' + c.charCodeAt(0).toString(16)
+    })
+  }
