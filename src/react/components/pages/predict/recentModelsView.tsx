@@ -62,6 +62,7 @@ export default function RecentModelsView(props: IRecentModelsViewProps) {
             >
                 <h4>{strings.recentModelsView.header}</h4>
                 <DetailsList
+                    checkButtonAriaLabel={strings.recentModelsView.checkboxAriaLabel}
                     selectionMode={SelectionMode.single}
                     selectionPreservedOnEmptyClick={true}
                     className="modal-list-container"

@@ -195,6 +195,7 @@ export const english: IAppStrings = {
     },
     recentModelsView:{
         header: "Select model to analyze with",
+        checkboxAriaLabel: "Select model checkbox"
     },
     projectMetrics: {
         title: "Project Metrics",
