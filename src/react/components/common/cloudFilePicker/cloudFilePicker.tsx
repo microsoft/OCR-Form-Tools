@@ -52,6 +52,7 @@ export interface ICloudFilePickerState {
     pastedUri: string;
     pasting: boolean;
     sharedStringData: ISharedStringData;
+    haveCloudConnections: boolean;
 }
 
 /**
@@ -91,7 +92,7 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
                     <>
                         <div className={"shared-string-input-container"}>
                             <div className="condensed-list-header bg-darker-2 shared-uri-header">Shared Project String</div>
-                            {!this.props.connections.length &&
+                            {!this.state.haveCloudConnections &&
                                 <div className="p-3 text-center">{strings.shareProject.errors.noConnections}</div>
                             }
                             <InputGroup className="input-uri">
@@ -101,7 +102,7 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
                                     value={this.state.pastedUri}
                                     onChange={this.handleChangeUri}
                                     onPaste={this.handlePasteUri}
-                                    disabled={!this.props.connections.length}
+                                    disabled={!this.state.haveCloudConnections}
                                 />
                             </InputGroup>
                         </div>
@@ -148,10 +149,11 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
     }
 
     private getInitialState(): ICloudFilePickerState {
+        const cloudConnectionList = this.connectionList();
         return {
             isOpen: false,
             modalHeader: strings.homePage.openCloudProject.selectConnection,
-            condensedList: this.connectionList(),
+            condensedList: cloudConnectionList,
             selectedConnection: null,
             selectedFile: null,
             okDisabled: true,
@@ -159,6 +161,7 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
             pastedUri: "",
             pasting: false,
             sharedStringData: null,
+            haveCloudConnections: cloudConnectionList.props.items.length > 0,
         };
     }
 
