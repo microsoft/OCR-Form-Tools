@@ -1,5 +1,11 @@
 # FoTT Changelog 
 
+## 2.1-preview.1-89be3ac (07-15-2020)
+fix: on assetFormat undefined ([#413](https://github.com/microsoft/OCR-Form-Tools/commit/89be3ac5b614e91607d7fb8065ad32b69886040d))
+fix: make sure token names are unique ([#404](https://github.com/microsoft/OCR-Form-Tools/commit/d8fa6141cff4d00ba22e95ef4f5dcc9102e1c1c2))
+fix: model info enclosing element error on [#407](https://github.com/microsoft/OCR-Form-Tools/issues/407) ([#408](https://github.com/microsoft/OCR-Form-Tools/commit/8cc421c3fee0e781211efb0aeb2b345075012daa))
+fix: display composed icon for composed model with attribute ([#399](https://github.com/microsoft/OCR-Form-Tools/commit/18fb4d71052b9355c8d5a4f7dde956ba17ca30fa))
+
 ## 2.1-preview.1-b67191c (07-09-2020)
 * fix: don't allow choosing not-ready models for compose ([#394](https://github.com/microsoft/OCR-Form-Tools/commit/b67191cdbc872b9004be30aa4b4dfde9a88dfe37))
 * feat: track five most recent project models ([#395](https://github.com/microsoft/OCR-Form-Tools/commit/05850603d51a6786c8b6e8b4a553db020df56158))
