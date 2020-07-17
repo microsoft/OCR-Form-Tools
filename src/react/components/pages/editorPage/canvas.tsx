@@ -308,12 +308,16 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     // creates URI for sharing project
     private shareProject = (): void => {
         const project: IProject = this.props.project;
-        const sasFolderString = getSasFolderString(project.sourceConnection.providerOptions["sas"]);
+        const sasFolder: string = getSasFolderString(project.sourceConnection.providerOptions["sas"]);
         const projectToken: ISecurityToken = this.props.appSettings.securityTokens
-        .find((securityToken) => securityToken.name === project.securityToken);
-        const shareProjectUriString = encodeURI(`/projects/${project.id}/edit/?SAS=${fixedEncodeURIComponent(sasFolderString)}&name=${fixedEncodeURIComponent(project.name)}&tokenName=${(project.securityToken)}&key=${fixedEncodeURIComponent(projectToken.key)}`);
+            .find((securityToken) => securityToken.name === project.securityToken);
+        const shareProjectString: string = JSON.stringify({
+            sasFolder,
+            projectName: project.name,
+            token: { name: project.securityToken, key: projectToken.key }
+        });
 
-        this.copyToClipboard(shareProjectUriString)
+        this.copyToClipboard(shareProjectString)
     }
 
     private async copyToClipboard(value: string) {

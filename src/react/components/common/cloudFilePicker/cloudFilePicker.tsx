@@ -5,7 +5,7 @@ import React from "react";
 import { toast } from "react-toastify";
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader, InputGroup, Input } from "reactstrap";
 import { strings, interpolate } from "../../../../common/strings";
-import { IConnection, StorageType, ErrorCode, AppError } from "../../../../models/applicationState";
+import { IConnection, StorageType, ErrorCode, AppError, ISecurityToken } from "../../../../models/applicationState";
 import { StorageProviderFactory } from "../../../../providers/storage/storageProviderFactory";
 import CondensedList, { ListItem } from "../condensedList/condensedList";
 import "./cloudFilePicker.scss"
@@ -21,9 +21,14 @@ import { Separator } from "@fluentui/react";
 export interface ICloudFilePickerProps {
     connections: IConnection[];
     onSubmit: (content: string, token?: {}) => void;
-
     onCancel?: () => void;
     fileExtension?: string;
+}
+
+interface ISharedStringData {
+    sasFolder: string;
+    token: ISecurityToken;
+    projectName: string;
 }
 
 /**
@@ -44,8 +49,9 @@ export interface ICloudFilePickerState {
     selectedFile: string;
     okDisabled: boolean;
     backDisabled: boolean;
-    pastedUri: string,
-    pasting: boolean,
+    pastedUri: string;
+    pasting: boolean;
+    sharedStringData: ISharedStringData;
 }
 
 /**
@@ -83,7 +89,7 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
                 </ModalHeader>
                 <div className={`shared-string-input-container ${this.state.selectedConnection ? "hide" : ""}`}>
                     <div className="condensed-list-header bg-darker-2 shared-uri-header">
-                        Shared Project URI
+                        Shared Project String
                 </div>
                     {!this.props.connections.length &&
                         <div className="p-3 text-center">{strings.shareProject.errors.noConnections}</div>
@@ -154,6 +160,7 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
             backDisabled: true,
             pastedUri: "",
             pasting: false,
+            sharedStringData: null,
         };
     }
 
@@ -163,8 +170,7 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
             const content = await storageProvider.readText(this.state.selectedFile);
             this.props.onSubmit(content);
         } else if (this.state.pastedUri && this.getSharedProjectConnectionInfo()) {
-            const { connection, projectName, token } = this.getSharedProjectConnectionInfo()
-            await this.readFile(connection, projectName);
+            const { connection, projectName, token } = this.getSharedProjectConnectionInfo();
             const storageProvider = StorageProviderFactory.createFromConnection(connection);
             const content = await storageProvider.readText(this.state.selectedFile);
             this.props.onSubmit(content, token);
@@ -172,10 +178,9 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
     }
 
     private getSharedProjectConnectionInfo() {
-        const uri: string = this.state.pastedUri;
-        if (this.getSharedUriParams(uri)) {
-            const { token, sasFolder, projectName } = this.getSharedUriParams(uri);
-            const connection = this.getSharedConnection(this.props.connections, sasFolder)
+        if (this.getSharedUriParams(this.state.pastedUri)) {
+            const { token, sasFolder, projectName } = this.getSharedUriParams(this.state.pastedUri);
+            const connection = this.getSharedConnection(this.props.connections, sasFolder);
             if (connection) {
                 return { token, projectName, connection };
             }
@@ -193,27 +198,11 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
     }
 
     private getSharedUriParams(sharedSting: string) {
-        const location: string = window.location.origin;
-        let uri: string;
-        let url: URL;
-
         try {
-            uri = location + atob(sharedSting);
-            url = new URL(uri);
+            return JSON.parse(window.atob(sharedSting));
         } catch (error) {
             toast.error(strings.shareProject.errors.cannotDecodeString);
-            return;
-        }
-
-        if (url) {
-            return {
-                sasFolder: decodeURIComponent(url.searchParams.get("SAS")),
-                projectName: decodeURIComponent(url.searchParams.get("name")),
-                token: {
-                    name: decodeURIComponent(url.searchParams.get("tokenName")),
-                    key: decodeURIComponent(url.searchParams.get("key"))
-                }
-            }
+            return null;
         }
     }
 
@@ -227,16 +216,11 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
         }
     }
 
-    private async readFile(connection: IConnection, projectName: string) {
-        const storageProvider = StorageProviderFactory.createFromConnection(connection);
-        const files = await storageProvider.listFiles(undefined, ".fott")
-        this.setState({selectedFile: files.filter((file) => file.includes(projectName))[0]})
-    }
-
     private back() {
         this.setState({
             ...this.getInitialState(),
             isOpen: true,
+            pasting: false,
         });
     }
 
