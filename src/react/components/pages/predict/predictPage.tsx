@@ -54,6 +54,7 @@ export interface IPredictPageProps extends RouteComponentProps, React.Props<Pred
 }
 
 export interface IPredictPageState {
+    couldNotGetRecentModel: boolean;
     selectionIndexTracker: number;
     selectedRecentModelIndex: number;
     loadingRecentModel: boolean;
@@ -109,6 +110,7 @@ function mapDispatchToProps(dispatch) {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class PredictPage extends React.Component<IPredictPageProps, IPredictPageState> {
     public state: IPredictPageState = {
+        couldNotGetRecentModel: false,
         selectionIndexTracker: -1,
         selectedRecentModelIndex: -1,
         loadingRecentModel: true,
@@ -163,8 +165,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             }
         }
 
-        if (this.props.project?.predictModelId && !(this.props.project?.recentModelRecords)) {
-            this.updateRecentModels(this.props.project)
+        if (this.props.project?.predictModelId && !(this.props.project?.recentModelRecords) &&
+            !(this.state.couldNotGetRecentModel)) {
+            await this.updateRecentModels(this.props.project)
         }
         if (this.props.project?.recentModelRecords && this.props.project?.predictModelId &&
             this.state.selectedRecentModelIndex === -1) {
@@ -1066,10 +1069,33 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         );
         let response;
         try {
-            response = await ServiceHelper.getWithAutoRetry(
-                endpointURL, {}, this.props.project.apiKey as string);
-        } catch (err) {
-            ServiceHelper.handleServiceError(err);
+            response = await axios.get(endpointURL,
+                {headers: { [constants.apiKeyHeader]: this.props.project.apiKey as string}})
+            .catch((err) => {
+                const status = err.response.status;
+                if (status === 401) {
+                    this.setState({
+                        couldNotGetRecentModel: true,
+                        shouldShowAlert: true,
+                        alertTitle: "Failed to get recent model",
+                        alertMessage: "Permission denied. Check API key",
+                    });
+                } else {
+                    this.setState({
+                        couldNotGetRecentModel: true,
+                    });
+                }
+            })
+        } catch {
+            this.setState({
+                couldNotGetRecentModel: true,
+                shouldShowAlert: true,
+                alertTitle: "Failed to get recent model",
+                alertMessage: "Check network and service URI in project settings",
+            });
+        }
+        if (!response) {
+            return;
         }
         response = response["data"];
         return {
@@ -1110,7 +1136,11 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private async updateRecentModels(project) {
-        const recentModelRecords: IRecentModel[] = [await this.getRecentModelFromPredictModelId()]
+        const recentModel = await this.getRecentModelFromPredictModelId();
+        if (!recentModel) {
+            return;
+        }
+        const recentModelRecords: IRecentModel[] = [recentModel]
         project = await this.props.actions.saveProject({
             ...project,
             recentModelRecords,
