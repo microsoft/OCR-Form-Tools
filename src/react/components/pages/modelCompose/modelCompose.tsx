@@ -38,6 +38,7 @@ import IApplicationActions, * as applicationActions from "../../../../redux/acti
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import ComposeModelView from "./composeModelView";
 import { ViewSelection } from "./viewSelection";
+import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 
 export interface IModelComposePageProps extends RouteComponentProps, React.Props<ModelComposePage> {
     recentProjects: IProject[];
@@ -252,89 +253,95 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             ;
           };
 
-        return <Fabric className="modelCompose-page">
-                <Customizer {...dark}>
-                    <div className="commandbar-container">
-                        <ModelComposeCommandBar
-                            composedModels={this.state.composeModelId}
-                            allModels={this.allModels}
-                            isComposing={this.state.isComposing}
-                            isLoading={this.state.isLoading}
-                            hasText={this.state.hasText}
-                            handleCompose={this.onComposeButtonClick}
-                            handleRefresh={this.onRefreshButtonClick}
-                            filterTextChange={this.onTextChange}
-                            />
-                    </div>
-                    <div>
-                        <ScrollablePane
-                            className="pane-container"
-                            scrollbarVisibility={ScrollbarVisibility.auto}>
-                            <ViewSelection
-                                selection={this.selection}
-                                items={this.allModels}
-                                columns={this.state.columns}
+        return <>
+                <Fabric className="modelCompose-page">
+                    <Customizer {...dark}>
+                        <div className="commandbar-container">
+                            <ModelComposeCommandBar
+                                composedModels={this.state.composeModelId}
+                                allModels={this.allModels}
                                 isComposing={this.state.isComposing}
-                                refreshFlag={this.state.refreshFlag}
-                                passSelectedItems={this.passSelectedItems}>
-                                {this.state.isComposing ?
-                                <Spinner
-                                    label= {strings.modelCompose.composing}
-                                    className="compose-spinner"
-                                    theme={getDefaultDarkTheme()}
-                                    size={SpinnerSize.large}>
-                                </Spinner> :
-                                <div>
-                                    <DetailsList
-                                        checkButtonAriaLabel={strings.modelCompose.modelsList.checkButtonAria}
-                                        ariaLabelForSelectAllCheckbox={strings.modelCompose.modelsList.checkAllButtonAria}
-                                        componentRef={this.listRef}
-                                        className="models-list"
-                                        items = {modelList}
-                                        compact={isCompactMode}
-                                        columns={columns}
-                                        getKey={this.getKey}
-                                        setKey="multiple"
-                                        selectionMode={SelectionMode.multiple}
-                                        layoutMode={DetailsListLayoutMode.justified}
-                                        isHeaderVisible={true}
-                                        selection={this.selection}
-                                        selectionPreservedOnEmptyClick={true}
-                                        onRenderDetailsHeader={onRenderDetailsHeader}
-                                        onRenderRow={this.onRenderRow}>
-                                    </DetailsList>
-                                    {this.state.nextLink && this.state.nextLink !== "*" && !this.state.hasText &&
-                                        <div className="next-page-container">
-                                            {
-                                                this.state.isLoading ?
-                                                <Spinner
-                                                    label={strings.modelCompose.loading}
-                                                    className="commandbar-spinner"
-                                                    labelPosition="right"
-                                                    theme={getDefaultDarkTheme()}
-                                                    size={SpinnerSize.small}>
-                                                </Spinner>
-                                                :
-                                                <PrimaryButton
-                                                    className="next-page-button"
-                                                    onClick={this.getNextPage}>
-                                                    <FontIcon iconName="Down" style={{padding: "5px"}}>
-                                                    </FontIcon>
-                                                    <span>Load next page</span>
-                                                </PrimaryButton>
-                                            }
-                                        </div>}
-                                </div>
-                                }
-                            </ViewSelection>
-                        </ScrollablePane>
-                    </div>
-                    <ComposeModelView
-                            ref={this.composeModalRef}
-                            onComposeConfirm={this.onComposeConfirm}
-                            />
-                </Customizer>
-            </Fabric>
+                                isLoading={this.state.isLoading}
+                                hasText={this.state.hasText}
+                                handleCompose={this.onComposeButtonClick}
+                                handleRefresh={this.onRefreshButtonClick}
+                                filterTextChange={this.onTextChange}
+                                />
+                        </div>
+                        <div>
+                            <ScrollablePane
+                                className="pane-container"
+                                scrollbarVisibility={ScrollbarVisibility.auto}>
+                                <ViewSelection
+                                    selection={this.selection}
+                                    items={this.allModels}
+                                    columns={this.state.columns}
+                                    isComposing={this.state.isComposing}
+                                    refreshFlag={this.state.refreshFlag}
+                                    passSelectedItems={this.passSelectedItems}>
+                                    {this.state.isComposing ?
+                                    <Spinner
+                                        label= {strings.modelCompose.composing}
+                                        className="compose-spinner"
+                                        theme={getDefaultDarkTheme()}
+                                        size={SpinnerSize.large}>
+                                    </Spinner> :
+                                    <div>
+                                        <DetailsList
+                                            checkButtonAriaLabel={strings.modelCompose.modelsList.checkButtonAria}
+                                            ariaLabelForSelectAllCheckbox={strings.modelCompose.modelsList.checkAllButtonAria}
+                                            componentRef={this.listRef}
+                                            className="models-list"
+                                            items = {modelList}
+                                            compact={isCompactMode}
+                                            columns={columns}
+                                            getKey={this.getKey}
+                                            setKey="multiple"
+                                            selectionMode={SelectionMode.multiple}
+                                            layoutMode={DetailsListLayoutMode.justified}
+                                            isHeaderVisible={true}
+                                            selection={this.selection}
+                                            selectionPreservedOnEmptyClick={true}
+                                            onRenderDetailsHeader={onRenderDetailsHeader}
+                                            onRenderRow={this.onRenderRow}>
+                                        </DetailsList>
+                                        {this.state.nextLink && this.state.nextLink !== "*" && !this.state.hasText &&
+                                            <div className="next-page-container">
+                                                {
+                                                    this.state.isLoading ?
+                                                    <Spinner
+                                                        label={strings.modelCompose.loading}
+                                                        className="commandbar-spinner"
+                                                        labelPosition="right"
+                                                        theme={getDefaultDarkTheme()}
+                                                        size={SpinnerSize.small}>
+                                                    </Spinner>
+                                                    :
+                                                    <PrimaryButton
+                                                        className="next-page-button"
+                                                        onClick={this.getNextPage}>
+                                                        <FontIcon iconName="Down" style={{padding: "5px"}}>
+                                                        </FontIcon>
+                                                        <span>Load next page</span>
+                                                    </PrimaryButton>
+                                                }
+                                            </div>}
+                                    </div>
+                                    }
+                                </ViewSelection>
+                            </ScrollablePane>
+                        </div>
+                        <ComposeModelView
+                                ref={this.composeModalRef}
+                                onComposeConfirm={this.onComposeConfirm}
+                                />
+                    </Customizer>
+                </Fabric>
+                <PreventLeaving
+                    when={this.state.isComposing}
+                    message={"A composing operation is currently in progress, are you sure you want to leave?"}
+                />
+            </>
     }
 
     private getKey = (item: any, index?: number): string => {
