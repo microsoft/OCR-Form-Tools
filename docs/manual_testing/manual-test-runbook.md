@@ -4,26 +4,26 @@
 
 > ### Feature description ###
 - check connection provider options are valid before creating a project
-- check connection provider options are valid before opening a recent project
+- check connection provider options are valid before opening a recent project 
 
 > ### Use Case ###
 
-**As** a user
-**I want** a notification when I try to open or create a project with invalid provider options
-**So** I know how to fix invalid provider options issue
+**As** a user  
+**I want** a notification when I try to open or create a project with invalid provider options  
+**So** I know how to fix invalid provider options issue  
 
 > ### Acceptance criteria ###
 
 #### Scenario One ####
 
-**Given** I've created a connection with invalid provider options (e.g. invalid SAS token for Azure provider).
-**When** I try to create a new project with that connection.
+**Given** I've created a connection with invalid provider options (e.g. invalid SAS token for Azure provider).  
+**When** I try to create a new project with that connection.  
 **Then** a notification will be displayed telling me my connection is invalid.
 
 #### Scenario Two ####
 
-**Given** I've created a connection with invalid provider options (e.g. invalid SAS token for Azure provider).
-**When** I try to open a recent project that now has an invalid connection provider options (e.g. the Azure container was deleted)
+**Given** I've created a connection with invalid provider options (e.g. invalid SAS token for Azure provider).  
+**When** I try to open a recent project that now has an invalid connection provider options (e.g. the Azure container was deleted)  
 **Then** a notification will be displayed telling me my connection is invalid.
 
 ___
@@ -35,22 +35,22 @@ ___
 
 > ### Use Case ###
 
-**As** a user
-**I want** to release my project as a distributable
+**As** a user  
+**I want** to release my project as a distributable  
 **So** I can easily set up FOTT
 
 > ### Acceptance criteria ###
 
 #### Scenario One ####
 
-**Given** I've updated dependencies.
-**When** I run `yarn release`.
+**Given** I've updated dependencies.  
+**When** I run `yarn release`.  
 **Then** a distributable installer should be created in the releases folder.
 
 #### Scenario Two ####
 
-**Given** I've created a distributable installer.
-**When** I execute the installer.
+**Given** I've created a distributable installer.  
+**When** I execute the installer.  
 **Then** a the FOTT desktop application should install and run as expected.
 
 ___
@@ -62,15 +62,15 @@ ___
 
 > ### Use Case ###
 
-**As** a user
-**I want** to delete a document and it's files through FOTT
+**As** a user  
+**I want** to delete a document and it's files through FOTT  
 **So** I don't have to delete the document through a storage provider
 
 #### Scenario One ####
 
-**Given** I've selected a document in the editor page.
-**When** I click the overflow menu item on the canvas command bar and then click "Delete document."
-**Then** FoTT should delete the document in the storage provider, remove it from FOTT's current project, and select the project's first document.
+**Given** I've selected a document in the editor page.  
+**When** I click the overflow menu item on the canvas command bar and then click "Delete document."  
+**Then** FoTT should delete the document in the storage provider, remove it from FOTT's current project, and select the project's first document.  
 
 ___
 
@@ -82,39 +82,39 @@ ___
 
 > ### Use Case ###
 
-**As** a user
-**I want** to use FoTT's existing features through a desktop app
+**As** a user  
+**I want** to use FoTT's existing features through a desktop app  
 **So** I don't have to use a browser to use FoTT
 
-**As** a user
-**I want** to use files in my local file system
+**As** a user  
+**I want** to use files in my local file system  
 **So** I can keep all files on premise
 
 > ### Acceptance criteria ###
 
 #### Scenario One ####
 
-**Given** I've installed new dependencies and started FoTT in Electron.
-**When** I click a command item in the title bar.
-**Then** FoTT should perform the command as expected.
+**Given** I've installed new dependencies and started FoTT in Electron.  
+**When** I click a command item in the title bar.  
+**Then** FoTT should perform the command as expected.  
 
 #### Scenario Two ####
 
-**Given** I've installed new dependencies and started FoTT in Electron.
-**When** I perform an action for any existing feature.
-**Then** FoTT should perform as expected (the same as through a browser).
+**Given** I've installed new dependencies and started FoTT in Electron.  
+**When** I perform an action for any existing feature.  
+**Then** FoTT should perform as expected (the same as through a browser).  
 
 #### Scenario Three ####
 
-**Given** I've installed new dependencies and started FoTT in Electron.
-**When** I create a new connection with local file system as the provider.
-**Then** I should be able to create a project with the created connection.
+**Given** I've installed new dependencies and started FoTT in Electron.  
+**When** I create a new connection with local file system as the provider.  
+**Then** I should be able to create a project with the created connection.  
 
 #### Scenario Four ####
 
-**Given** I've installed new dependencies and started FoTT in Electron. And, I have an existing project in my local file system.
-**When** I click "Open local project" on the home page and select the existing project.
-**Then** FoTT should load the project as expected.
+**Given** I've installed new dependencies and started FoTT in Electron. And, I have an existing project in my local file system.  
+**When** I click "Open local project" on the home page and select the existing project.  
+**Then** FoTT should load the project as expected.  
 
 ___
 
@@ -126,16 +126,16 @@ Enable reordering tags quickly
 
 > ### Use Case ###
 
-**As** a user
-**I want** to be able to move though tags list quickly
+**As** a user  
+**I want** to be able to move though tags list quickly  
 **So** I can reorder long list of tags faster
 
 > ### Acceptance criteria ###
 
 #### Scenario One ####
 
-**Given** I've opened a project containing documents with long tags list.
-**When** I clicking fast on tags buttons 'Move tag up' or 'Move tag down'
+**Given** I've opened a project containing documents with long tags list.  
+**When** I clicking fast on tags buttons 'Move tag up' or 'Move tag down'  
 **Then** it moves without visible jittering.
 
 ___
@@ -150,22 +150,22 @@ Adding the following buttons to the canvas command bar:
 
 > ### Use Case ###
 
-**As** a user
-**I want** to rerun OCR on documents
+**As** a user  
+**I want** to rerun OCR on documents  
 **So** I can update OCR results
 
 > ### Acceptance criteria ###
 
 #### Scenario One ####
 
-**Given** I've opened a project containing documents and I'm on the Tag Editor page.
-**When** I click "Run OCR on current document" in the canvas command bar
+**Given** I've opened a project containing documents and I'm on the Tag Editor page.  
+**When** I click "Run OCR on current document" in the canvas command bar  
 **Then** I should see "Running OCR..." for the current docucment. When running OCR finishes, I should be able to view the document's updated OCR JSON file.
 
 #### Scenario Two ####
 
-**Given** I've opened a project containing documents and I'm on the Tag Editor page.
-**When** I click "Run OCR on all documents" in the canvas command bar
+**Given** I've opened a project containing documents and I'm on the Tag Editor page.  
+**When** I click "Run OCR on all documents" in the canvas command bar  
 **Then** I should see "Running OCR..." for all documents. When running OCR finishes for each document, I should be ale to view each document's updated OCR JSON file.
 
 ___
@@ -178,34 +178,35 @@ ___
 
 > ### Use Case ###
 
-**As** a user
-**I want** to give the new train model a customerized name
-**So** I can type the name in input field in train page before click train button.
+**As** a user  
+**I want** to give the new train model a customerized name  
+**So** I can type the name in input field in train page before click train button.  
 
-**As** a user
-**I want** to generate a new mode through existing model
-**So** I can use model compose
+**As** a user  
+**I want** to generate a new mode through existing model   
+**So** I can use model compose 
 
 > ### Acceptance criteria ###
 
 #### Scenario One ####
 
-**Given** I've opened a project containing documents and I'm on the Train page.
-**When** I type customerized name in input field and click train button
+**Given** I've opened a project containing documents and I'm on the Train page.  
+**When** I type customerized name in input field and click train button  
 **Then** I should see typed name shows in Train Record after record shows up.
 
 #### Scenario Two ####
 
-**Given** I've opened a project containing documents and I'm on the Model Compose page. There are enough existing models in modelList.
-**When** I select more than one models then click compose button
-**Then** I should see a pop up modal with a list contains selected models and a input field.
-**When** I type customerized model name in input field and click compose button on modal
-**Then** I should see "Model is composing, please wait...". After that the list shows up again, new composed model with given name will be on the top of the list. The new composed model also has a "Merge" icon.
+**Given** I've opened a project containing documents and I'm on the Model Compose page. There are enough existing models in modelList.  
+**When** I select more than one models then click compose button  
+**Then** I should see a pop up modal with a list contains selected models and a input field.  
+**When** I type customerized model name in input field and click compose button on modal  
+**Then** I should see "Model is composing, please wait...". After that the list shows up again, new composed model with given name will be on the top of the list. The new composed model also has a "Merge" icon. 
 
 #### Scenario Three ####
 
-**Given** I've opened a project containing documents and I'm on the Model Compose page.
-**When** I click the header of a column
-**Then** I should see the column becomes sorted in either ascending or discending order.
-**When** I type some text inside the fliter field on top right
+**Given** I've opened a project containing documents and I'm on the Model Compose page.  
+**When** I click the header of a column  
+**Then** I should see the column becomes sorted in either ascending or discending order.  
+**When** I type some text inside the fliter field on top right  
 **Then** I should see items whose id or name contains the text be filtered out.
+ 
