@@ -184,11 +184,19 @@ export const english: IAppStrings = {
     },
     predict: {
         title: "Analyze",
-        uploadFile: "Upload image and run analysis",
+        uploadFile: "Choose an image to analyze with",
         inProgress: "Analysis in progress...",
-        downloadScript: "Use script",
+        noRecentModels: "This project doesn't have any recent models. Please train or compose a new model to analyze with.",
+        selectModelHeader: "Model to analyze with",
+        modelIDPrefix: "Model ID: ",
+        modelNamePrefix: "Model name: ",
+        downloadScript: "Analyze with python script",
         defaultLocalFileInput: "Browse for a file...",
         defaultURLInput: "Paste or type URL...",
+    },
+    recentModelsView:{
+        header: "Select model to analyze with",
+        checkboxAriaLabel: "Select model checkbox"
     },
     projectMetrics: {
         title: "Project Metrics",

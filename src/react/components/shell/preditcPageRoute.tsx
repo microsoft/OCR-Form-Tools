@@ -17,12 +17,8 @@ import { IApplicationState } from '../../../models/applicationState';
 export function PredictPageRoute() {
     const projectProperties = useSelector((state: IApplicationState) => {
         if (state && state.currentProject) {
-            const { apiKey, folderPath, apiUriBase, id, trainRecord } = state.currentProject;
-            let modelId: string;
-            if (trainRecord) {
-                modelId = trainRecord.modelInfo.modelId;
-            }
-            return JSON.stringify({ id, apiKey, apiUriBase, folderPath, modelId });
+            const { apiKey, folderPath, apiUriBase, id, predictModelId } = state.currentProject;
+            return JSON.stringify({ id, apiKey, apiUriBase, folderPath, predictModelId });
         }
     });
 

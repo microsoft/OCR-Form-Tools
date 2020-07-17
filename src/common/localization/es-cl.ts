@@ -185,11 +185,19 @@ export const spanish: IAppStrings = {
     },
     predict: {
         title: "Analizar",
-        uploadFile: "Cargar archivo y ejecutar análisis",
+        uploadFile: "Elija una imagen para analizar con",
         inProgress: "Análisis en curso...",
-        downloadScript: "Usar script",
+        noRecentModels: "Este proyecto no tiene modelos recientes. Entrenar o componer un nuevo modelo para analizar.",
+        selectModelHeader: "Modelo para analizar con",
+        modelIDPrefix: "ID del modelo: ",
+        modelNamePrefix: "Nombre del modelo: ",
+        downloadScript: "Analizar con script python",
         defaultLocalFileInput: "Busca un archivo...",
         defaultURLInput: "Pegar o escribir URL...",
+    },
+    recentModelsView: {
+        header: "Seleccionar modelo para analizar con",
+        checkboxAriaLabel: "Seleccione la casilla de verificación del modelo",
     },
     projectMetrics: {
         title: "Métricas del proyecto",
