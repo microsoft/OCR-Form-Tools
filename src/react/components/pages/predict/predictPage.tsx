@@ -5,13 +5,16 @@ import React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
-import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton, TextField, IDropdownOption, Dropdown} from "@fluentui/react";
+import {
+    FontIcon, Selection, PrimaryButton, Spinner, SpinnerSize, IconButton, TextField, IDropdownOption,
+    Dropdown, DefaultButton, Separator, ISelection, SelectionMode
+} from "@fluentui/react";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import "./predictPage.scss";
 import {
-    IApplicationState, IConnection, IProject, IAppSettings, AppError, ErrorCode,
+    IApplicationState, IConnection, IProject, IAppSettings, AppError, ErrorCode, IRecentModel,
 } from "../../../../models/applicationState";
 import { ImageMap } from "../../common/imageMap/imageMap";
 import Style from "ol/style/Style";
@@ -31,9 +34,11 @@ import ServiceHelper from "../../../../services/serviceHelper";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import { getPrimaryGreenTheme, getPrimaryWhiteTheme,
-         getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
+         getGreenWithWhiteBackgroundTheme,
+         getRightPaneDefaultButtonTheme} from "../../../../common/themes";
 import axios from "axios";
 import { IAnalyzeModelInfo } from './predictResult';
+import RecentModelsView from "./recentModelsView";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -49,6 +54,11 @@ export interface IPredictPageProps extends RouteComponentProps, React.Props<Pred
 }
 
 export interface IPredictPageState {
+    couldNotGetRecentModel: boolean;
+    selectionIndexTracker: number;
+    selectedRecentModelIndex: number;
+    loadingRecentModel: boolean;
+    showRecentModelsView: boolean;
     inputedLocalFile: string;
     sourceOption: string;
     isFetching: boolean;
@@ -100,6 +110,11 @@ function mapDispatchToProps(dispatch) {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class PredictPage extends React.Component<IPredictPageProps, IPredictPageState> {
     public state: IPredictPageState = {
+        couldNotGetRecentModel: false,
+        selectionIndexTracker: -1,
+        selectedRecentModelIndex: -1,
+        loadingRecentModel: true,
+        showRecentModelsView: false,
         sourceOption: "localFile",
         isFetching: false,
         fetchedFileURL: "",
@@ -123,6 +138,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         modelOption: "",
     };
 
+    private selectionHandler: ISelection;
     private fileInput: React.RefObject<HTMLInputElement> = React.createRef();
     private currPdf: any;
     private tiffImages: any[];
@@ -131,15 +147,35 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     public async componentDidMount() {
         const projectId = this.props.match.params["projectId"];
         if (projectId) {
-            const project = this.props.recentProjects.find((project) => project.id === projectId);
-            await this.props.actions.loadProject(project);
-            this.props.appTitleActions.setTitle(project.name);
+            await this.loadProject(projectId);
         }
-
         document.title = strings.predict.title + " - " + strings.appName;
     }
 
-    public componentDidUpdate(prevProps, prevState) {
+    public async componentDidUpdate(prevProps, prevState) {
+        const onPredictPage = (new RegExp("predict$")).test(this.props.match.url)
+        if (!onPredictPage) {
+            return; // don't update if not on the predict page
+        }
+
+        if (!this.props.project) {
+            const projectId = this.props.match.params["projectId"];
+            if (projectId) {
+                await this.loadProject(projectId);
+            }
+        }
+
+        if (this.props.project?.predictModelId && !this.props.project?.recentModelRecords &&
+            !this.state.couldNotGetRecentModel) {
+            await this.updateRecentModels(this.props.project)
+        }
+        if (this.props.project?.recentModelRecords && this.props.project?.predictModelId &&
+            this.state.selectedRecentModelIndex === -1) {
+            this.updateRecentModelsViewer(this.props.project);
+        } else if (this.state.loadingRecentModel) {
+            this.setState({loadingRecentModel: false});
+        }
+
         if (this.state.file) {
             if (this.state.fileChanged) {
                 this.currPdf = null;
@@ -165,6 +201,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     public render() {
+        const mostRecentModel = this.props.project?.recentModelRecords?.[this.state.selectedRecentModelIndex];
         const browseFileDisabled: boolean = !this.state.predictionLoaded;
         const urlInputDisabled: boolean = !this.state.predictionLoaded || this.state.isFetching;
         const predictDisabled: boolean = !this.state.predictionLoaded || !this.state.file;
@@ -199,143 +236,186 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             <FontIcon className="mr-1" iconName="Insights" />
                             <span>Analyze</span>
                         </h6>
-                        <div className="p-3">
-                            <h5>
-                                {strings.predict.downloadScript}
-                            </h5>
-                            <PrimaryButton
-                                theme={getPrimaryGreenTheme()}
-                                text="Download Python script"
-                                allowDisabledFocus
-                                autoFocus={true}
-                                onClick={this.handleDownloadClick}
-                            />
-                            <div className="alight-vertical-center mt-2">
-                                <div className="seperator"/>
-                                or
-                                <div className="seperator"/>
-                            </div>
-                            <h5>
-                                {strings.predict.uploadFile}
-                            </h5>
-                            <div style={{marginBottom: "3px"}}>Image source</div>
-                            <div className="container-space-between">
-                                <Dropdown
-                                    className="sourceDropdown"
-                                    selectedKey={this.state.sourceOption}
-                                    options={sourceOptions}
-                                    disabled={this.state.isPredicting || this.state.isFetching}
-                                    onChange={this.selectSource}
-                                />
-                                { this.state.sourceOption === "localFile" &&
-                                    <input
-                                        aria-hidden="true"
-                                        type="file"
-                                        accept="application/pdf, image/jpeg, image/png, image/tiff"
-                                        id="hiddenInputFile"
-                                        ref={this.fileInput}
-                                        onChange={this.handleFileChange}
-                                        disabled={browseFileDisabled}
-                                    />
+                        {!this.state.loadingRecentModel ?
+                            <>
+                                {!mostRecentModel ?
+                                    <div className="bg-darker-2 pl-3 pr-3 flex-center" >
+                                        <div className="alert alert-warning warning no-models-warning" role="alert">
+                                            {strings.predict.noRecentModels}
+                                        </div>
+                                    </div> :
+                                    <>
+                                        <div className="bg-darker-2 pl-3 pr-3 flex-center model-selection-container">
+                                            <div>
+                                                <h5 className="model-selection-header">
+                                                    {strings.predict.selectModelHeader}
+                                                </h5>
+                                                <h6 className="model-selection-info-header" >
+                                                    <span className="model-selection-info-key">
+                                                        {strings.predict.modelIDPrefix}
+                                                    </span>
+                                                    <span className="model-selection-info-value">
+                                                        {mostRecentModel.modelInfo.modelId.substring(0,8) + "..."}
+                                                    </span>
+                                                </h6>
+                                                {mostRecentModel.modelInfo.modelName &&
+                                                    <h6 className="model-selection-info-header" >
+                                                        <span className="model-selection-info-key">
+                                                            {strings.predict.modelNamePrefix}
+                                                        </span>
+                                                        <span className="model-selection-info-value">
+                                                            {mostRecentModel.modelInfo.modelName}
+                                                        </span>
+                                                    </h6>
+                                                }
+                                            </div>
+                                            <DefaultButton
+                                                className="keep-button-80px"
+                                                theme={getRightPaneDefaultButtonTheme()}
+                                                text="Change"
+                                                onClick={() => {this.setState({showRecentModelsView: true})}}
+                                                disabled={!mostRecentModel || browseFileDisabled}
+                                            />
+                                        </div>
+                                        <div className="p-3" style={{marginTop: "8px"}}>
+                                            <div style={{display: "flex", justifyContent: "space-between"}}>
+                                            <h5>
+                                                {strings.predict.downloadScript}
+                                            </h5>
+                                            <PrimaryButton
+                                                className="keep-button-80px"
+                                                theme={getPrimaryGreenTheme()}
+                                                text="Download"
+                                                allowDisabledFocus
+                                                autoFocus={true}
+                                                onClick={this.handleDownloadClick}
+                                            />
+                                            </div>
+                                            <Separator className="separator-right-pane-main">or</Separator>
+                                            <h5>
+                                                {strings.predict.uploadFile}
+                                            </h5>
+                                            <div style={{marginBottom: "3px"}}>Image source</div>
+                                            <div className="container-space-between">
+                                                <Dropdown
+                                                    className="sourceDropdown"
+                                                    selectedKey={this.state.sourceOption}
+                                                    options={sourceOptions}
+                                                    disabled={this.state.isPredicting || this.state.isFetching}
+                                                    onChange={this.selectSource}
+                                                />
+                                                { this.state.sourceOption === "localFile" &&
+                                                    <input
+                                                        aria-hidden="true"
+                                                        type="file"
+                                                        accept="application/pdf, image/jpeg, image/png, image/tiff"
+                                                        id="hiddenInputFile"
+                                                        ref={this.fileInput}
+                                                        onChange={this.handleFileChange}
+                                                        disabled={browseFileDisabled}
+                                                    />
+                                                }
+                                                { this.state.sourceOption === "localFile" &&
+                                                    <TextField
+                                                        className="mr-2 ml-2"
+                                                        theme={getGreenWithWhiteBackgroundTheme()}
+                                                        style={{cursor: (browseFileDisabled ? "default" : "pointer")}}
+                                                        onClick={this.handleDummyInputClick}
+                                                        readOnly={true}
+                                                        aria-label={strings.predict.uploadFile}
+                                                        value={this.state.inputedLocalFile}
+                                                        disabled={browseFileDisabled}
+                                                    />
+                                                }
+                                                { this.state.sourceOption === "localFile" &&
+                                                    <PrimaryButton
+                                                        className="keep-button-80px"
+                                                        theme={getPrimaryGreenTheme()}
+                                                        text="Browse"
+                                                        allowDisabledFocus
+                                                        disabled={browseFileDisabled}
+                                                        autoFocus={true}
+                                                        onClick={this.handleDummyInputClick}
+                                                    />
+                                                }
+                                                { this.state.sourceOption === "url" &&
+                                                    <TextField
+                                                        className="mr-2 ml-2"
+                                                        theme={getGreenWithWhiteBackgroundTheme()}
+                                                        onFocus={this.removeDefaultInputedFileURL}
+                                                        onChange={this.setInputedFileURL}
+                                                        aria-label={strings.predict.uploadFile}
+                                                        value={this.state.inputedFileURL}
+                                                        disabled={urlInputDisabled}
+                                                    />
+                                                }
+                                                { this.state.sourceOption === "url" &&
+                                                    <PrimaryButton
+                                                        theme={getPrimaryGreenTheme()}
+                                                        className="keep-button-80px"
+                                                        text="Fetch"
+                                                        allowDisabledFocus
+                                                        disabled={fetchDisabled}
+                                                        autoFocus={true}
+                                                        onClick={this.getFileFromURL}
+                                                    />
+                                                }
+                                            </div>
+                                            <div className="container-items-end predict-button">
+                                                    <PrimaryButton
+                                                        theme={getPrimaryWhiteTheme()}
+                                                        iconProps={{ iconName: "Insights" }}
+                                                        text="Run analysis"
+                                                        aria-label={!this.state.predictionLoaded ? strings.predict.inProgress : ""}
+                                                        allowDisabledFocus
+                                                        disabled={predictDisabled}
+                                                        onClick={this.handleClick}
+                                                    />
+                                            </div>
+                                            {this.state.isFetching &&
+                                                <div className="loading-container">
+                                                    <Spinner
+                                                        label="Fetching..."
+                                                        ariaLive="assertive"
+                                                        labelPosition="right"
+                                                        size={SpinnerSize.large}
+                                                    />
+                                                </div>
+                                            }
+                                            {!this.state.predictionLoaded &&
+                                                <div className="loading-container">
+                                                    <Spinner
+                                                        label={strings.predict.inProgress}
+                                                        ariaLive="assertive"
+                                                        labelPosition="right"
+                                                        size={SpinnerSize.large}
+                                                    />
+                                                </div>
+                                            }
+                                            {Object.keys(predictions).length > 0 && this.props.project &&
+                                                <PredictResult
+                                                    predictions={predictions}
+                                                    analyzeResult={this.state.analyzeResult}
+                                                    analyzeModelInfo={modelInfo}
+                                                    page={this.state.currPage}
+                                                    tags={this.props.project.tags}
+                                                    downloadResultLabel={this.state.fileLabel}
+                                                    onPredictionClick={this.onPredictionClick}
+                                                    onPredictionMouseEnter={this.onPredictionMouseEnter}
+                                                    onPredictionMouseLeave={this.onPredictionMouseLeave}
+                                                />
+                                            }
+                                            {
+                                                (Object.keys(predictions).length === 0 && this.state.predictRun) &&
+                                                <div>
+                                                    No field can be extracted.
+                                                </div>
+                                            }
+                                        </div>
+                                    </>
                                 }
-                                { this.state.sourceOption === "localFile" &&
-                                    <TextField
-                                        className="mr-2 ml-2"
-                                        theme={getGreenWithWhiteBackgroundTheme()}
-                                        style={{cursor: (browseFileDisabled ? "default" : "pointer")}}
-                                        onClick={this.handleDummyInputClick}
-                                        readOnly={true}
-                                        aria-label={strings.predict.uploadFile}
-                                        value={this.state.inputedLocalFile}
-                                        disabled={browseFileDisabled}
-                                    />
-                                }
-                                { this.state.sourceOption === "localFile" &&
-                                    <PrimaryButton
-                                        className="keep-button-80px"
-                                        theme={getPrimaryGreenTheme()}
-                                        text="Browse"
-                                        allowDisabledFocus
-                                        disabled={browseFileDisabled}
-                                        autoFocus={true}
-                                        onClick={this.handleDummyInputClick}
-                                    />
-                                }
-                                { this.state.sourceOption === "url" &&
-                                    <TextField
-                                        className="mr-2 ml-2"
-                                        theme={getGreenWithWhiteBackgroundTheme()}
-                                        onFocus={this.removeDefaultInputedFileURL}
-                                        onChange={this.setInputedFileURL}
-                                        aria-label={strings.predict.uploadFile}
-                                        value={this.state.inputedFileURL}
-                                        disabled={urlInputDisabled}
-                                    />
-                                }
-                                { this.state.sourceOption === "url" &&
-                                    <PrimaryButton
-                                        theme={getPrimaryGreenTheme()}
-                                        className="keep-button-80px"
-                                        text="Fetch"
-                                        allowDisabledFocus
-                                        disabled={fetchDisabled}
-                                        autoFocus={true}
-                                        onClick={this.getFileFromURL}
-                                    />
-                                }
-                            </div>
-                            <div className="container-items-end predict-button">
-                                    <PrimaryButton
-                                        theme={getPrimaryWhiteTheme()}
-                                        iconProps={{ iconName: "Insights" }}
-                                        text="Run analysis"
-                                        aria-label={!this.state.predictionLoaded ? strings.predict.inProgress : ""}
-                                        allowDisabledFocus
-                                        disabled={predictDisabled}
-                                        onClick={this.handleClick}
-                                    />
-                            </div>
-                            {this.state.isFetching &&
-                                <div className="loading-container">
-                                    <Spinner
-                                        label="Fetching..."
-                                        ariaLive="assertive"
-                                        labelPosition="right"
-                                        size={SpinnerSize.large}
-                                    />
-                                </div>
-                            }
-
-                            {!this.state.predictionLoaded &&
-                                <div className="loading-container">
-                                    <Spinner
-                                        label={strings.predict.inProgress}
-                                        ariaLive="assertive"
-                                        labelPosition="right"
-                                        size={SpinnerSize.large}
-                                    />
-                                </div>
-                            }
-                            {Object.keys(predictions).length > 0 && this.props.project &&
-                                <PredictResult
-                                    predictions={predictions}
-                                    analyzeResult={this.state.analyzeResult}
-                                    analyzeModelInfo={modelInfo}
-                                    page={this.state.currPage}
-                                    tags={this.props.project.tags}
-                                    downloadResultLabel={this.state.fileLabel}
-                                    onPredictionClick={this.onPredictionClick}
-                                    onPredictionMouseEnter={this.onPredictionMouseEnter}
-                                    onPredictionMouseLeave={this.onPredictionMouseLeave}
-                                />
-                            }
-                            {
-                                (Object.keys(predictions).length === 0 && this.state.predictRun) &&
-                                <div>
-                                    No field can be extracted.
-                                </div>
-                            }
-                        </div>
+                            </> : <Spinner className="loading-tag" size={SpinnerSize.large}/>
+                        }
                     </div>
                 </div>
                 <Alert
@@ -353,6 +433,15 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     when={this.state.isPredicting}
                     message={"A prediction operation is currently in progress, are you sure you want to leave?"}
                 />
+                {mostRecentModel && this.state.showRecentModelsView &&
+                    <RecentModelsView
+                        selectedIndex={this.state.selectionIndexTracker}
+                        selectionHandler={this.selectionHandler}
+                        onCancel={this.handleRecentModelsViewClose}
+                        onApply={this.handleRecentModelsApply}
+                        recentModels={this.props.project.recentModelRecords}
+                    />
+                }
             </div>
         );
     }
@@ -599,7 +688,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
     private async triggerDownload(): Promise<any> {
         axios.get("/analyze.py").then((response) => {
-            const modelID = this.props.project.predictModelId as string;
+            const modelID = this.props.project?.recentModelRecords?.[this.state.selectedRecentModelIndex].modelInfo.modelId;
             if (!modelID) {
                 throw new AppError(
                     ErrorCode.PredictWithoutTrainForbidden,
@@ -608,7 +697,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             }
             const endpointURL = this.props.project.apiUriBase as string;
             const apiKey = this.props.project.apiKey as string;
-            const analyzeScript = response.data.replace(/<endpoint>|<subscription_key>|<model_id>/gi,
+            const analyzeScript = response.data.replace(/<endpoint>|<subscription_key>|<model_id>|<API_version>/gi,
                 (matched: string) => {
                 switch (matched) {
                     case "<endpoint>":
@@ -617,6 +706,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                         return apiKey;
                     case "<model_id>":
                         return modelID;
+                    case "<API_version>":
+                        return constants.apiVersion;
                 }
             });
             const fileURL = window.URL.createObjectURL(
@@ -651,7 +742,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private async getPrediction(): Promise<any> {
-        const modelID = this.props.project.predictModelId;
+        const modelID = this.props.project?.recentModelRecords?.[this.state.selectedRecentModelIndex].modelInfo.modelId;
         if (!modelID) {
             throw new AppError(
                 ErrorCode.PredictWithoutTrainForbidden,
@@ -946,5 +1037,119 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 feature.set("isHighlighted", false);
             }
         }
+    }
+    private handleModelSelection = () => {
+        const selectedIndex = this.getSelectedIndex();
+        if (selectedIndex !== this.state.selectionIndexTracker) {
+            this.setState({selectionIndexTracker: selectedIndex})
+        }
+    }
+
+    private handleRecentModelsViewClose = () => {
+        this.setState({showRecentModelsView: false});
+        const selectedIndex = this.getSelectedIndex();
+        if (selectedIndex !== this.state.selectedRecentModelIndex) {
+            this.selectionHandler.setIndexSelected(this.state.selectedRecentModelIndex, true, true);
+        }
+    }
+
+    private handleRecentModelsApply = async () => {
+        const selectedIndex = this.selectionHandler.getSelectedIndices()[0];
+        this.setState({
+            selectedRecentModelIndex: selectedIndex,
+            showRecentModelsView: false,
+        });
+    }
+
+    private async getRecentModelFromPredictModelId(): Promise<any> {
+        const modelID = this.props.project.predictModelId;
+        const endpointURL = url.resolve(
+            this.props.project.apiUriBase,
+            `${constants.apiModelsPath}/${modelID}`,
+        );
+        let response;
+        try {
+            response = await axios.get(endpointURL,
+                {headers: { [constants.apiKeyHeader]: this.props.project.apiKey as string}})
+            .catch((err) => {
+                const status = err.response.status;
+                if (status === 401) {
+                    this.setState({
+                        couldNotGetRecentModel: true,
+                        shouldShowAlert: true,
+                        alertTitle: "Failed to get recent model",
+                        alertMessage: "Permission denied. Check API key",
+                    });
+                } else {
+                    this.setState({
+                        couldNotGetRecentModel: true,
+                    });
+                }
+            })
+        } catch {
+            this.setState({
+                couldNotGetRecentModel: true,
+                shouldShowAlert: true,
+                alertTitle: "Failed to get recent model",
+                alertMessage: "Check network and service URI in project settings",
+            });
+        }
+        if (!response) {
+            return;
+        }
+        response = response["data"];
+        return {
+            modelInfo: {
+                createdDateTime: response["modelInfo"]["createdDateTime"],
+                modelId: response["modelInfo"]["modelId"],
+                modelName: response["modelInfo"]["modelName"],
+                isComposed: response["modelInfo"]["attributes"]["isComposed"],
+            }
+        } as IRecentModel;
+    }
+
+    private getSelectedIndex(): number {
+        const selectedIndexArray = this.selectionHandler.getSelectedIndices();
+        return selectedIndexArray.length > 0 ? selectedIndexArray[0] : -1;
+    }
+
+    private async updateRecentModelsViewer(project) {
+        this.selectionHandler = new Selection({
+            selectionMode: SelectionMode.single,
+            onSelectionChanged: this.handleModelSelection,
+        })
+        const recentModelRecordsWithKey = [];
+        let predictModelIndex;
+        project.recentModelRecords.forEach((model: IRecentModel, index) => {
+            if (model.modelInfo.modelId === project.predictModelId) {
+                predictModelIndex = index
+            }
+            recentModelRecordsWithKey[index] = Object.assign({key: index}, model);
+        })
+        this.selectionHandler.setItems(recentModelRecordsWithKey, false);
+        this.selectionHandler.setIndexSelected(predictModelIndex, true, false);
+        this.setState({
+            loadingRecentModel: false,
+            selectedRecentModelIndex: predictModelIndex,
+            selectionIndexTracker: predictModelIndex
+        });
+    }
+
+    private async updateRecentModels(project) {
+        const recentModel = await this.getRecentModelFromPredictModelId();
+        if (!recentModel) {
+            return;
+        }
+        const recentModelRecords: IRecentModel[] = [recentModel]
+        project = await this.props.actions.saveProject({
+            ...project,
+            recentModelRecords,
+        }, false, false);
+    }
+
+    private async loadProject(projectId: string) {
+        const project = this.props.recentProjects.find((project) => project.id === projectId);
+        await this.props.actions.loadProject(project);
+        this.props.appTitleActions.setTitle(project.name);
     }
 }

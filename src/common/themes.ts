@@ -1,5 +1,30 @@
 import {createTheme, IPalette} from "@fluentui/react";
 
+const rightPaneDefaultButtonPalette = {
+    themePrimary: "#E9ECEF",
+    themeLighterAlt: "#ebeef1",
+    themeLighter: "#edf0f3",
+    themeLight: "#f0f2f5",
+    themeTertiary: "#f2f4f6",
+    themeSecondary: "#f5f6f8",
+    themeDarkAlt: "#f7f9fa",
+    themeDark: "#fafbfb",
+    themeDarker: "#fcfdfd",
+    neutralLighterAlt: "#35393e",
+    neutralLighter: "#3c4046",
+    neutralLight: "#484c53",
+    neutralQuaternaryAlt: "#50545b",
+    neutralQuaternary: "#565a61",
+    neutralTertiaryAlt: "#70747c",
+    neutralTertiary: "#f0f2f5",
+    neutralSecondary: "#f2f4f6",
+    neutralPrimaryAlt: "#f5f6f8",
+    neutralPrimary: "#E9ECEF",
+    neutralDark: "#fafbfb",
+    black: "#fcfdfd",
+    white: "#2D3035"
+  }
+
 const greenButtonPalette = {
     themePrimary: "#78ad0e",
     themeLighterAlt: "#050701",
@@ -279,6 +304,7 @@ const subMenuPalette = {
 }
 
 
+const rightPaneDefaultButtonTheme = createTheme({palette: rightPaneDefaultButtonPalette});
 const defaultDarkTheme = createTheme({palette: DarkDefaultPalette});
 const whiteTheme = createTheme({palette: whiteButtonPalette});
 const redTheme = createTheme({palette: redButtonPalette});
@@ -290,6 +316,10 @@ const darkGreyTheme = createTheme({palette: darkGreyPalette});
 const greenWithWhiteBackgroundTheme = createTheme({palette: greenWithWhiteBackgroundPalette});
 const lightGreyTheme = createTheme({palette: lightGreyPalette});
 const subMenuTheme = createTheme({palette: subMenuPalette})
+
+export function getRightPaneDefaultButtonTheme() {
+    return rightPaneDefaultButtonTheme;
+}
 
 export function getPrimaryWhiteTheme() {
     return whiteTheme;

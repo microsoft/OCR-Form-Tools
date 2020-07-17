@@ -138,6 +138,7 @@ h4 {
 }
 
 .modal-alert {
+    text-align: center;
     color: #ff4040;
     font-size: small;
     margin-bottom: 1rem;
@@ -165,7 +166,8 @@ h4 {
 }
 
 .modal-buttons-container {
-    justify-content: space-between;
+    justify-content: flex-end;
+    display: flex;
     margin-top: 1.5rem;
 }
 
