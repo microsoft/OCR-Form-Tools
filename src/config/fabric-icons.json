@@ -23,10 +23,6 @@
       "unicode": "EDC3"
     },
     {
-      "name": "Combine",
-      "unicode": "EDBB"
-    },
-    {
       "name": "TextDocument",
       "unicode": "F029"
     },
@@ -241,6 +237,10 @@
     {
       "name": "SquareShape",
       "unicode": "F1A6"
+    },
+    {
+      "name": "Merge",
+      "unicode": "E7D5"
     }
   ]
 }

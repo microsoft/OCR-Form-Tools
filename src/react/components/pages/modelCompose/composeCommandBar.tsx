@@ -25,7 +25,7 @@ export const ModelComposeCommandBar: React.FunctionComponent<IModelComposeComman
             key: "Compose",
             text: "Compose",
             ariaLabel: strings.modelCompose.commandBar.composeAria,
-            iconProps: { iconName: "combine" },
+            iconProps: { iconName: "Merge" },
             onClick: () => {props.handleCompose(); },
         },
         {

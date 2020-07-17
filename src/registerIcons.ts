@@ -40,7 +40,6 @@ export function registerIcons() {
             Info: "\uE946",
             AddTo: "\uECC8",
             OpenFolderHorizontal: "\uED25",
-            Combine: "\uEDBB",
             SortUp: "\uEE68",
             SortDown: "\uEE69",
             DocumentManagement: "\uEFFC",
@@ -69,6 +68,7 @@ export function registerIcons() {
             ChromeMinimize: "\uE921",
             System: "\uE770",
             SquareShape: "\uF1A6",
+            Merge: "\uE7D5",
         },
     });
 }

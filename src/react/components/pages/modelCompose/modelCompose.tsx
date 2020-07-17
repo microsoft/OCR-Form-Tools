@@ -717,7 +717,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
     private renderComposedIcon = (model: IModel): ReactElement => {
         if (model.attributes && model.attributes.isComposed) {
-            return <FontIcon iconName={"Combine"} className="model-fontIcon"/>;
+            return <FontIcon iconName={"Merge"} className="model-fontIcon"/>;
         } else {
             return null;
         }
