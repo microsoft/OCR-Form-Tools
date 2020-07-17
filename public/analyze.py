@@ -18,9 +18,9 @@ def runAnalysis(input_file, output_file, file_type):
     # Model ID
     model_id = "<model_id>"
     # API version
-    API_version = "<API_version>"
+    api_version = "<api_version>"
 
-    post_url = endpoint + "/formrecognizer/%s/custom/models/%s/analyze" % (API_version, model_id)
+    post_url = endpoint + "/formrecognizer/%s/custom/models/%s/analyze" % (api_version, model_id)
     params = {
         "includeTextDetails": True
     }

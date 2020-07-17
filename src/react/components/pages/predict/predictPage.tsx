@@ -608,7 +608,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             }
             const endpointURL = this.props.project.apiUriBase as string;
             const apiKey = this.props.project.apiKey as string;
-            const analyzeScript = response.data.replace(/<endpoint>|<subscription_key>|<model_id>|<API_version>/gi,
+            const analyzeScript = response.data.replace(/<endpoint>|<subscription_key>|<model_id>|<api_version>/gi,
                 (matched: string) => {
                 switch (matched) {
                     case "<endpoint>":
@@ -617,7 +617,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                         return apiKey;
                     case "<model_id>":
                         return modelID;
-                    case "<API_version>":
+                    case "<api_version>":
                         return constants.apiVersion;
                 }
             });
