@@ -270,7 +270,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                 }
                                             </div>
                                             <DefaultButton
-                                                style={{width: "80px"}}
+                                                className="keep-button-80px"
                                                 theme={getrightPaneDefaultButtonTheme()}
                                                 text="Change"
                                                 onClick={() => {this.setState({showRecentModelsView: true})}}
@@ -283,7 +283,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                 {strings.predict.downloadScript}
                                             </h5>
                                             <PrimaryButton
-                                                style={{width: "80px"}}
+                                                className="keep-button-80px"
                                                 theme={getPrimaryGreenTheme()}
                                                 text="Download"
                                                 allowDisabledFocus
@@ -329,8 +329,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                 }
                                                 { this.state.sourceOption === "localFile" &&
                                                     <PrimaryButton
-                                                    style={{width: "80px"}}
-
                                                         className="keep-button-80px"
                                                         theme={getPrimaryGreenTheme()}
                                                         text="Browse"
