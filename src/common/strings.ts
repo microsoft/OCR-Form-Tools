@@ -43,6 +43,7 @@ export interface IAppStrings {
         openCloudProject: {
             title: string;
             selectConnection: string;
+            pasteSharedUri: string;
         },
         deleteProject: {
             title: string;
@@ -393,6 +394,7 @@ export interface IAppStrings {
                     },
                 },
                 farItems: {
+                    share: string,
                     zoom: {
                         zoomOut: string,
                         zoomIn: string,
@@ -514,6 +516,17 @@ export interface IAppStrings {
         modelCountLimitExceeded: IErrorMetadata,
         requestSendError: IErrorMetadata,
     };
+    shareProject: {
+        errors: {
+            cannotDecodeString: string,
+            connectionNotFound: string,
+            noConnections: string,
+            tokenNameExist: string,
+        },
+        copy: {
+            success: string,
+        }
+    }
 }
 
 interface IErrorMetadata {

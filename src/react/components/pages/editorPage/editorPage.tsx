@@ -271,7 +271,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             hoveredLabel={this.state.hoveredLabel}
                                             setTableToView={this.setTableToView}
                                             closeTableView={this.closeTableView}
-                                            runOcrForAllDocs={this.loadOcrForNotVisited}>
+                                            runOcrForAllDocs={this.loadOcrForNotVisited}
+                                            appSettings={this.props.appSettings}
+                                            >
                                             <AssetPreview
                                                 controlsEnabled={this.state.isValid}
                                                 onBeforeAssetChanged={this.onBeforeAssetSelected}
