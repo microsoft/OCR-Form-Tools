@@ -119,7 +119,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                             <CloudFilePicker
                                 ref={this.cloudFilePickerRef}
                                 connections={this.props.connections}
-                                onSubmit={(content) => this.loadSelectedProject(JSON.parse(content))}
+                                onSubmit={(content, sharedToken?) => this.loadSelectedProject(JSON.parse(content), sharedToken)}
                                 fileExtension={constants.projectFileExtension}
                             />
                         </li>
@@ -155,9 +155,11 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
         this.cloudFilePickerRef.current.open();
     }
 
-    private loadSelectedProject = async (project: IProject) => {
-        await this.props.actions.loadProject(project);
-        this.props.history.push(`/projects/${project.id}/edit`);
+    private loadSelectedProject = async (project: IProject, sharedToken?: {}) => {
+        const loadedProject = await this.props.actions.loadProject(project, sharedToken);
+        if (loadedProject !== null) {
+            this.props.history.push(`/projects/${project.id}/edit`);
+        }
     }
 
     private freshLoadSelectedProject = async (project: IProject) => {

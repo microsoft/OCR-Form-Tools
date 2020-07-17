@@ -1,0 +1,18 @@
+.shared-string-input-container {
+    padding: 1rem;
+    .input-uri {
+        padding: 1rem;
+        .form-control{
+            font-size: 90%;
+        }
+    }
+}
+
+.separator {
+    margin: 0 1rem;
+    div{
+        background-color: #32383e;
+        color: white;
+        font-weight: 600;
+    }
+}
