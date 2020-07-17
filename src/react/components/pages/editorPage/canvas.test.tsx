@@ -42,6 +42,7 @@ describe("Editor Canvas", () => {
             project: MockFactory.createTestProject(),
             lockedTags: [],
             hoveredLabel: null,
+            appSettings: null,
         };
 
         const assetPreviewProps: IAssetPreviewProps = {

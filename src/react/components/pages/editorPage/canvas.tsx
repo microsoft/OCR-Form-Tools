@@ -9,7 +9,7 @@ import {
     EditorMode, IAssetMetadata,
     IProject, IRegion, RegionType,
     AssetType, ILabelData, ILabel,
-    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat,
+    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, ISecurityToken,
 } from "../../../../models/applicationState";
 import CanvasHelpers from "./canvasHelpers";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
@@ -30,15 +30,20 @@ import Alert from "../../common/alert/alert";
 import * as pdfjsLib from "pdfjs-dist";
 import Polygon from "ol/geom/Polygon";
 import HtmlFileReader from "../../../../common/htmlFileReader";
-import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
+import { parseTiffData, renderTiffToCanvas, loadImageToCanvas, getSasFolderString, fixedEncodeURIComponent } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./canvasCommandBar";
 import { TooltipHost, ITooltipHostStyles } from "@fluentui/react";
+import { IAppSettings } from '../../../../models/applicationState';
+import { toast } from "react-toastify";
+import { strings } from "../../../../common/strings";
+
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
 
 export interface ICanvasProps extends React.Props<Canvas> {
+    appSettings: IAppSettings,
     selectedAsset: IAssetMetadata;
     editorMode: EditorMode;
     project: IProject;
@@ -52,8 +57,9 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onCanvasRendered?: (canvas: HTMLCanvasElement) => void;
     onRunningOCRStatusChanged?: (isRunning: boolean) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
+    runOcrForAllDocs?: (runForAllDocs: boolean) => void;
+    shareProject?: () => void;
     onAssetDeleted?: () => void;
-    runOcrForAllDocs?: (runForAllDocs:boolean) => void;
 }
 
 export interface ICanvasState {
@@ -106,6 +112,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         project: null,
         lockedTags: [],
         hoveredLabel: null,
+        appSettings: null,
+        shareProject: null,
     };
 
     public state: ICanvasState = {
@@ -217,6 +225,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleRunOcr={this.runOcr}
                     handleAssetDeleted={this.props.onAssetDeleted}
                     handleRunOcrForAllDocuments={this.runOcrForAllDocuments}
+                    handleShareProject={this.shareProject}
+                    connectionType={this.props.project.sourceConnection.providerType}
                 />
                 <ImageMap
                     ref={(ref) => this.imageMap = ref}
@@ -293,6 +303,29 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private runOcrForAllDocuments = () => {
         this.setState({ocrStatus: OcrStatus.runningOCR})
         this.props.runOcrForAllDocs(true);
+    }
+
+    // creates URI for sharing project
+    private shareProject = (): void => {
+        const project: IProject = this.props.project;
+        const sasFolder: string = getSasFolderString(project.sourceConnection.providerOptions["sas"]);
+        const projectToken: ISecurityToken = this.props.appSettings.securityTokens
+            .find((securityToken) => securityToken.name === project.securityToken);
+        const shareProjectString: string = JSON.stringify({
+            sasFolder,
+            projectName: project.name,
+            token: { name: project.securityToken, key: projectToken.key }
+        });
+
+        this.copyToClipboard(shareProjectString)
+    }
+
+    private async copyToClipboard(value: string) {
+        const clipboard = (navigator as any).clipboard;
+        if (clipboard && clipboard.writeText) {
+            await clipboard.writeText(btoa(value));
+            toast.success(strings.shareProject.copy.success);
+        }
     }
 
     public updateSize() {
