@@ -43,6 +43,7 @@ export const spanish: IAppStrings = {
         openCloudProject: {
             title: "Abrir Proyecto de la Nube",
             selectConnection: "Select a Connection",
+            pasteSharedUri: "Pegue la cadena de proyecto compartida aquí",
         },
         deleteProject: {
             title: "Borrar Proyecto",
@@ -408,6 +409,7 @@ export const spanish: IAppStrings = {
                     }
                 },
                 farItems: {
+                    share: "Compartir proyecto",
                     zoom: {
                         zoomOut: "Alejar",
                         zoomIn: "Acercarse",
@@ -621,6 +623,17 @@ export const spanish: IAppStrings = {
             message: "Error al enviar solicitud a Azure Blob Container. Problemas comunes: \n • SAS URI no válida \n • Cross-Origin Resource Sharing (CORS) no está configurado del lado del servidor \n • Error de red",
         }
     },
+    shareProject: {
+        errors: {
+            cannotDecodeString: "¡No se puede decodificar la cadena compartida! Por favor, verifique si su cadena ha sido modificada.",
+            connectionNotFound: "Conexión no encontrada. Agregue la conexión del proyecto compartido a sus conexiones.",
+            noConnections: "Se requiere conexión para compartir proyectos",
+            tokenNameExist: "¡Advertencia! Ya tiene token con el mismo nombre que en el proyecto compartido. Cree un nuevo token y actualice el proyecto existente que usa ''${sharedTokenName}'' con el nuevo nombre del token.",
+        },
+        copy: {
+            success: "La cadena para compartir su proyecto se ha guardado en el portapapeles. Para usarlo, péguelo en la sección correspondiente de la ventana emergente 'Open Cloud Project'.",
+        }
+    }
 };
 
 /*eslint-enable no-template-curly-in-string, no-multi-str*/

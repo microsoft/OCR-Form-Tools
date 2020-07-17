@@ -1,6 +1,6 @@
 # Test Runbook
 
- ## Fix: support model selection for analyzing
+ ## Feat: support model selection for analyzing
 
 > ### Feature description ###
 - track the five most recent trained or composed models  
@@ -62,6 +62,34 @@
 
 ___
 
+## Feat: support project sharing via string
+
+> ### Feature description ###
+
+- Support project sharing bettween users who have access to same storage container
+
+> ### Use Case ###
+
+**As** a user  
+**I want** to be able to share to a project via shared string  
+**So** receiving user don't have to manually copy-paste project info into app settings
+
+> ### Acceptance criteria ###
+
+#### Scenario One ####
+
+**Given** I've opened a project, clicked on "..." dropdow in Canvas Commandbar  
+**When** I click "Share Project" I should see tha message that shared string been saved to my clipboard  
+**Then** I can paste the string from clipboard
+
+#### Scenario Two ####
+
+**Given** I've received the string with a project  
+**When** I open the home page of the FOTT and click on "Open Cloud Project" icon, I can paste the string to the input field and click "OK"    
+**Then** FOTT should open the shared project as expected.
+
+___
+
  ## Fix: check invalid connection provider options before project actions
 
 > ### Feature description ###
@@ -72,7 +100,7 @@ ___
 
 **As** a user  
 **I want** a notification when I try to open or create a project with invalid provider options  
-**So** I know how to fix invalid provider options issue  
+**So** I know how to fix invalid provider options issue
 
 > ### Acceptance criteria ###
 
@@ -105,11 +133,13 @@ ___
 
 #### Scenario One ####
 
+
 **Given** I've updated dependencies.  
 **When** I run `yarn release`.  
 **Then** a distributable installer should be created in the releases folder.
 
 #### Scenario Two ####
+
 
 **Given** I've created a distributable installer.  
 **When** I execute the installer.  
@@ -132,7 +162,7 @@ ___
 
 **Given** I've selected a document in the editor page.  
 **When** I click the overflow menu item on the canvas command bar and then click "Delete document."  
-**Then** FoTT should delete the document in the storage provider, remove it from FOTT's current project, and select the project's first document.  
+**Then** FoTT should delete the document in the storage provider, remove it from FOTT's current project, and select the project's first document.
 
 ___
 
@@ -158,25 +188,25 @@ ___
 
 **Given** I've installed new dependencies and started FoTT in Electron.  
 **When** I click a command item in the title bar.  
-**Then** FoTT should perform the command as expected.  
+**Then** FoTT should perform the command as expected.
 
 #### Scenario Two ####
 
 **Given** I've installed new dependencies and started FoTT in Electron.  
 **When** I perform an action for any existing feature.  
-**Then** FoTT should perform as expected (the same as through a browser).  
+**Then** FoTT should perform as expected (the same as through a browser).
 
 #### Scenario Three ####
 
 **Given** I've installed new dependencies and started FoTT in Electron.  
 **When** I create a new connection with local file system as the provider.  
-**Then** I should be able to create a project with the created connection.  
+**Then** I should be able to create a project with the created connection.
 
 #### Scenario Four ####
 
 **Given** I've installed new dependencies and started FoTT in Electron. And, I have an existing project in my local file system.  
 **When** I click "Open local project" on the home page and select the existing project.  
-**Then** FoTT should load the project as expected.  
+**Then** FoTT should load the project as expected.
 
 ___
 
@@ -271,4 +301,3 @@ ___
 **Then** I should see the column becomes sorted in either ascending or descending order.  
 **When** I type some text inside the filter field on top right  
 **Then** I should see items whose id or name contains the text be filtered out.
- 
