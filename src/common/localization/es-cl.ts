@@ -618,7 +618,7 @@ export const spanish: IAppStrings = {
     shareProject: {
         errors: {
             cannotDecodeString: "¡No se puede decodificar la cadena compartida! Por favor, verifique si su cadena ha sido modificada.",
-            connectionNotFound: "Conexión no encontrada. Agregar la conexión del proyecto compartido a las conexiones",
+            connectionNotFound: "Conexión no encontrada. Agregue la conexión del proyecto compartido a sus conexiones.",
             noConnections: "Se requiere conexión para compartir proyectos",
             tokenNameExist: "¡Advertencia! Ya tiene token con el mismo nombre que en el proyecto compartido. Cree un nuevo token y actualice el proyecto existente que usa ''${sharedTokenName}'' con el nuevo nombre del token.",
         },
