@@ -39,7 +39,7 @@ export default class TrainTable
                                 Object.entries(this.props.accuracies).map((entry) =>
                                     <tr key={entry[0]}>
                                         <td>{entry[0]}</td>
-                                        <td className="text-right">{(entry[1] * 100).toFixed(2) + "%"}</td>
+                                        <td className="text-right">{entry[1]}</td>
                                     </tr>)
                             }
                         </tbody>

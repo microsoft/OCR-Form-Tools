@@ -58,7 +58,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                 <PredictModelInfo modelInfo={analyzeModelInfo} />
                 <div className="prediction-field-header">
                     <h6 className="prediction-field-header-field"> Page # / Field name / Value</h6>
-                    <h6 className="prediction-field-header-confidence"> Confidence %</h6>
+                    <h6 className="prediction-field-header-confidence"> Confidence</h6>
                 </div>
                 <div className="prediction-header-clear"></div>
 
@@ -118,7 +118,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                     }
                 </div>
                 <div className={"predictiontag-confidence"}>
-                    <span>{this.toPercentage(item.confidence)}</span>
+                    <span>{item.confidence}</span>
                 </div>
             </div>
         );
