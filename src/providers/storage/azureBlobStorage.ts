@@ -13,7 +13,6 @@ import { constants } from "../../common/constants";
 import { ErrorCode } from "../../models/applicationState";
 import { strings } from "../../common/strings";
 import { throwUnhandledRejectionForEdge } from "../../react/components/common/errorHandler/errorHandler";
-import Axios from "axios";
 
 /**
  * Options for Azure Cloud Storage
