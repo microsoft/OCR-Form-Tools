@@ -178,7 +178,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
             let projectStr: string;
             try {
                 const projectService = new ProjectService();
-                if (!(await projectService.isValidProjectConnection(project))) {
+                if (!(await projectService.isValidProjectConnection(decryptedProject))) {
                     return;
                 }
                 projectStr = await storageProvider.readText(

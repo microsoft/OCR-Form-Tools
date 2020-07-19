@@ -161,7 +161,12 @@ export default class ProjectService implements IProjectService {
 
     public async isValidProjectConnection(project: IProject): Promise<boolean> {
         const storageProvider = StorageProviderFactory.createFromConnection(project.sourceConnection);
-        const isValid = await storageProvider.isValidProjectConnection();
+        let isValid;
+        try {
+            isValid = await storageProvider.isValidProjectConnection();
+        } catch {
+            isValid = false;
+        }
         if (!isValid) {
             if (project.sourceConnection.providerType === "localFileSystemProxy") {
                 await toast.error(interpolate(strings.connections.providers.local.invalidFolderMessage, {project}));

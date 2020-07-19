@@ -13,6 +13,7 @@ import { constants } from "../../common/constants";
 import { ErrorCode } from "../../models/applicationState";
 import { strings } from "../../common/strings";
 import { throwUnhandledRejectionForEdge } from "../../react/components/common/errorHandler/errorHandler";
+import Axios from "axios";
 
 /**
  * Options for Azure Cloud Storage
@@ -63,8 +64,13 @@ export class AzureBlobStorage implements IStorageProvider {
 
     public async isValidProjectConnection() {
         try {
-            await new ServiceURL(this.options.sas, StorageURL.newPipeline(this.getCredential())).getAccountInfo(Aborter.none);
-            return (true);
+            return await new ServiceURL(this.options.sas, StorageURL.newPipeline(this.getCredential())).getAccountInfo(Aborter.timeout(5000))
+            .then(() => {
+                return true;
+            })
+            .catch(() => {
+                return false;
+            })
         } catch {
             return (false);
         }
