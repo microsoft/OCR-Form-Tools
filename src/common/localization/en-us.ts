@@ -195,7 +195,7 @@ export const english: IAppStrings = {
         defaultURLInput: "Paste or type URL...",
     },
     recentModelsView:{
-        header: "Select model to analyze with",
+        header: "Select a model to analyze with",
         checkboxAriaLabel: "Select model checkbox"
     },
     projectMetrics: {
