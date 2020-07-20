@@ -319,8 +319,9 @@ ___
 **Given** I've opened a project containing documents and I'm on the Model Compose page. There are enough existing models in modelList.  
 **When** I select more than one models then click compose button  
 **Then** I should see a pop up modal with a list contains selected models and a input field.  
-**When** I type customized model name in input field and click compose button on modal  
-**Then** I should see "Model is composing, please wait...". After that the list shows up again, new composed model with given name will be on the top of the list. The new composed model also has a "combine" icon. 
+**When** I type customerized model name in input field and click compose button on modal  
+**Then** I should see "Model is composing, please wait...". After that the list shows up again, new composed model with given name will be on the top of the list. The new composed model also has a "Merge" icon. 
+
 
 #### Scenario Three ####
 
