@@ -17,6 +17,8 @@
     "dependencies": {
         "@azure/storage-blob": "10.3.0",
         "@fluentui/react": "^7.117.2",
+        "@microsoft/applicationinsights-react-js": "^3.0.1",
+        "@microsoft/applicationinsights-web": "^2.5.6",
         "axios": "^0.19.0",
         "bootstrap": "^4.4.1",
         "chart.js": "^2.9.3",
