@@ -1,5 +1,33 @@
 # Test Runbook
 
+## Feat: show project's recent models at top of model compose page's list of models
+
+> ### Feature description ###
+
+- Show current project's recent models at the top of model compose page's list of models when landing on the page
+
+> ### Use Case ###
+
+**As** a user  
+**I want** have my project's recent models at the top of the model compose page's list of models   
+**So** I don't have to search for my project's recent models
+
+> ### Acceptance criteria ###
+
+#### Scenario One ####
+
+**Given** I've opened a project with recent models  
+**When** I go to the model compose page  
+**Then** I should see my recent models at the top of the list of models
+
+#### Scenario Two ####
+
+**Given** I've opened a project with recent models, but one or more of the recent models have been deleted  
+**When** I go to the model compose page  
+**Then** I should see only the recent models that have not been deleted at the top of the list of models
+
+___
+
  ## Feat: support model selection for analyzing
 
 > ### Feature description ###
