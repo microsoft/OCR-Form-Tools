@@ -19,6 +19,8 @@ import { StatusBar } from "./react/components/shell/statusBar";
 import { StatusBarMetrics } from "./react/components/shell/statusBarMetrics";
 import { TitleBar } from "./react/components/shell/titleBar";
 import { SkipButton } from "./react/components/shell/skipButton";
+import { getAppInsights } from './services/telemetryService';
+import TelemetryProvider from "./providers/telemetry/telemetryProvider";
 import "./App.scss";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -47,14 +49,19 @@ function mapDispatchToProps(dispatch) {
  */
 @connect(mapStateToProps, mapDispatchToProps)
 export default class App extends React.Component<IAppProps> {
+    appInsights: any = null;
     constructor(props, context) {
         super(props, context);
-
         this.state = {
-          currentProject: this.props.currentProject,
+            currentProject: this.props.currentProject,
         };
     }
 
+
+
+    private trackingMainRouterEvents() {
+        this.appInsights.trackEvent({ name: 'Tracking All Events...' });
+    }
     public componentDidCatch(error: Error) {
         this.props.actions.showError({
             errorCode: ErrorCode.GenericRenderError,
@@ -77,24 +84,26 @@ export default class App extends React.Component<IAppProps> {
                 {(!this.props.appError || this.props.appError.errorCode !== ErrorCode.GenericRenderError) &&
                     <KeyboardManager>
                         <BrowserRouter>
-                            <div className={`app-shell platform-${platform}`}>
-                                <TitleBar icon="TagGroup">
-                                <div className="app-shortcuts-menu-icon">
-                                    <KeyboardShortcuts />
-                                </div>
-                                <div className="app-help-menu-icon">
-                                    <HelpMenu />
-                                </div>
-                                </TitleBar>
-                                <div className="app-main">
-                                    <Sidebar project={this.props.currentProject} />
+                            <TelemetryProvider after={() => { this.appInsights = getAppInsights() }}>
+                                <div className={`app-shell platform-${platform}`}>
+                                    <TitleBar icon="TagGroup">
+                                        <div className="app-shortcuts-menu-icon">
+                                            <KeyboardShortcuts />
+                                        </div>
+                                        <div className="app-help-menu-icon">
+                                            <HelpMenu />
+                                        </div>
+                                    </TitleBar>
+                                    <div className="app-main">
+                                        <Sidebar project={this.props.currentProject} />
                                     <MainContentRouter />
+                                    </div>
+                                    <StatusBar>
+                                        <StatusBarMetrics project={this.props.currentProject} />
+                                    </StatusBar>
+                                    <ToastContainer className="frtt-toast-container" role="alert" />
                                 </div>
-                                <StatusBar>
-                                    <StatusBarMetrics project={this.props.currentProject} />
-                                </StatusBar>
-                                <ToastContainer className="frtt-toast-container" role="alert"/>
-                            </div>
+                            </TelemetryProvider>
                         </BrowserRouter>
                     </KeyboardManager>
                 }
