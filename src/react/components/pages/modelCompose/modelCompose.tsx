@@ -353,7 +353,12 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             this.setState({
                 isLoading: true,
             });
-            const recentModels = await this.getRecentModels();
+
+            let recentModels: IModel[] = [];
+            if (this.props.project?.recentModelRecords?.length) {
+                recentModels = await this.getRecentModels();
+            }
+
             const res = await this.getResponse();
             let models = res.data.modelList;
             const link = res.data.nextLink;
