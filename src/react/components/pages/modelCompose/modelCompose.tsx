@@ -218,8 +218,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     public componentDidUpdate(prevProps, prevState) {
-        if ((prevState.isComposing === true &&
-                prevState.isComposing !== this.state.isComposing) || this.state.refreshFlag) {
+        if ((prevState.isComposing && !this.state.isComposing) || this.state.refreshFlag) {
             if (this.props.project) {
                 this.getModelList();
             }
