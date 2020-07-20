@@ -63,8 +63,13 @@ export class AzureBlobStorage implements IStorageProvider {
 
     public async isValidProjectConnection() {
         try {
-            await new ServiceURL(this.options.sas, StorageURL.newPipeline(this.getCredential())).getAccountInfo(Aborter.none);
-            return (true);
+            return await new ServiceURL(this.options.sas, StorageURL.newPipeline(this.getCredential())).getAccountInfo(Aborter.timeout(5000))
+            .then(() => {
+                return true;
+            })
+            .catch(() => {
+                return false;
+            })
         } catch {
             return (false);
         }
