@@ -256,7 +256,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                             {strings.predict.modelIDPrefix}
                                                         </span>
                                                         <span className="model-selection-info-value">
-                                                            {mostRecentModel.modelInfo.modelId.substring(0,8) + "..."}
+                                                            {mostRecentModel.modelInfo.modelId}
                                                         </span>
                                                     </h6>
                                                 </tr>
@@ -267,12 +267,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                                 {strings.predict.modelNamePrefix}
                                                             </span>
                                                             <span className="model-selection-info-value">
-                                                                {
-                                                                    mostRecentModel.modelInfo.modelName.substring(0, 30)
-                                                                }
-                                                                {mostRecentModel.modelInfo.modelName.length > 30 &&
-                                                                    "..."
-                                                                }
+                                                                {mostRecentModel.modelInfo.modelName}
                                                             </span>
                                                         </h6>
                                                     }
