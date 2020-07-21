@@ -253,25 +253,25 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                 <table>
                                                     <tbody>
                                                         <tr>
-                                                            <th className="model-selection-info-header" >
+                                                            <td className="model-selection-info-header p-0" >
                                                                 <span className="model-selection-info-key">
                                                                     {strings.predict.modelIDPrefix}
                                                                 </span>
                                                                 <span title={mostRecentModel.modelInfo.modelId} className="model-selection-info-value">
                                                                     {mostRecentModel.modelInfo.modelId}
                                                                 </span>
-                                                            </th>
+                                                            </td>
                                                         </tr>
                                                         <tr>
                                                             {mostRecentModel.modelInfo.modelName &&
-                                                                <th className="model-selection-info-header" >
+                                                                <td className="model-selection-info-header p-0" >
                                                                     <span className="model-selection-info-key">
                                                                         {strings.predict.modelNamePrefix}
                                                                     </span>
                                                                     <span title={mostRecentModel.modelInfo.modelName} className="model-selection-info-value">
                                                                         {mostRecentModel.modelInfo.modelName}
                                                                     </span>
-                                                                </th>
+                                                                </td>
                                                             }
                                                         </tr>
                                                     </tbody>
