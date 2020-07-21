@@ -45,6 +45,7 @@ export interface ITrainPageState {
     showTrainingFailedWarning: boolean;
     trainingFailedMessage: string;
     hasCheckbox: boolean;
+    modelName: string;
 }
 
 interface ITrainApiResponse {
@@ -74,8 +75,6 @@ function mapDispatchToProps(dispatch) {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class TrainPage extends React.Component<ITrainPageProps, ITrainPageState> {
 
-    private modelName: string = "";
-
     constructor(props) {
         super(props);
 
@@ -88,6 +87,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             showTrainingFailedWarning: false,
             trainingFailedMessage: "",
             hasCheckbox: false,
+            modelName: ""
         };
     }
 
@@ -162,6 +162,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                     autoComplete="off"
                                     onChange={this.onTextChanged}
                                     disabled={this.state.isTraining}
+                                    value={this.state.modelName}
                                 >
                                 </TextField>
                                 {!this.state.isTraining ? (
@@ -229,7 +230,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private onTextChanged = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string) => {
-        this.modelName = text;
+        this.setState({modelName: text});
     }
 
     private handleTrainClick = () => {
@@ -243,6 +244,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 isTraining: false,
                 trainMessage: this.getTrainMessage(trainResult),
                 currTrainRecord: this.getProjectTrainRecord(),
+                modelName: "",
             }));
         }).catch((err) => {
             this.setState({
@@ -299,7 +301,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 includeSubFolders: false,
             },
             useLabelFile: true,
-            modelName: this.modelName,
+            modelName: this.state.modelName,
         };
         try {
             return await ServiceHelper.postWithAutoRetry(
