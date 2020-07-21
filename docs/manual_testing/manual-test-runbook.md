@@ -1,5 +1,33 @@
 # Test Runbook
 
+## Feat: show project's recent models at top of model compose page's list of models
+
+> ### Feature description ###
+
+- Show current project's recent models at the top of model compose page's list of models when landing on the page
+
+> ### Use Case ###
+
+**As** a user  
+**I want** have my project's recent models at the top of the model compose page's list of models   
+**So** I don't have to search for my project's recent models
+
+> ### Acceptance criteria ###
+
+#### Scenario One ####
+
+**Given** I've opened a project with recent models  
+**When** I go to the model compose page  
+**Then** I should see my recent models at the top of the list of models
+
+#### Scenario Two ####
+
+**Given** I've opened a project with recent models, but one or more of the recent models have been deleted  
+**When** I go to the model compose page  
+**Then** I should see only the recent models that have not been deleted at the top of the list of models
+
+___
+
  ## Feat: support model selection for analyzing
 
 > ### Feature description ###
@@ -291,8 +319,9 @@ ___
 **Given** I've opened a project containing documents and I'm on the Model Compose page. There are enough existing models in modelList.  
 **When** I select more than one models then click compose button  
 **Then** I should see a pop up modal with a list contains selected models and a input field.  
-**When** I type customized model name in input field and click compose button on modal  
-**Then** I should see "Model is composing, please wait...". After that the list shows up again, new composed model with given name will be on the top of the list. The new composed model also has a "combine" icon. 
+**When** I type customerized model name in input field and click compose button on modal  
+**Then** I should see "Model is composing, please wait...". After that the list shows up again, new composed model with given name will be on the top of the list. The new composed model also has a "Merge" icon. 
+
 
 #### Scenario Three ####
 

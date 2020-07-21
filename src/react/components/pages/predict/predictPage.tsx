@@ -250,24 +250,28 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                 <h5 className="model-selection-header">
                                                     {strings.predict.selectModelHeader}
                                                 </h5>
-                                                <h6 className="model-selection-info-header" >
-                                                    <span className="model-selection-info-key">
-                                                        {strings.predict.modelIDPrefix}
-                                                    </span>
-                                                    <span className="model-selection-info-value">
-                                                        {mostRecentModel.modelInfo.modelId.substring(0,8) + "..."}
-                                                    </span>
-                                                </h6>
-                                                {mostRecentModel.modelInfo.modelName &&
+                                                <tr>
                                                     <h6 className="model-selection-info-header" >
                                                         <span className="model-selection-info-key">
-                                                            {strings.predict.modelNamePrefix}
+                                                            {strings.predict.modelIDPrefix}
                                                         </span>
-                                                        <span className="model-selection-info-value">
-                                                            {mostRecentModel.modelInfo.modelName}
+                                                        <span title={mostRecentModel.modelInfo.modelId} className="model-selection-info-value">
+                                                            {mostRecentModel.modelInfo.modelId}
                                                         </span>
                                                     </h6>
-                                                }
+                                                </tr>
+                                                <tr>
+                                                    {mostRecentModel.modelInfo.modelName &&
+                                                        <h6 className="model-selection-info-header" >
+                                                            <span className="model-selection-info-key">
+                                                                {strings.predict.modelNamePrefix}
+                                                            </span>
+                                                            <span title={mostRecentModel.modelInfo.modelName} className="model-selection-info-value">
+                                                                {mostRecentModel.modelInfo.modelName}
+                                                            </span>
+                                                        </h6>
+                                                    }
+                                                </tr>
                                             </div>
                                             <DefaultButton
                                                 className="keep-button-80px"

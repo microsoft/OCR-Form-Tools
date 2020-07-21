@@ -245,6 +245,10 @@
     {
       "name": "SquareShape",
       "unicode": "F1A6"
+    },
+    {
+      "name": "Merge",
+      "unicode": "E7D5"
     }
   ]
 }
