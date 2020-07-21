@@ -1157,7 +1157,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
     private async loadProject(projectId: string) {
         const project = this.props.recentProjects.find((project) => project.id === projectId);
-        await this.props.actions.loadProject(project);
-        this.props.appTitleActions.setTitle(project.name);
+        if (project) {
+            await this.props.actions.loadProject(project);
+            this.props.appTitleActions.setTitle(project.name);
+        }
     }
 }
