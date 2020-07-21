@@ -250,28 +250,32 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                 <h5 className="model-selection-header">
                                                     {strings.predict.selectModelHeader}
                                                 </h5>
-                                                <tr>
-                                                    <h6 className="model-selection-info-header" >
-                                                        <span className="model-selection-info-key">
-                                                            {strings.predict.modelIDPrefix}
-                                                        </span>
-                                                        <span title={mostRecentModel.modelInfo.modelId} className="model-selection-info-value">
-                                                            {mostRecentModel.modelInfo.modelId}
-                                                        </span>
-                                                    </h6>
-                                                </tr>
-                                                <tr>
-                                                    {mostRecentModel.modelInfo.modelName &&
-                                                        <h6 className="model-selection-info-header" >
-                                                            <span className="model-selection-info-key">
-                                                                {strings.predict.modelNamePrefix}
-                                                            </span>
-                                                            <span title={mostRecentModel.modelInfo.modelName} className="model-selection-info-value">
-                                                                {mostRecentModel.modelInfo.modelName}
-                                                            </span>
-                                                        </h6>
-                                                    }
-                                                </tr>
+                                                <table>
+                                                    <tbody>
+                                                        <tr>
+                                                            <th className="model-selection-info-header" >
+                                                                <span className="model-selection-info-key">
+                                                                    {strings.predict.modelIDPrefix}
+                                                                </span>
+                                                                <span title={mostRecentModel.modelInfo.modelId} className="model-selection-info-value">
+                                                                    {mostRecentModel.modelInfo.modelId}
+                                                                </span>
+                                                            </th>
+                                                        </tr>
+                                                        <tr>
+                                                            {mostRecentModel.modelInfo.modelName &&
+                                                                <th className="model-selection-info-header" >
+                                                                    <span className="model-selection-info-key">
+                                                                        {strings.predict.modelNamePrefix}
+                                                                    </span>
+                                                                    <span title={mostRecentModel.modelInfo.modelName} className="model-selection-info-value">
+                                                                        {mostRecentModel.modelInfo.modelName}
+                                                                    </span>
+                                                                </th>
+                                                            }
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
                                             </div>
                                             <DefaultButton
                                                 className="keep-button-80px"
