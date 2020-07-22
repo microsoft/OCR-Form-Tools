@@ -7,7 +7,6 @@ import { connect } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { IAppError, IApplicationState, IProject, ErrorCode } from "./models/applicationState";
-import { strings } from "./common/strings";
 import IAppErrorActions, * as appErrorActions from "./redux/actions/appErrorActions";
 import { ErrorHandler } from "./react/components/common/errorHandler/errorHandler";
 import { KeyboardManager } from "./react/components/common/keyboardManager/keyboardManager";
@@ -18,7 +17,6 @@ import { Sidebar } from "./react/components/shell/sidebar";
 import { StatusBar } from "./react/components/shell/statusBar";
 import { StatusBarMetrics } from "./react/components/shell/statusBarMetrics";
 import { TitleBar } from "./react/components/shell/titleBar";
-import { SkipButton } from "./react/components/shell/skipButton";
 import { getAppInsights } from './services/telemetryService';
 import TelemetryProvider from "./providers/telemetry/telemetryProvider";
 import "./App.scss";
@@ -57,11 +55,6 @@ export default class App extends React.Component<IAppProps> {
         };
     }
 
-
-
-    private trackingMainRouterEvents() {
-        this.appInsights.trackEvent({ name: 'Tracking All Events...' });
-    }
     public componentDidCatch(error: Error) {
         this.props.actions.showError({
             errorCode: ErrorCode.GenericRenderError,
@@ -80,7 +73,6 @@ export default class App extends React.Component<IAppProps> {
                     onError={this.props.actions.showError}
                     onClearError={this.props.actions.clearError} />
                 {/* Don't render app contents during a render error */}
-                <SkipButton skipTo="skipToMainContent">{strings.common.skipToMainContent}</SkipButton>
                 {(!this.props.appError || this.props.appError.errorCode !== ErrorCode.GenericRenderError) &&
                     <KeyboardManager>
                         <BrowserRouter>
@@ -96,7 +88,7 @@ export default class App extends React.Component<IAppProps> {
                                     </TitleBar>
                                     <div className="app-main">
                                         <Sidebar project={this.props.currentProject} />
-                                    <MainContentRouter />
+                                        <MainContentRouter />
                                     </div>
                                     <StatusBar>
                                         <StatusBarMetrics project={this.props.currentProject} />

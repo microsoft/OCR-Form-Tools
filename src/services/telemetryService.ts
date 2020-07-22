@@ -30,7 +30,8 @@ const createTelemetryService = () => {
             config: {
                 instrumentationKey,
                 maxBatchInterval: 0,
-                disableFetchTracking: false,
+                disableAjaxTracking: true,
+                enableUnhandledPromiseRejectionTracking: true,
                 extensions: [reactPlugin],
                 extensionConfig: {
                     [reactPlugin.identifier]: {

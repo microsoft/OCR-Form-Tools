@@ -2,6 +2,7 @@ import React, {Component, Fragment} from 'react';
 import {withAITracking} from '@microsoft/applicationinsights-react-js';
 import {ai} from '../../services/telemetryService';
 import {withRouter} from 'react-router-dom';
+import { constants } from '../../common/constants';
 
 /**
  * This Component provides telemetry with Azure App Insights
@@ -16,10 +17,7 @@ class TelemetryProvider extends Component {
     componentDidMount() {
         const {history} = this.props;
         const { initialized } = this.state;
-
-        //
-        const AppInsightsInstrumentationKey = ""; // <-Paste your AppInsightsInstrumentationKey here
-        //
+        const AppInsightsInstrumentationKey = constants.insightsKey; // <-Paste your AppInsightsInstrumentationKey here
 
         if (!Boolean(initialized) && Boolean(AppInsightsInstrumentationKey) && Boolean(history)) {
             ai.initialize(AppInsightsInstrumentationKey, history);
@@ -32,7 +30,7 @@ class TelemetryProvider extends Component {
     render() {
         const {children} = this.props;
         return (
-            <Fragment>
+            <Fragment >
                 {children}
             </Fragment>
         );
