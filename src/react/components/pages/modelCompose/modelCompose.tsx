@@ -364,9 +364,9 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             const link = res.data.nextLink;
 
             models = models.filter((model) => {
-                return (recentModels.find((recentModel) => {
+                return !(recentModels.find((recentModel) => {
                     return recentModel.modelId === model.modelId;
-                }) === undefined)
+                }))
             });
 
             this.allModels = recentModels.concat(models);
