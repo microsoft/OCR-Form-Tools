@@ -363,11 +363,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             let models = res.data.modelList;
             const link = res.data.nextLink;
 
-            models = models.filter((model) => {
-                return !(recentModels.find((recentModel) => {
-                    return recentModel.modelId === model.modelId;
-                }))
-            });
+            const recentModelIds = this.getRecentModelIds(recentModels);
+            models = models.filter((model) => recentModelIds.indexOf(model.modelId) === -1);
 
             this.allModels = recentModels.concat(models);
             this.setState({
@@ -437,7 +434,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     });
                     const nextPage = await this.getModelsFromNextLink(this.state.nextLink);
                     const currentList = this.state.modelList;
-                    const recentModelIds = this.getRecentModelIds();
+                    const recentModelIds = this.getRecentModelIds(this.state.recentModelsList);
 
                     let nextPageList = nextPage.nextList;
                     nextPageList = nextPageList.filter((model) => recentModelIds.indexOf(model.modelId) === -1);
@@ -465,8 +462,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         }
     }
 
-    private getRecentModelIds = () => {
-        return this.state.recentModelsList.map((recentModel) => recentModel.modelId);
+    private getRecentModelIds = (recentModels: IModel[]) => {
+        return recentModels.map((recentModel) => recentModel.modelId);
     }
 
     private getModelsFromNextLink = async (link: string) => {
