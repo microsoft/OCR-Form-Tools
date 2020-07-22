@@ -436,7 +436,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                         isLoading: true,
                     });
                     const nextPage = await this.getModelsFromNextLink(this.state.nextLink);
-                    let currentList = this.state.modelList;
+                    const currentList = this.state.modelList;
                     const recentModelIds = this.getRecentModelIds();
 
                     let nextPageList = nextPage.nextList;
