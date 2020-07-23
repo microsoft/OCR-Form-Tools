@@ -17,7 +17,7 @@ def runAnalysis(input_file, output_file, file_type):
     apim_key = "<subscription_key>"
     # Model ID
     model_id = "<model_id>"
-    post_url = endpoint + "/formrecognizer/v2.0-preview/custom/models/%s/analyze" % model_id
+    post_url = endpoint + "/formrecognizer/v2.0/custom/models/%s/analyze" % model_id
     params = {
         "includeTextDetails": True
     }
