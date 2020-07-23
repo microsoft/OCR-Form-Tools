@@ -363,7 +363,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             let models = res.data.modelList;
             const link = res.data.nextLink;
 
-            models = models.filter((m) => recentModels.indexOf(m.modelId) === -1);
+            const recentModelIds = this.getRecentModelIds(recentModels);
+            models = models.filter((model) => recentModelIds.indexOf(model.modelId) === -1);
 
             this.allModels = recentModels.concat(models);
             this.setState({
@@ -432,17 +433,12 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                         isLoading: true,
                     });
                     const nextPage = await this.getModelsFromNextLink(this.state.nextLink);
-                    let currentList = this.state.modelList;
-                    const recentModels = this.state.recentModelsList;
-                    const recentModelIds = this.getRecentModelIds();
-                    currentList = currentList.filter((m) => recentModelIds.indexOf(m.modelId) === -1);
-                    let reorderList = this.copyAndSort(currentList, strings.modelCompose.column.id.fieldName, false);
-                    reorderList = recentModels.concat(reorderList);
+                    const currentList = this.state.modelList;
+                    const recentModelIds = this.getRecentModelIds(this.state.recentModelsList);
 
                     let nextPageList = nextPage.nextList;
-                    nextPageList = nextPageList.filter((m) => recentModelIds.indexOf(m.modelId) === -1);
-
-                    const newList = reorderList.concat(nextPageList);
+                    nextPageList = nextPageList.filter((model) => recentModelIds.indexOf(model.modelId) === -1);
+                    const newList = currentList.concat(nextPageList);
 
                     this.allModels = newList;
                     const newCols = this.state.columns;
@@ -466,10 +462,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         }
     }
 
-    private getRecentModelIds = () => {
-        const composedIds = [];
-        this.state.recentModelsList.forEach((m) => {composedIds.push(m.modelId); });
-        return composedIds;
+    private getRecentModelIds = (recentModels: IModel[]) => {
+        return recentModels.map((recentModel) => recentModel.modelId);
     }
 
     private getModelsFromNextLink = async (link: string) => {
