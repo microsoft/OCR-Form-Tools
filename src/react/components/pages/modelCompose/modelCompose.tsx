@@ -39,7 +39,7 @@ import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/ap
 import ComposeModelView from "./composeModelView";
 import { ViewSelection } from "./viewSelection";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
-import allSettled from "promise.allsettled"
+import allSettled from "promise.allsettled";
 
 export interface IModelComposePageProps extends RouteComponentProps, React.Props<ModelComposePage> {
     recentProjects: IProject[];
