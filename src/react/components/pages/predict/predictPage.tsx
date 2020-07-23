@@ -39,6 +39,7 @@ import { getPrimaryGreenTheme, getPrimaryWhiteTheme,
 import axios from "axios";
 import { IAnalyzeModelInfo } from './predictResult';
 import RecentModelsView from "./recentModelsView";
+import { getAppInsights } from '../../../../services/telemetryService';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -109,6 +110,8 @@ function mapDispatchToProps(dispatch) {
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class PredictPage extends React.Component<IPredictPageProps, IPredictPageState> {
+    private appInsights: any = null;
+
     public state: IPredictPageState = {
         couldNotGetRecentModel: false,
         selectionIndexTracker: -1,
@@ -149,6 +152,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         if (projectId) {
             await this.loadProject(projectId);
         }
+        this.appInsights = getAppInsights();
         document.title = strings.predict.title + " - " + strings.appName;
     }
 
@@ -678,6 +682,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     isPredicting: false,
                 });
             });
+        if (this.appInsights) {
+            this.appInsights.trackEvent({ name: "ANALYZE_EVENT" });
+        }
     }
 
     private getPageCount() {
