@@ -153,7 +153,9 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                 hideModal: true,
             });
         }
-        this.appInsights.trackEvent({ name: "MODEL_COMPOSE_EVENT" });
+        if (this.appInsights) {
+            this.appInsights.trackEvent({ name: "MODEL_COMPOSE_EVENT" });
+        }
     }
 
     private onTextChange = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string) => {

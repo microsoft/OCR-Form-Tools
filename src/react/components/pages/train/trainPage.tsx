@@ -255,7 +255,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 trainMessage: err.message,
             });
         });
-        this.appInsights.trackEvent({ name: "TRAIN_MODEL_EVENT" });
+        if (this.appInsights) {
+            this.appInsights.trackEvent({ name: "TRAIN_MODEL_EVENT" });
+        }
     }
 
     private handleViewTypeClick = (viewType: "tableView" | "chartView"): void => {

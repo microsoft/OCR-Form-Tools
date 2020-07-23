@@ -682,7 +682,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     isPredicting: false,
                 });
             });
+        if (this.appInsights) {
             this.appInsights.trackEvent({ name: "ANALYZE_EVENT" });
+        }
     }
 
     private getPageCount() {

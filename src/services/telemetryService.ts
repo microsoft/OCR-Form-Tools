@@ -16,12 +16,12 @@ const createTelemetryService = () => {
      * @param {Object} browserHistory - client's browser history, supplied by the withRouter HOC
      * @return {void}
      */
-    const initialize = (instrumentationKey: string, browserHistory: any) => {
+    const initialize = (instrumentationKey: string, browserHistory: any): void => {
         if (!browserHistory) {
             throw new Error('Could not initialize Telemetry Service');
         }
         if (!instrumentationKey) {
-            throw new Error('Instrumentation key not provided in ./src/telemetry-provider.jsx')
+            throw new Error('Telemetry Service Instrumentation key not provided.')
         }
 
         reactPlugin = new ReactPlugin();
