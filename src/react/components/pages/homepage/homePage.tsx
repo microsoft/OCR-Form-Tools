@@ -156,9 +156,15 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
     }
 
     private loadSelectedProject = async (project: IProject, sharedToken?: {}) => {
-        const loadedProject = await this.props.actions.loadProject(project, sharedToken);
-        if (loadedProject !== null) {
-            this.props.history.push(`/projects/${project.id}/edit`);
+        try {
+            const loadedProject = await this.props.actions.loadProject(project, sharedToken);
+            if (loadedProject !== null) {
+                this.props.history.push(`/projects/${project.id}/edit`);
+            }
+        } catch (error) {
+            if (error instanceof AppError && error.errorCode === ErrorCode.SecurityTokenNotFound) {
+                toast.error(strings.errors.securityTokenNotFound.message, { autoClose: 3000 });
+            }
         }
     }
 
@@ -168,7 +174,8 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
             .find((securityToken) => securityToken.name === project.securityToken);
 
         if (!projectToken) {
-            throw new AppError(ErrorCode.SecurityTokenNotFound, "Security Token Not Found");
+            toast.error(strings.errors.securityTokenNotFound.message, { autoClose: 3000 });
+            return;
         }
 
         // Load project from storage provider to keep the project in latest state
