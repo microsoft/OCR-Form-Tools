@@ -6,6 +6,7 @@ import { Customizer, IColumn, ICustomizations, Modal, DetailsList, SelectionMode
 import { getDarkGreyTheme, getPrimaryGreenTheme, getPrimaryGreyTheme } from "../../../../common/themes";
 import { strings } from "../../../../common/strings";
 import { IModel } from "./modelCompose";
+import { getAppInsights } from '../../../../services/telemetryService';
 
 
 export interface IComposeModelViewProps {
@@ -23,6 +24,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
      *
      */
     private modelName: string = "";
+    private appInsights: any = null;
 
     constructor(props) {
         super(props);
@@ -31,6 +33,10 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
             items: [],
             cannotBeIncludeModels: [],
         }
+    }
+
+    public componentDidMount() {
+        this.appInsights = getAppInsights();
     }
 
     public render() {
@@ -145,7 +151,10 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
             this.props.onComposeConfirm(this.modelName);
             this.setState({
                 hideModal: true,
-            })
+            });
+        }
+        if (this.appInsights) {
+            this.appInsights.trackEvent({ name: "MODEL_COMPOSE_EVENT" });
         }
     }
 
