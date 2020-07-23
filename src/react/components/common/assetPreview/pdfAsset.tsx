@@ -7,7 +7,6 @@ import * as pdfjsLib from "pdfjs-dist";
 import { constants } from "../../../../common/constants";
 import {resizeCanvas} from "../../../../common/utils";
 
-// temp hack for enabling worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 
 export interface IPDFAssetState {
@@ -182,25 +181,24 @@ export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState
         this.pendingRelease = true;
         try {
             if (this.renderTask) {
-                await this.renderTask.promise
+                await this.renderTask?.promise
                 this.renderTask = null;
             }
             if (this.loadingTask) {
-                await this.loadingTask.promise
+                await this.loadingTask?.promise
                 this.loadingTask = null;
+            }
+            if (this.pdf) {
+                await this.pdf?.cleanup();
+                await this.pdf?.destroy();
+                this.pdf = null;
+            }
+            if (this.canvas) {
+                delete this.canvas;
+                this.canvas = null;
             }
         } catch {
             // do nothing on rejects
-        }
-        if (this.pdf) {
-            this.pdf.cleanup().then(() => {
-                this.pdf.destroy();
-                this.pdf = null;
-            });
-        }
-        if (this.canvas) {
-            delete this.canvas;
-            this.canvas = null;
         }
     }
 }
