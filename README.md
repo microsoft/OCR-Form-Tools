@@ -101,6 +101,8 @@ Fill in the fields with the following values:
 
 ![alt text](docs/images/new-connection.png "New Connection")
 
+![alt_text](docs/images/get-sas.PNG "Get SAS URL")
+
 ### Create a new project
 
 In this labeling tool, a project is used to store your configurations and settings. Create a new project and fill in the fields with the following values:
