@@ -684,7 +684,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             });
         if (this.appInsights) {
             this.appInsights.trackEvent({ name: "ANALYZE_EVENT" });
-            this.appInsights.context.application.ver = constants.apiVersion;
         }
     }
 

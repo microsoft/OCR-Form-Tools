@@ -7,7 +7,6 @@ import { getDarkGreyTheme, getPrimaryGreenTheme, getPrimaryGreyTheme } from "../
 import { strings } from "../../../../common/strings";
 import { IModel } from "./modelCompose";
 import { getAppInsights } from '../../../../services/telemetryService';
-import { constants } from "../../../../common/constants";
 
 
 export interface IComposeModelViewProps {
@@ -156,7 +155,6 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
         }
         if (this.appInsights) {
             this.appInsights.trackEvent({ name: "COMPOSE_MODEL_EVENT" });
-            this.appInsights.context.application.ver = constants.apiVersion;
         }
     }
 
