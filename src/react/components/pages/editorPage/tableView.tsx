@@ -44,7 +44,7 @@ export const TableView: React.FunctionComponent<ITableViewProps> = (props) => {
         }
         return tableBody;
     }
-    
+
     return (
         <Customizer {...dark}>
             <Modal
