@@ -5,11 +5,6 @@ import { Feature, MapBrowserEvent, View } from "ol";
 import { Extent, getCenter } from "ol/extent";
 import { defaults as defaultInteractions, DragPan, Interaction, DragBox } from "ol/interaction.js";
 import { shiftKeyOnly } from 'ol/events/condition';
-import { defaults } from "ol/Control.js"
-import { Zoom } from "ol/control/Zoom.js"
-import { Attribution } from "ol/control/Attribution.js"
-import Draw, { createBox } from "ol/interaction/Draw.js";
-import Polygon from "ol/geom/Polygon";
 import ImageLayer from "ol/layer/Image";
 import Layer from "ol/layer/Layer";
 import VectorLayer from "ol/layer/Vector";
