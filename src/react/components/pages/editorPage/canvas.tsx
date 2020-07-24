@@ -1791,7 +1791,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         selectedRegions.filter((region) => region.category === FeatureCategory.Checkbox)
             .forEach((region) => this.removeFromSelectedRegions(region.id));
         const polygon = regionId.split(",").map(parseFloat);
-        
+
         let selectedRegion: IRegion;
         if (this.isRegionSelected(regionId)) {
             // return null if it's already in the group
@@ -1810,7 +1810,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 tags: [],
                 boundingBox: regionBoundingBox,
                 points: regionPoints,
-                value: feature.get("text"), 
+                value: feature.get("text"),
                 pageNumber: this.state.currentPage,
             };
         }

@@ -367,7 +367,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
         this.map = new Map({
             controls: [] ,
-            interactions: defaultInteractions({ 
+            interactions: defaultInteractions({
                 shiftDragZoom: false,
                 doubleClickZoom: false,
                 pinchRotate: false,
