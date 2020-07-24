@@ -4,13 +4,13 @@
 
 > ### Feature description ###
 
-- support tool for selection of multiple text values in the editor page
+- support tool for selection of multiple words in the editor page
 
 > ### Use Case ###
 
 **As** a user  
-**I want** select encompassing text values by drawing a bounding box  
-**So** I can easily select multiple text values  
+**I want** select encompassing words by drawing a bounding box  
+**So** I can easily select multiple words  
 
 > ### Acceptance criteria ###
 
@@ -29,7 +29,7 @@
 #### Scenario Three ####
 
 **Given** I'm on the editor page  
-**When** I hold shift, click, drag over encompassing words that have already been selected, and release click  
+**When** I hold shift, click, drag over encompassing words have already been selected, and release click  
 **Then** I should see the selected words remain selected  
 
 #### Scenario Four ####
@@ -46,15 +46,9 @@
 
 #### Scenario Six ####
 
-**Given** I'm on the analyze page  
-**When** I hold shift  
-**Then** I should not see the selection tool cursor  
-
-#### Scenario Seven ####
-
 **Given** I'm on the editor page and have selected words with the group select tool  
-**When** I apply the selected word to a label  
-**Then** I should see the selected word applied to the label in the UI and in the label JSON file  
+**When** I apply the selected words to a tag  
+**Then** I should see the selected words applied to the tag in the UI and in the label JSON file   
 
 ___
 

@@ -395,15 +395,15 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
             dragBox.on('boxend', () => {
                 const extent = dragBox.getGeometry().getExtent();
-                const regionsToAdd: IRegion[] = []
+                const regionsToAdd: IRegion[] = [];
                 textOptions.source.forEachFeatureIntersectingExtent(extent, (feature) => {
-                    const selectedRegion = this.props.handleFeatureSelectByGroup(feature)
+                    const selectedRegion = this.props.handleFeatureSelectByGroup(feature);
                     if (selectedRegion) {
                         regionsToAdd.push(selectedRegion);
                     }
                 });
                 if (regionsToAdd.length > 0) {
-                    this.props.handleRegionSelectByGroup(regionsToAdd)
+                    this.props.handleRegionSelectByGroup(regionsToAdd);
                 }
             });
         }
