@@ -785,7 +785,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             if (err.response.status === 404) {
                 throw new AppError(
                     ErrorCode.ModelNotFound,
-                    interpolate(strings.errors.modelNotFound.message, {modelID: modelID})
+                    interpolate(strings.errors.modelNotFound.message, {modelID})
                 );
             } else {
                 ServiceHelper.handleServiceError(err);
