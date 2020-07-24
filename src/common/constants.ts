@@ -42,5 +42,5 @@ export const constants = {
     pdfjsCMapUrl(version: string) {
         return `https://fotts.azureedge.net/npm/pdfjs-dist/${version}/cmaps/`;
     },
-    insightsKey: "2d9d8413-5322-4c88-b24c-0b978b0a0cf5",
+    insightsKey: "dd15609c-c451-4e00-b193-abdf3e1d36e8",
 };
