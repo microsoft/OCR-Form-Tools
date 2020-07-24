@@ -80,6 +80,7 @@ export interface ICanvasState {
     layers: any;
     tableIconTooltip: any;
     hoveringFeature: string;
+    groupSelectMode: boolean;
 }
 
 interface IRegionOrder {
@@ -133,6 +134,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         layers: {text: true, tables: true, checkboxes: true, label: true},
         tableIconTooltip: { display: "none", width: 0, height: 0, top: 0, left: 0},
         hoveringFeature: null,
+        groupSelectMode: false,
     };
 
     private imageMap: ImageMap;
@@ -213,9 +215,16 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         displayName={"Delete region"}
                         key={"Delete"}
                         keyEventType={KeyEventType.KeyDown}
-                        accelerators={["Delete", "Backspace", "<", ",", ">", ".",
+                        accelerators={["Shift", "Delete", "Backspace", "<", ",", ">", ".",
                             "{", "[", "}", "]", "+", "-", "/", "=", "_", "?"]}
                         handler={this.handleKeyDown}
+                />
+                <KeyboardBinding
+                    displayName={"Label Key Mode"}
+                    key={"Shift"}
+                    keyEventType={KeyEventType.KeyUp}
+                    accelerators={["Shift"]}
+                    handler={this.handleKeyUp}
                 />
                 <CanvasCommandBar
                     handleLayerChange={this.handleLayerChange}
@@ -236,6 +245,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     enableFeatureSelection={true}
                     handleFeatureSelect={this.handleFeatureSelect}
                     featureStyler={this.featureStyler}
+                    groupSelectMode={this.state.groupSelectMode}
+                    handleFeatureSelectByGroup={this.handleFeatureSelectByGroup}
+                    handleRegionSelectByGroup={this.handleRegionSelectByGroup}
                     checkboxFeatureStyler={this.checkboxFeatureStyler}
                     labelFeatureStyler={this.labelFeatureStyler}
                     tableBorderFeatureStyler={this.tableBorderFeatureStyler}
@@ -1217,6 +1229,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private handleKeyDown = (keyEvent) => {
         switch (keyEvent.key) {
+            case "Shift":
+                this.setState({
+                    groupSelectMode: true,
+                });
+                break;
             case "Delete":
             case "Backspace":
                 this.deleteRegions(this.getSelectedRegions());
@@ -1273,6 +1290,16 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 break;
         }
     }
+
+    private handleKeyUp = (keyEvent) => {
+        switch (keyEvent.key) {
+            case "Shift":
+                this.setState({
+                    groupSelectMode: false,
+                });
+        }
+    }
+
 
     private handleCanvasZoomIn = () => {
         this.imageMap.zoomIn();
@@ -1747,5 +1774,46 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
 
         return false;
+    }
+    private handleRegionSelectByGroup = (selectedRegions: IRegion[]) => {
+        this.addRegionsToAsset(selectedRegions);
+        this.addRegionsToImageMap(selectedRegions);
+        this.selectedRegionIds = this.selectedRegionIds.concat(selectedRegions.map((region) => region.id));
+        const selectedRegionsToAdd = this.getSelectedRegions();
+        if (this.props.onSelectedRegionsChanged) {
+            this.props.onSelectedRegionsChanged(selectedRegionsToAdd);
+        }
+    }
+
+    private handleFeatureSelectByGroup = (feature: Feature): IRegion => {
+        const regionId = feature.get("id");
+        const selectedRegions = this.getSelectedRegions();
+        selectedRegions.filter((region) => region.category === FeatureCategory.Checkbox)
+            .forEach((region) => this.removeFromSelectedRegions(region.id));
+        const polygon = regionId.split(",").map(parseFloat);
+        
+        let selectedRegion: IRegion;
+        if (this.isRegionSelected(regionId)) {
+            // return null if it's already in the group
+            return null;
+        } else if (this.getIndexOfCurrentRegions(regionId) !== -1) {
+            selectedRegion = this.state.currentAsset.regions.find((region) => region.id === regionId);
+            // Explicitly set pageNumber in order to fix incorrect page number
+            selectedRegion.pageNumber = this.state.currentPage;
+        } else {
+            const regionBoundingBox = this.convertToRegionBoundingBox(polygon);
+            const regionPoints = this.convertToRegionPoints(polygon);
+            selectedRegion = {
+                id: regionId,
+                type: RegionType.Polygon,
+                category: FeatureCategory.Text,
+                tags: [],
+                boundingBox: regionBoundingBox,
+                points: regionPoints,
+                value: feature.get("text"), 
+                pageNumber: this.state.currentPage,
+            };
+        }
+        return selectedRegion
     }
 }

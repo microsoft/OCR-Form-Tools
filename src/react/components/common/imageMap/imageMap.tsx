@@ -3,7 +3,13 @@
 
 import { Feature, MapBrowserEvent, View } from "ol";
 import { Extent, getCenter } from "ol/extent";
-import { defaults as defaultInteractions, DragPan, Interaction } from "ol/interaction.js";
+import { defaults as defaultInteractions, DragPan, Interaction, DragBox } from "ol/interaction.js";
+import { shiftKeyOnly } from 'ol/events/condition';
+import { defaults } from "ol/Control.js"
+import { Zoom } from "ol/control/Zoom.js"
+import { Attribution } from "ol/control/Attribution.js"
+import Draw, { createBox } from "ol/interaction/Draw.js";
+import Polygon from "ol/geom/Polygon";
 import ImageLayer from "ol/layer/Image";
 import Layer from "ol/layer/Layer";
 import VectorLayer from "ol/layer/Vector";
@@ -14,7 +20,7 @@ import VectorSource from "ol/source/Vector";
 import * as React from "react";
 import "./styles.css";
 import Utils from "./utils";
-import { FeatureCategory } from "../../../../models/applicationState";
+import { FeatureCategory, IRegion } from "../../../../models/applicationState";
 
 interface IImageMapProps {
     imageUri: string;
@@ -31,6 +37,9 @@ interface IImageMapProps {
 
     enableFeatureSelection?: boolean;
     handleFeatureSelect?: (feature: any, isTaggle: boolean, category: FeatureCategory) => void;
+    groupSelectMode?: boolean;
+    handleRegionSelectByGroup?: (selectedRegions: IRegion[]) => void;
+    handleFeatureSelectByGroup?: (feature) => IRegion;
     hoveringFeature?: string;
 
     onMapReady: () => void;
@@ -101,7 +110,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
     public render() {
         return (
-            <div className="map-wrapper">
+            <div style={this.props?.groupSelectMode ? {cursor: "crosshair"} : {}} className="map-wrapper">
                 <div id="map" className="map" ref={(el) => this.mapElement = el}></div>
             </div>
         );
@@ -363,8 +372,11 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
         this.map = new Map({
             controls: [] ,
-            interactions: defaultInteractions({ doubleClickZoom: false,
-                pinchRotate: false }),
+            interactions: defaultInteractions({ 
+                shiftDragZoom: false,
+                doubleClickZoom: false,
+                pinchRotate: false,
+            }),
             target: "map",
             layers: [
                 this.imageLayer,
@@ -377,6 +389,29 @@ export class ImageMap extends React.Component<IImageMapProps> {
             ],
             view: this.createMapView(projection, this.imageExtent),
         });
+
+        if (this.props?.handleRegionSelectByGroup && this.props?.handleFeatureSelectByGroup) {
+            const dragBox = new DragBox({
+                condition: shiftKeyOnly,
+                className: "ol-dragbox-style",
+            });
+
+            this.map.addInteraction(dragBox);
+
+            dragBox.on('boxend', () => {
+                const extent = dragBox.getGeometry().getExtent();
+                const regionsToAdd: IRegion[] = []
+                textOptions.source.forEachFeatureIntersectingExtent(extent, (feature) => {
+                    const selectedRegion = this.props.handleFeatureSelectByGroup(feature)
+                    if (selectedRegion) {
+                        regionsToAdd.push(selectedRegion);
+                    }
+                });
+                if (regionsToAdd.length > 0) {
+                    this.props.handleRegionSelectByGroup(regionsToAdd)
+                }
+            });
+        }
 
         this.map.on("pointerdown", this.handlePointerDown);
         this.map.on("pointermove", this.handlePointerMove);

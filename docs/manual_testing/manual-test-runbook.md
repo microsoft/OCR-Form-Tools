@@ -1,5 +1,63 @@
 # Test Runbook
 
+## Feat: support group selection tool
+
+> ### Feature description ###
+
+- support tool for selection of multiple text values in the editor page
+
+> ### Use Case ###
+
+**As** a user  
+**I want** select encompassing text values by drawing a bounding box  
+**So** I can easily select multiple text values  
+
+> ### Acceptance criteria ###
+
+#### Scenario One ####
+
+**Given** I'm on the editor page  
+**When** I hold shift, click, and drag  
+**Then** I should see a bounding box drawn on the form  
+
+#### Scenario Two ####
+
+**Given** I'm on the editor page  
+**When** I hold shift, click, drag over encompassing words, and release click  
+**Then** I should see the encompassing words selected  
+
+#### Scenario Three ####
+
+**Given** I'm on the editor page  
+**When** I hold shift, click, drag over encompassing words that have already been selected, and release click  
+**Then** I should see the selected words remain selected  
+
+#### Scenario Four ####
+
+**Given** I'm on the editor page  
+**When** I hold shift, click, drag over encompassing words and checkboxes, and release click  
+**Then** I should see only the words selected  
+
+#### Scenario Five ####
+
+**Given** I'm on the analyze page  
+**When** I hold shift  
+**Then** I should not see the selection tool cursor  
+
+#### Scenario Six ####
+
+**Given** I'm on the analyze page  
+**When** I hold shift  
+**Then** I should not see the selection tool cursor  
+
+#### Scenario Seven ####
+
+**Given** I'm on the editor page and have selected words with the group select tool  
+**When** I apply the selected word to a label  
+**Then** I should see the selected word applied to the label in the UI and in the label JSON file  
+
+___
+
 ## Feat: show project's recent models at top of model compose page's list of models
 
 > ### Feature description ###
