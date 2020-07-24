@@ -782,7 +782,14 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             response = await ServiceHelper.postWithAutoRetry(
                 endpointURL, body, { headers }, this.props.project.apiKey as string);
         } catch (err) {
-            ServiceHelper.handleServiceError(err);
+            if (err.response.status === 404) {
+                throw new AppError(
+                    ErrorCode.ModelNotFound,
+                    interpolate(strings.errors.modelNotFound.message, {modelID: modelID})
+                );
+            } else {
+                ServiceHelper.handleServiceError(err);
+            }
         }
 
         const operationLocation = response.headers["operation-location"];

@@ -621,6 +621,10 @@ export const spanish: IAppStrings = {
         requestSendError: {
             title: "solicitud enviar error",
             message: "Error al enviar solicitud a Azure Blob Container. Problemas comunes: \n • SAS URI no válida \n • Cross-Origin Resource Sharing (CORS) no está configurado del lado del servidor \n • Error de red",
+        },
+        modelNotFound: {
+            title: "Modelo no encontrado",
+            message: "Modelo \"${modelID}\" no encontrado. Por favor use otro modelo",
         }
     },
     shareProject: {

@@ -619,6 +619,10 @@ export const english: IAppStrings = {
             title: "Request send error",
             message: "Failed to send request to Azure Blob Container. Common issues: \n • SAS URI not valid \n • Cross-Origin Resource Sharing (CORS) is not configured server-side \n • Network error",
 
+        },
+        modelNotFound: {
+            title: "Model not found",
+            message: "Model \"${modelID}\" not found. Please use another model",
         }
     },
     shareProject: {
