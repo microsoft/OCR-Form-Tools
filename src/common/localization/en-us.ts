@@ -491,6 +491,10 @@ export const english: IAppStrings = {
             deleteAllLabelsForTag: {
                 name: "Delete all labels for a tag",
                 description: "Select all labels for a tag on document and press 'delete' key"
+            },
+            groupSelect: {
+                name: "Select multiple words by drawing a bounding box around encompased words",
+                description: "Press and hold the shift key. Then, click and hold left mouse button. Then, drag the pointer to draw the bounding box around encompased words"
             }
         },
         headers: {

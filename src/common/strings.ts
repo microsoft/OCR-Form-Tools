@@ -486,6 +486,10 @@ export interface IAppStrings {
             deleteAllLabelsForTag: {
                 name: string,
                 description: string;
+            },
+            groupSelect: {
+                name: string,
+                description: string;
             }
         },
         headers: {

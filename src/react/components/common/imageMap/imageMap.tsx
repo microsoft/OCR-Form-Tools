@@ -3,7 +3,8 @@
 
 import { Feature, MapBrowserEvent, View } from "ol";
 import { Extent, getCenter } from "ol/extent";
-import { defaults as defaultInteractions, DragPan, Interaction } from "ol/interaction.js";
+import { defaults as defaultInteractions, DragPan, Interaction, DragBox } from "ol/interaction.js";
+import { shiftKeyOnly } from 'ol/events/condition';
 import ImageLayer from "ol/layer/Image";
 import Layer from "ol/layer/Layer";
 import VectorLayer from "ol/layer/Vector";
@@ -14,7 +15,7 @@ import VectorSource from "ol/source/Vector";
 import * as React from "react";
 import "./styles.css";
 import Utils from "./utils";
-import { FeatureCategory } from "../../../../models/applicationState";
+import { FeatureCategory, IRegion } from "../../../../models/applicationState";
 
 interface IImageMapProps {
     imageUri: string;
@@ -31,6 +32,9 @@ interface IImageMapProps {
 
     enableFeatureSelection?: boolean;
     handleFeatureSelect?: (feature: any, isTaggle: boolean, category: FeatureCategory) => void;
+    groupSelectMode?: boolean;
+    handleRegionSelectByGroup?: (selectedRegions: IRegion[]) => void;
+    handleFeatureSelectByGroup?: (feature) => IRegion;
     hoveringFeature?: string;
 
     onMapReady: () => void;
@@ -101,7 +105,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
     public render() {
         return (
-            <div className="map-wrapper">
+            <div style={this.props?.groupSelectMode ? {cursor: "crosshair"} : {}} className="map-wrapper">
                 <div id="map" className="map" ref={(el) => this.mapElement = el}></div>
             </div>
         );
@@ -363,8 +367,11 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
         this.map = new Map({
             controls: [] ,
-            interactions: defaultInteractions({ doubleClickZoom: false,
-                pinchRotate: false }),
+            interactions: defaultInteractions({
+                shiftDragZoom: false,
+                doubleClickZoom: false,
+                pinchRotate: false,
+            }),
             target: "map",
             layers: [
                 this.imageLayer,
@@ -377,6 +384,41 @@ export class ImageMap extends React.Component<IImageMapProps> {
             ],
             view: this.createMapView(projection, this.imageExtent),
         });
+
+        if (this.props?.handleRegionSelectByGroup && this.props?.handleFeatureSelectByGroup) {
+            const dragBox = new DragBox({
+                condition: shiftKeyOnly,
+                className: "ol-dragbox-style",
+            });
+
+            this.map.addInteraction(dragBox);
+
+            dragBox.on('boxend', () => {
+                const featureMap = {};
+                const extent = dragBox.getGeometry().getExtent();
+                const regionsToAdd: IRegion[] = [];
+                if (this.labelVectorLayer.getVisible()) {
+                    this.labelVectorLayer.getSource().forEachFeatureInExtent(extent, (feature) => {
+                        const selectedRegion = this.props.handleFeatureSelectByGroup(feature);
+                        if (selectedRegion) {
+                            featureMap[feature.get("id")] = true;
+                            regionsToAdd.push(selectedRegion);
+                        }
+                    });
+                }
+                if (this.textVectorLayer.getVisible()) {
+                    this.textVectorLayer.getSource().forEachFeatureInExtent(extent, (feature) => {
+                        const selectedRegion = this.props.handleFeatureSelectByGroup(feature);
+                        if (selectedRegion && !featureMap.hasOwnProperty(feature.get("id"))) {
+                            regionsToAdd.push(selectedRegion);
+                        }
+                    });
+                }
+                if (regionsToAdd.length > 0) {
+                    this.props.handleRegionSelectByGroup(regionsToAdd);
+                }
+            });
+        }
 
         this.map.on("pointerdown", this.handlePointerDown);
         this.map.on("pointermove", this.handlePointerMove);
