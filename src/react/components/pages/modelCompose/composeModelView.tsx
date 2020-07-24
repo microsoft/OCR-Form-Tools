@@ -154,7 +154,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
             });
         }
         if (this.appInsights) {
-            this.appInsights.trackEvent({ name: "MODEL_COMPOSE_EVENT" });
+            this.appInsights.trackEvent({ name: "COMPOSE_MODEL_EVENT" });
         }
     }
 
