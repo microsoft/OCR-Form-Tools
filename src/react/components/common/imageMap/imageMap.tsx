@@ -394,14 +394,26 @@ export class ImageMap extends React.Component<IImageMapProps> {
             this.map.addInteraction(dragBox);
 
             dragBox.on('boxend', () => {
+                const featureMap = {};
                 const extent = dragBox.getGeometry().getExtent();
                 const regionsToAdd: IRegion[] = [];
-                textOptions.source.forEachFeatureIntersectingExtent(extent, (feature) => {
-                    const selectedRegion = this.props.handleFeatureSelectByGroup(feature);
-                    if (selectedRegion) {
-                        regionsToAdd.push(selectedRegion);
-                    }
-                });
+                if (this.labelVectorLayer.getVisible()) {
+                    this.labelVectorLayer.getSource().forEachFeatureInExtent(extent, (feature) => {
+                        const selectedRegion = this.props.handleFeatureSelectByGroup(feature);
+                        if (selectedRegion) {
+                            featureMap[feature.get("id")] = true;
+                            regionsToAdd.push(selectedRegion);
+                        }
+                    });
+                }
+                if (this.textVectorLayer.getVisible()) {
+                    this.textVectorLayer.getSource().forEachFeatureInExtent(extent, (feature) => {
+                        const selectedRegion = this.props.handleFeatureSelectByGroup(feature);
+                        if (selectedRegion && !featureMap.hasOwnProperty(feature.get("id"))) {
+                            regionsToAdd.push(selectedRegion);
+                        }
+                    });
+                }
                 if (regionsToAdd.length > 0) {
                     this.props.handleRegionSelectByGroup(regionsToAdd);
                 }
