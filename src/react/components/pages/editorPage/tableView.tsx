@@ -44,13 +44,14 @@ export const TableView: React.FunctionComponent<ITableViewProps> = (props) => {
         }
         return tableBody;
     }
-
+    
     return (
         <Customizer {...dark}>
             <Modal
                 titleAriaId={"Table view"}
                 isOpen={props.tableToView !== null}
-                isModeless={true}
+                isModeless={false}
+                isDarkOverlay={false}
                 dragOptions={dragOptions}
                 onDismiss={props.handleTableViewClose}
                 scrollableContentClassName={"table-view-scrollable-content"}
