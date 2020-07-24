@@ -624,7 +624,7 @@ export const spanish: IAppStrings = {
         },
         modelNotFound: {
             title: "Modelo no encontrado",
-            message: "Modelo \"${modelID}\" no encontrado. Por favor use otro modelo",
+            message: "Modelo \"${modelID}\" no encontrado. Por favor use otro modelo.",
         }
     },
     shareProject: {

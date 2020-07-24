@@ -622,7 +622,7 @@ export const english: IAppStrings = {
         },
         modelNotFound: {
             title: "Model not found",
-            message: "Model \"${modelID}\" not found. Please use another model",
+            message: "Model \"${modelID}\" not found. Please use another model.",
         }
     },
     shareProject: {
