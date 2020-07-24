@@ -256,7 +256,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             });
         });
         if (this.appInsights) {
-            this.appInsights.trackEvent({ name: "TRAIN_MODEL_EVENT" });
+            this.appInsights.trackEvent({name: "TRAIN_MODEL_EVENT"});
         }
     }
 
