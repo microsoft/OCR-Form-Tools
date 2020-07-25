@@ -527,6 +527,7 @@ export interface IAppStrings {
         tooManyRequests: IErrorMetadata,
         modelCountLimitExceeded: IErrorMetadata,
         requestSendError: IErrorMetadata,
+        modelNotFound: IErrorMetadata,
     };
     shareProject: {
         errors: {
