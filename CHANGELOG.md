@@ -1,5 +1,34 @@
 # FoTT Changelog 
 
+## 2.1-preview.1-fe8258f (07-24-2020)
+* fix: margin for filenames in asset preview ([#451](https://github.com/microsoft/OCR-Form-Tools/commit/fe8258f9c7ceba663a66708b19bc0e6556e777ad))
+* docs: add telemetry disclaimer to readme ([#449](https://github.com/microsoft/OCR-Form-Tools/commit/87356a1cf6678bb9494e83178bf6282ca366921f))
+
+## 2.1-preview.1-9b5b99d (07-23-2020)
+* docs: add get-sas.png (https://github.com/microsoft/OCR-Form-Tools/commit/9b5b99d5468661481ae8165593d5a74471366429)
+* doc: add a screenshot of getting SAS token (https://github.com/microsoft/OCR-Form-Tools/commit/87b1062125ed106ff73c036e33f1bf7a5f2c3def)
+* fix: handle undefined error for pdf asset preview memory cleaning ([#442](https://github.com/microsoft/OCR-Form-Tools/commit/9b5b99d5468661481ae8165593d5a74471366429))
+* fix: remove duplicate models in model composed model list ([#439](https://github.com/microsoft/OCR-Form-Tools/commit/7fcc9ccfdb6634326ddd6cbfe99b423300b94131))
+* feat: enable internal telemetry ([#431](https://github.com/microsoft/OCR-Form-Tools/commit/41294c8aa19c82643fe0df669c21a0112668e0dd))
+
+## 2.1-preview.1-f4b4d5d (07-21-2020)
+* fix: use table for model selection info ([#438](https://github.com/microsoft/OCR-Form-Tools/commit/f4b4d5ded4b7e0ff2116ba3b8f97e49fbf30b7c0))
+* fix: reset model name after training ([#434](https://github.com/microsoft/OCR-Form-Tools/commit/ed919a016b150d0938aee25b5550bacf29f04e83))
+* fix: wait for loadeding project with sharing project ([#435](https://github.com/microsoft/OCR-Form-Tools/commit/fc4cb96d2a9d0920c3bbbd9c2000fb4b1b7ac9c0))
+
+## 2.1-preview.1-46dbb2b (07-20-2020)
+* fix: handle no recent models for model compose ([#432](https://github.com/microsoft/OCR-Form-Tools/commit/46dbb2be9ee6100a8f3e6a443ad5e734c60954bb))
+* refactor: use new model compose icon ([#425](https://github.com/microsoft/OCR-Form-Tools/commit/932fb3fd7f84636e97035f4cafadc87cff18b3b3))
+* fix: support long model names for model selection ([#427](https://github.com/microsoft/OCR-Form-Tools/commit/a0fa2daf4cd3286f7f58dc2919fd202115e8d5be))
+* feat add recent models to top of model compose page's list ([#430](https://github.com/microsoft/OCR-Form-Tools/commit/cf8de6be61b95bfe8c937946df71ea81aecb35f9))
+* fix: check valid connection ([#428](https://github.com/microsoft/OCR-Form-Tools/commit/9cb6c5830afddc9317ffdfe6927b581c4d39ba39))
+
+## 2.1-preview.1-162a766 (07-17-2020)
+* refactor: make confidence results same as JSON results ([#409](https://github.com/microsoft/OCR-Form-Tools/commit/162a7660cfe32b72c4954a147269c5d2b7f55a08))
+* fix: prevent user from leaving page while composing ([#422](https://github.com/microsoft/OCR-Form-Tools/commit/63e179d0152d2f8f2ee764443785efa24e5f7dce))
+* feat: support model selection ([#419](https://github.com/microsoft/OCR-Form-Tools/commit/b4c4cc5a8a980aaa6530e7a4a5a1c43e77494c75))
+* feat: share project ([#344](https://github.com/microsoft/OCR-Form-Tools/commit/d059580cfefa053670c45c5d8ec7bf250bc4db27))
+
 ## 2.1-preview.1-89be3ac (07-15-2020)
 * fix: on assetFormat undefined ([#413](https://github.com/microsoft/OCR-Form-Tools/commit/89be3ac5b614e91607d7fb8065ad32b69886040d))
 * fix: make sure token names are unique ([#404](https://github.com/microsoft/OCR-Form-Tools/commit/d8fa6141cff4d00ba22e95ef4f5dcc9102e1c1c2))

@@ -494,6 +494,10 @@ export const spanish: IAppStrings = {
             deleteAllLabelsForTag: {
                 name: "Eliminar información asociada a una etiqueta",
                 description: "Seleccione todas las etiquetas para una etiqueta en el documento y presione la tecla 'delete'"
+            },
+            groupSelect: {
+                name: "Seleccione varias palabras dibujando un cuadro delimitador alrededor de las palabras incluidas",
+                description: "Mantenga presionada la tecla Mayús. Luego, haga clic y mantenga presionado el botón izquierdo del mouse. Luego, arrastre el puntero para dibujar el cuadro delimitador alrededor de las palabras incluidas"
             }
         },
         headers: {
@@ -621,6 +625,10 @@ export const spanish: IAppStrings = {
         requestSendError: {
             title: "solicitud enviar error",
             message: "Error al enviar solicitud a Azure Blob Container. Problemas comunes: \n • SAS URI no válida \n • Cross-Origin Resource Sharing (CORS) no está configurado del lado del servidor \n • Error de red",
+        },
+        modelNotFound: {
+            title: "Modelo no encontrado",
+            message: "Modelo \"${modelID}\" no encontrado. Por favor use otro modelo.",
         }
     },
     shareProject: {
