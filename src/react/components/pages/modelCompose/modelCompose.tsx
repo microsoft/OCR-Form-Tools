@@ -612,10 +612,9 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 if (response.data.modelInfo.status.toLowerCase() === constants.statusCodeReady) {
                     resolve(response.data);
                 } else if (response.data.modelInfo.status.toLowerCase() === constants.statusCodeInvalid) {
-                    // resolve(response.data);
                     toast.error(strings.modelCompose.errors.failedCompose, { autoClose: false });
                     this.setState({ isComposing: false });
-                    return false;
+                    return;
                 } else if (Number(new Date()) < endTime) {
                     // If the request isn't succeeded and the timeout hasn't elapsed, go again
                     setTimeout(checkSucceeded, interval, resolve, reject);
