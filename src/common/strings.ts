@@ -486,6 +486,10 @@ export interface IAppStrings {
             deleteAllLabelsForTag: {
                 name: string,
                 description: string;
+            },
+            groupSelect: {
+                name: string,
+                description: string;
             }
         },
         headers: {
@@ -523,6 +527,7 @@ export interface IAppStrings {
         tooManyRequests: IErrorMetadata,
         modelCountLimitExceeded: IErrorMetadata,
         requestSendError: IErrorMetadata,
+        modelNotFound: IErrorMetadata,
     };
     shareProject: {
         errors: {
