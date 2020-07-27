@@ -180,7 +180,9 @@ export const spanish: IAppStrings = {
             headerAria: "Lista de encabezado de modelos",
             checkButtonAria: "Seleccionar botón de verificación del modelo",
             checkAllButtonAria: "Botón de verificación Seleccionar todos los modelos",
-
+        },
+        errors: {
+            failedCompose: "¡Algo salió mal, el modelo compuesto no fue creado!"
         }
     },
     predict: {

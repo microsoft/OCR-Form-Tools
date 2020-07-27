@@ -40,6 +40,7 @@ import ComposeModelView from "./composeModelView";
 import { ViewSelection } from "./viewSelection";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import allSettled from "promise.allsettled";
+import { toast } from 'react-toastify';
 
 export interface IModelComposePageProps extends RouteComponentProps, React.Props<ModelComposePage> {
     recentProjects: IProject[];
@@ -392,7 +393,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             composedTrainResults: composedModel["composedTrainResults"]
         } as IRecentModel;
         const recentModelRecords: IRecentModel[] = this.props.project.recentModelRecords ?
-                                                   [...this.props.project.recentModelRecords] : [];
+            [...this.props.project.recentModelRecords] : [];
         recentModelRecords.unshift(newTrainRecord);
         if (recentModelRecords.length > constants.recentModelRecordsCount) {
             recentModelRecords.pop();
@@ -610,6 +611,11 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             ajax.then((response) => {
                 if (response.data.modelInfo.status.toLowerCase() === constants.statusCodeReady) {
                     resolve(response.data);
+                } else if (response.data.modelInfo.status.toLowerCase() === constants.statusCodeInvalid) {
+                    // resolve(response.data);
+                    toast.error(strings.modelCompose.errors.failedCompose, { autoClose: false });
+                    this.setState({ isComposing: false });
+                    return false;
                 } else if (Number(new Date()) < endTime) {
                     // If the request isn't succeeded and the timeout hasn't elapsed, go again
                     setTimeout(checkSucceeded, interval, resolve, reject);

@@ -26,6 +26,7 @@ export const constants = {
     statusCodeSucceeded: "succeeded",
     statusCodeReady: "ready",
     statusCodeFailed: "failed",
+    statusCodeInvalid: "invalid",
     apiKeyHeader: "Ocp-Apim-Subscription-Key",
     maxRetry: 8,
     initialRetryInterval: 500, // ms
