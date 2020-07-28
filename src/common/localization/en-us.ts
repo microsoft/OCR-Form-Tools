@@ -180,6 +180,9 @@ export const english: IAppStrings = {
             checkButtonAria: "Select model check button",
             checkAllButtonAria: "Select all models check button",
 
+        },
+        errors: {
+            failedCompose: "Something went wrong composed model was not created!"
         }
     },
     predict: {

@@ -180,6 +180,9 @@ export interface IAppStrings {
             checkButtonAria: string,
             checkAllButtonAria: string,
         },
+        errors: {
+            failedCompose: string,
+        }
     }
     predict: {
         title: string;
