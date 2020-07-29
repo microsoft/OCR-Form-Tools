@@ -68,15 +68,16 @@ export interface IModelComposePageState {
 }
 
 export interface IModel {
-    key: string;
-    modelId: string;
-    modelName: string;
-    createdDateTime: string;
-    lastUpdatedDateTime: string;
-    status: string;
     attributes?: {
         isComposed: boolean;
     };
+    key?: string;
+    modelId: string;
+    modelName: string;
+    createdDateTime: string;
+    lastUpdatedDateTime?: string;
+    status?: string;
+    composedTrainResults?: [];
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -303,6 +304,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                                             isHeaderVisible={true}
                                             selection={this.selection}
                                             selectionPreservedOnEmptyClick={true}
+                                            onItemInvoked={this.onItemInvoked}
                                             onRenderDetailsHeader={onRenderDetailsHeader}
                                             onRenderRow={this.onRenderRow}>
                                         </DetailsList>
@@ -333,9 +335,9 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                             </ScrollablePane>
                         </div>
                         <ComposeModelView
-                                ref={this.composeModalRef}
-                                onComposeConfirm={this.onComposeConfirm}
-                                />
+                        ref={this.composeModalRef}
+                        onComposeConfirm={this.onComposeConfirm}
+                        />
                     </Customizer>
                 </Fabric>
                 <PreventLeaving
@@ -347,6 +349,31 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
     private getKey = (item: any, index?: number): string => {
         return item.key;
+    }
+
+    private onItemInvoked = async (model: IModel, index: number, ev: Event) => {
+        const composedModelInfo: IModel = {
+            modelId: model.modelId,
+            modelName: model.modelName,
+            createdDateTime: model.createdDateTime,
+            composedTrainResults: []
+        };
+
+        if (model.attributes.isComposed) {
+            const inclModels = model.composedTrainResults ?
+                model.composedTrainResults
+                : (await this.getModelByURl(constants.apiModelsPath + "/" + model.modelId)).composedTrainResults;
+                for (const i of Object.keys(inclModels)) {
+                    const _model = await this.getModelByURl(constants.apiModelsPath + "/" + inclModels[i].modelId);
+                    composedModelInfo.composedTrainResults.push({
+                        id: _model.modelId as never ,
+                        name: _model.modelName as never,
+                        createdDateTime: _model.createdDateTime as never,
+                        attributes: { isComposed: _model.attributes.isComposed as never }
+                    } as never)
+                }
+                this.composeModalRef.current.open(composedModelInfo, false, false);
+        }
     }
 
     private getModelList = async () => {
@@ -423,6 +450,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         const res = await this.getResponse(idURL);
         const model: IModel = res.data.modelInfo;
         model.key = model.modelId;
+        model.composedTrainResults = res.data.composedTrainResults;
         return model;
     }
 
@@ -580,7 +608,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     private onComposeButtonClick = () => {
-        this.composeModalRef.current.open(this.selectedItems, this.cannotBeIncludedItems);
+        this.composeModalRef.current.open(this.selectedItems, this.cannotBeIncludedItems, true);
     }
 
     private onComposeConfirm = (composeModelName: string) => {
@@ -597,8 +625,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     /**
-     * Poll function to repeatly check if request succeeded
-     * @param func - function that will be called repeatly
+     * Poll function to repeatedly check if request succeeded
+     * @param func - function that will be called repeatedly
      * @param timeout - timeout
      * @param interval - interval
      */
