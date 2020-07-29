@@ -17,6 +17,8 @@ import { Sidebar } from "./react/components/shell/sidebar";
 import { StatusBar } from "./react/components/shell/statusBar";
 import { StatusBarMetrics } from "./react/components/shell/statusBarMetrics";
 import { TitleBar } from "./react/components/shell/titleBar";
+import ShareProjectButton from "./react/components/shell/shareProjectButton";
+
 import { getAppInsights } from './services/telemetryService';
 import TelemetryProvider from "./providers/telemetry/telemetryProvider";
 import "./App.scss";
@@ -79,6 +81,9 @@ export default class App extends React.Component<IAppProps> {
                             <TelemetryProvider after={() => { this.appInsights = getAppInsights() }}>
                                 <div className={`app-shell platform-${platform}`}>
                                     <TitleBar icon="TagGroup">
+                                        <div className="app-share-menu-icon">
+                                            <ShareProjectButton />
+                                        </div>
                                         <div className="app-shortcuts-menu-icon">
                                             <KeyboardShortcuts />
                                         </div>
