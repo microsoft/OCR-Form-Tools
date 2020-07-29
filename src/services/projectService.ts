@@ -159,6 +159,26 @@ export default class ProjectService implements IProjectService {
         return false;
     }
 
+    public async isValidProjectConnection(project: IProject): Promise<boolean> {
+        const storageProvider = StorageProviderFactory.createFromConnection(project.sourceConnection);
+        let isValid;
+        try {
+            isValid = await storageProvider.isValidProjectConnection();
+        } catch {
+            isValid = false;
+        }
+        if (!isValid) {
+            if (project.sourceConnection.providerType === "localFileSystemProxy") {
+                await toast.error(interpolate(strings.connections.providers.local.invalidFolderMessage, {project}));
+            } else if (project.sourceConnection.providerType === "azureBlobStorage") {
+                await toast.error(interpolate(strings.connections.providers.azureBlob.invalidSASMessage, {project}));
+            } else {
+                await toast.error(interpolate(strings.connections.genericInvalid, { project }));
+            }
+        }
+        return isValid;
+    };
+
     public async updateProjectTagsFromFiles(project: IProject, asset?: string): Promise<IProject> {
         const updatedProject = Object.assign({}, project);
         updatedProject.tags = [];

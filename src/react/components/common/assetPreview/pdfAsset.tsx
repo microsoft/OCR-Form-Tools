@@ -7,7 +7,6 @@ import * as pdfjsLib from "pdfjs-dist";
 import { constants } from "../../../../common/constants";
 import {resizeCanvas} from "../../../../common/utils";
 
-// temp hack for enabling worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 
 export interface IPDFAssetState {
@@ -25,6 +24,7 @@ export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState
     private canvas;
     private loadingTask;
     private unmounted;
+    private pendingRelease;
 
     constructor(props: IAssetPreviewProps) {
         super(props);
@@ -34,6 +34,7 @@ export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState
         this.renderTask = null;
         this.canvas = null;
         this.loadingTask = null;
+        this.pendingRelease = false;
         this.state = {
             imageUri: "",
         };
@@ -44,13 +45,18 @@ export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState
     }
 
     public componentDidMount() {
-        if (this.props.asset != null) {
+        if (this.unmounted || this.pendingRelease) {
+            return;
+        }
+        if (this.props.asset) {
             if (this.props.asset.cachedImage) {
                 this.setState({
                     imageUri: this.props.asset.cachedImage,
                 });
             } else {
-                this.loadPdfFile(this.props.asset.path);
+                setTimeout(() => {
+                    this.loadPdfFile(this.props.asset.path);
+                }, 1000);
             }
         }
     }
@@ -67,20 +73,24 @@ export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState
     }
 
     private loadPdfFile = (url) => {
-        if (this.unmounted) {
+        if (this.unmounted || this.pendingRelease) {
             return;
         }
         this.loadingTask = pdfjsLib.getDocument(url);
         this.loadingTask.promise.then((pdf) => {
             this.pdf = pdf;
+            if (this.pendingRelease) {
+                return
+            }
             if (this.unmounted) {
-                this.releaseMemoryUsedByPDF();
+                if (this.pdf) {
+                    this.releaseMemoryUsedByPDF();
+                }
                 return;
             }
             // Fetch the first page
             this.loadPdfPage(pdf, 1 /*pageNumber*/);
         }, (reason) => {
-            this.releaseMemoryUsedByPDF();
             // PDF loading error
             if (this.props.onError) {
                 this.props.onError(reason);
@@ -89,8 +99,18 @@ export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState
     }
 
     private loadPdfPage = (pdf, pageNumber) => {
+            if (this.pendingRelease) {
+                return
+            }
+            if (this.unmounted) {
+                if (this.pdf) {
+                    this.releaseMemoryUsedByPDF();
+                }
+                return;
+            }
         pdf.getPage(pageNumber).then((page) => {
             this.page = page;
+            this.page.cleanupAfterRender = true;
             const defaultScale = 1;
             const viewport = page.getViewport({ scale: defaultScale });
 
@@ -105,14 +125,24 @@ export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState
                 canvasContext: context,
                 viewport,
             };
+            if (this.pendingRelease || !this.page) {
+                return
+            }
             if (this.unmounted) {
-                this.releaseMemoryUsedByPDF();
+                if (this.page) {
+                    this.releaseMemoryUsedByPDF();
+                }
                 return;
             }
             this.renderTask = page.render(renderContext);
             this.renderTask.promise.then(() => {
-                if (this.unmounted) {
-                    this.releaseMemoryUsedByPDF();
+                if (this.pendingRelease) {
+                    return
+                }
+                if (this.unmounted || !this.page) {
+                    if (this.page) {
+                        this.releaseMemoryUsedByPDF();
+                    }
                     return;
                 }
                 const thumbnails = resizeCanvas(this.canvas, 240, 240).toDataURL(constants.convertedImageFormat,
@@ -120,12 +150,14 @@ export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState
                 this.setState({
                     imageUri: thumbnails,
                 }, () => {
-                    this.releaseMemoryUsedByPDF();
+                    if (this.page) {
+                        this.releaseMemoryUsedByPDF();
+                    }
                 });
-            }).catch(() => {
+            }).catch((err) => {
                 this.releaseMemoryUsedByPDF();
             });
-        }).catch(() => {
+        }).catch((err) => {
             this.releaseMemoryUsedByPDF();
         });
     }
@@ -142,36 +174,31 @@ export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState
         }
     }
 
-    private releaseMemoryUsedByPDF() {
-        if (this.loadingTask) {
-            if (!this.loadingTask.destroyed) {
-                this.loadingTask.destroy();
-            }
-            this.loadingTask = null;
+    private async releaseMemoryUsedByPDF() {
+        if (this.pendingRelease) {
+            return;
         }
-        if (this.renderTask) {
-            this.renderTask.cancel();
-            this.renderTask = null;
-        }
-        if (this.page) {
-            if (!this.page.pendingCleanup) {
-                this.page.cleanup();
+        this.pendingRelease = true;
+        try {
+            if (this.renderTask) {
+                await this.renderTask?.promise
+                this.renderTask = null;
             }
-            if (!this.page.destroyed) {
-                this.page.destroy();
+            if (this.loadingTask) {
+                await this.loadingTask?.promise
+                this.loadingTask = null;
             }
-            this.page = null;
-        }
-        if (this.pdf) {
-            if (!this.pdf.destroyed) {
-                this.pdf.cleanup();
-                this.pdf.destroy();
+            if (this.pdf) {
+                await this.pdf?.cleanup();
+                await this.pdf?.destroy();
+                this.pdf = null;
             }
-            this.pdf = null;
-        }
-        if (this.canvas) {
-            delete this.canvas;
-            this.canvas = null;
+            if (this.canvas) {
+                delete this.canvas;
+                this.canvas = null;
+            }
+        } catch {
+            // do nothing on rejects
         }
     }
 }

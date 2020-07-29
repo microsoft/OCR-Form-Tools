@@ -177,6 +177,11 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
     private onFormSubmit = async (project: IProject) => {
         const isNew = !(!!project.id);
 
+        const projectService = new ProjectService();
+        if (!(await projectService.isValidProjectConnection(project))) {
+            return;
+        }
+
         if (await this.isValidProjectName(project, isNew)) {
             toast.error(interpolate(strings.projectSettings.messages.projectExisted, { project }));
             return;

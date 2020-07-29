@@ -13,18 +13,23 @@ import {
     IAssetMetadata,
     IProject,
     ITag,
+    ISecurityToken,
 } from "../../models/applicationState";
 import { createAction, createPayloadAction, IPayloadAction } from "./actionCreators";
 import { appInfo } from "../../common/appInfo";
+import { saveAppSettingsAction } from "./applicationActions";
+import { toast } from 'react-toastify';
+import { strings, interpolate } from "../../common/strings";
 
 /**
  * Actions to be performed in relation to projects
  */
 export default interface IProjectActions {
-    loadProject(project: IProject): Promise<IProject>;
+    loadProject(project: IProject, token?: {}): Promise<IProject>;
     saveProject(project: IProject, saveTags?: boolean, updateTagsFromFiles?: boolean): Promise<IProject>;
     deleteProject(project: IProject): Promise<void>;
     closeProject(): void;
+    deleteAsset(project: IProject, assetMetadata: IAssetMetadata): Promise<void>;
     loadAssets(project: IProject): Promise<IAsset[]>;
     loadAssetMetadata(project: IProject, asset: IAsset): Promise<IAssetMetadata>;
     saveAssetMetadata(project: IProject, assetMetadata: IAssetMetadata): Promise<IAssetMetadata>;
@@ -38,15 +43,34 @@ export default interface IProjectActions {
  * Dispatches Load Project action and resolves with IProject
  * @param project - Project to load
  */
-export function loadProject(project: IProject):
+export function loadProject(project: IProject, sharedToken?: ISecurityToken):
     (dispatch: Dispatch, getState: () => IApplicationState) => Promise<IProject> {
     return async (dispatch: Dispatch, getState: () => IApplicationState) => {
         const appState = getState();
         const projectService = new ProjectService();
 
+        let projectToken: ISecurityToken;
         // Lookup security token used to decrypt project settings
-        const projectToken = appState.appSettings.securityTokens
-            .find((securityToken) => securityToken.name === project.securityToken);
+        if (sharedToken) {
+            projectToken = sharedToken;
+            const existingToken = appState.appSettings.securityTokens.find((token) => token.name === projectToken.name);
+
+            if (!existingToken) {
+                // if we do not have project sharedToken, we need update security tokens in appState
+                dispatch(saveAppSettingsAction({
+                    securityTokens: [
+                        ...appState.appSettings.securityTokens,
+                        sharedToken
+                    ]
+                }));
+            } else if (existingToken.key !== sharedToken.key) {
+                const reason = interpolate(strings.shareProject.errors.tokenNameExist, {sharedTokenName: sharedToken.name})
+                toast.error(reason, { autoClose: false, closeOnClick: false });
+                return null;
+            }
+        } else {
+            projectToken = appState.appSettings.securityTokens.find((token) => token.name === project.securityToken);
+        }
 
         if (!projectToken) {
             throw new AppError(ErrorCode.SecurityTokenNotFound, "Security Token Not Found");
@@ -65,6 +89,7 @@ export function loadProject(project: IProject):
 export function saveProject(project: IProject, saveTags?: boolean, updateTagsFromFiles?: boolean)
     : (dispatch: Dispatch, getState: () => IApplicationState) => Promise<IProject> {
     return async (dispatch: Dispatch, getState: () => IApplicationState) => {
+        project = Object.assign({}, project);
         const appState = getState();
         const projectService = new ProjectService();
 
@@ -142,6 +167,20 @@ export function deleteProject(project: IProject)
 export function closeProject(): (dispatch: Dispatch) => void {
     return (dispatch: Dispatch): void => {
         dispatch({ type: ActionTypes.CLOSE_PROJECT_SUCCESS });
+    };
+}
+
+/**
+ * Dispatches Delete Asset action
+ */
+export function deleteAsset(project: IProject, assetMetadata: IAssetMetadata): (dispatch: Dispatch) => void {
+    return async (dispatch: Dispatch) => {
+        const assetService = new AssetService(project);
+        await assetService.delete(assetMetadata);
+        const assets = await assetService.getAssets();
+        if (!areAssetsEqual(assets, project.assets)) {
+            dispatch(deleteProjectAssetAction(assets));
+        }
     };
 }
 
@@ -320,6 +359,13 @@ export interface ILoadProjectAssetsAction extends IPayloadAction<string, IAsset[
 }
 
 /**
+ * Delete project asset action type
+ */
+export interface IDeleteProjectAssetAction extends IPayloadAction<string, IAsset[]> {
+    type: ActionTypes.DELETE_PROJECT_ASSET_SUCCESS;
+}
+
+/**
  * Load asset metadata action type
  */
 export interface ILoadAssetMetadataAction extends IPayloadAction<string, IAssetMetadata> {
@@ -368,6 +414,11 @@ export const deleteProjectAction = createPayloadAction<IDeleteProjectAction>(Act
  */
 export const loadProjectAssetsAction =
     createPayloadAction<ILoadProjectAssetsAction>(ActionTypes.LOAD_PROJECT_ASSETS_SUCCESS);
+/**
+ * Instance of Delete Project Asset action
+ */
+export const deleteProjectAssetAction =
+    createPayloadAction<IDeleteProjectAssetAction>(ActionTypes.DELETE_PROJECT_ASSET_SUCCESS);
 /**
  * Instance of Load Asset Metadata action
  */

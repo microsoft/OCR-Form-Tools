@@ -2,20 +2,24 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { Customizer, IColumn, ICustomizations, Modal, DetailsList, SelectionMode, DetailsListLayoutMode, PrimaryButton, TextField } from "@fluentui/react";
-import { getDarkGreyTheme, getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/themes";
+import { Customizer, IColumn, ICustomizations, Modal, DetailsList, SelectionMode, DetailsListLayoutMode, PrimaryButton, TextField, FontIcon } from "@fluentui/react";
+import { getDarkGreyTheme, getPrimaryGreenTheme, getPrimaryGreyTheme } from "../../../../common/themes";
 import { strings } from "../../../../common/strings";
 import { IModel } from "./modelCompose";
+import { getAppInsights } from '../../../../services/telemetryService';
+import "./modelCompose.scss";
 
 
 export interface IComposeModelViewProps {
     onComposeConfirm: (composeModelName: string) => void;
+    onRenderComposeIcon: () => void
 }
 
 export interface IComposeModelViewState {
     hideModal: boolean;
     items: IModel[];
-    composeFlag: boolean;
+    cannotBeIncludeModels: IModel[];
+    composing: boolean;
 }
 
 export default class ComposeModelView extends React.Component<IComposeModelViewProps, IComposeModelViewState> {
@@ -23,15 +27,20 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
      *
      */
     private modelName: string = "";
-    private allItems: IModel[] = [];
+    private appInsights: any = null;
 
     constructor(props) {
         super(props);
         this.state = {
             hideModal: true,
             items: [],
-            composeFlag: false,
+            cannotBeIncludeModels: [],
+            composing: false,
         }
+    }
+
+    public componentDidMount() {
+        this.appInsights = getAppInsights();
     }
 
     public render() {
@@ -42,111 +51,164 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                 minWidth: 250,
                 maxWidth: 250,
                 isResizable: true,
-                onRender: (model) => {
-                return <span>{model.modelId}</span>
-                }
+                onRender: (model) => <span>{model.modelId}</span>,
             },
             {
                 key: "column2",
                 name: strings.modelCompose.column.name.headerName,
                 minWidth: 50,
                 isResizable: true,
-                onRender: (model) => {
-                    return <span>{model.modelName}</span>
-                }
+                onRender: (model) => <span>{model.modelName}</span>,
             }
         ];
+
+        const modelDetailsColumns: IColumn[] = [
+            {
+                key: "column1",
+                name: strings.modelCompose.column.icon.name,
+                minWidth: 12,
+                maxWidth: 14,
+                className: "composed-icon-cell",
+                ariaLabel: strings.modelCompose.columnAria.icon,
+                isIconOnly: true,
+                onRender: (model) => model.attributes.isComposed ? <FontIcon iconName={"Merge"} className="model-fontIcon" /> : null
+            },
+            {
+                key: "column2",
+                name: strings.modelCompose.column.id.headerName,
+                minWidth: 150,
+                maxWidth: 250,
+                isResizable: true,
+                onRender: (model) => <span>{model.id}</span>,
+            },
+            {
+                key: "column3",
+                name: strings.modelCompose.column.name.headerName,
+                minWidth: 100,
+                maxWidth: 250,
+                isResizable: true,
+                onRender: (model) => <span>{model.name}</span>,
+            },
+            {
+                key: "column4",
+                name: strings.modelCompose.column.created.headerName,
+                minWidth: 100,
+                maxWidth: 250,
+                isResizable: true,
+                onRender: (model) => <span>{new Date(model.createdDateTime).toLocaleString()}</span>,
+            }
+        ];
+
         const dark: ICustomizations = {
             settings: {
-              theme: getDarkGreyTheme(),
+                theme: getDarkGreyTheme(),
             },
             scopedSettings: {},
         };
+
         return (
             <Customizer {...dark}>
                 <Modal
                     titleAriaId={strings.modelCompose.modelView.titleAria}
                     isOpen={!this.state.hideModal}
-                    isModeless={true}
+                    isModeless={false}
                     containerClassName="modal-container"
-                    >
+                    scrollableContentClassName="scrollable-content"
+                >
                     {
-                        this.state.composeFlag ?
-                        <div>
-                            <span>Add name for Compose model</span>
+                        this.state.composing && <>
+                            <h4>Add name for composed model</h4>
                             <TextField
                                 className="modal-textfield"
                                 placeholder={strings.modelCompose.modelView.addComposeModelName}
                                 onChange={this.onTextChange}
-                                >
-                            </TextField>
-                        </div> :
-                        <div>
-                            <span>Filter field</span>
-                            <TextField
-                                className="composed-name-filter"
-                                placeholder={strings.modelCompose.filter}
-                                onChange={this.onFilterTextChange}>
-                            </TextField>
-                        </div>
-                    }
-                    <div>
-                    {
-                        this.state.items &&
-                        <DetailsList
-                            className="modal-list-container"
-                            items={this.state.items}
-                            columns={columns}
-                            compact={true}
-                            setKey="none"
-                            selectionMode={SelectionMode.none}
-                            isHeaderVisible={true}
-                            layoutMode={DetailsListLayoutMode.justified}
-                            >
-                        </DetailsList>
-                    }
-                    </div>
-                    <>{
-                        this.state.items.length < 2 && this.state.composeFlag &&
-                        <div className="modal-alert">
-                           {strings.modelCompose.modelView.NotEnoughModels}
-                        </div>
-                    }</>
-                    <div className="model-button-container">
-                        {
-                            this.state.composeFlag &&
-                            <PrimaryButton
-                                className="model-confirm"
-                                theme={getPrimaryGreenTheme()}
-                                onClick={this.confirm}>
-                                Compose
-                            </PrimaryButton>
-                        }
-                        <PrimaryButton
-                            className="modal-cancel"
-                            theme={getPrimaryRedTheme()}
-                            onClick={this.close}
-                            >
-                            Close
+                            />
+                            {
+                                this.state.items &&
+                                <DetailsList
+                                    className="modal-list-container"
+                                    items={this.state.items}
+                                    columns={columns}
+                                    compact={true}
+                                    setKey="none"
+                                    selectionMode={SelectionMode.none}
+                                    isHeaderVisible={true}
+                                    layoutMode={DetailsListLayoutMode.justified}
+                                />
+                            }
+                            {
+                                this.state.cannotBeIncludeModels.length > 0 &&
+                                <div className="excluded-items-container">
+                                    <h6>{this.state.cannotBeIncludeModels.length > 1 ? strings.modelCompose.modelView.modelsCannotBeIncluded : strings.modelCompose.modelView.modelCannotBeIncluded}</h6>
+                                    <DetailsList
+                                        className="excluded-items-list"
+                                        items={this.state.cannotBeIncludeModels}
+                                        columns={columns}
+                                        compact={true}
+                                        setKey="none"
+                                        selectionMode={SelectionMode.none}
+                                        isHeaderVisible={true}
+                                        layoutMode={DetailsListLayoutMode.justified}
+                                    />
+                                </div>
+                            }
+                            {
+                                this.state.items.length < 2 &&
+                                <div className="modal-alert">{strings.modelCompose.modelView.NotEnoughModels}</div>
+                            }
+                            <div className="modal-buttons-container">
+                                <PrimaryButton
+                                    className="model-confirm"
+                                    theme={getPrimaryGreenTheme()}
+                                    onClick={this.confirm}>
+                                    Compose
                         </PrimaryButton>
-                    </div>
+                                <PrimaryButton
+                                    className="modal-cancel"
+                                    theme={getPrimaryGreyTheme()}
+                                    onClick={this.close}
+                                >Close</PrimaryButton>
+                            </div>
+                        </>
+                    }
+                    {
+                        !this.state.composing &&
+                        <>
+                            <h5 style={{ whiteSpace: 'pre' }}>{"Model " + this.state.items["modelId"] + " " + (this.state.items["modelName"] ? `(${this.state.items["modelName"]})` : "") + "\ncreated on " + new Date(this.state.items["createdDateTime"]).toLocaleString() + "\nincludes following models:"}</h5>
+                            <DetailsList
+                                items={this.state.items["composedTrainResults"]}
+                                columns={modelDetailsColumns}
+                                compact={true}
+                                setKey="none"
+                                selectionMode={SelectionMode.none}
+                                isHeaderVisible={true}
+                                layoutMode={DetailsListLayoutMode.justified}
+                            />
+                            <div className="modal-buttons-container">
+                                <PrimaryButton
+                                    className="modal-cancel"
+                                    theme={getPrimaryGreyTheme()}
+                                    onClick={this.close}
+                                >Close</PrimaryButton>
+                            </div>
+                        </>}
                 </Modal>
             </Customizer>
         )
     }
 
-    public open = (models, flag) => {
+    public open = (models: any, cannotBeIncludeModels: any, composing: boolean) => {
         this.setState({
             hideModal: false,
             items: models,
-            composeFlag: flag,
-        }, () => {this.allItems = this.state.items})
+            cannotBeIncludeModels,
+            composing
+        })
     }
 
     public close = () => {
         this.setState({
             hideModal: true,
-            composeFlag: false,
         })
     }
 
@@ -155,19 +217,14 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
             this.props.onComposeConfirm(this.modelName);
             this.setState({
                 hideModal: true,
-            })
+            });
+        }
+        if (this.appInsights) {
+            this.appInsights.trackEvent({ name: "COMPOSE_MODEL_EVENT" });
         }
     }
 
     private onTextChange = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string) => {
         this.modelName = text;
-    }
-
-    private onFilterTextChange = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string): void => {
-        this.setState({
-            items: text ?
-                this.allItems.filter(({ modelName, modelId }) => (modelId.indexOf(text.toLowerCase()) > -1) ||
-                (modelName !== undefined ? modelName.toLowerCase().indexOf(text.toLowerCase()) > -1 : false)) : this.allItems,
-        });
     }
 }

@@ -9,7 +9,7 @@ import { IAppStrings } from "../strings";
  * App Strings for Spanish language
  */
 export const spanish: IAppStrings = {
-    appName: "Herramienta de etiquetado de formularios OCR",
+    appName: "Herramienta de prueba de formulario OCR",
     projectService: {
         existingLabelFiles: "",
     },
@@ -43,6 +43,7 @@ export const spanish: IAppStrings = {
         openCloudProject: {
             title: "Abrir Proyecto de la Nube",
             selectConnection: "Select a Connection",
+            pasteSharedUri: "Pegue la cadena de proyecto compartida aquí",
         },
         deleteProject: {
             title: "Borrar Proyecto",
@@ -69,6 +70,7 @@ export const spanish: IAppStrings = {
             key: {
                 title: "Clave",
             },
+            duplicateNameErrorMessage: "El nombre del token debe ser único para todos los tokens",
         },
         securityTokens: {
             title: "Tokens de seguridad",
@@ -133,7 +135,7 @@ export const spanish: IAppStrings = {
         columnAria: {
             icon: "Modelo con icono es un nuevo modelo compuesto",
         },
-        loading: "La modelo se está cargando ...",
+        loading: "Cargando modelos...",
         composing: "La modelo está componiendo, por favor espera ...",
         filter: "Filtrar por nombre ...",
         column: {
@@ -165,20 +167,40 @@ export const spanish: IAppStrings = {
             titleAria: "Componer vista de modelo",
             addComposeModelName: "Añadir componer el nombre de modelo ...",
             NotEnoughModels: "Debe tener más de un modelo seleccionado para componer un nuevo modelo",
+            modelsCannotBeIncluded: "Advertencia: ¡estos modelos no se incluirán en el modelo compuesto!",
+            modelCannotBeIncluded: "Advertencia: ¡Este modelo no se incluirá en el modelo compuesto!",
         },
         commandBar: {
             ariaLabel: "Utilice la barra de comandos para componer modelos",
             composeAria: "Componer modelo",
             refreshAria: "Actualizar la lista",
+            filter: "Filtrar por nombre ...",
+            filterAria: "Filtrar por área de entrada de nombre"
+        },
+        modelsList: {
+            headerAria: "Lista de encabezado de modelos",
+            checkButtonAria: "Seleccionar botón de verificación del modelo",
+            checkAllButtonAria: "Botón de verificación Seleccionar todos los modelos",
+        },
+        errors: {
+            failedCompose: "¡Algo salió mal, el modelo compuesto no fue creado!"
         }
     },
     predict: {
         title: "Analizar",
-        uploadFile: "Cargar archivo y ejecutar análisis",
+        uploadFile: "Elija una imagen para analizar con",
         inProgress: "Análisis en curso...",
-        downloadScript: "Usar script",
+        noRecentModels: "Este proyecto no tiene modelos recientes. Entrenar o componer un nuevo modelo para analizar.",
+        selectModelHeader: "Modelo para analizar con",
+        modelIDPrefix: "ID del modelo: ",
+        modelNamePrefix: "Nombre del modelo: ",
+        downloadScript: "Analizar con script python",
         defaultLocalFileInput: "Busca un archivo...",
         defaultURLInput: "Pegar o escribir URL...",
+    },
+    recentModelsView: {
+        header: "Seleccionar modelo para analizar con",
+        checkboxAriaLabel: "Seleccione la casilla de verificación del modelo",
     },
     projectMetrics: {
         title: "Métricas del proyecto",
@@ -243,6 +265,7 @@ export const spanish: IAppStrings = {
         title: "Conexiones",
         new: "Nueva conexión",
         save: "Guardar Conexión",
+        genericInvalid: "\"${project.sourceConnection.name}\" es una conexión no válida. Por favor verifíquelo en la página Conexiones",
         details: "Detalles de Conexión",
         settings: "Configuración de Conexión",
         instructions: "Por favor seleccione una conexión para editar",
@@ -277,6 +300,7 @@ export const spanish: IAppStrings = {
                     title: "Crear contenedor",
                     description: "Crea el contenedor de blobs si aún no existe",
                 },
+                invalidSASMessage: "\"${project.sourceConnection.name}\" no tiene cuenta de almacenamiento. Verifique su token SAS en la página de Conexiones",
             },
             bing: {
                 title: "Búsqueda de Imágenes Bing",
@@ -294,8 +318,10 @@ export const spanish: IAppStrings = {
             local: {
                 title: "Sistema de Archivos Local",
                 folderPath: "Ruta de la carpeta",
+                browse: "vistazo",
                 selectFolder: "Seleccionar la carpeta",
                 chooseFolder: "Elijir la carpeta",
+                invalidFolderMessage: "\"${project.sourceConnection.name}\" tiene una carpeta no válida Por favor verifique su carpeta seleccionada en la página de Conexiones",
             },
         },
     },
@@ -339,6 +365,12 @@ export const spanish: IAppStrings = {
             title: "Abrir/cerrar el menú de ayuda",
             escape: "Escapar el menú de ayuda",
         },
+        asset: {
+            delete: {
+                title: "Eliminar documento",
+                confirmation: "Estás seguro de que quieres eliminar ",
+            }
+        },
         assetWarning: {
             incorrectFileExtension: {
                 attention: "¡Atención!",
@@ -380,6 +412,7 @@ export const spanish: IAppStrings = {
                     }
                 },
                 farItems: {
+                    share: "Compartir proyecto",
                     zoom: {
                         zoomOut: "Alejar",
                         zoomIn: "Acercarse",
@@ -464,6 +497,10 @@ export const spanish: IAppStrings = {
             deleteAllLabelsForTag: {
                 name: "Eliminar información asociada a una etiqueta",
                 description: "Seleccione todas las etiquetas para una etiqueta en el documento y presione la tecla 'delete'"
+            },
+            groupSelect: {
+                name: "Seleccione varias palabras dibujando un cuadro delimitador alrededor de las palabras incluidas",
+                description: "Mantenga presionada la tecla Mayús. Luego, haga clic y mantenga presionado el botón izquierdo del mouse. Luego, arrastre el puntero para dibujar el cuadro delimitador alrededor de las palabras incluidas"
             }
         },
         headers: {
@@ -591,8 +628,23 @@ export const spanish: IAppStrings = {
         requestSendError: {
             title: "solicitud enviar error",
             message: "Error al enviar solicitud a Azure Blob Container. Problemas comunes: \n • SAS URI no válida \n • Cross-Origin Resource Sharing (CORS) no está configurado del lado del servidor \n • Error de red",
+        },
+        modelNotFound: {
+            title: "Modelo no encontrado",
+            message: "Modelo \"${modelID}\" no encontrado. Por favor use otro modelo.",
         }
     },
+    shareProject: {
+        errors: {
+            cannotDecodeString: "¡No se puede decodificar la cadena compartida! Por favor, verifique si su cadena ha sido modificada.",
+            connectionNotFound: "Conexión no encontrada. Agregue la conexión del proyecto compartido a sus conexiones.",
+            noConnections: "Se requiere conexión para compartir proyectos",
+            tokenNameExist: "¡Advertencia! Ya tiene token con el mismo nombre que en el proyecto compartido. Cree un nuevo token y actualice el proyecto existente que usa ''${sharedTokenName}'' con el nuevo nombre del token.",
+        },
+        copy: {
+            success: "La cadena para compartir su proyecto se ha guardado en el portapapeles. Para usarlo, péguelo en la sección correspondiente de la ventana emergente 'Open Cloud Project'.",
+        }
+    }
 };
 
 /*eslint-enable no-template-curly-in-string, no-multi-str*/

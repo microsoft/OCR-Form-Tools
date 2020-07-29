@@ -33,6 +33,9 @@ class TestStorageProvider implements IStorageProvider {
     public readBinary(filePath: string): Promise<Buffer> {
         throw new Error("Method not implemented.");
     }
+    public isValidProjectConnection(filePath: string): Promise<boolean> {
+        throw new Error("Method not implemented.");
+    }
     public deleteFile(filePath: string): Promise<void> {
         throw new Error("Method not implemented.");
     }

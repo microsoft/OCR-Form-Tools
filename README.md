@@ -1,4 +1,4 @@
-# OCR Form Labeling Tool
+# Form OCR Testing Tool
 
 ## Features Preview
 
@@ -10,8 +10,7 @@ This is a `MAIN` branch of the Tool. It contains all the newest features availab
 
 The purpose of this repo is to allow customers to test the latest tools available when working with Microsoft Forms and OCR services.  Currently, Labeling tool is the first tool we present here.  Users could provide feedback, and make customer-specific changes to meet their unique needs.  Microsoft Azure Form Recognizer team will update the source code periodically.  If you would like to contribute, please check the contributing section.
 
-> If you want to checkout our latest GA  version of the tool, please follow this [link](https://github.com/microsoft/OCR-Form-Tools/tree/v2.0-General-Availability-Release).
-
+**If you want to checkout our latest GA  version of the tool, please follow this [link](https://github.com/microsoft/OCR-Form-Tools/tree/v2.0-General-Availability-Release).**
 ___
 
 FOTT's Labeling Tool is a React + Redux Web application, written in [TypeScript](https://github.com/Microsoft/TypeScript). This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
@@ -33,7 +32,7 @@ Form Labeling Tool requires [NodeJS (>= 10.x, Dubnium) and NPM](https://github.c
     cd OCR-Form-Tools
     yarn install
     yarn build
-    yarn react-start
+    yarn start
    ```
 
 ### Set up this tool with Docker
@@ -44,7 +43,28 @@ Please see instructions [here](https://docs.microsoft.com/en-us/azure/cognitive-
 
 Using a modern Web browser, FOTT can be run directly at: https://fott.azurewebsites.net/
 
-**Note: The site is for testing purpose only.**
+### Run as desktop application
+
+FOTT can be run as a desktop application after initial set up.
+
+   ```bash
+    yarn electron-start
+   ```
+
+The desktop application has additional features, such as:
+- Support for local file system as provider storage
+- Support for cross-domain resource requests
+
+### Release as desktop application
+
+FOTT can be released as a distributable desktop application.
+
+   ```bash
+    yarn release
+   ```
+The distributable will saved in the releases folder of the cloned repository.
+
+**Note: the site is for testing purpose only.**
 
 ## Using labeling tool
 
@@ -66,7 +86,7 @@ Enable CORS on your storage account. Select your storage account in the Azure po
 
 ### Create Connections
 
-OCR Form Labeling Tool is a 'Bring Your Own data' (BYOD) application. In this tool, connections are used to configure and manage source (the assets to label) and target (the location where labels should be exported). The source and target are the same location in OCR Form Labeling Tool. Eventually, they together will be inputs to [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/).
+Form OCR Testing Tool is a 'Bring Your Own data' (BYOD) application. In this tool, connections are used to configure and manage source (the assets to label) and target (the location where labels should be exported). The source and target are the same location in Form OCR Testing Tool. Eventually, they together will be inputs to [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/).
 Connections can be set up and shared across projects. They use an extensible provider model, so new source/target providers can easily be added.
 
 Currently, both this labeling tool and [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/) only support [Azure blob storage](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction).
@@ -80,6 +100,8 @@ Fill in the fields with the following values:
 * **SAS URL** - The shared access signature (SAS) URL of your Azure blob storage container. To retrieve the SAS URL, open the Microsoft Azure Storage Explorer, right-click your container (note: not the parent storage node, not the URL in your Azure portal), and select Get shared access signature. Set the expiry time to some time after you'll have used the service. Make sure the Read, Write, Delete, and List permissions are checked, and click Create. Then copy the value in the URL section. It should have such format: https://&lt;storage account&gt;.blob.core.windows.net/&lt;container name&gt;?&lt;SAS value&gt;.
 
 ![alt text](docs/images/new-connection.png "New Connection")
+
+![alt_text](docs/images/get-sas.PNG "Get SAS URL")
 
 ### Create a new project
 
@@ -182,13 +204,22 @@ Hold Alt key and click on tag name, user can change the tag's name.
 
 To delete all labels for a tag - select all labels for a tag on document then press 'delete' key.
 
+### **Disclaimer**
+For development purposes and for better understanding of our tool usage we are collecting some data, such as:
+
+custom events (training, model compose and prediction), Form recognizer API version, browser version, OS version, approximate location (according your ISP: country and city)  
+
+*If you do not like to share this information with us, feel free to delete telemetry key. It is located at ```src/common/constant.ts```. It should not affect any of the tool's operations.*
+
+Alternatively if you want to gather your own telemetry - you can just replace the **insightsKey** with your own. We use **Azure Application Insights** telemetry service. All related docs are [here](https://docs.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview).
+
 ## Collaborators
 
 This project is cloned and modified from [VoTT](https://github.com/microsoft/VoTT) project.
 
 ## Contributing
 
-There are many ways to contribute to OCR Form Labeling Tool -- please review our [contribution guidelines](CONTRIBUTING.md).
+There are many ways to contribute to Form OCR Testing Tool -- please review our [contribution guidelines](CONTRIBUTING.md).
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see
 the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com)

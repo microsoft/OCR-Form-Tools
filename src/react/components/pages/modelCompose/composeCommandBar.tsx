@@ -25,7 +25,7 @@ export const ModelComposeCommandBar: React.FunctionComponent<IModelComposeComman
             key: "Compose",
             text: "Compose",
             ariaLabel: strings.modelCompose.commandBar.composeAria,
-            iconProps: { iconName: "combine" },
+            iconProps: { iconName: "Merge" },
             onClick: () => {props.handleCompose(); },
         },
         {
@@ -60,6 +60,7 @@ export const ModelComposeCommandBar: React.FunctionComponent<IModelComposeComman
             onRender: () => (
                 <div className="commandbar-filter">
                     <TextField
+                        ariaLabel={strings.modelCompose.commandBar.filterAria}
                         className="label-filter-field"
                         placeholder={strings.modelCompose.filter}
                         disabled={props.allModels ? false : true}

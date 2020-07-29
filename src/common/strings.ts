@@ -43,6 +43,7 @@ export interface IAppStrings {
         openCloudProject: {
             title: string;
             selectConnection: string;
+            pasteSharedUri: string;
         },
         deleteProject: {
             title: string;
@@ -69,6 +70,7 @@ export interface IAppStrings {
             key: {
                 title: string;
             },
+            duplicateNameErrorMessage: string,
         },
         securityTokens: {
             title: string;
@@ -164,21 +166,41 @@ export interface IAppStrings {
             titleAria: string;
             addComposeModelName: string;
             NotEnoughModels: string;
+            modelsCannotBeIncluded: string;
+            modelCannotBeIncluded: string;
         }
         commandBar: {
             ariaLabel: string;
             composeAria: string;
             refreshAria: string;
+            filter: string;
+            filterAria: string;
+        },
+        modelsList: {
+            headerAria: string,
+            checkButtonAria: string,
+            checkAllButtonAria: string,
+        },
+        errors: {
+            failedCompose: string,
         }
     }
     predict: {
         title: string;
         uploadFile: string;
         inProgress: string;
+        noRecentModels: string;
+        selectModelHeader: string;
+        modelIDPrefix: string;
+        modelNamePrefix: string;
         downloadScript: string;
         defaultLocalFileInput: string;
         defaultURLInput: string;
     };
+    recentModelsView: {
+        header: string;
+        checkboxAriaLabel: string;
+    }
     projectMetrics: {
         title: string;
         assetsSectionTitle: string
@@ -245,6 +267,7 @@ export interface IAppStrings {
         instructions: string;
         new: string;
         save: string;
+        genericInvalid: string;
         messages: {
             saveSuccess: string;
             deleteSuccess: string;
@@ -271,7 +294,8 @@ export interface IAppStrings {
                 createContainer: {
                     title: string,
                     description: string,
-                }
+                },
+                invalidSASMessage: string;
             },
             bing: {
                 title: string;
@@ -289,8 +313,10 @@ export interface IAppStrings {
             local: {
                 title: string;
                 folderPath: string;
+                browse: string;
                 selectFolder: string;
                 chooseFolder: string;
+                invalidFolderMessage: string;
             },
         }
     };
@@ -334,6 +360,12 @@ export interface IAppStrings {
             title: string;
             escape: string;
         },
+        asset: {
+            delete: {
+                title: string;
+                confirmation: string;
+            }
+        },
         assetWarning: {
             incorrectFileExtension: {
                 attention: string,
@@ -374,6 +406,7 @@ export interface IAppStrings {
                     },
                 },
                 farItems: {
+                    share: string,
                     zoom: {
                         zoomOut: string,
                         zoomIn: string,
@@ -457,6 +490,10 @@ export interface IAppStrings {
             deleteAllLabelsForTag: {
                 name: string,
                 description: string;
+            },
+            groupSelect: {
+                name: string,
+                description: string;
             }
         },
         headers: {
@@ -494,7 +531,19 @@ export interface IAppStrings {
         tooManyRequests: IErrorMetadata,
         modelCountLimitExceeded: IErrorMetadata,
         requestSendError: IErrorMetadata,
+        modelNotFound: IErrorMetadata,
     };
+    shareProject: {
+        errors: {
+            cannotDecodeString: string,
+            connectionNotFound: string,
+            noConnections: string,
+            tokenNameExist: string,
+        },
+        copy: {
+            success: string,
+        }
+    }
 }
 
 interface IErrorMetadata {

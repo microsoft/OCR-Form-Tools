@@ -13,27 +13,27 @@ import LocalFileSystem from "./providers/storage/localFileSystem";
 let mainWindow: BrowserWindow | null;
 let ipcMainProxy: IpcMainProxy;
 
+const isMac = process.platform === "darwin"
+const isLinux = process.platform === "linux"
+
 async function createWindow() {
     const windowOptions: BrowserWindowConstructorOptions = {
         width: 1024,
         height: 768,
         minWidth: 450,
         minHeight: 100,
-        frame: process.platform === "linux",
+        frame: isLinux,
         titleBarStyle: "hidden",
         backgroundColor: "#272B30",
         show: false,
-        icon: "app-icons/Tag.png"
+        icon: "app-icons/icon.png"
+    };
+    windowOptions.webPreferences = {
+        nodeIntegration: true,
+        webSecurity: false,
     };
 
     const staticUrl = process.env.ELECTRON_START_URL || `file:///${__dirname}/index.html`;
-    if (process.env.ELECTRON_START_URL) {
-        windowOptions.webPreferences = {
-            nodeIntegration: true,
-            webSecurity: false,
-        };
-    }
-
     mainWindow = new BrowserWindow(windowOptions);
     mainWindow.loadURL(staticUrl);
     mainWindow.maximize();
@@ -41,6 +41,10 @@ async function createWindow() {
     mainWindow.on("closed", () => {
         mainWindow = null;
         ipcMainProxy.unregisterAll();
+    });
+
+    mainWindow.webContents.on("did-fail-load", () => {
+        mainWindow.loadURL(staticUrl);
     });
 
     mainWindow.once("ready-to-show", () => {
@@ -92,10 +96,10 @@ function registerContextMenu(browserWindow: BrowserWindow): void {
     const menuItems: MenuItemConstructorOptions[] = [
         {
             label: "File", submenu: [
-                { role: "quit" },
+                isMac ? { role: "close" } : { role: "quit" }
             ],
         },
-        // { role: "editMenu" },
+        { role: "editMenu" },
         {
             label: "View", submenu: [
                 { role: "reload" },
@@ -109,10 +113,16 @@ function registerContextMenu(browserWindow: BrowserWindow): void {
             ],
         },
         {
-            label: "Window", submenu: [
-                { role: "minimize" },
-                { role: "close" },
-            ]
+            label: "Window", submenu:
+                (isMac ? [
+                    { role: "minimize" },
+                    { role: "front" },
+                    { type: "separator" },
+                    { role: "window" }
+                ] : [
+                    { role: "minimize" },
+                    { role: "close" }
+                ])
         },
     ];
     const menu = Menu.buildFromTemplate(menuItems);

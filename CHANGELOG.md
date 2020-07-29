@@ -1,6 +1,70 @@
 # FoTT Changelog 
 
-## 2.0.0-3b7f803 (06-18-2020)
+## 2.1-preview.1-fe8258f (07-24-2020)
+* fix: margin for filenames in asset preview ([#451](https://github.com/microsoft/OCR-Form-Tools/commit/fe8258f9c7ceba663a66708b19bc0e6556e777ad))
+* docs: add telemetry disclaimer to readme ([#449](https://github.com/microsoft/OCR-Form-Tools/commit/87356a1cf6678bb9494e83178bf6282ca366921f))
+
+## 2.1-preview.1-9b5b99d (07-23-2020)
+* docs: add get-sas.png (https://github.com/microsoft/OCR-Form-Tools/commit/9b5b99d5468661481ae8165593d5a74471366429)
+* doc: add a screenshot of getting SAS token (https://github.com/microsoft/OCR-Form-Tools/commit/87b1062125ed106ff73c036e33f1bf7a5f2c3def)
+* fix: handle undefined error for pdf asset preview memory cleaning ([#442](https://github.com/microsoft/OCR-Form-Tools/commit/9b5b99d5468661481ae8165593d5a74471366429))
+* fix: remove duplicate models in model composed model list ([#439](https://github.com/microsoft/OCR-Form-Tools/commit/7fcc9ccfdb6634326ddd6cbfe99b423300b94131))
+* feat: enable internal telemetry ([#431](https://github.com/microsoft/OCR-Form-Tools/commit/41294c8aa19c82643fe0df669c21a0112668e0dd))
+
+## 2.1-preview.1-f4b4d5d (07-21-2020)
+* fix: use table for model selection info ([#438](https://github.com/microsoft/OCR-Form-Tools/commit/f4b4d5ded4b7e0ff2116ba3b8f97e49fbf30b7c0))
+* fix: reset model name after training ([#434](https://github.com/microsoft/OCR-Form-Tools/commit/ed919a016b150d0938aee25b5550bacf29f04e83))
+* fix: wait for loadeding project with sharing project ([#435](https://github.com/microsoft/OCR-Form-Tools/commit/fc4cb96d2a9d0920c3bbbd9c2000fb4b1b7ac9c0))
+
+## 2.1-preview.1-46dbb2b (07-20-2020)
+* fix: handle no recent models for model compose ([#432](https://github.com/microsoft/OCR-Form-Tools/commit/46dbb2be9ee6100a8f3e6a443ad5e734c60954bb))
+* refactor: use new model compose icon ([#425](https://github.com/microsoft/OCR-Form-Tools/commit/932fb3fd7f84636e97035f4cafadc87cff18b3b3))
+* fix: support long model names for model selection ([#427](https://github.com/microsoft/OCR-Form-Tools/commit/a0fa2daf4cd3286f7f58dc2919fd202115e8d5be))
+* feat add recent models to top of model compose page's list ([#430](https://github.com/microsoft/OCR-Form-Tools/commit/cf8de6be61b95bfe8c937946df71ea81aecb35f9))
+* fix: check valid connection ([#428](https://github.com/microsoft/OCR-Form-Tools/commit/9cb6c5830afddc9317ffdfe6927b581c4d39ba39))
+
+## 2.1-preview.1-162a766 (07-17-2020)
+* refactor: make confidence results same as JSON results ([#409](https://github.com/microsoft/OCR-Form-Tools/commit/162a7660cfe32b72c4954a147269c5d2b7f55a08))
+* fix: prevent user from leaving page while composing ([#422](https://github.com/microsoft/OCR-Form-Tools/commit/63e179d0152d2f8f2ee764443785efa24e5f7dce))
+* feat: support model selection ([#419](https://github.com/microsoft/OCR-Form-Tools/commit/b4c4cc5a8a980aaa6530e7a4a5a1c43e77494c75))
+* feat: share project ([#344](https://github.com/microsoft/OCR-Form-Tools/commit/d059580cfefa053670c45c5d8ec7bf250bc4db27))
+
+## 2.1-preview.1-89be3ac (07-15-2020)
+* fix: on assetFormat undefined ([#413](https://github.com/microsoft/OCR-Form-Tools/commit/89be3ac5b614e91607d7fb8065ad32b69886040d))
+* fix: make sure token names are unique ([#404](https://github.com/microsoft/OCR-Form-Tools/commit/d8fa6141cff4d00ba22e95ef4f5dcc9102e1c1c2))
+* fix: model info enclosing element error on [#407](https://github.com/microsoft/OCR-Form-Tools/issues/407) ([#408](https://github.com/microsoft/OCR-Form-Tools/commit/8cc421c3fee0e781211efb0aeb2b345075012daa))
+* fix: display composed icon for composed model with attribute ([#399](https://github.com/microsoft/OCR-Form-Tools/commit/18fb4d71052b9355c8d5a4f7dde956ba17ca30fa))
+
+## 2.1-preview.1-b67191c (07-09-2020)
+* fix: don't allow choosing not-ready models for compose ([#394](https://github.com/microsoft/OCR-Form-Tools/commit/b67191cdbc872b9004be30aa4b4dfde9a88dfe37))
+* feat: track five most recent project models ([#395](https://github.com/microsoft/OCR-Form-Tools/commit/05850603d51a6786c8b6e8b4a553db020df56158))
+
+## 2.1-preview.1-abc6376 (07-08-2020)
+* feat: enable model info in analyze results ([#383](https://github.com/microsoft/OCR-Form-Tools/commit/abc63767e97dd28a6bb9028e03f2225e6ac0f1ab))
+* fix: check invalid provider options before project actions ([#390](https://github.com/microsoft/OCR-Form-Tools/commit/212647d4327d9e18e9248a2d39086eeaab404979))
+
+## 2.1-preview.1-a334cfc (07-07-2020)
+* fix: hide extra scrollbars for model compose view ([#380](https://github.com/microsoft/OCR-Form-Tools/commit/a334cfc45fc5ab137682ad2b48dd0ec1585055dc))
+* fix: handle version change state mutation error ([#382](https://github.com/microsoft/OCR-Form-Tools/commit/8991cc0c92f2f5cbd226f7e1c5c0825b7af8937c))
+* fix: handle pdf worker terminated error ([#381](https://github.com/microsoft/OCR-Form-Tools/commit/adc0498c31bfd5ba57ab98c373e73575589ab1e1)) 
+
+## 2.1-preview.1-7192170 (07-02-2020)
+* feat: support release ([#361](https://github.com/microsoft/OCR-Form-Tools/commit/7192170d73d24a43e7fff18cd2c6bae7f208f1b0))
+
+## 2.1-preview.1-978dabc (07-01-2020)
+* feat: support document management ([#374](https://github.com/microsoft/OCR-Form-Tools/commit/978dabc3ba877ed4215865cba2a583fb785a2894))
+
+## 2.1-preview.1-56a4b89 (06-30-2020)
+* fix: wait until composed model is ready ([#369](https://github.com/microsoft/OCR-Form-Tools/commit/56a4b89f370f2fd72c6bc275376205e7fffe6a9e))
+
+## 2.1-preview.1-6114d64 (06-23-2020)
+* fix: update OCR version ([#335](https://github.com/microsoft/OCR-Form-Tools/commit/6114d6456b27a59335e534eef72cefd1b2f15737))
+* feat: support electron for on premise solution ([#333](https://github.com/microsoft/OCR-Form-Tools/commit/ca0bd0c2ab46b7b587e5bfbc60c29b62bb325297))
+
+## 2.1-preview.1-8297b18 (06-19-2020)
+* refactor: put api version in constants ([#332](https://github.com/microsoft/OCR-Form-Tools/commit/8297b18a084be86bc4c986a1a332cb40bd807d1b))
+
+## 2.1-preview.1-3b7f803 (06-18-2020)
 * feat: enable model compose (preview) ([#328](https://github.com/microsoft/OCR-Form-Tools/commit/3b7f803407b82191706120bb9f12b82de1955704))
 * fix: quick reordering tags ([#322](https://github.com/microsoft/OCR-Form-Tools/commit/3cc5267ef8617590adb3d4966f75cfed64604f00))
 * feat: localization for canvas commandbar items ([#319](https://github.com/microsoft/OCR-Form-Tools/commit/253b9c90eb4923e7fde015a7216905fa32a8dcfa))

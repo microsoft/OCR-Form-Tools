@@ -26,6 +26,7 @@ import { StorageProviderFactory } from "../../../../providers/storage/storagePro
 import { decryptProject } from "../../../../common/utils";
 import { toast } from "react-toastify";
 import { isElectron } from "../../../../common/hostProcess";
+import ProjectService from "../../../../services/projectService";
 
 export interface IHomePageProps extends RouteComponentProps, React.Props<HomePage> {
     recentProjects: IProject[];
@@ -118,7 +119,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                             <CloudFilePicker
                                 ref={this.cloudFilePickerRef}
                                 connections={this.props.connections}
-                                onSubmit={(content) => this.loadSelectedProject(JSON.parse(content))}
+                                onSubmit={(content, sharedToken?) => this.loadSelectedProject(JSON.parse(content), sharedToken)}
                                 fileExtension={constants.projectFileExtension}
                             />
                         </li>
@@ -154,9 +155,17 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
         this.cloudFilePickerRef.current.open();
     }
 
-    private loadSelectedProject = async (project: IProject) => {
-        await this.props.actions.loadProject(project);
-        this.props.history.push(`/projects/${project.id}/edit`);
+    private loadSelectedProject = async (project: IProject, sharedToken?: {}) => {
+        try {
+            const loadedProject = await this.props.actions.loadProject(project, sharedToken);
+            if (loadedProject !== null) {
+                this.props.history.push(`/projects/${project.id}/edit`);
+            }
+        } catch (error) {
+            if (error instanceof AppError && error.errorCode === ErrorCode.SecurityTokenNotFound) {
+                toast.error(strings.errors.securityTokenNotFound.message, { autoClose: 5000 });
+            }
+        }
     }
 
     private freshLoadSelectedProject = async (project: IProject) => {
@@ -165,7 +174,8 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
             .find((securityToken) => securityToken.name === project.securityToken);
 
         if (!projectToken) {
-            throw new AppError(ErrorCode.SecurityTokenNotFound, "Security Token Not Found");
+            toast.error(strings.errors.securityTokenNotFound.message, { autoClose: 3000 });
+            return;
         }
 
         // Load project from storage provider to keep the project in latest state
@@ -174,6 +184,10 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
         try {
             let projectStr: string;
             try {
+                const projectService = new ProjectService();
+                if (!(await projectService.isValidProjectConnection(decryptedProject))) {
+                    return;
+                }
                 projectStr = await storageProvider.readText(
                     `${decryptedProject.name}${constants.projectFileExtension}`);
             } catch (err) {

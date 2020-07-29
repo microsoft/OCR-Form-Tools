@@ -15,6 +15,7 @@ import { encodeFileURI } from "../common/utils";
 import { strings, interpolate } from "../common/strings";
 import { sha256Hash } from "../common/crypto";
 import { toast } from "react-toastify";
+import allSettled from "promise.allsettled"
 
 const supportedImageFormats = {
     jpg: null, jpeg: null, null: null, png: null, bmp: null, tif: null, tiff: null, pdf: null,
@@ -41,8 +42,12 @@ const imageMimes: IMime[] = [
         pattern: [0xff, 0xd8, 0xff],
     },
     {
-        types: ["tif", "tiff"],
-        pattern: [0x49, 0x49, 0x42, 0x00],
+        types: ["tif"],
+        pattern: [0x49, 0x49, 0x2a, 0x00],
+    },
+    {
+        types: ["tiff"],
+        pattern: [0x4d, 0x4d, 0x00, 0x2a],
     },
     {
         types: ["pdf"],
@@ -100,9 +105,8 @@ export class AssetService {
             if (!types.includes(assetFormat)) {
                 assetFormat = types[0];
                 const corruptFileName = fileName.split("%2F").pop().replace(/%20/g, " ");
-                setTimeout(() => {
-                    toast.info(`${strings.editorPage.assetWarning.incorrectFileExtension.attention} ${corruptFileName.toLocaleUpperCase()} ${strings.editorPage.assetWarning.incorrectFileExtension.text} ${corruptFileName.toLocaleUpperCase()}`);
-                }, 3000);
+
+                toast.info(`${strings.editorPage.assetWarning.incorrectFileExtension.attention} ${corruptFileName.toLocaleUpperCase()} ${strings.editorPage.assetWarning.incorrectFileExtension.text} ${corruptFileName.toLocaleUpperCase()}`, { delay: 3000 });
             }
         }
 
@@ -124,7 +128,7 @@ export class AssetService {
      * @param format - File extension of asset
      */
     public static getAssetType(format: string): AssetType {
-        switch (format.toLowerCase()) {
+        switch (format?.toLowerCase()) {
             case "jpg":
             case "jpeg":
             case "png":
@@ -210,6 +214,25 @@ export class AssetService {
         }).filter((asset) => this.isInExactFolderPath(asset.name, folderPath));
 
         return returnedAssets;
+    }
+
+    /**
+     * Delete asset
+     * @param metadata - Metadata for asset
+     */
+    public async delete(metadata: IAssetMetadata): Promise<void> {
+        Guard.null(metadata);
+
+        const labelFileName = decodeURIComponent(`${metadata.asset.name}${constants.labelFileExtension}`);
+        const ocrFileName = decodeURIComponent(`${metadata.asset.name}${constants.ocrFileExtension}`);
+        const assetFileName = decodeURIComponent(`${metadata.asset.name}`);
+        await allSettled(
+            [
+                this.storageProvider.deleteFile(labelFileName, true, true),
+                this.storageProvider.deleteFile(ocrFileName, true, true),
+                this.storageProvider.deleteFile(assetFileName, true, true)
+            ]
+        );
     }
 
     /**

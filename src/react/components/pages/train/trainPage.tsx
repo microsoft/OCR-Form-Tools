@@ -10,7 +10,7 @@ import IProjectActions, * as projectActions from "../../../../redux/actions/proj
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import {
-    IApplicationState, IConnection, IProject, IAppSettings, FieldType,
+    IApplicationState, IConnection, IProject, IAppSettings, FieldType, IRecentModel,
 } from "../../../../models/applicationState";
 import TrainChart from "./trainChart";
 import TrainPanel from "./trainPanel";
@@ -25,6 +25,7 @@ import url from "url";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
 import { getPrimaryGreenTheme, getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
+import { getAppInsights } from '../../../../services/telemetryService';
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -45,6 +46,7 @@ export interface ITrainPageState {
     showTrainingFailedWarning: boolean;
     trainingFailedMessage: string;
     hasCheckbox: boolean;
+    modelName: string;
 }
 
 interface ITrainApiResponse {
@@ -73,8 +75,7 @@ function mapDispatchToProps(dispatch) {
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class TrainPage extends React.Component<ITrainPageProps, ITrainPageState> {
-
-    private modelName: string = "";
+    private appInsights: any = null;
 
     constructor(props) {
         super(props);
@@ -88,6 +89,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             showTrainingFailedWarning: false,
             trainingFailedMessage: "",
             hasCheckbox: false,
+            modelName: ""
         };
     }
 
@@ -102,6 +104,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             this.showCheckboxPreview(project);
             this.updateCurrTrainRecord(this.getProjectTrainRecord());
         }
+        this.appInsights = getAppInsights();
         document.title = strings.train.title + " - " + strings.appName;
     }
 
@@ -162,6 +165,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                     autoComplete="off"
                                     onChange={this.onTextChanged}
                                     disabled={this.state.isTraining}
+                                    value={this.state.modelName}
                                 >
                                 </TextField>
                                 {!this.state.isTraining ? (
@@ -186,6 +190,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                             ariaLive="assertive"
                                             labelPosition="right"
                                             size={SpinnerSize.large}
+                                            className={"training-spinner"}
                                         />
                                     </div>
                                 )
@@ -228,7 +233,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private onTextChanged = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string) => {
-        this.modelName = text;
+        this.setState({modelName: text});
     }
 
     private handleTrainClick = () => {
@@ -242,6 +247,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 isTraining: false,
                 trainMessage: this.getTrainMessage(trainResult),
                 currTrainRecord: this.getProjectTrainRecord(),
+                modelName: "",
             }));
         }).catch((err) => {
             this.setState({
@@ -249,6 +255,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 trainMessage: err.message,
             });
         });
+        if (this.appInsights) {
+            this.appInsights.trackEvent({name: "TRAIN_MODEL_EVENT"});
+        }
     }
 
     private handleViewTypeClick = (viewType: "tableView" | "chartView"): void => {
@@ -298,7 +307,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 includeSubFolders: false,
             },
             useLabelFile: true,
-            modelName: this.modelName,
+            modelName: this.state.modelName,
         };
         try {
             return await ServiceHelper.postWithAutoRetry(
@@ -326,8 +335,16 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private buildUpdatedProject = (newTrainRecord: ITrainRecordProps): IProject => {
+        const recentModelRecords: IRecentModel[] = this.props.project.recentModelRecords ?
+                                                   [...this.props.project.recentModelRecords] : [];
+        recentModelRecords.unshift({...newTrainRecord, isComposed: false} as IRecentModel);
+        if (recentModelRecords.length > constants.recentModelRecordsCount) {
+            recentModelRecords.pop();
+        }
+
         return {
             ...this.props.project,
+            recentModelRecords,
             trainRecord: newTrainRecord,
             predictModelId: newTrainRecord.modelInfo.modelId,
         };
@@ -335,7 +352,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
     private getTrainMessage = (trainingResult): string => {
         if (trainingResult !== undefined && trainingResult.modelInfo !== undefined
-            && trainingResult.modelInfo.status === "ready") {
+            && trainingResult.modelInfo.status === constants.statusCodeReady) {
             return "Trained successfully";
         }
         return "Training failed";
@@ -355,6 +372,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 modelId: response["modelInfo"]["modelId"],
                 createdDateTime: response["modelInfo"]["createdDateTime"],
                 modelName: response["modelInfo"]["modelName"],
+                isComposed: false,
             },
             averageAccuracy: response["trainResult"]["averageModelAccuracy"],
             accuracies: this.buildAccuracies(response["trainResult"]["fields"]),
@@ -382,7 +400,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         const checkSucceeded = (resolve, reject) => {
             const ajax = func();
             ajax.then((response) => {
-                if (response.data.modelInfo && response.data.modelInfo.status === "ready") {
+                if (response.data.modelInfo && response.data.modelInfo.status === constants.statusCodeReady) {
                     resolve(response.data);
                 } else if (response.data.modelInfo && response.data.modelInfo.status === "invalid") {
                     const message = _.get(

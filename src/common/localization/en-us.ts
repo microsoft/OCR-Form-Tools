@@ -9,7 +9,7 @@ import { IAppStrings } from "../strings";
  * App Strings for English language
  */
 export const english: IAppStrings = {
-    appName: "OCR Form Labeling Tool",
+    appName: "Form OCR Testing Tool",
     common: {
         displayName: "Display name",
         description: "Description",
@@ -42,6 +42,7 @@ export const english: IAppStrings = {
         openCloudProject: {
             title: "Open Cloud Project",
             selectConnection: "Select a Connection",
+            pasteSharedUri: "Please paste shared project string here",
         },
         recentProjects: "Recent Projects",
         deleteProject: {
@@ -69,6 +70,7 @@ export const english: IAppStrings = {
             key: {
                 title: "Key",
             },
+            duplicateNameErrorMessage: "Token name must be unique for all tokens",
         },
         securityTokens: {
             title: "Security Tokens",
@@ -132,7 +134,7 @@ export const english: IAppStrings = {
         columnAria: {
             icon: "Model with icon is a new composed model",
         },
-        loading: "Model is loading...",
+        loading: "Loading models...",
         composing: "Model is composing, please wait...",
         filter: "Filter by Id or Name...",
         column: {
@@ -164,20 +166,41 @@ export const english: IAppStrings = {
             titleAria: "Compose Model View",
             addComposeModelName: "Add compose model name...",
             NotEnoughModels: " Should have at least more than one selected model to compose a new model",
+            modelsCannotBeIncluded: "Warning: These models will not be included in composed model!",
+            modelCannotBeIncluded: "Warning: This model will not be included in composed model!"
         },
         commandBar: {
             ariaLabel: "Please use command bar to compose models",
             composeAria: "Compose Model",
             refreshAria: "Refresh the list",
+            filter: "Filter by name...",
+            filterAria: "Filter by name input area",
+        },
+        modelsList: {
+            headerAria: "List of models header",
+            checkButtonAria: "Select model check button",
+            checkAllButtonAria: "Select all models check button",
+
+        },
+        errors: {
+            failedCompose: "Something went wrong composed model was not created!"
         }
     },
     predict: {
         title: "Analyze",
-        uploadFile: "Upload image and run analysis",
+        uploadFile: "Choose an image to analyze with",
         inProgress: "Analysis in progress...",
-        downloadScript: "Use script",
+        noRecentModels: "This project doesn't have any recent models. Please train or compose a new model to analyze with.",
+        selectModelHeader: "Model to analyze with",
+        modelIDPrefix: "Model ID: ",
+        modelNamePrefix: "Model name: ",
+        downloadScript: "Analyze with python script",
         defaultLocalFileInput: "Browse for a file...",
         defaultURLInput: "Paste or type URL...",
+    },
+    recentModelsView:{
+        header: "Select a model to analyze with",
+        checkboxAriaLabel: "Select model checkbox"
     },
     projectMetrics: {
         title: "Project Metrics",
@@ -245,6 +268,7 @@ export const english: IAppStrings = {
         instructions: "Please select a connection to edit",
         new: "New Connection",
         save: "Save Connection",
+        genericInvalid: "\"${project.sourceConnection.name}\" is an invalid connection. Please check it in the Connections page",
         messages: {
             saveSuccess: "Successfully saved ${connection.name}",
             deleteSuccess: "Successfully deleted ${connection.name}",
@@ -275,6 +299,7 @@ export const english: IAppStrings = {
                     title: "Create Container",
                     description: "Creates the blob container if it does not already exist",
                 },
+                invalidSASMessage: "\"${project.sourceConnection.name}\" has no storage account. Please check it's SAS token in the Connections page",
             },
             bing: {
                 title: "Bing Image Search",
@@ -291,9 +316,11 @@ export const english: IAppStrings = {
             },
             local: {
                 title: "Local file system",
-                folderPath: "Browse",
+                folderPath: "Folder",
+                browse: "Browse",
                 selectFolder: "Select folder",
                 chooseFolder: "Choose folder",
+                invalidFolderMessage: "\"${project.sourceConnection.name}\" has an invalid folder. Please check it's selected folder in the Connections page",
             },
         },
     },
@@ -332,6 +359,12 @@ export const english: IAppStrings = {
             nextExpectedFrame: {
                 tooltip: "Next Frame",
             },
+        },
+        asset: {
+            delete: {
+                title: "Delete document",
+                confirmation: "Are you sure you want to delete ",
+            }
         },
         help: {
             title: "Toggle Help Menu",
@@ -377,6 +410,7 @@ export const english: IAppStrings = {
                     }
                 },
                 farItems: {
+                    share: "Share Project",
                     zoom: {
                         zoomOut: "Zoom out",
                         zoomIn: "Zoom in",
@@ -461,6 +495,10 @@ export const english: IAppStrings = {
             deleteAllLabelsForTag: {
                 name: "Delete all labels for a tag",
                 description: "Select all labels for a tag on document and press 'delete' key"
+            },
+            groupSelect: {
+                name: "Select multiple words by drawing a bounding box around encompased words",
+                description: "Press and hold the shift key. Then, click and hold left mouse button. Then, drag the pointer to draw the bounding box around encompased words"
             }
         },
         headers: {
@@ -589,6 +627,21 @@ export const english: IAppStrings = {
             title: "Request send error",
             message: "Failed to send request to Azure Blob Container. Common issues: \n • SAS URI not valid \n • Cross-Origin Resource Sharing (CORS) is not configured server-side \n • Network error",
 
+        },
+        modelNotFound: {
+            title: "Model not found",
+            message: "Model \"${modelID}\" not found. Please use another model.",
+        }
+    },
+    shareProject: {
+        errors: {
+            cannotDecodeString: "Cannot decode shared string! Please, check if your string has been modified.",
+            connectionNotFound: "Connection not found. Add shared project's connection to your connections.",
+            noConnections: "Connection is required for project sharing",
+            tokenNameExist: "Warning! You already have token with same name as in shared project. Please create a new token, and update the existing project which uses ''${sharedTokenName}'' with new token name."
+        },
+        copy: {
+            success: "String for sharing your project has been saved to clipboard. In order to use it, paste it in appropriate section of the 'Open Cloud Project' popup.",
         }
     },
 };

@@ -147,6 +147,7 @@ export default class MockFactory {
             apiUriBase: "localhost",
             folderPath: "",
             trainRecord: null,
+            recentModelRecords: [],
             predictModelId: "",
         };
     }
@@ -311,6 +312,7 @@ export default class MockFactory {
             readBinary: jest.fn(),
             deleteFile: jest.fn(),
             writeText: jest.fn(),
+            isValidProjectConnection: jest.fn(),
             writeBinary: jest.fn(),
             listFiles: jest.fn(() => Promise.resolve(MockFactory.createFileList())),
             listContainers: jest.fn(),
@@ -473,6 +475,7 @@ export default class MockFactory {
             saveProject: jest.fn(() => Promise.resolve()),
             deleteProject: jest.fn(() => Promise.resolve()),
             closeProject: jest.fn(() => Promise.resolve()),
+            deleteAsset: jest.fn(() => Promise.resolve()),
             loadAssets: jest.fn(() => Promise.resolve()),
             loadAssetMetadata: jest.fn(() => Promise.resolve()),
             saveAssetMetadata: jest.fn(() => Promise.resolve()),

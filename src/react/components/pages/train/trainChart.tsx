@@ -58,13 +58,12 @@ export default class TrainChart
         return Object
             .entries(this.props.accuracies)
             .map((entry) =>
-                entry[0] + " (" + this.toPercent(entry[1]) + "%)");
+                entry[0] + " (" + entry[1] + ")");
     }
 
     private getData = (): string[] => {
         return Object
             .values(this.props.accuracies)
-            .map((val) => (val * 100).toFixed(2));
     }
 
     private getColor = (): string[] => {

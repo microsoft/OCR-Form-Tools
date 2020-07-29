@@ -3,6 +3,7 @@ import { CommandBar, ICommandBarItemProps } from "@fluentui/react/lib/CommandBar
 import { ICustomizations, Customizer } from "@fluentui/react/lib/Utilities";
 import { getDarkGreyTheme } from "../../../../common/themes";
 import { strings } from '../../../../common/strings';
+import { ContextualMenuItemType } from "@fluentui/react";
 
 interface ICanvasCommandBarProps {
     handleZoomIn: () => void;
@@ -10,10 +11,13 @@ interface ICanvasCommandBarProps {
     handleRunOcr: () => void;
     handleRunOcrForAllDocuments: () => void;
     handleLayerChange: (layer: string) => void;
+    handleShareProject: () => void;
+    connectionType: string;
+    handleAssetDeleted?: () => void;
     layers: any;
 }
 
-export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> = (props) => {
+export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> = (props:ICanvasCommandBarProps) => {
     const dark: ICustomizations = {
         settings: {
           theme: getDarkGreyTheme(),
@@ -94,6 +98,18 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
             subMenuProps: {
                 items: [
                     {
+                        key: "shareProject",
+                        text: strings.editorPage.canvas.canvasCommandBar.farItems.share,
+                        disabled: props.connectionType !== "azureBlobStorage",
+                        iconProps: { iconName: "Share" },
+                        className: props.connectionType !== "azureBlobStorage" ? "disabled" : "",
+                        onClick: () => props.handleShareProject(),
+                    },
+                    {
+                        key: 'divider_0',
+                        itemType: ContextualMenuItemType.Divider,
+                    },
+                    {
                         key: "runOcrForCurrentDocument",
                         text: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runOcrOnCurrentDocument,
                         iconProps: { iconName: "TextDocument" },
@@ -105,6 +121,16 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         iconProps: { iconName: "Documentation" },
                         onClick: () => props.handleRunOcrForAllDocuments(),
                     },
+                    {
+                      key: 'divider_1',
+                      itemType: ContextualMenuItemType.Divider,
+                    },
+                    {
+                      key: "deleteAsset",
+                      text: strings.editorPage.asset.delete.title,
+                      iconProps: { iconName: "Delete" },
+                      onClick: () => props.handleAssetDeleted(),
+                    }
                 ],
             },
         },

@@ -29,7 +29,7 @@ export default class LocalFileSystem implements IStorageProvider {
                 properties: ["openDirectory", "createDirectory"],
             });
 
-            if (!result.filePaths || result.filePaths.length !== 1) {
+            if (!result || result.filePaths.length !== 1) {
                 return reject();
             }
 
@@ -46,6 +46,20 @@ export default class LocalFileSystem implements IStorageProvider {
 
                 resolve(data.toString());
             });
+        });
+    }
+
+    public isValidProjectConnection(folderPath) {
+        return new Promise<boolean>((resolve, reject) => {
+            try {
+                if (fs.existsSync(folderPath)) {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
+            } catch (err) {
+                reject(err);
+            }
         });
     }
 

@@ -91,3 +91,13 @@
   margin-left: 0.5rem;
   margin-right: -1rem;
 }
+
+.disabled {
+    opacity: 0.3;
+}
+
+.ol-dragbox-style {
+  border: dashed;
+  border-width: 1px ;
+  border-color: black;
+}
