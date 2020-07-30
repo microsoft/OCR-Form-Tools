@@ -81,9 +81,8 @@ export interface IModel {
 }
 export interface IComposedModelInfo {
     id: string ,
-    name: string,
-    createdDateTime: string;
-    attributes: { isComposed: boolean}
+    name?: string,
+    createdDateTime?: string;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -370,17 +369,26 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 model.composedTrainResults
                 : (await this.getModelByURl(constants.apiModelsPath + "/" + model.modelId)).composedTrainResults;
 
-                for (const i of Object.keys(inclModels)) {
-                    const _model = await this.getModelByURl(constants.apiModelsPath + "/" + inclModels[i].modelId);
-                    const modelInfo: IComposedModelInfo = {
+            for (const i of Object.keys(inclModels)) {
+                let _model: IModel;
+                let modelInfo: IComposedModelInfo;
+                try {
+                    _model = await this.getModelByURl(constants.apiModelsPath + "/" + inclModels[i].modelId);
+                    modelInfo = {
                         id: _model.modelId,
                         name: _model.modelName,
                         createdDateTime: _model.createdDateTime,
-                        attributes: { isComposed: _model.attributes.isComposed }
-                    }
+                    };
+                    composedModelInfo.composedTrainResults.push(modelInfo as never);
+                } catch (e) {
+                    modelInfo = {
+                        id: inclModels[i].modelId,
+                        name: strings.modelCompose.errors.noInfoAboutModel,
+                    };
                     composedModelInfo.composedTrainResults.push(modelInfo as never);
                 }
-                this.composeModalRef.current.open(composedModelInfo, false, false);
+            }
+            this.composeModalRef.current.open(composedModelInfo, false, false);
         }
     }
 

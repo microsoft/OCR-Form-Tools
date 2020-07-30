@@ -63,16 +63,6 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
 
         const modelDetailsColumns: IColumn[] = [
             {
-                key: "column1",
-                name: strings.modelCompose.column.icon.name,
-                minWidth: 16,
-                maxWidth: 16,
-                className: "composed-icon-cell",
-                ariaLabel: strings.modelCompose.columnAria.icon,
-                isIconOnly: true,
-                onRender: (model) => model.attributes.isComposed ? <FontIcon iconName={"Merge"} className="model-fontIcon"/> : null
-            },
-            {
                 key: "column2",
                 name: strings.modelCompose.column.id.headerName,
                 minWidth: 150,
@@ -94,7 +84,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                 minWidth: 100,
                 maxWidth: 250,
                 isResizable: true,
-                onRender: (model) => <span>{new Date(model.createdDateTime).toLocaleString()}</span>,
+                onRender: (model) => <span>{model.createdDateTime ? new Date(model.createdDateTime).toLocaleString() : "N/A"}</span>,
             }
         ];
 
@@ -205,12 +195,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
         })
     }
 
-    public close = () => {
-        this.setState({
-            hideModal: true,
-            composing: false,
-        })
-    }
+    public close = () => this.setState({ hideModal: true });
 
     public confirm = () => {
         if (this.state.items.length > 1) {

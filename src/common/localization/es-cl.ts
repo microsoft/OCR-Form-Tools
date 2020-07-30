@@ -182,7 +182,8 @@ export const spanish: IAppStrings = {
             checkAllButtonAria: "Botón de verificación Seleccionar todos los modelos",
         },
         errors: {
-            failedCompose: "¡Algo salió mal, el modelo compuesto no fue creado!"
+            failedCompose: "¡Algo salió mal, el modelo compuesto no fue creado!",
+            noInfoAboutModel: "Lo siento, no hay información sobre este modelo",
         }
     },
     predict: {

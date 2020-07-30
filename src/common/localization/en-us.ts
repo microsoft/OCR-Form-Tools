@@ -182,7 +182,8 @@ export const english: IAppStrings = {
 
         },
         errors: {
-            failedCompose: "Something went wrong composed model was not created!"
+            failedCompose: "Something went wrong composed model was not created!",
+            noInfoAboutModel: "Sorry no information about this model.",
         }
     },
     predict: {
