@@ -52,6 +52,8 @@ export class OCRService {
             notifyStatusChanged(OcrStatus.runningOCR);
             if (e instanceof AppError && e.errorCode === ErrorCode.BlobContainerIONotFound) {
                 ocrJson = await this.fetchOcrUriResult(filePath, ocrFileName);
+            } else {
+                throw e;
             }
         } finally {
             notifyStatusChanged(OcrStatus.done);
