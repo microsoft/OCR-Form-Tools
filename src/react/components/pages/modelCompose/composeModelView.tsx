@@ -74,7 +74,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                 key: "column3",
                 name: strings.modelCompose.column.name.headerName,
                 minWidth: 100,
-                maxWidth: 250,
+                maxWidth: 330,
                 isResizable: true,
                 onRender: (model) => <span>{model.name}</span>,
             },

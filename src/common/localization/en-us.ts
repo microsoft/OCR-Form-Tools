@@ -183,7 +183,7 @@ export const english: IAppStrings = {
         },
         errors: {
             failedCompose: "Something went wrong composed model was not created!",
-            noInfoAboutModel: "Sorry no information about this model.",
+            noInfoAboutModel: ">> Original model not found. No information available.  <<",
         }
     },
     predict: {
