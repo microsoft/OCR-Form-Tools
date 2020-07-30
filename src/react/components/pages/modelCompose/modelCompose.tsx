@@ -349,6 +349,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         return item.key;
     }
 
+    private returnReadyModels = (modelList) => modelList.filter((model: IModel) => model.status === constants.statusCodeReady);
+
     private getModelList = async () => {
         try {
             this.setState({
@@ -361,7 +363,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             }
 
             const res = await this.getResponse();
-            let models = res.data.modelList;
+            let models = this.returnReadyModels(res.data.modelList)
             const link = res.data.nextLink;
 
             const recentModelIds = this.getRecentModelIds(recentModels);
@@ -470,7 +472,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     private getModelsFromNextLink = async (link: string) => {
         const res = await this.getResponse(link);
         return {
-            nextList: res.data.modelList,
+            nextList: this.returnReadyModels(res.data.modelList),
             nextLink: res.data.nextLink,
         };
     }
