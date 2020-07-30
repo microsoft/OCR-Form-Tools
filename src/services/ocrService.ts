@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import Guard from "../common/guard";
-import { IProject } from "../models/applicationState";
+import { IProject, AppError, ErrorCode } from "../models/applicationState";
 import { IStorageProvider, StorageProviderFactory } from "../providers/storage/storageProviderFactory";
 import { constants } from "../common/constants";
 import ServiceHelper from "./serviceHelper";
@@ -50,7 +50,9 @@ export class OCRService {
             }
         } catch (e) {
             notifyStatusChanged(OcrStatus.runningOCR);
-            ocrJson = await this.fetchOcrUriResult(filePath, ocrFileName);
+            if (e instanceof AppError && e.errorCode === ErrorCode.BlobContainerIONotFound) {
+                ocrJson = await this.fetchOcrUriResult(filePath, ocrFileName);
+            }
         } finally {
             notifyStatusChanged(OcrStatus.done);
         }
