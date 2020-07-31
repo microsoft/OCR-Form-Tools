@@ -183,7 +183,7 @@ export const spanish: IAppStrings = {
         },
         errors: {
             failedCompose: "¡Algo salió mal, el modelo compuesto no fue creado!",
-            noInfoAboutModel: ">> Modelo original no encontrado. No hay información disponible. <<",
+            noInfoAboutModel: "ℹ️  Modelo original no encontrado. No hay información disponible.",
         }
     },
     predict: {
