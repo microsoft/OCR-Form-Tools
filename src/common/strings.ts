@@ -406,7 +406,6 @@ export interface IAppStrings {
                     },
                 },
                 farItems: {
-                    share: string,
                     zoom: {
                         zoomOut: string,
                         zoomIn: string,
@@ -534,6 +533,7 @@ export interface IAppStrings {
         modelNotFound: IErrorMetadata,
     };
     shareProject: {
+        name: string,
         errors: {
             cannotDecodeString: string,
             connectionNotFound: string,
