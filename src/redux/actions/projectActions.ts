@@ -146,18 +146,15 @@ export function deleteProject(project: IProject)
         const appState = getState();
         const projectService = new ProjectService();
 
-        // Lookup security token used to decrypt project settings
-        const projectToken = appState.appSettings.securityTokens
-            .find((securityToken) => securityToken.name === project.securityToken);
-
-        if (!projectToken) {
-            throw new AppError(ErrorCode.SecurityTokenNotFound, "Security Token Not Found");
+        let sourceConnection = appState.connections.find(a => a.name === project.sourceConnection.name);
+        if (!sourceConnection) {
+            toast.error(strings.errors.connectionNotExistError.message, { autoClose: false });
         }
-
-        const decryptedProject = await projectService.load(project, projectToken);
-
-        await projectService.delete(decryptedProject);
-        dispatch(deleteProjectAction(decryptedProject));
+        else {
+            const decryptedProject = { ...project, sourceConnection };
+            await projectService.delete(decryptedProject);
+            dispatch(deleteProjectAction(decryptedProject));
+        }
     };
 }
 

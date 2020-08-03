@@ -531,6 +531,7 @@ export interface IAppStrings {
         modelCountLimitExceeded: IErrorMetadata,
         requestSendError: IErrorMetadata,
         modelNotFound: IErrorMetadata,
+        connectionNotExistError: IErrorMetadata,
     };
     shareProject: {
         errors: {

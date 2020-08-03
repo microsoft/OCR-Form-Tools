@@ -630,6 +630,10 @@ export const english: IAppStrings = {
         modelNotFound: {
             title: "Model not found",
             message: "Model \"${modelID}\" not found. Please use another model.",
+        },
+        connectionNotExistError:{
+            title:'connection not exist',
+            message:'connection not exist.'
         }
     },
     shareProject: {
