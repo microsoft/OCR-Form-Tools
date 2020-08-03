@@ -630,7 +630,12 @@ export const spanish: IAppStrings = {
         modelNotFound: {
             title: "Modelo no encontrado",
             message: "Modelo \"${modelID}\" no encontrado. Por favor use otro modelo.",
+        },
+        getOcrError: {
+            title: "No se puede cargar el archivo OCR",
+            message: "Error al cargar desde el archivo OCR. Verifique su conexión o configuración de red."
         }
+
     },
     shareProject: {
         name: "Compartir proyecto",

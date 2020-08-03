@@ -629,6 +629,10 @@ export const english: IAppStrings = {
         modelNotFound: {
             title: "Model not found",
             message: "Model \"${modelID}\" not found. Please use another model.",
+        },
+        getOcrError: {
+            title: "Cannot load OCR file",
+            message: "Failed to load from OCR file. Please check your connection or network settings.",
         }
     },
     shareProject: {
