@@ -411,7 +411,6 @@ export const spanish: IAppStrings = {
                     }
                 },
                 farItems: {
-                    share: "Compartir proyecto",
                     zoom: {
                         zoomOut: "Alejar",
                         zoomIn: "Acercarse",
@@ -638,6 +637,7 @@ export const spanish: IAppStrings = {
         }
     },
     shareProject: {
+        name: "Compartir proyecto",
         errors: {
             cannotDecodeString: "¡No se puede decodificar la cadena compartida! Por favor, verifique si su cadena ha sido modificada.",
             connectionNotFound: "Conexión no encontrada. Agregue la conexión del proyecto compartido a sus conexiones.",
