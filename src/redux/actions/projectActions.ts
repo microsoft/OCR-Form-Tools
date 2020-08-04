@@ -64,7 +64,7 @@ export function loadProject(project: IProject, sharedToken?: ISecurityToken):
                     ]
                 }));
             } else if (existingToken.key !== sharedToken.key) {
-                const reason = interpolate(strings.shareProject.errors.tokenNameExist, {sharedTokenName: sharedToken.name})
+                const reason = interpolate(strings.shareProject.errors.tokenNameExist, { sharedTokenName: sharedToken.name })
                 toast.error(reason, { autoClose: false, closeOnClick: false });
                 return null;
             }
@@ -126,7 +126,7 @@ export function updateProjectTagsFromFiles(project: IProject, asset?: string): (
 }
 
 export function updatedAssetMetadata(project: IProject,
-                                     assetDocumentCountDifference: any): (dispatch: Dispatch) => Promise<void> {
+    assetDocumentCountDifference: any): (dispatch: Dispatch) => Promise<void> {
     return async (dispatch: Dispatch) => {
         const projectService = new ProjectService();
         const updatedProject = await projectService.updatedAssetMetadata(project, assetDocumentCountDifference);
@@ -146,15 +146,18 @@ export function deleteProject(project: IProject)
         const appState = getState();
         const projectService = new ProjectService();
 
-        let sourceConnection = appState.connections.find(a => a.name === project.sourceConnection.name);
-        if (!sourceConnection) {
-            toast.error(strings.errors.connectionNotExistError.message, { autoClose: false });
+        // Lookup security token used to decrypt project settings
+        const projectToken = appState.appSettings.securityTokens
+            .find((securityToken) => securityToken.name === project.securityToken);
+
+        if (!projectToken) {
+            dispatch(deleteProjectAction(project));
+            throw new AppError(ErrorCode.SecurityTokenNotFound, "Security Token Not Found, only remove project from FoTT tool.");
         }
-        else {
-            const decryptedProject = { ...project, sourceConnection };
-            await projectService.delete(decryptedProject);
-            dispatch(deleteProjectAction(decryptedProject));
-        }
+
+        const decryptedProject = await projectService.load(project, projectToken);
+        await projectService.delete(decryptedProject);
+        dispatch(deleteProjectAction(decryptedProject));
     };
 }
 
