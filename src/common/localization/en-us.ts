@@ -409,7 +409,6 @@ export const english: IAppStrings = {
                     }
                 },
                 farItems: {
-                    share: "Share Project",
                     zoom: {
                         zoomOut: "Zoom out",
                         zoomIn: "Zoom in",
@@ -633,6 +632,7 @@ export const english: IAppStrings = {
         }
     },
     shareProject: {
+        name: "Share Project",
         errors: {
             cannotDecodeString: "Cannot decode shared string! Please, check if your string has been modified.",
             connectionNotFound: "Connection not found. Add shared project's connection to your connections.",

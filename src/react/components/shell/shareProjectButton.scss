@@ -1,0 +1,19 @@
+@import '../../../assets/sass/theme.scss';
+
+.share-button {
+    background-color: transparent;
+    height: 100%;
+    width: 100%;
+    border-radius: 0;
+    &:hover{
+        background-color: $lighter-3;
+    }
+    &.is-disabled {
+        .ms-Icon {
+            color: $darker-5;
+            font-size: 1rem;
+
+        }
+    }
+}
+
