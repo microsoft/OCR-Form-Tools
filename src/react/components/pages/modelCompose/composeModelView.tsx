@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { Customizer, IColumn, ICustomizations, Modal, DetailsList, SelectionMode, DetailsListLayoutMode, PrimaryButton, TextField } from "@fluentui/react";
+import { Customizer, IColumn, ICustomizations, Modal, DetailsList, SelectionMode, DetailsListLayoutMode, PrimaryButton, TextField, FontIcon } from "@fluentui/react";
 import { getDarkGreyTheme, getPrimaryGreenTheme, getPrimaryGreyTheme } from "../../../../common/themes";
 import { strings } from "../../../../common/strings";
 import { IModel } from "./modelCompose";
@@ -43,18 +43,37 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
         const columns: IColumn[] = [
             {
                 key: "column1",
+                name: strings.modelCompose.column.icon.name,
+                minWidth: 16,
+                maxWidth: 16,
+                className: "composed-icon-cell",
+                ariaLabel: strings.modelCompose.columnAria.icon,
+                isIconOnly: true,
+                onRender: (model) => model.attributes?.isComposed ? <FontIcon iconName={"Merge"} className="model-fontIcon" /> : null
+            },
+            {
+                key: "column2",
                 name: strings.modelCompose.column.id.headerName,
-                minWidth: 250,
-                maxWidth: 250,
+                minWidth: 150,
+                maxWidth: 300,
                 isResizable: true,
                 onRender: (model) => <span>{model.modelId}</span>,
             },
             {
-                key: "column2",
+                key: "column3",
                 name: strings.modelCompose.column.name.headerName,
                 minWidth: 50,
+                maxWidth: 300,
                 isResizable: true,
                 onRender: (model) => <span>{model.modelName}</span>,
+            },
+            {
+                key: "column4",
+                name: strings.modelCompose.column.created.headerName,
+                minWidth: 100,
+                maxWidth: 200,
+                isResizable: true,
+                onRender: (model) => <span>{new Date(model.createdDateTime).toLocaleString()}</span>,
             }
         ];
 
