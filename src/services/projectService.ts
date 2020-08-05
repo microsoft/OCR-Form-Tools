@@ -97,12 +97,14 @@ export default class ProjectService implements IProjectService {
         }
 
         project = await encryptProject(project, securityToken);
-
-        await storageProvider.writeText(
-            `${project.name}${constants.projectFileExtension}`,
-            JSON.stringify(project, null, 4),
-        );
-
+        try {
+            await storageProvider.writeText(
+                `${project.name}${constants.projectFileExtension}`,
+                JSON.stringify(project, null, 4),
+            );
+        } catch (error) {
+            throw new Error(error);
+        }
         return project;
     }
 

@@ -182,6 +182,7 @@ export interface IAppStrings {
         },
         errors: {
             failedCompose: string,
+            noInfoAboutModel: string,
         }
     }
     predict: {
@@ -530,6 +531,7 @@ export interface IAppStrings {
         modelCountLimitExceeded: IErrorMetadata,
         requestSendError: IErrorMetadata,
         modelNotFound: IErrorMetadata,
+        getOcrError: IErrorMetadata,
     };
     shareProject: {
         name: string,
