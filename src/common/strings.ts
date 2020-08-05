@@ -182,6 +182,7 @@ export interface IAppStrings {
         },
         errors: {
             failedCompose: string,
+            noInfoAboutModel: string,
         }
     }
     predict: {
