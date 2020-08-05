@@ -1,9 +1,25 @@
-import {ApplicationInsights} from '@microsoft/applicationinsights-web';
+import {ApplicationInsights, ITelemetryItem} from '@microsoft/applicationinsights-web';
 import {ReactPlugin} from '@microsoft/applicationinsights-react-js';
-import { constants } from '../common/constants';
+import {constants} from '../common/constants';
 
 let reactPlugin = null;
 let appInsights = null;
+
+const adjustPageViewName = (item) => {
+    const route: string = item.uri.substr (item.uri.lastIndexOf ( "/" ) + 1)
+    switch (route) {
+        case "edit":
+            return "Editor";
+        case "train":
+            return "Train";
+        case "modelcompose":
+            return "Model_Compose"
+        case "predict":
+            return "Analyze";
+        default:
+            return "Home";
+    }
+}
 
 /**
  * Create the App Insights Telemetry Service
@@ -41,9 +57,13 @@ const createTelemetryService = () => {
                 }
             }
         });
-
         appInsights.loadAppInsights();
+
         appInsights.context.application.ver = constants.apiVersion;
+        appInsights.addTelemetryInitializer((envelope)=>{
+            const telemetryItem: ITelemetryItem = envelope.baseData;
+            telemetryItem.name = adjustPageViewName(telemetryItem);
+        })
     };
 
     return {reactPlugin, appInsights, initialize};

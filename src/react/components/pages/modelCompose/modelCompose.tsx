@@ -215,7 +215,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         if (this.props.project) {
             this.getModelList();
         }
-        document.title = strings.modelCompose.title + "-" + strings.appName;
+        document.title = strings.modelCompose.title + " - " + strings.appName;
     }
 
     public componentDidUpdate(prevProps, prevState) {
