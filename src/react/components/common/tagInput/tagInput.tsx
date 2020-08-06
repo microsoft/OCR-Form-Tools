@@ -643,7 +643,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         return menuItems;
     }
 
-    public isTypeCompatibleWithTag = (tag, type) => {
+    private isTypeCompatibleWithTag = (tag, type) => {
         // If free tag we can assign any type
         if (tag && tag.documentCount <= 0) {
             return true;
