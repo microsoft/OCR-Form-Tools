@@ -182,7 +182,8 @@ export const english: IAppStrings = {
 
         },
         errors: {
-            failedCompose: "Something went wrong composed model was not created!"
+            failedCompose: "Something went wrong composed model was not created!",
+            noInfoAboutModel: "ℹ️ Original model not found. No information available.",
         }
     },
     predict: {
@@ -409,7 +410,6 @@ export const english: IAppStrings = {
                     }
                 },
                 farItems: {
-                    share: "Share Project",
                     zoom: {
                         zoomOut: "Zoom out",
                         zoomIn: "Zoom in",
@@ -630,9 +630,14 @@ export const english: IAppStrings = {
         modelNotFound: {
             title: "Model not found",
             message: "Model \"${modelID}\" not found. Please use another model.",
+        },
+        getOcrError: {
+            title: "Cannot load OCR file",
+            message: "Failed to load from OCR file. Please check your connection or network settings.",
         }
     },
     shareProject: {
+        name: "Share Project",
         errors: {
             cannotDecodeString: "Cannot decode shared string! Please, check if your string has been modified.",
             connectionNotFound: "Connection not found. Add shared project's connection to your connections.",

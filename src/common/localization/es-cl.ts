@@ -182,7 +182,8 @@ export const spanish: IAppStrings = {
             checkAllButtonAria: "Botón de verificación Seleccionar todos los modelos",
         },
         errors: {
-            failedCompose: "¡Algo salió mal, el modelo compuesto no fue creado!"
+            failedCompose: "¡Algo salió mal, el modelo compuesto no fue creado!",
+            noInfoAboutModel: "ℹ️  Modelo original no encontrado. No hay información disponible.",
         }
     },
     predict: {
@@ -411,7 +412,6 @@ export const spanish: IAppStrings = {
                     }
                 },
                 farItems: {
-                    share: "Compartir proyecto",
                     zoom: {
                         zoomOut: "Alejar",
                         zoomIn: "Acercarse",
@@ -631,9 +631,15 @@ export const spanish: IAppStrings = {
         modelNotFound: {
             title: "Modelo no encontrado",
             message: "Modelo \"${modelID}\" no encontrado. Por favor use otro modelo.",
+        },
+        getOcrError: {
+            title: "No se puede cargar el archivo OCR",
+            message: "Error al cargar desde el archivo OCR. Verifique su conexión o configuración de red."
         }
+
     },
     shareProject: {
+        name: "Compartir proyecto",
         errors: {
             cannotDecodeString: "¡No se puede decodificar la cadena compartida! Por favor, verifique si su cadena ha sido modificada.",
             connectionNotFound: "Conexión no encontrada. Agregue la conexión del proyecto compartido a sus conexiones.",

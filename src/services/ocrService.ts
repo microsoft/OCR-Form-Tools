@@ -6,6 +6,7 @@ import { IProject, AppError, ErrorCode } from "../models/applicationState";
 import { IStorageProvider, StorageProviderFactory } from "../providers/storage/storageProviderFactory";
 import { constants } from "../common/constants";
 import ServiceHelper from "./serviceHelper";
+import { strings } from "../common/strings";
 
 export enum OcrStatus {
     loadingFromAzureBlob,
@@ -120,8 +121,12 @@ export class OCRService {
                     this.save(ocrFileName, data);
                     return data;
                 });
-        } catch (err) {
-            ServiceHelper.handleServiceError(err);
+        } catch (error) {
+            if (error.response.status === 400) {
+                throw new Error(strings.errors.getOcrError.message);
+            } else {
+                throw new Error(error);
+            }
         }
     }
 

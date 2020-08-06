@@ -182,6 +182,7 @@ export interface IAppStrings {
         },
         errors: {
             failedCompose: string,
+            noInfoAboutModel: string,
         }
     }
     predict: {
@@ -405,7 +406,6 @@ export interface IAppStrings {
                     },
                 },
                 farItems: {
-                    share: string,
                     zoom: {
                         zoomOut: string,
                         zoomIn: string,
@@ -531,8 +531,10 @@ export interface IAppStrings {
         modelCountLimitExceeded: IErrorMetadata,
         requestSendError: IErrorMetadata,
         modelNotFound: IErrorMetadata,
+        getOcrError: IErrorMetadata,
     };
     shareProject: {
+        name: string,
         errors: {
             cannotDecodeString: string,
             connectionNotFound: string,
