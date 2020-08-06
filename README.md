@@ -174,6 +174,15 @@ Hold Alt key and click on tag name, user can change the tag's name.
 
 To delete all labels for a tag - select all labels for a tag on document then press 'delete' key.
 
+### **Disclaimer**
+For development purposes and for better understanding of our tool usage we are collecting some data, such as:
+
+custom events (training, model compose and prediction), Form recognizer API version, browser version, OS version, approximate location (according your ISP: country and city)  
+
+*If you do not like to share this information with us, feel free to delete telemetry key. It is located at ```src/common/constant.ts```. It should not affect any of the tool's operations.*
+
+Alternatively if you want to gather your own telemetry - you can just replace the **insightsKey** with your own. We use **Azure Application Insights** telemetry service. All related docs are [here](https://docs.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview).
+
 ## Collaborators
 
 This project is cloned and modified from [VoTT](https://github.com/microsoft/VoTT) project.
