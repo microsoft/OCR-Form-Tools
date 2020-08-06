@@ -406,7 +406,9 @@ export class ImageMap extends React.Component<IImageMapProps> {
     }
 
     public removeDrawnRegionFeature = (feature: Feature) => {
-        this.drawRegionVectorLayer.getSource().removeFeature(feature);
+        if (feature && this.getDrawnRegionFeatureByID(feature.getId())) {
+            this.drawRegionVectorLayer.getSource().removeFeature(feature);
+        }
     }
 
     /**
