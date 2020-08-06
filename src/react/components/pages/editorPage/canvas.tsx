@@ -371,7 +371,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.props.onTagChanged(tag, newTag);
     }
 
-    private getSelectedRegions = (): IRegion[] => {
+    public getSelectedRegions = (): IRegion[] => {
         return this.state.currentAsset.regions.filter((r) => this.selectedRegionIds.find((id) => r.id === id));
     }
 

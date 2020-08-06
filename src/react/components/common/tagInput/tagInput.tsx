@@ -501,9 +501,9 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
          return labels.find((label) => label.label === name ? true : false);
     }
 
-    private getTagCategory = (tagType: string) => {
+    public getTagCategory = (tagType: string) => {
         switch (tagType) {
-            case FieldType.SelectionMark:
+            case FieldType.SelectionMark || "checkbox":
                 return "checkbox";
             default:
                 return "text";
@@ -643,7 +643,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         return menuItems;
     }
 
-    private isTypeCompatibleWithTag = (tag, type) => {
+    public isTypeCompatibleWithTag = (tag, type) => {
         // If free tag we can assign any type
         if (tag && tag.documentCount <= 0) {
             return true;
