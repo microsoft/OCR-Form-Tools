@@ -498,7 +498,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     public labelAssigned = (labels, name): boolean => {
-        console.log("# labels:", labels,  name);
          return labels.find((label) => label.label === name ? true : false);
     }
 

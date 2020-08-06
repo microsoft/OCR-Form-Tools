@@ -490,7 +490,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         let selectionCategory;
         let labels;
 
-
         if (tag && selection.length) {
             tagCategory = this.tagInputRef.current.getTagCategory(tag.type);
             selectionCategory = this.tagInputRef.current.getTagCategory(selection[0].category);
