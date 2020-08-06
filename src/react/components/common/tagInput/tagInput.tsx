@@ -503,7 +503,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
     public getTagCategory = (tagType: string) => {
         switch (tagType) {
-            case FieldType.SelectionMark || "checkbox":
+            case FieldType.SelectionMark:
+            case "checkbox":
                 return "checkbox";
             default:
                 return "text";

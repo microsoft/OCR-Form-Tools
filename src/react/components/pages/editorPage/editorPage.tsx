@@ -485,12 +485,17 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      */
     private handleTagHotKey = (event: KeyboardEvent): void => {
         const tag = this.getTagFromKeyboardEvent(event);
-        const tagCategory = this.tagInputRef.current.getTagCategory(tag.type);
         const selection = this.canvas.current.getSelectedRegions();
-        const selectedRegionsCategory = this.tagInputRef.current.getTagCategory(this.canvas.current.getSelectedRegions()[0]?.category);
+        let tagCategory;
+        let selectionCategory;
+
 
         if (tag && selection.length ) {
-            if (selectedRegionsCategory === tagCategory ) {
+            tagCategory = this.tagInputRef.current.getTagCategory(tag.type);
+            selectionCategory = this.tagInputRef.current.getTagCategory(selection[0].category);
+
+
+            if (selectionCategory === tagCategory ) {
                 this.onTagClicked(tag);
             } else {
                 toast.warn(strings.tags.warnings.notCompatibleTagType)
