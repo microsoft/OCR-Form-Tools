@@ -488,15 +488,20 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const selection = this.canvas.current.getSelectedRegions();
         let tagCategory;
         let selectionCategory;
+        let labels;
 
 
-        if (tag && selection.length ) {
+        if (tag && selection.length) {
             tagCategory = this.tagInputRef.current.getTagCategory(tag.type);
             selectionCategory = this.tagInputRef.current.getTagCategory(selection[0].category);
+            labels = this.state.selectedAsset.labelData.labels;
 
-
-            if (selectionCategory === tagCategory ) {
-                this.onTagClicked(tag);
+            if (selectionCategory === tagCategory) {
+                if (tagCategory === "checkbox" && this.tagInputRef.current.labelAssigned(labels, tag.name)) {
+                    toast.warn(strings.tags.warnings.checkboxPerTagLimit);
+                } else {
+                    this.onTagClicked(tag);
+                }
             } else {
                 toast.warn(strings.tags.warnings.notCompatibleTagType)
             }
