@@ -1,6 +1,6 @@
 import { ApplicationInsights, ITelemetryItem } from "@microsoft/applicationinsights-web";
 import { ReactPlugin } from "@microsoft/applicationinsights-react-js";
-import { constants } from "../common/constants";
+import { appInfo } from "../common/appInfo";
 
 let reactPlugin = null;
 let appInsights = null;
@@ -66,7 +66,7 @@ const createTelemetryService = () => {
         });
         appInsights.loadAppInsights();
 
-        appInsights.context.application.ver = constants.apiVersion;
+        appInsights.context.application.ver = appInfo.version;
         appInsights.addTelemetryInitializer((envelope) => {
             const telemetryItem: ITelemetryItem = envelope.baseData;
             telemetryItem.name = adjustPageViewName(telemetryItem);
