@@ -16,7 +16,7 @@ import { strings } from "../../../../common/strings";
 import { getDarkTheme } from "../../../../common/themes";
 import { AlignPortal } from "../align/alignPortal";
 import { getNextColor } from "../../../../common/utils";
-import { IRegion, ITag, ILabel, FieldType, FieldFormat } from "../../../../models/applicationState";
+import { IRegion, ITag, ILabel, FieldType, FieldFormat, FeatureCategory } from "../../../../models/applicationState";
 import { ColorPicker } from "../colorPicker";
 import "./tagInput.scss";
 import "../condensedList/condensedList.scss";
@@ -478,9 +478,11 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 const { category } = selectedRegions[0];
                 const { format, type, documentCount, name } = tag;
                 const tagCategory = this.getTagCategory(type);
-                if (tagCategory === category ||
+
+                if (tagCategory === category || category === FeatureCategory.DrawnRegion ||
                     (documentCount === 0 && type === FieldType.String && format === FieldFormat.NotSpecified)) {
-                    if (category === "checkbox" && this.labelAssigned(labels, name)) {
+                    if (tagCategory === "checkbox" && this.labelAssigned(labels, name) ||
+                        (tagCategory === "checkbox" && category === FeatureCategory.DrawnRegion && selectedRegions.length > 1)) {
                         toast.warn(strings.tags.warnings.checkboxPerTagLimit);
                         return;
                     }

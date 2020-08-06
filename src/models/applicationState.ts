@@ -407,4 +407,5 @@ export enum FeatureCategory {
     Text = "text",
     Checkbox = "checkbox",
     Label = "label",
+    DrawnRegion = "drawnRegion"
 }

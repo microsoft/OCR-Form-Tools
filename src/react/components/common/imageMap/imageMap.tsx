@@ -3,8 +3,15 @@
 
 import { Feature, MapBrowserEvent, View } from "ol";
 import { Extent, getCenter } from "ol/extent";
-import { defaults as defaultInteractions, DragPan, Interaction, DragBox } from "ol/interaction.js";
-import { shiftKeyOnly } from 'ol/events/condition';
+import { defaults as defaultInteractions, DragPan, Interaction, DragBox, Snap, Select } from "ol/interaction.js";
+import PointerInteraction from 'ol/interaction/Pointer';
+import Draw, { createBox } from "ol/interaction/Draw.js";
+import Style from "ol/style/Style";
+import Stroke from "ol/style/Stroke";
+import Fill from "ol/style/Fill";
+import Icon from "ol/style/Icon";
+import { shiftKeyOnly, never, always } from 'ol/events/condition';
+import { Modify } from "ol/interaction";
 import ImageLayer from "ol/layer/Image";
 import Layer from "ol/layer/Layer";
 import VectorLayer from "ol/layer/Vector";
@@ -16,6 +23,7 @@ import * as React from "react";
 import "./styles.css";
 import Utils from "./utils";
 import { FeatureCategory, IRegion } from "../../../../models/applicationState";
+import { toast } from "react-toastify";
 
 interface IImageMapProps {
     imageUri: string;
@@ -23,16 +31,26 @@ interface IImageMapProps {
     imageHeight: number;
     imageAngle?: number;
 
-    featureStyler?: any;
-    tableBorderFeatureStyler?: any;
-    tableIconFeatureStyler?: any;
-    tableIconBorderFeatureStyler?: any;
-    checkboxFeatureStyler?: any;
-    labelFeatureStyler?: any;
+    featureStyler?: (feature) => Style;
+    tableBorderFeatureStyler?: (feature) => Style;
+    tableIconFeatureStyler?: (feature, resolution) => Style;
+    tableIconBorderFeatureStyler?: (feature) => Style;
+    checkboxFeatureStyler?: (feature) => Style;
+    labelFeatureStyler?: (feature) => Style;
+    drawRegionStyler?: (feature) => Style;
 
     enableFeatureSelection?: boolean;
     handleFeatureSelect?: (feature: any, isTaggle: boolean, category: FeatureCategory) => void;
     groupSelectMode?: boolean;
+    handleIsPointerOnImage?: (isPointerOnImage: boolean) => void;
+    isPointerOnImage?: boolean;
+    drawRegionMode?: boolean;
+    isSnapped?: boolean;
+    handleIsSnapped?: (snapped: boolean) => void;
+    handleVertexDrag?: (dragging: boolean) => void;
+    isVertexDragging?: boolean;
+    handleDrawing?: (drawing: boolean) => void;
+    isDrawing?: boolean;
     handleRegionSelectByGroup?: (selectedRegions: IRegion[]) => void;
     handleFeatureSelectByGroup?: (feature) => IRegion;
     hoveringFeature?: string;
@@ -40,6 +58,9 @@ interface IImageMapProps {
     onMapReady: () => void;
     handleTableToolTipChange?: (display: string, width: number, height: number, top: number,
                                 left: number, rows: number, columns: number, featureID: string) => void;
+
+    addDrawnRegionFeatureProps?: (feature) => void;
+    updateFeatureAfterModify?: (features) => any;
 
 }
 
@@ -52,23 +73,48 @@ export class ImageMap extends React.Component<IImageMapProps> {
     private tableIconBorderVectorLayer: VectorLayer;
     private checkboxVectorLayer: VectorLayer;
     private labelVectorLayer: VectorLayer;
+    private drawRegionVectorLayer: VectorLayer;
 
     private mapElement: HTMLDivElement | null = null;
+
+    private draw: Draw;
+    private dragBox: DragBox;
+    private select: Select;
+    private modify: Modify;
+    private snap: Snap;
+
+    public modifyStartFeatureCoordinates: any = {};
+
+    private cursor: string = "default";
 
     private imageExtent: number[];
 
     private countPointerDown: number = 0;
     private isSwiping: boolean = false;
 
+    private readonly IMAGE_LAYER_NAME = "imageLayer";
     private readonly TEXT_VECTOR_LAYER_NAME = "textVectorLayer";
     private readonly TABLE_BORDER_VECTOR_LAYER_NAME = "tableBorderVectorLayer";
     private readonly TABLE_ICON_VECTOR_LAYER_NAME = "tableIconVectorLayer";
     private readonly TABLE_ICON_BORDER_VECTOR_LAYER_NAME = "tableIconBorderVectorLayer";
     private readonly CHECKBOX_VECTOR_LAYER_NAME = "checkboxBorderVectorLayer";
     private readonly LABEL_VECTOR_LAYER_NAME = "labelledVectorLayer";
+    private readonly DRAWN_REGION_VECTOR_LAYER_NAME = "drawnRegionVectorLayer";
 
     private ignorePointerMoveEventCount: number = 5;
     private pointerMoveEventCount: number = 0;
+
+    public getTextVectorLayer = () => {
+        return this.textVectorLayer;
+    }
+
+    public getCheckboxVectorLayer = () => {
+        return this.checkboxVectorLayer;
+    }
+
+    private imageLayerFilter = {
+        layerFilter: (layer: Layer) => layer.get("name") === this.IMAGE_LAYER_NAME,
+    };
 
     private textVectorLayerFilter = {
         layerFilter: (layer: Layer) => layer.get("name") === this.TEXT_VECTOR_LAYER_NAME,
@@ -86,6 +132,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
         layerFilter: (layer: Layer) => layer.get("name") === this.LABEL_VECTOR_LAYER_NAME,
     };
 
+    private drawnRegionVectorLayerFilter = {
+        layerFilter: (layer: Layer) => layer.get("name") === this.DRAWN_REGION_VECTOR_LAYER_NAME,
+    };
+
     constructor(props: IImageMapProps) {
         super(props);
 
@@ -97,6 +147,58 @@ export class ImageMap extends React.Component<IImageMapProps> {
     }
 
     public componentDidUpdate(prevProps: IImageMapProps) {
+        if (this.props?.drawRegionMode) {
+            this.removeInteraction(this.dragBox)
+            this.initializeDraw();
+            this.addInteraction(this.draw);
+            this.initializeModify();
+            this.addInteraction(this.modify);
+            this.addInteraction(this.snap);
+            if (this.props?.isPointerOnImage) {
+                if (this.props.isSnapped) {
+                    this.removeInteraction(this.draw)
+                }
+                if (this.props.isDrawing) {
+                    this.removeInteraction(this.snap)
+                }
+            } else {
+                    this.removeInteraction(this.draw);
+                    this.removeInteraction(this.modify)
+                    this.removeInteraction(this.snap)
+            }
+        } else {
+            this.removeInteraction(this.draw);
+            this.addInteraction(this.dragBox);
+            this.initializeModify();
+            if (this.drawRegionVectorLayer.getVisible()) {
+                this.addInteraction(this.modify);
+                this.addInteraction(this.snap);
+            }
+            if (!this.props?.isPointerOnImage) {
+                this.removeInteraction(this.modify)
+                this.removeInteraction(this.dragBox);
+            }
+        }
+
+        if (!this.props.isPointerOnImage && prevProps.isPointerOnImage && this.props.isVertexDragging) {
+            Object.entries(this.modifyStartFeatureCoordinates).forEach((featureCoordinate) => {
+                const feature = this.getDrawnRegionFeatureByID(featureCoordinate[0]);
+                // feature.get
+                if (feature.getGeometry().flatCoordinates.join(",") !== featureCoordinate[1]) {
+                    const oldFlattenedCoordinates = (featureCoordinate[1] as string).split(",").map(parseFloat)
+                    const oldCoordinates = []
+                    for (let i = 0; i < oldFlattenedCoordinates.length; i += 2) {
+                        oldCoordinates.push([
+                            oldFlattenedCoordinates[i],
+                            oldFlattenedCoordinates[i + 1],
+                        ]);
+                    }
+                    feature.getGeometry().setCoordinates([oldCoordinates]);
+                }
+            })
+            this.modifyStartFeatureCoordinates = {};
+        }
+
         if (prevProps.imageUri !== this.props.imageUri) {
             this.imageExtent = [0, 0, this.props.imageWidth, this.props.imageHeight];
             this.setImage(this.props.imageUri, this.imageExtent);
@@ -104,9 +206,27 @@ export class ImageMap extends React.Component<IImageMapProps> {
     }
 
     public render() {
+        if (this.props.isVertexDragging) {
+            this.cursor = "grabbing";
+        } else if (this.props.isSnapped) {
+            this.cursor = "grab";
+        } else if (this.props?.groupSelectMode || this.props?.drawRegionMode) {
+            if (this.props.isPointerOnImage) {
+                this.cursor = "crosshair";
+            } else {
+                this.cursor = "default";
+            }
+        } else {
+            this.cursor = "default";
+        }
         return (
-            <div style={this.props?.groupSelectMode ? {cursor: "crosshair"} : {}} className="map-wrapper">
-                <div id="map" className="map" ref={(el) => this.mapElement = el}></div>
+            <div onMouseLeave={() => {
+                if(this.props.isDrawing) {
+                    this.cancelDrawing()
+                }
+                this.props.handleIsPointerOnImage(false)
+                }} className="map-wrapper">
+                <div style={{cursor: this.cursor}} id="map" className="map" ref={(el) => this.mapElement = el}></div>
             </div>
         );
     }
@@ -122,6 +242,18 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
     public toggleLabelFeatureVisibility = () => {
         this.labelVectorLayer.setVisible(!this.labelVectorLayer.getVisible());
+    }
+
+    public toggleDrawnRegionsFeatureVisibility = () => {
+        const drawRegionVectorLayerVisibility = this.drawRegionVectorLayer.getVisible();
+        this.drawRegionVectorLayer.setVisible(!drawRegionVectorLayerVisibility);
+        if (drawRegionVectorLayerVisibility) {
+            this.removeInteraction(this.modify)
+            this.removeInteraction(this.snap);
+        } else {
+            this.addInteraction(this.modify)
+            this.addInteraction(this.snap)
+        }
     }
 
     /**
@@ -200,11 +332,19 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.tableIconBorderVectorLayer.getSource().addFeatures(features);
     }
 
+    public addDrawnRegionFeatures = (features: Feature[]) => {
+        this.drawRegionVectorLayer.getSource().addFeatures(features);
+    }
+
     /**
      * Add interaction to the map
      */
     public addInteraction = (interaction: Interaction) => {
-        this.map.addInteraction(interaction);
+        if (undefined === this.map.getInteractions().array_.find((existingInteraction) => {
+            return interaction.constructor.name === existingInteraction.constructor.name
+        })) {
+            this.map.addInteraction(interaction);
+        }
     }
 
     /**
@@ -220,6 +360,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
     public getAllLabelFeatures = () => {
         return this.labelVectorLayer.getSource().getFeatures();
+    }
+
+    public getAllDrawnRegionFeatures = () => {
+        return this.drawRegionVectorLayer.getSource().getFeatures();
     }
 
     public getFeatureByID = (featureID) => {
@@ -242,6 +386,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
         return this.tableIconBorderVectorLayer.getSource().getFeatureById(featureID);
     }
 
+    public getDrawnRegionFeatureByID = (featureID) => {
+        return this.drawRegionVectorLayer.getSource().getFeatureById(featureID);
+    }
+
     /**
      * Remove specific feature object from the map
      */
@@ -257,6 +405,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.labelVectorLayer.getSource().removeFeature(feature);
     }
 
+    public removeDrawnRegionFeature = (feature: Feature) => {
+        this.drawRegionVectorLayer.getSource().removeFeature(feature);
+    }
+
     /**
      * Remove all features from the map
      */
@@ -270,6 +422,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.tableIconBorderVectorLayer.getSource().clear();
         this.checkboxVectorLayer.getSource().clear();
         this.labelVectorLayer.getSource().clear();
+        this.drawRegionVectorLayer.getSource().clear();
     }
 
     public removeAllLabelFeatures = () => {
@@ -280,7 +433,13 @@ export class ImageMap extends React.Component<IImageMapProps> {
      * Remove interaction from the map
      */
     public removeInteraction = (interaction: Interaction) => {
-        this.map.removeInteraction(interaction);
+        const existingInteraction = this.map.getInteractions().array_.find((existingInteraction) => {
+            return interaction.constructor.name === existingInteraction.constructor.name
+        }) 
+        
+        if (existingInteraction !== undefined) {
+            this.map.removeInteraction(existingInteraction);
+        }
     }
 
     public updateSize = () => {
@@ -325,6 +484,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
         this.imageLayer = new ImageLayer({
             source: this.createImageSource(this.props.imageUri, projection, this.imageExtent),
+            name: this.IMAGE_LAYER_NAME,
         });
 
         const textOptions: any = {};
@@ -365,6 +525,12 @@ export class ImageMap extends React.Component<IImageMapProps> {
         labelOptions.source = new VectorSource();
         this.labelVectorLayer = new VectorLayer(labelOptions);
 
+        const drawnRegionOptions: any = {};
+        drawnRegionOptions.name = this.DRAWN_REGION_VECTOR_LAYER_NAME;
+        drawnRegionOptions.style = this.props.drawRegionStyler;
+        drawnRegionOptions.source = new VectorSource();
+        this.drawRegionVectorLayer = new VectorLayer(drawnRegionOptions);
+
         this.map = new Map({
             controls: [] ,
             interactions: defaultInteractions({
@@ -380,50 +546,51 @@ export class ImageMap extends React.Component<IImageMapProps> {
                 this.tableIconVectorLayer,
                 this.tableIconBorderVectorLayer,
                 this.checkboxVectorLayer,
+                this.drawRegionVectorLayer,
                 this.labelVectorLayer,
             ],
             view: this.createMapView(projection, this.imageExtent),
         });
 
-        if (this.props?.handleRegionSelectByGroup && this.props?.handleFeatureSelectByGroup) {
-            const dragBox = new DragBox({
-                condition: shiftKeyOnly,
-                className: "ol-dragbox-style",
-            });
-
-            this.map.addInteraction(dragBox);
-
-            dragBox.on('boxend', () => {
-                const featureMap = {};
-                const extent = dragBox.getGeometry().getExtent();
-                const regionsToAdd: IRegion[] = [];
-                if (this.labelVectorLayer.getVisible()) {
-                    this.labelVectorLayer.getSource().forEachFeatureInExtent(extent, (feature) => {
-                        const selectedRegion = this.props.handleFeatureSelectByGroup(feature);
-                        if (selectedRegion) {
-                            featureMap[feature.get("id")] = true;
-                            regionsToAdd.push(selectedRegion);
-                        }
-                    });
-                }
-                if (this.textVectorLayer.getVisible()) {
-                    this.textVectorLayer.getSource().forEachFeatureInExtent(extent, (feature) => {
-                        const selectedRegion = this.props.handleFeatureSelectByGroup(feature);
-                        if (selectedRegion && !featureMap.hasOwnProperty(feature.get("id"))) {
-                            regionsToAdd.push(selectedRegion);
-                        }
-                    });
-                }
-                if (regionsToAdd.length > 0) {
-                    this.props.handleRegionSelectByGroup(regionsToAdd);
-                }
-            });
-        }
-
         this.map.on("pointerdown", this.handlePointerDown);
         this.map.on("pointermove", this.handlePointerMove);
         this.map.on("pointermove", this.handlePointerMoveOnTableIcon);
         this.map.on("pointerup", this.handlePointerUp);
+
+        if (this.props.handleIsSnapped) {
+
+            let getSnapCoordinateInteraction = new Interaction({
+                handleEvent: (evt: MapBrowserEvent) => {
+                    if (!this.props.isVertexDragging) {
+                        this.props.handleIsSnapped(this.snap.snapTo(evt.pixel, evt.coordinate, evt.map).snapped && this.props.isPointerOnImage)
+                    }
+                    return true;
+                }
+            });
+
+            this.addInteraction(getSnapCoordinateInteraction);
+
+            let checkIfPointerOnMap = new PointerInteraction({
+                handleEvent: (evt: MapBrowserEvent) => {
+                    const eventPixel = this.map.getEventPixel(evt.originalEvent);
+                    const test = this.map.forEachLayerAtPixel(
+                        eventPixel,
+                        () => {
+                            return true
+                        },
+                        this.imageLayerFilter);
+                    if (!Boolean(test) && this.props.isPointerOnImage) {
+                        this.props.handleIsPointerOnImage(false);
+                    } else if (!this.props.isPointerOnImage && Boolean(test)) {
+                        this.props.handleIsPointerOnImage(true);
+                    }
+                    return true
+                }
+            });
+
+            this.addInteraction(checkIfPointerOnMap);
+        }
+        this.initializeSelectionMode();
     }
 
     private setImage = (imageUri: string, imageExtent: number[]) => {
@@ -482,6 +649,11 @@ export class ImageMap extends React.Component<IImageMapProps> {
     }
 
     private handlePointerDown = (event: MapBrowserEvent) => {
+        if (this.props.isSnapped) {
+            this.props.handleVertexDrag(true);
+            return;
+        }
+
         if (!this.props.enableFeatureSelection) {
             return;
         }
@@ -539,6 +711,15 @@ export class ImageMap extends React.Component<IImageMapProps> {
                 category: FeatureCategory.Text,
             };
         }
+        const isPointerOnDrawnRegionFeature = this.map.hasFeatureAtPixel(
+            eventPixel,
+            this.drawnRegionVectorLayerFilter);
+        if (isPointerOnDrawnRegionFeature) {
+            return {
+                layerfilter: this.drawnRegionVectorLayerFilter,
+                category: FeatureCategory.DrawnRegion,
+            };
+        }
         return null;
     }
 
@@ -583,6 +764,8 @@ export class ImageMap extends React.Component<IImageMapProps> {
         }
     }
 
+
+
     private handlePointerMove = (event: MapBrowserEvent) => {
         if (this.shouldIgnorePointerMove()) {
             return;
@@ -603,6 +786,17 @@ export class ImageMap extends React.Component<IImageMapProps> {
     }
 
     private handlePointerUp = () => {
+        if (this.props.isDrawing) {
+            this.props.handleDrawing(false);
+            return;
+        }
+
+        if (this.props.isVertexDragging) {
+            this.props.handleVertexDrag(false);
+            return;            
+        }
+        // }
+
         if (!this.props.enableFeatureSelection) {
             return;
         }
@@ -638,5 +832,143 @@ export class ImageMap extends React.Component<IImageMapProps> {
         }
 
         return false;
+    }
+
+    private tableIconFeatureStyler = (feature, resolution) => {
+        if (this.props.isSnapped) {
+            return new Style({
+                image: new Icon({
+                    opacity: 0.6,
+                    scale: this.getResolutionForZoom(4),
+                    src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFwAAABcCAYAAADj79JYAAAEjklEQVR4Xu2cu89NWRTAf5+MoJhiKFCLyDQzOg06NCrjOY9Cg3hEPCIalUZkkIlH0EwymBmPUWnQMc10MxrEHyAKFAqEIMu3T5y5Oefc/ThnfXvLOt397tp7rfXba6+99t7nuxPYo0pgQlWbKcOAKweBATfgygSU1VmEG3BlAsrqLMINuDIBZXUW4QZcmYCyOotwA65MQFmdRbgBVyagrM4i3IArE1BWZxFuwJUJKKsrMcLF5o2O05/Ae2VmSepKAy72bgBOO693AJdLgl4S8Drs2Q74M6Ao6KUAb4JdTe2ioJcAvAt2cdBzB96WRnY60qeAotJLzsDH5WxhXi2gxUDPFfg42FUp6CuXVMr12ThH4KEQQ+X75BfcV27AY+HFtgsGltogN+DTgO+BM8CXQEjJNwr9BbAd+B14lwqqr/a5ARe/xKZNwM/A3sCdZAX9OLAf+CO3XWiOwCvoc4EnEcDEp9i2fQVyaz+5Ah/c8alSYMCVyRtwA95KQCqYecACYKarPF4BD1w1U8S5uHaEi751gMDzPceeAawGdgPLWobjLvALcAN47RG0VTUj5eLViIXZQ0WziCbwep08HdjmUbYtBg474D5OCvBDwL8dwlXZeRZ4o32ergW8aSf4GFgP/N0CZzlwHljkQ7om8xDYAtxpabcUuALMn4pLDA3gMdvur4FfgSU1aJI2TjiQsgOVR04JZWD2jKSbf4DNwP0G6DH2BI55u/jQwGOc+wo453K9WC5b9KPAMeBliyuzgH3AAXckIGKSm7cCz3OCPiTwGNjCZg3wVw3SQQf77Zgw+8JBP1KT+w643tIu1r6kaB8KeKwzcmAlN/I/Oa+6orTJ8dHZccEtijJLmp5YO6OhDwE8xYlvgGvAQudRV4S2OV2fIY+AtcC9DkIp9gaD7xt4qvErgFvOi//cFZpUHSGPVDVS43/rGq0Ebo/pINVub/v6BN5ktExln3q7MvgH4KL7cBOQz0+9vZkUnANcAla5dj+6z+O6qdfnktrkCTmPH9f/x+/7BC67R3kF7WTtJv1zAL4LkFfqernE6BN4NYApN+mWUrzmyf+FUvKhLZoRwFMi3crCSOAp0OsLp/STsvHpWjBTZmI0lr5z+KghMU7Z1j56OCcbxkCXXP5brZaWfuzwKmAg7HjWwRo6pdTHpA7dLiACojVFVKDbFVsKQcW2Mljygo8cbNklsiL4olVp5vCiQfVlvAHvi6RnP7kCr/K1vczpOZApYtW5tL2unELRs+3oJUDIBcDo5ir0LN7TxDSx3FJK0yWGD/S244NeLw/SUH865+ijnz77CD17CZXv09bgvnKL8MoBX4i+csFghmqQK3CfU0aRSbnOG4ppZ785A++Cbv/6PWC4NKWNUXU+C+uAJvp3nXuEd+X06rtiYFdT1n94playuAWyCVcpEd4U6fK3on4NqLQIr0O3Hxmb2mxTjvbSUko5ZFssNeDKQ2jADbgyAWV1FuEGXJmAsjqLcAOuTEBZnUW4AVcmoKzOItyAKxNQVmcRbsCVCSirswg34MoElNVZhBtwZQLK6j4AgoeUbKT4onIAAAAASUVORK5CYII=",
+                }),
+            });
+        } else {
+            return new Style({
+                image: null,
+            });
+        }
+    }
+
+    public cancelDrawing = (pendCancel: boolean = false) => {
+        this.removeInteraction(this.draw)
+        this.initializeDraw();
+        this.addInteraction(this.draw);
+    }
+
+    public initializeSelectionMode = () => {
+        // this.initializeSelect();
+        this.initializeDragBox();
+        this.initializeModify();
+        this.initializeSnap();
+        this.initializeDraw();
+        this.addInteraction(this.modify);
+        this.addInteraction(this.snap);
+        // this.addInteraction(this.select);
+    }
+
+    private initializeDraw = () => {
+        this.draw = new Draw({
+            source: this.drawRegionVectorLayer.getSource(),
+            style: new Style({
+                image: null,
+                stroke: new Stroke({
+                    color: "#a3f0ff",
+                    width: 1,
+                }),
+                fill: new Fill({
+                    color: "rgba(163, 240, 255, 0.2)",
+                }),
+            }),
+            geometryFunction: createBox(),
+            freehand: true,
+            stopClick: true,
+        });
+
+        this.draw.on('drawstart', (drawEvent) => {
+            this.props.handleDrawing(true);
+        });
+
+        this.draw.on('drawend', (drawEvent) => {
+            this.props.addDrawnRegionFeatureProps(drawEvent.feature);
+        });
+
+    }
+
+    private initializeModify = () => {
+        this.modify = new Modify({
+            source: this.drawRegionVectorLayer.getSource(),
+            deleteCondition: never,
+            insertVertexCondition: never,
+            style: this.tableIconFeatureStyler,
+        });  
+
+        this.modify.handleUpEvent_old = this.modify.handleUpEvent;
+        this.modify.handleUpEvent = function (evt) {
+            try {
+                this.handleUpEvent_old(evt);
+            } catch(ex) {
+            }
+        }
+
+        this.modify.on('modifystart', (modifyEvent) => {
+            const features = modifyEvent.features.getArray();
+            let featureCoordinates = [];
+            features.forEach((feature) => {
+                feature.getGeometry().getCoordinates()[0].forEach((coordinate) => {
+                    featureCoordinates.push(coordinate[0])
+                    featureCoordinates.push(coordinate[1])
+                });
+                this.modifyStartFeatureCoordinates[feature.getId()] = featureCoordinates.join(",");
+                featureCoordinates = [];
+            });            
+        });
+
+        this.modify.on('modifyend', (modifyEvent) => {
+            const features = modifyEvent.features.getArray();
+            this.props.updateFeatureAfterModify(features);
+        });
+
+    }
+
+    private initializeSnap = () => {
+        this.snap = new Snap({
+            source: this.drawRegionVectorLayer.getSource(),
+            edge: false,
+            vertex: true,
+        });
+    }
+
+    private initializeDragBox = () => {
+        this.dragBox = new DragBox({
+            condition: shiftKeyOnly,
+            className: "ol-dragbox-style",
+        });;
+
+        this.dragBox.on('boxend', () => {
+            const featureMap = {};
+            const extent = this.dragBox.getGeometry().getExtent();
+            const regionsToAdd: IRegion[] = [];
+            if (this.labelVectorLayer.getVisible()) {
+                this.labelVectorLayer.getSource().forEachFeatureInExtent(extent, (feature) => {
+                    const selectedRegion = this.props.handleFeatureSelectByGroup(feature);
+                    if (selectedRegion) {
+                        featureMap[feature.get("id")] = true;
+                        regionsToAdd.push(selectedRegion);
+                    }
+                });
+            }
+            if (this.textVectorLayer.getVisible()) {
+                this.textVectorLayer.getSource().forEachFeatureInExtent(extent, (feature) => {
+                    const selectedRegion = this.props.handleFeatureSelectByGroup(feature);
+                    if (selectedRegion && !featureMap.hasOwnProperty(feature.get("id"))) {
+                        regionsToAdd.push(selectedRegion);
+                    }
+                });
+            }
+            if (regionsToAdd.length > 0) {
+                this.props.handleRegionSelectByGroup(regionsToAdd);
+            }
+        });
     }
 }

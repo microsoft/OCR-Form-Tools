@@ -3,7 +3,7 @@ import { CommandBar, ICommandBarItemProps } from "@fluentui/react/lib/CommandBar
 import { ICustomizations, Customizer } from "@fluentui/react/lib/Utilities";
 import { getDarkGreyTheme } from "../../../../common/themes";
 import { strings } from '../../../../common/strings';
-import { ContextualMenuItemType } from "@fluentui/react";
+import { ContextualMenuItemType, IContextualMenuItemStyles, IContextualMenuStyles, IButtonProps, CommandBarButton, concatStyleSets, memoizeFunction, IButtonStyles, ContextualMenuItem, IContextualMenuItemProps } from "@fluentui/react";
 
 interface ICanvasCommandBarProps {
     handleZoomIn: () => void;
@@ -11,6 +11,8 @@ interface ICanvasCommandBarProps {
     handleRunOcr: () => void;
     handleRunOcrForAllDocuments: () => void;
     handleLayerChange: (layer: string) => void;
+    handleToggleDrawRegionMode: () => void;
+    drawRegionMode: boolean;
     handleShareProject: () => void;
     connectionType: string;
     handleAssetDeleted?: () => void;
@@ -64,9 +66,29 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                 isChecked: props.layers["label"],
                 onClick: () => props.handleLayerChange("label"),
               },
+              {
+                key: "DrawnRegions",
+                text: "Drawn regions", //strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.labels,
+                canCheck: true,
+                iconProps: { iconName: "AddField" },
+                isChecked: props.layers["drawnRegions"],
+                className: props.drawRegionMode ? "disabled" : "",
+                onClick: () => props.handleLayerChange("drawnRegions"),
+                disabled: props.drawRegionMode
+              },
             ],
           },
         },
+        {
+          key: "drawRegion",
+          text: "Draw region",
+          iconProps: { iconName: "AddField" },
+          toggle: true,
+          checked: props.drawRegionMode,
+          className: !props.layers["drawnRegions"] ? "disabled" : "",
+          onClick: () => props.handleToggleDrawRegionMode(),
+          disabled: !props.layers["drawnRegions"],
+        }
     ];
 
     const commandBarFarItems: ICommandBarItemProps[] = [
