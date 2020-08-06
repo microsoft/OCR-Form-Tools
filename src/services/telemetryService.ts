@@ -1,5 +1,6 @@
 import {ApplicationInsights} from '@microsoft/applicationinsights-web';
 import {ReactPlugin} from '@microsoft/applicationinsights-react-js';
+import { appInfo } from "../common/appInfo";
 
 let reactPlugin = null;
 let appInsights = null;
@@ -42,6 +43,7 @@ const createTelemetryService = () => {
         });
 
         appInsights.loadAppInsights();
+        appInsights.context.application.ver = appInfo.version;
     };
 
     return {reactPlugin, appInsights, initialize};
