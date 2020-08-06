@@ -1338,6 +1338,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         });
                         if (selectedDrawnRegionFeature) {
                             this.imageMap?.removeDrawnRegionFeature(drawnRegionFeature)
+                            this.onRegionDelete(selectedDrawnRegionFeature.id);
                         }
                     })
                 } else {
