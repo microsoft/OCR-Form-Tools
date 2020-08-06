@@ -26,6 +26,7 @@ import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
 import { getPrimaryGreenTheme } from "../../../../common/themes";
 import { SkipButton } from "../../shell/skipButton";
+import { getAppInsights } from '../../../../services/telemetryService';
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -73,6 +74,7 @@ function mapDispatchToProps(dispatch) {
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class TrainPage extends React.Component<ITrainPageProps, ITrainPageState> {
+    private appInsights: any = null;
 
     constructor(props) {
         super(props);
@@ -99,6 +101,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             this.showCheckboxPreview(project);
             this.updateCurrTrainRecord(this.getProjectTrainRecord());
         }
+        this.appInsights = getAppInsights();
         document.title = strings.train.title + " - " + strings.appName;
     }
 
@@ -204,6 +207,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 trainMessage: err.message,
             });
         });
+        if (this.appInsights) {
+            this.appInsights.trackEvent({ name: "TRAIN_MODEL_EVENT" });
+        }
     }
 
     private handleViewTypeClick = (viewType: "tableView" | "chartView"): void => {

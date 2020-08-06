@@ -34,6 +34,7 @@ import { getPrimaryGreenTheme, getPrimaryWhiteTheme,
          getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
 import { SkipButton } from "../../shell/skipButton";
 import axios from "axios";
+import { getAppInsights } from '../../../../services/telemetryService';
 
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
 
@@ -89,6 +90,8 @@ function mapDispatchToProps(dispatch) {
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class PredictPage extends React.Component<IPredictPageProps, IPredictPageState> {
+    private appInsights: any = null;
+
     public state: IPredictPageState = {
         sourceOption: "localFile",
         isFetching: false,
@@ -123,6 +126,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             await this.props.actions.loadProject(project);
             this.props.appTitleActions.setTitle(project.name);
         }
+        this.appInsights = getAppInsights();
         document.title = strings.predict.title + " - " + strings.appName;
     }
 
@@ -567,6 +571,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     isPredicting: false,
                 });
             });
+        if (this.appInsights) {
+            this.appInsights.trackEvent({ name: "ANALYZE_EVENT" });
+        }
     }
 
     private getPageCount() {
