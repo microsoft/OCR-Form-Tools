@@ -388,7 +388,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private addRegionsToImageMap = (regions: IRegion[]) => {
-        if (this.imageMap == null) {
+        if (!this.imageMap) {
             return;
         }
 
@@ -460,7 +460,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private deleteRegionsFromImageMap = (regions: IRegion[]) => {
-        if (this.imageMap == null) {
+        if (!this.imageMap) {
             return;
         }
 
@@ -1199,6 +1199,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private handleKeyDown = (keyEvent) => {
+        if (!this.imageMap) {
+            return;
+        }
+
         switch (keyEvent.key) {
             case "Shift":
                 this.setState({
@@ -1290,7 +1294,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const currentPage = this.state.currentPage;
         let nextRegionId;
         if (!selectedRegion.length && !this.applyTagFlag) {
-            nextRegionId = this.regionOrderById[this.state.currentPage - 1][0];
+            nextRegionId = this.regionOrderById?.[this.state.currentPage - 1]?.[0];
         } else if (!this.applyTagFlag) {
             lastSelectedId = selectedRegion.find((r) =>
                 r.id === this.selectedRegionIds[this.selectedRegionIds.length - 1]).id;
@@ -1311,7 +1315,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             }
             this.applyTagFlag = false;
         }
-        const allFeatures = this.imageMap.getAllFeatures();
+
+        if (!nextRegionId || !this.imageMap) {
+            return;
+        }
+
+        const allFeatures = this.imageMap?.getAllFeatures();
         const nextFeature = allFeatures.find((f) => f.get("id") === (nextRegionId));
         if (nextFeature) {
             const polygon = nextRegionId.split(",").map(parseFloat);
@@ -1384,7 +1393,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private addLabelledDataToLayer = (regions: IRegion[]) => {
-        if (this.imageMap == null) {
+        if (!this.imageMap) {
             return;
         }
 
@@ -1680,6 +1689,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private handleTableToolTipChange = async (display: string, width: number, height: number, top: number,
                                               left: number, rows: number, columns: number, featureID: string) => {
+        if (!this.imageMap) {
+            return;
+        }
+
         if (featureID !== null && this.imageMap.getTableBorderFeatureByID(featureID).get("state") !== "selected") {
             this.imageMap.getTableBorderFeatureByID(featureID).set("state", "hovering");
             this.imageMap.getTableIconFeatureByID(featureID).set("state", "hovering");
@@ -1704,6 +1717,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private redrawAllFeatures = () => {
+        if (!this.imageMap) {
+            return;
+        }
+
         this.redrawFeatures(this.imageMap.getAllFeatures());
         this.redrawFeatures(this.imageMap.getAllCheckboxFeatures());
         this.redrawFeatures(this.imageMap.getAllLabelFeatures());
