@@ -236,7 +236,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     imageUri={this.state.imageUri}
                     imageWidth={this.state.imageWidth}
                     imageHeight={this.state.imageHeight}
-                    enableFeatureSelection={true}
+                    enableFeatureSelection={!this.state.groupSelectMode}
                     handleFeatureSelect={this.handleFeatureSelect}
                     featureStyler={this.featureStyler}
                     groupSelectMode={this.state.groupSelectMode}
@@ -1764,6 +1764,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         return false;
     }
     private handleRegionSelectByGroup = (selectedRegions: IRegion[]) => {
+        if (selectedRegions.length === 0) {
+            return;
+        }
+
+        const existingSelectedRegions = this.getSelectedRegions();
+        existingSelectedRegions.filter((region) => region.category === FeatureCategory.Checkbox)
+            .forEach((region) => this.removeFromSelectedRegions(region.id));
         this.addRegionsToAsset(selectedRegions);
         this.addRegionsToImageMap(selectedRegions);
         this.selectedRegionIds = this.selectedRegionIds.concat(selectedRegions.map((region) => region.id));
@@ -1775,9 +1782,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private handleFeatureSelectByGroup = (feature: Feature): IRegion => {
         const regionId = feature.get("id");
-        const selectedRegions = this.getSelectedRegions();
-        selectedRegions.filter((region) => region.category === FeatureCategory.Checkbox)
-            .forEach((region) => this.removeFromSelectedRegions(region.id));
         const polygon = regionId.split(",").map(parseFloat);
 
         let selectedRegion: IRegion;
@@ -1788,6 +1792,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             selectedRegion = this.state.currentAsset.regions.find((region) => region.id === regionId);
             // Explicitly set pageNumber in order to fix incorrect page number
             selectedRegion.pageNumber = this.state.currentPage;
+
+            if (selectedRegion.category === FeatureCategory.Checkbox) {
+                return null;
+            }
         } else {
             const regionBoundingBox = this.convertToRegionBoundingBox(polygon);
             const regionPoints = this.convertToRegionPoints(polygon);
