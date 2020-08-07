@@ -1,3 +1,4 @@
+
 # Form OCR Testing Tool
 
 ## Features Preview
@@ -187,10 +188,26 @@ When you want to resume your project, you first need to create a connection to t
 
 Finally, go to the main page (house icon) and click Open Cloud Project. Then select the blob storage connection, and select your project's .proj file. The application will load all of the project's settings because it has the security token.
 
+##### Share a project  #####
+
+FoTT allow sharing of projects with somebody who use the tool too and share access to same Azure Blob Storage container where a project is located.
+In order to share project follow these steps:
+###### On the sending site:
+
+1. Open the project you want to share in the tool. In the right top corner find and click "share" icon ![alt text](docs/images/share-icon.png "Share project menu icon").
+You should see a message pop-up saying that your share string been saved in your clipboard.
+2. Share the string in you clipboard via any convenient way for you.
+3. On the receiving side
+
+###### On the sending site:
+1. Go to the "Home Page", and click on "Open Cloud Project".
+2. Insert shared string to appropriate field in the pop-up.
+3. Click okay.
+
 #### Keyboard Shortcuts and useful tips ####
 
 Labeling tool allows a number of keyboard shortcuts to support accessibility and also sometimes make labeling easier and faster. You can view them by clicking the following icon on the right side of the title bar:\
-![alt text](docs/images/keyboard-shortcuts-icon.png "Keyboard shortcuts menu icon")
+![alt text](docs/images/keyboard-shortcuts-findericon.png "Keyboard shortcuts menu icon")
 
 Hotkeys of 1 through 0 and all letters are assigned to first 36 tags, after you selected one or multiple words from the highlighted text elements, by pressing these hotkeys, you can label the selected words.
 
@@ -207,7 +224,7 @@ To delete all labels for a tag - select all labels for a tag on document then pr
 ### **Disclaimer**
 For development purposes and for better understanding of our tool usage we are collecting some data, such as:
 
-custom events (training, model compose and prediction), Form recognizer API version, browser version, OS version, approximate location (according your ISP: country and city)  
+custom events (training, model compose and prediction), Form recognizer API version, browser version, OS version, approximate location (according your ISP: country and city)
 
 *If you do not like to share this information with us, feel free to delete telemetry key. It is located at ```src/common/constant.ts```. It should not affect any of the tool's operations.*
 
