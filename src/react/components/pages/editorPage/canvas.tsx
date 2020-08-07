@@ -236,7 +236,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     imageUri={this.state.imageUri}
                     imageWidth={this.state.imageWidth}
                     imageHeight={this.state.imageHeight}
-                    enableFeatureSelection={true}
+                    enableFeatureSelection={!this.state.groupSelectMode}
                     handleFeatureSelect={this.handleFeatureSelect}
                     featureStyler={this.featureStyler}
                     groupSelectMode={this.state.groupSelectMode}
