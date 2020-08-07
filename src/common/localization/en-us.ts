@@ -272,6 +272,7 @@ export const english: IAppStrings = {
         messages: {
             saveSuccess: "Successfully saved ${connection.name}",
             deleteSuccess: "Successfully deleted ${connection.name}",
+            doNotAllowDuplicateNames: "Do not allow duplicate names"
         },
         imageCorsWarning: "Warning: When using VoTT in a Web browser, some assets from Bing Image \
                           Search may not export correctly due to CORS (Cross Origin Resource Sharing) restrictions.",

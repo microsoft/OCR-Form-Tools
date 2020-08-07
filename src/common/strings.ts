@@ -271,6 +271,7 @@ export interface IAppStrings {
         messages: {
             saveSuccess: string;
             deleteSuccess: string;
+            doNotAllowDuplicateNames:string;
         },
         imageCorsWarning: string;
         blobCorsWarning: string;

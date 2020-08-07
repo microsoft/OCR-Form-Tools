@@ -272,6 +272,7 @@ export const spanish: IAppStrings = {
         messages: {
             saveSuccess: "${connection.name} guardado correctamente",
             deleteSuccess: "${connection.name} eliminado correctamente",
+            doNotAllowDuplicateNames: "No permita nombres duplicados"
         },
         imageCorsWarning: "Advertencia: Cuando se usa VoTT en un navegador web, es posible que algunos activos de este \
                           Búsqueda de Imágenes Bing no se exporten correctamente debido a las restricciones de CORS \
