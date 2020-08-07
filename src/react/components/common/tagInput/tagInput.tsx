@@ -487,7 +487,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     onTagClick(tag);
                     deselect = false;
                 } else {
-                    toast.warn(strings.tags.warnings.notCompatibleTagType);
+                    toast.warn(strings.tags.warnings.notCompatibleTagType, {autoClose: 7000});
                 }
             }
             this.setState({
