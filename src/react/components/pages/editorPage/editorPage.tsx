@@ -13,7 +13,7 @@ import { strings } from "../../../../common/strings";
 import {
     AssetState, AssetType, EditorMode, FieldType,
     IApplicationState, IAppSettings, IAsset, IAssetMetadata,
-    ILabel, IProject, IRegion, ISize, ITag,
+    ILabel, IProject, IRegion, ISize, ITag, FeatureCategory,
 } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -486,17 +486,14 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private handleTagHotKey = (event: KeyboardEvent): void => {
         const tag = this.getTagFromKeyboardEvent(event);
         const selection = this.canvas.current.getSelectedRegions();
-        let tagCategory;
-        let selectionCategory;
-        let labels;
 
         if (tag && selection.length) {
-            tagCategory = this.tagInputRef.current.getTagCategory(tag.type);
-            selectionCategory = this.tagInputRef.current.getTagCategory(selection[0].category);
-            labels = this.state.selectedAsset.labelData.labels;
+            const tagCategory = this.tagInputRef.current.getTagCategory(tag.type);
+            const selectionCategory = this.tagInputRef.current.getTagCategory(selection[0].category);
+            const labels = this.state.selectedAsset.labelData.labels;
 
             if (selectionCategory === tagCategory) {
-                if (tagCategory === "checkbox" && this.tagInputRef.current.labelAssigned(labels, tag.name)) {
+                if (tagCategory === FeatureCategory.Checkbox && this.tagInputRef.current.labelAssigned(labels, tag.name)) {
                     toast.warn(strings.tags.warnings.checkboxPerTagLimit);
                 } else {
                     this.onTagClicked(tag);
