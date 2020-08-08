@@ -208,7 +208,8 @@ You should see a message pop-up saying that your share string been saved in your
 #### Keyboard Shortcuts and useful tips ####
 
 Labeling tool allows a number of keyboard shortcuts to support accessibility and also sometimes make labeling easier and faster. You can view them by clicking the following icon on the right side of the title bar:\
-![alt text](docs/images/keyboard-shortcuts-findericon.png "Keyboard shortcuts menu icon")
+![alt text](docs/images/keyboard-shortcuts-icon.png "Keyboard shortcuts menu icon")
+
 
 Hotkeys of 1 through 0 and all letters are assigned to first 36 tags, after you selected one or multiple words from the highlighted text elements, by pressing these hotkeys, you can label the selected words.
 
