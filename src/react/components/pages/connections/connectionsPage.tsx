@@ -154,10 +154,10 @@ export default class ConnectionPage extends React.Component<IConnectionPageProps
 
             // don't allow use the same name create the duplicate connections.
             // don't allow update the connection name same as other connections.
-            if((!connection.id && this.props.connections.find(a=>a.name === connection.name))
-                ||(connection.id && this.props.connections.find(a=>a.name === connection.name && a.id !== connection.id))){
-                toast.error(strings.connections.messages.doNotAllowDuplicateNames, {autoClose:10000});
-            }else{
+            if ((!connection.id && this.props.connections.find(a => a.name === connection.name))
+                || (connection.id && this.props.connections.find(a => a.name === connection.name && a.id !== connection.id))) {
+                    toast.error(interpolate(strings.connections.messages.doNotAllowDuplicateNames, { connection }), { autoClose: 10000 });
+            } else {
                 await this.props.actions.saveConnection(connection);
                 toast.success(interpolate(strings.connections.messages.saveSuccess, { connection }));
 
