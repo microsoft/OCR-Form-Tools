@@ -188,18 +188,19 @@ When you want to resume your project, you first need to create a connection to t
 
 Finally, go to the main page (house icon) and click Open Cloud Project. Then select the blob storage connection, and select your project's .proj file. The application will load all of the project's settings because it has the security token.
 
-##### Share a project  #####
+##### Share a project
 
 FoTT allow sharing of projects with somebody who use the tool too and share access to same Azure Blob Storage container where a project is located.
 In order to share project follow these steps:
-###### On the sending site:
+
+###### On the sending side:
 
 1. Open the project you want to share in the tool. In the right top corner find and click "share" icon ![alt text](docs/images/share-icon.png "Share project menu icon").
 You should see a message pop-up saying that your share string been saved in your clipboard.
 2. Share the string in you clipboard via any convenient way for you.
-3. On the receiving side
 
-###### On the sending site:
+###### On the receiving side:
+
 1. Go to the "Home Page", and click on "Open Cloud Project".
 2. Insert shared string to appropriate field in the pop-up.
 3. Click okay.
