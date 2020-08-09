@@ -630,29 +630,32 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         this.loadingProjectAssets = true;
 
-        const assets: IAsset[] = _(await this.props.actions.loadAssets(this.props.project))
-            .uniqBy((asset) => asset.id)
-            .value();
-
-        if (this.state.assets.length === assets.length
-            && JSON.stringify(this.state.assets) === JSON.stringify(assets)) {
-            this.loadingProjectAssets = false;
-            this.setState({ tagsLoaded: true });
-            return;
-        }
-
-        const lastVisited = assets.find((asset) => asset.id === this.props.project.lastVisitedAssetId);
-
-        this.setState({
-            assets,
-        }, async () => {
-            await this.props.actions.saveProject(this.props.project, false, true);
-            this.setState({ tagsLoaded: true });
-            if (assets.length > 0) {
-                await this.selectAsset(lastVisited ? lastVisited : assets[0]);
+        try {
+            const assets = _(await this.props.actions.loadAssets(this.props.project))
+                .uniqBy((asset) => asset.id)
+                .value();
+            if (this.state.assets.length === assets.length
+                && JSON.stringify(this.state.assets) === JSON.stringify(assets)) {
+                this.loadingProjectAssets = false;
+                this.setState({ tagsLoaded: true });
+                return;
             }
-            this.loadingProjectAssets = false;
-        });
+
+            const lastVisited = assets.find((asset) => asset.id === this.props.project.lastVisitedAssetId);
+
+            this.setState({
+                assets,
+            }, async () => {
+                await this.props.actions.saveProject(this.props.project, false, true);
+                this.setState({ tagsLoaded: true });
+                if (assets.length > 0) {
+                    await this.selectAsset(lastVisited ? lastVisited : assets[0]);
+                }
+                this.loadingProjectAssets = false;
+            });
+        } catch (error) {
+            throw Error(error);
+        }
     }
 
     public loadOcrForNotVisited = async (runForAll?: boolean) => {

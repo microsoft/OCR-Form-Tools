@@ -1,5 +1,27 @@
 # Test Runbook
 
+## **Feat: add composedNames popup for each model**
+
+> ### Feature description ###
+- On compose model page add popup for composed models to show which models been used for the composition of this model  
+
+> ### Use Case ###
+
+**`I want`** I want to know the models been used to compose a model  
+**`So`** I can double click that model to invoke the pop up and checkout models been used  
+
+**`Given`** I've opened a project containing documents and I'm on the Model Compose page  
+**`When`** I double click a row with composed model  
+**`Then`** I should see a pop up, which it shows all models we used to compose in the list. Beside, there is also a filter field in the top to filter a specific model out of the list  
+
+> ### Acceptance criteria ###
+
+#### Scenario One ####
+
+**`Given`** I've opened a project containing documents and I'm on the Model Compose page  
+**`When`** I double click a row with composed model  
+**`Then`** I should see a pop up, which it shows all models we used to compose in the list. Beside, there is also a filter field in the top to filter a specific model out of the list  
+
 ## Feat: support group selection tool
 
 > ### Feature description ###
