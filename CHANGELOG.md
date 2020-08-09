@@ -1,6 +1,29 @@
 # FoTT Changelog 
 
-## 2.1-preview.1-fe8258f (07-24-2020)
+## 2.1-preview.1-76945df (08-05-2020)
+* feat: override page view names,  now english only ([#470](https://github.com/microsoft/OCR-Form-Tools/commit/76945df3bdf9caba3ba13f4541e17e75b9574b33))
+* fix: resolve unhandled exeptions and new message for OCR service on 400 ([#470](https://github.com/microsoft/OCR-Form-Tools/commit/76381bc659a365ead19387b933485530d2d5edc3))
+* feature: enable popup with composed model info ([#460](https://github.com/microsoft/OCR-Form-Tools/commit/c1f5d803f047e5ca0d18fea6383b3baf56d116ff))
+
+## 2.1-preview.1-f4d53ce (08-03-2020)
+* fix: bump elliptic from 6.5.2 to 6.5.3 ([#469](https://github.com/microsoft/OCR-Form-Tools/commit/f4d53cec967194445885bd3748096f0a3ce10715))
+* feat: add modelCompose icon and created time ([#466](https://github.com/microsoft/OCR-Form-Tools/commit/2fa32ef5f77ec7bb44bf42e9fc0a5fdf7f0330c3))
+
+## 2.1-preview.1-78996ea (07-31-2020)
+* refactor: relocate share button ([#464](https://github.com/microsoft/OCR-Form-Tools/commit/78996ea65616b28d7471b59f4f16f254d7d33127))
+
+## 2.1-preview.1-0e1b637 (07-29-2020)
+* feat: show only ready models in the list ([#459](https://github.com/microsoft/OCR-Form-Tools/commit/0e1b637003f289c56955342f44963003c1543436))
+
+## 2.1-preview.1-84f8285 (07-27-2020)
+* fix: show message on model composition fail ([#457](https://github.com/microsoft/OCR-Form-Tools/commit/84f82859122ff298bcfcca78e821e8bfe437bb78))
+* refactor: add background on popup table ([#446](https://github.com/microsoft/OCR-Form-Tools/commit/27f60df5617da2efba8ffdd601233e0c0f4c8e3e))
+
+## 2.1-preview.1-79264e3 (07-24-2020)
+* fix: handle rejection for security token not found when opening projects ([#441](https://github.com/microsoft/OCR-Form-Tools/commit/79264e3fddfb2c80b88bf8ca21df1e869082ffcf))
+* fix: show more refined error message for model not found analysis error ([#454](https://github.com/microsoft/OCR-Form-Tools/commit/1cb4133dca0092559e7524dfad8c0bf54502dc81))
+* feat: support group selection of words with drawn bounding box ([#447](https://github.com/microsoft/OCR-Form-Tools/commit/b4332a926b1925024a33731a90d303c0b171935b))
+* feat: add apiVersion to telemetry ([#448](https://github.com/microsoft/OCR-Form-Tools/commit/55be5427e4a2f9c8cf393d446049527c55f841d4))
 * fix: margin for filenames in asset preview ([#451](https://github.com/microsoft/OCR-Form-Tools/commit/fe8258f9c7ceba663a66708b19bc0e6556e777ad))
 * docs: add telemetry disclaimer to readme ([#449](https://github.com/microsoft/OCR-Form-Tools/commit/87356a1cf6678bb9494e83178bf6282ca366921f))
 
