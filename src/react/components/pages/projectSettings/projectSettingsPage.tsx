@@ -19,6 +19,7 @@ import "./projectSettingsPage.scss";
 import { ProjectSettingAction } from "./projectSettingAction";
 import ProjectService from "../../../../services/projectService";
 import { getStorageItem, setStorageItem, removeStorageItem } from "../../../../redux/middleware/localStorage";
+import ProjectMetrics from "./ProjectMetrics";
 
 /**
  * Properties for Project Settings Page
@@ -131,6 +132,9 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
                 </div>
                 {this.state.isError &&
                     <Redirect to="/" />
+                }
+                {this.props.project &&
+                <ProjectMetrics project={this.props.project} />
                 }
             </div>
         );
