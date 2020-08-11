@@ -9,7 +9,7 @@ import {
     EditorMode, IAssetMetadata,
     IProject, IRegion, RegionType,
     AssetType, ILabelData, ILabel,
-    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, ISecurityToken,
+    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, ISecurityToken, ImageMapParent,
 } from "../../../../models/applicationState";
 import CanvasHelpers from "./canvasHelpers";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
@@ -249,6 +249,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     drawRegionMode={this.state.drawRegionMode}
                 />
                 <ImageMap
+                    parentPage={ImageMapParent.Editor}
                     ref={(ref) => this.imageMap = ref}
                     imageUri={this.state.imageUri}
                     imageWidth={this.state.imageWidth}
@@ -644,13 +645,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 Math.round((boundingBox[i] / ocrWidth) * imageWidth),
                 Math.round((1 - (boundingBox[i + 1] / ocrHeight)) * imageHeight),
             ]);
-
-            // const boundingBoxTemp = [];
-            // coordinates.forEach((coordinate, index) => {
-            //     boundingBoxTemp[index * 2] = coordinate[0] / imageWidth * ocrWidth;
-            //     boundingBoxTemp[index * 2 + 1] = ((1 - (coordinate[1] / imageHeight)) * ocrHeight);
-            // });
-
             polygonPoints.push(boundingBox[i] / ocrWidth);
             polygonPoints.push(boundingBox[i + 1] / ocrHeight);
         }
@@ -1929,15 +1923,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private handleToggleDrawRegionMode = () => {
-        this.setState({ drawRegionMode: !this.state.drawRegionMode }, () => {
-        })
+        this.setState({
+            drawRegionMode: !this.state.drawRegionMode
+        });
     }
 
     private addDrawnRegionFeatureProps = (feature) => {
-
-        feature.getGeometry().setCoordinates([feature.getGeometry().getCoordinates()[0].slice(0, 4)]);
         const featureCoordinates = feature.getGeometry().getCoordinates()[0];
-        const {featureId, boundingBox} = this.getFeatureIDAndBoundingBox(featureCoordinates)
+        const {featureId, boundingBox} = this.getFeatureIDAndBoundingBox(featureCoordinates);
         feature.setProperties({
             id: featureId,
             text: "",
@@ -1949,17 +1942,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.imageMap.addDrawnRegionFeatures([feature]);
 
         this.handleFeatureSelect(feature, false, FeatureCategory.DrawnRegion);
-
-        // const extent = feature.getGeometry().getExtent();
-        // const textInExtent = this.imageMap.getTextVectorLayer().getSource().getFeaturesInExtent(extent).length > 0;
-        // const checkboxInExtent = this.imageMap.getCheckboxVectorLayer().getSource().getFeaturesInExtent(extent).length > 0;
-        // if (textInExtent && checkboxInExtent) {
-        //     toast.warn("Drawn region bounding box encompasses checkbox and text values.");
-        // } else if (textInExtent) {
-        //     toast.warn("Drawn region bounding box encompasses text values.");
-        // } else if (checkboxInExtent) {
-        //     toast.warn("Drawn region bounding box encompasses checkbox values.");
-        // }
     }
 
     private handleIsSnapped = (snapped: boolean) => {
@@ -1987,7 +1969,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private handleIsPointerOnImage = (isPointerOnImage: boolean) => {
-        this.setState({ isPointerOnImage });
+        if (this.state.isPointerOnImage !== isPointerOnImage) {
+            this.setState({
+                isPointerOnImage,
+            });
+        }
     }
 
     private getFeatureIDAndBoundingBox = (featureCoordinates) => {
@@ -2020,14 +2006,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private modifyAssetRegion = (existingRegionId, newRegionId) => {
-        const regionsAfterModify = this.state.currentAsset.regions.map((assetRegion, index) => {
+        const regionsAfterModify = this.state.currentAsset.regions.map((assetRegion) => {
             if (existingRegionId === assetRegion.id) {
                 return {
                     ...assetRegion,
                     id: newRegionId,
                     boundingBox: this.convertToRegionBoundingBox(newRegionId.split(",").map(parseFloat)),
                     points: this.convertToRegionPoints(newRegionId.split(",").map(parseFloat))
-                } as IRegion
+                } as IRegion;
             } else {
                 return assetRegion;
             }
@@ -2041,11 +2027,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const originalFeatureId = feature.getId();
             const featureCoordinates = feature.getGeometry().getCoordinates()[0];
             featureCoordinates.forEach((coordinate) => {
-                newFeatureCoordinates.push(coordinate[0])
-                newFeatureCoordinates.push(coordinate[1])
+                newFeatureCoordinates.push(coordinate[0]);
+                newFeatureCoordinates.push(coordinate[1]);
             });
             if (this.imageMap.modifyStartFeatureCoordinates[originalFeatureId] !== newFeatureCoordinates.join(",")) {
-                const {featureId, boundingBox} = this.getFeatureIDAndBoundingBox(featureCoordinates)
+                const {featureId, boundingBox} = this.getFeatureIDAndBoundingBox(featureCoordinates);
                 feature.setProperties({
                     id: featureId,
                     boundingbox: boundingBox,
@@ -2057,4 +2043,32 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         });         
         this.imageMap.modifyStartFeatureCoordinates = {};
     }
+
+    // private getClockwiseCoordinates = (coordinates) => {
+    //     console.log(coordinates);
+    //     function yComparator(a, b) {
+    //         if (a[1] < b[1]) return -1;
+    //         if (a[1] > b[1]) return 1;
+    //         return 0;
+    //     }
+    //     function xComparator(a, b) {
+    //         if (a[0] < b[0]) return -1;
+    //         if (a[0] > b[0]) return 1;
+    //         return 0;
+    //     }    
+    //     const sortedCoordinatesByY = coordinates.sort(yComparator);
+    //     const topCoordinates = sortedCoordinatesByY.slice(0,2);
+    //     const bottomCoordinates = sortedCoordinatesByY.slice(2,4);
+    //     const topCoordinatesSortedByX = topCoordinates.sort(xComparator);
+    //     const bottomCoordinatesSortedByX = bottomCoordinates.sort(xComparator);
+    //     console.log(topCoordinates);
+    //     console.log(bottomCoordinates);
+    //     console.log(topCoordinatesSortedByX);
+    //     console.log(bottomCoordinatesSortedByX);
+    //     console.log([topCoordinatesSortedByX[0], topCoordinatesSortedByX[1], bottomCoordinatesSortedByX[1], bottomCoordinatesSortedByX[0]]);
+
+    //       return []
+
+
+    // }
 }

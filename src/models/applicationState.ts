@@ -409,3 +409,8 @@ export enum FeatureCategory {
     Label = "label",
     DrawnRegion = "drawnRegion"
 }
+
+export enum ImageMapParent {
+    Predict = "predict",
+    Editor = "editor",
+}

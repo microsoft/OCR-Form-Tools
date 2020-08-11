@@ -539,7 +539,7 @@ export interface IAppStrings {
         copy: {
             success: string,
         }
-    }
+    };
 }
 
 interface IErrorMetadata {
