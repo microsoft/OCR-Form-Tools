@@ -1311,7 +1311,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         switch (keyEvent.key) {
             case "Escape":
                 if (this.state.isDrawing) {
-                    this.imageMap.cancelDrawing(true);
+                    this.imageMap.cancelDrawing();
+                } else if (this.state.isVertexDragging) {
+                    this.imageMap.cancelModify();
                 }
                 break;
             case "Shift":
@@ -2043,32 +2045,4 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         });         
         this.imageMap.modifyStartFeatureCoordinates = {};
     }
-
-    // private getClockwiseCoordinates = (coordinates) => {
-    //     console.log(coordinates);
-    //     function yComparator(a, b) {
-    //         if (a[1] < b[1]) return -1;
-    //         if (a[1] > b[1]) return 1;
-    //         return 0;
-    //     }
-    //     function xComparator(a, b) {
-    //         if (a[0] < b[0]) return -1;
-    //         if (a[0] > b[0]) return 1;
-    //         return 0;
-    //     }    
-    //     const sortedCoordinatesByY = coordinates.sort(yComparator);
-    //     const topCoordinates = sortedCoordinatesByY.slice(0,2);
-    //     const bottomCoordinates = sortedCoordinatesByY.slice(2,4);
-    //     const topCoordinatesSortedByX = topCoordinates.sort(xComparator);
-    //     const bottomCoordinatesSortedByX = bottomCoordinates.sort(xComparator);
-    //     console.log(topCoordinates);
-    //     console.log(bottomCoordinates);
-    //     console.log(topCoordinatesSortedByX);
-    //     console.log(bottomCoordinatesSortedByX);
-    //     console.log([topCoordinatesSortedByX[0], topCoordinatesSortedByX[1], bottomCoordinatesSortedByX[1], bottomCoordinatesSortedByX[0]]);
-
-    //       return []
-
-
-    // }
 }

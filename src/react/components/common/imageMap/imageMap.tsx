@@ -684,7 +684,6 @@ export class ImageMap extends React.Component<IImageMapProps> {
             this.props.handleVertexDrag(false);
             return;            
         }
-        // }
 
         if (!this.props.enableFeatureSelection) {
             return;
@@ -739,7 +738,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
         }
     }
 
-    public cancelDrawing = (pendCancel: boolean = false) => {
+    public cancelDrawing = () => {
         this.removeInteraction(this.draw)
         this.initializeDraw();
         this.addInteraction(this.draw);
@@ -749,8 +748,8 @@ export class ImageMap extends React.Component<IImageMapProps> {
         Object.entries(this.modifyStartFeatureCoordinates).forEach((featureCoordinate) => {
             const feature = this.getDrawnRegionFeatureByID(featureCoordinate[0]);
             if (feature.getGeometry().flatCoordinates.join(",") !== featureCoordinate[1]) {
-                const oldFlattenedCoordinates = (featureCoordinate[1] as string).split(",").map(parseFloat)
-                const oldCoordinates = []
+                const oldFlattenedCoordinates = (featureCoordinate[1] as string).split(",").map(parseFloat);
+                const oldCoordinates = [];
                 for (let i = 0; i < oldFlattenedCoordinates.length; i += 2) {
                     oldCoordinates.push([
                         oldFlattenedCoordinates[i],
@@ -759,8 +758,12 @@ export class ImageMap extends React.Component<IImageMapProps> {
                 }
                 feature.getGeometry().setCoordinates([oldCoordinates]);
             }
-        })
+        });
         this.modifyStartFeatureCoordinates = {};
+        this.removeInteraction(this.modify);
+        this.initializeModify();
+        this.addInteraction(this.modify);
+        this.props.handleIsSnapped(false);
     }
 
     private initializeDefaultSelectionMode = () => {
