@@ -16,6 +16,7 @@ import { strings, interpolate } from "../common/strings";
 import { sha256Hash } from "../common/crypto";
 import { toast } from "react-toastify";
 import allSettled from "promise.allsettled"
+import {throwUnhandledRejectionForEdge} from "../react/components/common/errorHandler/errorHandler";
 
 const supportedImageFormats = {
     jpg: null, jpeg: null, null: null, png: null, bmp: null, tif: null, tiff: null, pdf: null,
@@ -146,7 +147,12 @@ export class AssetService {
 
     // If extension of a file was spoofed, we fetch only first 4 bytes of the file and read MIME type
     public static async getMimeType(uri: string): Promise<string[]> {
-        const first4bytes: Response = await fetch(uri, { headers: { range: `bytes=0-${mimeBytesNeeded}` } });
+        let first4bytes: Response;
+        try {
+            first4bytes = await fetch(uri, {headers: {range: `bytes=0-${mimeBytesNeeded}`}});
+        } catch (e) {
+            throw new Error(e);
+        }
         const arrayBuffer: ArrayBuffer = await first4bytes.arrayBuffer();
         const blob = new Blob([new Uint8Array(arrayBuffer).buffer]);
         const isMime = (bytes: Uint8Array, mime: IMime): boolean => {
