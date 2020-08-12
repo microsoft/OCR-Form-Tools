@@ -14,7 +14,6 @@ interface ICanvasCommandBarProps {
     handleToggleDrawRegionMode: () => void;
     drawRegionMode: boolean;
     connectionType: string;
-
     handleAssetDeleted?: () => void;
     layers: any;
 }
@@ -68,7 +67,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
               },
               {
                 key: "DrawnRegions",
-                text: "Drawn regions", //strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.labels,
+                text: "Drawn regions",
                 canCheck: true,
                 iconProps: { iconName: "AddField" },
                 isChecked: props.layers["drawnRegions"],

@@ -18,7 +18,7 @@ export default class TagInputItemLabel extends React.Component<ITagInputItemLabe
         const drawnRegions = [];
         const texts = [];
         let hasEmptyTextValue = false;
-        this.props.label.value.forEach((formRegion: IFormRegion) => { 
+        this.props.label.value.forEach((formRegion: IFormRegion) => {
             if (formRegion.text === "" && !hasEmptyTextValue) {
                 drawnRegions.push(<FontIcon className="pr-1 pl-1" iconName="RectangleShape" />)
                 hasEmptyTextValue = true;
@@ -31,8 +31,8 @@ export default class TagInputItemLabel extends React.Component<ITagInputItemLabe
             <div
                 className={"tag-item-label flex-center px-2"}
                 onMouseEnter={this.handleMouseEnter}
-                onMouseLeave={this.handleMouseLeave}>
-                
+                onMouseLeave={this.handleMouseLeave}
+            >
                 <div className="flex-center">
                     {text}
                     {drawnRegions}

@@ -2021,7 +2021,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private updateFeatureAfterModify = (features) => {
-        let newFeatureCoordinates = [];
+        const newFeatureCoordinates = [];
         features.forEach((feature) => {
             const originalFeatureId = feature.getId();
             const featureCoordinates = feature.getGeometry().getCoordinates()[0];

@@ -421,8 +421,8 @@ export class ImageMap extends React.Component<IImageMapProps> {
     public removeInteraction = (interaction: Interaction) => {
         const existingInteraction = this.map.getInteractions().array_.find((existingInteraction) => {
             return interaction.constructor.name === existingInteraction.constructor.name
-        }) 
-        
+        });
+
         if (existingInteraction !== undefined) {
             this.map.removeInteraction(existingInteraction);
         }
@@ -682,7 +682,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
         if (this.props.isVertexDragging) {
             this.props.handleVertexDrag(false);
-            return;            
+            return;
         }
 
         if (!this.props.enableFeatureSelection) {
@@ -817,7 +817,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
                     color: "rgba(163, 240, 255, 0.2)",
                 }),
             }),
-            geometryFunction: function(coordinates, opt_geometry) {
+            geometryFunction: (coordinates, optGeometry) => {
                 const extent = boundingExtent(/** @type {LineCoordType} */ (coordinates));
                 const boxCoordinates = [[
                     [extent[0], extent[3]],
@@ -825,7 +825,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
                     [extent[2], extent[1]],
                     [extent[0], extent[1]]
                 ]];
-                let geometry = opt_geometry;
+                let geometry = optGeometry;
                 if (geometry) {
                     geometry.setCoordinates(boxCoordinates);
                 } else {
@@ -853,14 +853,14 @@ export class ImageMap extends React.Component<IImageMapProps> {
             deleteCondition: never,
             insertVertexCondition: never,
             style: this.tableIconFeatureStyler,
-        });  
+        });
 
         this.modify.handleUpEvent_old = this.modify.handleUpEvent;
         this.modify.handleUpEvent = function (evt) {
             try {
                 this.handleUpEvent_old(evt);
             } catch (ex) {
-                // do nothing 
+                // do nothing
             }
         }
 
@@ -874,7 +874,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
                 });
                 this.modifyStartFeatureCoordinates[feature.getId()] = featureCoordinates.join(",");
                 featureCoordinates = [];
-            });            
+            });
         });
 
         this.modify.on('modifyend', (modifyEvent) => {
