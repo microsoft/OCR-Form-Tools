@@ -67,7 +67,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
               },
               {
                 key: "DrawnRegions",
-                text: "Drawn regions",
+                text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.drawnRegions,
                 canCheck: true,
                 iconProps: { iconName: "AddField" },
                 isChecked: props.layers["drawnRegions"],
@@ -80,7 +80,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
         },
         {
           key: "drawRegion",
-          text: "Draw region",
+          text: strings.editorPage.canvas.canvasCommandBar.items.drawRegion,
           iconProps: { iconName: "AddField" },
           toggle: true,
           checked: props.drawRegionMode,

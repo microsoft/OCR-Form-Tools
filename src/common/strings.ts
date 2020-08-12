@@ -396,25 +396,27 @@ export interface IAppStrings {
             canvasCommandBar: {
                 items: {
                     layers: {
-                        text: string,
+                        text: string;
                         subMenuItems: {
-                            text: string,
-                            tables: string,
+                            text: string;
+                            tables: string;
                             selectionMarks: string;
-                            labels: string,
+                            drawnRegions: string;
+                            labels: string;
                         }
                     },
+                    drawRegion: string,
                 },
                 farItems: {
                     zoom: {
-                        zoomOut: string,
-                        zoomIn: string,
+                        zoomOut: string;
+                        zoomIn: string;
                     },
                     additionalActions: {
-                        text: string,
+                        text: string;
                         subIMenuItems: {
-                            runOcrOnCurrentDocument: string,
-                            runOcrOnAllDocuments: string,
+                            runOcrOnCurrentDocument: string;
+                            runOcrOnAllDocuments: string;
                         }
                     }
                 }

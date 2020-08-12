@@ -404,10 +404,12 @@ export const english: IAppStrings = {
                         subMenuItems: {
                             text: "Text",
                             tables: "Tables",
-                            selectionMarks: "Selection Marks (Preview)",
+                            selectionMarks: "Selection marks (preview)",
+                            drawnRegions: "Drawn regions (preview)",
                             labels: "Labels"
                         },
-                    }
+                    },
+                    drawRegion: "Draw region",
                 },
                 farItems: {
                     zoom: {

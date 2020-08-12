@@ -264,6 +264,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     tableIconFeatureStyler={this.tableIconFeatureStyler}
                     tableIconBorderFeatureStyler={this.tableIconBorderFeatureStyler}
                     drawRegionStyler={this.drawRegionStyler}
+                    drawnRegionStyler={this.drawnRegionStyler}
+                    modifyStyler={this.modifyStyler}
                     onMapReady={this.noOp}
                     handleTableToolTipChange={this.handleTableToolTipChange}
                     hoveringFeature={this.state.hoveringFeature}
@@ -727,7 +729,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
     }
 
-    private drawRegionStyler = (feature) => {
+    private drawnRegionStyler = (feature) => {
         const regionId = feature.get("id");
         // Selected
         if (this.isRegionSelected(regionId)) {
@@ -750,6 +752,35 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 fill: new Fill({
                     color: "rgba(163, 240, 255, 0.2)",
                 }),
+            });
+        }
+    }
+
+    private drawRegionStyler = () => {
+        return new Style({
+            image: null,
+            stroke: new Stroke({
+                color: "#a3f0ff",
+                width: 1,
+            }),
+            fill: new Fill({
+                color: "rgba(163, 240, 255, 0.2)",
+            }),
+        });
+    }
+
+    private modifyStyler = () => {
+        if (this.imageMap.props.isSnapped) {
+            return new Style({
+                image: new Icon({
+                    opacity: 0.6,
+                    scale: this.imageMap.getResolutionForZoom(4),
+                    src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFwAAABcCAYAAADj79JYAAAEjklEQVR4Xu2cu89NWRTAf5+MoJhiKFCLyDQzOg06NCrjOY9Cg3hEPCIalUZkkIlH0EwymBmPUWnQMc10MxrEHyAKFAqEIMu3T5y5Oefc/ThnfXvLOt397tp7rfXba6+99t7nuxPYo0pgQlWbKcOAKweBATfgygSU1VmEG3BlAsrqLMINuDIBZXUW4QZcmYCyOotwA65MQFmdRbgBVyagrM4i3IArE1BWZxFuwJUJKKsrMcLF5o2O05/Ae2VmSepKAy72bgBOO693AJdLgl4S8Drs2Q74M6Ao6KUAb4JdTe2ioJcAvAt2cdBzB96WRnY60qeAotJLzsDH5WxhXi2gxUDPFfg42FUp6CuXVMr12ThH4KEQQ+X75BfcV27AY+HFtgsGltogN+DTgO+BM8CXQEjJNwr9BbAd+B14lwqqr/a5ARe/xKZNwM/A3sCdZAX9OLAf+CO3XWiOwCvoc4EnEcDEp9i2fQVyaz+5Ah/c8alSYMCVyRtwA95KQCqYecACYKarPF4BD1w1U8S5uHaEi751gMDzPceeAawGdgPLWobjLvALcAN47RG0VTUj5eLViIXZQ0WziCbwep08HdjmUbYtBg474D5OCvBDwL8dwlXZeRZ4o32ergW8aSf4GFgP/N0CZzlwHljkQ7om8xDYAtxpabcUuALMn4pLDA3gMdvur4FfgSU1aJI2TjiQsgOVR04JZWD2jKSbf4DNwP0G6DH2BI55u/jQwGOc+wo453K9WC5b9KPAMeBliyuzgH3AAXckIGKSm7cCz3OCPiTwGNjCZg3wVw3SQQf77Zgw+8JBP1KT+w643tIu1r6kaB8KeKwzcmAlN/I/Oa+6orTJ8dHZccEtijJLmp5YO6OhDwE8xYlvgGvAQudRV4S2OV2fIY+AtcC9DkIp9gaD7xt4qvErgFvOi//cFZpUHSGPVDVS43/rGq0Ebo/pINVub/v6BN5ktExln3q7MvgH4KL7cBOQz0+9vZkUnANcAla5dj+6z+O6qdfnktrkCTmPH9f/x+/7BC67R3kF7WTtJv1zAL4LkFfqernE6BN4NYApN+mWUrzmyf+FUvKhLZoRwFMi3crCSOAp0OsLp/STsvHpWjBTZmI0lr5z+KghMU7Z1j56OCcbxkCXXP5brZaWfuzwKmAg7HjWwRo6pdTHpA7dLiACojVFVKDbFVsKQcW2Mljygo8cbNklsiL4olVp5vCiQfVlvAHvi6RnP7kCr/K1vczpOZApYtW5tL2unELRs+3oJUDIBcDo5ir0LN7TxDSx3FJK0yWGD/S244NeLw/SUH865+ijnz77CD17CZXv09bgvnKL8MoBX4i+csFghmqQK3CfU0aRSbnOG4ppZ785A++Cbv/6PWC4NKWNUXU+C+uAJvp3nXuEd+X06rtiYFdT1n94playuAWyCVcpEd4U6fK3on4NqLQIr0O3Hxmb2mxTjvbSUko5ZFssNeDKQ2jADbgyAWV1FuEGXJmAsjqLcAOuTEBZnUW4AVcmoKzOItyAKxNQVmcRbsCVCSirswg34MoElNVZhBtwZQLK6j4AgoeUbKT4onIAAAAASUVORK5CYII=",
+                }),
+            });
+        } else {
+            return new Style({
+                image: null,
             });
         }
     }

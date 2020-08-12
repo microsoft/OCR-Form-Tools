@@ -407,9 +407,11 @@ export const spanish: IAppStrings = {
                             text: "Texto",
                             tables: "Tablas",
                             selectionMarks: "Marcas de selección (vista previa)",
+                            drawnRegions: "Regiones dibujadas (vista previa)",
                             labels: "Etiquetas"
                         },
-                    }
+                    },
+                    drawRegion: "Dibujar regiones",
                 },
                 farItems: {
                     zoom: {
