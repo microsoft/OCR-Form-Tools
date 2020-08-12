@@ -492,7 +492,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             const selectionCategory = this.tagInputRef.current.getTagCategory(selection[0].category);
             const labels = this.state.selectedAsset.labelData.labels;
 
-            if (selectionCategory === tagCategory) {
+            if (selection[0].category ===  FeatureCategory.DrawnRegion || selectionCategory === tagCategory) {
                 if (tagCategory === FeatureCategory.Checkbox && this.tagInputRef.current.labelAssigned(labels, tag.name)) {
                     toast.warn(strings.tags.warnings.checkboxPerTagLimit);
                 } else {
