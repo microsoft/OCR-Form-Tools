@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import React, {Component} from "react";
 import _ from "lodash";
 import {
@@ -13,6 +16,7 @@ import {
 import "react-vis/dist/styles/radial-chart.scss";
 import "react-vis/dist/styles/plot.scss";
 import "./projectSettingsPage.scss";
+import { Spinner } from "@fluentui/react";
 
 /**
  * Required properties for Project Metrics
@@ -63,9 +67,10 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
                 </h6>
                 <div className="condensed-list-body">
                     {this.state.loading &&
-                    <div className="loading">
-                        <i className="fas fa-circle-notch fa-spin fa-2x" />
-                    </div>
+                    <Spinner
+                        className="loading"
+                        label= {strings.projectMetrics.loading}
+                    />
                     }
                     {!this.state.loading &&
                     this.renderMetrics()

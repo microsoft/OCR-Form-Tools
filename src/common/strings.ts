@@ -213,6 +213,7 @@ export interface IAppStrings {
         totalRegionCount: string;
         totalTagCount: string;
         avgTagCountPerAsset: string;
+        loading: string
     };
     tags: {
         title: string;

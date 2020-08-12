@@ -214,6 +214,7 @@ export const spanish: IAppStrings = {
         totalRegionCount: "Total de regiones",
         totalTagCount: "Total de etiquetas",
         avgTagCountPerAsset: "Recuento promedio de etiquetas por activo",
+        loading: "Generando métricas del proyecto ..."
     },
     tags: {
         title: "Etiquetas",

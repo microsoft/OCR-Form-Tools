@@ -214,6 +214,7 @@ export const english: IAppStrings = {
         totalRegionCount: "Total tagged regions",
         totalTagCount: "Total tags",
         avgTagCountPerAsset: "Average of assigned tags per document ",
+        loading: "Generating project metrics..."
     },
     tags: {
         title: "Tags",
