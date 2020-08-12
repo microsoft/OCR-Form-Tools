@@ -2,12 +2,12 @@ import React, {Component} from "react";
 import _ from "lodash";
 import {
     AssetState, IAsset, IAssetMetadata,
-    IProject, IRegion, ITag, IPoint, AssetType,
+    IProject, IRegion, ITag,
 } from "../../../../models/applicationState";
 import { AssetService } from "../../../../services/assetService";
 import { strings, interpolate } from "../../../../common/strings";
 import {
-    RadialChart, XYPlot, ArcSeries, Sunburst, Hint, DiscreteColorLegend,
+    XYPlot, Sunburst, Hint, DiscreteColorLegend,
     HorizontalGridLines, XAxis, YAxis, VerticalBarSeries, LabelSeries
 } from "react-vis";
 import "react-vis/dist/styles/radial-chart.scss";
@@ -56,7 +56,7 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
 
     public render() {
         return (
-            <div className="condensed-list bg-darker-2">
+            <div className="condensed-list bg-darker-2 project-settings-page-metrics">
                 <h6 className="condensed-list-header bg-darker-4 p-2">
                     <i className="fas fa-chart-bar mr-1" />
                     <span>{strings.projectMetrics.title}</span>
@@ -79,7 +79,7 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
         this.forceUpdate();
     }
 
-    private buildValue(hoveredCell) {
+    private static buildValue(hoveredCell) {
         const { radius, angle, angle0 } = hoveredCell;
         const truedAngle = (angle + angle0) / 2;
         return {
@@ -89,13 +89,9 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
     }
 
     private renderMetrics() {
-        const sourceDocumentsCount = this.getSourceAssetCount();
-        const taggedDocumentsCount = this.getTaggedAssetCount();
-        const visitedDocumentsCount = this.getVisitedAssetsCount();
-        // console.log("# sourceDocumentsCount:", sourceDocumentsCount)
-        // console.log("# taggedDocumentsCount:",taggedDocumentsCount)
-        // console.log("# visitedDocumentsCount:",visitedDocumentsCount)
-
+        const sourceDocumentsCount = this.getSourceDocumentsCount();
+        const taggedDocumentsCount = this.getTaggedDocumentsCount();
+        const visitedDocumentsCount = this.getVisitedDocumentsCount();
         const assetChartSize = window.innerWidth >= 1920 ? 300 : 200;
 
         const assetChartData = {
@@ -199,7 +195,7 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
                         hideRootNode={true}
                     >
                         {hoveredCell ? (
-                            <Hint value={this.buildValue(hoveredCell)}>
+                            <Hint value={ProjectMetrics.buildValue(hoveredCell)}>
                                 <div className="hint-content">
                                     <div className="hint-content-box" style={{ background: hoveredCell.clr }} />
                                     <span className="px-2">{hoveredCell.title}</span>
@@ -219,6 +215,9 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
                     {/*    {strings.projectMetrics.totalRegionCount}:*/}
                     {/*    <strong className="px-1 metric-total-region-count">{this.getRegionsCount()}</strong>*/}
                     {/*</p>*/}
+                    <p className="my-1">Total assigned tags:
+                        <strong className="px-1 metric-avg-tag-count">{this.getAllAssignedTags().length}</strong>
+                    </p>
                     <p className="my-1">
                         {strings.projectMetrics.avgTagCountPerAsset}:
                         <strong className="px-1 metric-avg-tag-count">{this.getAverageTagCount()}</strong>
@@ -237,6 +236,7 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
                             data={tagChartData}
                         />
                         <LabelSeries
+                            style={{fontSize: "70%"}}
                             className="vertical-bars-labels"
                             data={tagChartData}
                             getLabel={d => d.y}/>
@@ -265,7 +265,7 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
     /**
      * Count the number of tagged documents
      */
-    private getTaggedAssetCount = () => {
+    private getTaggedDocumentsCount = () => {
         const metaData = this.state.projectAssetsMetadata;
         const taggedDocuments = metaData.filter((m) => m.asset.state === AssetState.Tagged);
         return taggedDocuments.length;
@@ -275,26 +275,26 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
      * Count the avg number of assigned tags in document
      */
     private getAverageTagCount = () => {
-        const taggedDocumentsCount = this.getTaggedAssetCount();
+        const taggedDocumentsCount = this.getTaggedDocumentsCount();
 
         if (taggedDocumentsCount === 0) {
             return 0;
         }
 
-        const documentCount = this.getSourceAssetCount()
-        const tags = this.getAllTagReferences();
+        const documentsCount = this.getSourceDocumentsCount()
+        const tags = this.getAllAssignedTags();
         const totalAssignedTagsInProject = (tags) => {
             let total = 0;
-            tags.forEach((tag)=> total += tag.documentCount)
+            tags.forEach((tag)=> total += tag.documentCount);
             return total;
         }
-        return (totalAssignedTagsInProject(tags)/tags.length).toFixed(2);
+        return ((totalAssignedTagsInProject(tags)/documentsCount)).toFixed(2);
     }
 
     /**
      * The number of visited documents
      */
-    private getVisitedAssetsCount = () => {
+    private getVisitedDocumentsCount = () => {
         const metaData = this.state.projectAssetsMetadata;
         const visitedDocuments = metaData.filter((m) => m.asset.state === AssetState.Visited || m.asset.state === AssetState.Tagged);
         return visitedDocuments.length
@@ -309,9 +309,9 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
     // }
 
     /**
-     * Total number of source assets in the project
+     * Total number of source documents in the project
      */
-    private getSourceAssetCount = () => {
+    private getSourceDocumentsCount = () => {
         const assets = this.state.projectAssetsMetadata.map((e) => e.asset.name);
         const projectAssetSet = new Set(this.state.sourceDocuments.map((e) => e.name).concat(assets));
 
@@ -319,13 +319,13 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
     }
 
     /**
-     * A map of asset count per tag
+     * A map of assets count per tag
      */
     private getTagsCounts = (): Map<string, { tag: ITag, count: number }> => {
-        const tagReferences = this.getAllTagReferences();
+        const allAssignedTags = this.getAllAssignedTags();
         const map = new Map<string, { tag: ITag, count: number }>();
 
-        this.props.project.tags.forEach((tag) => {
+        allAssignedTags.forEach((tag: any) => {
             if (!map.get(tag.name)) {
                 map.set(tag.name, { tag, count: tag.documentCount });
             }
@@ -335,17 +335,13 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
     }
 
     private getAllTags = (): ITag[] => {
-        const tags = [];
-        this.props.project.tags.forEach((tag) => {
-            tags.push(tag)
-        });
-        return _.flatten<string>(tags)
+        return this.props.project.tags;
     }
 
     /**
      * Retrieve the list of tags assigned
      */
-    private getAllTagReferences = (): string[] => {
+    private getAllAssignedTags = (): string[] => {
         const tags = this.getAllTags();
         const assignedTags = [];
         tags.forEach((tag) => {
@@ -353,7 +349,7 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
                 assignedTags.push(tag)
             }
         });
-        return _.flatten<string>(assignedTags);
+        return assignedTags;
     }
 }
 

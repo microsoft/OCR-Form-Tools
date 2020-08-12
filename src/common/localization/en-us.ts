@@ -211,8 +211,8 @@ export const english: IAppStrings = {
         nonTaggedAssets: "Not tagged documents (${count})",
         nonVisitedAssets: "Not visited documents (${count})",
         tagsSectionTitle: "Tags & Labels",
-        totalRegionCount: "Total Tagged Regions",
-        totalTagCount: "Total Tags",
+        totalRegionCount: "Total tagged regions",
+        totalTagCount: "Total tags",
         avgTagCountPerAsset: "Average of assigned tags per document ",
     },
     tags: {
