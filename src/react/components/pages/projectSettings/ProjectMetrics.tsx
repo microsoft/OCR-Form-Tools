@@ -226,14 +226,14 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
                     {/*    {strings.projectMetrics.totalRegionCount}:*/}
                     {/*    <strong className="px-1 metric-total-region-count">{this.getRegionsCount()}</strong>*/}
                     {/*</p>*/}
-                    <p className="my-1">Total assigned tags:
+                    <p className="my-1">{strings.projectMetrics.totalAssignedTags}:
                         <strong className="px-1 metric-avg-tag-count">{this.getAllAssignedTags().length}</strong>
                     </p>
                     <p className="my-1">
                         {strings.projectMetrics.avgTagCountPerAsset}:
                         <strong className="px-1 metric-avg-tag-count">{this.getAverageTagCount()}</strong>
                     </p>
-                    <h4 className="mt-4 mb-2">Tags occurrence in project</h4>
+                    <h4 className="mt-4 mb-2">{strings.projectMetrics.tagOccurrence}</h4>
                     <XYPlot className="tag-chart"
                             margin={{ bottom: 300, left: 100 }}
                             xType="ordinal"
