@@ -204,8 +204,7 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
                         getColor={(d) => d.clr}
                         width={assetChartSize}
                         padAngle={() => 0.05}
-                        hideRootNode={true}
-                    >
+                        hideRootNode={true}>
                         {hoveredCell ? (
                             <Hint value={ProjectMetrics.buildValue(hoveredCell)}>
                                 <div className="hint-content">
@@ -236,11 +235,12 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
                     </p>
                     <h4 className="mt-4 mb-2">Tags occurrence in project</h4>
                     <XYPlot className="tag-chart"
-                            margin={{ bottom: 200, left: 100 }}
+                            margin={{ bottom: 300, left: 100 }}
                             xType="ordinal"
                             colorType="literal"
                             width={this.state.metricsContainerWidth ? this.state.metricsContainerWidth - 25 : 400 }
-                            height={500}>
+                            height={500}
+                            animation={100}>
                         <HorizontalGridLines />
                         <XAxis tickLabelAngle={-30} />
                         <YAxis />
