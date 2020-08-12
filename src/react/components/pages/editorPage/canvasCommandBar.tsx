@@ -15,6 +15,7 @@ interface ICanvasCommandBarProps {
     drawRegionMode: boolean;
     handleShareProject: () => void;
     connectionType: string;
+
     handleAssetDeleted?: () => void;
     layers: any;
 }
@@ -119,14 +120,6 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
             iconProps: { iconName: "More" },
             subMenuProps: {
                 items: [
-                    {
-                        key: "shareProject",
-                        text: strings.editorPage.canvas.canvasCommandBar.farItems.share,
-                        disabled: props.connectionType !== "azureBlobStorage",
-                        iconProps: { iconName: "Share" },
-                        className: props.connectionType !== "azureBlobStorage" ? "disabled" : "",
-                        onClick: () => props.handleShareProject(),
-                    },
                     {
                         key: 'divider_0',
                         itemType: ContextualMenuItemType.Divider,

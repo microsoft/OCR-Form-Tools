@@ -489,7 +489,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     onTagClick(tag);
                     deselect = false;
                 } else {
-                    toast.warn(strings.tags.warnings.notCompatibleTagType);
+                    toast.warn(strings.tags.warnings.notCompatibleTagType, {autoClose: 7000});
                 }
             }
             this.setState({
@@ -499,13 +499,14 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         }
     }
 
-    private labelAssigned = (labels, name): boolean => {
+    public labelAssigned = (labels, name): boolean => {
          return labels.find((label) => label.label === name ? true : false);
     }
 
-    private getTagCategory = (tagType: string) => {
+    public getTagCategory = (tagType: string) => {
         switch (tagType) {
             case FieldType.SelectionMark:
+            case "checkbox":
                 return "checkbox";
             default:
                 return "text";

@@ -180,7 +180,10 @@ export const spanish: IAppStrings = {
             headerAria: "Lista de encabezado de modelos",
             checkButtonAria: "Seleccionar botón de verificación del modelo",
             checkAllButtonAria: "Botón de verificación Seleccionar todos los modelos",
-
+        },
+        errors: {
+            failedCompose: "¡Algo salió mal, el modelo compuesto no fue creado!",
+            noInfoAboutModel: "ℹ️  Modelo original no encontrado. No hay información disponible.",
         }
     },
     predict: {
@@ -240,7 +243,7 @@ export const spanish: IAppStrings = {
             existingName: "Nombre de etiqueta ya existe. Elige otro nombre",
             emptyName: "El nombre de etiqueta no puede ser vacío",
             unknownTagName: "Desconocido",
-            notCompatibleTagType: "El tipo de etiqueta no es compatible con esta función",
+            notCompatibleTagType: "El tipo de etiqueta no es compatible con esta función. Si desea cambiar el tipo de esta etiqueta, elimine o reasigne todas las etiquetas que utilizan esta etiqueta en su proyecto.",
             checkboxPerTagLimit: "No se puede asignar más de una casilla de verificación por etiqueta",
         },
         toolbar: {
@@ -409,7 +412,6 @@ export const spanish: IAppStrings = {
                     }
                 },
                 farItems: {
-                    share: "Compartir proyecto",
                     zoom: {
                         zoomOut: "Alejar",
                         zoomIn: "Acercarse",
@@ -629,9 +631,15 @@ export const spanish: IAppStrings = {
         modelNotFound: {
             title: "Modelo no encontrado",
             message: "Modelo \"${modelID}\" no encontrado. Por favor use otro modelo.",
+        },
+        getOcrError: {
+            title: "No se puede cargar el archivo OCR",
+            message: "Error al cargar desde el archivo OCR. Verifique su conexión o configuración de red."
         }
+
     },
     shareProject: {
+        name: "Compartir proyecto",
         errors: {
             cannotDecodeString: "¡No se puede decodificar la cadena compartida! Por favor, verifique si su cadena ha sido modificada.",
             connectionNotFound: "Conexión no encontrada. Agregue la conexión del proyecto compartido a sus conexiones.",

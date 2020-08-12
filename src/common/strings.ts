@@ -180,6 +180,10 @@ export interface IAppStrings {
             checkButtonAria: string,
             checkAllButtonAria: string,
         },
+        errors: {
+            failedCompose: string,
+            noInfoAboutModel: string,
+        }
     }
     predict: {
         title: string;
@@ -402,7 +406,6 @@ export interface IAppStrings {
                     },
                 },
                 farItems: {
-                    share: string,
                     zoom: {
                         zoomOut: string,
                         zoomIn: string,
@@ -528,8 +531,10 @@ export interface IAppStrings {
         modelCountLimitExceeded: IErrorMetadata,
         requestSendError: IErrorMetadata,
         modelNotFound: IErrorMetadata,
+        getOcrError: IErrorMetadata,
     };
     shareProject: {
+        name: string,
         errors: {
             cannotDecodeString: string,
             connectionNotFound: string,

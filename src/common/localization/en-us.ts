@@ -180,6 +180,10 @@ export const english: IAppStrings = {
             checkButtonAria: "Select model check button",
             checkAllButtonAria: "Select all models check button",
 
+        },
+        errors: {
+            failedCompose: "Something went wrong composed model was not created!",
+            noInfoAboutModel: "ℹ️ Original model not found. No information available.",
         }
     },
     predict: {
@@ -239,7 +243,7 @@ export const english: IAppStrings = {
             existingName: "Tag name already exists. Choose another name",
             emptyName: "Cannot have an empty tag name",
             unknownTagName: "Unknown",
-            notCompatibleTagType: "Tag type is not compatible with this feature",
+            notCompatibleTagType: "Tag type is not compatible with this feature. If you want to change type of this tag, please remove or reassign all labels which using this tag in your project.",
             checkboxPerTagLimit: "Cannot assign more than one checkbox per tag",
         },
         toolbar: {
@@ -406,7 +410,6 @@ export const english: IAppStrings = {
                     }
                 },
                 farItems: {
-                    share: "Share Project",
                     zoom: {
                         zoomOut: "Zoom out",
                         zoomIn: "Zoom in",
@@ -627,9 +630,14 @@ export const english: IAppStrings = {
         modelNotFound: {
             title: "Model not found",
             message: "Model \"${modelID}\" not found. Please use another model.",
+        },
+        getOcrError: {
+            title: "Cannot load OCR file",
+            message: "Failed to load from OCR file. Please check your connection or network settings.",
         }
     },
     shareProject: {
+        name: "Share Project",
         errors: {
             cannotDecodeString: "Cannot decode shared string! Please, check if your string has been modified.",
             connectionNotFound: "Connection not found. Add shared project's connection to your connections.",

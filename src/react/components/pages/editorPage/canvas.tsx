@@ -30,13 +30,11 @@ import Alert from "../../common/alert/alert";
 import * as pdfjsLib from "pdfjs-dist";
 import Polygon from "ol/geom/Polygon";
 import HtmlFileReader from "../../../../common/htmlFileReader";
-import { parseTiffData, renderTiffToCanvas, loadImageToCanvas, getSasFolderString, fixedEncodeURIComponent } from "../../../../common/utils";
+import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./canvasCommandBar";
 import { TooltipHost, ITooltipHostStyles } from "@fluentui/react";
 import { IAppSettings } from '../../../../models/applicationState';
-import { toast } from "react-toastify";
-import { strings } from "../../../../common/strings";
 
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
@@ -58,7 +56,6 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onRunningOCRStatusChanged?: (isRunning: boolean) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
     runOcrForAllDocs?: (runForAllDocs: boolean) => void;
-    shareProject?: () => void;
     onAssetDeleted?: () => void;
 }
 
@@ -119,7 +116,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         lockedTags: [],
         hoveredLabel: null,
         appSettings: null,
-        shareProject: null,
     };
 
     public state: ICanvasState = {
@@ -254,7 +250,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     imageUri={this.state.imageUri}
                     imageWidth={this.state.imageWidth}
                     imageHeight={this.state.imageHeight}
-                    enableFeatureSelection={!this.state.drawRegionMode}
+                    enableFeatureSelection={!this.state.drawRegionMode && !this.state.groupSelectMode}
                     handleFeatureSelect={this.handleFeatureSelect}
                     featureStyler={this.featureStyler}
                     groupSelectMode={this.state.groupSelectMode}
@@ -341,29 +337,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.props.runOcrForAllDocs(true);
     }
 
-    // creates URI for sharing project
-    private shareProject = (): void => {
-        const project: IProject = this.props.project;
-        const sasFolder: string = getSasFolderString(project.sourceConnection.providerOptions["sas"]);
-        const projectToken: ISecurityToken = this.props.appSettings.securityTokens
-            .find((securityToken) => securityToken.name === project.securityToken);
-        const shareProjectString: string = JSON.stringify({
-            sasFolder,
-            projectName: project.name,
-            token: { name: project.securityToken, key: projectToken.key }
-        });
-
-        this.copyToClipboard(shareProjectString)
-    }
-
-    private async copyToClipboard(value: string) {
-        const clipboard = (navigator as any).clipboard;
-        if (clipboard && clipboard.writeText) {
-            await clipboard.writeText(btoa(value));
-            toast.success(strings.shareProject.copy.success);
-        }
-    }
-
     public updateSize() {
         this.imageMap.updateSize();
     }
@@ -428,7 +401,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.props.onTagChanged(tag, newTag);
     }
 
-    private getSelectedRegions = (): IRegion[] => {
+    public getSelectedRegions = (): IRegion[] => {
         return this.state.currentAsset.regions.filter((r) => this.selectedRegionIds.find((id) => r.id === id));
     }
 
@@ -446,7 +419,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private addRegionsToImageMap = (regions: IRegion[]) => {
-        if (this.imageMap == null) {
+        if (!this.imageMap) {
             return;
         }
 
@@ -532,7 +505,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private deleteRegionsFromImageMap = (regions: IRegion[]) => {
-        if (this.imageMap == null) {
+        if (!this.imageMap) {
             return;
         }
 
@@ -546,10 +519,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         selectedFeatures.map(this.imageMap.removeFeature);
 
         const allCheckboxFeatures = this.imageMap.getAllCheckboxFeatures();
-        const selectdCheckboxFeatures = allCheckboxFeatures
+        const selectedCheckboxFeatures = allCheckboxFeatures
             .filter((feature) => !feature.get("isOcrProposal"))
             .filter((feature) => checkboxRegions.findIndex((region) => region.id === feature.get("id")) !== -1);
-        selectdCheckboxFeatures.map(this.imageMap.removeCheckboxFeature);
+        selectedCheckboxFeatures.map(this.imageMap.removeCheckboxFeature);
 
         const getAllLabelledFeatures = this.imageMap.getAllLabelFeatures();
         const selectedLabelledFeatures = getAllLabelledFeatures
@@ -1308,6 +1281,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private handleKeyDown = (keyEvent) => {
+        if (!this.imageMap) {
+            return;
+        }
+
         switch (keyEvent.key) {
             case "Escape":
                 if (this.state.isDrawing) {
@@ -1422,7 +1399,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const currentPage = this.state.currentPage;
         let nextRegionId;
         if (!selectedRegion.length && !this.applyTagFlag) {
-            nextRegionId = this.regionOrderById[this.state.currentPage - 1][0];
+            nextRegionId = this.regionOrderById?.[this.state.currentPage - 1]?.[0];
         } else if (!this.applyTagFlag) {
             lastSelectedId = selectedRegion.find((r) =>
                 r.id === this.selectedRegionIds[this.selectedRegionIds.length - 1]).id;
@@ -1443,7 +1420,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             }
             this.applyTagFlag = false;
         }
-        const allFeatures = this.imageMap.getAllFeatures();
+
+        if (!nextRegionId || !this.imageMap) {
+            return;
+        }
+
+        const allFeatures = this.imageMap?.getAllFeatures();
         const nextFeature = allFeatures.find((f) => f.get("id") === (nextRegionId));
         if (nextFeature) {
             const polygon = nextRegionId.split(",").map(parseFloat);
@@ -1516,7 +1498,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private addLabelledDataToLayer = (regions: IRegion[]) => {
-        if (this.imageMap == null) {
+        if (!this.imageMap) {
             return;
         }
 
@@ -1728,7 +1710,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         features.forEach((feature) => feature.changed());
     }
 
-    private createRegion(boundingBox: number[], text: string, tagName: string, pangeNumber: number) {
+    private createRegion(boundingBox: number[], text: string, tagName: string, pageNumber: number) {
         const xAxisValues = boundingBox.filter((value, index) => index % 2 === 0);
         const yAxisValues = boundingBox.filter((value, index) => index % 2 === 1);
         const left = Math.min(...xAxisValues);
@@ -1746,7 +1728,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const tag = this.props.project.tags.find((tag) => tag.name === tagName);
 
         const newRegion = {
-            id: this.createRegionIdFromBoundingBox(boundingBox, pangeNumber),
+            id: this.createRegionIdFromBoundingBox(boundingBox, pageNumber),
             type: RegionType.Polygon,
             category: tag.type === FieldType.SelectionMark ? FeatureCategory.Checkbox : FeatureCategory.Text,
             tags: [tagName],
@@ -1758,7 +1740,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             },
             points,
             value: text,
-            pageNumber: pangeNumber,
+            pageNumber,
         };
         return newRegion;
     }
@@ -1815,6 +1797,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private handleTableToolTipChange = async (display: string, width: number, height: number, top: number,
                                               left: number, rows: number, columns: number, featureID: string) => {
+        if (!this.imageMap) {
+            return;
+        }
+
         if (featureID !== null && this.imageMap.getTableBorderFeatureByID(featureID).get("state") !== "selected") {
             this.imageMap.getTableBorderFeatureByID(featureID).set("state", "hovering");
             this.imageMap.getTableIconFeatureByID(featureID).set("state", "hovering");
@@ -1839,6 +1825,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private redrawAllFeatures = () => {
+        if (!this.imageMap) {
+            return;
+        }
+
         this.redrawFeatures(this.imageMap.getAllFeatures());
         this.redrawFeatures(this.imageMap.getAllCheckboxFeatures());
         this.redrawFeatures(this.imageMap.getAllLabelFeatures());
@@ -1883,6 +1873,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         return false;
     }
     private handleRegionSelectByGroup = (selectedRegions: IRegion[]) => {
+        if (selectedRegions.length === 0) {
+            return;
+        }
+
+        const existingSelectedRegions = this.getSelectedRegions();
+        existingSelectedRegions.filter((region) => region.category === FeatureCategory.Checkbox)
+            .forEach((region) => this.removeFromSelectedRegions(region.id));
         this.addRegionsToAsset(selectedRegions);
         this.addRegionsToImageMap(selectedRegions);
         this.selectedRegionIds = this.selectedRegionIds.concat(selectedRegions.map((region) => region.id));
@@ -1894,9 +1891,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private handleFeatureSelectByGroup = (feature: Feature): IRegion => {
         const regionId = feature.get("id");
-        const selectedRegions = this.getSelectedRegions();
-        selectedRegions.filter((region) => region.category === FeatureCategory.Checkbox)
-            .forEach((region) => this.removeFromSelectedRegions(region.id));
         const polygon = regionId.split(",").map(parseFloat);
 
         let selectedRegion: IRegion;
@@ -1907,6 +1901,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             selectedRegion = this.state.currentAsset.regions.find((region) => region.id === regionId);
             // Explicitly set pageNumber in order to fix incorrect page number
             selectedRegion.pageNumber = this.state.currentPage;
+
+            if (selectedRegion.category === FeatureCategory.Checkbox) {
+                return null;
+            }
         } else {
             const regionBoundingBox = this.convertToRegionBoundingBox(polygon);
             const regionPoints = this.convertToRegionPoints(polygon);
