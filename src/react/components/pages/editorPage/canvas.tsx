@@ -2039,7 +2039,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 this.modifySelectedRegion(originalFeatureId, featureId);
                 this.modifyAssetRegion(originalFeatureId, featureId);
             }
-        });         
+        });
         this.imageMap.modifyStartFeatureCoordinates = {};
     }
 }
