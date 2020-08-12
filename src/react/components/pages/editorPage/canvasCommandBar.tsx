@@ -13,7 +13,6 @@ interface ICanvasCommandBarProps {
     handleLayerChange: (layer: string) => void;
     handleToggleDrawRegionMode: () => void;
     drawRegionMode: boolean;
-    handleShareProject: () => void;
     connectionType: string;
 
     handleAssetDeleted?: () => void;

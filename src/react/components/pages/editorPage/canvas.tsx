@@ -239,7 +239,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleRunOcr={this.runOcr}
                     handleAssetDeleted={this.props.onAssetDeleted}
                     handleRunOcrForAllDocuments={this.runOcrForAllDocuments}
-                    handleShareProject={this.shareProject}
                     connectionType={this.props.project.sourceConnection.providerType}
                     handleToggleDrawRegionMode={this.handleToggleDrawRegionMode}
                     drawRegionMode={this.state.drawRegionMode}
