@@ -17,7 +17,6 @@ import "react-vis/dist/styles/radial-chart.scss";
 import "react-vis/dist/styles/plot.scss";
 import "./projectSettingsPage.scss";
 import { Spinner } from "@fluentui/react";
-
 /**
  * Required properties for Project Metrics
  * @member project - Current project to fill metrics table
@@ -31,6 +30,7 @@ export interface IProjectMetricsState {
     hoveredCell: any;
     sourceDocuments: IAsset[];
     projectAssetsMetadata: IAssetMetadata[];
+    metricsContainerWidth: number;
 }
 
 /**
@@ -43,14 +43,13 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
         hoveredCell: null,
         sourceDocuments: [],
         projectAssetsMetadata: [],
+        metricsContainerWidth: 0,
     };
 
     public async componentDidMount() {
-        this.setState({
-            loading: true,
-        });
-
+        this.setState({loading: true});
         await this.getAssetsAndMetadata();
+        this.getMetricsContainerWidth();
         window.addEventListener("resize", this.refresh);
     }
 
@@ -82,6 +81,7 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
 
     private refresh = () => {
         this.forceUpdate();
+        this.getMetricsContainerWidth();
     }
 
     private static buildValue(hoveredCell) {
@@ -92,6 +92,13 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
             y: radius * Math.sin(truedAngle),
         };
     }
+
+    private getMetricsContainerWidth = () => {
+        const container = document.getElementsByClassName("project-settings-page-metrics")[0];
+        if (container) {
+            return this.setState({metricsContainerWidth: container.clientWidth})
+        }
+    };
 
     private renderMetrics() {
         const sourceDocumentsCount = this.getSourceDocumentsCount();
@@ -178,9 +185,9 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
         return (
             <div className="m-3">
                 <h4>{strings.projectMetrics.assetsSectionTitle}</h4>
-                <p className="my-1">
+                <p className="mb-1">
                     {strings.projectMetrics.totalAssetCount}:
-                    <strong className="px-1 project-settings-page-metrics-total-asset-count">{sourceDocumentsCount}</strong><br />
+                    <strong className="px-1">{sourceDocumentsCount}</strong><br />
                 </p>
                 <div className="asset-chart">
                     <Sunburst
@@ -229,11 +236,11 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
                     </p>
                     <h4 className="mt-4 mb-2">Tags occurrence in project</h4>
                     <XYPlot className="tag-chart"
-                            margin={{ bottom: 200 }}
+                            margin={{ bottom: 200, left: 100 }}
                             xType="ordinal"
                             colorType="literal"
-                            width={500}
-                            height={400}>
+                            width={this.state.metricsContainerWidth ? this.state.metricsContainerWidth - 25 : 400 }
+                            height={500}>
                         <HorizontalGridLines />
                         <XAxis tickLabelAngle={-30} />
                         <YAxis />
