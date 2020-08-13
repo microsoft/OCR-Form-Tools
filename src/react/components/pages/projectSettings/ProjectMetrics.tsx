@@ -240,12 +240,13 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
                             colorType="literal"
                             width={this.state.metricsContainerWidth ? this.state.metricsContainerWidth - 25 : 400 }
                             height={500}
-                            animation={100}>
+                            >
                         <HorizontalGridLines />
                         <XAxis tickLabelAngle={-30} />
                         <YAxis />
                         <VerticalBarSeries
                             data={tagChartData}
+                            animation={{noWobble: 10}}
                         />
                         <LabelSeries
                             style={{fontSize: "70%"}}
