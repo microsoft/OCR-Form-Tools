@@ -147,7 +147,7 @@ export class AssetService {
 
     // If extension of a file was spoofed, we fetch only first 4 or needed amount of bytes of the file and read MIME type
     public static async getMimeType(uri: string): Promise<string[]> {
-        const getFirst4bytes = (): Promise<Response> => this.poll_fetch(() => fetch(uri, {headers: {range: `bytes=0-${mimeBytesNeeded}`}}), 10000, 100);
+        const getFirst4bytes = (): Promise<Response> => this.pollForFetchAPI(() => fetch(uri, {headers: {range: `bytes=0-${mimeBytesNeeded}`}}), 10000, 100);
         const first4bytes: Response = await getFirst4bytes();
         const arrayBuffer: ArrayBuffer = await first4bytes.arrayBuffer();
         const blob: Blob = new Blob([new Uint8Array(arrayBuffer).buffer]);
@@ -439,7 +439,7 @@ export class AssetService {
      * @param timeout - timeout
      * @param interval - interval
      */
-    private static poll_fetch = (func, timeout, interval): Promise<any> => {
+    private static pollForFetchAPI = (func, timeout, interval): Promise<any> => {
         const endTime = Number(new Date()) + (timeout || 10000);
         interval = interval || 100;
 
