@@ -147,8 +147,15 @@ export class AssetService {
 
     // If extension of a file was spoofed, we fetch only first 4 or needed amount of bytes of the file and read MIME type
     public static async getMimeType(uri: string): Promise<string[]> {
-        const getFirst4bytes = (): Promise<Response> => this.pollForFetchAPI(() => fetch(uri, {headers: {range: `bytes=0-${mimeBytesNeeded}`}}), 10000, 100);
-        const first4bytes: Response = await getFirst4bytes();
+        const getFirst4bytes = (): Promise<Response> => this.pollForFetchAPI(() => fetch(uri, {headers: {range: `bytes=0-${mimeBytesNeeded}`}}), 1000, 200);
+        let first4bytes;
+        try {
+            first4bytes = await getFirst4bytes()
+        } catch {
+            return new Promise<string[]>((resolve) => {
+                resolve([]);
+            });
+        }
         const arrayBuffer: ArrayBuffer = await first4bytes.arrayBuffer();
         const blob: Blob = new Blob([new Uint8Array(arrayBuffer).buffer]);
         const isMime = (bytes: Uint8Array, mime: IMime): boolean => {
@@ -446,13 +453,22 @@ export class AssetService {
         const checkSucceeded = (resolve, reject) => {
             const ajax = func();
             ajax.then(
-                    response => {
-                        if (!response.ok) {
-                            setTimeout(checkSucceeded, interval, resolve, reject);
-                        }
+                response => {
+                    if (response.ok) {
                         resolve(response);
+                    } else {
+                        // Didn't succeeded after too much time, reject
+                        reject("Timed out, please try other file.");
                     }
-                ).catch((e)=> console.error(e));
+                }).catch(()=> {
+                    if (Number(new Date()) < endTime) {
+                        // If the request isn't succeeded and the timeout hasn't elapsed, go again
+                        setTimeout(checkSucceeded, interval, resolve, reject);
+                    } else {
+                        // Didn't succeeded after too much time, reject
+                        reject("Timed out");
+                    }
+                });
         };
         return new Promise(checkSucceeded);
     }
