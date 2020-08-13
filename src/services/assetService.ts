@@ -145,16 +145,12 @@ export class AssetService {
         }
     }
 
-    // If extension of a file was spoofed, we fetch only first 4 bytes of the file and read MIME type
+    // If extension of a file was spoofed, we fetch only first 4 or needed amount of bytes of the file and read MIME type
     public static async getMimeType(uri: string): Promise<string[]> {
-        let first4bytes: Response;
-        try {
-            first4bytes = await fetch(uri, {headers: {range: `bytes=0-${mimeBytesNeeded}`}});
-        } catch (e) {
-            throw new Error(e);
-        }
+        const getFirst4bytes = (): Promise<Response> => this.poll_fetch(() => fetch(uri, {headers: {range: `bytes=0-${mimeBytesNeeded}`}}), 10000, 100);
+        const first4bytes: Response = await getFirst4bytes();
         const arrayBuffer: ArrayBuffer = await first4bytes.arrayBuffer();
-        const blob = new Blob([new Uint8Array(arrayBuffer).buffer]);
+        const blob: Blob = new Blob([new Uint8Array(arrayBuffer).buffer]);
         const isMime = (bytes: Uint8Array, mime: IMime): boolean => {
                 return mime.pattern.every((p, i) => !p || bytes[i] === p);
         };
@@ -435,5 +431,29 @@ export class AssetService {
 
         const startsWithFolderPath = assetName.indexOf(`${normalizedPath}/`) === 0;
         return startsWithFolderPath && assetName.lastIndexOf("/") === normalizedPath.length;
+    }
+
+    /**
+     * Poll function to repeatedly check if request succeeded
+     * @param func - function that will be called repeatedly
+     * @param timeout - timeout
+     * @param interval - interval
+     */
+    private static poll_fetch = (func, timeout, interval): Promise<any> => {
+        const endTime = Number(new Date()) + (timeout || 10000);
+        interval = interval || 100;
+
+        const checkSucceeded = (resolve, reject) => {
+            const ajax = func();
+            ajax.then(
+                    response => {
+                        if (!response.ok) {
+                            setTimeout(checkSucceeded, interval, resolve, reject);
+                        }
+                        resolve(response);
+                    }
+                ).catch((e)=> console.error(e));
+        };
+        return new Promise(checkSucceeded);
     }
 }
