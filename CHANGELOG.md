@@ -1,5 +1,21 @@
 # FoTT Changelog
 
+## 2.0.0-deff6dd (08-14-2020)
+* refactor: disable telemetry service (#499)g ([#499](https://github.com/microsoft/OCR-Form-Tools/commit/deff6dd64cff785e519da3df0a47779f2cf0ef57))
+* fix: sync layer visibility ([#497](https://github.com/microsoft/OCR-Form-Tools/commit/d61d20661a11482beb12bd9f180d080e10c476b7))
+
+## 2.0.0-d3fafaa (08-06-2020)
+* fix: use english for telemetry reporting ([#472](https://github.com/microsoft/OCR-Form-Tools/commit/d3fafaa82b3286ebb75f3ed68a3f8bea7808b3a4))
+* feat: add apiVersion to telemetry ([#448](https://github.com/microsoft/OCR-Form-Tools/commit/99e26835846bdb653c1127efd3b9a2e1b4d5652b))
+
+## 2.0.0-ce009bc (08-05-2020)
+* docs: add telemetry disclaimer to readme ([#449](https://github.com/microsoft/OCR-Form-Tools/commit/ce009bc175db33d7669875e218368b1a6570b397))
+* feat: enable internal telemetry ([#431](https://github.com/microsoft/OCR-Form-Tools/commit/d1d1dbd84c36207bf63065878e3c6ee0d10ccf1b))
+
+## 2.0.0-015109e (07-23-2020)
+* fix: change API version to v2.0 ([#444](https://github.com/microsoft/OCR-Form-Tools/commit/015109e5323ce1f41a44bbcfc8ef1f5470b2d5b8))
+* fix: handle undefined error for pdf asse ([#443](https://github.com/microsoft/OCR-Form-Tools/commit/626c4f48c0f7c8c500f2da5de4dafc815e161c04))
+
 ## 2.0.0-0541a32 (07-16-2020)
 * fix: optimise pdf loading ([#418](https://github.com/microsoft/OCR-Form-Tools/commit/b148062f690ff99d957e60449bcafcab7be7a6d1))
 * fix: handle version change state mutation error ([#417](https://github.com/microsoft/OCR-Form-Tools/commit/c33925a1e3cb1e92373e0beefab6fe68dab41e1d))
