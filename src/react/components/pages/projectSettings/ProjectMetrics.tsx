@@ -1,13 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, {Component} from "react";
+import React, { Component } from "react";
 import _ from "lodash";
 import {
-    AssetState, IAsset, IAssetMetadata,
-    IProject, IRegion, ITag,
+    AssetState, IAssetMetadata, IProject, ITag,
 } from "../../../../models/applicationState";
-import { AssetService } from "../../../../services/assetService";
 import { strings, interpolate } from "../../../../common/strings";
 import {
     XYPlot, Sunburst, Hint, DiscreteColorLegend,
@@ -28,7 +26,6 @@ export interface IProjectMetricsProps {
 export interface IProjectMetricsState {
     loading: boolean;
     hoveredCell: any;
-    sourceDocuments: IAsset[];
     projectAssetsMetadata: IAssetMetadata[];
     metricsContainerWidth: number;
 }
@@ -47,7 +44,7 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
     };
 
     public async componentDidMount() {
-        this.setState({loading: true});
+        this.setState({ loading: true });
         await this.getAssetsAndMetadata();
         this.getMetricsContainerWidth();
         window.addEventListener("resize", this.refresh);
@@ -66,13 +63,13 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
                 </h6>
                 <div className="condensed-list-body">
                     {this.state.loading &&
-                    <Spinner
-                        className="loading"
-                        label= {strings.projectMetrics.loading}
-                    />
+                        <Spinner
+                            className="loading"
+                            label={strings.projectMetrics.loading}
+                        />
                     }
                     {!this.state.loading &&
-                    this.renderMetrics()
+                        this.renderMetrics()
                     }
                 </div>
             </div>
@@ -96,7 +93,7 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
     private getMetricsContainerWidth = () => {
         const container = document.getElementsByClassName("project-settings-page-metrics")[0];
         if (container) {
-            return this.setState({metricsContainerWidth: container.clientWidth})
+            return this.setState({ metricsContainerWidth: container.clientWidth })
         }
     };
 
@@ -235,24 +232,24 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
                     </p>
                     <h4 className="mt-4 mb-2">{strings.projectMetrics.tagOccurrence}</h4>
                     <XYPlot className="tag-chart"
-                            margin={{ bottom: 300, left: 100 }}
-                            xType="ordinal"
-                            colorType="literal"
-                            width={this.state.metricsContainerWidth ? this.state.metricsContainerWidth - 25 : 400 }
-                            height={500}
-                            >
+                        margin={{ bottom: 300, left: 100 }}
+                        xType="ordinal"
+                        colorType="literal"
+                        width={this.state.metricsContainerWidth ? this.state.metricsContainerWidth * 0.95 : 400}
+                        height={500}
+                    >
                         <HorizontalGridLines />
                         <XAxis tickLabelAngle={-30} />
                         <YAxis />
                         <VerticalBarSeries
                             data={tagChartData}
-                            animation={{noWobble: 10}}
+                            animation={{ noWobble: 10 }}
                         />
                         <LabelSeries
-                            style={{fontSize: "70%"}}
+                            style={{ fontSize: "70%" }}
                             className="vertical-bars-labels"
                             data={tagChartData}
-                            getLabel={d => d.y}/>
+                            getLabel={d => d.y} />
 
                     </XYPlot>
                 </div>
@@ -261,17 +258,9 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
     }
 
     private async getAssetsAndMetadata() {
-        const assetService = new AssetService(this.props.project);
-        const sourceDocuments = await assetService.getAssets();
-
-        const assetsMap = this.props.project.assets;
-        const assets = _.values(assetsMap);
-        const projectAssetsMetadata = await assets.mapAsync((asset) => assetService.getAssetMetadata(asset));
-
         this.setState({
             loading: false,
-            sourceDocuments,
-            projectAssetsMetadata,
+            projectAssetsMetadata: _.values(this.props.project.assets),
         });
     }
 
@@ -280,7 +269,7 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
      */
     private getTaggedDocumentsCount = () => {
         const metaData = this.state.projectAssetsMetadata;
-        const taggedDocuments = metaData.filter((m) => m.asset.state === AssetState.Tagged);
+        const taggedDocuments = metaData.filter((m) => m.state === AssetState.Tagged);
         return taggedDocuments.length;
     }
 
@@ -298,10 +287,10 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
         const tags = this.getAllAssignedTags();
         const totalAssignedTagsInProject = (tags) => {
             let total = 0;
-            tags.forEach((tag)=> total += tag.documentCount);
+            tags.forEach((tag) => total += tag.documentCount);
             return total;
         }
-        return ((totalAssignedTagsInProject(tags)/documentsCount)).toFixed(2);
+        return ((totalAssignedTagsInProject(tags) / documentsCount)).toFixed(2);
     }
 
     /**
@@ -309,7 +298,7 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
      */
     private getVisitedDocumentsCount = () => {
         const metaData = this.state.projectAssetsMetadata;
-        const visitedDocuments = metaData.filter((m) => m.asset.state === AssetState.Visited || m.asset.state === AssetState.Tagged);
+        const visitedDocuments = metaData.filter((m) => m.state === AssetState.Visited || m.state === AssetState.Tagged);
         return visitedDocuments.length
     }
 
@@ -325,10 +314,7 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
      * Total number of source documents in the project
      */
     private getSourceDocumentsCount = () => {
-        const assets = this.state.projectAssetsMetadata.map((e) => e.asset.name);
-        const projectAssetSet = new Set(this.state.sourceDocuments.map((e) => e.name).concat(assets));
-
-        return projectAssetSet.size;
+        return Object.keys(this.props.project.assets).length;
     }
 
     /**
