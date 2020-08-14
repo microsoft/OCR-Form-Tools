@@ -16,7 +16,6 @@ import { strings, interpolate } from "../common/strings";
 import { sha256Hash } from "../common/crypto";
 import { toast } from "react-toastify";
 import allSettled from "promise.allsettled"
-import {throwUnhandledRejectionForEdge} from "../react/components/common/errorHandler/errorHandler";
 
 const supportedImageFormats = {
     jpg: null, jpeg: null, null: null, png: null, bmp: null, tif: null, tiff: null, pdf: null,
