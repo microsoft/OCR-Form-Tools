@@ -26,8 +26,8 @@ interface IMime {
     pattern: (number|undefined)[];
 }
 
-  // tslint:disable number-literal-format
-  // tslint:disable no-magic-numbers
+// tslint:disable number-literal-format
+// tslint:disable no-magic-numbers
 const imageMimes: IMime[] = [
     {
         types: ["bmp"],
@@ -102,7 +102,7 @@ export class AssetService {
             }
             const corruptFileName = fileName.split("%2F").pop().replace(/%20/g, " ");
             if (!types) {
-                toast.warn(interpolate(strings.editorPage.assetWarning.incorrectFileExtension.failedToFetch, {fileName: corruptFileName.toLocaleUpperCase() }), { delay: 3000 });
+                console.error(interpolate(strings.editorPage.assetWarning.incorrectFileExtension.failedToFetch, { fileName: corruptFileName.toLocaleUpperCase() }));
             }
             // If file was renamed/spoofed - fix file extension to true MIME type and show message
             else if (!types.includes(assetFormat)) {
@@ -147,7 +147,7 @@ export class AssetService {
 
     // If extension of a file was spoofed, we fetch only first 4 or needed amount of bytes of the file and read MIME type
     public static async getMimeType(uri: string): Promise<string[]> {
-        const getFirst4bytes = (): Promise<Response> => this.pollForFetchAPI(() => fetch(uri, {headers: {range: `bytes=0-${mimeBytesNeeded}`}}), 1000, 200);
+        const getFirst4bytes = (): Promise<Response> => this.pollForFetchAPI(() => fetch(uri, { headers: { range: `bytes=0-${mimeBytesNeeded}` } }), 1000, 200);
         let first4bytes: Response;
         try {
             first4bytes = await getFirst4bytes()
@@ -159,7 +159,7 @@ export class AssetService {
         const arrayBuffer: ArrayBuffer = await first4bytes.arrayBuffer();
         const blob: Blob = new Blob([new Uint8Array(arrayBuffer).buffer]);
         const isMime = (bytes: Uint8Array, mime: IMime): boolean => {
-                return mime.pattern.every((p, i) => !p || bytes[i] === p);
+            return mime.pattern.every((p, i) => !p || bytes[i] === p);
         };
         const fileReader: FileReader = new FileReader();
 
