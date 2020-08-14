@@ -482,6 +482,17 @@ export const spanish: IAppStrings = {
                 backSpace: "Eliminar selección del mapa del documento o clave de selección de una etiqueta",
                 },
         },
+        drawnRegions: {
+            keys: {
+                escape: "Escape",
+                alt: "Alt",
+                backSpace: "Backspace",
+            },
+            description: {
+                deleteSelectedDrawnRegions: "Eliminar regiones dibujadas seleccionadas",
+                cancelDrawOrReshape: "Cancelar la modificación o remodelación de regiones",
+            }
+        },
         tips: {
             quickLabeling: {
                 name: "Etiquetado rápido",
@@ -492,8 +503,8 @@ export const spanish: IAppStrings = {
                 description: "Mantenga presionada la tecla Alt y haga clic en el nombre de la etiqueta, el usuario puede cambiar el nombre de la etiqueta.",
             },
             multipleWordSelection: {
-                name: "Selección de palabras múltiples",
-                description: "Haga clic y mantenga presionada la palabra, luego desplace el cursor sobre otras palabras para seleccionar varias palabras a la vez.",
+                name: "Seleccione varias palabras pasando el cursor con el puntero",
+                description: "Haga clic y mantenga presionada una palabra. Luego, coloca el cursor sobre palabras adicionales con el puntero.",
             },
             deleteAllLabelsForTag: {
                 name: "Eliminar información asociada a una etiqueta",

@@ -480,9 +480,20 @@ export const english: IAppStrings = {
                 backSpace: "Remove selection and delete labels of selected words",
                 },
         },
+        drawnRegions: {
+            keys: {
+                escape: "Escape",
+                alt: "Alt",
+                backSpace: "Backspace",
+            },
+            description: {
+                deleteSelectedDrawnRegions: "Delete selected drawn regions",
+                cancelDrawOrReshape: "Cancel modifying or reshaping of regions",
+            }
+        },
         tips: {
             quickLabeling: {
-                name: "Quick labeling",
+                name: "Lable with hotkeys",
             description: "Hotkeys 1 through 0 and all letters are assigned to first 36 tags. After selecting one or multiple words, press tag's assigned hotkey.",
             },
             renameTag: {
@@ -490,8 +501,8 @@ export const english: IAppStrings = {
                 description: "Hold Alt key and click on tag name.",
             },
             multipleWordSelection: {
-                name: "Select multiple words",
-                description: "Click and hold on word. Then, hover over additional words.",
+                name: "Select multiple words by hovering with pointer",
+                description: "Click and hold on a word. Then, hover over additional words with pointer.",
             },
             deleteAllLabelsForTag: {
                 name: "Delete all labels for a tag",

@@ -475,6 +475,17 @@ export interface IAppStrings {
                 backSpace: string,
             },
         },
+        drawnRegions: {
+            keys: {
+                escape: string,
+                alt: string,
+                backSpace: string,
+            },
+            description: {
+                deleteSelectedDrawnRegions: string,
+                cancelDrawOrReshape: string,
+            }
+        },
         tips: {
             quickLabeling: {
                 name: string,
