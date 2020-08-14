@@ -15,6 +15,7 @@ import "react-vis/dist/styles/radial-chart.scss";
 import "react-vis/dist/styles/plot.scss";
 import "./projectSettingsPage.scss";
 import { Spinner } from "@fluentui/react";
+
 /**
  * Required properties for Project Metrics
  * @member project - Current project to fill metrics table
