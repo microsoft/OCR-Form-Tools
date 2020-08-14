@@ -345,7 +345,7 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
         const tags = this.getAllTags();
         const assignedTags = [];
         tags.forEach((tag) => {
-            if (tag.documentCount) {
+            if (tag.documentCount > 0) {
                 assignedTags.push(tag)
             }
         });
