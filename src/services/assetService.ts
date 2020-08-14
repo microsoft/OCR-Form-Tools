@@ -100,12 +100,13 @@ export class AssetService {
             } else {
                 types = await this.getMimeType(filePath);
             }
-
+            const corruptFileName = fileName.split("%2F").pop().replace(/%20/g, " ");
+            if (!types) {
+                toast.warn(interpolate(strings.editorPage.assetWarning.incorrectFileExtension.failedToFetch, {fileName: corruptFileName.toLocaleUpperCase() }), { delay: 3000 });
+            }
             // If file was renamed/spoofed - fix file extension to true MIME type and show message
-            if (!types.includes(assetFormat)) {
+            else if (!types.includes(assetFormat)) {
                 assetFormat = types[0];
-                const corruptFileName = fileName.split("%2F").pop().replace(/%20/g, " ");
-
                 toast.info(`${strings.editorPage.assetWarning.incorrectFileExtension.attention} ${corruptFileName.toLocaleUpperCase()} ${strings.editorPage.assetWarning.incorrectFileExtension.text} ${corruptFileName.toLocaleUpperCase()}`, { delay: 3000 });
             }
         }
@@ -152,7 +153,7 @@ export class AssetService {
             first4bytes = await getFirst4bytes()
         } catch {
             return new Promise<string[]>((resolve) => {
-                resolve([]);
+                resolve(null);
             });
         }
         const arrayBuffer: ArrayBuffer = await first4bytes.arrayBuffer();
