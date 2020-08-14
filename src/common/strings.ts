@@ -290,6 +290,7 @@ export interface IAppStrings {
             incorrectFileExtension: {
                 attention: string,
                 text: string,
+                failedToFetch: string,
             },
         }
         ,

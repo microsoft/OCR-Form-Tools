@@ -25,8 +25,8 @@ interface IMime {
     pattern: (number|undefined)[];
 }
 
-  // tslint:disable number-literal-format
-  // tslint:disable no-magic-numbers
+// tslint:disable number-literal-format
+// tslint:disable no-magic-numbers
 const imageMimes: IMime[] = [
     {
         types: ["bmp"],
@@ -92,13 +92,14 @@ export class AssetService {
 
         if (supportedImageFormats.hasOwnProperty(assetFormat)) {
             const types = await this.getMimeType(filePath);
-
+            const corruptFileName = fileName.split("%2F").pop().replace(/%20/g, " ");
+            if (!types) {
+                console.error(interpolate(strings.editorPage.assetWarning.incorrectFileExtension.failedToFetch, { fileName: corruptFileName.toLocaleUpperCase() }));
+            }
             // If file was renamed/spoofed - fix file extension to true MIME type and show message
-            if (!types.includes(assetFormat)) {
+            else if (!types.includes(assetFormat)) {
                 assetFormat = types[0];
-                const corruptFileName = fileName.split("%2F").pop().replace(/%20/g, " ");
-
-                toast.info(`${strings.editorPage.assetWarning.incorrectFileExtension.attention} ${corruptFileName.toLocaleUpperCase()} ${strings.editorPage.assetWarning.incorrectFileExtension.text} ${corruptFileName.toLocaleUpperCase()}`, { delay: 3000 });
+                console.error(`${strings.editorPage.assetWarning.incorrectFileExtension.attention} ${corruptFileName.toLocaleUpperCase()} ${strings.editorPage.assetWarning.incorrectFileExtension.text} ${corruptFileName.toLocaleUpperCase()}`);
             }
         }
 
@@ -136,13 +137,21 @@ export class AssetService {
         }
     }
 
-    // If extension of a file was spoofed, we fetch only first 4 bytes of the file and read MIME type
+    // If extension of a file was spoofed, we fetch only first 4 or needed amount of bytes of the file and read MIME type
     public static async getMimeType(uri: string): Promise<string[]> {
-        const first4bytes: Response = await fetch(uri, { headers: { range: `bytes=0-${mimeBytesNeeded}` } });
+        const getFirst4bytes = (): Promise<Response> => this.pollForFetchAPI(() => fetch(uri, { headers: { range: `bytes=0-${mimeBytesNeeded}` } }), 1000, 200);
+        let first4bytes: Response;
+        try {
+            first4bytes = await getFirst4bytes()
+        } catch {
+            return new Promise<string[]>((resolve) => {
+                resolve(null);
+            });
+        }
         const arrayBuffer: ArrayBuffer = await first4bytes.arrayBuffer();
-        const blob = new Blob([new Uint8Array(arrayBuffer).buffer]);
+        const blob: Blob = new Blob([new Uint8Array(arrayBuffer).buffer]);
         const isMime = (bytes: Uint8Array, mime: IMime): boolean => {
-                return mime.pattern.every((p, i) => !p || bytes[i] === p);
+            return mime.pattern.every((p, i) => !p || bytes[i] === p);
         };
         const fileReader: FileReader = new FileReader();
 
@@ -402,5 +411,38 @@ export class AssetService {
 
         const startsWithFolderPath = assetName.indexOf(`${normalizedPath}/`) === 0;
         return startsWithFolderPath && assetName.lastIndexOf("/") === normalizedPath.length;
+    }
+
+    /**
+     * Poll function to repeatedly check if request succeeded
+     * @param func - function that will be called repeatedly
+     * @param timeout - timeout
+     * @param interval - interval
+     */
+    private static pollForFetchAPI = (func, timeout, interval): Promise<any> => {
+        const endTime = Number(new Date()) + (timeout || 10000);
+        interval = interval || 100;
+
+        const checkSucceeded = (resolve, reject) => {
+            const ajax = func();
+            ajax.then(
+                response => {
+                    if (response.ok) {
+                        resolve(response);
+                    } else {
+                        // Didn't succeeded after too much time, reject
+                        reject("Timed out, please try other file or check your network setting.");
+                    }
+                }).catch(() => {
+                    if (Number(new Date()) < endTime) {
+                        // If the request isn't succeeded and the timeout hasn't elapsed, go again
+                        setTimeout(checkSucceeded, interval, resolve, reject);
+                    } else {
+                        // Didn't succeeded after too much time, reject
+                        reject("Timed out fetching file.");
+                    }
+                });
+        };
+        return new Promise(checkSucceeded);
     }
 }
