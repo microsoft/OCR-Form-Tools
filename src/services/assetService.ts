@@ -107,7 +107,7 @@ export class AssetService {
             // If file was renamed/spoofed - fix file extension to true MIME type and show message
             else if (!types.includes(assetFormat)) {
                 assetFormat = types[0];
-                toast.info(`${strings.editorPage.assetWarning.incorrectFileExtension.attention} ${corruptFileName.toLocaleUpperCase()} ${strings.editorPage.assetWarning.incorrectFileExtension.text} ${corruptFileName.toLocaleUpperCase()}`, { delay: 3000 });
+                console.error(`${strings.editorPage.assetWarning.incorrectFileExtension.attention} ${corruptFileName.toLocaleUpperCase()} ${strings.editorPage.assetWarning.incorrectFileExtension.text} ${corruptFileName.toLocaleUpperCase()}`);
             }
         }
 
