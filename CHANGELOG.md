@@ -1,6 +1,7 @@
 # FoTT Changelog 
 
-## 2.1-preview.1-bea552b (08-14-2020)
+## 2.1-preview.1-530545c (08-14-2020)
+* fix: "failed to fetch()" error ([#491](https://github.com/microsoft/OCR-Form-Tools/commit/530545c7cd2b4a3ff444e9c7e1f40c68d4a7376c))
 * fix: sync layer visibility ([#497](https://github.com/microsoft/OCR-Form-Tools/commit/bea552b28acb9b652ffaedf40009d6df5a3197ef))
 * refactor: disable telemetry service ([#498](https://github.com/microsoft/OCR-Form-Tools/commit/6e3628cf174f954693380aab6ebd2dabe027ac6d))
 * fix: change share class name for adblocker chrome extension ([#492](https://github.com/microsoft/OCR-Form-Tools/commit/aa8a73afc6344f3164e79f236d5fa4bb0f64d364))
