@@ -375,6 +375,7 @@ export const english: IAppStrings = {
             incorrectFileExtension: {
                 attention: "Attention!",
                 text: "- extension of this file doesn't correspond MIME type. Please check file:",
+                failedToFetch: "Failed to fetch ${fileName} for mime type validation",
             },
         },
         assetError: "Unable to load asset",
