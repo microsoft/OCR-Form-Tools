@@ -81,7 +81,7 @@ export default class App extends React.Component<IAppProps> {
                             <TelemetryProvider after={() => { this.appInsights = getAppInsights() }}>
                                 <div className={`app-shell platform-${platform}`}>
                                     <TitleBar icon="TagGroup">
-                                        <div className="app-share-menu-icon">
+                                        <div className="project-share-menu-icon">
                                             <ShareProjectButton />
                                         </div>
                                         <div className="app-shortcuts-menu-icon">

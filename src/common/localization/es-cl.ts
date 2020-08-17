@@ -272,6 +272,7 @@ export const spanish: IAppStrings = {
         messages: {
             saveSuccess: "${connection.name} guardado correctamente",
             deleteSuccess: "${connection.name} eliminado correctamente",
+            doNotAllowDuplicateNames: "La conexión con el nombre \"${connection.name}\" ya existe. Por favor, use otro nombre"
         },
         imageCorsWarning: "Advertencia: Cuando se usa VoTT en un navegador web, es posible que algunos activos de este \
                           Búsqueda de Imágenes Bing no se exporten correctamente debido a las restricciones de CORS \
@@ -375,6 +376,7 @@ export const spanish: IAppStrings = {
             incorrectFileExtension: {
                 attention: "¡Atención!",
                 text: "-- la extensión de este archivo no corresponde al tipo MIME. Por favor revise el archivo:",
+                failedToFetch: "No se pudo recuperar ${fileName} para la validación del tipo de mímica",
             },
         },
         assetError: "No se puede mostrar el activo",

@@ -11,10 +11,9 @@ import { PrimaryButton } from "@fluentui/react";
 import HtmlFileReader from "../../../../common/htmlFileReader";
 import { strings } from "../../../../common/strings";
 import {
-    AssetState, AssetType, EditorMode, IApplicationState,
-    IAppSettings, IAsset, IAssetMetadata, IProject, IRegion,
-    ISize, ITag,
-    ILabel,
+    AssetState, AssetType, EditorMode, FieldType,
+    IApplicationState, IAppSettings, IAsset, IAssetMetadata,
+    ILabel, IProject, IRegion, ISize, ITag, FeatureCategory,
 } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -37,6 +36,7 @@ import { constants } from "../../../../common/constants";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
 import { getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/themes";
+import { toast } from "react-toastify";
 
 /**
  * Properties for Editor Page
@@ -485,9 +485,24 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      */
     private handleTagHotKey = (event: KeyboardEvent): void => {
         const tag = this.getTagFromKeyboardEvent(event);
-        if (tag) {
-            this.onTagClicked(tag);
+        const selection = this.canvas.current.getSelectedRegions();
+
+        if (tag && selection.length) {
+            const tagCategory = this.tagInputRef.current.getTagCategory(tag.type);
+            const selectionCategory = this.tagInputRef.current.getTagCategory(selection[0].category);
+            const labels = this.state.selectedAsset.labelData.labels;
+
+            if (selectionCategory === tagCategory) {
+                if (tagCategory === FeatureCategory.Checkbox && this.tagInputRef.current.labelAssigned(labels, tag.name)) {
+                    toast.warn(strings.tags.warnings.checkboxPerTagLimit);
+                } else {
+                    this.onTagClicked(tag);
+                }
+            } else {
+                toast.warn(strings.tags.warnings.notCompatibleTagType)
+            }
         }
+        // do nothing if region was not selected
     }
 
     /**
