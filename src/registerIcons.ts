@@ -70,6 +70,12 @@ export function registerIcons() {
             System: "\uE770",
             SquareShape: "\uF1A6",
             Merge: "\uE7D5",
+            AddTable: "\uE4C6",
+            InsertColumnsRight: "\uF64B",
+            InsertRowsBelow: "\uF64D",
+            EditTable: "\uE4C4",
+            TableGroup: "\uF6D9",
+            FixedColumnWidth: "\uE3EA",
         },
     });
 }
