@@ -216,6 +216,7 @@ export const spanish: IAppStrings = {
         totalAssignedTags: "Total de etiquetas asignadas",
         avgTagCountPerAsset: "Recuento promedio de etiquetas por activo",
         tagOccurrence: "Aparición de etiquetas en el proyecto",
+        noAssignedTagsMessage: "Aún no se han etiquetado etiquetas.",
         loading: "Generando métricas del proyecto ..."
     },
     tags: {

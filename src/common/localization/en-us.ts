@@ -216,6 +216,7 @@ export const english: IAppStrings = {
         totalAssignedTags: "Total assigned tags",
         avgTagCountPerAsset: "Average of assigned tags per document ",
         tagOccurrence: "Tags occurrence in project",
+        noAssignedTagsMessage: "No tags has been labeled yet.",
         loading: "Generating project metrics..."
     },
     tags: {

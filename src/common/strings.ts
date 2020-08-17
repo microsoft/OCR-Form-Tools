@@ -215,6 +215,7 @@ export interface IAppStrings {
         totalAssignedTags: string;
         avgTagCountPerAsset: string;
         tagOccurrence: string;
+        noAssignedTagsMessage: string;
         loading: string
     };
     tags: {

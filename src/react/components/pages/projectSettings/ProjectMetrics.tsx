@@ -232,27 +232,29 @@ export default class ProjectMetrics extends Component<IProjectMetricsProps, IPro
                         <strong className="px-1 metric-avg-tag-count">{this.getAverageTagCount()}</strong>
                     </p>
                     <h4 className="mt-4 mb-2">{strings.projectMetrics.tagOccurrence}</h4>
-                    <XYPlot className="tag-chart"
-                        margin={{ bottom: 300, left: 100 }}
-                        xType="ordinal"
-                        colorType="literal"
-                        width={this.state.metricsContainerWidth ? this.state.metricsContainerWidth * 0.95 : 400}
-                        height={500}
-                    >
-                        <HorizontalGridLines />
-                        <XAxis tickLabelAngle={-30} />
-                        <YAxis />
-                        <VerticalBarSeries
-                            data={tagChartData}
-                            animation={{ noWobble: 10 }}
-                        />
-                        <LabelSeries
-                            style={{ fontSize: "70%" }}
-                            className="vertical-bars-labels"
-                            data={tagChartData}
-                            getLabel={d => d.y} />
+                    {!tagChartData.length ? strings.projectMetrics.noAssignedTagsMessage :
+                        <XYPlot className="tag-chart"
+                            margin={{ bottom: 300, left: 100 }}
+                            xType="ordinal"
+                            colorType="literal"
+                            width={this.state.metricsContainerWidth ? this.state.metricsContainerWidth * 0.95 : 400}
+                            height={500}
+                        >
+                            <HorizontalGridLines />
+                            <XAxis tickLabelAngle={-30} />
+                            <YAxis />
+                            <VerticalBarSeries
+                                data={tagChartData}
+                                animation={{ noWobble: 10 }}
+                            />
+                            <LabelSeries
+                                style={{ fontSize: "70%" }}
+                                className="vertical-bars-labels"
+                                data={tagChartData}
+                                getLabel={d => d.y} />
 
-                    </XYPlot>
+                        </XYPlot>
+                    }
                 </div>
             </div>
         );
