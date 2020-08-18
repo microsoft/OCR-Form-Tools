@@ -165,6 +165,9 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
             if (error instanceof AppError && error.errorCode === ErrorCode.SecurityTokenNotFound) {
                 toast.error(strings.errors.securityTokenNotFound.message, { autoClose: 5000 });
             }
+            if(error instanceof AppError && error.errorCode === ErrorCode.ProjectInvalidSecurityToken) {
+                toast.error(strings.errors.projectInvalidSecurityToken.message, { autoClose: 5000 });
+            }
         }
     }
 
