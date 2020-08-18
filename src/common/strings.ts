@@ -224,6 +224,7 @@ export interface IAppStrings {
         }
         toolbar: {
             add: string;
+            addTable: string;
             contextualMenu: string;
             delete: string;
             edit: string;

@@ -81,6 +81,7 @@ export interface ITagInputProps {
 export interface ITagInputState {
     tags: ITag[];
     tagOperation: TagOperationMode;
+    addTable: boolean;
     addTags: boolean;
     searchTags: boolean;
     searchQuery: string;
@@ -127,6 +128,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         tags: this.props.tags || [],
         tagOperation: TagOperationMode.None,
         addTags: this.props.showTagInputBox,
+        addTable: false,
         searchTags: this.props.showSearchBox,
         searchQuery: "",
         selectedTag: null,
@@ -173,6 +175,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     <span className="tag-input-title">{strings.tags.title}</span>
                     <TagInputToolbar
                         selectedTag={this.state.selectedTag}
+                        onAddTable={()=> this.setState({addTable: !this.state.addTable})}
                         onAddTags={() => this.setState({ addTags: !this.state.addTags })}
                         onSearchTags={() => this.setState({
                             searchTags: !this.state.searchTags,

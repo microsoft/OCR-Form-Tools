@@ -247,6 +247,7 @@ export const spanish: IAppStrings = {
             checkboxPerTagLimit: "No se puede asignar más de una casilla de verificación por etiqueta",
         },
         toolbar: {
+            addTable: "Agregar nueva tabla",
             add: "Agregar nueva etiqueta",
             contextualMenu: "Menú contextual",
             delete: "Borrar etiqueta",

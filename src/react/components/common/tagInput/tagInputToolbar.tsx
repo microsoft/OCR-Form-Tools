@@ -16,6 +16,8 @@ enum Categories {
 export interface ITagInputToolbarProps {
     /** Currently selected tag */
     selectedTag: ITag;
+    /** Function to call when add table button is clicked */
+    onAddTable: () => void;
     /** Function to call when add tags button is clicked */
     onAddTags: () => void;
     /** Function to call when search tags button is clicked */
@@ -49,6 +51,12 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
 
     private getToolbarItems = (): ITagInputToolbarItemProps[] => {
         return [
+            {
+                displayName: strings.tags.toolbar.addTable,
+                icon: "AddTable",
+                category: Categories.General,
+                handler: this.handleAddTable,
+            },
             {
                 displayName: strings.tags.toolbar.add,
                 icon: "Add",
@@ -139,6 +147,9 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
         itemConfig.handler();
     }
 
+    private handleAddTable = () => {
+        this.props.onAddTable();
+    }
     private handleAdd = () => {
         this.props.onAddTags();
     }
