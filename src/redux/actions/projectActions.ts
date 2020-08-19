@@ -152,7 +152,7 @@ export function deleteProject(project: IProject)
 
         if (!projectToken) {
             dispatch(deleteProjectAction(project));
-            throw new AppError(ErrorCode.SecurityTokenNotFound, "Security Token Not Found, only remove project from FoTT tool.");
+            throw new AppError(ErrorCode.SecurityTokenNotFound, `Security Token Not Found. Project [${project.name}] has been removed from FoTT tool.`);
         }
 
         const decryptedProject = await projectService.load(project, projectToken);
