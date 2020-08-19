@@ -258,6 +258,7 @@ export interface IAppStrings {
             unknownTagName: string;
             notCompatibleTagType: string;
             checkboxPerTagLimit: string;
+            notCompatibleWithDrawnRegionTag: string;
         }
     };
     connections: {

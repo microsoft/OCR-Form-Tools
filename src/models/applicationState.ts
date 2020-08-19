@@ -225,6 +225,7 @@ export interface ILabel {
     label: string;
     key?: IFormRegion[];
     value: IFormRegion[];
+    labelType?: string;
 }
 
 /**
@@ -389,6 +390,10 @@ export enum FieldType {
     Time = "time",
     Integer = "integer",
     SelectionMark = "selectionMark",
+}
+
+export enum LabelType {
+    DrawnRegion = "drawnRegion"
 }
 
 export enum FieldFormat {

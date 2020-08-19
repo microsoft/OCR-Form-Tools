@@ -7,9 +7,7 @@ import { defaults as defaultInteractions, DragPan, Interaction, DragBox, Snap } 
 import PointerInteraction from 'ol/interaction/Pointer';
 import Draw from "ol/interaction/Draw.js";
 import Style from "ol/style/Style";
-import Stroke from "ol/style/Stroke";
-import Fill from "ol/style/Fill";
-import Icon from "ol/style/Icon";
+import Collection from 'ol/Collection';
 import { shiftKeyOnly, never } from 'ol/events/condition';
 import { Modify } from "ol/interaction";
 import Polygon from "ol/geom/Polygon";
@@ -78,6 +76,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
     private checkboxVectorLayer: VectorLayer;
     private labelVectorLayer: VectorLayer;
     private drawRegionVectorLayer: VectorLayer;
+    private drawnLabelVectorLayer: VectorLayer;
 
     private mapElement: HTMLDivElement | null = null;
 
@@ -85,6 +84,8 @@ export class ImageMap extends React.Component<IImageMapProps> {
     private dragBox: DragBox;
     private modify: Modify;
     private snap: Snap;
+
+    private drawnFeatures: Collection = new Collection([], {unique: true});
 
     public modifyStartFeatureCoordinates: any = {};
 
@@ -102,6 +103,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
     private readonly TABLE_ICON_BORDER_VECTOR_LAYER_NAME = "tableIconBorderVectorLayer";
     private readonly CHECKBOX_VECTOR_LAYER_NAME = "checkboxBorderVectorLayer";
     private readonly LABEL_VECTOR_LAYER_NAME = "labelledVectorLayer";
+    private readonly DRAWN_REGION_LABEL_VECTOR_LAYER_NAME = "drawnRegionLabelledVectorLayer";
     private readonly DRAWN_REGION_VECTOR_LAYER_NAME = "drawnRegionVectorLayer";
 
     private ignorePointerMoveEventCount: number = 5;
@@ -125,6 +127,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
     private labelVectorLayerFilter = {
         layerFilter: (layer: Layer) => layer.get("name") === this.LABEL_VECTOR_LAYER_NAME,
+    };
+
+    private drawnLabelVectorLayerFilter = {
+        layerFilter: (layer: Layer) => layer.get("name") === this.DRAWN_REGION_LABEL_VECTOR_LAYER_NAME,
     };
 
     private drawnRegionVectorLayerFilter = {
@@ -170,10 +176,8 @@ export class ImageMap extends React.Component<IImageMapProps> {
                 this.removeInteraction(this.draw);
                 this.addInteraction(this.dragBox);
                 this.initializeModify();
-                if (this.drawRegionVectorLayer.getVisible()) {
-                    this.addInteraction(this.modify);
-                    this.addInteraction(this.snap);
-                }
+                this.addInteraction(this.modify);
+                this.addInteraction(this.snap);
                 if (!this.props?.isPointerOnImage) {
                     this.removeInteraction(this.modify);
                     this.removeInteraction(this.dragBox);
@@ -210,17 +214,47 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
     public toggleLabelFeatureVisibility = () => {
         this.labelVectorLayer.setVisible(!this.labelVectorLayer.getVisible());
+        const drawLabelVectorLayerVisibility = this.drawnLabelVectorLayer.getVisible();
+        this.drawnLabelVectorLayer.setVisible(!drawLabelVectorLayerVisibility);
+        const drawnLabelFeatures = this.getAllDrawnLabelFeatures();
+        if (drawLabelVectorLayerVisibility) {
+            drawnLabelFeatures?.forEach((feature) => {
+                this.removeFromDrawnFeatures(feature);       
+            });
+        } else {
+            drawnLabelFeatures?.forEach((feature) => {
+                this.pushToDrawnFeatures(feature);       
+            });
+        }
+        
     }
 
     public toggleDrawnRegionsFeatureVisibility = () => {
         const drawRegionVectorLayerVisibility = this.drawRegionVectorLayer.getVisible();
         this.drawRegionVectorLayer.setVisible(!drawRegionVectorLayerVisibility);
+        const drawnRegionFeatures = this.getAllDrawnRegionFeatures();
         if (drawRegionVectorLayerVisibility) {
-            this.removeInteraction(this.modify)
-            this.removeInteraction(this.snap);
+            drawnRegionFeatures?.forEach((feature) => {
+                this.removeFromDrawnFeatures(feature);       
+            });
         } else {
-            this.addInteraction(this.modify)
-            this.addInteraction(this.snap)
+            drawnRegionFeatures?.forEach((feature) => {
+                this.pushToDrawnFeatures(feature);       
+            });
+        }
+    }
+
+    private pushToDrawnFeatures = (feature) => {
+        const itemAlreadyExists = this.drawnFeatures.getArray().indexOf(feature) !== -1
+        if (!itemAlreadyExists) {
+            this.drawnFeatures.push(feature);       
+        }
+    }
+
+    private removeFromDrawnFeatures = (feature) => {
+        const itemAlreadyExists = this.drawnFeatures.getArray().indexOf(feature) !== -1
+        if (itemAlreadyExists) {
+            this.drawnFeatures.remove(feature);       
         }
     }
 
@@ -261,6 +295,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.labelVectorLayer.getSource().addFeature(feature);
     }
 
+    public addDrawnLabelFeature = (feature: Feature) => {
+        this.drawnLabelVectorLayer.getSource().addFeature(feature);
+    }
+
     public addTableBorderFeature = (feature: Feature) => {
         this.tableBorderVectorLayer.getSource().addFeature(feature);
     }
@@ -286,6 +324,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
     public addLabelFeatures = (features: Feature[]) => {
         this.labelVectorLayer.getSource().addFeatures(features);
+    }
+
+    public addDrawnLabelFeatures = (features: Feature[]) => {
+        this.drawnLabelVectorLayer.getSource().addFeatures(features);
     }
 
     public addTableBorderFeatures = (features: Feature[]) => {
@@ -330,6 +372,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
         return this.labelVectorLayer.getSource().getFeatures();
     }
 
+    public getAllDrawnLabelFeatures = () => {
+        return this.drawnLabelVectorLayer.getSource().getFeatures();
+    }
+
     public getAllDrawnRegionFeatures = () => {
         return this.drawRegionVectorLayer.getSource().getFeatures();
     }
@@ -362,6 +408,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
         return this.labelVectorLayer.getSource().getFeatureById(featureID);
     }
 
+    public getDrawnLabelFeatureByID = (featureID) => {
+        return this.drawnLabelVectorLayer.getSource().getFeatureById(featureID);
+    }
+
     /**
      * Remove specific feature object from the map
      */
@@ -383,6 +433,12 @@ export class ImageMap extends React.Component<IImageMapProps> {
         }
     }
 
+    public removeDrawnLabelFeature = (feature: Feature) => {
+        if (feature && this.getDrawnLabelFeatureByID(feature.getId())) {
+            this.drawnLabelVectorLayer.getSource().removeFeature(feature);
+        }
+    }
+
     public removeDrawnRegionFeature = (feature: Feature) => {
         if (feature && this.getDrawnRegionFeatureByID(feature.getId())) {
             this.drawRegionVectorLayer.getSource().removeFeature(feature);
@@ -396,17 +452,31 @@ export class ImageMap extends React.Component<IImageMapProps> {
         if (this.props.handleTableToolTipChange) {
             this.props.handleTableToolTipChange("none", 0, 0, 0, 0, 0, 0, null);
         }
-        this.textVectorLayer.getSource().clear();
-        this.tableBorderVectorLayer.getSource().clear();
-        this.tableIconVectorLayer.getSource().clear();
-        this.tableIconBorderVectorLayer.getSource().clear();
-        this.checkboxVectorLayer.getSource().clear();
-        this.labelVectorLayer.getSource().clear();
-        this.drawRegionVectorLayer.getSource().clear();
+        this.textVectorLayer?.getSource().clear();
+        this.tableBorderVectorLayer?.getSource().clear();
+        this.tableIconVectorLayer?.getSource().clear();
+        this.tableIconBorderVectorLayer?.getSource().clear();
+        this.checkboxVectorLayer?.getSource().clear();
+        this.labelVectorLayer?.getSource().clear();
+        this.getAllDrawnRegionFeatures().forEach((feature) => {
+                this.removeFromDrawnFeatures(feature);       
+        });
+        this.getAllDrawnLabelFeatures().forEach((feature) => {
+            this.removeFromDrawnFeatures(feature);       
+        });
+        this.drawRegionVectorLayer?.getSource().clear();
+        this.drawnLabelVectorLayer?.getSource().clear();
     }
 
     public removeAllLabelFeatures = () => {
-        this.labelVectorLayer.getSource().clear();
+        this.labelVectorLayer?.getSource().clear();
+    }
+
+    public removeAllDrawnLabelFeatures = () => {
+        this.getAllDrawnLabelFeatures().forEach((feature) => {
+            this.removeFromDrawnFeatures(feature);       
+        });
+        this.drawnLabelVectorLayer?.getSource().clear();
     }
 
     /**
@@ -605,6 +675,15 @@ export class ImageMap extends React.Component<IImageMapProps> {
                 category: FeatureCategory.DrawnRegion,
             };
         }
+        const isPointerOnDrawnLabelFeature = this.map.hasFeatureAtPixel(
+            eventPixel,
+            this.drawnLabelVectorLayerFilter);
+        if (isPointerOnDrawnLabelFeature) {
+            return {
+                layerfilter: this.drawnLabelVectorLayerFilter,
+                category: FeatureCategory.DrawnRegion,
+            };
+        }
         return null;
     }
 
@@ -724,7 +803,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
     public cancelModify = () => {
         Object.entries(this.modifyStartFeatureCoordinates).forEach((featureCoordinate) => {
-            const feature = this.getDrawnRegionFeatureByID(featureCoordinate[0]);
+            let feature = this.getDrawnRegionFeatureByID(featureCoordinate[0]);
+            if (!feature) {
+                feature = this.getDrawnLabelFeatureByID(featureCoordinate[0]);
+            }
             if (feature.getGeometry().flatCoordinates.join(",") !== featureCoordinate[1]) {
                 const oldFlattenedCoordinates = (featureCoordinate[1] as string).split(",").map(parseFloat);
                 const oldCoordinates = [];
@@ -818,10 +900,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
     private initializeModify = () => {
         this.modify = new Modify({
-            source: this.drawRegionVectorLayer.getSource(),
             deleteCondition: never,
             insertVertexCondition: never,
             style: this.props.modifyStyler,
+            features: this.drawnFeatures,
         });
 
         this.modify.handleUpEvent_old = this.modify.handleUpEvent;
@@ -855,9 +937,9 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
     private initializeSnap = () => {
         this.snap = new Snap({
-            source: this.drawRegionVectorLayer.getSource(),
             edge: false,
             vertex: true,
+            features: this.drawnFeatures,
         });
     }
 
@@ -962,9 +1044,11 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.initializeTableLayers();
         this.initializeCheckboxLayers();
         this.initializeLabelLayer();
+        this.initializeDrawnRegionLabelLayer();
         this.initializeDrawnRegionLayer();
         return [this.imageLayer, this.textVectorLayer, this.tableBorderVectorLayer, this.tableIconBorderVectorLayer,
-            this.tableIconVectorLayer, this.checkboxVectorLayer, this.drawRegionVectorLayer, this.labelVectorLayer];
+            this.tableIconVectorLayer, this.checkboxVectorLayer, this.drawRegionVectorLayer, this.labelVectorLayer, 
+            this.drawnLabelVectorLayer];
     }
 
     private initializePredictLayers = (projection: Projection) => {
@@ -1024,6 +1108,23 @@ export class ImageMap extends React.Component<IImageMapProps> {
         drawnRegionOptions.name = this.DRAWN_REGION_VECTOR_LAYER_NAME;
         drawnRegionOptions.style = this.props.drawnRegionStyler;
         drawnRegionOptions.source = new VectorSource();
+
+        drawnRegionOptions.source.on('addfeature', (evt) => {
+            this.pushToDrawnFeatures(evt.feature)
+        });
+
+        drawnRegionOptions.source.on('removefeature', (evt) => {
+            this.removeFromDrawnFeatures(evt.feature)
+        });
+
+        drawnRegionOptions.source.on('clear', (evt) => {
+            // const test = this.getAllDrawnRegionFeatures();
+            // const test2 = this.drawRegionVectorLayer.getSource();
+            // console.log("*1", test)
+            // console.log("*1", test2)
+            // this.drawnFeatures.clear();
+        });
+
         this.drawRegionVectorLayer = new VectorLayer(drawnRegionOptions);
     }
 
@@ -1033,6 +1134,35 @@ export class ImageMap extends React.Component<IImageMapProps> {
         labelOptions.style = this.props.labelFeatureStyler;
         labelOptions.source = new VectorSource();
         this.labelVectorLayer = new VectorLayer(labelOptions);
+    }
+
+    private initializeDrawnRegionLabelLayer = () => {
+        const drawnRegionLabelOptions: any = {};
+        drawnRegionLabelOptions.name = this.DRAWN_REGION_VECTOR_LAYER_NAME;
+        drawnRegionLabelOptions.style = this.props.labelFeatureStyler;
+        drawnRegionLabelOptions.source = new VectorSource();
+
+        drawnRegionLabelOptions.source.on('addfeature', (evt) => {
+            if (this.drawnLabelVectorLayer.getVisible()) {
+                this.pushToDrawnFeatures(evt.feature)
+            }
+        });
+
+        drawnRegionLabelOptions.source.on('removefeature', (evt) => {
+            this.removeFromDrawnFeatures(evt.feature)
+
+        });
+
+        drawnRegionLabelOptions.source.on('clear', (evt) => {
+            // const test = this.getAllDrawnLabelFeatures();
+            // const test2 = this.drawnLabelVectorLayer.getSource();
+            // console.log("*2", test)
+            // console.log("*2", test2)
+            // this.drawnFeatures.clear();
+
+        });
+
+        this.drawnLabelVectorLayer = new VectorLayer(drawnRegionLabelOptions);
     }
 
     private initializeMap = (projection, layers) => {
