@@ -185,6 +185,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 pdfFile: null,
                 imageUri: null,
                 tiffImages: [],
+                layers: {text: true, tables: true, checkboxes: true, label: true, drawnRegions: true},
             }, async () => {
                 const asset = this.state.currentAsset.asset;
                 await this.loadImage();

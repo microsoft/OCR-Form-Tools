@@ -205,13 +205,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
     public resetAllLayerVisibility = () => {
         this.toggleCheckboxFeatureVisibility(true);
-        this.
-                
-                
-                
-                (true);
+        this.toggleLabelFeatureVisibility(true);
         this.toggleTableFeatureVisibility(true);
         this.toggleTextFeatureVisibility(true);
+        this.toggleDrawnRegionsFeatureVisibility(true);
     }
 
     /**
@@ -241,11 +238,12 @@ export class ImageMap extends React.Component<IImageMapProps> {
         
     }
 
-    public toggleDrawnRegionsFeatureVisibility = () => {
-        const drawRegionVectorLayerVisibility = this.drawRegionVectorLayer.getVisible();
-        this.drawRegionVectorLayer.setVisible(!drawRegionVectorLayerVisibility);
+    public toggleDrawnRegionsFeatureVisibility = (visible: boolean = false) => {
+        let drawRegionVectorLayerVisibility = this.drawRegionVectorLayer.getVisible();
+        this.drawRegionVectorLayer.setVisible(visible || !drawRegionVectorLayerVisibility);
+        drawRegionVectorLayerVisibility = this.drawRegionVectorLayer.getVisible();
         const drawnRegionFeatures = this.getAllDrawnRegionFeatures();
-        if (drawRegionVectorLayerVisibility) {
+        if (!drawRegionVectorLayerVisibility) {
             drawnRegionFeatures?.forEach((feature) => {
                 this.removeFromDrawnFeatures(feature);       
             });
