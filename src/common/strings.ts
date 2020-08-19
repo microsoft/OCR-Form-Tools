@@ -271,6 +271,7 @@ export interface IAppStrings {
         messages: {
             saveSuccess: string;
             deleteSuccess: string;
+            doNotAllowDuplicateNames:string;
         },
         imageCorsWarning: string;
         blobCorsWarning: string;
@@ -370,6 +371,7 @@ export interface IAppStrings {
             incorrectFileExtension: {
                 attention: string,
                 text: string,
+                failedToFetch: string,
             },
         }
         ,

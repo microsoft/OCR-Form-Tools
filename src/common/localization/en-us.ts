@@ -272,6 +272,7 @@ export const english: IAppStrings = {
         messages: {
             saveSuccess: "Successfully saved ${connection.name}",
             deleteSuccess: "Successfully deleted ${connection.name}",
+            doNotAllowDuplicateNames: "Connection with name \"${connection.name}\" already exists. Please, use another name"
         },
         imageCorsWarning: "Warning: When using VoTT in a Web browser, some assets from Bing Image \
                           Search may not export correctly due to CORS (Cross Origin Resource Sharing) restrictions.",
@@ -374,6 +375,7 @@ export const english: IAppStrings = {
             incorrectFileExtension: {
                 attention: "Attention!",
                 text: "- extension of this file doesn't correspond MIME type. Please check file:",
+                failedToFetch: "Failed to fetch ${fileName} for mime type validation",
             },
         },
         assetError: "Unable to load asset",

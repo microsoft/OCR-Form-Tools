@@ -62,7 +62,7 @@ export default class ShareProjectButton extends React.Component<IShareProps> {
         return (
             <Customizer {...dark}>
                 <IconButton
-                    className="share-button"
+                    className="project-share-button"
                     ariaLabel={strings.shareProject.name}
                     iconProps={{ iconName: "Share" }}
                     disabled={this.props.currentProject && this.props.currentProject.sourceConnection.providerType === "azureBlobStorage"  ? false : true}
