@@ -175,6 +175,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.props.selectedAsset.asset.isRunningOCR !== prevProps.selectedAsset.asset.isRunningOCR) {
             this.selectedRegionIds = [];
             this.imageMap.removeAllFeatures();
+            this.imageMap.resetAllLayerVisibility();
             this.setState({
                 currentAsset: this.props.selectedAsset,
                 ocr: null,

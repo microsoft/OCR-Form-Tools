@@ -203,21 +203,33 @@ export class ImageMap extends React.Component<IImageMapProps> {
         );
     }
 
+    public resetAllLayerVisibility = () => {
+        this.toggleCheckboxFeatureVisibility(true);
+        this.
+                
+                
+                
+                (true);
+        this.toggleTableFeatureVisibility(true);
+        this.toggleTextFeatureVisibility(true);
+    }
+
     /**
      * Hide/Display table features
      */
-    public toggleTableFeatureVisibility = () => {
-        this.tableBorderVectorLayer.setVisible(!this.tableBorderVectorLayer.getVisible());
-        this.tableIconVectorLayer.setVisible(!this.tableIconVectorLayer.getVisible());
-        this.tableIconBorderVectorLayer.setVisible(!this.tableIconBorderVectorLayer.getVisible());
+    public toggleTableFeatureVisibility = (visible: boolean = false) => {
+        this.tableBorderVectorLayer.setVisible(visible || !this.tableBorderVectorLayer.getVisible());
+        this.tableIconVectorLayer.setVisible(visible || !this.tableIconVectorLayer.getVisible());
+        this.tableIconBorderVectorLayer.setVisible(visible || !this.tableIconBorderVectorLayer.getVisible());
     }
 
-    public toggleLabelFeatureVisibility = () => {
-        this.labelVectorLayer.setVisible(!this.labelVectorLayer.getVisible());
-        const drawLabelVectorLayerVisibility = this.drawnLabelVectorLayer.getVisible();
-        this.drawnLabelVectorLayer.setVisible(!drawLabelVectorLayerVisibility);
+    public toggleLabelFeatureVisibility = (visible: boolean = false) => {
+        this.labelVectorLayer.setVisible(visible || !this.labelVectorLayer.getVisible());
+        let drawLabelVectorLayerVisibility = this.drawnLabelVectorLayer.getVisible();
+        this.drawnLabelVectorLayer.setVisible(visible || !drawLabelVectorLayerVisibility);
+        drawLabelVectorLayerVisibility = this.drawnLabelVectorLayer.getVisible();
         const drawnLabelFeatures = this.getAllDrawnLabelFeatures();
-        if (drawLabelVectorLayerVisibility) {
+        if (!drawLabelVectorLayerVisibility) {
             drawnLabelFeatures?.forEach((feature) => {
                 this.removeFromDrawnFeatures(feature);       
             });
@@ -261,8 +273,8 @@ export class ImageMap extends React.Component<IImageMapProps> {
     /**
      * Hide/Display checkbox features
      */
-    public toggleCheckboxFeatureVisibility = () => {
-        this.checkboxVectorLayer.setVisible(!this.checkboxVectorLayer.getVisible());
+    public toggleCheckboxFeatureVisibility = (visible: boolean = false) => {
+        this.checkboxVectorLayer.setVisible(visible || !this.checkboxVectorLayer.getVisible());
     }
 
     public getResolutionForZoom = (zoom: number) => {
@@ -276,8 +288,8 @@ export class ImageMap extends React.Component<IImageMapProps> {
     /**
      * Hide/Display text features
      */
-    public toggleTextFeatureVisibility = () => {
-        this.textVectorLayer.setVisible(!this.textVectorLayer.getVisible());
+    public toggleTextFeatureVisibility = (visible: boolean = false) => {
+        this.textVectorLayer.setVisible(visible || !this.textVectorLayer.getVisible());
     }
 
     /**

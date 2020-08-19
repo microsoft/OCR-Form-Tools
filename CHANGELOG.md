@@ -1,7 +1,25 @@
 # FoTT Changelog 
 
+## 2.1-preview.1-530545c (08-14-2020)
+* fix: "failed to fetch()" error ([#491](https://github.com/microsoft/OCR-Form-Tools/commit/530545c7cd2b4a3ff444e9c7e1f40c68d4a7376c))
+* fix: sync layer visibility ([#497](https://github.com/microsoft/OCR-Form-Tools/commit/bea552b28acb9b652ffaedf40009d6df5a3197ef))
+* refactor: disable telemetry service ([#498](https://github.com/microsoft/OCR-Form-Tools/commit/6e3628cf174f954693380aab6ebd2dabe027ac6d))
+* fix: change share class name for adblocker chrome extension ([#492](https://github.com/microsoft/OCR-Form-Tools/commit/aa8a73afc6344f3164e79f236d5fa4bb0f64d364))
+
+## 2.1-preview.1-da405b3 (08-10-2020)
+* fix: restrict tag type through hot keys ([#482](https://github.com/microsoft/OCR-Form-Tools/commit/da405b354428b829e895a35a020736b1d88c153f))
+* docs: add share project description to README ([#488](https://github.com/microsoft/OCR-Form-Tools/commit/7ee215f735a84aaa30201748d19207bcc6a05580))
+
+
+## 2.1-preview.1-29d1f93 (08-07-2020)
+* fix: handle multi selection of non-compatible types with multi-selection tool ([#487](https://github.com/microsoft/OCR-Form-Tools/commit/29d1f93a290e55fdd84f8cf2ee9a914fed702beb))
+
+## 2.1-preview.1-cef225f (08-06-2020)
+* fix: handle undefined image map error ([#462](https://github.com/microsoft/OCR-Form-Tools/commit/cc9e9bfc8fe00bb0ed154edb791446f28060af4e))
+* fix: handle undefined image map error ([#479](https://github.com/microsoft/OCR-Form-Tools/commit/cef225f3346628e79c46e799303400965f1d3c96))
+
 ## 2.1-preview.1-76945df (08-05-2020)
-* feat: override page view names,  now english only ([#470](https://github.com/microsoft/OCR-Form-Tools/commit/76945df3bdf9caba3ba13f4541e17e75b9574b33))
+* fix: use english for telemetry reporting ([#472](https://github.com/microsoft/OCR-Form-Tools/commit/76945df3bdf9caba3ba13f4541e17e75b9574b33))
 * fix: resolve unhandled exeptions and new message for OCR service on 400 ([#470](https://github.com/microsoft/OCR-Form-Tools/commit/76381bc659a365ead19387b933485530d2d5edc3))
 * feature: enable popup with composed model info ([#460](https://github.com/microsoft/OCR-Form-Tools/commit/c1f5d803f047e5ca0d18fea6383b3baf56d116ff))
 
