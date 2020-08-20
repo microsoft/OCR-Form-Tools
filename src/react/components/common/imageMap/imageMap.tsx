@@ -223,14 +223,14 @@ export class ImageMap extends React.Component<IImageMapProps> {
         const drawnLabelFeatures = this.getAllDrawnLabelFeatures();
         if (!drawLabelVectorLayerVisibility) {
             drawnLabelFeatures?.forEach((feature) => {
-                this.removeFromDrawnFeatures(feature);       
+                this.removeFromDrawnFeatures(feature);
             });
         } else {
             drawnLabelFeatures?.forEach((feature) => {
-                this.pushToDrawnFeatures(feature);       
+                this.pushToDrawnFeatures(feature);
             });
         }
-        
+
     }
 
     public toggleDrawnRegionsFeatureVisibility = (visible: boolean = false) => {
@@ -240,11 +240,11 @@ export class ImageMap extends React.Component<IImageMapProps> {
         const drawnRegionFeatures = this.getAllDrawnRegionFeatures();
         if (!drawRegionVectorLayerVisibility) {
             drawnRegionFeatures?.forEach((feature) => {
-                this.removeFromDrawnFeatures(feature);       
+                this.removeFromDrawnFeatures(feature);
             });
         } else {
             drawnRegionFeatures?.forEach((feature) => {
-                this.pushToDrawnFeatures(feature);       
+                this.pushToDrawnFeatures(feature);
             });
         }
     }
@@ -252,14 +252,14 @@ export class ImageMap extends React.Component<IImageMapProps> {
     private pushToDrawnFeatures = (feature, drawnFeatures: Collection = this.drawnFeatures) => {
         const itemAlreadyExists = drawnFeatures.getArray().indexOf(feature) !== -1
         if (!itemAlreadyExists) {
-            drawnFeatures.push(feature);       
+            drawnFeatures.push(feature);
         }
     }
 
     private removeFromDrawnFeatures = (feature, drawnFeatures: Collection = this.drawnFeatures) => {
         const itemAlreadyExists = drawnFeatures.getArray().indexOf(feature) !== -1
         if (itemAlreadyExists) {
-            drawnFeatures.remove(feature);       
+            drawnFeatures.remove(feature);
         }
     }
 
@@ -499,7 +499,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
     public removeAllDrawnLabelFeatures = () => {
         this.getAllDrawnLabelFeatures().forEach((feature) => {
-            this.removeFromDrawnFeatures(feature);       
+            this.removeFromDrawnFeatures(feature);
         });
         this.drawnLabelVectorLayer?.getSource().clear();
     }
@@ -1070,7 +1070,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.initializeDrawnRegionLabelLayer();
         this.initializeDrawnRegionLayer();
         return [this.imageLayer, this.textVectorLayer, this.tableBorderVectorLayer, this.tableIconBorderVectorLayer,
-            this.tableIconVectorLayer, this.checkboxVectorLayer, this.drawRegionVectorLayer, this.labelVectorLayer, 
+            this.tableIconVectorLayer, this.checkboxVectorLayer, this.drawRegionVectorLayer, this.labelVectorLayer,
             this.drawnLabelVectorLayer];
     }
 
