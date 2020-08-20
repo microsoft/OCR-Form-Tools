@@ -491,12 +491,12 @@ export const english: IAppStrings = {
             },
             description: {
                 deleteSelectedDrawnRegions: "Delete selected drawn regions",
-                cancelDrawOrReshape: "Cancel modifying or reshaping of regions",
+                cancelDrawOrReshape: "Cancel drawing or reshaping of regions",
             }
         },
         tips: {
             quickLabeling: {
-                name: "Lable with hotkeys",
+                name: "Lable with hot keys",
             description: "Hotkeys 1 through 0 and all letters are assigned to first 36 tags. After selecting one or multiple words, press tag's assigned hotkey.",
             },
             renameTag: {

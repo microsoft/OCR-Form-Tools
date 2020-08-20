@@ -56,11 +56,9 @@ interface IImageMapProps {
     handleRegionSelectByGroup?: (selectedRegions: IRegion[]) => void;
     handleFeatureSelectByGroup?: (feature) => IRegion;
     hoveringFeature?: string;
-
     onMapReady: () => void;
     handleTableToolTipChange?: (display: string, width: number, height: number, top: number,
                                 left: number, rows: number, columns: number, featureID: string) => void;
-
     addDrawnRegionFeatureProps?: (feature) => void;
     updateFeatureAfterModify?: (features) => any;
 
@@ -86,10 +84,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
     private snap: Snap;
 
     private drawnFeatures: Collection = new Collection([], {unique: true});
-
     public modifyStartFeatureCoordinates: any = {};
-
-    public partentPage: string;
 
     private imageExtent: number[];
 
@@ -254,17 +249,17 @@ export class ImageMap extends React.Component<IImageMapProps> {
         }
     }
 
-    private pushToDrawnFeatures = (feature) => {
-        const itemAlreadyExists = this.drawnFeatures.getArray().indexOf(feature) !== -1
+    private pushToDrawnFeatures = (feature, drawnFeatures: Collection = this.drawnFeatures) => {
+        const itemAlreadyExists = drawnFeatures.getArray().indexOf(feature) !== -1
         if (!itemAlreadyExists) {
-            this.drawnFeatures.push(feature);       
+            drawnFeatures.push(feature);       
         }
     }
 
-    private removeFromDrawnFeatures = (feature) => {
-        const itemAlreadyExists = this.drawnFeatures.getArray().indexOf(feature) !== -1
+    private removeFromDrawnFeatures = (feature, drawnFeatures: Collection = this.drawnFeatures) => {
+        const itemAlreadyExists = drawnFeatures.getArray().indexOf(feature) !== -1
         if (itemAlreadyExists) {
-            this.drawnFeatures.remove(feature);       
+            drawnFeatures.remove(feature);       
         }
     }
 
@@ -468,14 +463,34 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.tableIconBorderVectorLayer?.getSource().clear();
         this.checkboxVectorLayer?.getSource().clear();
         this.labelVectorLayer?.getSource().clear();
-        this.getAllDrawnRegionFeatures().forEach((feature) => {
-                this.removeFromDrawnFeatures(feature);       
-        });
-        this.getAllDrawnLabelFeatures().forEach((feature) => {
-            this.removeFromDrawnFeatures(feature);       
-        });
+        this.clearDrawnRegions();
+    }
+
+    private clearDrawnRegions = () => {
         this.drawRegionVectorLayer?.getSource().clear();
         this.drawnLabelVectorLayer?.getSource().clear();
+
+        this.drawnFeatures = new Collection([], {unique: true});
+
+        this.drawRegionVectorLayer.getSource().on("addfeature", (evt) => {
+            this.pushToDrawnFeatures(evt.feature, this.drawnFeatures);
+        });
+        this.drawRegionVectorLayer.getSource().on("removefeature", (evt) => {
+            this.removeFromDrawnFeatures(evt.feature, this.drawnFeatures);
+        });
+        this.drawnLabelVectorLayer.getSource().on("addfeature", (evt) => {
+            this.pushToDrawnFeatures(evt.feature, this.drawnFeatures);
+        });
+        this.drawnLabelVectorLayer.getSource().on("removefeature", (evt) => {
+            this.removeFromDrawnFeatures(evt.feature, this.drawnFeatures);
+        });
+
+        this.removeInteraction(this.snap);
+        this.initializeSnap();
+        this.addInteraction(this.snap)
+        this.removeInteraction(this.modify);
+        this.initializeModify();
+        this.addInteraction(this.modify);
     }
 
     public removeAllLabelFeatures = () => {
@@ -773,11 +788,9 @@ export class ImageMap extends React.Component<IImageMapProps> {
         }
 
         this.countPointerDown -= 1;
-        if (this.countPointerDown === 0) {
-            this.setDragPanInteraction(true /*dragPanEnabled*/);
-            this.isSwiping = false;
-            this.pointerMoveEventCount = 0;
-        }
+        this.setDragPanInteraction(true /*dragPanEnabled*/);
+        this.isSwiping = false;
+        this.pointerMoveEventCount = 0;
     }
 
     private setDragPanInteraction = (dragPanEnabled: boolean) => {
@@ -1119,20 +1132,12 @@ export class ImageMap extends React.Component<IImageMapProps> {
         drawnRegionOptions.style = this.props.drawnRegionStyler;
         drawnRegionOptions.source = new VectorSource();
 
-        drawnRegionOptions.source.on('addfeature', (evt) => {
-            this.pushToDrawnFeatures(evt.feature)
+        drawnRegionOptions.source.on("addfeature", (evt) => {
+            this.pushToDrawnFeatures(evt.feature);
         });
 
-        drawnRegionOptions.source.on('removefeature', (evt) => {
-            this.removeFromDrawnFeatures(evt.feature)
-        });
-
-        drawnRegionOptions.source.on('clear', (evt) => {
-            // const test = this.getAllDrawnRegionFeatures();
-            // const test2 = this.drawRegionVectorLayer.getSource();
-            // console.log("*1", test)
-            // console.log("*1", test2)
-            // this.drawnFeatures.clear();
+        drawnRegionOptions.source.on("removefeature", (evt) => {
+            this.removeFromDrawnFeatures(evt.feature);
         });
 
         this.drawRegionVectorLayer = new VectorLayer(drawnRegionOptions);
@@ -1160,15 +1165,6 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
         drawnRegionLabelOptions.source.on('removefeature', (evt) => {
             this.removeFromDrawnFeatures(evt.feature)
-
-        });
-
-        drawnRegionLabelOptions.source.on('clear', (evt) => {
-            // const test = this.getAllDrawnLabelFeatures();
-            // const test2 = this.drawnLabelVectorLayer.getSource();
-            // console.log("*2", test)
-            // console.log("*2", test2)
-            // this.drawnFeatures.clear();
 
         });
 

@@ -58,14 +58,6 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                 onClick: () => props.handleLayerChange("checkboxes"),
               },
               {
-                key: "Label",
-                text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.labels,
-                canCheck: true,
-                iconProps: { iconName: "LabelComposite" },
-                isChecked: props.layers["label"],
-                onClick: () => props.handleLayerChange("label"),
-              },
-              {
                 key: "DrawnRegions",
                 text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.drawnRegions,
                 canCheck: true,
@@ -74,6 +66,14 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                 className: props.drawRegionMode ? "disabled" : "",
                 onClick: () => props.handleLayerChange("drawnRegions"),
                 disabled: props.drawRegionMode
+              },
+              {
+                key: "Label",
+                text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.labels,
+                canCheck: true,
+                iconProps: { iconName: "LabelComposite" },
+                isChecked: props.layers["label"],
+                onClick: () => props.handleLayerChange("label"),
               },
             ],
           },
