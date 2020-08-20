@@ -2114,13 +2114,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         features.forEach((feature) => {
             const originalFeatureId = feature.getId();
             const featureCoordinates = feature.getGeometry().getCoordinates()[0];
-            console.log("*1", feature);            
-            console.log("*1", this.imageMap.modifyStartFeatureCoordinates[originalFeatureId]);
-            console.log("*1", featureCoordinates.join(","))
-            console.log(this.imageMap.modifyStartFeatureCoordinates[originalFeatureId] !== featureCoordinates.join(","));
             if (this.imageMap.modifyStartFeatureCoordinates[originalFeatureId] !== featureCoordinates.join(",")) {
-                console.log("*1", "features are different");
-                console.log("*1", "end")
                 const {featureId, boundingBox} = this.getFeatureIDAndBoundingBox(featureCoordinates);
                 feature.setProperties({
                     id: featureId,
