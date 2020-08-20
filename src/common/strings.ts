@@ -271,7 +271,7 @@ export interface IAppStrings {
         messages: {
             saveSuccess: string;
             deleteSuccess: string;
-            doNotAllowDuplicateNames:string;
+            doNotAllowDuplicateNames: string;
         },
         imageCorsWarning: string;
         blobCorsWarning: string;
@@ -509,6 +509,7 @@ export interface IAppStrings {
         projectInvalidSecurityToken: IErrorMetadata,
         projectUploadError: IErrorMetadata,
         projectDeleteError: IErrorMetadata,
+        projectDeleteErrorSecurityTokenNotFound: IErrorMetadata,
         projectNotFound: IErrorMetadata,
         genericRenderError: IErrorMetadata,
         securityTokenNotFound: IErrorMetadata,

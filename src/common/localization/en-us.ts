@@ -138,7 +138,7 @@ export const english: IAppStrings = {
         composing: "Model is composing, please wait...",
         column: {
             icon: {
-                name:"Composed Icon",
+                name: "Composed Icon",
             },
             id: {
                 headerName: "Model Id",
@@ -198,7 +198,7 @@ export const english: IAppStrings = {
         defaultLocalFileInput: "Browse for a file...",
         defaultURLInput: "Paste or type URL...",
     },
-    recentModelsView:{
+    recentModelsView: {
         header: "Select a model to analyze with",
         checkboxAriaLabel: "Select model checkbox"
     },
@@ -452,7 +452,7 @@ export const english: IAppStrings = {
             keys: {
                 lessThan: "<",
                 greaterThan: ">",
-                },
+            },
             description: {
                 prevPage: "Go to previous page",
                 nextPage: "Go to next page",
@@ -463,7 +463,7 @@ export const english: IAppStrings = {
                 minus: "-",
                 plus: "=",
                 slash: "/",
-                },
+            },
             description: {
                 in: "Zoom in",
                 out: "Zoom out",
@@ -474,16 +474,16 @@ export const english: IAppStrings = {
             keys: {
                 delete: "Delete",
                 backSpace: "Backspace",
-                },
+            },
             description: {
                 delete: "Remove selection and delete labels of selected words",
                 backSpace: "Remove selection and delete labels of selected words",
-                },
+            },
         },
         tips: {
             quickLabeling: {
                 name: "Quick labeling",
-            description: "Hotkeys 1 through 0 and all letters are assigned to first 36 tags. After selecting one or multiple words, press tag's assigned hotkey.",
+                description: "Hotkeys 1 through 0 and all letters are assigned to first 36 tags. After selecting one or multiple words, press tag's assigned hotkey.",
             },
             renameTag: {
                 name: "Rename tag",
@@ -535,6 +535,10 @@ export const english: IAppStrings = {
             title: "Error deleting project",
             message: `An error occured while deleting the project.
                 Validate the project file and security token exist and try again`,
+        },
+        projectDeleteErrorSecurityTokenNotFound: {
+            title: "Security token not found when delete project",
+            message: "Security Token Not Found. Project [${project.name}] has been removed from FoTT tool."
         },
         projectNotFound: {
             title: "Error loading project",
@@ -633,9 +637,9 @@ export const english: IAppStrings = {
             title: "Model not found",
             message: "Model \"${modelID}\" not found. Please use another model.",
         },
-        connectionNotExistError:{
-            title:'connection not exist',
-            message:'connection not exist.'
+        connectionNotExistError: {
+            title: 'connection not exist',
+            message: 'connection not exist.'
         },
         getOcrError: {
             title: "Cannot load OCR file",

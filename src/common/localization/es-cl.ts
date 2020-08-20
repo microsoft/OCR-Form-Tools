@@ -128,7 +128,7 @@ export const spanish: IAppStrings = {
         pleaseWait: "Por favor espera",
         notTrainedYet: "Aún no entrenado",
         backEndNotAvailable: "La función de casilla de verificación funcionará en la versión futura del servicio de reconocimiento de formularios, manténgase atento.",
-        addName:"Agregar nombre de modelo ...",
+        addName: "Agregar nombre de modelo ...",
     },
     modelCompose: {
         title: "Modelo componer",
@@ -403,7 +403,7 @@ export const spanish: IAppStrings = {
             },
             canvasCommandBar: {
                 items: {
-                    layers:{
+                    layers: {
                         text: "Capas",
                         subMenuItems: {
                             text: "Texto",
@@ -454,7 +454,7 @@ export const spanish: IAppStrings = {
             keys: {
                 lessThan: "<",
                 greaterThan: ">",
-                },
+            },
             description: {
                 prevPage: "Ir a la página anterior en documentos de varias páginas",
                 nextPage: "Ir a la página siguiente en documentos de varias páginas",
@@ -465,7 +465,7 @@ export const spanish: IAppStrings = {
                 minus: "-",
                 plus: "=",
                 slash: "/",
-                },
+            },
             description: {
                 in: "Acercarse",
                 out: "Disminuir el zoom",
@@ -476,16 +476,16 @@ export const spanish: IAppStrings = {
             keys: {
                 delete: "Delete",
                 backSpace: "Backspace",
-                },
+            },
             description: {
                 delete: "Eliminar selección del mapa del documento o clave de selección de una etiqueta",
                 backSpace: "Eliminar selección del mapa del documento o clave de selección de una etiqueta",
-                },
+            },
         },
         tips: {
             quickLabeling: {
                 name: "Etiquetado rápido",
-            description: "Las teclas de acceso rápido de 1 a 0 y todas las letras se asignan a las primeras 36 etiquetas, después de seleccionar una o varias palabras de los elementos de texto resaltados, al presionar estas teclas de acceso rápido, puede etiquetar las palabras seleccionadas.",
+                description: "Las teclas de acceso rápido de 1 a 0 y todas las letras se asignan a las primeras 36 etiquetas, después de seleccionar una o varias palabras de los elementos de texto resaltados, al presionar estas teclas de acceso rápido, puede etiquetar las palabras seleccionadas.",
             },
             renameTag: {
                 name: "Rename Tag",
@@ -536,6 +536,10 @@ export const spanish: IAppStrings = {
             title: "Error al eliminar el proyecto",
             message: `Se ha producido un error al eliminar el proyecto.
                 Validar el archivo de proyecto y el token de seguridad existen e inténtelo de nuevo`,
+        },
+        projectDeleteErrorSecurityTokenNotFound: {
+            title: 'No se encontró el token de seguridad al eliminar el proyecto',
+            message: "Token de seguridad no encontrado. El proyecto [$ {project.name}] se ha eliminado de la herramienta FoTT."
         },
         projectNotFound: {
             title: "",
@@ -634,9 +638,9 @@ export const spanish: IAppStrings = {
             title: "Modelo no encontrado",
             message: "Modelo \"${modelID}\" no encontrado. Por favor use otro modelo.",
         },
-        connectionNotExistError:{
-            title:'',
-            message:''
+        connectionNotExistError: {
+            title: '',
+            message: ''
         },
         getOcrError: {
             title: "No se puede cargar el archivo OCR",
