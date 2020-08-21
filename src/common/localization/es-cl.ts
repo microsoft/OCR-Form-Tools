@@ -168,6 +168,8 @@ export const spanish: IAppStrings = {
             NotEnoughModels: "Debe tener más de un modelo seleccionado para componer un nuevo modelo",
             modelsCannotBeIncluded: "Advertencia: ¡estos modelos no se incluirán en el modelo compuesto!",
             modelCannotBeIncluded: "Advertencia: ¡Este modelo no se incluirá en el modelo compuesto!",
+            addModelToRecentModels: "Modelo [${modelID}] agregado a modelos recientes",
+            recentModelsAlreadyContainsModel: "Los modelos recientes ya contienen el modelo [${modelID}]",
         },
         commandBar: {
             ariaLabel: "Utilice la barra de comandos para componer modelos",

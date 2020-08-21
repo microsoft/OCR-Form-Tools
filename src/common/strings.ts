@@ -167,6 +167,8 @@ export interface IAppStrings {
             NotEnoughModels: string;
             modelsCannotBeIncluded: string;
             modelCannotBeIncluded: string;
+            addModelToRecentModels: string,
+            recentModelsAlreadyContainsModel: string,
         }
         commandBar: {
             ariaLabel: string;

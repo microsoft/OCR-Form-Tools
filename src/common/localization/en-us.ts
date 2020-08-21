@@ -166,7 +166,9 @@ export const english: IAppStrings = {
             addComposeModelName: "Add compose model name...",
             NotEnoughModels: " Should have at least more than one selected model to compose a new model",
             modelsCannotBeIncluded: "Warning: These models will not be included in composed model!",
-            modelCannotBeIncluded: "Warning: This model will not be included in composed model!"
+            modelCannotBeIncluded: "Warning: This model will not be included in composed model!",
+            addModelToRecentModels: "Model [${modelID}] added to recent models",
+            recentModelsAlreadyContainsModel: "Recent models already contains model [${modelID}]",
         },
         commandBar: {
             ariaLabel: "Please use command bar to compose models",
@@ -198,8 +200,8 @@ export const english: IAppStrings = {
         defaultLocalFileInput: "Browse for a file...",
         defaultURLInput: "Paste or type URL...",
     },
-    recentModelsView:{
-        header: "Select a model to analyze with",
+    recentModelsView: {
+        header: "Select a recent model to analyze with",
         checkboxAriaLabel: "Select model checkbox"
     },
     projectMetrics: {
