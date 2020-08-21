@@ -189,7 +189,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                             <div className="model-information-container">
                                 <h6 className="mr-2 model-information-prop">
                                     {"Model ID: "}
-                                </h6> 
+                                </h6>
                                 {this.state.items["modelId"]}
                             </div>
                             {this.state.items["modelName"] &&
