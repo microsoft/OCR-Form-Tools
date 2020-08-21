@@ -15,7 +15,7 @@
     "private": true,
     "main": "build/main.js",
     "dependencies": {
-        "@azure/storage-blob": "10.3.0",
+        "@azure/storage-blob": "12.1.2",
         "@fluentui/react": "^7.117.2",
         "@microsoft/applicationinsights-react-js": "^3.0.1",
         "@microsoft/applicationinsights-web": "^2.5.6",
