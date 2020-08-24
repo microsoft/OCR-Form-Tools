@@ -24,6 +24,7 @@ import TagInputItem, { ITagInputItemProps, ITagClickProps } from "./tagInputItem
 import TagInputToolbar from "./tagInputToolbar";
 import { toast } from "react-toastify";
 import debounce from 'lodash/debounce';
+import { RegionalTableModal } from "../../pages/editorPage/regionalTables/regionTablesModal";
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../../common/tagColors.json");
 
@@ -235,8 +236,9 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                                     />
                                     <FontIcon iconName="Tag" />
                                 </div>
-                            }
-                        </div>
+                                }
+                                <RegionalTableModal openModal={this.state.addTable} selectedRegions={this.props.selectedRegions}/>
+                            </div>
                     </div>
                     :
                     <Spinner className="loading-tag" size={SpinnerSize.large}/>

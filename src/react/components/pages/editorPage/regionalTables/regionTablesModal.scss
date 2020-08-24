@@ -1,0 +1,105 @@
+@import './../../../../../assets/sass/theme.scss';
+
+.container {
+    width: 90vw;
+    min-height: 30vh;
+    max-height: 50vh;
+    margin: 2rem;
+}
+
+.table-creator-container {
+    .table-name-and-type {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content:space-between;
+        .table-name {
+            width:65%;
+            height: 4rem;
+            margin-bottom:2.25rem;
+            &-input {
+                height: 4rem;
+                font-size: 2rem;
+                background: $lighter-1;
+            }
+        }
+        .table-type {
+            margin-right: 3rem;
+            margin-bottom: 1rem;
+        }
+    }
+
+    .table-setup-container {
+        display: flex;
+        justify-content: space-between;
+        margin-right: 2rem;
+        margin-top: 1rem;
+            .headers-form {
+                width: 45%;
+                .header-title {
+                    display: flex;
+                    .input-title {
+                        width: 55%;
+                        margin-right: 1rem;
+                        text-transform: capitalize;
+                    }
+                    .dropdown-title {
+
+                    }
+                }
+                .headers-list {
+                    padding: 0;
+                    list-style-type: none;
+                    .header-item {
+                        display: flex;
+                        margin-bottom: .5rem;
+                        &_input {
+                            width: 55%;
+                            margin-right: 1rem;
+                        }
+                        &_dropdown {
+                            width: 35%;
+                            margin-right: 1rem;
+                        }
+                        &-delete_button {
+                            color: rgba(253, 55, 55, 0.849);
+                            padding: 1rem;
+                            width: 1rem;
+                           :hover {
+                                color: red;
+                            }
+                        }
+                    }
+                }
+                .add-header-button {
+                    margin: 0;
+                    width: 60%;
+                    margin: 0 15%;
+                    :hover {
+                        color: white;
+                    }
+                    .ms-Icon {
+                        font-weight: 800;
+                    }
+                }
+            }
+    }
+}
+
+
+    // generated table
+.table-container {
+        border: 1px $lighter-1 solid;
+}
+
+// "Reset" and "Create table" buttons
+.control-buttons {
+    display: flex;
+    flex-direction: row;
+    margin-top: 4rem;
+    padding: 0 2rem;
+    width: 100%;
+    justify-content:space-between;
+}
+
