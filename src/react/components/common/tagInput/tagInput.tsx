@@ -11,12 +11,14 @@ import {
     ICustomizations,
     Spinner,
     SpinnerSize,
+    ChoiceGroup,
+    IChoiceGroupOption,
 } from "@fluentui/react";
 import { strings } from "../../../../common/strings";
 import { getDarkTheme } from "../../../../common/themes";
 import { AlignPortal } from "../align/alignPortal";
 import { getNextColor } from "../../../../common/utils";
-import { IRegion, ITag, ILabel, FieldType, FieldFormat } from "../../../../models/applicationState";
+import { IRegion, ITag, ILabel, FieldType, FieldFormat, IField } from "../../../../models/applicationState";
 import { ColorPicker } from "../colorPicker";
 import "./tagInput.scss";
 import "../condensedList/condensedList.scss";
@@ -24,6 +26,7 @@ import TagInputItem, { ITagInputItemProps, ITagClickProps } from "./tagInputItem
 import TagInputToolbar from "./tagInputToolbar";
 import { toast } from "react-toastify";
 import debounce from 'lodash/debounce';
+import TableTagConfig from "./tableTagConfig"
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../../common/tagColors.json");
 
@@ -76,6 +79,9 @@ export interface ITagInputProps {
     onLabelLeave: (label: ILabel) => void;
     /** Function to handle tag change */
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
+
+    handleAddTable?: (addTableMode: boolean) => void;
+    addTableMode: boolean;
 }
 
 export interface ITagInputState {
@@ -167,80 +173,100 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         const { selectedTag, tagOperation } = this.state;
         const selectedTagRef = selectedTag ? this.tagItemRefs.get(selectedTag.name).getTagNameRef() : null;
 
-        return (
-            <div className="tag-input">
-                <div ref={this.headerRef} className="tag-input-header p-2">
-                    <span className="tag-input-title">{strings.tags.title}</span>
-                    <TagInputToolbar
-                        selectedTag={this.state.selectedTag}
-                        onAddTags={() => this.setState({ addTags: !this.state.addTags })}
-                        onSearchTags={() => this.setState({
-                            searchTags: !this.state.searchTags,
-                            searchQuery: "",
-                        })}
-                        onRenameTag={this.onRenameTag}
-                        onLockTag={this.onLockTag}
-                        onDelete={this.onDeleteTag}
-                        onReorder={this.onReOrder}
-                    />
-                </div>
-                {
-                    this.props.tagsLoaded ?
+        if (this.props.addTableMode) {
+            return (
+                <div className="tag-input">
+                    <div className="tag-input-header p-2">
+                        <span className="tag-input-title">{strings.tags.title}</span>
+                    </div>
                     <div className="tag-input-body-container">
                         <div className="tag-input-body">
-                            {
-                                this.state.searchTags &&
-                                <div className="tag-input-text-input-row search-input">
-                                    <input
-                                        className="tag-search-box"
-                                        type="text"
-                                        onKeyDown={this.onSearchKeyDown}
-                                        onChange={(e) => this.setState({ searchQuery: e.target.value })}
-                                        placeholder="Search tags"
-                                        autoFocus={true}
-                                    />
-                                    <FontIcon iconName="Search" />
-                                </div>
-                            }
-                            <div className="tag-input-items">
-                                {this.renderTagItems()}
-                                <Customizer {...dark}>
-                                    {
-                                        tagOperation === TagOperationMode.ContextualMenu && selectedTagRef &&
-                                        <ContextualMenu
-                                            className="tag-input-contextual-menu"
-                                            items={this.getContextualMenuItems()}
-                                            target={selectedTagRef}
-                                            onDismiss={this.onHideContextualMenu}
-                                        />
-                                    }
-                                </Customizer>
-                                {this.getColorPickerPortal()}
-                            </div>
-                            {
-                                this.state.addTags &&
-                                <div className="tag-input-text-input-row new-tag-input">
-                                    <input
-                                        className="tag-input-box"
-                                        type="text"
-                                        onKeyDown={this.onAddTagKeyDown}
-                                        // Add mouse event
-                                        onBlur={this.onAddTagWithBlur}
-                                        placeholder="Add new tag"
-                                        autoFocus={true}
-                                        ref={this.inputRef}
-                                    />
-                                    <FontIcon iconName="Tag" />
-                                </div>
-                            }
+                            <TableTagConfig
+                                cancel={this.props.handleAddTable}
+                                addTableTag={this.addTableTag}
+                            />
                         </div>
                     </div>
-                    :
-                    <Spinner className="loading-tag" size={SpinnerSize.large}/>
-                }
-            </div>
-        );
+                </div>
+            )
+        } else {
+            return (
+                <div className="tag-input">
+                    <div ref={this.headerRef} className="tag-input-header p-2">
+                        <span className="tag-input-title">{strings.tags.title}</span>
+                        <TagInputToolbar
+                            selectedTag={this.state.selectedTag}
+                            onAddTable={this.props.handleAddTable}
+                            onAddTags={() => this.setState({ addTags: !this.state.addTags })}
+                            onSearchTags={() => this.setState({
+                                searchTags: !this.state.searchTags,
+                                searchQuery: "",
+                            })}
+                            onRenameTag={this.onRenameTag}
+                            onLockTag={this.onLockTag}
+                            onDelete={this.onDeleteTag}
+                            onReorder={this.onReOrder}
+                        />
+                    </div>
+                    {
+                        this.props.tagsLoaded ?
+                        <div className="tag-input-body-container">
+                            <div className="tag-input-body">
+                                {
+                                    this.state.searchTags &&
+                                    <div className="tag-input-text-input-row search-input">
+                                        <input
+                                            className="tag-search-box"
+                                            type="text"
+                                            onKeyDown={this.onSearchKeyDown}
+                                            onChange={(e) => this.setState({ searchQuery: e.target.value })}
+                                            placeholder="Search tags"
+                                            autoFocus={true}
+                                        />
+                                        <FontIcon iconName="Search" />
+                                    </div>
+                                }
+                                <div className="tag-input-items">
+                                    {this.renderTagItems()}
+                                    <Customizer {...dark}>
+                                        {
+                                            tagOperation === TagOperationMode.ContextualMenu && selectedTagRef &&
+                                            <ContextualMenu
+                                                className="tag-input-contextual-menu"
+                                                items={this.getContextualMenuItems()}
+                                                target={selectedTagRef}
+                                                onDismiss={this.onHideContextualMenu}
+                                            />
+                                        }
+                                    </Customizer>
+                                    {this.getColorPickerPortal()}
+                                </div>
+                                {
+                                    this.state.addTags &&
+                                    <div className="tag-input-text-input-row new-tag-input">
+                                        <input
+                                            className="tag-input-box"
+                                            type="text"
+                                            onKeyDown={this.onAddTagKeyDown}
+                                            // Add mouse event
+                                            onBlur={this.onAddTagWithBlur}
+                                            placeholder="Add new tag"
+                                            autoFocus={true}
+                                            ref={this.inputRef}
+                                        />
+                                        <FontIcon iconName="Tag" />
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        :
+                        <Spinner className="loading-tag" size={SpinnerSize.large}/>
+                    }
+                </div>
+            );
+        }
     }
+
 
     public triggerNewTagBlur() {
         if (this.inputRef.current) {
@@ -547,6 +573,37 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 type: FieldType.String,
                 format: FieldFormat.NotSpecified,
                 documentCount: 0,
+        };
+        if (newTag.name.length && ![...this.state.tags, newTag].containsDuplicates((t) => t.name)) {
+            this.addTag(newTag);
+        } else if (!newTag.name.length) {
+            toast.warn(strings.tags.warnings.emptyName);
+        } else {
+            toast.warn(strings.tags.warnings.existingName);
+        }
+    }
+
+    private addTableTag = (tableConfig: any) => {
+        const newTag: ITag = {
+            name: tableConfig.name,
+            color: getNextColor(this.state.tags),
+            type: FieldType.Table,
+            format: FieldFormat.Fixed,
+            documentCount: 0,
+            columnKeys: tableConfig.columns.map((column) => {
+                return({
+                    fieldKey: column.name,
+                    fieldType: column.type,
+                    fieldFormat: column.format,
+                } as IField)
+            }),
+            rowKeys: tableConfig.rows.map((row) => {
+                return ({
+                    fieldKey: row.name,
+                    fieldType: row.type,
+                    fieldFormat: row.format,
+                } as IField)
+            }),
         };
         if (newTag.name.length && ![...this.state.tags, newTag].containsDuplicates((t) => t.name)) {
             this.addTag(newTag);

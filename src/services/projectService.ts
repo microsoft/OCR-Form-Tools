@@ -376,11 +376,23 @@ export default class ProjectService implements IProjectService {
         Guard.null(project.tags);
 
         const fieldInfo = {
-            fields: project.tags.map((tag) => ({
-                fieldKey: tag.name,
-                fieldType: tag.type ? tag.type : FieldType.String,
-                fieldFormat: tag.format ? tag.format : FieldFormat.NotSpecified,
-            } as IField)),
+            fields: project.tags.map((tag) => {
+                if (tag.type === FieldType.Table) {
+                    return ({
+                        fieldKey: tag.name,
+                        fieldType: tag.type ? tag.type : FieldType.String,
+                        fieldFormat: tag.format ? tag.format : FieldFormat.NotSpecified,
+                        columnKeys: tag.columnKeys,
+                        rowKeys: tag.rowKeys,
+                    } as IField)
+                } else {
+                    return ({
+                        fieldKey: tag.name,
+                        fieldType: tag.type ? tag.type : FieldType.String,
+                        fieldFormat: tag.format ? tag.format : FieldFormat.NotSpecified,
+                    } as IField)
+                }
+            }),
         };
 
         const fieldFilePath = joinPath("/", project.folderPath, constants.fieldsFileName);

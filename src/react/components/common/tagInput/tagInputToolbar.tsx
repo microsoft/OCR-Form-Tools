@@ -18,6 +18,8 @@ export interface ITagInputToolbarProps {
     selectedTag: ITag;
     /** Function to call when add tags button is clicked */
     onAddTags: () => void;
+
+    onAddTable?: (addTableMode: boolean) => void;
     /** Function to call when search tags button is clicked */
     onSearchTags: () => void;
     /** Function to call when lock tags button is clicked */
@@ -50,8 +52,14 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
     private getToolbarItems = (): ITagInputToolbarItemProps[] => {
         return [
             {
+                displayName: strings.tags.toolbar.addTable,
+                icon: "AddTable",
+                category: Categories.General,
+                handler: this.handleAddTable,
+            },
+            {
                 displayName: strings.tags.toolbar.add,
-                icon: "Add",
+                icon: "AddTo",
                 category: Categories.General,
                 handler: this.handleAdd,
             },
@@ -141,6 +149,10 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
 
     private handleAdd = () => {
         this.props.onAddTags();
+    }
+
+    private handleAddTable = () => {
+        this.props.onAddTable(true);
     }
 
     private handleSearch = () => {

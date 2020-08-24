@@ -247,6 +247,7 @@ export const english: IAppStrings = {
             checkboxPerTagLimit: "Cannot assign more than one checkbox per tag",
         },
         toolbar: {
+            addTable: "Add new table tag",
             add: "Add new tag",
             contextualMenu: "Contextual Menu",
             delete: "Delete tag",

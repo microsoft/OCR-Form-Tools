@@ -121,6 +121,8 @@ export interface ITag {
     type: FieldType;
     format: FieldFormat;
     documentCount?: number;
+    columnKeys?: any[];
+    rowKeys?: any[];
 }
 
 /**
@@ -276,6 +278,8 @@ export interface IField {
     fieldKey: string;
     fieldType: FieldType;
     fieldFormat: FieldFormat;
+    columnKeys?: any[];
+    rowKeys?: any[];
 }
 
 export interface IFieldInfo {
@@ -389,6 +393,7 @@ export enum FieldType {
     Time = "time",
     Integer = "integer",
     SelectionMark = "selectionMark",
+    Table = "table",
 }
 
 export enum FieldFormat {
@@ -401,6 +406,7 @@ export enum FieldFormat {
     DMY = "dmy",
     MDY = "mdy",
     YMD = "ymd",
+    Fixed = "fixed"
 }
 
 export enum FeatureCategory {

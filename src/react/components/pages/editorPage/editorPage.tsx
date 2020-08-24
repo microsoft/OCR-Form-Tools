@@ -92,6 +92,8 @@ export interface IEditorPageState {
     errorMessage?: string;
     tableToView: object;
     tableToViewId: string;
+    addTableMode: boolean;
+
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -128,6 +130,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         hoveredLabel: null,
         tableToView: null,
         tableToViewId: null,
+        addTableMode: false,
+
     };
 
     private tagInputRef: RefObject<TagInput>;
@@ -190,6 +194,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             return (<div>Loading...</div>);
         }
 
+        const size = this.state.addTableMode ? 625 : 290;
         return (
             <div className="editor-page skipToMainContent" id="pageEditor">
                 {this.state.tableToView !== null &&
@@ -249,6 +254,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                             primary = "second"
                             maxSize = {625}
                             minSize = {290}
+                            defaultSize={size}
                             pane1Style = {{height: "100%"}}
                             pane2Style = {{height: "auto"}}
                             resizerStyle = {{width: "5px", margin: "0px", border: "2px", background: "transparent"}}
@@ -299,6 +305,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     onLabelLeave={this.onLabelLeave}
                                     onTagChanged={this.onTagChanged}
                                     ref = {this.tagInputRef}
+                                    handleAddTable={this.handleAddTable}
+                                    addTableMode={this.state.addTableMode}
                                 />
                                 <Confirm
                                     title={strings.editorPage.tags.rename.title}
@@ -365,6 +373,16 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     // tslint:disable-next-line:no-empty
     private onPageClick = () => {
+    }
+
+    private handleAddTable = (addTableMode: boolean) => {
+        if (addTableMode !== this.state.addTableMode) {
+            this.setState({
+                addTableMode,
+            }, () => {
+                this.resizeCanvas();
+            });    
+        }
     }
 
     /**
