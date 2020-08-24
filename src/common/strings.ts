@@ -167,6 +167,8 @@ export interface IAppStrings {
             NotEnoughModels: string;
             modelsCannotBeIncluded: string;
             modelCannotBeIncluded: string;
+            addModelToRecentModels: string,
+            recentModelsAlreadyContainsModel: string,
         }
         commandBar: {
             ariaLabel: string;
@@ -200,6 +202,7 @@ export interface IAppStrings {
     recentModelsView: {
         header: string;
         checkboxAriaLabel: string;
+        addToRecentModels: string;
     }
     projectMetrics: {
         title: string;

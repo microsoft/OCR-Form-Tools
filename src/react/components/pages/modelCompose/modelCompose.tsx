@@ -29,7 +29,7 @@ import { IColumn,
          ScrollbarVisibility,
          IDetailsRowProps } from "@fluentui/react";
 import "./modelCompose.scss";
-import { strings } from "../../../../common/strings";
+import { strings, interpolate } from "../../../../common/strings";
 import { getDarkGreyTheme, getDefaultDarkTheme } from "../../../../common/themes";
 import { ModelComposeCommandBar } from "./composeCommandBar";
 import { bindActionCreators } from "redux";
@@ -340,8 +340,9 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                             </ScrollablePane>
                         </div>
                         <ComposeModelView
-                        ref={this.composeModalRef}
-                        onComposeConfirm={this.onComposeConfirm}
+                            ref={this.composeModalRef}
+                            onComposeConfirm={this.onComposeConfirm}
+                            addToRecentModels={this.addToRecentModels}
                         />
                     </Customizer>
                 </Fabric>
@@ -388,6 +389,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     composedModelInfo.composedTrainResults.push(modelInfo as never);
                 }
             }
+            this.composeModalRef.current.open(composedModelInfo, false, false);
+        } else if (model.status === constants.statusCodeReady) {
             this.composeModalRef.current.open(composedModelInfo, false, false);
         }
     }
@@ -635,6 +638,38 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         });
         const selections = this.selectedItems;
         this.handleModelsCompose(selections, composeModelName);
+    }
+
+    private addToRecentModels = async (modelToAdd: IRecentModel) => {
+        const recentModelRecords: IRecentModel[] = this.props.project.recentModelRecords ?
+            [...this.props.project.recentModelRecords] : [];
+
+        if (recentModelRecords.find((recentModel) => recentModel.modelInfo.modelId === modelToAdd.modelInfo.modelId)) {
+            if (modelToAdd.modelInfo.modelName) {
+                toast.success(interpolate(strings.modelCompose.modelView.recentModelsAlreadyContainsModel, {modelID: modelToAdd.modelInfo.modelName}));
+            } else {
+                toast.success(interpolate(strings.modelCompose.modelView.recentModelsAlreadyContainsModel, {modelID: modelToAdd.modelInfo.modelId}));
+            }
+            this.composeModalRef.current.close();
+            return;
+        }
+        recentModelRecords.unshift({...modelToAdd} as IRecentModel);
+        if (recentModelRecords.length > constants.recentModelRecordsCount) {
+            recentModelRecords.pop();
+        }
+
+        const updatedProject = {
+            ...this.props.project,
+            recentModelRecords,
+            predictModelId: modelToAdd.modelInfo.modelId,
+        };
+        this.composeModalRef.current.close();
+        if (modelToAdd.modelInfo.modelName) {
+            toast.success(interpolate(strings.modelCompose.modelView.addModelToRecentModels, {modelID: modelToAdd.modelInfo.modelName}));
+        } else {
+            toast.success(interpolate(strings.modelCompose.modelView.addModelToRecentModels, {modelID: modelToAdd.modelInfo.modelId}));
+        }
+        await this.props.actions.saveProject(updatedProject, false, false);
     }
 
     private passSelectedItems = (Items: any[]) => {
