@@ -203,6 +203,7 @@ export const spanish: IAppStrings = {
     recentModelsView: {
         header: "Seleccionar modelo para analizar con",
         checkboxAriaLabel: "Seleccione la casilla de verificación del modelo",
+        addToRecentModels: "Seleccionar para analizar con"
     },
     projectMetrics: {
         title: "Métricas del proyecto",

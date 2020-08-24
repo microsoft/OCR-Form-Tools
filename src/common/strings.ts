@@ -202,6 +202,7 @@ export interface IAppStrings {
     recentModelsView: {
         header: string;
         checkboxAriaLabel: string;
+        addToRecentModels: string;
     }
     projectMetrics: {
         title: string;

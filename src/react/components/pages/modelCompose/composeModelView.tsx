@@ -225,7 +225,6 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                             }
                             <div className="modal-buttons-container mt-4">
                                 <PrimaryButton
-                                    iconProps={{ iconName: "AddTo" }}
                                     className="mr-3"
                                     theme={getPrimaryGreenTheme()}
                                     onClick={() => {
@@ -239,7 +238,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                                         })
                                     }}
                                 >
-                                    Add to recent models
+                                    {strings.recentModelsView.addToRecentModels}
                                 </PrimaryButton>
                                 <PrimaryButton
                                     className="modal-cancel"
