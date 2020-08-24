@@ -10,48 +10,48 @@ import { spanish } from "./localization/es-cl";
  * Language must add all strings to be compliant for localization
  */
 export interface IAppStrings {
-    appName: string;
+    appName: string,
     common: {
-        displayName: string;
-        description: string;
-        submit: string;
-        cancel: string;
-        save: string;
-        delete: string;
-        provider: string;
-        homePage: string;
-        reload: string;
-        skipToMainContent: string;
-        skipToSidebar: string;
+        displayName: string,
+        description: string,
+        submit: string,
+        cancel: string,
+        save: string,
+        delete: string,
+        provider: string,
+        homePage: string,
+        reload: string,
+        skipToMainContent: string,
+        skipToSidebar: string,
     };
     projectService: {
-        existingLabelFiles: string;
+        existingLabelFiles: string,
     };
     titleBar: {
-        help: string;
-        minimize: string;
-        maximize: string;
-        restore: string;
-        close: string;
+        help: string,
+        minimize: string,
+        maximize: string,
+        restore: string,
+        close: string,
     };
     homePage: {
-        title: string;
-        newProject: string;
+        title: string,
+        newProject: string,
         openLocalProject: {
-            title: string;
+            title: string,
         },
         openCloudProject: {
-            title: string;
-            selectConnection: string;
-            pasteSharedUri: string;
+            title: string,
+            selectConnection: string,
+            pasteSharedUri: string,
         },
         deleteProject: {
-            title: string;
-            confirmation: string;
+            title: string,
+            confirmation: string,
         },
         importProject: {
-            title: string;
-            confirmation: string;
+            title: string,
+            confirmation: string,
         },
         recentProjects: string,
         messages: {
@@ -59,106 +59,106 @@ export interface IAppStrings {
         },
     };
     appSettings: {
-        title: string;
-        storageTitle: string;
-        uiHelp: string;
-        save: string;
+        title: string,
+        storageTitle: string,
+        uiHelp: string,
+        save: string,
         securityToken: {
             name: {
-                title: string;
+                title: string,
             },
             key: {
-                title: string;
+                title: string,
             },
             duplicateNameErrorMessage: string,
         },
         securityTokens: {
-            title: string;
-            description: string;
+            title: string,
+            description: string,
         },
         version: {
-            description: string;
+            description: string,
         },
         commit: string,
         devTools: {
-            description: string;
-            button: string;
+            description: string,
+            button: string,
         },
         reload: {
-            description: string;
-            button: string;
+            description: string,
+            button: string,
         },
         messages: {
-            saveSuccess: string;
+            saveSuccess: string,
         },
     };
     projectSettings: {
-        title: string;
+        title: string,
         securityToken: {
-            title: string;
-            description: string;
+            title: string,
+            description: string,
         },
-        save: string;
+        save: string,
         sourceConnection: {
-            title: string;
-            description: string;
+            title: string,
+            description: string,
         },
         targetConnection: {
-            title: string;
-            description: string;
+            title: string,
+            description: string,
         },
         videoSettings: {
-            title: string;
-            description: string;
-            frameExtractionRate: string;
+            title: string,
+            description: string,
+            frameExtractionRate: string,
         },
         addConnection: string,
         messages: {
-            saveSuccess: string;
-            projectExisted: string;
+            saveSuccess: string,
+            projectExisted: string,
         },
     };
     train: {
-        modelNameTitle: string;
-        labelFolderTitle: string;
-        defaultLabelFolderURL: string;
-        title: string;
-        training: string;
-        pleaseWait: string;
-        notTrainedYet: string;
-        backEndNotAvailable: string;
-        addName: string;
+        modelNameTitle: string,
+        labelFolderTitle: string,
+        defaultLabelFolderURL: string,
+        title: string,
+        training: string,
+        pleaseWait: string,
+        notTrainedYet: string,
+        backEndNotAvailable: string,
+        addName: string,
     };
     modelCompose: {
-        title: string;
+        title: string,
         columnAria: {
-            icon: string;
+            icon: string,
         }
-        loading: string;
-        composing: string;
+        loading: string,
+        composing: string,
         column: {
             icon: {
-                name: string;
+                name: string,
             }
             id: {
-                headerName: string;
-                fieldName: string;
+                headerName: string,
+                fieldName: string,
             }
             name: {
-                headerName: string;
-                fieldName: string;
+                headerName: string,
+                fieldName: string,
             }
             status: {
-                headerName: string;
-                fieldName: string;
+                headerName: string,
+                fieldName: string,
             }
             created: {
-                headerName: string;
-                fieldName: string;
+                headerName: string,
+                fieldName: string,
             }
             lastupdated: {
-                headerName: string;
-                fieldName: string;
+                headerName: string,
+                fieldName: string,
             }
         }
         modelView: {
@@ -171,11 +171,11 @@ export interface IAppStrings {
             recentModelsAlreadyContainsModel: string,
         }
         commandBar: {
-            ariaLabel: string;
-            composeAria: string;
-            refreshAria: string;
-            filter: string;
-            filterAria: string;
+            ariaLabel: string,
+            composeAria: string,
+            refreshAria: string,
+            filter: string,
+            filterAria: string,
         },
         modelsList: {
             headerAria: string,
@@ -188,16 +188,16 @@ export interface IAppStrings {
         }
     }
     predict: {
-        title: string;
-        uploadFile: string;
-        inProgress: string;
-        noRecentModels: string;
-        selectModelHeader: string;
-        modelIDPrefix: string;
-        modelNamePrefix: string;
-        downloadScript: string;
-        defaultLocalFileInput: string;
-        defaultURLInput: string;
+        title: string,
+        uploadFile: string,
+        inProgress: string,
+        noRecentModels: string,
+        selectModelHeader: string,
+        modelIDPrefix: string,
+        modelNamePrefix: string,
+        downloadScript: string,
+        defaultLocalFileInput: string,
+        defaultURLInput: string,
     };
     recentModelsView: {
         header: string;
@@ -205,83 +205,84 @@ export interface IAppStrings {
         addToRecentModels: string;
     }
     projectMetrics: {
-        title: string;
-        assetsSectionTitle: string
-        totalAssetCount: string;
-        visitedAssets: string;
-        taggedAssets: string;
-        nonVisitedAssets: string;
-        nonTaggedAssets: string;
-        tagsSectionTitle: string;
-        totalRegionCount: string;
-        totalTagCount: string;
-        avgTagCountPerAsset: string;
+        title: string,
+        assetsSectionTitle: string,
+        totalAssetCount: string,
+        visitedAssets: string,
+        taggedAssets: string,
+        nonVisitedAssets: string,
+        nonTaggedAssets: string,
+        tagsSectionTitle: string,
+        totalRegionCount: string,
+        totalTagCount: string,
+        avgTagCountPerAsset: string,
     };
     tags: {
-        title: string;
-        placeholder: string;
-        editor: string;
+        title: string,
+        placeholder: string,
+        editor: string,
         modal: {
-            name: string;
-            color: string;
+            name: string,
+            color: string,
         }
         toolbar: {
-            add: string;
-            contextualMenu: string;
-            delete: string;
-            edit: string;
-            format: string;
-            lock: string;
-            moveDown: string;
-            moveUp: string;
-            rename: string;
-            search: string;
-            type: string;
-            vertiline: string;
+            add: string,
+            contextualMenu: string,
+            delete: string,
+            edit: string,
+            format: string,
+            lock: string,
+            moveDown: string,
+            moveUp: string,
+            rename: string,
+            search: string,
+            type: string,
+            vertiline: string,
         }
         colors: {
-            white: string;
-            gray: string;
-            red: string;
-            maroon: string;
-            yellow: string;
-            olive: string;
-            lime: string;
-            green: string;
-            aqua: string;
-            teal: string;
-            blue: string;
-            navy: string;
-            fuschia: string;
-            purple: string;
+            white: string,
+            gray: string,
+            red: string,
+            maroon: string,
+            yellow: string,
+            olive: string,
+            lime: string,
+            green: string,
+            aqua: string,
+            teal: string,
+            blue: string,
+            navy: string,
+            fuschia: string,
+            purple: string,
         }
         warnings: {
-            existingName: string;
-            emptyName: string;
-            unknownTagName: string;
-            notCompatibleTagType: string;
-            checkboxPerTagLimit: string;
+            existingName: string,
+            emptyName: string,
+            unknownTagName: string,
+            notCompatibleTagType: string,
+            checkboxPerTagLimit: string,
+            notCompatibleWithDrawnRegionTag: string,
         }
     };
     connections: {
-        title: string;
-        details: string;
-        settings: string;
-        instructions: string;
-        new: string;
-        save: string;
-        genericInvalid: string;
+        title: string,
+        details: string,
+        settings: string,
+        instructions: string,
+        new: string,
+        save: string,
+        genericInvalid: string,
         messages: {
-            saveSuccess: string;
-            deleteSuccess: string;
-            doNotAllowDuplicateNames:string;
+            saveSuccess: string,
+            deleteSuccess: string,
+            doNotAllowDuplicateNames:string,
         },
-        imageCorsWarning: string;
-        blobCorsWarning: string;
-        azDocLinkText: string;
+        imageCorsWarning: string,
+        blobCorsWarning: string,
+        azDocLinkText: string,
         providers: {
             azureBlob: {
-                title: string;
+                title: string,
                 description: string,
                 accountName: {
                     title: string,
@@ -299,52 +300,52 @@ export interface IAppStrings {
                     title: string,
                     description: string,
                 },
-                invalidSASMessage: string;
+                invalidSASMessage: string,
             },
             bing: {
-                title: string;
-                options: string;
-                apiKey: string;
-                query: string;
+                title: string,
+                options: string,
+                apiKey: string,
+                query: string,
                 aspectRatio: {
-                    title: string;
-                    all: string;
-                    square: string;
-                    wide: string;
-                    tall: string;
+                    title: string,
+                    all: string,
+                    square: string,
+                    wide: string,
+                    tall: string,
                 }
             },
             local: {
-                title: string;
-                folderPath: string;
-                browse: string;
-                selectFolder: string;
-                chooseFolder: string;
-                invalidFolderMessage: string;
+                title: string,
+                folderPath: string,
+                browse: string,
+                selectFolder: string,
+                chooseFolder: string,
+                invalidFolderMessage: string,
             },
         }
     };
     editorPage: {
-        title: string;
-        width: string;
-        height: string;
-        tagged: string;
-        visited: string;
+        title: string,
+        width: string,
+        height: string,
+        tagged: string,
+        visited: string,
         toolbar: {
-            select: string;
-            pan: string;
-            drawRectangle: string;
-            drawPolygon: string;
-            copyRectangle: string;
-            copy: string;
-            cut: string;
-            paste: string;
-            removeAllRegions: string;
-            previousAsset: string;
-            nextAsset: string;
-            saveProject: string;
-            exportProject: string;
-            activeLearning: string;
+            select: string,
+            pan: string,
+            drawRectangle: string,
+            drawPolygon: string,
+            copyRectangle: string,
+            copy: string,
+            cut: string,
+            paste: string,
+            removeAllRegions: string,
+            previousAsset: string,
+            nextAsset: string,
+            saveProject: string,
+            exportProject: string,
+            activeLearning: string,
         }
         videoPlayer: {
             nextTaggedFrame: {
@@ -361,13 +362,13 @@ export interface IAppStrings {
             },
         }
         help: {
-            title: string;
-            escape: string;
+            title: string,
+            escape: string,
         },
         asset: {
             delete: {
-                title: string;
-                confirmation: string;
+                title: string,
+                confirmation: string,
             }
         },
         assetWarning: {
@@ -378,25 +379,25 @@ export interface IAppStrings {
             },
         }
         ,
-        assetError: string;
+        assetError: string,
         tags: {
             hotKey: {
-                apply: string;
-                lock: string;
+                apply: string,
+                lock: string,
             },
             rename: {
-                title: string;
-                confirmation: string;
+                title: string,
+                confirmation: string,
             },
             delete: {
-                title: string;
-                confirmation: string;
+                title: string,
+                confirmation: string,
             },
         }
         canvas: {
             removeAllRegions: {
-                title: string;
-                confirmation: string;
+                title: string,
+                confirmation: string,
             },
             canvasCommandBar: {
                 items: {
@@ -405,10 +406,12 @@ export interface IAppStrings {
                         subMenuItems: {
                             text: string,
                             tables: string,
-                            selectionMarks: string;
+                            selectionMarks: string,
+                            drawnRegions: string,
                             labels: string,
                         }
                     },
+                    drawRegion: string,
                 },
                 farItems: {
                     zoom: {
@@ -433,7 +436,7 @@ export interface IAppStrings {
         }
     };
     profile: {
-        settings: string;
+        settings: string,
     };
     shortcuts: {
         squareBrackets: {
@@ -478,6 +481,17 @@ export interface IAppStrings {
                 backSpace: string,
             },
         },
+        drawnRegions: {
+            keys: {
+                escape: string,
+                alt: string,
+                backSpace: string,
+            },
+            description: {
+                deleteSelectedDrawnRegions: string,
+                cancelDrawOrReshape: string,
+            }
+        },
         tips: {
             quickLabeling: {
                 name: string,
@@ -493,18 +507,18 @@ export interface IAppStrings {
             },
             deleteAllLabelsForTag: {
                 name: string,
-                description: string;
+                description: string,
             },
             groupSelect: {
                 name: string,
-                description: string;
+                description: string,
             }
         },
         headers: {
             keyboardShortcuts: string,
             otherTips: string,
         },
-        iconTitle: string;
+        iconTitle: string,
     };
     errors: {
         unknown: IErrorMetadata,
@@ -549,12 +563,12 @@ export interface IAppStrings {
         copy: {
             success: string,
         }
-    }
+    };
 }
 
 interface IErrorMetadata {
-    title: string;
-    message: string;
+    title: string,
+    message: string,
 }
 
 interface IStrings extends LocalizedStringsMethods, IAppStrings { }
