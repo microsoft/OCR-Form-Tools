@@ -162,11 +162,13 @@ export interface IAppStrings {
             }
         }
         modelView: {
-            titleAria: string,
-            addComposeModelName: string,
-            NotEnoughModels: string,
-            modelsCannotBeIncluded: string,
-            modelCannotBeIncluded: string,
+            titleAria: string;
+            addComposeModelName: string;
+            NotEnoughModels: string;
+            modelsCannotBeIncluded: string;
+            modelCannotBeIncluded: string;
+            addModelToRecentModels: string,
+            recentModelsAlreadyContainsModel: string,
         }
         commandBar: {
             ariaLabel: string,
@@ -198,8 +200,9 @@ export interface IAppStrings {
         defaultURLInput: string,
     };
     recentModelsView: {
-        header: string,
-        checkboxAriaLabel: string,
+        header: string;
+        checkboxAriaLabel: string;
+        addToRecentModels: string;
     }
     projectMetrics: {
         title: string,

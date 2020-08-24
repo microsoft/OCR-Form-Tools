@@ -14,7 +14,6 @@
 > ### Acceptance criteria ###
 
 #### Scenario One ####
-
 **Given** I'm on the editor page and click the draw region botton on the canvas commandbar  
 **When**  I hover the pointer over the current document image  
 **Then** I should see the cursor change to a crosshair  
@@ -143,7 +142,44 @@
 
 **Given** I've selected drawn regions  
 **When**  I press alt-backspace  
-**Then** I should see the selected regions should be deleted  
+**Then** I should see the selected regions should be deleted 
+
+## **Feat: support adding models to project's recent models from the model compose page**  
+
+> ### Feature description ###
+- add a "add to recent models" button in the model information view after double clicking a model  
+
+> ### Use Case ###
+
+**As** a user  
+**I want** add a model from the model compose page to myu recent models  
+**So** that I can anaylze with that model  
+
+> ### Acceptance criteria ###
+
+#### Scenario One ####
+
+**Given** I'm on the model compose page  
+**When** I double click on any model that has a ready status  
+**Then** I should see it's model information and an add to recent projects button  
+
+#### Scenario Two ####
+
+**Given** I'm on the model compose page and have double clicked on a model  
+**When** I click the add to recent projects button and then go to the analyze page  
+**Then** I should see the added model as the current model to analyze with  
+
+#### Scenario Three ####
+
+**Given** I'm on the model compose page and have double clicked on a model  
+**When** I click the add to recent projects button, then go to the analyze page, and analyze a document  
+**Then** I should see the analysis results using the model added  
+
+#### Scenario Four ####
+
+**Given** I've added multiple models to my projects recent models from the model compose page  
+**When** I go the analyze page and click change model  
+**Then** I should see up to the 5 most recent models  
 
 ## **Feat: add composedNames popup for each model**
 
