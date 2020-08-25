@@ -1,5 +1,186 @@
 # Test Runbook
 
+## **Feat: support region labeling**
+
+> ### Feature description ###
+- Add a draw region button to the canvas commandbar in the editor page  
+
+> ### Use Case ###
+
+**As** a user  
+**I want** draw regions to label in the editor page  
+**So** I can label regions that are not recognized by OCR  
+
+> ### Acceptance criteria ###
+
+#### Scenario One ####
+**Given** I'm on the editor page and click the draw region botton on the canvas commandbar  
+**When**  I hover the pointer over the current document image  
+**Then** I should see the cursor change to a crosshair  
+
+#### Scenario Two ####
+
+**Given** I'm on the editor page and click the draw region botton on the canvas commandbar  
+**When**  I click the layer botton on the canvas commandbar  
+**Then** I should see the drawn regions layer disabled in the canvas commandbar  
+
+#### Scenario Three ####
+
+**Given** I'm on the editor page  
+**When**  I click the layer botton on the canvas commandbar  
+**Then** I should see the drawn regions layer enabled in the canvas commandbar  
+
+#### Scenario Four ####
+
+**Given** I'm on the editor page and click the draw region botton on the canvas commandbar  
+**When**  I click and drag on the document image  
+**Then** I should see a region being drawn  
+
+#### Scenario Five ####
+
+**Given** I'm on the editor page and click the draw region botton on the canvas commandbar  
+**When**  I click and drag outside of the document image  
+**Then** I should see the document panned  
+
+#### Scenario Six ####
+
+**Given** I'm on the editor page and click the draw region botton on the canvas commandbar  
+**When**  I click and drag on the document image to outside of the document image  
+**Then** I should see a region being drawn and then cancelled  
+
+#### Scenario Seven ####
+
+**Given** I'm on the editor page and click the draw region botton on the canvas commandbar  
+**When**  I finish drawing a region  
+**Then** I should see a drawn region that is selected  
+
+#### Scenario Eight ####
+
+**Given** I'm on the editor page and click the draw region botton on the canvas commandbar  
+**When**  I click on the draw region button again  
+**Then** I should see the cursor return to a pointer while hovering the document image  
+
+#### Scenario Nine ####
+
+**Given** I've drawn regions  
+**When**  I hover a region's vertex  
+**Then** I should see a move icon apear on the vertex and the cursor change to grab  
+
+#### Scenario Ten ####
+
+**Given** I've drawn regions  
+**When**  I hover a region's vertex, click, and hold  
+**Then** I should see the cursor change to grabbing and the vertex should move with cursor  
+
+#### Scenario Eleven ####
+
+**Given** I've drawn regions  
+**When**  I hover a region's vertex, click, hold, and drag outside of the document image  
+**Then** I should see the vertex return to it's original position  
+
+#### Scenario Twelve ####
+
+**Given** I've drawn regions  
+**When**  I hover a region's vertex, click, hold, drag, and click the Escape or Backspace key  
+**Then** I should see the vertex return to it's original position  
+
+#### Scenario Thirteen ####
+
+**Given** I'm on the editor page and click the draw region botton on the canvas commandbar  
+**When**  I click on the document image, hold, drag, and click the Escape or Backspace key  
+**Then** I should see the drawing cancelled  
+
+#### Scenario Fourteen ####
+
+**Given** I've drawn regions  
+**When**  I exit draw region mode and click drawn regions  
+**Then** I should see the drawn regions toggle between selected and unselected  
+
+#### Scenario Fifteen ####
+
+**Given** I've drawn regions  
+**When**  I exit draw region mode  
+**Then** I should see the drawn regions still be reshapable  
+
+#### Scenario Sixteen ####
+
+**Given** I've selected drawn regions  
+**When**  I click an empty tag or a tag with only drawn region values already applied or press it's hot key  
+**Then** I should see the drawn region applied as a label for the tag  
+
+#### Scenario Seventeen ####
+
+**Given** I've selected drawn regions  
+**When**  I click a tag with text or checkbox values or press it's hot key  
+**Then** I should see a message letting me know I can't apply the drawn region to the tag  
+
+#### Scenario Eighteen ####
+
+**Given** I've labeled drawn regions    
+**When**  I view the label json file    
+**Then** I should see the drawn region labeled with a clockwise bounding box
+
+#### Scenario Nineteen ####
+
+**Given** I've labeled drawn regions  
+**When**  I hover the cursor over a label vertex  
+**Then** I should see the vertex should be movable  
+
+#### Scenario Twenty ####
+
+**Given** I've labeled drawn regions  
+**When**  I hover the cursor over a label vertex  
+**Then** I should see the vertex should be movable  
+
+#### Scenario Twentyone ####
+
+**Given** I've labeled drawn regions  
+**When**  I hover the cursor over a label vertex and move it  
+**Then** I should see the label reshaped in the document image and the json file  
+
+#### Scenario Twentytwo ####
+
+**Given** I've selected drawn regions  
+**When**  I press alt-backspace  
+**Then** I should see the selected regions should be deleted 
+
+## **Feat: support adding models to project's recent models from the model compose page**  
+
+> ### Feature description ###
+- add a "add to recent models" button in the model information view after double clicking a model  
+
+> ### Use Case ###
+
+**As** a user  
+**I want** add a model from the model compose page to myu recent models  
+**So** that I can anaylze with that model  
+
+> ### Acceptance criteria ###
+
+#### Scenario One ####
+
+**Given** I'm on the model compose page  
+**When** I double click on any model that has a ready status  
+**Then** I should see it's model information and an add to recent projects button  
+
+#### Scenario Two ####
+
+**Given** I'm on the model compose page and have double clicked on a model  
+**When** I click the add to recent projects button and then go to the analyze page  
+**Then** I should see the added model as the current model to analyze with  
+
+#### Scenario Three ####
+
+**Given** I'm on the model compose page and have double clicked on a model  
+**When** I click the add to recent projects button, then go to the analyze page, and analyze a document  
+**Then** I should see the analysis results using the model added  
+
+#### Scenario Four ####
+
+**Given** I've added multiple models to my projects recent models from the model compose page  
+**When** I go the analyze page and click change model  
+**Then** I should see up to the 5 most recent models  
+
 ## **Feat: add composedNames popup for each model**
 
 > ### Feature description ###
@@ -7,20 +188,17 @@
 
 > ### Use Case ###
 
-**`I want`** I want to know the models been used to compose a model  
-**`So`** I can double click that model to invoke the pop up and checkout models been used  
-
-**`Given`** I've opened a project containing documents and I'm on the Model Compose page  
-**`When`** I double click a row with composed model  
-**`Then`** I should see a pop up, which it shows all models we used to compose in the list. Beside, there is also a filter field in the top to filter a specific model out of the list  
+**As** a user  
+**I want** I want to know the models been used to compose a model  
+**So** I can double click that model to invoke the pop up and checkout models been used   
 
 > ### Acceptance criteria ###
 
 #### Scenario One ####
 
-**`Given`** I've opened a project containing documents and I'm on the Model Compose page  
-**`When`** I double click a row with composed model  
-**`Then`** I should see a pop up, which it shows all models we used to compose in the list. Beside, there is also a filter field in the top to filter a specific model out of the list  
+**Given** I've opened a project containing documents and I'm on the Model Compose page  
+**When`** I double click a row with composed model  
+**Then** I should see a pop up, which it shows all models we used to compose in the list. Beside, there is also a filter field in the top to filter a specific model out of the list  
 
 ## Feat: support group selection tool
 

@@ -14,7 +14,7 @@ import IApplicationActions, * as applicationActions from "../../../../redux/acti
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import "./predictPage.scss";
 import {
-    IApplicationState, IConnection, IProject, IAppSettings, AppError, ErrorCode, IRecentModel,
+    IApplicationState, IConnection, IProject, IAppSettings, AppError, ErrorCode, IRecentModel, ImageMapParent,
 } from "../../../../models/applicationState";
 import { ImageMap } from "../../common/imageMap/imageMap";
 import Style from "ol/style/Style";
@@ -620,6 +620,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     private renderImageMap = () => {
         return (
             <ImageMap
+                parentPage={ImageMapParent.Predict}
                 ref={(ref) => this.imageMap = ref}
                 imageUri={this.state.imageUri || ""}
                 imageWidth={this.state.imageWidth}

@@ -8,10 +8,12 @@ import { strings } from "../../../../common/strings";
 import { IModel } from "./modelCompose";
 import { getAppInsights } from '../../../../services/telemetryService';
 import "./modelCompose.scss";
+import { IRecentModel } from "../../../../models/applicationState";
 
 
 export interface IComposeModelViewProps {
     onComposeConfirm: (composeModelName: string) => void;
+    addToRecentModels: (modelToAdd: IRecentModel) => void;
 }
 
 export interface IComposeModelViewState {
@@ -179,25 +181,72 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                             </div>
                         </>
                     }
-                    {
-                        !this.state.composing &&
+                    {!this.state.composing &&
                         <>
-                            <h5 style={{whiteSpace: 'pre'}}>{"Model " + this.state.items["modelId"] + " " + (this.state.items["modelName"] ? `(${this.state.items["modelName"]})` : "") + "\ncreated on " + new Date(this.state.items["createdDateTime"]).toLocaleString() + "\nincludes following models:"}</h5>
-                            <DetailsList
-                                items={this.state.items["composedTrainResults"]}
-                                columns={modelDetailsColumns}
-                                compact={true}
-                                setKey="none"
-                                selectionMode={SelectionMode.none}
-                                isHeaderVisible={true}
-                                layoutMode={DetailsListLayoutMode.justified}
-                            />
-                            <div className="modal-buttons-container">
+                            <h4>
+                                Model information
+                            </h4>
+                            <div className="model-information-container">
+                                <h6 className="mr-2 model-information-prop">
+                                    {"Model ID: "}
+                                </h6>
+                                {this.state.items["modelId"]}
+                            </div>
+                            {this.state.items["modelName"] &&
+                                <div className="model-information-container">
+                                    <h6 className="mr-2 model-information-prop">
+                                        Model name:
+                                    </h6> {this.state.items["modelName"]}
+                                </div>
+                            }
+                             <div className="model-information-container">
+                                <h6 className="mr-2 model-information-prop">
+                                    Created date:
+                                </h6>
+                                {new Date(this.state.items["createdDateTime"]).toLocaleString()}
+                            </div>
+                            {this.state.items?.["composedTrainResults"]?.length > 0 &&
+                                <>
+                                    <h6 className="mb-0">
+                                        Composed of:
+                                    </h6>
+                                    <div className="mr-4 ml-4 mb-2 composed-of-list">
+                                        <DetailsList
+                                            items={this.state.items["composedTrainResults"]}
+                                            columns={modelDetailsColumns}
+                                            compact={true}
+                                            setKey="none"
+                                            selectionMode={SelectionMode.none}
+                                            isHeaderVisible={true}
+                                            layoutMode={DetailsListLayoutMode.justified}
+                                        />
+                                    </div>
+                                </>
+                            }
+                            <div className="modal-buttons-container mt-4">
+                                <PrimaryButton
+                                    className="mr-3"
+                                    theme={getPrimaryGreenTheme()}
+                                    onClick={() => {
+                                        this.props.addToRecentModels({
+                                            modelInfo: {
+                                                isComposed: Boolean(this.state.items["composedTrainResults"]),
+                                                modelId: this.state.items["modelId"],
+                                                createdDateTime: this.state.items["createdDateTime"],
+                                                modelName: this.state.items?.["modelName"],
+                                            }
+                                        })
+                                    }}
+                                >
+                                    {strings.recentModelsView.addToRecentModels}
+                                </PrimaryButton>
                                 <PrimaryButton
                                     className="modal-cancel"
                                     theme={getPrimaryGreyTheme()}
                                     onClick={this.close}
-                                >Close</PrimaryButton>
+                                >
+                                    Close
+                                </PrimaryButton>
                             </div>
                         </>}
                 </Modal>
