@@ -364,6 +364,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             createdDateTime: model.createdDateTime,
             composedTrainResults: []
         };
+        this.composeModalRef.current.open([], false, false);
 
         if (model.attributes.isComposed) {
             const inclModels = model.composedTrainResults ?
@@ -389,9 +390,9 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     composedModelInfo.composedTrainResults.push(modelInfo as never);
                 }
             }
-            this.composeModalRef.current.open(composedModelInfo, false, false);
+            this.composeModalRef.current.getItems(composedModelInfo);
         } else if (model.status === constants.statusCodeReady) {
-            this.composeModalRef.current.open(composedModelInfo, false, false);
+            this.composeModalRef.current.getItems(composedModelInfo);
         }
     }
 
