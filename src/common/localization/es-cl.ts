@@ -128,7 +128,8 @@ export const spanish: IAppStrings = {
         pleaseWait: "Por favor espera",
         notTrainedYet: "Aún no entrenado",
         backEndNotAvailable: "La función de casilla de verificación funcionará en la versión futura del servicio de reconocimiento de formularios, manténgase atento.",
-        addName:"Agregar nombre de modelo ...",
+        addName: "Agregar nombre de modelo ...",
+        downloadJson: "Descargar archivo JSON",
     },
     modelCompose: {
         title: "Modelo componer",
