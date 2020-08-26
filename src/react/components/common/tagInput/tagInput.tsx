@@ -18,7 +18,7 @@ import { strings } from "../../../../common/strings";
 import { getDarkTheme } from "../../../../common/themes";
 import { AlignPortal } from "../align/alignPortal";
 import { getNextColor } from "../../../../common/utils";
-import { IRegion, ITag, ILabel, FieldType, FieldFormat, IField } from "../../../../models/applicationState";
+import { IRegion, ITag, ILabel, FieldType, FieldFormat, IField, TagInputMode } from "../../../../models/applicationState";
 import { ColorPicker } from "../colorPicker";
 import "./tagInput.scss";
 import "../condensedList/condensedList.scss";
@@ -27,6 +27,7 @@ import TagInputToolbar from "./tagInputToolbar";
 import { toast } from "react-toastify";
 import debounce from 'lodash/debounce';
 import TableTagConfig from "./tableTagConfig"
+import TableTagLabeling from "./tableTagLabeling";
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../../common/tagColors.json");
 
@@ -42,6 +43,7 @@ export enum TagOperationMode {
     ColorPicker,
     ContextualMenu,
     Rename,
+    LabelTable,
 }
 
 export interface ITagInputProps {
@@ -80,8 +82,10 @@ export interface ITagInputProps {
     /** Function to handle tag change */
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
 
-    handleAddTable?: (addTableMode: boolean) => void;
-    addTableMode: boolean;
+    setTagInputMode?: (tagInputMode: TagInputMode) => void;
+    tagInputMode: TagInputMode;
+    selectedTableTagToLabel: ITag;
+    handleLabelTable: (tagInputMode: TagInputMode, selectedTableTagToLabel) => void;
 }
 
 export interface ITagInputState {
@@ -173,7 +177,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         const { selectedTag, tagOperation } = this.state;
         const selectedTagRef = selectedTag ? this.tagItemRefs.get(selectedTag.name).getTagNameRef() : null;
 
-        if (this.props.addTableMode) {
+        if (this.props.tagInputMode === TagInputMode.ConfigureTable) {
             return (
                 <div className="tag-input">
                     <div className="tag-input-header p-2">
@@ -182,9 +186,27 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     <div className="tag-input-body-container">
                         <div className="tag-input-body">
                             <TableTagConfig
-                                cancel={this.props.handleAddTable}
+                                setTagInputMode={this.props.setTagInputMode}
                                 addTableTag={this.addTableTag}
                             />
+                        </div>
+                    </div>
+                </div>
+            )
+        } else if (this.props.tagInputMode === TagInputMode.LabelTable) {
+            return (
+                <div className="tag-input">
+                    <div className="tag-input-header p-2">
+                        <span className="tag-input-title">{strings.tags.title}</span>
+                    </div>
+                        <TableTagLabeling
+                            onTagClick={this.props.onTagClick}
+                            selectedRegions={this.props.selectedRegions}
+                            setTagInputMode={this.props.setTagInputMode}
+                            selectedTag={this.props.selectedTableTagToLabel}
+                        />
+                    <div className="tag-input-body-container">
+                        <div className="tag-input-body">
                         </div>
                     </div>
                 </div>
@@ -196,7 +218,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                         <span className="tag-input-title">{strings.tags.title}</span>
                         <TagInputToolbar
                             selectedTag={this.state.selectedTag}
-                            onAddTable={this.props.handleAddTable}
+                            setTagInputMode={this.props.setTagInputMode}
                             onAddTags={() => this.setState({ addTags: !this.state.addTags })}
                             onSearchTags={() => this.setState({
                                 searchTags: !this.state.searchTags,
@@ -468,7 +490,10 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     private onTagItemClick = (tag: ITag, props: ITagClickProps) => {
-        if (props.ctrlKey && this.props.onCtrlTagClick) { // Lock tags
+    console.log("TagInput -> privateonTagItemClick -> tag", tag);
+        if (tag.type === FieldType.Table && this.props.selectedRegions?.length) {
+            this.props.handleLabelTable(TagInputMode.LabelTable, tag)
+        } else if (props.ctrlKey && this.props.onCtrlTagClick) { // Lock tags
             this.props.onCtrlTagClick(tag);
         } else if (props.altKey) { // Edit tag
             this.setState({

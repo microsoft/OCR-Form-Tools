@@ -305,13 +305,25 @@ export default class ProjectService implements IProjectService {
             const fieldInfo = JSON.parse(json) as IFieldInfo;
             const tags: ITag[] = [];
             fieldInfo.fields.forEach((field, index) => {
-                tags.push({
-                    name: field.fieldKey,
-                    color: tagColors[index],
-                    type: normalizeFieldType(field.fieldType),
-                    format: field.fieldFormat,
-                    documentCount: 0,
-                } as ITag);
+                if (field.fieldType === FieldType.Table) {
+                    tags.push({
+                        name: field.fieldKey,
+                        color: tagColors[index],
+                        type: normalizeFieldType(field.fieldType),
+                        format: field.fieldFormat,
+                        documentCount: 0,
+                        rowKeys: field.rowKeys,
+                        columnKeys: field.columnKeys
+                    } as ITag);    
+                } else {
+                    tags.push({
+                        name: field.fieldKey,
+                        color: tagColors[index],
+                        type: normalizeFieldType(field.fieldType),
+                        format: field.fieldFormat,
+                        documentCount: 0,
+                    } as ITag);    
+                }
             });
             if (project.tags) {
                 project.tags = patch(project.tags, tags, "name", ["type", "format"]);

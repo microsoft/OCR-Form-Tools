@@ -406,11 +406,18 @@ export enum FieldFormat {
     DMY = "dmy",
     MDY = "mdy",
     YMD = "ymd",
-    Fixed = "fixed"
+    Fixed = "fixed",
+    RowDynamic = "rowDynamic",
 }
 
 export enum FeatureCategory {
     Text = "text",
     Checkbox = "checkbox",
     Label = "label",
+}
+
+export enum TagInputMode {
+    Basic = "basic",
+    ConfigureTable = "configureTable",
+    LabelTable = "labelTable",
 }

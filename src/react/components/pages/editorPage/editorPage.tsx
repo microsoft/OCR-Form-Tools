@@ -13,7 +13,7 @@ import { strings } from "../../../../common/strings";
 import {
     AssetState, AssetType, EditorMode, FieldType,
     IApplicationState, IAppSettings, IAsset, IAssetMetadata,
-    ILabel, IProject, IRegion, ISize, ITag, FeatureCategory,
+    ILabel, IProject, IRegion, ISize, ITag, FeatureCategory, TagInputMode,
 } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -92,7 +92,8 @@ export interface IEditorPageState {
     errorMessage?: string;
     tableToView: object;
     tableToViewId: string;
-    addTableMode: boolean;
+    tagInputMode: TagInputMode;
+    selectedTableTagToLabel: ITag;
 
 }
 
@@ -130,8 +131,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         hoveredLabel: null,
         tableToView: null,
         tableToViewId: null,
-        addTableMode: false,
-
+        tagInputMode: TagInputMode.Basic,
+        selectedTableTagToLabel: null,
     };
 
     private tagInputRef: RefObject<TagInput>;
@@ -194,7 +195,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             return (<div>Loading...</div>);
         }
 
-        const size = this.state.addTableMode ? 625 : 290;
+        const size = this.state.tagInputMode !== TagInputMode.Basic ? 625 : 290;
         return (
             <div className="editor-page skipToMainContent" id="pageEditor">
                 {this.state.tableToView !== null &&
@@ -305,8 +306,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     onLabelLeave={this.onLabelLeave}
                                     onTagChanged={this.onTagChanged}
                                     ref = {this.tagInputRef}
-                                    handleAddTable={this.handleAddTable}
-                                    addTableMode={this.state.addTableMode}
+                                    setTagInputMode={this.setTagInputMode}
+                                    tagInputMode={this.state.tagInputMode}
+                                    handleLabelTable={this.handleLabelTable}
+                                    selectedTableTagToLabel={this.state.selectedTableTagToLabel}
                                 />
                                 <Confirm
                                     title={strings.editorPage.tags.rename.title}
@@ -375,14 +378,24 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private onPageClick = () => {
     }
 
-    private handleAddTable = (addTableMode: boolean) => {
-        if (addTableMode !== this.state.addTableMode) {
+    private setTagInputMode = (tagInputMode: TagInputMode) => {
+        if (tagInputMode !== this.state.tagInputMode) {
             this.setState({
-                addTableMode,
+                tagInputMode,
             }, () => {
                 this.resizeCanvas();
             });    
         }
+    }
+
+    private handleLabelTable = (tagInputMode: TagInputMode, selectedTableTagToLabel) => {
+        this.setState({
+            tagInputMode,
+            selectedTableTagToLabel,
+        }, () => {
+            this.resizeCanvas();
+        });    
+        
     }
 
     /**

@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import "./tableTagConfig.scss";
 import { IconButton, Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, IDropdownOption, SelectionMode, DetailsListLayoutMode, FontIcon } from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme } from '../../../../common/themes';
-import { FieldFormat, FieldType } from '../../../../models/applicationState';
+import { FieldFormat, FieldType, TagInputMode } from '../../../../models/applicationState';
 
 
 interface IShareProps {
@@ -30,7 +30,7 @@ interface IShareState {
 // };
 
 interface ITableTagConfigProps {
-    cancel: (addTableMode: boolean) => void;
+    setTagInputMode: (addTableMode: TagInputMode) => void;
     addTableTag: (table: any) => void;
 }
 
@@ -39,12 +39,13 @@ interface ITableTagConfigState {
     rows: any[],
     columns: any[],
     name: string,
+    format: string,
 }
 
 // @connect(mapStateToProps)
 export default class TableTagConfig extends React.Component<ITableTagConfigProps> {
     public static defaultProps: ITableTagConfigProps = {
-        cancel: null,
+        setTagInputMode: null,
         addTableTag: null,
     };
 
@@ -52,7 +53,7 @@ export default class TableTagConfig extends React.Component<ITableTagConfigProps
         rows: [{name: "", type: FieldType.String, format: FieldFormat.NotSpecified}],
         columns: [{name: "", type: FieldType.String, format: FieldFormat.NotSpecified}],
         name: "",
-
+        format: "fixed",
     };
 
     public componentDidMount = async () => {
@@ -188,8 +189,9 @@ export default class TableTagConfig extends React.Component<ITableTagConfigProps
                     onChange={(event) => this.setState({name: event.target["value"]}) }
                     value={this.state.name}
                 />
-                <h5 className="mt-3">Type:</h5>
+                <h5 className="mt-3">Format:</h5>
                 <ChoiceGroup 
+                    onChange={(event, option) => this.setState({format: option.key})}
                     defaultSelectedKey="fixed"
                     options={options}
                     theme={getRightPaneDefaultButtonTheme()}
@@ -216,36 +218,39 @@ export default class TableTagConfig extends React.Component<ITableTagConfigProps
                     Add column
                 </PrimaryButton>
                 </div>
-
-                <h5 className="mt-3">Row headers:</h5>
-                 <div className="details-list-container zzyy">
-                    <DetailsList
-                        // className="zzpppzz"
-                        items={this.state.rows}
-                        columns={rowListColumns}
-                        isHeaderVisible={true}
-                        theme={getRightPaneDefaultButtonTheme()}
-                        compact={true}
-                        setKey="none"
-                        selectionMode={SelectionMode.none}
-                        layoutMode={DetailsListLayoutMode.justified}
-                    />
-                <PrimaryButton
-                    theme={getPrimaryBlueTheme()}
-                    className="ml-2 mt-1"
-                    autoFocus={true}
-                    onClick={this.addRow}>
-                    <FontIcon iconName = "AddTo" className="mr-2" />
-                    Add row
-                </PrimaryButton>
-                </div>
+                {this.state.format === "fixed" &&
+                    <>
+                        <h5 className="mt-3">Row headers:</h5>
+                        <div className="details-list-container zzyy">
+                            <DetailsList
+                                // className="zzpppzz"
+                                items={this.state.rows}
+                                columns={rowListColumns}
+                                isHeaderVisible={true}
+                                theme={getRightPaneDefaultButtonTheme()}
+                                compact={true}
+                                setKey="none"
+                                selectionMode={SelectionMode.none}
+                                layoutMode={DetailsListLayoutMode.justified}
+                            />
+                            <PrimaryButton
+                                theme={getPrimaryBlueTheme()}
+                                className="ml-2 mt-1"
+                                autoFocus={true}
+                                onClick={this.addRow}>
+                                <FontIcon iconName = "AddTo" className="mr-2" />
+                                Add row
+                            </PrimaryButton>
+                        </div>
+                    </>
+                }
 
                 <div className="modal-buttons-container mb-2 mr-1">
 
                     <PrimaryButton
                         className="modal-cancel mr-3"
                         theme={getPrimaryGreyTheme()}
-                        onClick={() => this.props.cancel(false)}
+                        onClick={() => this.props.setTagInputMode(TagInputMode.Basic)}
                     >
                         Cancel
                     </PrimaryButton>
@@ -254,7 +259,7 @@ export default class TableTagConfig extends React.Component<ITableTagConfigProps
                         theme={getPrimaryGreenTheme()}
                         onClick={() => {
                             this.props.addTableTag(this.state)
-                            this.props.cancel(false)
+                            this.props.setTagInputMode(TagInputMode.Basic)
                         }}
                     >
                         Save
