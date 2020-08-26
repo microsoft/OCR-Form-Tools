@@ -169,6 +169,7 @@ export interface IAppStrings {
             modelCannotBeIncluded: string;
             addModelToRecentModels: string,
             recentModelsAlreadyContainsModel: string,
+            loadingDetails: string;
         }
         commandBar: {
             ariaLabel: string,

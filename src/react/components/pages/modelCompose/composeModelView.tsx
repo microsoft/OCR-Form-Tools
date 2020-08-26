@@ -229,7 +229,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                                     }  </>
                             }
                             {this.state.items.length === 0 && <Spinner
-                                label="Loading model details..."
+                                label={strings.modelCompose.modelView.loadingDetails}
                                 ariaLive="assertive"
                                 labelPosition="right"
                                 theme={getDefaultDarkTheme()}
