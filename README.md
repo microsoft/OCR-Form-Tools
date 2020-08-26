@@ -210,7 +210,6 @@ You should see a message pop-up saying that your share string been saved in your
 Labeling tool allows a number of keyboard shortcuts to support accessibility and also sometimes make labeling easier and faster. You can view them by clicking the following icon on the right side of the title bar:\
 ![alt text](docs/images/keyboard-shortcuts-icon.png "Keyboard shortcuts menu icon")
 
-
 Hotkeys of 1 through 0 and all letters are assigned to first 36 tags, after you selected one or multiple words from the highlighted text elements, by pressing these hotkeys, you can label the selected words.
 
 '[' and ']' keys can be used move the selection to the previous or the next word.
@@ -224,9 +223,12 @@ Hold Alt key and click on tag name, user can change the tag's name.
 To delete all labels for a tag - select all labels for a tag on document then press 'delete' key.
 
 ### **Disclaimer**
+
 For development purposes and for better understanding of our tool usage we are collecting some data, such as:
 
-custom events (training, model compose and prediction), Form recognizer API version, browser version, OS version, approximate location (according your ISP: country and city)
+custom events (training, model compose and prediction), Form recognizer API version, browser version, OS version, approximate location (according your ISP: country and city).
+
+ >**ℹ️Telemetry service feature is currently disabled**
 
 *If you do not like to share this information with us, feel free to delete telemetry key. It is located at ```src/common/constant.ts```. It should not affect any of the tool's operations.*
 
