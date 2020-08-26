@@ -171,8 +171,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             },
             {
                 key: "column6",
-                name: strings.modelCompose.column.lastupdated.headerName,
-                fieldName: strings.modelCompose.column.lastupdated.fieldName,
+                name: strings.modelCompose.column.lastUpdated.headerName,
+                fieldName: strings.modelCompose.column.lastUpdated.fieldName,
                 minWidth: 175,
                 maxWidth: 175,
                 isResizable: true,
@@ -576,7 +576,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
     private copyAndSort(modelList: IModel[], columnKey: string, isSortedDescending?: boolean): IModel[] {
         const key = columnKey;
-        if (key === strings.modelCompose.column.created.fieldName || key === strings.modelCompose.column.lastupdated.fieldName) {
+        if (key === strings.modelCompose.column.created.fieldName || key === strings.modelCompose.column.lastUpdated.fieldName) {
             return (modelList.slice(0)
             .sort((a, b): number => {
                 if (isSortedDescending) {

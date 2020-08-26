@@ -156,7 +156,7 @@ export interface IAppStrings {
                 headerName: string,
                 fieldName: string,
             }
-            lastupdated: {
+            lastUpdated: {
                 headerName: string,
                 fieldName: string,
             }

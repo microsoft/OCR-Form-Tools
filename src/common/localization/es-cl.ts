@@ -157,7 +157,7 @@ export const spanish: IAppStrings = {
                 headerName: "Creada",
                 fieldName: "created",
             },
-            lastupdated: {
+            lastUpdated: {
                 headerName: "Última Actualización",
                 fieldName: "lastUpdated",
             },
