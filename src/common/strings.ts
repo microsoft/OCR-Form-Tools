@@ -198,6 +198,8 @@ export interface IAppStrings {
         downloadScript: string,
         defaultLocalFileInput: string,
         defaultURLInput: string,
+        editAndUploadToTrainingSet: string,
+        editAndUploadToTrainingSetNotify: string
     };
     recentModelsView: {
         header: string;

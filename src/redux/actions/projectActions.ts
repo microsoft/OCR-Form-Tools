@@ -14,12 +14,16 @@ import {
     IProject,
     ITag,
     ISecurityToken,
+    ILabel,
+    ILabelData,
 } from "../../models/applicationState";
 import { createAction, createPayloadAction, IPayloadAction } from "./actionCreators";
 import { appInfo } from "../../common/appInfo";
 import { saveAppSettingsAction } from "./applicationActions";
 import { toast } from 'react-toastify';
 import { strings, interpolate } from "../../common/strings";
+import { OCRService } from "../../services/ocrService";
+import { constants } from "../../common/constants";
 
 /**
  * Actions to be performed in relation to projects
@@ -29,6 +33,7 @@ export default interface IProjectActions {
     saveProject(project: IProject, saveTags?: boolean, updateTagsFromFiles?: boolean): Promise<IProject>;
     deleteProject(project: IProject): Promise<void>;
     closeProject(): void;
+    addAssetToProject(project: IProject, fileName: string, buffer: Buffer, labels: ILabel[]): Promise<IAsset>;
     deleteAsset(project: IProject, assetMetadata: IAssetMetadata): Promise<void>;
     loadAssets(project: IProject): Promise<IAsset[]>;
     loadAssetMetadata(project: IProject, asset: IAsset): Promise<IAssetMetadata>;
@@ -64,7 +69,7 @@ export function loadProject(project: IProject, sharedToken?: ISecurityToken):
                     ]
                 }));
             } else if (existingToken.key !== sharedToken.key) {
-                const reason = interpolate(strings.shareProject.errors.tokenNameExist, {sharedTokenName: sharedToken.name})
+                const reason = interpolate(strings.shareProject.errors.tokenNameExist, { sharedTokenName: sharedToken.name })
                 toast.error(reason, { autoClose: false, closeOnClick: false });
                 return null;
             }
@@ -126,7 +131,7 @@ export function updateProjectTagsFromFiles(project: IProject, asset?: string): (
 }
 
 export function updatedAssetMetadata(project: IProject,
-                                     assetDocumentCountDifference: any): (dispatch: Dispatch) => Promise<void> {
+    assetDocumentCountDifference: any): (dispatch: Dispatch) => Promise<void> {
     return async (dispatch: Dispatch) => {
         const projectService = new ProjectService();
         const updatedProject = await projectService.updatedAssetMetadata(project, assetDocumentCountDifference);
@@ -169,7 +174,30 @@ export function closeProject(): (dispatch: Dispatch) => void {
         dispatch({ type: ActionTypes.CLOSE_PROJECT_SUCCESS });
     };
 }
-
+/**
+ * add asset, ocr data, labels to project storage.
+ */
+export function addAssetToProject(project: IProject, fileName: string, buffer: Buffer, labels: ILabel[] = []): (dispatch: Dispatch) => Promise<IAsset> {
+    return async (dispatch: Dispatch) => {
+        const assetService = new AssetService(project);
+        await assetService.uploadBuffer(fileName, buffer);
+        const assets = await assetService.getAssets();
+        const assetName = `${project.name}/${fileName}`;
+        const asset = assets.find(a => a.name === assetName);
+        const ocrService = new OCRService(project);
+        const ocrData = await ocrService.getRecognizedText(asset.path, asset.name, undefined, true);
+        console.log(JSON.stringify(ocrData, null, 2));
+        if (labels.length > 0) {
+            const labelData: ILabelData = {
+                document: fileName,
+                labels
+            };
+            assetService.uploadText(`${fileName}${constants.labelFileExtension}`, JSON.stringify(labelData));
+        }
+        dispatch(addAssetToProjectAction(asset));
+        return asset;
+    };
+}
 /**
  * Dispatches Delete Asset action
  */
@@ -352,6 +380,12 @@ export interface IDeleteProjectAction extends IPayloadAction<string, IProject> {
 }
 
 /**
+ * Add asset to project action type
+ */
+export interface IAddAssetToProjectAction extends IPayloadAction<string, IAsset> {
+    type: ActionTypes.ADD_ASSET_TO_PROJECT_SUCCESS;
+}
+/**
  * Load project assets action type
  */
 export interface ILoadProjectAssetsAction extends IPayloadAction<string, IAsset[]> {
@@ -409,6 +443,10 @@ export const saveProjectAction = createPayloadAction<ISaveProjectAction>(ActionT
  * Instance of Delete Project action
  */
 export const deleteProjectAction = createPayloadAction<IDeleteProjectAction>(ActionTypes.DELETE_PROJECT_SUCCESS);
+/**
+ * Instance of Add Asset to Project action
+ */
+export const addAssetToProjectAction = createPayloadAction<IAddAssetToProjectAction>(ActionTypes.ADD_ASSET_TO_PROJECT_SUCCESS);
 /**
  * Instance of Load Project Assets action
  */

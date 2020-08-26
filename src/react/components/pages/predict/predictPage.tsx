@@ -14,7 +14,7 @@ import IApplicationActions, * as applicationActions from "../../../../redux/acti
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import "./predictPage.scss";
 import {
-    IApplicationState, IConnection, IProject, IAppSettings, AppError, ErrorCode, IRecentModel, ImageMapParent,
+    IApplicationState, IConnection, IProject, IAppSettings, AppError, ErrorCode, IRecentModel, ImageMapParent, ILabel
 } from "../../../../models/applicationState";
 import { ImageMap } from "../../common/imageMap/imageMap";
 import Style from "ol/style/Style";
@@ -40,6 +40,7 @@ import axios from "axios";
 import { IAnalyzeModelInfo } from './predictResult';
 import RecentModelsView from "./recentModelsView";
 import { getAppInsights } from '../../../../services/telemetryService';
+import { UploadToTrainingSetView } from "./uploadToTrainingSetView";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -146,6 +147,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     private currPdf: any;
     private tiffImages: any[];
     private imageMap: ImageMap;
+    private uploadToTrainingSetView: React.RefObject<UploadToTrainingSetView> = React.createRef();
 
     public async componentDidMount() {
         const projectId = this.props.match.params["projectId"];
@@ -412,11 +414,15 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                     page={this.state.currPage}
                                                     tags={this.props.project.tags}
                                                     downloadResultLabel={this.state.fileLabel}
+                                                    onAddAssetToProject={this.onAddAssetToProjectConfirm}
                                                     onPredictionClick={this.onPredictionClick}
                                                     onPredictionMouseEnter={this.onPredictionMouseEnter}
                                                     onPredictionMouseLeave={this.onPredictionMouseLeave}
                                                 />
                                             }
+                                                <UploadToTrainingSetView
+                                                    ref={this.uploadToTrainingSetView}
+                                                    onConfirm={this.onAddAssetToProject} />
                                             {
                                                 (Object.keys(predictions).length === 0 && this.state.predictRun) &&
                                                 <div>
@@ -1028,7 +1034,42 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     private noOp = () => {
         // no operation
     }
-
+    private onAddAssetToProjectConfirm = () =>{
+        this.uploadToTrainingSetView.current.open();
+    }
+    private onAddAssetToProject = async () => {
+        if (this.state.file) {
+            const fileData = new Buffer(await this.state.file.arrayBuffer());
+            const readResults: any = this.state.analyzeResult;
+            const fields = readResults.analyzeResult.documentResults[0].fields;
+            const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[this.state.currPage - 1];
+            const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
+            const ocrWidth = ocrExtent[2] - ocrExtent[0];
+            const ocrHeight = ocrExtent[3] - ocrExtent[1];
+            const getBoundingBox = (arr: number[]) => {
+                const result = [];
+                for (let i = 0; i < arr.length; i += 2) {
+                    result.push([
+                        (arr[i] / ocrWidth),
+                        (arr[i + 1] / ocrHeight),
+                    ]);
+                }
+                return result;
+            };
+            const labels = Object.keys(fields).map<ILabel>(name => ({
+                label: name,
+                key: null,
+                value: [{
+                    page: fields[name].page,
+                    text: fields[name].text,
+                    boundingBoxes: [getBoundingBox(fields[name].boundingBox)]
+                }]
+            }));
+            console.log(JSON.stringify(labels, null, 2));
+            await this.props.actions.addAssetToProject(this.props.project, this.state.file.name, fileData, labels);
+            this.props.history.push(`/projects/${this.props.project.id}/edit`);
+        }
+    }
     private onPredictionClick = (predictedItem: any) => {
         const targetPage = predictedItem.page;
         if (Number.isInteger(targetPage) && targetPage !== this.state.currPage) {

@@ -224,7 +224,16 @@ export class AssetService {
 
         return returnedAssets;
     }
-
+    public async uploadBuffer(name:string, buffer:Buffer) {
+        await this.storageProvider.writeBinary(`${this.project.name}/${name}`, buffer);
+    }
+    public async uploadText(name:string, contents: string) {
+        try{
+            await this.storageProvider.writeText(`${this.project.name}/${name}`, contents);
+        }catch(err){
+            console.log(err);
+        }
+    }
     /**
      * Delete asset
      * @param metadata - Metadata for asset

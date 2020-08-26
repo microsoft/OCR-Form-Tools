@@ -199,6 +199,8 @@ export const english: IAppStrings = {
         downloadScript: "Analyze with python script",
         defaultLocalFileInput: "Browse for a file...",
         defaultURLInput: "Paste or type URL...",
+        editAndUploadToTrainingSet: "Edit & upload to training set",
+        editAndUploadToTrainingSetNotify: "by clicking on this button, this form will be added to the Azure Storage Blob for this project, where you can edit this labels."
     },
     recentModelsView: {
         header: "Select a model to analyze with",
