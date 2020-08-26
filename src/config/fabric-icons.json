@@ -7,48 +7,16 @@
   "hashFontFileName": true,
   "glyphs": [
     {
-      "name": "Combine",
-      "unicode": "EDBB"
+      "name": "Table",
+      "unicode": "ED86"
     },
     {
       "name": "TextField",
       "unicode": "EDC3"
     },
     {
-      "name": "SortUp",
-      "unicode": "EE68"
-    },
-    {
-      "name": "SortDown",
-      "unicode": "EE69"
-    },
-    {
       "name": "OpenFolderHorizontal",
       "unicode": "ED25"
-    },
-    {
-      "name": "Table",
-      "unicode": "ED86"
-    },
-    {
-      "name": "DocumentManagement",
-      "unicode": "EFFC"
-    },
-    {
-      "name": "TextDocument",
-      "unicode": "F029"
-    },
-    {
-      "name": "CircleRing",
-      "unicode": "EA3A"
-    },
-    {
-      "name": "Label",
-      "unicode": "E932"
-    },
-    {
-      "name": "Info",
-      "unicode": "E946"
     },
     {
       "name": "Documentation",
@@ -59,32 +27,152 @@
       "unicode": "ECC8"
     },
     {
-      "name": "Hide3",
-      "unicode": "F6AC"
+      "name": "SortUp",
+      "unicode": "EE68"
     },
     {
-      "name": "WarningSolid",
-      "unicode": "F736"
+      "name": "SortDown",
+      "unicode": "EE69"
     },
     {
-      "name": "BranchMerge",
-      "unicode": "F295"
+      "name": "Info",
+      "unicode": "E946"
+    },
+    {
+      "name": "ChromeMinimize",
+      "unicode": "E921"
+    },
+    {
+      "name": "ChromeRestore",
+      "unicode": "E923"
+    },
+    {
+      "name": "Label",
+      "unicode": "E932"
+    },
+    {
+      "name": "Copy",
+      "unicode": "E8C8"
+    },
+    {
+      "name": "Rename",
+      "unicode": "E8AC"
+    },
+    {
+      "name": "Download",
+      "unicode": "E896"
+    },
+    {
+      "name": "Help",
+      "unicode": "E897"
+    },
+    {
+      "name": "ZoomIn",
+      "unicode": "E8A3"
+    },
+    {
+      "name": "Tag",
+      "unicode": "E8EC"
+    },
+    {
+      "name": "CircleRing",
+      "unicode": "EA3A"
+    },
+    {
+      "name": "SquareShape",
+      "unicode": "F1A6"
+    },
+    {
+      "name": "RectangleShape",
+      "unicode": "F1A9"
+    },
+    {
+      "name": "DocumentManagement",
+      "unicode": "EFFC"
+    },
+    {
+      "name": "Relationship",
+      "unicode": "F003"
+    },
+    {
+      "name": "TextDocument",
+      "unicode": "F029"
     },
     {
       "name": "StatusCircleCheckmark",
       "unicode": "F13E"
     },
     {
-      "name": "AlertSolid",
-      "unicode": "F331"
+      "name": "PlugConnected",
+      "unicode": "F302"
     },
     {
       "name": "Plug",
       "unicode": "F300"
     },
     {
-      "name": "PlugConnected",
-      "unicode": "F302"
+      "name": "AlertSolid",
+      "unicode": "F331"
+    },
+    {
+      "name": "BranchMerge",
+      "unicode": "F295"
+    },
+    {
+      "name": "View",
+      "unicode": "E890"
+    },
+    {
+      "name": "ReceiptProcessing",
+      "unicode": "E496"
+    },
+    {
+      "name": "AddField",
+      "unicode": "E4C7"
+    },
+    {
+      "name": "TagGroup",
+      "unicode": "E3F6"
+    },
+    {
+      "name": "Insights",
+      "unicode": "E3AF"
+    },
+    {
+      "name": "MachineLearning",
+      "unicode": "E3B8"
+    },
+    {
+      "name": "Merge",
+      "unicode": "E7D5"
+    },
+    {
+      "name": "MapLayers",
+      "unicode": "E81E"
+    },
+    {
+      "name": "Home",
+      "unicode": "E80F"
+    },
+    {
+      "name": "ZoomOut",
+      "unicode": "E71F"
+    },
+    {
+      "name": "Search",
+      "unicode": "E721"
+    },
+    {
+      "name": "Refresh",
+      "unicode": "E72C"
+    },
+    {
+      "name": "Share",
+      "unicode": "E72D"
+    },
+    {
+      "name": "Link",
+      "unicode": "E71B"
     },
     {
       "name": "ChevronDown",
@@ -111,24 +199,24 @@
       "unicode": "E712"
     },
     {
-      "name": "Link",
-      "unicode": "E71B"
-    },
-    {
       "name": "Settings",
       "unicode": "E713"
-    },
-    {
-      "name": "ReceiptProcessing",
-      "unicode": "E496"
     },
     {
       "name": "Filter",
       "unicode": "E71C"
     },
     {
-      "name": "ZoomOut",
-      "unicode": "E71F"
+      "name": "ChevronLeft",
+      "unicode": "E76B"
+    },
+    {
+      "name": "ChevronRight",
+      "unicode": "E76C"
+    },
+    {
+      "name": "System",
+      "unicode": "E770"
     },
     {
       "name": "CheckboxComposite",
@@ -137,10 +225,6 @@
     {
       "name": "CheckMark",
       "unicode": "E73E"
-    },
-    {
-      "name": "Up",
-      "unicode": "E74A"
     },
     {
       "name": "Down",
@@ -155,100 +239,24 @@
       "unicode": "E753"
     },
     {
-      "name": "Search",
-      "unicode": "E721"
-    },
-    {
-      "name": "Refresh",
-      "unicode": "E72C"
-    },
-    {
-      "name": "Share",
-      "unicode": "E72D"
-    },
-    {
-      "name": "Download",
-      "unicode": "E896"
-    },
-    {
-      "name": "Help",
-      "unicode": "E897"
-    },
-    {
-      "name": "Rename",
-      "unicode": "E8AC"
-    },
-    {
-      "name": "ZoomIn",
-      "unicode": "E8A3"
-    },
-    {
-      "name": "View",
-      "unicode": "E890"
-    },
-    {
-      "name": "MapLayers",
-      "unicode": "E81E"
-    },
-    {
-      "name": "Tag",
-      "unicode": "E8EC"
-    },
-    {
-      "name": "Copy",
-      "unicode": "E8C8"
-    },
-    {
-      "name": "ChevronLeft",
-      "unicode": "E76B"
-    },
-    {
-      "name": "ChevronRight",
-      "unicode": "E76C"
-    },
-    {
-      "name": "Home",
-      "unicode": "E80F"
+      "name": "Up",
+      "unicode": "E74A"
     },
     {
       "name": "KeyPhraseExtraction",
       "unicode": "E395"
     },
     {
-      "name": "Insights",
-      "unicode": "E3AF"
+      "name": "Hide3",
+      "unicode": "F6AC"
     },
     {
-      "name": "MachineLearning",
-      "unicode": "E3B8"
-    },
-    {
-      "name": "TagGroup",
-      "unicode": "E3F6"
+      "name": "WarningSolid",
+      "unicode": "F736"
     },
     {
       "name": "BookAnswers",
       "unicode": "F8A4"
-    },
-    {
-      "name": "ChromeRestore",
-      "unicode": "E923"
-    },
-    {
-      "name": "ChromeMinimize",
-      "unicode": "E921"
-    },
-    {
-      "name": "System",
-      "unicode": "E770"
-    },
-    {
-      "name": "SquareShape",
-      "unicode": "F1A6"
-    },
-    {
-      "name": "Merge",
-      "unicode": "E7D5"
     }
   ]
 }

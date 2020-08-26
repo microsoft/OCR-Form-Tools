@@ -70,6 +70,8 @@ export function registerIcons() {
             System: "\uE770",
             SquareShape: "\uF1A6",
             Merge: "\uE7D5",
+            AddField: "\uE4C7",
+            RectangleShape: "\uF1A9"
         },
     });
 }
