@@ -1041,7 +1041,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         if (this.state.file) {
             const fileData = new Buffer(await this.state.file.arrayBuffer());
             const readResults: any = this.state.analyzeResult;
-            const fields = readResults.analyzeResult.documentResults[0].fields;
             const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[this.state.currPage - 1];
             const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
             const ocrWidth = ocrExtent[2] - ocrExtent[0];
@@ -1056,16 +1055,54 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 }
                 return result;
             };
-            const labels = Object.keys(fields).map<ILabel>(name => ({
-                label: name,
-                key: null,
-                value: [{
-                    page: fields[name].page,
-                    text: fields[name].text,
-                    boundingBoxes: [getBoundingBox(fields[name].boundingBox)]
-                }]
-            }));
-            console.log(JSON.stringify(labels, null, 2));
+            const distanceSquire = (arr1: number[], arr2: number[]) => {
+                if (arr1.length !== arr2.length) {
+                    return Infinity;
+                }
+                let result = 0;
+                for (let index = 0; index < arr1.length; index++) {
+                    const a = arr1[index];
+                    const b = arr2[index];
+                    result += Math.pow(a - b, 2);
+                }
+                return result;
+            }
+            const lines = [];
+            readResults.analyzeResult.readResults.map(result => result.lines).forEach(row => lines.push(...row));
+
+            const findLine = (boundingBox: number[]) => {
+                for (const line of lines) {
+                    const dis = distanceSquire(line.boundingBox, boundingBox);
+                    if (dis < 0.001) {
+                        return line;
+                    }
+                }
+                return null;
+            }
+            const getLabelValues = (field) => {
+                const line = findLine(field.boundingBox);
+                if (line) {
+                    return [...line.words.map(word => ({
+                        page: field.page,
+                        text: word.text,
+                        boundingBoxes: [getBoundingBox(word.boundingBox)]
+                    }))];
+                }
+                return [];
+            };
+            const labels = [];
+            readResults.analyzeResult.documentResults
+                .map(result => Object.keys(result.fields)
+                    .map<ILabel>(key => (
+                        {
+                            label: key,
+                            key: null,
+                            value: getLabelValues(result.fields[key])
+                        }
+                    ))).forEach(row => {
+                        labels.push(...row);
+                    });
+
             await this.props.actions.addAssetToProject(this.props.project, this.state.file.name, fileData, labels);
             this.props.history.push(`/projects/${this.props.project.id}/edit`);
         }
