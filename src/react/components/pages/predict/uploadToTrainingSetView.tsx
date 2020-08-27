@@ -1,4 +1,4 @@
-import { Customizer, ICustomizations, Label, Modal, PrimaryButton, Spinner, Stack } from '@fluentui/react';
+import { Customizer, ICustomizations, Label, Modal, PrimaryButton, Spinner, Stack, SpinnerSize } from '@fluentui/react';
 import React from 'react';
 import { getDarkGreyTheme, getPrimaryGreenTheme, getPrimaryGreyTheme } from '../../../../common/themes';
 import './uploadToTrainingSetView.scss';
@@ -22,21 +22,19 @@ export class UploadToTrainingSetView extends React.Component<IUploadToTrainingSe
         this.onConfirm = this.onConfirm.bind(this);
     }
     open() {
-        this.setState({ hideModal: false });
+        this.setState({
+            hideModal: false,
+            isLoading: false
+        });
     }
     close() {
         this.setState({ hideModal: true });
     }
     async onConfirm() {
-        this.setState({
-            isLoading: true
-        });
+        this.setState({ isLoading: true });
         if (this.props.onConfirm) {
             await this.props.onConfirm();
         }
-        this.setState({
-            isLoading: false,
-        });
         this.close();
     }
     render() {
@@ -59,18 +57,18 @@ export class UploadToTrainingSetView extends React.Component<IUploadToTrainingSe
                         <div className="modal-buttons-container mt-4">
                             {this.state.isLoading ?
                                 <div>
-                                    <Stack horizontal>
-                                        <Label>Uploading</Label>
-                                        <Spinner></Spinner>
-                                    </Stack>
+                                    <Spinner
+                                        label={strings.predict.uploadInPrgoress}
+                                        ariaLive="assertive"
+                                        labelPosition="right"
+                                        size={SpinnerSize.large} />
                                 </div> :
                                 <div>
                                     <PrimaryButton
                                         className="mr-3"
                                         text={strings.predict.editAndUploadToTrainingSet}
                                         theme={getPrimaryGreenTheme()}
-                                        onClick={this.onConfirm}
-                                    />
+                                        onClick={this.onConfirm} />
                                     <PrimaryButton
                                         className="modal-cancel"
                                         theme={getPrimaryGreyTheme()}

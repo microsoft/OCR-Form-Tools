@@ -200,7 +200,8 @@ export const spanish: IAppStrings = {
         defaultLocalFileInput: "Busca un archivo...",
         defaultURLInput: "Pegar o escribir URL...",
         editAndUploadToTrainingSet: "Editar y cargar al conjunto de entrenamiento",
-        editAndUploadToTrainingSetNotify: "Al hacer clic en este botón, este formulario se agregará al Blob de Azure Storage para este proyecto, donde puede editar estas etiquetas."
+        editAndUploadToTrainingSetNotify: "Al hacer clic en este botón, este formulario se agregará al Blob de Azure Storage para este proyecto, donde puede editar estas etiquetas.",
+        uploadInPrgoress: "carga en curso..."
     },
     recentModelsView: {
         header: "Seleccionar modelo para analizar con",
