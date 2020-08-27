@@ -463,7 +463,9 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.tableIconBorderVectorLayer?.getSource().clear();
         this.checkboxVectorLayer?.getSource().clear();
         this.labelVectorLayer?.getSource().clear();
-        this.clearDrawnRegions();
+        if (this.props.parentPage === ImageMapParent.Editor) {
+            this.clearDrawnRegions();
+        }
     }
 
     private clearDrawnRegions = () => {
