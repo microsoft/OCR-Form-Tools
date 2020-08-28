@@ -1,4 +1,28 @@
 # Test Runbook
+## **Feat: support download JSON for trained model**
+
+> ### Feature description ###
+- Add a 'Download JSON file' button to train page  
+
+> ### Use Case ###  
+
+**As** a user  
+**I want** to be able to download JSON file of my trained model  
+**So** I can see raw JSON result of training  
+
+> ### Acceptance criteria ###
+
+#### Scenario One ####
+**Given** I'm open new project, label, then train  
+**When**  I train a model  
+**Then** I should be able to download JSON for that new trained model by clicking on 'Download JSON file' button  
+
+#### Scenario Two ####
+
+**Given** I'm open existing project  
+**When**  I go to train page  
+**Then** I should be able to download last train model by clicking on 'Download JSON file' button  
+
 
 ## **Feat: support region labeling**
 

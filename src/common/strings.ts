@@ -128,6 +128,7 @@ export interface IAppStrings {
         notTrainedYet: string,
         backEndNotAvailable: string,
         addName: string,
+        downloadJson: string;
     };
     modelCompose: {
         title: string,
@@ -156,7 +157,7 @@ export interface IAppStrings {
                 headerName: string,
                 fieldName: string,
             }
-            lastupdated: {
+            lastUpdated: {
                 headerName: string,
                 fieldName: string,
             }
@@ -169,6 +170,7 @@ export interface IAppStrings {
             modelCannotBeIncluded: string;
             addModelToRecentModels: string,
             recentModelsAlreadyContainsModel: string,
+            loadingDetails: string;
         }
         commandBar: {
             ariaLabel: string,

@@ -128,7 +128,8 @@ export const spanish: IAppStrings = {
         pleaseWait: "Por favor espera",
         notTrainedYet: "Aún no entrenado",
         backEndNotAvailable: "La función de casilla de verificación funcionará en la versión futura del servicio de reconocimiento de formularios, manténgase atento.",
-        addName:"Agregar nombre de modelo ...",
+        addName: "Agregar nombre de modelo ...",
+        downloadJson: "Descargar archivo JSON",
     },
     modelCompose: {
         title: "Modelo componer",
@@ -157,7 +158,7 @@ export const spanish: IAppStrings = {
                 headerName: "Creada",
                 fieldName: "created",
             },
-            lastupdated: {
+            lastUpdated: {
                 headerName: "Última Actualización",
                 fieldName: "lastUpdated",
             },
@@ -170,6 +171,7 @@ export const spanish: IAppStrings = {
             modelCannotBeIncluded: "Advertencia: ¡Este modelo no se incluirá en el modelo compuesto!",
             addModelToRecentModels: "Modelo [${modelID}] agregado a modelos recientes",
             recentModelsAlreadyContainsModel: "Los modelos recientes ya contienen el modelo [${modelID}]",
+            loadingDetails: "Cargando detalles del modelo ..."
         },
         commandBar: {
             ariaLabel: "Utilice la barra de comandos para componer modelos",

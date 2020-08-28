@@ -128,6 +128,8 @@ export const english: IAppStrings = {
         notTrainedYet: "Not trained yet",
         backEndNotAvailable: "Checkbox feature will work in future version of Form Recognizer service, please stay tuned.",
         addName: "Add a model name...",
+        downloadJson: "Download JSON file",
+
     },
     modelCompose: {
         title: "Model compose",
@@ -156,7 +158,7 @@ export const english: IAppStrings = {
                 headerName: "Created",
                 fieldName: "created",
             },
-            lastupdated: {
+            lastUpdated: {
                 headerName: "Last Updated",
                 fieldName: "lastUpdated",
             },
@@ -169,6 +171,7 @@ export const english: IAppStrings = {
             modelCannotBeIncluded: "Warning: This model will not be included in composed model!",
             addModelToRecentModels: "Model [${modelID}] added to recent models",
             recentModelsAlreadyContainsModel: "Recent models already contains model [${modelID}]",
+            loadingDetails: "Loading model details..."
         },
         commandBar: {
             ariaLabel: "Please use command bar to compose models",
