@@ -574,7 +574,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const prevPage = () => {
             this.setState((prevState) => ({
                 currPage: Math.max(1, prevState.currPage - 1),
-            }));
+            }), () => {
+                this.imageMap.removeAllFeatures();
+            });
         };
 
         if (this.state.currPage > 1) {
@@ -600,7 +602,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const nextPage = () => {
             this.setState((prevState) => ({
                 currPage: Math.min(prevState.currPage + 1, numPages),
-            }));
+            }), () => {
+                this.imageMap.removeAllFeatures();
+            });
         };
 
         if (this.state.currPage < numPages) {
