@@ -158,7 +158,7 @@ export const spanish: IAppStrings = {
                 headerName: "Creada",
                 fieldName: "created",
             },
-            lastupdated: {
+            lastUpdated: {
                 headerName: "Última Actualización",
                 fieldName: "lastUpdated",
             },
@@ -171,6 +171,7 @@ export const spanish: IAppStrings = {
             modelCannotBeIncluded: "Advertencia: ¡Este modelo no se incluirá en el modelo compuesto!",
             addModelToRecentModels: "Modelo [${modelID}] agregado a modelos recientes",
             recentModelsAlreadyContainsModel: "Los modelos recientes ya contienen el modelo [${modelID}]",
+            loadingDetails: "Cargando detalles del modelo ..."
         },
         commandBar: {
             ariaLabel: "Utilice la barra de comandos para componer modelos",
