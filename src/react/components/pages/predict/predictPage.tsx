@@ -954,6 +954,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private drawPredictionResult = (): void => {
+        this.imageMap.removeAllFeatures();
         const features = [];
         const imageExtent = [0, 0, this.state.imageWidth, this.state.imageHeight];
         const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[this.state.currPage - 1];
