@@ -1041,11 +1041,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         if (this.state.file) {
             const fileData = new Buffer(await this.state.file.arrayBuffer());
             const readResults: any = this.state.analyzeResult;
-            const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[this.state.currPage - 1];
-            const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
-            const ocrWidth = ocrExtent[2] - ocrExtent[0];
-            const ocrHeight = ocrExtent[3] - ocrExtent[1];
-            const getBoundingBox = (arr: number[]) => {
+
+            const getBoundingBox = ( pageIndex, arr: number[]) => {
+                const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[pageIndex - 1];
+                const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
+                const ocrWidth = ocrExtent[2] - ocrExtent[0];
+                const ocrHeight = ocrExtent[3] - ocrExtent[1];
                 const result = [];
                 for (let i = 0; i < arr.length; i += 2) {
                     result.push([
@@ -1055,41 +1056,19 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 }
                 return result;
             };
-            const distanceSquire = (arr1: number[], arr2: number[]) => {
-                if (arr1.length !== arr2.length) {
-                    return Infinity;
-                }
-                let result = 0;
-                for (let index = 0; index < arr1.length; index++) {
-                    const a = arr1[index];
-                    const b = arr2[index];
-                    result += Math.pow(a - b, 2);
-                }
-                return result;
-            }
-            const lines = [];
-            readResults.analyzeResult.readResults.map(result => result.lines).forEach(row => lines.push(...row));
 
-            const findLine = (boundingBox: number[]) => {
-                for (const line of lines) {
-                    const dis = distanceSquire(line.boundingBox, boundingBox);
-                    if (dis < 0.001) {
-                        return line;
-                    }
-                }
-                return null;
-            }
-            const getLabelValues = (field) => {
-                const line = findLine(field.boundingBox);
-                if (line) {
-                    return [...line.words.map(word => ({
-                        page: field.page,
-                        text: word.text,
-                        boundingBoxes: [getBoundingBox(word.boundingBox)]
-                    }))];
-                }
-                return [];
-            };
+            const getLabelValues = (field: any) => {
+                return field.elements.map((path: string) => {
+                  const pathArr = path.split('/').slice(1);
+                  const word = pathArr.reduce((obj: any, key: string) => obj[key], { ...readResults.analyzeResult });
+                  return {
+                      page:field.page,
+                      text:word.text,
+                      confidence:word.confidence,
+                      boundingBoxes:[getBoundingBox(field.page, word.boundingBox)]
+                  };
+                });
+              };
             const labels = [];
             readResults.analyzeResult.documentResults
                 .map(result => Object.keys(result.fields)
@@ -1100,8 +1079,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             key: null,
                             value: getLabelValues(result.fields[key])
                         }
-                    ))).forEach(row => {
-                        labels.push(...row);
+                    ))).forEach(items => {
+                        labels.push(...items);
                     });
 
             await this.props.actions.addAssetToProject(this.props.project, this.state.file.name, fileData, labels);

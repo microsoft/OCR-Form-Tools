@@ -23,7 +23,7 @@ const supportedImageFormats = {
 
 interface IMime {
     types: string[];
-    pattern: (number|undefined)[];
+    pattern: (number | undefined)[];
 }
 
 // tslint:disable number-literal-format
@@ -224,17 +224,13 @@ export class AssetService {
 
         return returnedAssets;
     }
-    public async uploadBuffer(name:string, buffer:Buffer) {
-        const path = this.project.folderPath? `${this.project.folderPath}/${name}`:name;
+    public async uploadBuffer(name: string, buffer: Buffer) {
+        const path = this.project.folderPath ? `${this.project.folderPath}/${name}` : name;
         await this.storageProvider.writeBinary(path, buffer);
     }
-    public async uploadText(name:string, contents: string) {
-        try{
-            const path = this.project.folderPath? `${this.project.folderPath}/${name}`:name;
-            await this.storageProvider.writeText(path, contents);
-        }catch(err){
-            console.log(err);
-        }
+    public async uploadText(name: string, contents: string) {
+        const path = this.project.folderPath ? `${this.project.folderPath}/${name}` : name;
+        await this.storageProvider.writeText(path, contents);
     }
     /**
      * Delete asset
