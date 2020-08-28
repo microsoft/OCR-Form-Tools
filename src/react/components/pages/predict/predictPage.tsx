@@ -1093,6 +1093,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             const labels = [];
             readResults.analyzeResult.documentResults
                 .map(result => Object.keys(result.fields)
+                    .filter(key => result.fields[key])
                     .map<ILabel>(key => (
                         {
                             label: key,

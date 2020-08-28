@@ -225,11 +225,13 @@ export class AssetService {
         return returnedAssets;
     }
     public async uploadBuffer(name:string, buffer:Buffer) {
-        await this.storageProvider.writeBinary(`${this.project.name}/${name}`, buffer);
+        const path = this.project.folderPath? `${this.project.name}/${name}`:name;
+        await this.storageProvider.writeBinary(path, buffer);
     }
     public async uploadText(name:string, contents: string) {
         try{
-            await this.storageProvider.writeText(`${this.project.name}/${name}`, contents);
+            const path = this.project.folderPath? `${this.project.name}/${name}`:name;
+            await this.storageProvider.writeText(path, contents);
         }catch(err){
             console.log(err);
         }

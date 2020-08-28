@@ -182,7 +182,7 @@ export function addAssetToProject(project: IProject, fileName: string, buffer: B
         const assetService = new AssetService(project);
         await assetService.uploadBuffer(fileName, buffer);
         const assets = await assetService.getAssets();
-        const assetName = `${project.name}/${fileName}`;
+        const assetName = project.folderPath ? `${project.folderPath}/${fileName}` : fileName;
         const asset = assets.find(a => a.name === assetName);
         const ocrService = new OCRService(project);
         const ocrData = await ocrService.getRecognizedText(asset.path, asset.name, undefined, true);

@@ -1,8 +1,9 @@
-import { Customizer, ICustomizations, Label, Modal, PrimaryButton, Spinner, Stack, SpinnerSize } from '@fluentui/react';
+import { Customizer, ICustomizations, Modal, PrimaryButton, Spinner, SpinnerSize } from '@fluentui/react';
 import React from 'react';
-import { getDarkGreyTheme, getPrimaryGreenTheme, getPrimaryGreyTheme } from '../../../../common/themes';
-import './uploadToTrainingSetView.scss';
 import { strings } from "../../../../common/strings";
+import { getDarkGreyTheme, getDefaultDarkTheme, getPrimaryGreenTheme, getPrimaryGreyTheme } from '../../../../common/themes';
+import './uploadToTrainingSetView.scss';
+
 interface IUploadToTrainingSetViewProp {
     onConfirm?: () => Promise<void>;
 }
@@ -61,6 +62,7 @@ export class UploadToTrainingSetView extends React.Component<IUploadToTrainingSe
                                         label={strings.predict.uploadInPrgoress}
                                         ariaLive="assertive"
                                         labelPosition="right"
+                                        theme={getDefaultDarkTheme()}
                                         size={SpinnerSize.large} />
                                 </div> :
                                 <div>
