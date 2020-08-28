@@ -19,14 +19,13 @@
   width: 48px;
   height: 48px;
   outline: none;
-
   background-color: transparent;
   border: none;
-  color: #CCC;
+  color: rgb(0, 161, 241);
 
   &:hover, &.active {
-      background-color: $lighter-2;
-      border: solid 1px $lighter-3;
+    background-color: $darker-2;
+    border: solid 1px $lighter-3;
   }
 
   &:active {
