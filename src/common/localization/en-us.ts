@@ -203,7 +203,7 @@ export const english: IAppStrings = {
         defaultLocalFileInput: "Browse for a file...",
         defaultURLInput: "Paste or type URL...",
         editAndUploadToTrainingSet: "Edit & upload to training set",
-        editAndUploadToTrainingSetNotify: "by clicking on this button, this form will be added to the Azure Storage Blob for this project, where you can edit this labels.",
+        editAndUploadToTrainingSetNotify: "by clicking on this button, this form will be added to the Azure Storage Blob for this project, where you can edit these labels.",
         uploadInPrgoress: "Upload in progress..."
     },
     recentModelsView: {
