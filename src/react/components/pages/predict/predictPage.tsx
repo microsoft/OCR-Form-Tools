@@ -580,7 +580,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const prevPage = () => {
             this.setState((prevState) => ({
                 currPage: Math.max(1, prevState.currPage - 1),
-            }));
+            }), () => {
+                this.imageMap.removeAllFeatures();
+            });
         };
 
         if (this.state.currPage > 1) {
@@ -606,7 +608,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const nextPage = () => {
             this.setState((prevState) => ({
                 currPage: Math.min(prevState.currPage + 1, numPages),
-            }));
+            }), () => {
+                this.imageMap.removeAllFeatures();
+            });
         };
 
         if (this.state.currPage < numPages) {
@@ -960,6 +964,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private drawPredictionResult = (): void => {
+        this.imageMap.removeAllFeatures();
         const features = [];
         const imageExtent = [0, 0, this.state.imageWidth, this.state.imageHeight];
         const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[this.state.currPage - 1];

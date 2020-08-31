@@ -128,6 +128,8 @@ export const english: IAppStrings = {
         notTrainedYet: "Not trained yet",
         backEndNotAvailable: "Checkbox feature will work in future version of Form Recognizer service, please stay tuned.",
         addName: "Add a model name...",
+        downloadJson: "Download JSON file",
+
     },
     modelCompose: {
         title: "Model compose",

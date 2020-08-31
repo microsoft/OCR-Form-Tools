@@ -38,7 +38,7 @@ export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainP
 }
 
 export interface ITrainPageState {
-    inputedLabelFolderURL: string;
+    inputtedLabelFolderURL: string;
     trainMessage: string;
     isTraining: boolean;
     currTrainRecord: ITrainRecordProps;
@@ -47,6 +47,8 @@ export interface ITrainPageState {
     trainingFailedMessage: string;
     hasCheckbox: boolean;
     modelName: string;
+    modelUrl: string;
+    currModelId: string;
 }
 
 interface ITrainApiResponse {
@@ -81,7 +83,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         super(props);
 
         this.state = {
-            inputedLabelFolderURL: "",
+            inputtedLabelFolderURL: "",
             trainMessage: strings.train.notTrainedYet,
             isTraining: false,
             currTrainRecord: null,
@@ -89,7 +91,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             showTrainingFailedWarning: false,
             trainingFailedMessage: "",
             hasCheckbox: false,
-            modelName: ""
+            modelName: "",
+            modelUrl: "",
+            currModelId: "",
         };
     }
 
@@ -104,6 +108,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             this.showCheckboxPreview(project);
             this.updateCurrTrainRecord(this.getProjectTrainRecord());
         }
+        if (this.state.currTrainRecord) {
+            this.setState({ currModelId: this.state.currTrainRecord.modelInfo.modelId });
+        }
         this.appInsights = getAppInsights();
         document.title = strings.train.title + " - " + strings.appName;
     }
@@ -112,8 +119,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         const currTrainRecord = this.state.currTrainRecord;
         const localFileSystemProvider: boolean = this.props.project && this.props.project.sourceConnection &&
                                                  this.props.project.sourceConnection.providerType === "localFileSystemProxy";
-        const trainDisabled: boolean = localFileSystemProvider &&  (this.state.inputedLabelFolderURL.length === 0 ||
-                                       this.state.inputedLabelFolderURL === strings.train.defaultLabelFolderURL);
+        const trainDisabled: boolean = localFileSystemProvider && (this.state.inputtedLabelFolderURL.length === 0 ||
+            this.state.inputtedLabelFolderURL === strings.train.defaultLabelFolderURL);
 
         return (
             <div className="train-page skipToMainContent" id="pageTrain">
@@ -149,10 +156,10 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                         <TextField
                                             className="label-folder-url-input"
                                             theme={getGreenWithWhiteBackgroundTheme()}
-                                            onFocus={this.removeDefaultInputedLabelFolderURL}
-                                            onChange={this.setInputedLabelFolderURL}
+                                            onFocus={this.removeDefaultInputtedLabelFolderURL}
+                                            onChange={this.setInputtedLabelFolderURL}
                                             placeholder={strings.train.defaultLabelFolderURL}
-                                            value={this.state.inputedLabelFolderURL}
+                                            value={this.state.inputtedLabelFolderURL}
                                         />
                                     </div>
                                 }
@@ -198,11 +205,28 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                             </div>
                             <div className={!this.state.isTraining ? "" : "greyOut"}>
                                 {currTrainRecord &&
-                                    <TrainPanel
-                                        currTrainRecord={currTrainRecord}
-                                        viewType={this.state.viewType}
-                                        updateViewTypeCallback={this.handleViewTypeClick}
+                                    <>
+                                        <TrainPanel
+                                            currTrainRecord={currTrainRecord}
+                                            viewType={this.state.viewType}
+                                            updateViewTypeCallback={this.handleViewTypeClick}
                                     />
+                                    <PrimaryButton
+                                        ariaDescription={strings.train.downloadJson}
+                                        style={{ "margin": "2rem auto" }}
+                                        id="train-download-json_button"
+                                        theme={getPrimaryGreenTheme()}
+                                        autoFocus={true}
+                                        className="flex-center"
+                                        onClick={this.handleDownloadJSONClick}
+                                        disabled={trainDisabled}>
+                                        <FontIcon
+                                            iconName="Download"
+                                            style={{ fontWeight: 600 }}/>
+                                        <h6 className="d-inline text-shadow-none ml-2 mb-0">
+                                            {strings.train.downloadJson}</h6>
+                                    </PrimaryButton>
+                                    </>
                                 }
                             </div>
                         </div>
@@ -222,14 +246,14 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         );
     }
 
-    private removeDefaultInputedLabelFolderURL = () => {
-        if (this.state.inputedLabelFolderURL === strings.train.defaultLabelFolderURL) {
-            this.setState({inputedLabelFolderURL: ""});
+    private removeDefaultInputtedLabelFolderURL = () => {
+        if (this.state.inputtedLabelFolderURL === strings.train.defaultLabelFolderURL) {
+            this.setState({inputtedLabelFolderURL: ""});
         }
     }
 
-    private setInputedLabelFolderURL = (event) => {
-        this.setState({inputedLabelFolderURL: event.target.value});
+    private setInputtedLabelFolderURL = (event) => {
+        this.setState({inputtedLabelFolderURL: event.target.value});
     }
 
     private onTextChanged = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string) => {
@@ -294,7 +318,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         let trainPrefix;
 
         if (this.props.project.sourceConnection.providerType === "localFileSystemProxy") {
-            trainSourceURL = this.state.inputedLabelFolderURL;
+            trainSourceURL = this.state.inputtedLabelFolderURL;
             trainPrefix = ""
         } else {
             trainSourceURL = provider.sas;
@@ -310,12 +334,14 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             modelName: this.state.modelName,
         };
         try {
-            return await ServiceHelper.postWithAutoRetry(
+            const result = await ServiceHelper.postWithAutoRetry(
                 baseURL,
                 payload,
                 {},
                 this.props.project.apiKey as string,
             );
+            this.setState({modelUrl: result.headers.location});
+            return result;
         } catch (err) {
             ServiceHelper.handleServiceError(err);
         }
@@ -323,7 +349,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
     private async getTrainStatus(operationLocation: string): Promise<any> {
         const timeoutPerFileInMs = 10000;  // 10 second for each file
-        const minimumTimeoutInMs = 300000;  // 5 minutes minimum waiting time  for each traingin process
+        const minimumTimeoutInMs = 300000;  // 5 minutes minimum waiting time  for each training process
         const extendedTimeoutInMs = timeoutPerFileInMs * Object.keys(this.props.project.assets || []).length;
         const res = this.poll(() => {
             return ServiceHelper.getWithAutoRetry(
@@ -388,8 +414,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     /**
-     * Poll function to repeatly check if request succeeded
-     * @param func - function that will be called repeatly
+     * Poll function to repeatably check if request succeeded
+     * @param func - function that will be called repeatably
      * @param timeout - timeout
      * @param interval - interval
      */
@@ -426,6 +452,49 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             this.setState({
                 hasCheckbox: true,
             });
+        }
+    }
+
+    private handleDownloadJSONClick = () => {
+        this.triggerJsonDownload();
+    }
+
+    private async triggerJsonDownload(): Promise<any> {
+        const currModelUrl = this.props.project.apiUriBase + constants.apiModelsPath + "/" + this.state.currTrainRecord.modelInfo.modelId;
+        const modelUrl = this.state.modelUrl.length ? this.state.modelUrl : currModelUrl;
+        const modelJSON = await this.getModelsJson(this.props.project, modelUrl);
+
+        const fileURL = window.URL.createObjectURL(
+            new Blob([modelJSON]));
+        const fileLink = document.createElement("a");
+        const fileBaseName = "model";
+        const downloadFileName =`${fileBaseName}-${this.state.currTrainRecord.modelInfo.modelId}.json`;
+
+        fileLink.href = fileURL;
+        fileLink.setAttribute("download", downloadFileName);
+        document.body.appendChild(fileLink);
+        fileLink.click();
+    }
+
+    private async getModelsJson(project: IProject, modelUrl: string,) {
+        const baseURL = url.resolve(
+            project.apiUriBase,
+            modelUrl)
+        const config = {
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "withCredentials": "true",
+            },
+        };
+
+        try {
+            return await ServiceHelper.getWithAutoRetry(
+                baseURL,
+                config,
+                project.apiKey as string,
+            ).then(res => res.request.response);
+        } catch (error) {
+            ServiceHelper.handleServiceError(error);
         }
     }
 }
