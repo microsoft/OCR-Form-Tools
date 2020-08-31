@@ -5,6 +5,11 @@ import { interpolate, strings } from "../common/strings";
 import { AppError, ErrorCode, IProject } from "../models/applicationState";
 import ServiceHelper from "./serviceHelper";
 
+export enum AutoLabelingStatus {
+    none,
+    running,
+    done
+}
 export class PredictService {
 
     constructor(private project: IProject) {

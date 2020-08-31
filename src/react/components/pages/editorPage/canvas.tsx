@@ -35,16 +35,11 @@ import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./canvasCommandBar";
 import { TooltipHost, ITooltipHostStyles } from "@fluentui/react";
 import { IAppSettings } from '../../../../models/applicationState';
+import { AutoLabelingStatus } from "../../../../services/predictService";
 
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
-
-enum AutoLabelingStatus {
-    none,
-    running,
-    done
-}
 
 export interface ICanvasProps extends React.Props<Canvas> {
     appSettings: IAppSettings,
