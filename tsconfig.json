@@ -15,7 +15,7 @@
         "jsx": "preserve",
         "experimentalDecorators": true,
         "lib": [
-            "es2017",
+            "esnext",
             "dom"
         ],
         "typeRoots": [
