@@ -202,6 +202,7 @@ export interface IAppStrings {
         defaultURLInput: string,
         editAndUploadToTrainingSet: string,
         editAndUploadToTrainingSetNotify: string,
+        editAndUploadToTrainingSetNotify2: string,
         uploadInPrgoress: string
     };
     recentModelsView: {

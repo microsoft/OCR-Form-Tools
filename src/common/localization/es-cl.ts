@@ -203,6 +203,7 @@ export const spanish: IAppStrings = {
         defaultURLInput: "Pegar o escribir URL...",
         editAndUploadToTrainingSet: "Editar y cargar al conjunto de entrenamiento",
         editAndUploadToTrainingSetNotify: "Al hacer clic en este botón, este formulario se agregará al Blob de Azure Storage para este proyecto, donde puede editar estas etiquetas.",
+        editAndUploadToTrainingSetNotify2: "Estamos agregando este archivo a su conjunto de entrenamiento, donde puede editar las etiquetas y volver a entrenar el modelo.",
         uploadInPrgoress: "carga en curso..."
     },
     recentModelsView: {
