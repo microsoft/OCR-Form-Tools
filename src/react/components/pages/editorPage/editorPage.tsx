@@ -37,6 +37,8 @@ import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
 import { getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/themes";
 import { toast } from "react-toastify";
+import { PredictService } from "../../../../services/predictService";
+import { AssetService } from "../../../../services/assetService";
 
 /**
  * Properties for Editor Page
@@ -272,6 +274,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             setTableToView={this.setTableToView}
                                             closeTableView={this.closeTableView}
                                             runOcrForAllDocs={this.loadOcrForNotVisited}
+                                            runAutoLabelingOnCurrentDoc={this.runAutoLabelingOnCurrentDoc}
                                             appSettings={this.props.appSettings}
                                             >
                                             <AssetPreview
@@ -724,6 +727,19 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 this.setState({ isRunningOCRs: false });
             }
         }
+    }
+    private runAutoLabelingOnCurrentDoc = async()=>{
+        const assetPath = this.state.selectedAsset.asset.path;
+        const predictService = new PredictService(this.props.project);
+        const result = await predictService.getPrediction(assetPath);
+
+        const asset = this.state.selectedAsset.asset;
+        const assetService =new AssetService(this.props.project);
+        await assetService.uploadAssetPredictResult(this.state.selectedAsset.asset, result);
+
+        const assetMetadata = await this.props.actions.loadAssetMetadata(this.props.project, asset);
+        // assetMetadata.labelData
+        await this.onAssetMetadataChanged(assetMetadata);
     }
 
     private updateAssetState = (id: string, isRunningOCR: boolean, assetState?: AssetState) => {

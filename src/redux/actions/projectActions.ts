@@ -14,16 +14,12 @@ import {
     IProject,
     ITag,
     ISecurityToken,
-    ILabel,
-    ILabelData,
 } from "../../models/applicationState";
 import { createAction, createPayloadAction, IPayloadAction } from "./actionCreators";
 import { appInfo } from "../../common/appInfo";
 import { saveAppSettingsAction } from "./applicationActions";
 import { toast } from 'react-toastify';
 import { strings, interpolate } from "../../common/strings";
-import { OCRService } from "../../services/ocrService";
-import { constants } from "../../common/constants";
 
 /**
  * Actions to be performed in relation to projects
@@ -33,7 +29,7 @@ export default interface IProjectActions {
     saveProject(project: IProject, saveTags?: boolean, updateTagsFromFiles?: boolean): Promise<IProject>;
     deleteProject(project: IProject): Promise<void>;
     closeProject(): void;
-    addAssetToProject(project: IProject, fileName: string, buffer: Buffer, labels: ILabel[]): Promise<IAsset>;
+    addAssetToProject(project: IProject, fileName: string, buffer: Buffer, analyzeResult: any): Promise<IAsset>;
     deleteAsset(project: IProject, assetMetadata: IAssetMetadata): Promise<void>;
     loadAssets(project: IProject): Promise<IAsset[]>;
     loadAssetMetadata(project: IProject, asset: IAsset): Promise<IAssetMetadata>;
@@ -177,23 +173,15 @@ export function closeProject(): (dispatch: Dispatch) => void {
 /**
  * add asset, ocr data, labels to project storage.
  */
-export function addAssetToProject(project: IProject, fileName: string, buffer: Buffer, labels: ILabel[] = []): (dispatch: Dispatch) => Promise<IAsset> {
+export function addAssetToProject(project: IProject, fileName: string, buffer: Buffer, analyzeResult: any): (dispatch: Dispatch) => Promise<IAsset> {
     return async (dispatch: Dispatch) => {
         const assetService = new AssetService(project);
         await assetService.uploadBuffer(fileName, buffer);
         const assets = await assetService.getAssets();
         const assetName = project.folderPath ? `${project.folderPath}/${fileName}` : fileName;
         const asset = assets.find(a => a.name === assetName);
-        const ocrService = new OCRService(project);
-        const ocrData = await ocrService.getRecognizedText(asset.path, asset.name, undefined, true);
-        console.log(JSON.stringify(ocrData, null, 2));
-        if (labels.length > 0) {
-            const labelData: ILabelData = {
-                document: fileName,
-                labels
-            };
-            assetService.uploadText(`${fileName}${constants.labelFileExtension}`, JSON.stringify(labelData));
-        }
+
+        await assetService.uploadAssetPredictResult(asset, analyzeResult);
         dispatch(addAssetToProjectAction(asset));
         return asset;
     };

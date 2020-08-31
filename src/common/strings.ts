@@ -429,6 +429,7 @@ export interface IAppStrings {
                         subIMenuItems: {
                             runOcrOnCurrentDocument: string,
                             runOcrOnAllDocuments: string,
+                            runAutoLabelingCurrentDocument: string,
                         }
                     }
                 }

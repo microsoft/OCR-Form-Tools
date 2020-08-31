@@ -41,6 +41,7 @@ import "./predictPage.scss";
 import PredictResult, { IAnalyzeModelInfo } from "./predictResult";
 import RecentModelsView from "./recentModelsView";
 import { UploadToTrainingSetView } from "./uploadToTrainingSetView";
+import { AssetService } from "../../../../services/assetService";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -1053,49 +1054,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         if (this.state.file) {
             const fileData = new Buffer(await this.state.file.arrayBuffer());
             const readResults: any = this.state.analyzeResult;
-
-            const getBoundingBox = (pageIndex, arr: number[]) => {
-                const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[pageIndex - 1];
-                const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
-                const ocrWidth = ocrExtent[2] - ocrExtent[0];
-                const ocrHeight = ocrExtent[3] - ocrExtent[1];
-                const result = [];
-                for (let i = 0; i < arr.length; i += 2) {
-                    result.push([
-                        (arr[i] / ocrWidth),
-                        (arr[i + 1] / ocrHeight),
-                    ]);
-                }
-                return result;
-            };
-
-            const getLabelValues = (field: any) => {
-                return field.elements.map((path: string) => {
-                    const pathArr = path.split('/').slice(1);
-                    const word = pathArr.reduce((obj: any, key: string) => obj[key], { ...readResults.analyzeResult });
-                    return {
-                        page: field.page,
-                        text: word.text,
-                        confidence: word.confidence,
-                        boundingBoxes: [getBoundingBox(field.page, word.boundingBox)]
-                    };
-                });
-            };
-            const labels = [];
-            readResults.analyzeResult.documentResults
-                .map(result => Object.keys(result.fields)
-                    .filter(key => result.fields[key])
-                    .map<ILabel>(key => (
-                        {
-                            label: key,
-                            key: null,
-                            value: getLabelValues(result.fields[key])
-                        }
-                    ))).forEach(items => {
-                        labels.push(...items);
-                    });
-
-            await this.props.actions.addAssetToProject(this.props.project, this.state.file.name, fileData, labels);
+            await this.props.actions.addAssetToProject(this.props.project, this.state.file.name, fileData, readResults);
             this.props.history.push(`/projects/${this.props.project.id}/edit`);
         }
     }

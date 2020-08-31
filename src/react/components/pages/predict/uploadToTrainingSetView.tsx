@@ -11,17 +11,13 @@ interface IUploadToTrainingSetViewProp {
 interface IUploadToTrainingSetViewState {
     hideModal: boolean;
     isLoading: boolean;
-    notifyMessage: string;
 }
 export class UploadToTrainingSetView extends React.Component<IUploadToTrainingSetViewProp, IUploadToTrainingSetViewState>{
     constructor(props) {
         super(props);
-        const notifyMessage = props.showOption ?
-        strings.predict.editAndUploadToTrainingSetNotify : strings.predict.editAndUploadToTrainingSetNotify2;
         this.state = {
             hideModal: true,
             isLoading: !props.showOption,
-            notifyMessage,
         };
         this.open = this.open.bind(this);
         this.close = this.close.bind(this);
@@ -50,6 +46,8 @@ export class UploadToTrainingSetView extends React.Component<IUploadToTrainingSe
             },
             scopedSettings: {},
         };
+        const notifyMessage = this.props.showOption ? strings.predict.editAndUploadToTrainingSetNotify : strings.predict.editAndUploadToTrainingSetNotify2;
+
         return (
             <>
                 <Customizer {...dark}>
@@ -59,7 +57,7 @@ export class UploadToTrainingSetView extends React.Component<IUploadToTrainingSe
                         containerClassName="modal-container upload-to-training-set-modal"
                         scrollableContentClassName="scrollable-content"
                     >
-                        <h4>Notice: <small>{this.state.notifyMessage}</small></h4>
+                        <h4>Notice: <small>{notifyMessage}</small></h4>
                         <div className="modal-buttons-container mt-4">
                             {this.state.isLoading ?
                                 <div>

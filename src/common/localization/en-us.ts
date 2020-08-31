@@ -434,6 +434,7 @@ export const english: IAppStrings = {
                         subIMenuItems: {
                             runOcrOnCurrentDocument: "Run OCR on current document",
                             runOcrOnAllDocuments: "Run OCR on all documents",
+                            runAutoLabelingCurrentDocument: "Run AutoLabeling on current document",
                         }
                     }
                 }

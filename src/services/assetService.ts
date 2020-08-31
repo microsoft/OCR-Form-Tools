@@ -62,6 +62,61 @@ const mimeBytesNeeded: number = (Math.max(...imageMimes.map((m) => m.pattern.len
  * @description - Functions for dealing with project assets
  */
 export class AssetService {
+    private getOcrFromAnalyzeResult(analyzeResult: any) {
+        return _.get(analyzeResult, "analyzeResult.readResults", []);
+    }
+    async uploadAssetPredictResult(asset: IAsset, readResults: any): Promise<void> {
+        const getBoundingBox = (pageIndex, arr: number[]) => {
+            const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(readResults)[pageIndex - 1];
+            const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
+            const ocrWidth = ocrExtent[2] - ocrExtent[0];
+            const ocrHeight = ocrExtent[3] - ocrExtent[1];
+            const result = [];
+            for (let i = 0; i < arr.length; i += 2) {
+                result.push([
+                    (arr[i] / ocrWidth),
+                    (arr[i + 1] / ocrHeight),
+                ]);
+            }
+            return result;
+        };
+        const getLabelValues = (field: any) => {
+            return field.elements.map((path: string) => {
+                const pathArr = path.split('/').slice(1);
+                const word = pathArr.reduce((obj: any, key: string) => obj[key], { ...readResults.analyzeResult });
+                return {
+                    page: field.page,
+                    text: word.text,
+                    confidence: word.confidence,
+                    boundingBoxes: [getBoundingBox(field.page, word.boundingBox)]
+                };
+            });
+        };
+        const labels = [];
+        readResults.analyzeResult.documentResults
+            .map(result => Object.keys(result.fields)
+                .filter(key => result.fields[key])
+                .map<ILabel>(key => (
+                    {
+                        label: key,
+                        key: null,
+                        value: getLabelValues(result.fields[key])
+                    }))).forEach(items => {
+                        labels.push(...items);
+                    });
+
+        const fileName = asset.name.split('/').pop();
+        const labelData: ILabelData = {
+            document: fileName,
+            labels
+        };
+        const metadata = {
+            ...await this.getAssetMetadata(asset),
+            labelData
+        };
+        metadata.asset.state = AssetState.Tagged;
+        await this.save(metadata);
+    }
     /**
      * Create IAsset from filePath
      * @param filePath - filepath of asset
