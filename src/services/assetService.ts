@@ -116,7 +116,7 @@ export class AssetService {
         };
         metadata.asset.state = AssetState.Tagged;
 
-        let jsonData = { ...readResults };
+        const jsonData = { ...readResults };
         delete jsonData.analyzeResult.documentResults;
         if (jsonData.analyzeResult.errors) {
             delete jsonData.analyzeResult.errors;
