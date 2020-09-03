@@ -14,7 +14,7 @@ import IApplicationActions, * as applicationActions from "../../../../redux/acti
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import "./predictPage.scss";
 import {
-    IApplicationState, IConnection, IProject, IAppSettings, AppError, ErrorCode, IRecentModel,
+    IApplicationState, IConnection, IProject, IAppSettings, AppError, ErrorCode, IRecentModel, ImageMapParent,
 } from "../../../../models/applicationState";
 import { ImageMap } from "../../common/imageMap/imageMap";
 import Style from "ol/style/Style";
@@ -574,7 +574,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const prevPage = () => {
             this.setState((prevState) => ({
                 currPage: Math.max(1, prevState.currPage - 1),
-            }));
+            }), () => {
+                this.imageMap.removeAllFeatures();
+            });
         };
 
         if (this.state.currPage > 1) {
@@ -600,7 +602,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const nextPage = () => {
             this.setState((prevState) => ({
                 currPage: Math.min(prevState.currPage + 1, numPages),
-            }));
+            }), () => {
+                this.imageMap.removeAllFeatures();
+            });
         };
 
         if (this.state.currPage < numPages) {
@@ -620,6 +624,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     private renderImageMap = () => {
         return (
             <ImageMap
+                parentPage={ImageMapParent.Predict}
                 ref={(ref) => this.imageMap = ref}
                 imageUri={this.state.imageUri || ""}
                 imageWidth={this.state.imageWidth}
@@ -953,6 +958,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private drawPredictionResult = (): void => {
+        this.imageMap.removeAllFeatures();
         const features = [];
         const imageExtent = [0, 0, this.state.imageWidth, this.state.imageHeight];
         const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[this.state.currPage - 1];

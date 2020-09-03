@@ -9,11 +9,11 @@ import SplitPane from "react-split-pane";
 import { bindActionCreators } from "redux";
 import { PrimaryButton } from "@fluentui/react";
 import HtmlFileReader from "../../../../common/htmlFileReader";
-import { strings } from "../../../../common/strings";
+import { strings, interpolate } from "../../../../common/strings";
 import {
     AssetState, AssetType, EditorMode, FieldType,
     IApplicationState, IAppSettings, IAsset, IAssetMetadata,
-    ILabel, IProject, IRegion, ISize, ITag, FeatureCategory,
+    ILabel, IProject, IRegion, ISize, ITag, FeatureCategory, FieldFormat,
 } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -378,6 +378,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 height: newWidth / (4 / 3),
             },
         });
+        this.resizeCanvas()
     }
 
     /**
@@ -488,18 +489,31 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const selection = this.canvas.current.getSelectedRegions();
 
         if (tag && selection.length) {
+            const { format, type, documentCount, name } = tag;
             const tagCategory = this.tagInputRef.current.getTagCategory(tag.type);
-            const selectionCategory = this.tagInputRef.current.getTagCategory(selection[0].category);
+            const category = selection[0].category;
             const labels = this.state.selectedAsset.labelData.labels;
+            const isTagLabelTypeDrawnRegion = this.tagInputRef.current.labelAssignedDrawnRegion(labels, tag.name);
+            const labelAssigned = this.tagInputRef.current.labelAssigned(labels, name);
 
-            if (selectionCategory === tagCategory) {
-                if (tagCategory === FeatureCategory.Checkbox && this.tagInputRef.current.labelAssigned(labels, tag.name)) {
-                    toast.warn(strings.tags.warnings.checkboxPerTagLimit);
+            if (labelAssigned && ((category === FeatureCategory.DrawnRegion) !== isTagLabelTypeDrawnRegion)) {
+                if (isTagLabelTypeDrawnRegion) {
+                    toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, {otherCatagory: category}));
+                } else if (tagCategory === FeatureCategory.Checkbox) {
+                    toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, {otherCatagory:  FeatureCategory.Checkbox}));
                 } else {
-                    this.onTagClicked(tag);
+                    toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, {otherCatagory: FeatureCategory.Text}));
                 }
+                return;
+            } else if (tagCategory === category || category === FeatureCategory.DrawnRegion ||
+                (documentCount === 0 && type === FieldType.String && format === FieldFormat.NotSpecified)) {
+                if (tagCategory === FeatureCategory.Checkbox && labelAssigned) {
+                    toast.warn(strings.tags.warnings.checkboxPerTagLimit);
+                    return;
+                }
+                this.onTagClicked(tag);
             } else {
-                toast.warn(strings.tags.warnings.notCompatibleTagType)
+                toast.warn(strings.tags.warnings.notCompatibleTagType, {autoClose: 7000});
             }
         }
         // do nothing if region was not selected

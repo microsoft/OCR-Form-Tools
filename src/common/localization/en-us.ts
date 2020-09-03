@@ -128,6 +128,8 @@ export const english: IAppStrings = {
         notTrainedYet: "Not trained yet",
         backEndNotAvailable: "Checkbox feature will work in future version of Form Recognizer service, please stay tuned.",
         addName: "Add a model name...",
+        downloadJson: "Download JSON file",
+
     },
     modelCompose: {
         title: "Model compose",
@@ -156,7 +158,7 @@ export const english: IAppStrings = {
                 headerName: "Created",
                 fieldName: "created",
             },
-            lastupdated: {
+            lastUpdated: {
                 headerName: "Last Updated",
                 fieldName: "lastUpdated",
             },
@@ -166,7 +168,10 @@ export const english: IAppStrings = {
             addComposeModelName: "Add compose model name...",
             NotEnoughModels: " Should have at least more than one selected model to compose a new model",
             modelsCannotBeIncluded: "Warning: These models will not be included in composed model!",
-            modelCannotBeIncluded: "Warning: This model will not be included in composed model!"
+            modelCannotBeIncluded: "Warning: This model will not be included in composed model!",
+            addModelToRecentModels: "Model [${modelID}] added to recent models",
+            recentModelsAlreadyContainsModel: "Recent models already contains model [${modelID}]",
+            loadingDetails: "Loading model details..."
         },
         commandBar: {
             ariaLabel: "Please use command bar to compose models",
@@ -200,7 +205,8 @@ export const english: IAppStrings = {
     },
     recentModelsView: {
         header: "Select a model to analyze with",
-        checkboxAriaLabel: "Select model checkbox"
+        checkboxAriaLabel: "Select model checkbox",
+        addToRecentModels: "Select to analyze with",
     },
     projectMetrics: {
         title: "Project Metrics",
@@ -245,6 +251,7 @@ export const english: IAppStrings = {
             unknownTagName: "Unknown",
             notCompatibleTagType: "Tag type is not compatible with this feature. If you want to change type of this tag, please remove or reassign all labels which using this tag in your project.",
             checkboxPerTagLimit: "Cannot assign more than one checkbox per tag",
+            notCompatibleWithDrawnRegionTag: "drawnRegion and ${otherCatagory} values cannot both be assigned to the same document's tag",
         },
         toolbar: {
             add: "Add new tag",
@@ -406,10 +413,12 @@ export const english: IAppStrings = {
                         subMenuItems: {
                             text: "Text",
                             tables: "Tables",
-                            selectionMarks: "Selection Marks (Preview)",
+                            selectionMarks: "Selection marks (preview)",
+                            drawnRegions: "Drawn regions (preview)",
                             labels: "Labels"
                         },
-                    }
+                    },
+                    drawRegion: "Draw region",
                 },
                 farItems: {
                     zoom: {
@@ -480,18 +489,29 @@ export const english: IAppStrings = {
                 backSpace: "Remove selection and delete labels of selected words",
             },
         },
+        drawnRegions: {
+            keys: {
+                escape: "Escape",
+                alt: "Alt",
+                backSpace: "Backspace",
+            },
+            description: {
+                deleteSelectedDrawnRegions: "Delete selected drawn regions",
+                cancelDrawOrReshape: "Cancel drawing or reshaping of regions",
+            }
+        },
         tips: {
             quickLabeling: {
-                name: "Quick labeling",
-                description: "Hotkeys 1 through 0 and all letters are assigned to first 36 tags. After selecting one or multiple words, press tag's assigned hotkey.",
+                name: "Lable with hot keys",
+            description: "Hotkeys 1 through 0 and all letters are assigned to first 36 tags. After selecting one or multiple words, press tag's assigned hotkey.",
             },
             renameTag: {
                 name: "Rename tag",
                 description: "Hold Alt key and click on tag name.",
             },
             multipleWordSelection: {
-                name: "Select multiple words",
-                description: "Click and hold on word. Then, hover over additional words.",
+                name: "Select multiple words by dragging pointer across words",
+                description: "Click and hold on a word. Then, hover over additional words with pointer.",
             },
             deleteAllLabelsForTag: {
                 name: "Delete all labels for a tag",

@@ -2,16 +2,18 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { Customizer, IColumn, ICustomizations, Modal, DetailsList, SelectionMode, DetailsListLayoutMode, PrimaryButton, TextField, FontIcon } from "@fluentui/react";
-import { getDarkGreyTheme, getPrimaryGreenTheme, getPrimaryGreyTheme } from "../../../../common/themes";
+import { Customizer, IColumn, ICustomizations, Modal, DetailsList, SelectionMode, DetailsListLayoutMode, PrimaryButton, TextField, FontIcon, Spinner, SpinnerSize } from "@fluentui/react";
+import { getDarkGreyTheme, getPrimaryGreenTheme, getPrimaryGreyTheme, getDefaultDarkTheme } from "../../../../common/themes";
 import { strings } from "../../../../common/strings";
 import { IModel } from "./modelCompose";
 import { getAppInsights } from '../../../../services/telemetryService';
 import "./modelCompose.scss";
+import { IRecentModel } from "../../../../models/applicationState";
 
 
 export interface IComposeModelViewProps {
     onComposeConfirm: (composeModelName: string) => void;
+    addToRecentModels: (modelToAdd: IRecentModel) => void;
 }
 
 export interface IComposeModelViewState {
@@ -28,7 +30,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
     private modelName: string = "";
     private appInsights: any = null;
 
-    constructor(props) {
+    constructor(props: Readonly<IComposeModelViewProps>) {
         super(props);
         this.state = {
             hideModal: true,
@@ -114,6 +116,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
             scopedSettings: {},
         };
 
+        console.log("# items", this.state.items)
         return (
             <Customizer {...dark}>
                 <Modal
@@ -179,25 +182,84 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                             </div>
                         </>
                     }
-                    {
-                        !this.state.composing &&
+                    {!this.state.composing &&
                         <>
-                            <h5 style={{whiteSpace: 'pre'}}>{"Model " + this.state.items["modelId"] + " " + (this.state.items["modelName"] ? `(${this.state.items["modelName"]})` : "") + "\ncreated on " + new Date(this.state.items["createdDateTime"]).toLocaleString() + "\nincludes following models:"}</h5>
-                            <DetailsList
-                                items={this.state.items["composedTrainResults"]}
-                                columns={modelDetailsColumns}
-                                compact={true}
-                                setKey="none"
-                                selectionMode={SelectionMode.none}
-                                isHeaderVisible={true}
-                                layoutMode={DetailsListLayoutMode.justified}
-                            />
-                            <div className="modal-buttons-container">
+                            <h4>
+                                Model information
+                            </h4>
+                            {
+                                this.state.items.length !== 0 &&
+                                <>
+                                    <div className="model-information-container">
+                                        <h6 className="mr-2 model-information-prop">
+                                            {"Model ID: "}
+                                        </h6>
+                                        {this.state.items["modelId"]}
+                                    </div>
+                                    {this.state.items["modelName"] &&
+                                        <div className="model-information-container">
+                                            <h6 className="mr-2 model-information-prop">
+                                                Model name:
+                                    </h6> {this.state.items["modelName"]}
+                                        </div>
+                                    }
+                                    <div className="model-information-container">
+                                        <h6 className="mr-2 model-information-prop">
+                                            Created date:
+                                </h6>
+                                        {new Date(this.state.items["createdDateTime"]).toLocaleString()}
+                                    </div>
+                                    {this.state.items?.["composedTrainResults"]?.length > 0 &&
+                                        <>
+                                            <h6 className="mb-0">
+                                                Composed of:
+                                    </h6>
+                                            <div className="mr-4 ml-4 mb-2 composed-of-list">
+                                                <DetailsList
+                                                    items={this.state.items["composedTrainResults"]}
+                                                    columns={modelDetailsColumns}
+                                                    compact={true}
+                                                    setKey="none"
+                                                    selectionMode={SelectionMode.none}
+                                                    isHeaderVisible={true}
+                                                    layoutMode={DetailsListLayoutMode.justified}
+                                                />
+                                            </div>
+                                        </>
+                                    }  </>
+                            }
+                            {this.state.items.length === 0 && <Spinner
+                                label={strings.modelCompose.modelView.loadingDetails}
+                                ariaLive="assertive"
+                                labelPosition="right"
+                                theme={getDefaultDarkTheme()}
+                                size={SpinnerSize.large} />
+                            }
+                            <div className="modal-buttons-container mt-4">
+                                <PrimaryButton
+                                    className="mr-3"
+                                    disabled={this.state.items.length === 0}
+                                    theme={getPrimaryGreenTheme()}
+                                    onClick={() => {
+                                        this.props.addToRecentModels({
+                                            modelInfo: {
+                                                isComposed: Boolean(this.state.items["composedTrainResults"]),
+                                                modelId: this.state.items["modelId"],
+                                                createdDateTime: this.state.items["createdDateTime"],
+                                                modelName: this.state.items?.["modelName"],
+                                            }
+                                        })
+                                    }}
+                                >
+                                    {strings.recentModelsView.addToRecentModels}
+                                </PrimaryButton>
                                 <PrimaryButton
                                     className="modal-cancel"
                                     theme={getPrimaryGreyTheme()}
                                     onClick={this.close}
-                                >Close</PrimaryButton>
+                                >
+                                    Close
+                                </PrimaryButton>
                             </div>
                         </>}
                 </Modal>
@@ -215,6 +277,12 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
     }
 
     public close = () => this.setState({ hideModal: true });
+
+    public getItems = (items) => {
+        if (items.length !== 0) {
+            this.setState({ items })
+        }
+    }
 
     public confirm = () => {
         if (this.state.items.length > 1) {
