@@ -658,8 +658,8 @@ export const english: IAppStrings = {
             message: "Model \"${modelID}\" not found. Please use another model.",
         },
         connectionNotExistError: {
-            title: 'connection not exist',
-            message: 'connection not exist.'
+            title: "Connection doesn't exist",
+            message: "Connection doesn't exist."
         },
         getOcrError: {
             title: "Cannot load OCR file",

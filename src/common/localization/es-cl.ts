@@ -658,8 +658,8 @@ export const spanish: IAppStrings = {
             message: "Modelo \"${modelID}\" no encontrado. Por favor use otro modelo.",
         },
         connectionNotExistError: {
-            title: '',
-            message: ''
+            title: "La conexión no existe",
+            message: "La conexión no existe."
         },
         getOcrError: {
             title: "No se puede cargar el archivo OCR",
