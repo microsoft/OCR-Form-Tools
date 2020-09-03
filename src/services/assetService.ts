@@ -115,7 +115,17 @@ export class AssetService {
             labelData
         };
         metadata.asset.state = AssetState.Tagged;
-        await this.save(metadata);
+
+        let jsonData = { ...readResults };
+        delete jsonData.analyzeResult.documentResults;
+        if (jsonData.analyzeResult.errors) {
+            delete jsonData.analyzeResult.errors;
+        }
+        const ocrFileName = `${asset.name}${constants.ocrFileExtension}`;
+        await Promise.all([
+            await this.save(metadata),
+            await this.storageProvider.writeText(ocrFileName, JSON.stringify(jsonData, null, 2))
+        ]);
     }
     /**
      * Create IAsset from filePath
