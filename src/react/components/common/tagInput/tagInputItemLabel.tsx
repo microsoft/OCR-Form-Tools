@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { ReactHTMLElement } from "react";
+import React from "react";
 import { ILabel, IFormRegion } from "../../../../models/applicationState";
 import { FontIcon } from "@fluentui/react";
 
