@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { ReactHTMLElement } from "react";
+import React from "react";
 import { ILabel, IFormRegion } from "../../../../models/applicationState";
 import { FontIcon } from "@fluentui/react";
 
@@ -15,12 +15,10 @@ export interface ITagInputItemLabelState {}
 
 export default class TagInputItemLabel extends React.Component<ITagInputItemLabelProps, ITagInputItemLabelState> {
     public render() {
-        const drawnRegions = [];
         const texts = [];
         let hasEmptyTextValue = false;
-        this.props.label.value.forEach((formRegion: IFormRegion) => {
-            if (formRegion.text === "" && !hasEmptyTextValue) {
-                drawnRegions.push(<FontIcon className="pr-1 pl-1" iconName="RectangleShape" />)
+        this.props.label.value.forEach((formRegion: IFormRegion, idx) => {
+            if (formRegion.text === "") {
                 hasEmptyTextValue = true;
             } else {
                 texts.push(formRegion.text);
@@ -35,7 +33,9 @@ export default class TagInputItemLabel extends React.Component<ITagInputItemLabe
             >
                 <div className="flex-center">
                     {text}
-                    {drawnRegions}
+                    {hasEmptyTextValue &&
+                        <FontIcon className="pr-1 pl-1" iconName="RectangleShape"/>
+                    }
                 </div>
             </div>
         );
