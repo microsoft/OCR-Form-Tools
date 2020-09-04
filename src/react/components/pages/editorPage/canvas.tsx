@@ -1569,7 +1569,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private getBoundingBoxTextFromRegion = (formRegion: IFormRegion, boundingBoxIndex: number) => {
         // get value from formRegion.text
-        const regionValues = formRegion.text.split(" ");
+        const regionValues = formRegion.text && formRegion.text.split(" ");
         if (regionValues && regionValues.length > boundingBoxIndex) {
             return regionValues[boundingBoxIndex];
         }
