@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { ReactHTMLElement } from "react";
+import React from "react";
 import { ILabel, IFormRegion } from "../../../../models/applicationState";
 import { FontIcon } from "@fluentui/react";
 
@@ -18,9 +18,9 @@ export default class TagInputItemLabel extends React.Component<ITagInputItemLabe
         const drawnRegions = [];
         const texts = [];
         let hasEmptyTextValue = false;
-        this.props.label.value.forEach((formRegion: IFormRegion) => {
+        this.props.label.value.forEach((formRegion: IFormRegion, idx) => {
             if (formRegion.text === "" && !hasEmptyTextValue) {
-                drawnRegions.push(<FontIcon className="pr-1 pl-1" iconName="RectangleShape" />)
+                drawnRegions.push(<FontIcon className="pr-1 pl-1" iconName="RectangleShape" key={idx}/>)
                 hasEmptyTextValue = true;
             } else {
                 texts.push(formRegion.text);
