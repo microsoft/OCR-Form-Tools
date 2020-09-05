@@ -1054,7 +1054,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         if (this.state.file) {
             const fileData = new Buffer(await this.state.file.arrayBuffer());
             const readResults: any = this.state.analyzeResult;
-            await this.props.actions.addAssetToProject(this.props.project, this.state.file.name, fileData, readResults);
+            const fileName =decodeURIComponent(this.state.file.name).split("/").pop();
+            await this.props.actions.addAssetToProject(this.props.project, fileName, fileData, readResults);
             this.props.history.push(`/projects/${this.props.project.id}/edit`);
         }
     }

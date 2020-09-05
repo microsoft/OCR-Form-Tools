@@ -86,7 +86,7 @@ export class AssetService {
                 const word = pathArr.reduce((obj: any, key: string) => obj[key], { ...readResults.analyzeResult });
                 return {
                     page: field.page,
-                    text: word.text,
+                    text: word.text || word.state,
                     confidence: word.confidence,
                     boundingBoxes: [getBoundingBox(field.page, word.boundingBox)]
                 };
@@ -105,7 +105,7 @@ export class AssetService {
                         labels.push(...items);
                     });
 
-        const fileName = asset.name.split('/').pop();
+        const fileName = decodeURIComponent(asset.name).split('/').pop();
         const labelData: ILabelData = {
             document: fileName,
             labels
