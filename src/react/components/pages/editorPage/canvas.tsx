@@ -35,7 +35,8 @@ import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./canvasCommandBar";
 import { TooltipHost, ITooltipHostStyles } from "@fluentui/react";
 import { IAppSettings } from '../../../../models/applicationState';
-import { AutoLabelingStatus } from "../../../../services/predictService";
+import { AutoLabelingStatus, PredictService } from "../../../../services/predictService";
+import { AssetService } from "../../../../services/assetService";
 
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
@@ -55,9 +56,9 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onSelectedRegionsChanged?: (regions: IRegion[]) => void;
     onCanvasRendered?: (canvas: HTMLCanvasElement) => void;
     onRunningOCRStatusChanged?: (isRunning: boolean) => void;
+    onRunningAutoLabelingStatusChanged?: (isRunning: boolean) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
     runOcrForAllDocs?: (runForAllDocs: boolean) => void;
-    runAutoLabelingOnCurrentDoc?: (assetPath: string) => Promise<void>;
     onAssetDeleted?: () => void;
 }
 
@@ -355,15 +356,22 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.props.runOcrForAllDocs(true);
     }
 
-    private runAutoLabelingOnCurrentDocument = () => {
-        if (this.props.runAutoLabelingOnCurrentDoc) {
-            this.setState({ autoLableingStatus: AutoLabelingStatus.running });
-            this.props.runAutoLabelingOnCurrentDoc(this.state.currentAsset.asset.path)
-                .finally(() => {
-                    this.setState({ autoLableingStatus: AutoLabelingStatus.done });
-                });
-        }
+    private runAutoLabelingOnCurrentDocument = async () => {
+        try {
+            this.setAutoLabelingStatus(AutoLabelingStatus.running);
+            const asset = this.state.currentAsset.asset;
+            const assetPath = asset.path;
+            const predictService = new PredictService(this.props.project);
+            const result = await predictService.getPrediction(assetPath);
 
+            const assetService = new AssetService(this.props.project);
+            await assetService.uploadAssetPredictResult(asset, result);
+            const assetMetadata = await assetService.getAssetMetadata(asset);
+            await this.props.onAssetMetadataChanged(assetMetadata);
+        }
+        finally {
+            this.setAutoLabelingStatus(AutoLabelingStatus.done);
+        }
     }
 
     public updateSize() {
@@ -1122,6 +1130,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 this.props.onRunningOCRStatusChanged(ocrStatus === OcrStatus.runningOCR);
             }
         });
+    }
+    private setAutoLabelingStatus = (autoLableingStatus: AutoLabelingStatus) => {
+        this.setState({ autoLableingStatus }, () => {
+            if (this.props.onRunningAutoLabelingStatusChanged) {
+                this.props.onRunningAutoLabelingStatusChanged(autoLableingStatus === AutoLabelingStatus.running);
+            }
+        })
     }
 
     private runOcr = () => {
