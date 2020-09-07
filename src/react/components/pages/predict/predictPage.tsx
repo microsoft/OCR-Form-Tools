@@ -24,25 +24,23 @@ import HtmlFileReader from "../../../../common/htmlFileReader";
 import { interpolate, strings } from "../../../../common/strings";
 import {
     getGreenWithWhiteBackgroundTheme, getPrimaryGreenTheme, getPrimaryWhiteTheme,
-
     getRightPaneDefaultButtonTheme
 } from "../../../../common/themes";
 import { loadImageToCanvas, parseTiffData, renderTiffToCanvas } from "../../../../common/utils";
-import { AppError, ErrorCode, IApplicationState, IAppSettings, IConnection, ILabel, ImageMapParent, IProject, IRecentModel } from "../../../../models/applicationState";
+import { AppError, ErrorCode, IApplicationState, IAppSettings, IConnection, ImageMapParent, IProject, IRecentModel } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import ServiceHelper from "../../../../services/serviceHelper";
 import { getAppInsights } from '../../../../services/telemetryService';
 import Alert from "../../common/alert/alert";
+import Confirm from "../../common/confirm/confirm";
 import { ImageMap } from "../../common/imageMap/imageMap";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import "./predictPage.scss";
 import PredictResult, { IAnalyzeModelInfo } from "./predictResult";
 import RecentModelsView from "./recentModelsView";
 import { UploadToTrainingSetView } from "./uploadToTrainingSetView";
-import { AssetService } from "../../../../services/assetService";
-import Confirm from "../../common/confirm/confirm";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -1054,7 +1052,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     private onAddAssetToProjectClick = async () => {
         if (this.state.file) {
             // this.props.project.assets
-            const fileName = `${this.props.project.folderPath}/${decodeURI(this.state.file.name)}`;
+            const fileName = `${this.props.project.folderPath}/${decodeURIComponent(this.state.file.name)}`;
             const asset = Object.values(this.props.project.assets).find(asset => asset.name === fileName);
             if (asset) {
                 const confirmDuplicatedAssetNameMessage = interpolate(strings.predict.confirmDuplicatedAssetName.message, { name: decodeURI(this.state.file.name) });
@@ -1081,7 +1079,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         if (this.state.file) {
             const fileData = new Buffer(await this.state.file.arrayBuffer());
             const readResults: any = this.state.analyzeResult;
-            const fileName =decodeURIComponent(this.state.file.name).split("/").pop();
+            const fileName = decodeURIComponent(this.state.file.name).split("/").pop();
             await this.props.actions.addAssetToProject(this.props.project, fileName, fileData, readResults);
             this.props.history.push(`/projects/${this.props.project.id}/edit`);
         }
