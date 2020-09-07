@@ -42,6 +42,7 @@ import PredictResult, { IAnalyzeModelInfo } from "./predictResult";
 import RecentModelsView from "./recentModelsView";
 import { UploadToTrainingSetView } from "./uploadToTrainingSetView";
 import { AssetService } from "../../../../services/assetService";
+import Confirm from "../../common/confirm/confirm";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -84,6 +85,7 @@ export interface IPredictPageState {
     highlightedField: string;
     modelList: IModel[];
     modelOption: string;
+    confirmDuplicatedAssetNameMessage?: string;
 }
 
 export interface IModel {
@@ -149,6 +151,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     private tiffImages: any[];
     private imageMap: ImageMap;
     private uploadToTrainingSetView: React.RefObject<UploadToTrainingSetView> = React.createRef();
+    private duplicateAssetNameConfirm: React.RefObject<Confirm> = React.createRef();
 
     public async componentDidMount() {
         const projectId = this.props.match.params["projectId"];
@@ -415,7 +418,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                     page={this.state.currPage}
                                                     tags={this.props.project.tags}
                                                     downloadResultLabel={this.state.fileLabel}
-                                                    onAddAssetToProject={this.onAddAssetToProjectConfirm}
+                                                    onAddAssetToProject={this.onAddAssetToProjectClick}
                                                     onPredictionClick={this.onPredictionClick}
                                                     onPredictionMouseEnter={this.onPredictionMouseEnter}
                                                     onPredictionMouseLeave={this.onPredictionMouseLeave}
@@ -431,6 +434,13 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                     No field can be extracted.
                                                 </div>
                                             }
+                                            <Confirm
+                                                ref={this.duplicateAssetNameConfirm}
+                                                title={strings.predict.confirmDuplicatedAssetName.title}
+                                                message={this.state.confirmDuplicatedAssetNameMessage}
+                                                onConfirm={this.onAddAssetToProjectConfirm}
+                                                confirmButtonTheme={getPrimaryGreenTheme()}
+                                            />
                                         </div>
                                     </>
                                 }
@@ -1040,6 +1050,23 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
     private noOp = () => {
         // no operation
+    }
+    private onAddAssetToProjectClick = async () => {
+        if (this.state.file) {
+            // this.props.project.assets
+            const fileName = `${this.props.project.folderPath}/${decodeURI(this.state.file.name)}`;
+            const asset = Object.values(this.props.project.assets).find(asset => asset.name === fileName);
+            if (asset) {
+                const confirmDuplicatedAssetNameMessage = interpolate(strings.predict.confirmDuplicatedAssetName.message, { name: decodeURI(this.state.file.name) });
+                this.setState({
+                    confirmDuplicatedAssetNameMessage
+                });
+                this.duplicateAssetNameConfirm.current.open();
+            }
+            else {
+                this.onAddAssetToProjectConfirm();
+            }
+        }
     }
     private onAddAssetToProjectConfirm = async () => {
         if (this.props.appSettings.hideUploadingOption) {

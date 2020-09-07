@@ -204,7 +204,11 @@ export const spanish: IAppStrings = {
         editAndUploadToTrainingSet: "Editar y cargar al conjunto de entrenamiento",
         editAndUploadToTrainingSetNotify: "Al hacer clic en este botón, este formulario se agregará al Blob de Azure Storage para este proyecto, donde puede editar estas etiquetas.",
         editAndUploadToTrainingSetNotify2: "Estamos agregando este archivo a su conjunto de entrenamiento, donde puede editar las etiquetas y volver a entrenar el modelo.",
-        uploadInPrgoress: "carga en curso..."
+        uploadInPrgoress: "carga en curso...",
+        confirmDuplicatedAssetName: {
+            title: "El nombre del activo existe",
+            message: "El activo con el nombre '${name}' existe en el proyecto, ¿anularlo?"
+        }
     },
     recentModelsView: {
         header: "Seleccionar modelo para analizar con",

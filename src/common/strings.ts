@@ -203,7 +203,11 @@ export interface IAppStrings {
         editAndUploadToTrainingSet: string,
         editAndUploadToTrainingSetNotify: string,
         editAndUploadToTrainingSetNotify2: string,
-        uploadInPrgoress: string
+        uploadInPrgoress: string,
+        confirmDuplicatedAssetName: {
+            title: string,
+            message: string
+        },
     };
     recentModelsView: {
         header: string;
@@ -281,7 +285,7 @@ export interface IAppStrings {
         messages: {
             saveSuccess: string,
             deleteSuccess: string,
-            doNotAllowDuplicateNames:string,
+            doNotAllowDuplicateNames: string,
         },
         imageCorsWarning: string,
         blobCorsWarning: string,
