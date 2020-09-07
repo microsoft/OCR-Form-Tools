@@ -143,6 +143,7 @@ export class AssetService {
                 ]);
             }
             catch{
+                return;
             }
         }
     }
