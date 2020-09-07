@@ -439,7 +439,8 @@ export const spanish: IAppStrings = {
                         subIMenuItems: {
                             runOcrOnCurrentDocument: "Ejecutar OCR en el documento actual",
                             runOcrOnAllDocuments: "Ejecute OCR en todos los documentos",
-                            runAutoLabelingCurrentDocument: "Ejecutar AutoLabeling en el documento actual"
+                            runAutoLabelingCurrentDocument: "Ejecutar AutoLabeling en el documento actual",
+                            noPredictModelOnProject: "Predecir modelo no disponible, entrene el modelo primero.",
                         }
                     }
                 }

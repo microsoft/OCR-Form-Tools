@@ -250,6 +250,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     connectionType={this.props.project.sourceConnection.providerType}
                     handleToggleDrawRegionMode={this.handleToggleDrawRegionMode}
                     drawRegionMode={this.state.drawRegionMode}
+                    project={this.props.project}
                 />
                 <ImageMap
                     parentPage={ImageMapParent.Editor}
@@ -1830,12 +1831,17 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const tag = this.props.project.tags.find((tag) => tag.name === tagName);
 
         let regionCategory;
-        if (labelType) {
-            regionCategory = labelType;
-        } else if (tag.type === FieldType.SelectionMark) {
-            regionCategory = FeatureCategory.Checkbox;
-        } else {
-            regionCategory = FeatureCategory.Text;
+        try {
+            if (labelType) {
+                regionCategory = labelType;
+            } else if (tag.type === FieldType.SelectionMark) {
+                regionCategory = FeatureCategory.Checkbox;
+            } else {
+                regionCategory = FeatureCategory.Text;
+            }
+        }
+        catch (err) {
+            console.error(err);
         }
 
         const newRegion = {

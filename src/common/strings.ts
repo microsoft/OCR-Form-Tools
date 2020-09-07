@@ -434,6 +434,7 @@ export interface IAppStrings {
                             runOcrOnCurrentDocument: string,
                             runOcrOnAllDocuments: string,
                             runAutoLabelingCurrentDocument: string,
+                            noPredictModelOnProject: string,
                         }
                     }
                 }

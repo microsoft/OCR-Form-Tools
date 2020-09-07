@@ -4,6 +4,8 @@ import { ICustomizations, Customizer } from "@fluentui/react/lib/Utilities";
 import { getDarkGreyTheme } from "../../../../common/themes";
 import { strings } from '../../../../common/strings';
 import { ContextualMenuItemType } from "@fluentui/react";
+import { IProject } from "../../../../models/applicationState";
+import "./canvasCommandBar.scss";
 
 interface ICanvasCommandBarProps {
     handleZoomIn: () => void;
@@ -17,6 +19,7 @@ interface ICanvasCommandBarProps {
     connectionType: string;
     handleAssetDeleted?: () => void;
     layers: any;
+    project: IProject;
 }
 
 export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> = (props: ICanvasCommandBarProps) => {
@@ -139,6 +142,9 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         key: "runAutoLabelingCurrentDocument",
                         text: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runAutoLabelingCurrentDocument,
                         iconProps: { iconName: "Tag" },
+                        disabled: !props.project.predictModelId,
+                        title: props.project.predictModelId ? "" :
+                            strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.noPredictModelOnProject,
                         onClick: () => {
                             props.handleRunAutoLabelingOnCurrentDocument();
                         },
