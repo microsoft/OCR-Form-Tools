@@ -105,27 +105,46 @@ export class AssetService {
                         labels.push(...items);
                     });
 
-        const fileName = decodeURIComponent(asset.name).split('/').pop();
-        const labelData: ILabelData = {
-            document: fileName,
-            labels
-        };
-        const metadata = {
-            ...await this.getAssetMetadata(asset),
-            labelData
-        };
-        metadata.asset.state = AssetState.Tagged;
+        if (labels.length > 0) {
+            const fileName = decodeURIComponent(asset.name).split('/').pop();
+            const labelData: ILabelData = {
+                document: fileName,
+                labels
+            };
+            const metadata = {
+                ...await this.getAssetMetadata(asset),
+                labelData
+            };
+            metadata.asset.state = AssetState.Tagged;
 
-        const jsonData = { ...readResults };
-        delete jsonData.analyzeResult.documentResults;
-        if (jsonData.analyzeResult.errors) {
-            delete jsonData.analyzeResult.errors;
+            const ocrData = { ...readResults };
+            delete ocrData.analyzeResult.documentResults;
+            if (ocrData.analyzeResult.errors) {
+                delete ocrData.analyzeResult.errors;
+            }
+            const ocrFileName = `${asset.name}${constants.ocrFileExtension}`;
+            await Promise.all([
+                this.save(metadata),
+                this.storageProvider.writeText(ocrFileName, JSON.stringify(ocrData, null, 2))
+            ]);
         }
-        const ocrFileName = `${asset.name}${constants.ocrFileExtension}`;
-        await Promise.all([
-            await this.save(metadata),
-            await this.storageProvider.writeText(ocrFileName, JSON.stringify(jsonData, null, 2))
-        ]);
+        else {
+            const ocrData = { ...readResults };
+            delete ocrData.analyzeResult.documentResults;
+            if (ocrData.analyzeResult.errors) {
+                delete ocrData.analyzeResult.errors;
+            }
+            const labelFileName = decodeURIComponent(`${asset.name}${constants.labelFileExtension}`);
+            const ocrFileName = decodeURIComponent(`${asset.name}${constants.ocrFileExtension}`);
+            try {
+                await Promise.all([
+                    this.storageProvider.deleteFile(labelFileName, true, true),
+                    this.storageProvider.writeText(ocrFileName, JSON.stringify(ocrData, null, 2))
+                ]);
+            }
+            catch{
+            }
+        }
     }
     /**
      * Create IAsset from filePath
