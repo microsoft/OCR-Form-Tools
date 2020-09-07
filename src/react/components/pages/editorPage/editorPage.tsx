@@ -381,6 +381,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 height: newWidth / (4 / 3),
             },
         });
+        this.resizeCanvas()
     }
 
     /**
