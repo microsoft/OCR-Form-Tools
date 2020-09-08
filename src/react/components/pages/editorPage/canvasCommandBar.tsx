@@ -9,87 +9,90 @@ interface ICanvasCommandBarProps {
     handleZoomIn: () => void;
     handleZoomOut: () => void;
     handleRotateImage: (degrees: number) => void;
-    handleRunOcr: () => void;
-    handleRunOcrForAllDocuments: () => void;
-    handleLayerChange: (layer: string) => void;
-    handleToggleDrawRegionMode: () => void;
-    drawRegionMode: boolean;
-    connectionType: string;
+    handleRunOcr?: () => void;
+    handleRunOcrForAllDocuments?: () => void;
+    handleLayerChange?: (layer: string) => void;
+    handleToggleDrawRegionMode?: () => void;
+    drawRegionMode?: boolean;
+    connectionType?: string;
     handleAssetDeleted?: () => void;
-    layers: any;
+    layers?: any;
+    parentPage: string;
 }
 
-export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> = (props:ICanvasCommandBarProps) => {
+export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> = (props: ICanvasCommandBarProps) => {
     const dark: ICustomizations = {
         settings: {
-          theme: getDarkGreyTheme(),
+            theme: getDarkGreyTheme(),
         },
         scopedSettings: {},
     };
 
-    const commandBarItems: ICommandBarItemProps[] = [
-        {
-          key: "layers",
-          text: strings.editorPage.canvas.canvasCommandBar.items.layers.text,
-          iconProps: { iconName: "MapLayers" },
-          subMenuProps: {
-            items: [
-              {
-                key: "text",
-                text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.text,
-                canCheck: true,
-                iconProps: { iconName: "TextField" },
-                isChecked: props.layers["text"],
-                onClick: () => props.handleLayerChange("text"),
-              },
-              {
-                key: "table",
-                text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.tables,
-                canCheck: true,
-                iconProps: { iconName: "Table" },
-                isChecked: props.layers["tables"],
-                onClick: () => props.handleLayerChange("tables"),
-              },
-              {
-                key: "selectionMark",
-                text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.selectionMarks,
-                canCheck: true,
-                iconProps: { iconName: "CheckboxComposite" },
-                isChecked: props.layers["checkboxes"],
-                onClick: () => props.handleLayerChange("checkboxes"),
-              },
-            //   {
-            //     key: "DrawnRegions",
-            //     text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.drawnRegions,
-            //     canCheck: true,
-            //     iconProps: { iconName: "AddField" },
-            //     isChecked: props.layers["drawnRegions"],
-            //     className: props.drawRegionMode ? "disabled" : "",
-            //     onClick: () => props.handleLayerChange("drawnRegions"),
-            //     disabled: props.drawRegionMode
-            //   },
-              {
-                key: "Label",
-                text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.labels,
-                canCheck: true,
-                iconProps: { iconName: "LabelComposite" },
-                isChecked: props.layers["label"],
-                onClick: () => props.handleLayerChange("label"),
-              },
-            ],
-          },
+    let commandBarItems: ICommandBarItemProps[] = [];
+    if (props.parentPage === strings.editorPage.title) {
+        commandBarItems = [{
+            key: "layers",
+            text: strings.editorPage.canvas.canvasCommandBar.items.layers.text,
+            iconProps: { iconName: "MapLayers" },
+            subMenuProps: {
+                items: [
+                    {
+                        key: "text",
+                        text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.text,
+                        canCheck: true,
+                        iconProps: { iconName: "TextField" },
+                        isChecked: props.layers["text"],
+                        onClick: () => props.handleLayerChange("text"),
+                    },
+                    {
+                        key: "table",
+                        text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.tables,
+                        canCheck: true,
+                        iconProps: { iconName: "Table" },
+                        isChecked: props.layers["tables"],
+                        onClick: () => props.handleLayerChange("tables"),
+                    },
+                    {
+                        key: "selectionMark",
+                        text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.selectionMarks,
+                        canCheck: true,
+                        iconProps: { iconName: "CheckboxComposite" },
+                        isChecked: props.layers["checkboxes"],
+                        onClick: () => props.handleLayerChange("checkboxes"),
+                    },
+                    //   {
+                    //     key: "DrawnRegions",
+                    //     text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.drawnRegions,
+                    //     canCheck: true,
+                    //     iconProps: { iconName: "AddField" },
+                    //     isChecked: props.layers["drawnRegions"],
+                    //     className: props.drawRegionMode ? "disabled" : "",
+                    //     onClick: () => props.handleLayerChange("drawnRegions"),
+                    //     disabled: props.drawRegionMode
+                    //   },
+                    {
+                        key: "Label",
+                        text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.labels,
+                        canCheck: true,
+                        iconProps: { iconName: "LabelComposite" },
+                        isChecked: props.layers["label"],
+                        onClick: () => props.handleLayerChange("label"),
+                    },
+                ],
+            },
         },
-        // {
-        //   key: "drawRegion",
-        //   text: strings.editorPage.canvas.canvasCommandBar.items.drawRegion,
-        //   iconProps: { iconName: "AddField" },
-        //   toggle: true,
-        //   checked: props.drawRegionMode,
-        //   className: !props.layers["drawnRegions"] ? "disabled" : "",
-        //   onClick: () => props.handleToggleDrawRegionMode(),
-        //   disabled: !props.layers["drawnRegions"],
-        // }
-    ];
+            // {
+            //   key: "drawRegion",
+            //   text: strings.editorPage.canvas.canvasCommandBar.items.drawRegion,
+            //   iconProps: { iconName: "AddField" },
+            //   toggle: true,
+            //   checked: props.drawRegionMode,
+            //   className: !props.layers["drawnRegions"] ? "disabled" : "",
+            //   onClick: () => props.handleToggleDrawRegionMode(),
+            //   disabled: !props.layers["drawnRegions"],
+            // }
+        ];
+    }
 
     const commandBarFarItems: ICommandBarItemProps[] = [
         {
@@ -128,8 +131,10 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
             iconOnly: true,
             iconProps: { iconName: "ZoomIn" },
             onClick: () => props.handleZoomIn(),
-        },
-        {
+        }
+    ]
+    if (props.parentPage === strings.editorPage.title) {
+        commandBarFarItems.push({
             key: "additionalActions",
             title: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.text,
             // This needs an ariaLabel since it's icon-only
@@ -155,19 +160,19 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         onClick: () => props.handleRunOcrForAllDocuments(),
                     },
                     {
-                      key: 'divider_1',
-                      itemType: ContextualMenuItemType.Divider,
+                        key: 'divider_1',
+                        itemType: ContextualMenuItemType.Divider,
                     },
                     {
-                      key: "deleteAsset",
-                      text: strings.editorPage.asset.delete.title,
-                      iconProps: { iconName: "Delete" },
-                      onClick: () => props.handleAssetDeleted(),
+                        key: "deleteAsset",
+                        text: strings.editorPage.asset.delete.title,
+                        iconProps: { iconName: "Delete" },
+                        onClick: () => props.handleAssetDeleted(),
                     }
                 ],
             },
-        },
-    ];
+        })
+    }
 
     return (
         <Customizer {...dark}>
