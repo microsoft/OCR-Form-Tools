@@ -105,7 +105,9 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                                 </a>
                                 <FilePicker ref={this.filePicker}
                                     onChange={this.onProjectFileUpload}
-                                    onError={this.onProjectFileUploadError} />
+                                    onError={this.onProjectFileUploadError}
+                                    accept={[".fott"]}
+                                />
                             </li>
                         }
                         <li>
