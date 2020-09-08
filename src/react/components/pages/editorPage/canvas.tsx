@@ -83,6 +83,7 @@ export interface ICanvasState {
     isVertexDragging: boolean;
     isDrawing: boolean;
     isPointerOnImage: boolean;
+    imageAngle: number;
 }
 
 interface IRegionOrder {
@@ -141,6 +142,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         isVertexDragging: false,
         isDrawing: false,
         isPointerOnImage: false,
+        imageAngle: 0,
     };
 
     private imageMap: ImageMap;
@@ -281,6 +283,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleDrawing={this.handleDrawing}
                     isDrawing={this.state.isDrawing}
                     updateFeatureAfterModify={this.updateFeatureAfterModify}
+                    imageAngle={this.state.imageAngle}
                 />
                 <TooltipHost
                     content={"rows: " + this.state.tableIconTooltip.rows +
@@ -1462,7 +1465,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.imageMap.resetZoom();
     }
     private handleRotateCanvas = (degrees: number) => {
-        console.log("# Rotate:", degrees);
+        this.setState({ imageAngle: this.state.imageAngle + degrees });
     }
 
     private getRegionWithKey = (keyFlag: boolean) => {
