@@ -148,7 +148,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                         <div className="condensed-list-body">
                             <div className="m-3">
                                 <h4 className="text-shadow-none"> Train a new model </h4>
-                                {!this.state.isTraining && localFileSystemProvider &&
+                                {localFileSystemProvider &&
                                     <div>
                                         <span>
                                             {strings.train.labelFolderTitle}
@@ -161,6 +161,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                             placeholder={strings.train.defaultLabelFolderURL + (this.props.project.folderPath ?
                                                 "/" + this.props.project.folderPath : "")}
                                             value={this.state.inputtedLabelFolderURL}
+                                            disabled={this.state.isTraining}
                                         />
                                     </div>
                                 }

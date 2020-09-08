@@ -35,6 +35,7 @@ import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./canvasCommandBar";
 import { TooltipHost, ITooltipHostStyles } from "@fluentui/react";
 import { IAppSettings } from '../../../../models/applicationState';
+import { strings } from "../../../../common/strings";
 
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
@@ -245,6 +246,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     connectionType={this.props.project.sourceConnection.providerType}
                     handleToggleDrawRegionMode={this.handleToggleDrawRegionMode}
                     drawRegionMode={this.state.drawRegionMode}
+                    parentPage={strings.editorPage.title}
                 />
                 <ImageMap
                     parentPage={ImageMapParent.Editor}
