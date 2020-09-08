@@ -8,6 +8,7 @@ import { ContextualMenuItemType, IContextualMenuItemStyles, IContextualMenuStyle
 interface ICanvasCommandBarProps {
     handleZoomIn: () => void;
     handleZoomOut: () => void;
+    handleRotateImage: (degrees: number) => void;
     handleRunOcr: () => void;
     handleRunOcrForAllDocuments: () => void;
     handleLayerChange: (layer: string) => void;
@@ -91,6 +92,25 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
     ];
 
     const commandBarFarItems: ICommandBarItemProps[] = [
+        {
+            key: "Rotate90CounterClockwise",
+            text: strings.editorPage.canvas.canvasCommandBar.farItems.rotate.counterClockwise,
+            // This needs an ariaLabel since it's icon-only
+            ariaLabel: strings.editorPage.canvas.canvasCommandBar.farItems.rotate.counterClockwise,
+            iconOnly: true,
+            iconProps: { iconName: "Rotate90CounterClockwise" },
+            onClick: () => props.handleRotateImage(-90),
+        },
+        {
+            key: "Rotate90Clockwise",
+            text: strings.editorPage.canvas.canvasCommandBar.farItems.rotate.clockwise,
+            // This needs an ariaLabel since it's icon-only
+            ariaLabel: strings.editorPage.canvas.canvasCommandBar.farItems.rotate.clockwise,
+            iconOnly: true,
+            iconProps: { iconName: "Rotate90Clockwise" },
+            style: { marginRight: "1rem" },
+            onClick: () => props.handleRotateImage(90),
+        },
         {
             key: "zoomOut",
             text: strings.editorPage.canvas.canvasCommandBar.farItems.zoom.zoomOut,

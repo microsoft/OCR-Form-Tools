@@ -9,7 +9,7 @@ import {
     EditorMode, IAssetMetadata,
     IProject, IRegion, RegionType,
     AssetType, ILabelData, ILabel,
-    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, ISecurityToken, ImageMapParent, LabelType,
+    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, ImageMapParent, LabelType,
 } from "../../../../models/applicationState";
 import CanvasHelpers from "./canvasHelpers";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
@@ -238,6 +238,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleLayerChange={this.handleLayerChange}
                     handleZoomIn={this.handleCanvasZoomIn}
                     handleZoomOut={this.handleCanvasZoomOut}
+                    handleRotateImage={this.handleRotateCanvas}
                     layers={this.state.layers}
                     handleRunOcr={this.runOcr}
                     handleAssetDeleted={this.props.onAssetDeleted}
@@ -1459,6 +1460,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private handleZoomReset = () => {
         this.imageMap.resetZoom();
+    }
+    private handleRotateCanvas = (degrees: number) => {
+        console.log("# Rotate:", degrees);
     }
 
     private getRegionWithKey = (keyFlag: boolean) => {
