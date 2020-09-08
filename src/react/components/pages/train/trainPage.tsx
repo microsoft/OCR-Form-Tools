@@ -158,7 +158,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                             theme={getGreenWithWhiteBackgroundTheme()}
                                             onFocus={this.removeDefaultInputtedLabelFolderURL}
                                             onChange={this.setInputtedLabelFolderURL}
-                                            placeholder={strings.train.defaultLabelFolderURL}
+                                            placeholder={strings.train.defaultLabelFolderURL + (this.props.project.folderPath ?
+                                                "/" + this.props.project.folderPath : "")}
                                             value={this.state.inputtedLabelFolderURL}
                                         />
                                     </div>
