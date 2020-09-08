@@ -8,14 +8,15 @@ import { ContextualMenuItemType, IContextualMenuItemStyles, IContextualMenuStyle
 interface ICanvasCommandBarProps {
     handleZoomIn: () => void;
     handleZoomOut: () => void;
-    handleRunOcr: () => void;
-    handleRunOcrForAllDocuments: () => void;
-    handleLayerChange: (layer: string) => void;
-    handleToggleDrawRegionMode: () => void;
-    drawRegionMode: boolean;
-    connectionType: string;
+    handleRunOcr?: () => void;
+    handleRunOcrForAllDocuments?: () => void;
+    handleLayerChange?: (layer: string) => void;
+    handleToggleDrawRegionMode?: () => void;
+    drawRegionMode?: boolean;
+    connectionType?: string;
     handleAssetDeleted?: () => void;
-    layers: any;
+    layers?: any;
+    parentPage: string;
 }
 
 export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> = (props:ICanvasCommandBarProps) => {
@@ -26,8 +27,9 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
         scopedSettings: {},
     };
 
-    const commandBarItems: ICommandBarItemProps[] = [
-        {
+    let commandBarItems: ICommandBarItemProps[] = [];
+    if (props.parentPage === strings.editorPage.title) {
+      commandBarItems = [{
           key: "layers",
           text: strings.editorPage.canvas.canvasCommandBar.items.layers.text,
           iconProps: { iconName: "MapLayers" },
@@ -88,66 +90,69 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
         //   onClick: () => props.handleToggleDrawRegionMode(),
         //   disabled: !props.layers["drawnRegions"],
         // }
-    ];
+      ];
+    }
 
     const commandBarFarItems: ICommandBarItemProps[] = [
-        {
-            key: "zoomOut",
-            text: strings.editorPage.canvas.canvasCommandBar.farItems.zoom.zoomOut,
-            // This needs an ariaLabel since it's icon-only
-            ariaLabel: strings.editorPage.canvas.canvasCommandBar.farItems.zoom.zoomOut,
-            iconOnly: true,
-            iconProps: { iconName: "ZoomOut" },
-            onClick: () => props.handleZoomOut(),
+      {
+          key: "zoomOut",
+          text: strings.editorPage.canvas.canvasCommandBar.farItems.zoom.zoomOut,
+          // This needs an ariaLabel since it's icon-only
+          ariaLabel: strings.editorPage.canvas.canvasCommandBar.farItems.zoom.zoomOut,
+          iconOnly: true,
+          iconProps: { iconName: "ZoomOut" },
+          onClick: () => props.handleZoomOut(),
+      },
+      {
+          key: "zoomIn",
+          text: strings.editorPage.canvas.canvasCommandBar.farItems.zoom.zoomIn,
+          // This needs an ariaLabel since it's icon-only
+          ariaLabel: strings.editorPage.canvas.canvasCommandBar.farItems.zoom.zoomIn,
+          iconOnly: true,
+          iconProps: { iconName: "ZoomIn" },
+          onClick: () => props.handleZoomIn(),
+      }
+    ]
+    if (props.parentPage === strings.editorPage.title) {
+      commandBarFarItems.push({
+        key: "additionalActions",
+        title: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.text,
+        // This needs an ariaLabel since it's icon-only
+        ariaLabel: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.text,
+        className: "additional-action-dropdown",
+        iconProps: { iconName: "More" },
+        subMenuProps: {
+            items: [
+                {
+                    key: 'divider_0',
+                    itemType: ContextualMenuItemType.Divider,
+                },
+                {
+                    key: "runOcrForCurrentDocument",
+                    text: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runOcrOnCurrentDocument,
+                    iconProps: { iconName: "TextDocument" },
+                    onClick: () => props.handleRunOcr(),
+                },
+                {
+                    key: "runOcrForAllDocuments",
+                    text: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runOcrOnAllDocuments,
+                    iconProps: { iconName: "Documentation" },
+                    onClick: () => props.handleRunOcrForAllDocuments(),
+                },
+                {
+                  key: 'divider_1',
+                  itemType: ContextualMenuItemType.Divider,
+                },
+                {
+                  key: "deleteAsset",
+                  text: strings.editorPage.asset.delete.title,
+                  iconProps: { iconName: "Delete" },
+                  onClick: () => props.handleAssetDeleted(),
+                }
+            ],
         },
-        {
-            key: "zoomIn",
-            text: strings.editorPage.canvas.canvasCommandBar.farItems.zoom.zoomIn,
-            // This needs an ariaLabel since it's icon-only
-            ariaLabel: strings.editorPage.canvas.canvasCommandBar.farItems.zoom.zoomIn,
-            iconOnly: true,
-            iconProps: { iconName: "ZoomIn" },
-            onClick: () => props.handleZoomIn(),
-        },
-        {
-            key: "additionalActions",
-            title: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.text,
-            // This needs an ariaLabel since it's icon-only
-            ariaLabel: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.text,
-            className: "additional-action-dropdown",
-            iconProps: { iconName: "More" },
-            subMenuProps: {
-                items: [
-                    {
-                        key: 'divider_0',
-                        itemType: ContextualMenuItemType.Divider,
-                    },
-                    {
-                        key: "runOcrForCurrentDocument",
-                        text: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runOcrOnCurrentDocument,
-                        iconProps: { iconName: "TextDocument" },
-                        onClick: () => props.handleRunOcr(),
-                    },
-                    {
-                        key: "runOcrForAllDocuments",
-                        text: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runOcrOnAllDocuments,
-                        iconProps: { iconName: "Documentation" },
-                        onClick: () => props.handleRunOcrForAllDocuments(),
-                    },
-                    {
-                      key: 'divider_1',
-                      itemType: ContextualMenuItemType.Divider,
-                    },
-                    {
-                      key: "deleteAsset",
-                      text: strings.editorPage.asset.delete.title,
-                      iconProps: { iconName: "Delete" },
-                      onClick: () => props.handleAssetDeleted(),
-                    }
-                ],
-            },
-        },
-    ];
+      })
+    }
 
     return (
         <Customizer {...dark}>
