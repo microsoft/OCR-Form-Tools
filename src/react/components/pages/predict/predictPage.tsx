@@ -40,6 +40,7 @@ import axios from "axios";
 import { IAnalyzeModelInfo } from './predictResult';
 import RecentModelsView from "./recentModelsView";
 import { getAppInsights } from '../../../../services/telemetryService';
+import { CanvasCommandBar } from "../editorPage/canvasCommandBar";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -623,17 +624,32 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
     private renderImageMap = () => {
         return (
-            <ImageMap
-                parentPage={ImageMapParent.Predict}
-                ref={(ref) => this.imageMap = ref}
-                imageUri={this.state.imageUri || ""}
-                imageWidth={this.state.imageWidth}
-                imageHeight={this.state.imageHeight}
+            <div style={{ width: "100%", height: "100%" }}>
+                <CanvasCommandBar
+                    handleZoomIn={this.handleCanvasZoomIn}
+                    handleZoomOut={this.handleCanvasZoomOut}
+                    parentPage={"predict"}
+                />
+                <ImageMap
+                    parentPage={ImageMapParent.Predict}
+                    ref={(ref) => this.imageMap = ref}
+                    imageUri={this.state.imageUri || ""}
+                    imageWidth={this.state.imageWidth}
+                    imageHeight={this.state.imageHeight}
 
-                featureStyler={this.featureStyler}
-                onMapReady={this.noOp}
-            />
+                    featureStyler={this.featureStyler}
+                    onMapReady={this.noOp}
+                />
+            </div>
         );
+    }
+
+    private handleCanvasZoomIn = () => {
+        this.imageMap.zoomIn();
+    }
+
+    private handleCanvasZoomOut = () => {
+        this.imageMap.zoomOut();
     }
 
     private handleFileChange = () => {
