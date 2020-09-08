@@ -40,6 +40,7 @@ import axios from "axios";
 import { IAnalyzeModelInfo } from './predictResult';
 import RecentModelsView from "./recentModelsView";
 import { getAppInsights } from '../../../../services/telemetryService';
+import { CanvasCommandBar } from "../editorPage/canvasCommandBar";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -82,6 +83,7 @@ export interface IPredictPageState {
     highlightedField: string;
     modelList: IModel[];
     modelOption: string;
+    imageAngle: number;
 }
 
 export interface IModel {
@@ -139,6 +141,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         highlightedField: "",
         modelList: [],
         modelOption: "",
+        imageAngle: 0,
     };
 
     private selectionHandler: ISelection;
@@ -623,17 +626,37 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
     private renderImageMap = () => {
         return (
-            <ImageMap
-                parentPage={ImageMapParent.Predict}
-                ref={(ref) => this.imageMap = ref}
-                imageUri={this.state.imageUri || ""}
-                imageWidth={this.state.imageWidth}
-                imageHeight={this.state.imageHeight}
-
-                featureStyler={this.featureStyler}
-                onMapReady={this.noOp}
-            />
+            <div style={{ width: "100%", height: "100%" }}>
+                <CanvasCommandBar
+                    handleZoomIn={this.handleCanvasZoomIn}
+                    handleZoomOut={this.handleCanvasZoomOut}
+                    handleRotateImage={this.handleRotateCanvas}
+                    parentPage={"predict"}
+                />
+                <ImageMap
+                    parentPage={ImageMapParent.Predict}
+                    ref={(ref) => this.imageMap = ref}
+                    imageUri={this.state.imageUri || ""}
+                    imageWidth={this.state.imageWidth}
+                    imageHeight={this.state.imageHeight}
+                    imageAngle={this.state.imageAngle}
+                    featureStyler={this.featureStyler}
+                    onMapReady={this.noOp}
+                />
+            </div>
         );
+    }
+
+    private handleCanvasZoomIn = () => {
+        this.imageMap.zoomIn();
+    }
+
+    private handleCanvasZoomOut = () => {
+        this.imageMap.zoomOut();
+    }
+
+    private handleRotateCanvas = (degrees: number) => {
+        this.setState({ imageAngle: this.state.imageAngle + degrees });
     }
 
     private handleFileChange = () => {
