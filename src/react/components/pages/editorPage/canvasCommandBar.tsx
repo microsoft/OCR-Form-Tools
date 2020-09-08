@@ -3,7 +3,7 @@ import { CommandBar, ICommandBarItemProps } from "@fluentui/react/lib/CommandBar
 import { ICustomizations, Customizer } from "@fluentui/react/lib/Utilities";
 import { getDarkGreyTheme } from "../../../../common/themes";
 import { strings } from '../../../../common/strings';
-import { ContextualMenuItemType, IContextualMenuItemStyles, IContextualMenuStyles, IButtonProps, CommandBarButton, concatStyleSets, memoizeFunction, IButtonStyles, ContextualMenuItem, IContextualMenuItemProps } from "@fluentui/react";
+import { ContextualMenuItemType } from "@fluentui/react";
 
 interface ICanvasCommandBarProps {
     handleZoomIn: () => void;
@@ -58,16 +58,16 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                 isChecked: props.layers["checkboxes"],
                 onClick: () => props.handleLayerChange("checkboxes"),
               },
-              // {
-              //   key: "DrawnRegions",
-              //   text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.drawnRegions,
-              //   canCheck: true,
-              //   iconProps: { iconName: "AddField" },
-              //   isChecked: props.layers["drawnRegions"],
-              //   className: props.drawRegionMode ? "disabled" : "",
-              //   onClick: () => props.handleLayerChange("drawnRegions"),
-              //   disabled: props.drawRegionMode
-              // },
+            //   {
+            //     key: "DrawnRegions",
+            //     text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.drawnRegions,
+            //     canCheck: true,
+            //     iconProps: { iconName: "AddField" },
+            //     isChecked: props.layers["drawnRegions"],
+            //     className: props.drawRegionMode ? "disabled" : "",
+            //     onClick: () => props.handleLayerChange("drawnRegions"),
+            //     disabled: props.drawRegionMode
+            //   },
               {
                 key: "Label",
                 text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.labels,
