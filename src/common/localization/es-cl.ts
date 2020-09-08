@@ -122,7 +122,7 @@ export const spanish: IAppStrings = {
     train: {
         modelNameTitle: "Nombre del modelo",
         labelFolderTitle: "URI de carpeta de etiquetas",
-        defaultLabelFolderURL: "https://example.com/folder",
+        defaultLabelFolderURL: "/shared",
         title: "Entrenar",
         training: "Entrenamiento",
         pleaseWait: "Por favor espera",
