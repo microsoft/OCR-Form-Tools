@@ -9,7 +9,7 @@ import {
     EditorMode, IAssetMetadata,
     IProject, IRegion, RegionType,
     AssetType, ILabelData, ILabel,
-    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, ISecurityToken, ImageMapParent, LabelType,
+    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, ImageMapParent, LabelType,
 } from "../../../../models/applicationState";
 import CanvasHelpers from "./canvasHelpers";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
@@ -84,6 +84,7 @@ export interface ICanvasState {
     isVertexDragging: boolean;
     isDrawing: boolean;
     isPointerOnImage: boolean;
+    imageAngle: number;
 }
 
 interface IRegionOrder {
@@ -142,6 +143,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         isVertexDragging: false,
         isDrawing: false,
         isPointerOnImage: false,
+        imageAngle: 0,
     };
 
     private imageMap: ImageMap;
@@ -239,6 +241,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleLayerChange={this.handleLayerChange}
                     handleZoomIn={this.handleCanvasZoomIn}
                     handleZoomOut={this.handleCanvasZoomOut}
+                    handleRotateImage={this.handleRotateCanvas}
                     layers={this.state.layers}
                     handleRunOcr={this.runOcr}
                     handleAssetDeleted={this.props.onAssetDeleted}
@@ -282,6 +285,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleDrawing={this.handleDrawing}
                     isDrawing={this.state.isDrawing}
                     updateFeatureAfterModify={this.updateFeatureAfterModify}
+                    imageAngle={this.state.imageAngle}
                 />
                 <TooltipHost
                     content={"rows: " + this.state.tableIconTooltip.rows +
@@ -1461,6 +1465,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private handleZoomReset = () => {
         this.imageMap.resetZoom();
+    }
+    private handleRotateCanvas = (degrees: number) => {
+        this.setState({ imageAngle: this.state.imageAngle + degrees });
     }
 
     private getRegionWithKey = (keyFlag: boolean) => {
