@@ -1798,7 +1798,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         features.forEach((feature) => feature.changed());
     }
 
-    private createRegion(boundingBox: number[], text: string, tagName: string, pageNumber: number, labelType) {
+    private createRegion(boundingBox: number[], text: string, tagName: string, pageNumber: number, labelType: string) {
         const xAxisValues = boundingBox.filter((value, index) => index % 2 === 0);
         const yAxisValues = boundingBox.filter((value, index) => index % 2 === 1);
         const left = Math.min(...xAxisValues);
@@ -1813,12 +1813,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 y: boundingBox[i + 1],
             });
         }
-        const tag = this.props.project.tags.find((tag) => tag.name === tagName);
+        const tag: ITag = this.props.project.tags.find((tag) => tag.name === tagName);
 
-        let regionCategory;
+        let regionCategory: string;
         if (labelType) {
             regionCategory = labelType;
-        } else if (tag.type === FieldType.SelectionMark) {
+        } else if (tag && tag.type === FieldType.SelectionMark) {
             regionCategory = FeatureCategory.Checkbox;
         } else {
             regionCategory = FeatureCategory.Text;
