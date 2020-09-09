@@ -47,11 +47,11 @@ export class OCRService {
             notifyStatusChanged(OcrStatus.loadingFromAzureBlob);
             ocrJson = await this.readOcrFile(ocrFileName);
             if (!this.isValidOcrFormat(ocrJson) || rewrite) {
-                ocrJson = await this.fetchOcrUriResult(filePath, ocrFileName);
+                ocrJson = await this.fetchOcrUriResult(filePath, fileName, ocrFileName);
             }
         } catch (e) {
             notifyStatusChanged(OcrStatus.runningOCR);
-            ocrJson = await this.fetchOcrUriResult(filePath, ocrFileName);
+            ocrJson = await this.fetchOcrUriResult(filePath, fileName, ocrFileName);
         } finally {
             notifyStatusChanged(OcrStatus.done);
         }
@@ -81,13 +81,11 @@ export class OCRService {
         }
     }
 
-    private fetchOcrUriResult = async (filePath: string, ocrFileName: string) => {
+    private fetchOcrUriResult = async (filePath: string, fileName: string, ocrFileName: string) => {
         try {
             let body;
             let headers;
             if (filePath.startsWith("file:")) {
-                const splitFilePath = filePath.split("/")
-                const fileName = splitFilePath[splitFilePath.length - 1];
                 const bodyAndType = await Promise.all(
                     [
                         this.storageProvider.readBinary(decodeURI(fileName)),
