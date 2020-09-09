@@ -83,6 +83,7 @@ export interface IPredictPageState {
     highlightedField: string;
     modelList: IModel[];
     modelOption: string;
+    imageAngle: number;
 }
 
 export interface IModel {
@@ -140,6 +141,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         highlightedField: "",
         modelList: [],
         modelOption: "",
+        imageAngle: 0,
     };
 
     private selectionHandler: ISelection;
@@ -628,6 +630,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 <CanvasCommandBar
                     handleZoomIn={this.handleCanvasZoomIn}
                     handleZoomOut={this.handleCanvasZoomOut}
+                    handleRotateImage={this.handleRotateCanvas}
                     parentPage={"predict"}
                 />
                 <ImageMap
@@ -636,7 +639,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     imageUri={this.state.imageUri || ""}
                     imageWidth={this.state.imageWidth}
                     imageHeight={this.state.imageHeight}
-
+                    imageAngle={this.state.imageAngle}
                     featureStyler={this.featureStyler}
                     onMapReady={this.noOp}
                 />
@@ -650,6 +653,10 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
     private handleCanvasZoomOut = () => {
         this.imageMap.zoomOut();
+    }
+
+    private handleRotateCanvas = (degrees: number) => {
+        this.setState({ imageAngle: this.state.imageAngle + degrees });
     }
 
     private handleFileChange = () => {

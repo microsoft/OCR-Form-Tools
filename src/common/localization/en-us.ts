@@ -421,6 +421,10 @@ export const english: IAppStrings = {
                     drawRegion: "Draw region",
                 },
                 farItems: {
+                    rotate: {
+                        clockwise: "Rotate image clockwise 90°",
+                        counterClockwise: "Rotate image counterclockwise 90°",
+                    },
                     zoom: {
                         zoomOut: "Zoom out",
                         zoomIn: "Zoom in",

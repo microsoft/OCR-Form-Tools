@@ -422,6 +422,10 @@ export const spanish: IAppStrings = {
                     drawRegion: "Dibujar regiones",
                 },
                 farItems: {
+                    rotate: {
+                        clockwise: "Girar la imagen 90 ° en el sentido de las agujas del reloj",
+                        counterClockwise: "Girar la imagen 90 ° en sentido antihorario",
+                    },
                     zoom: {
                         zoomOut: "Alejar",
                         zoomIn: "Acercarse",
