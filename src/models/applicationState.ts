@@ -155,6 +155,7 @@ export interface IAsset {
     id: string,
     type: AssetType,
     state: AssetState,
+    labelingState: AssetLabelingState,
     name: string,
     path: string,
     size: ISize,
@@ -163,6 +164,7 @@ export interface IAsset {
     predicted?: boolean,
     ocr?: any,
     isRunningOCR?: boolean,
+    isRunningAutoLabeling?: boolean,
     cachedImage?: string,
 }
 
@@ -357,6 +359,20 @@ export enum AssetState {
     NotVisited = 0,
     Visited = 1,
     Tagged = 2,
+}
+/**
+ * @name - Asset Labeling State
+ * @description - Defines the labeling state for the asset
+ * @member ManualLabeling - Specifies as an asset that has manual labeling the tags
+ * @member Training - Specifies as an asset tagged data has been used for training model
+ * @member AutoLabeling - Specifies as an asset that has run auto-labeling
+ * @member AutoLabelingAndAdusted -specifies as an asset that has run auto-labeling and tags manual adjusted
+ */
+export enum AssetLabelingState {
+    ManualLabeling,
+    Training,
+    AutoLabeling,
+    AutoLabelingAndAdusted,
 }
 
 /**

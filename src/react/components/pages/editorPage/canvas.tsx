@@ -9,7 +9,7 @@ import {
     EditorMode, IAssetMetadata,
     IProject, IRegion, RegionType,
     AssetType, ILabelData, ILabel,
-    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, ISecurityToken, ImageMapParent, LabelType,
+    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, ImageMapParent, LabelType,
 } from "../../../../models/applicationState";
 import CanvasHelpers from "./canvasHelpers";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
@@ -59,6 +59,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onRunningAutoLabelingStatusChanged?: (isRunning: boolean) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
     runOcrForAllDocs?: (runForAllDocs: boolean) => void;
+    runAutoLabelingOnAllDocs?: (runForAll: boolean) => Promise<void>;
     onAssetDeleted?: () => void;
 }
 
@@ -248,6 +249,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleAssetDeleted={this.props.onAssetDeleted}
                     handleRunOcrForAllDocuments={this.runOcrForAllDocuments}
                     handleRunAutoLabelingOnCurrentDocument={this.runAutoLabelingOnCurrentDocument}
+                    handleRunAutoLabelingForRestDocuments={this.runAutoLabelingForRestDocuments}
                     connectionType={this.props.project.sourceConnection.providerType}
                     handleToggleDrawRegionMode={this.handleToggleDrawRegionMode}
                     drawRegionMode={this.state.drawRegionMode}
@@ -363,17 +365,19 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const assetPath = asset.path;
             const predictService = new PredictService(this.props.project);
             const result = await predictService.getPrediction(assetPath);
-
             const assetService = new AssetService(this.props.project);
-            await assetService.uploadAssetPredictResult(asset, result);
-            const assetMetadata = await assetService.getAssetMetadata(asset);
+            const assetMetadata = assetService.getAssetPredictMetadata(asset, result);
             await this.props.onAssetMetadataChanged(assetMetadata);
         }
         finally {
             this.setAutoLabelingStatus(AutoLabelingStatus.done);
         }
     }
-
+    private runAutoLabelingForRestDocuments = async () => {
+        this.setState({ autoLableingStatus: AutoLabelingStatus.running });
+        await this.props.runAutoLabelingOnAllDocs(false);
+        this.setState({ autoLableingStatus: AutoLabelingStatus.done });
+    }
     public updateSize() {
         this.imageMap.updateSize();
     }
@@ -1577,10 +1581,20 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         } else if (newLabels.length > 0) {
             const newFieldNames = newLabels.map((label) => label.label);
             const prevFieldNames = prevLabels.map((label) => label.label);
-            return !_.isEqual(newFieldNames.sort(), prevFieldNames.sort());
+            if (_.isEqual(newFieldNames.sort(), prevFieldNames.sort())) {
+                for (const name of newFieldNames) {
+                    const newValue = newLabels.find(label => label.label === name).value.map(region=>region.boundingBoxes).join(",");
+                    const prevValue = prevLabels.find(label => label.label === name).value.map(region=>region.boundingBoxes).join(",");
+                    if(newValue !== prevValue){
+                        return true;
+                    }
+                }
+                return false;
+            }
+            else {
+                return true;
+            }
         }
-
-        return false;
     }
 
     private getBoundingBoxTextFromRegion = (formRegion: IFormRegion, boundingBoxIndex: number) => {

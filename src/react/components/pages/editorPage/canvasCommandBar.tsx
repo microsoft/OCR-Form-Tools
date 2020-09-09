@@ -13,6 +13,7 @@ interface ICanvasCommandBarProps {
     handleRunOcr: () => void;
     handleRunOcrForAllDocuments: () => void;
     handleRunAutoLabelingOnCurrentDocument: () => void;
+    handleRunAutoLabelingForRestDocuments: () => void;
     handleLayerChange: (layer: string) => void;
     handleToggleDrawRegionMode: () => void;
     drawRegionMode: boolean;
@@ -147,6 +148,17 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                             strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.noPredictModelOnProject,
                         onClick: () => {
                             props.handleRunAutoLabelingOnCurrentDocument();
+                        },
+                    },
+                    {
+                        key: "runAutoLabelingForRestDocuments",
+                        text: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runAutoLabelingOnNotLabelingDocuments,
+                        iconProps: { iconName: "Tag" },
+                        disabled: !props.project.predictModelId,
+                        title: props.project.predictModelId ? "" :
+                            strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.noPredictModelOnProject,
+                        onClick: () => {
+                            props.handleRunAutoLabelingForRestDocuments();
                         },
                     },
                     {

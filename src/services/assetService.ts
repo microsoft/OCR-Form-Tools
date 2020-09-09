@@ -65,9 +65,9 @@ export class AssetService {
     private getOcrFromAnalyzeResult(analyzeResult: any) {
         return _.get(analyzeResult, "analyzeResult.readResults", []);
     }
-    async uploadAssetPredictResult(asset: IAsset, readResults: any): Promise<void> {
+    getAssetPredictMetadata(asset: IAsset, predictResults: any) {
         const getBoundingBox = (pageIndex, arr: number[]) => {
-            const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(readResults)[pageIndex - 1];
+            const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(predictResults)[pageIndex - 1];
             const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
             const ocrWidth = ocrExtent[2] - ocrExtent[0];
             const ocrHeight = ocrExtent[3] - ocrExtent[1];
@@ -83,7 +83,7 @@ export class AssetService {
         const getLabelValues = (field: any) => {
             return field.elements.map((path: string) => {
                 const pathArr = path.split('/').slice(1);
-                const word = pathArr.reduce((obj: any, key: string) => obj[key], { ...readResults.analyzeResult });
+                const word = pathArr.reduce((obj: any, key: string) => obj[key], { ...predictResults.analyzeResult });
                 return {
                     page: field.page,
                     text: word.text || word.state,
@@ -93,7 +93,7 @@ export class AssetService {
             });
         };
         const labels = [];
-        readResults.analyzeResult.documentResults
+        predictResults.analyzeResult.documentResults
             .map(result => Object.keys(result.fields)
                 .filter(key => result.fields[key])
                 .map<ILabel>(key => (
@@ -112,24 +112,35 @@ export class AssetService {
                 labels
             };
             const metadata = {
-                ...await this.getAssetMetadata(asset),
+                asset: { ...asset },
+                regions: [],
+                version: appInfo.version,
                 labelData
             };
             metadata.asset.state = AssetState.Tagged;
-
-            const ocrData = { ...readResults };
+            return metadata;
+        }
+        else {
+            return null;
+        }
+    }
+    async uploadAssetPredictResult(asset: IAsset, predictResults: any): Promise<IAssetMetadata> {
+        const assetMeatadata = this.getAssetPredictMetadata(asset, predictResults);
+        if (assetMeatadata) {
+            const ocrData = { ...predictResults };
             delete ocrData.analyzeResult.documentResults;
             if (ocrData.analyzeResult.errors) {
                 delete ocrData.analyzeResult.errors;
             }
             const ocrFileName = `${asset.name}${constants.ocrFileExtension}`;
             await Promise.all([
-                this.save(metadata),
+                this.save(assetMeatadata),
                 this.storageProvider.writeText(ocrFileName, JSON.stringify(ocrData, null, 2))
             ]);
+            return assetMeatadata;
         }
         else {
-            const ocrData = { ...readResults };
+            const ocrData = { ...predictResults };
             delete ocrData.analyzeResult.documentResults;
             if (ocrData.analyzeResult.errors) {
                 delete ocrData.analyzeResult.errors;
@@ -141,10 +152,10 @@ export class AssetService {
                     this.storageProvider.deleteFile(labelFileName, true, true),
                     this.storageProvider.writeText(ocrFileName, JSON.stringify(ocrData, null, 2))
                 ]);
+            } catch(err) {
+                console.error(err);
             }
-            catch{
-                return;
-            }
+            return  null;
         }
     }
     /**
