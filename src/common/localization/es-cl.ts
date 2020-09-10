@@ -328,7 +328,7 @@ export const spanish: IAppStrings = {
                 browse: "vistazo",
                 selectFolder: "Seleccionar la carpeta",
                 chooseFolder: "Elijir la carpeta",
-                invalidFolderMessage: "\"${project.sourceConnection.name}\" tiene una carpeta no válida Por favor verifique su carpeta seleccionada en la página de Conexiones",
+                invalidFolderMessage: "La conexión [${project.sourceConnection.providerOptions.folderPath}] y la carpeta del proyecto [${project.folderPath}] no son válidas. Compruebe las carpetas especificadas en las páginas Configuración de conexión y proyecto",
             },
         },
     },

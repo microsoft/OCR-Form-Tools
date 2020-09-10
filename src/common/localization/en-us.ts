@@ -328,7 +328,7 @@ export const english: IAppStrings = {
                 browse: "Browse",
                 selectFolder: "Select folder",
                 chooseFolder: "Choose folder",
-                invalidFolderMessage: "\"${project.sourceConnection.name}\" has an invalid folder. Please check it's selected folder in the Connections page",
+                invalidFolderMessage: "Connection [${project.sourceConnection.providerOptions.folderPath}] and project folder [${project.folderPath}] are invalid. Please check the specified folders in the Connection and Project Settings pages",
             },
         },
     },
