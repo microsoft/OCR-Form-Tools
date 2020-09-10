@@ -67,6 +67,7 @@ export interface IProviderOptions {
 export interface IAppSettings {
     securityTokens: ISecurityToken[],
     thumbnailSize?: ISize,
+    hideUploadingOption?: boolean;
 }
 
 /**

@@ -7,6 +7,7 @@ import "./predictResult.scss";
 import { getPrimaryGreenTheme } from "../../../../common/themes";
 import { PrimaryButton } from "@fluentui/react";
 import PredictModelInfo from './predictModelInfo';
+import { strings } from "../../../../common/strings";
 
 export interface IAnalyzeModelInfo {
     docType: string,
@@ -21,6 +22,7 @@ export interface IPredictResultProps {
     page: number;
     tags: ITag[];
     downloadResultLabel: string;
+    onAddAssetToProject?: () => void;
     onPredictionClick?: (item: any) => void;
     onPredictionMouseEnter?: (item: any) => void;
     onPredictionMouseLeave?: (item: any) => void;
@@ -46,6 +48,13 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
             <div>
                 <div className="container-items-center container-space-between results-container">
                     <h5 className="results-header">Prediction results</h5>
+
+                </div>
+                <div className="container-items-center container-space-between">
+                    <PrimaryButton
+                        theme={getPrimaryGreenTheme()}
+                        onClick={this.onAddAssetToProject}
+                        text={strings.predict.editAndUploadToTrainingSet} />
                     <PrimaryButton
                         className="align-self-end keep-button-80px"
                         theme={getPrimaryGreenTheme()}
@@ -142,6 +151,11 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         return data;
     }
 
+    private onAddAssetToProject = async () => {
+        if (this.props.onAddAssetToProject) {
+            this.props.onAddAssetToProject();
+        }
+    }
     private triggerDownload = (): void => {
         const { analyzeResult } = this.props;
         const predictionData = JSON.stringify(this.sanitizeData(analyzeResult));
@@ -189,23 +203,23 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         switch (predictionType) {
             case "string":
                 valueType = "valueString";
-                postProcessedValue =  prediction.valueString;
+                postProcessedValue = prediction.valueString;
                 break;
             case "date":
                 valueType = "valueDate";
-                postProcessedValue =  prediction.valueDate;
+                postProcessedValue = prediction.valueDate;
                 break;
             case "number":
                 valueType = "valueNumber";
-                postProcessedValue =  prediction.valueNumber?.toString();
+                postProcessedValue = prediction.valueNumber?.toString();
                 break;
             case "integer":
                 valueType = "valueInteger";
-                postProcessedValue =  prediction.valueInteger?.toString();
+                postProcessedValue = prediction.valueInteger?.toString();
                 break;
             case "time":
                 valueType = "valueTime";
-                postProcessedValue =  prediction.valueTime;
+                postProcessedValue = prediction.valueTime;
                 break;
             default:
                 return null;
