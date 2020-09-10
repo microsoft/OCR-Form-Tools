@@ -121,7 +121,7 @@ export const english: IAppStrings = {
     train: {
         modelNameTitle: "Model name",
         labelFolderTitle: "Label folder URI",
-        defaultLabelFolderURL: "https://example.com/folder",
+        defaultLabelFolderURL: "/shared",
         title: "Train",
         training: "Training",
         pleaseWait: "Please wait",
@@ -340,7 +340,7 @@ export const english: IAppStrings = {
                 browse: "Browse",
                 selectFolder: "Select folder",
                 chooseFolder: "Choose folder",
-                invalidFolderMessage: "\"${project.sourceConnection.name}\" has an invalid folder. Please check it's selected folder in the Connections page",
+                invalidFolderMessage: "Connection [${project.sourceConnection.providerOptions.folderPath}] and project folder [${project.folderPath}] are invalid. Please check the specified folders in the Connection and Project Settings pages",
             },
         },
     },
@@ -433,6 +433,10 @@ export const english: IAppStrings = {
                     drawRegion: "Draw region",
                 },
                 farItems: {
+                    rotate: {
+                        clockwise: "Rotate image clockwise 90°",
+                        counterClockwise: "Rotate image counterclockwise 90°",
+                    },
                     zoom: {
                         zoomOut: "Zoom out",
                         zoomIn: "Zoom in",

@@ -194,7 +194,7 @@ export class AzureBlobStorage implements IStorageProvider {
     /**
      * Retrieves assets from Azure Blob Storage container
      */
-    public async getAssets(folderPath?: string): Promise<IAsset[]> {
+    public async getAssets(folderPath?: string, folderName?: string): Promise<IAsset[]> {
         const files: string[] = await this.listFiles(folderPath);
         const result: IAsset[] = [];
         for (const file of files) {

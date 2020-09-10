@@ -11,18 +11,20 @@ import "./canvasCommandBar.scss";
 interface ICanvasCommandBarProps {
     handleZoomIn: () => void;
     handleZoomOut: () => void;
-    handleRunOcr: () => void;
-    handleRunOcrForAllDocuments: () => void;
-    handleRunAutoLabelingOnCurrentDocument: () => void;
-    handleRunAutoLabelingForRestDocuments: () => void;
-    handleLayerChange: (layer: string) => void;
-    handleToggleDrawRegionMode: () => void;
-    drawRegionMode: boolean;
-    connectionType: string;
+    handleRunOcr?: () => void;
+    handleRunOcrForAllDocuments?: () => void;
+    handleRunAutoLabelingOnCurrentDocument?: () => void;
+    handleRunAutoLabelingForRestDocuments?: () => void;
+    handleLayerChange?: (layer: string) => void;
+    handleToggleDrawRegionMode?: () => void;
+    // drawRegionMode: boolean;
+    // connectionType: string;
     handleAssetDeleted?: () => void;
     layers: any;
     project: IProject;
     selectedAsset?: IAssetMetadata;
+    handleRotateImage: (degrees: number) => void;
+    parentPage: string;
 }
 
 export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> = (props: ICanvasCommandBarProps) => {
@@ -41,8 +43,9 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
         }
     }
 
-    const commandBarItems: ICommandBarItemProps[] = [
-        {
+    let commandBarItems: ICommandBarItemProps[] = [];
+    if (props.parentPage === strings.editorPage.title) {
+        commandBarItems = [{
             key: "layers",
             text: strings.editorPage.canvas.canvasCommandBar.items.layers.text,
             iconProps: { iconName: "MapLayers" },
@@ -93,19 +96,39 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                 ],
             },
         },
-        // {
-        //   key: "drawRegion",
-        //   text: strings.editorPage.canvas.canvasCommandBar.items.drawRegion,
-        //   iconProps: { iconName: "AddField" },
-        //   toggle: true,
-        //   checked: props.drawRegionMode,
-        //   className: !props.layers["drawnRegions"] ? "disabled" : "",
-        //   onClick: () => props.handleToggleDrawRegionMode(),
-        //   disabled: !props.layers["drawnRegions"],
-        // }
-    ];
+            // {
+            //   key: "drawRegion",
+            //   text: strings.editorPage.canvas.canvasCommandBar.items.drawRegion,
+            //   iconProps: { iconName: "AddField" },
+            //   toggle: true,
+            //   checked: props.drawRegionMode,
+            //   className: !props.layers["drawnRegions"] ? "disabled" : "",
+            //   onClick: () => props.handleToggleDrawRegionMode(),
+            //   disabled: !props.layers["drawnRegions"],
+            // }
+        ];
+    }
 
     const commandBarFarItems: ICommandBarItemProps[] = [
+        {
+            key: "Rotate90CounterClockwise",
+            text: strings.editorPage.canvas.canvasCommandBar.farItems.rotate.counterClockwise,
+            // This needs an ariaLabel since it's icon-only
+            ariaLabel: strings.editorPage.canvas.canvasCommandBar.farItems.rotate.counterClockwise,
+            iconOnly: true,
+            iconProps: { iconName: "Rotate90CounterClockwise" },
+            onClick: () => props.handleRotateImage(-90),
+        },
+        {
+            key: "Rotate90Clockwise",
+            text: strings.editorPage.canvas.canvasCommandBar.farItems.rotate.clockwise,
+            // This needs an ariaLabel since it's icon-only
+            ariaLabel: strings.editorPage.canvas.canvasCommandBar.farItems.rotate.clockwise,
+            iconOnly: true,
+            iconProps: { iconName: "Rotate90Clockwise" },
+            style: { marginRight: "1rem" },
+            onClick: () => props.handleRotateImage(90),
+        },
         {
             key: "zoomOut",
             text: strings.editorPage.canvas.canvasCommandBar.farItems.zoom.zoomOut,
@@ -123,8 +146,10 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
             iconOnly: true,
             iconProps: { iconName: "ZoomIn" },
             onClick: () => props.handleZoomIn(),
-        },
-        {
+        }
+    ]
+    if (props.parentPage === strings.editorPage.title) {
+        commandBarFarItems.push({
             key: "additionalActions",
             title: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.text,
             // This needs an ariaLabel since it's icon-only
@@ -141,13 +166,13 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         key: "runOcrForCurrentDocument",
                         text: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runOcrOnCurrentDocument,
                         iconProps: { iconName: "TextDocument" },
-                        onClick: () => props.handleRunOcr(),
+                        onClick: () => { if (props.handleRunOcr) props.handleRunOcr(); },
                     },
                     {
                         key: "runOcrForAllDocuments",
                         text: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runOcrOnAllDocuments,
                         iconProps: { iconName: "Documentation" },
-                        onClick: () => props.handleRunOcrForAllDocuments(),
+                        onClick: () => { if (props.handleRunOcrForAllDocuments) props.handleRunOcrForAllDocuments(); },
                     },
                     {
                         key: "runAutoLabelingCurrentDocument",
@@ -157,7 +182,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         title: props.project.predictModelId ? "" :
                             strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.noPredictModelOnProject,
                         onClick: () => {
-                            props.handleRunAutoLabelingOnCurrentDocument();
+                            if (props.handleRunAutoLabelingOnCurrentDocument) props.handleRunAutoLabelingOnCurrentDocument();
                         },
                     },
                     {
@@ -168,7 +193,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         title: props.project.predictModelId ? "" :
                             strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.noPredictModelOnProject,
                         onClick: () => {
-                            props.handleRunAutoLabelingForRestDocuments();
+                            if (props.handleRunAutoLabelingForRestDocuments) props.handleRunAutoLabelingForRestDocuments();
                         },
                     },
                     {
@@ -179,12 +204,12 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         key: "deleteAsset",
                         text: strings.editorPage.asset.delete.title,
                         iconProps: { iconName: "Delete" },
-                        onClick: () => props.handleAssetDeleted(),
+                        onClick: () => { if (props.handleAssetDeleted) props.handleAssetDeleted(); },
                     }
                 ],
             },
-        },
-    ];
+        })
+    }
 
     return (
         <Customizer {...dark}>

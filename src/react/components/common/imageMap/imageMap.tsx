@@ -184,7 +184,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
             }
         }
 
-        if (prevProps.imageUri !== this.props.imageUri) {
+        if (prevProps.imageUri !== this.props.imageUri || prevProps.imageAngle !== this.props.imageAngle) {
             this.imageExtent = [0, 0, this.props.imageWidth, this.props.imageHeight];
             this.setImage(this.props.imageUri, this.imageExtent);
         }
@@ -717,8 +717,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
     private handlePointerMoveOnTableIcon = (event: MapBrowserEvent) => {
         if (this.props.handleTableToolTipChange) {
             const eventPixel = this.map.getEventPixel(event.originalEvent);
-            const isPointerOnTableIconFeature = this.map.hasFeatureAtPixel(eventPixel,
-                                                                           this.tableIconBorderVectorLayerFilter);
+            const isPointerOnTableIconFeature = this.map.hasFeatureAtPixel(eventPixel,this.tableIconBorderVectorLayerFilter);
             if (isPointerOnTableIconFeature) {
                 const features = this.map.getFeaturesAtPixel( eventPixel, this.tableIconBorderVectorLayerFilter);
                 if (features.length > 0) {
@@ -741,9 +740,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
                             const bottom = Math.max(...yAxisValues);
                             const width = right - left;
                             const height = bottom - top;
-                            this.props.handleTableToolTipChange("block", width + 2, height + 2, top + 43, left - 1,
-                                                                feature.get("rows"), feature.get("columns"),
-                                                                feature.get("id"));
+                            this.props.handleTableToolTipChange("block", width + 2, height + 2, top + 43, left - 1, feature.get("rows"), feature.get("columns"), feature.get("id"));
                         }
                     }
                 }

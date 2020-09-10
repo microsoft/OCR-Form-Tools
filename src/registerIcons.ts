@@ -71,7 +71,9 @@ export function registerIcons() {
             SquareShape: "\uF1A6",
             Merge: "\uE7D5",
             AddField: "\uE4C7",
-            RectangleShape: "\uF1A9"
+            RectangleShape: "\uF1A9",
+            Rotate90CounterClockwise: "\uF80E",
+            Rotate90Clockwise: "\uF80D",
         },
     });
 }

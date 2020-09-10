@@ -339,7 +339,7 @@ export default class MockFactory {
     public static createAssetProvider(): IAssetProvider {
         return {
             initialize: jest.fn(() => Promise.resolve()),
-            getAssets(folderPath?: string): Promise<IAsset[]> {
+            getAssets(folderPath?: string, folderName?: string): Promise<IAsset[]> {
                 throw new Error("Method not implemented.");
             },
         };

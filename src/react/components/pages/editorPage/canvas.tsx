@@ -37,6 +37,7 @@ import { TooltipHost, ITooltipHostStyles } from "@fluentui/react";
 import { IAppSettings } from '../../../../models/applicationState';
 import { AutoLabelingStatus, PredictService } from "../../../../services/predictService";
 import { AssetService } from "../../../../services/assetService";
+import { strings } from "../../../../common/strings";
 
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
@@ -88,6 +89,7 @@ export interface ICanvasState {
     isVertexDragging: boolean;
     isDrawing: boolean;
     isPointerOnImage: boolean;
+    imageAngle: number;
 }
 
 interface IRegionOrder {
@@ -147,6 +149,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         isVertexDragging: false,
         isDrawing: false,
         isPointerOnImage: false,
+        imageAngle: 0,
     };
 
     private imageMap: ImageMap;
@@ -246,17 +249,19 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleLayerChange={this.handleLayerChange}
                     handleZoomIn={this.handleCanvasZoomIn}
                     handleZoomOut={this.handleCanvasZoomOut}
+                    handleRotateImage={this.handleRotateCanvas}
                     layers={this.state.layers}
                     handleRunOcr={this.runOcr}
                     handleAssetDeleted={this.props.onAssetDeleted}
                     handleRunOcrForAllDocuments={this.runOcrForAllDocuments}
                     handleRunAutoLabelingOnCurrentDocument={this.runAutoLabelingOnCurrentDocument}
                     handleRunAutoLabelingForRestDocuments={this.runAutoLabelingForRestDocuments}
-                    connectionType={this.props.project.sourceConnection.providerType}
+                    // connectionType={this.props.project.sourceConnection.providerType}
                     handleToggleDrawRegionMode={this.handleToggleDrawRegionMode}
-                    drawRegionMode={this.state.drawRegionMode}
+                    // drawRegionMode={this.state.drawRegionMode}
                     project={this.props.project}
                     selectedAsset={this.props.selectedAsset}
+                    parentPage={strings.editorPage.title}
                 />
                 <ImageMap
                     parentPage={ImageMapParent.Editor}
@@ -292,6 +297,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleDrawing={this.handleDrawing}
                     isDrawing={this.state.isDrawing}
                     updateFeatureAfterModify={this.updateFeatureAfterModify}
+                    imageAngle={this.state.imageAngle}
                 />
                 <TooltipHost
                     content={"rows: " + this.state.tableIconTooltip.rows +
@@ -1552,6 +1558,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private handleZoomReset = () => {
         this.imageMap.resetZoom();
     }
+    private handleRotateCanvas = (degrees: number) => {
+        this.setState({ imageAngle: this.state.imageAngle + degrees });
+    }
 
     private getRegionWithKey = (keyFlag: boolean) => {
         let lastSelectedId;
@@ -1891,7 +1900,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         features.forEach((feature) => feature.changed());
     }
 
-    private createRegion(boundingBox: number[], text: string, tagName: string, pageNumber: number, labelType) {
+    private createRegion(boundingBox: number[], text: string, tagName: string, pageNumber: number, labelType: string) {
         const xAxisValues = boundingBox.filter((value, index) => index % 2 === 0);
         const yAxisValues = boundingBox.filter((value, index) => index % 2 === 1);
         const left = Math.min(...xAxisValues);
@@ -1906,12 +1915,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 y: boundingBox[i + 1],
             });
         }
-        const tag = this.props.project.tags.find((tag) => tag.name === tagName);
+        const tag: ITag = this.props.project.tags.find((tag) => tag.name === tagName);
 
         let regionCategory;
         if (labelType) {
             regionCategory = labelType;
-        } else if (tag.type === FieldType.SelectionMark) {
+        } else if (tag && tag.type === FieldType.SelectionMark) {
             regionCategory = FeatureCategory.Checkbox;
         } else {
             regionCategory = FeatureCategory.Text;
