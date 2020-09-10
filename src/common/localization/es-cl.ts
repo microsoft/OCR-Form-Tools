@@ -122,7 +122,7 @@ export const spanish: IAppStrings = {
     train: {
         modelNameTitle: "Nombre del modelo",
         labelFolderTitle: "URI de carpeta de etiquetas",
-        defaultLabelFolderURL: "https://example.com/folder",
+        defaultLabelFolderURL: "/shared",
         title: "Entrenar",
         training: "Entrenamiento",
         pleaseWait: "Por favor espera",
@@ -336,7 +336,7 @@ export const spanish: IAppStrings = {
                 browse: "vistazo",
                 selectFolder: "Seleccionar la carpeta",
                 chooseFolder: "Elijir la carpeta",
-                invalidFolderMessage: "\"${project.sourceConnection.name}\" tiene una carpeta no válida Por favor verifique su carpeta seleccionada en la página de Conexiones",
+                invalidFolderMessage: "La conexión [${project.sourceConnection.providerOptions.folderPath}] y la carpeta del proyecto [${project.folderPath}] no son válidas. Compruebe las carpetas especificadas en las páginas Configuración de conexión y proyecto",
             },
         },
     },
@@ -430,6 +430,10 @@ export const spanish: IAppStrings = {
                     drawRegion: "Dibujar regiones",
                 },
                 farItems: {
+                    rotate: {
+                        clockwise: "Girar la imagen 90 ° en el sentido de las agujas del reloj",
+                        counterClockwise: "Girar la imagen 90 ° en sentido antihorario",
+                    },
                     zoom: {
                         zoomOut: "Alejar",
                         zoomIn: "Acercarse",

@@ -424,6 +424,10 @@ export interface IAppStrings {
                     drawRegion: string,
                 },
                 farItems: {
+                    rotate: {
+                        counterClockwise: string,
+                        clockwise: string,
+                    },
                     zoom: {
                         zoomOut: string,
                         zoomIn: string,

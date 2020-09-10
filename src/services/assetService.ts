@@ -178,14 +178,17 @@ export class AssetService {
 
         if (supportedImageFormats.hasOwnProperty(assetFormat)) {
             let types;
+            let corruptFileName;
             if (nodejsMode) {
                 const FileType = require('file-type');
                 const fileType = await FileType.fromFile(normalizedPath);
                 types = [fileType.ext];
+                corruptFileName = fileName.split(/[\\\/]/).pop().replace(/%20/g, " ");
+
             } else {
                 types = await this.getMimeType(filePath);
+                corruptFileName = fileName.split("%2F").pop().replace(/%20/g, " ");
             }
-            const corruptFileName = fileName.split("%2F").pop().replace(/%20/g, " ");
             if (!types) {
                 console.error(interpolate(strings.editorPage.assetWarning.incorrectFileExtension.failedToFetch, { fileName: corruptFileName.toLocaleUpperCase() }));
             }
@@ -302,12 +305,21 @@ export class AssetService {
     public async getAssets(): Promise<IAsset[]> {
         const folderPath = this.project.folderPath;
         const assets = await this.assetProvider.getAssets(folderPath);
-        const returnedAssets = assets.map((asset) => {
-            asset.name = decodeURIComponent(asset.name);
-            return asset;
-        }).filter((asset) => this.isInExactFolderPath(asset.name, folderPath));
+        return this.filterAssets(assets, folderPath);
+    }
 
-        return returnedAssets;
+    private filterAssets = (assets, folderPath) => {
+        if (this.project.sourceConnection.providerType === "localFileSystemProxy") {
+            return assets.map((asset) => {
+                asset.name = decodeURIComponent(asset.name);
+                return asset;
+            })
+        } else {
+           return assets.map((asset) => {
+                asset.name = decodeURIComponent(asset.name);
+                return asset;
+            }).filter((asset) => this.isInExactFolderPath(asset.name, folderPath));
+        }
     }
     public async uploadBuffer(name: string, buffer: Buffer) {
         const path = this.project.folderPath ? `${this.project.folderPath}/${name}` : name;

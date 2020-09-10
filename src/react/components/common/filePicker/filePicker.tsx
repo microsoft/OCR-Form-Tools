@@ -11,6 +11,7 @@ import { IFileInfo } from "../../../../models/applicationState";
 export interface IFilePickerProps {
     onChange: (sender: SyntheticEvent, fileText: IFileInfo) => void;
     onError: (sender: SyntheticEvent, error: any) => void;
+    accept: string[];
 }
 
 /**
@@ -36,7 +37,7 @@ export default class FilePicker extends React.Component<IFilePickerProps> {
 
     public render() {
         return (
-            <input id={shortid.generate()} ref={this.fileInput} type="file" onChange={this.onFileUploaded} />
+            <input id={shortid.generate()} ref={this.fileInput} type="file" onChange={this.onFileUploaded} accept={this.props.accept.join()}/>
         );
     }
 
