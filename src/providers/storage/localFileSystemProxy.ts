@@ -49,8 +49,12 @@ export class LocalFileSystemProxy implements IStorageProvider, IAssetProvider {
         return IpcRendererProxy.send(`${PROXY_NAME}:readText`, [filePath]);
     }
 
-    public isValidProjectConnection(): Promise<boolean> {
-        return IpcRendererProxy.send(`${PROXY_NAME}:isValidProjectConnection`, [this.options.folderPath]);
+    public isValidProjectConnection(fileName?: string): Promise<boolean> {
+        let filePath = this.options.folderPath;
+        if (fileName) {
+            filePath = [this.options.folderPath, fileName].join("/");
+        }
+        return IpcRendererProxy.send(`${PROXY_NAME}:isValidProjectConnection`, [filePath]);
     }
 
     public getFileType(fileName: string): Promise<any> {
@@ -138,7 +142,6 @@ export class LocalFileSystemProxy implements IStorageProvider, IAssetProvider {
      * @param folderName - Directory containing assets
      */
     public getAssets(folderName?: string): Promise<IAsset[]> {
-        const folderPath = [this.options.folderPath, folderName].join("/");
-        return IpcRendererProxy.send(`${PROXY_NAME}:getAssets`, [folderPath]);
+        return IpcRendererProxy.send(`${PROXY_NAME}:getAssets`, [this.options.folderPath, folderName]);
     }
 }
