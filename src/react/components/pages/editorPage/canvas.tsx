@@ -35,6 +35,8 @@ import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./canvasCommandBar";
 import { TooltipHost, ITooltipHostStyles } from "@fluentui/react";
 import { IAppSettings } from '../../../../models/applicationState';
+import { AutoLabelingStatus, PredictService } from "../../../../services/predictService";
+import { AssetService } from "../../../../services/assetService";
 import { strings } from "../../../../common/strings";
 
 
@@ -55,6 +57,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onSelectedRegionsChanged?: (regions: IRegion[]) => void;
     onCanvasRendered?: (canvas: HTMLCanvasElement) => void;
     onRunningOCRStatusChanged?: (isRunning: boolean) => void;
+    onRunningAutoLabelingStatusChanged?: (isRunning: boolean) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
     runOcrForAllDocs?: (runForAllDocs: boolean) => void;
     onAssetDeleted?: () => void;
@@ -75,6 +78,7 @@ export interface ICanvasState {
     errorTitle?: string;
     errorMessage: string;
     ocrStatus: OcrStatus;
+    autoLableingStatus: AutoLabelingStatus;
     layers: any;
     tableIconTooltip: any;
     hoveringFeature: string;
@@ -134,8 +138,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         isError: false,
         errorMessage: undefined,
         ocrStatus: OcrStatus.done,
-        layers: {text: true, tables: true, checkboxes: true, label: true, drawnRegions: true},
-        tableIconTooltip: { display: "none", width: 0, height: 0, top: 0, left: 0},
+        autoLableingStatus: AutoLabelingStatus.none,
+        layers: { text: true, tables: true, checkboxes: true, label: true, drawnRegions: true },
+        tableIconTooltip: { display: "none", width: 0, height: 0, top: 0, left: 0 },
         hoveringFeature: null,
         groupSelectMode: false,
         drawRegionMode: false,
@@ -188,7 +193,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 pdfFile: null,
                 imageUri: null,
                 tiffImages: [],
-                layers: {text: true, tables: true, checkboxes: true, label: true, drawnRegions: true},
+                layers: { text: true, tables: true, checkboxes: true, label: true, drawnRegions: true },
             }, async () => {
                 const asset = this.state.currentAsset.asset;
                 await this.loadImage();
@@ -223,12 +228,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         return (
             <div style={{ width: "100%", height: "100%" }}>
                 <KeyboardBinding
-                        displayName={"Delete region"}
-                        key={"Delete"}
-                        keyEventType={KeyEventType.KeyDown}
-                        accelerators={["Escape", "Alt+Backspace", "Shift", "Delete", "Backspace", "<", ",", ">", ".",
-                            "{", "[", "}", "]", "+", "-", "/", "=", "_", "?"]}
-                        handler={this.handleKeyDown}
+                    displayName={"Delete region"}
+                    key={"Delete"}
+                    keyEventType={KeyEventType.KeyDown}
+                    accelerators={["Escape", "Alt+Backspace", "Shift", "Delete", "Backspace", "<", ",", ">", ".",
+                        "{", "[", "}", "]", "+", "-", "/", "=", "_", "?"]}
+                    handler={this.handleKeyDown}
                 />
                 <KeyboardBinding
                     displayName={"Label Key Mode"}
@@ -246,9 +251,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleRunOcr={this.runOcr}
                     handleAssetDeleted={this.props.onAssetDeleted}
                     handleRunOcrForAllDocuments={this.runOcrForAllDocuments}
+                    handleRunAutoLabelingOnCurrentDocument={this.runAutoLabelingOnCurrentDocument}
                     connectionType={this.props.project.sourceConnection.providerType}
                     handleToggleDrawRegionMode={this.handleToggleDrawRegionMode}
                     drawRegionMode={this.state.drawRegionMode}
+                    project={this.props.project}
                     parentPage={strings.editorPage.title}
                 />
                 <ImageMap
@@ -289,7 +296,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 />
                 <TooltipHost
                     content={"rows: " + this.state.tableIconTooltip.rows +
-                             " columns: " + this.state.tableIconTooltip.columns}
+                        " columns: " + this.state.tableIconTooltip.columns}
                     id="tableInfo"
                     styles={hostStyles}
                 >
@@ -299,32 +306,40 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         onClick={this.handleTableIconFeatureSelect}
                     />
                 </TooltipHost>
-                { this.shouldShowPreviousPageButton() &&
+                {this.shouldShowPreviousPageButton() &&
                     <IconButton
                         className="toolbar-btn prev"
                         title="Previous"
-                        iconProps={{iconName: "ChevronLeft"}}
+                        iconProps={{ iconName: "ChevronLeft" }}
                         onClick={this.prevPage}
                     />
                 }
-                { this.shouldShowNextPageButton() &&
+                {this.shouldShowNextPageButton() &&
                     <IconButton
                         className="toolbar-btn next"
                         title="Next"
                         onClick={this.nextPage}
-                        iconProps={{iconName: "ChevronRight"}}
+                        iconProps={{ iconName: "ChevronRight" }}
                     />
                 }
-                { this.shouldShowMultiPageIndicator() &&
+                {this.shouldShowMultiPageIndicator() &&
                     <p className="page-number">
                         Page {this.state.currentPage} of {this.state.numPages}
                     </p>
                 }
-                { this.state.ocrStatus !== OcrStatus.done &&
+                {this.state.ocrStatus !== OcrStatus.done &&
                     <div className="canvas-ocr-loading">
                         <div className="canvas-ocr-loading-spinner">
                             <Label className="p-0" ></Label>
-                            <Spinner size={SpinnerSize.large} label="Running OCR..." ariaLive="assertive" labelPosition="right"/>
+                            <Spinner size={SpinnerSize.large} label="Running OCR..." ariaLive="assertive" labelPosition="right" />
+                        </div>
+                    </div>
+                }
+                {this.state.autoLableingStatus === AutoLabelingStatus.running &&
+                    <div className="canvas-ocr-loading">
+                        <div className="canvas-ocr-loading-spinner">
+                            <Label className="p-0" ></Label>
+                            <Spinner size={SpinnerSize.large} label="Running Auto Labeling..." ariaLive="assertive" labelPosition="right" />
                         </div>
                     </div>
                 }
@@ -343,8 +358,26 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private runOcrForAllDocuments = () => {
-        this.setState({ocrStatus: OcrStatus.runningOCR})
+        this.setState({ ocrStatus: OcrStatus.runningOCR })
         this.props.runOcrForAllDocs(true);
+    }
+
+    private runAutoLabelingOnCurrentDocument = async () => {
+        try {
+            this.setAutoLabelingStatus(AutoLabelingStatus.running);
+            const asset = this.state.currentAsset.asset;
+            const assetPath = asset.path;
+            const predictService = new PredictService(this.props.project);
+            const result = await predictService.getPrediction(assetPath);
+
+            const assetService = new AssetService(this.props.project);
+            await assetService.uploadAssetPredictResult(asset, result);
+            const assetMetadata = await assetService.getAssetMetadata(asset);
+            await this.props.onAssetMetadataChanged(assetMetadata);
+        }
+        finally {
+            this.setAutoLabelingStatus(AutoLabelingStatus.done);
+        }
     }
 
     public updateSize() {
@@ -405,8 +438,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const newTag = {
             ...tag,
             documentCount: 1,
-            type : fieldType,
-            format : FieldFormat.NotSpecified,
+            type: fieldType,
+            format: FieldFormat.NotSpecified,
         } as ITag;
         this.props.onTagChanged(tag, newTag);
     }
@@ -572,7 +605,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.imageMap.removeAllDrawnLabelFeatures();
             this.addLabelledDataToLayer(regions.filter(
                 (region) => region.tags[0] !== undefined &&
-                region.pageNumber === this.state.currentPage));
+                    region.pageNumber === this.state.currentPage));
         }
         this.setState({
             currentAsset,
@@ -695,9 +728,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             state: "rest",
         });
 
-        const iconTR = [coordinates[0][0] - 5, coordinates[0][1] ];
+        const iconTR = [coordinates[0][0] - 5, coordinates[0][1]];
         const iconTL = [iconTR[0] - 31.5, iconTR[1]];
-        const iconBL = [iconTR[0] , iconTR[1] - 29.5];
+        const iconBL = [iconTR[0], iconTR[1] - 29.5];
         const iconBR = [iconTR[0] - 31.5, iconTR[1] - 29.5];
 
         tableFeatures["iconBorder"] = new Feature({
@@ -883,7 +916,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 image: new Icon({
                     opacity: 0.3,
                     scale: this.imageMap && this.imageMap.getResolutionForZoom(3) ?
-                           this.imageMap.getResolutionForZoom(3) / resolution : 1,
+                        this.imageMap.getResolutionForZoom(3) / resolution : 1,
                     anchor: [.95, 0.15],
                     anchorXUnits: "fraction",
                     anchorYUnits: "fraction",
@@ -895,7 +928,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 image: new Icon({
                     opacity: 1,
                     scale: this.imageMap && this.imageMap.getResolutionForZoom(3) ?
-                           this.imageMap.getResolutionForZoom(3) / resolution : 1,
+                        this.imageMap.getResolutionForZoom(3) / resolution : 1,
                     anchor: [.95, 0.15],
                     anchorXUnits: "fraction",
                     anchorYUnits: "fraction",
@@ -977,8 +1010,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
         if (category === FeatureCategory.DrawnRegion ||
             (category === FeatureCategory.Label && this.state.currentAsset.regions
-            .find((r) => r.id === regionId).category === FeatureCategory.DrawnRegion))
-        {
+                .find((r) => r.id === regionId).category === FeatureCategory.DrawnRegion)) {
             selectedRegions.forEach((region) => {
                 if (region?.category !== FeatureCategory.DrawnRegion) {
                     this.removeFromSelectedRegions(region.id)
@@ -987,14 +1019,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
         else if (category === FeatureCategory.Checkbox ||
             (category === FeatureCategory.Label && this.state.currentAsset.regions
-            .find((r) => r.id === regionId).category === FeatureCategory.Checkbox)) {
-                selectedRegions.forEach((region) => this.removeFromSelectedRegions(region.id));
+                .find((r) => r.id === regionId).category === FeatureCategory.Checkbox)) {
+            selectedRegions.forEach((region) => this.removeFromSelectedRegions(region.id));
         } else if (category === FeatureCategory.Text ||
             (category === FeatureCategory.Label && this.state.currentAsset.regions
-            .find((r) => r.id === regionId).category === FeatureCategory.Text)) {
-                selectedRegions.filter((region) => region.category === FeatureCategory.Checkbox ||
-                    region.category === FeatureCategory.DrawnRegion)
-                    .forEach((region) => this.removeFromSelectedRegions(region.id));
+                .find((r) => r.id === regionId).category === FeatureCategory.Text)) {
+            selectedRegions.filter((region) => region.category === FeatureCategory.Checkbox ||
+                region.category === FeatureCategory.DrawnRegion)
+                .forEach((region) => this.removeFromSelectedRegions(region.id));
         }
     }
 
@@ -1014,7 +1046,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const iRegionId = this.getIndexOfSelectedRegionIndex(regionId);
         if (iRegionId >= 0) {
             const region = this.getSelectedRegions().find((r) => r.id === regionId);
-            if (region && region.tags && region.tags.length === 0 ) {
+            if (region && region.tags && region.tags.length === 0) {
                 this.onRegionDelete(regionId);
             }
             this.selectedRegionIds.splice(iRegionId, 1);
@@ -1025,9 +1057,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private addToSelectedRegions = (regionId: string,
-                                    text: string,
-                                    polygon: number[],
-                                    regionCategory: FeatureCategory) => {
+        text: string,
+        polygon: number[],
+        regionCategory: FeatureCategory) => {
         let selectedRegion;
         if (this.isRegionSelected(regionId)) {
             // skip if it's already existed in selected regions
@@ -1041,7 +1073,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             if (this.selectedRegionIds.includes(regionId)) {
                 return;
             }
-        }  else {
+        } else {
             const regionBoundingBox = this.convertToRegionBoundingBox(polygon);
             const regionPoints = this.convertToRegionPoints(polygon);
             selectedRegion = {
@@ -1105,6 +1137,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             }
         });
     }
+    private setAutoLabelingStatus = (autoLableingStatus: AutoLabelingStatus) => {
+        this.setState({ autoLableingStatus }, () => {
+            if (this.props.onRunningAutoLabelingStatusChanged) {
+                this.props.onRunningAutoLabelingStatusChanged(autoLableingStatus === AutoLabelingStatus.running);
+            }
+        })
+    }
 
     private runOcr = () => {
         this.loadOcr(true);
@@ -1161,7 +1200,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private loadPdfFile = async (assetId, url) => {
         try {
-            const pdf = await pdfjsLib.getDocument({url, cMapUrl, cMapPacked: true}).promise;
+            const pdf = await pdfjsLib.getDocument({ url, cMapUrl, cMapPacked: true }).promise;
             // Fetch current page
             if (assetId === this.state.currentAsset.asset.id) {
                 await this.loadPdfPage(assetId, pdf, this.state.currentPage);
@@ -1247,7 +1286,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private convertLabelDataToRegions = (labelData: ILabelData): IRegion[] => {
         const regions = [];
 
-        if (labelData.labels) {
+        if (labelData && labelData.labels) {
             labelData.labels.forEach((label) => {
                 if (label.value) {
                     label.value.forEach((formRegion) => {
@@ -1339,13 +1378,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const top = Math.min(...yAxisValues);
         const right = Math.max(...xAxisValues);
         const bottom = Math.max(...yAxisValues);
-        return([left, top, right, top, right, bottom, left, bottom]);
+        return ([left, top, right, top, right, bottom, left, bottom]);
     }
 
     private convertToRegionPoints = (polygon: number[]) => {
         const points = [];
         for (let i = 0; i < polygon.length; i += 2) {
-            points.push({x: polygon[i], y: polygon[i + 1]});
+            points.push({ x: polygon[i], y: polygon[i + 1] });
         }
         return points;
     }
@@ -1555,7 +1594,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private getBoundingBoxTextFromRegion = (formRegion: IFormRegion, boundingBoxIndex: number) => {
         // get value from formRegion.text
-        const regionValues = formRegion.text.split(" ");
+        const regionValues = formRegion.text && formRegion.text.split(" ");
         if (regionValues && regionValues.length > boundingBoxIndex) {
             return regionValues[boundingBoxIndex];
         }
@@ -1675,7 +1714,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         // 2. Avoid rebuilding order index when users switch back and forth between pages.
         const ocrs = this.state.ocr;
         const ocrReadResults = (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.readResults));
-        const ocrPageResults =  (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.pageResults));
+        const ocrPageResults = (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.pageResults));
         const imageExtent = this.imageMap.getImageExtent();
         ocrReadResults.forEach((ocr) => {
             const ocrExtent = [0, 0, ocr.width, ocr.height];
@@ -1888,12 +1927,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const newLayers = Object.assign({}, this.state.layers);
         newLayers[layer] = !newLayers[layer];
         this.setState({
-            layers : newLayers,
+            layers: newLayers,
         });
     }
 
     private handleTableToolTipChange = async (display: string, width: number, height: number, top: number,
-                                              left: number, rows: number, columns: number, featureID: string) => {
+        left: number, rows: number, columns: number, featureID: string) => {
         if (!this.imageMap) {
             return;
         }
@@ -1902,23 +1941,23 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.imageMap.getTableBorderFeatureByID(featureID).set("state", "hovering");
             this.imageMap.getTableIconFeatureByID(featureID).set("state", "hovering");
         } else if (featureID === null && this.state.hoveringFeature &&
-                this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).get("state") !== "selected") {
+            this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).get("state") !== "selected") {
             this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).set("state", "rest");
             this.imageMap.getTableIconFeatureByID(this.state.hoveringFeature).set("state", "rest");
         }
         const newTableIconTooltip = {
             display,
-                width,
-                height,
-                top,
-                left,
-                rows,
-                columns,
-            };
+            width,
+            height,
+            top,
+            left,
+            rows,
+            columns,
+        };
         this.setState({
-                tableIconTooltip : newTableIconTooltip,
-                hoveringFeature: featureID,
-            });
+            tableIconTooltip: newTableIconTooltip,
+            hoveringFeature: featureID,
+        });
     }
 
     private redrawAllFeatures = () => {
@@ -2028,7 +2067,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private addDrawnRegionFeatureProps = (feature) => {
         const featureCoordinates = feature.getGeometry().getCoordinates()[0];
-        const {featureId, boundingBox} = this.getFeatureIDAndBoundingBox(featureCoordinates);
+        const { featureId, boundingBox } = this.getFeatureIDAndBoundingBox(featureCoordinates);
         feature.setProperties({
             id: featureId,
             text: "",
@@ -2093,7 +2132,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             polygonPoints.push(boundingBox[i + 1] / ocrHeight);
         }
         const featureId = this.createRegionIdFromBoundingBox(polygonPoints, ocrPage);
-        return {featureId, boundingBox}
+        return { featureId, boundingBox }
     }
 
     private modifySelectedRegion = (existingRegionId, newRegionId) => {
@@ -2124,7 +2163,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const originalFeatureId = feature.getId();
             const featureCoordinates = feature.getGeometry().getCoordinates()[0];
             if (this.imageMap.modifyStartFeatureCoordinates[originalFeatureId] !== featureCoordinates.join(",")) {
-                const {featureId, boundingBox} = this.getFeatureIDAndBoundingBox(featureCoordinates);
+                const { featureId, boundingBox } = this.getFeatureIDAndBoundingBox(featureCoordinates);
                 feature.setProperties({
                     id: featureId,
                     boundingbox: boundingBox,

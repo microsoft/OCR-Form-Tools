@@ -475,6 +475,7 @@ export default class MockFactory {
             saveProject: jest.fn(() => Promise.resolve()),
             deleteProject: jest.fn(() => Promise.resolve()),
             closeProject: jest.fn(() => Promise.resolve()),
+            addAssetToProject: jest.fn(() => Promise.resolve()),
             deleteAsset: jest.fn(() => Promise.resolve()),
             loadAssets: jest.fn(() => Promise.resolve()),
             loadAssetMetadata: jest.fn(() => Promise.resolve()),

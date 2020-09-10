@@ -4,10 +4,14 @@ import { ICustomizations, Customizer } from "@fluentui/react/lib/Utilities";
 import { getDarkGreyTheme } from "../../../../common/themes";
 import { strings } from '../../../../common/strings';
 import { ContextualMenuItemType } from "@fluentui/react";
+import { IProject } from "../../../../models/applicationState";
+import "./canvasCommandBar.scss";
 
 interface ICanvasCommandBarProps {
     handleZoomIn: () => void;
     handleZoomOut: () => void;
+    handleRunAutoLabelingOnCurrentDocument?: () => void;
+    project: IProject;
     handleRotateImage: (degrees: number) => void;
     handleRunOcr?: () => void;
     handleRunOcrForAllDocuments?: () => void;
@@ -60,16 +64,16 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         isChecked: props.layers["checkboxes"],
                         onClick: () => props.handleLayerChange("checkboxes"),
                     },
-                    //   {
-                    //     key: "DrawnRegions",
-                    //     text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.drawnRegions,
-                    //     canCheck: true,
-                    //     iconProps: { iconName: "AddField" },
-                    //     isChecked: props.layers["drawnRegions"],
-                    //     className: props.drawRegionMode ? "disabled" : "",
-                    //     onClick: () => props.handleLayerChange("drawnRegions"),
-                    //     disabled: props.drawRegionMode
-                    //   },
+                    // {
+                    //   key: "DrawnRegions",
+                    //   text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.drawnRegions,
+                    //   canCheck: true,
+                    //   iconProps: { iconName: "AddField" },
+                    //   isChecked: props.layers["drawnRegions"],
+                    //   className: props.drawRegionMode ? "disabled" : "",
+                    //   onClick: () => props.handleLayerChange("drawnRegions"),
+                    //   disabled: props.drawRegionMode
+                    // },
                     {
                         key: "Label",
                         text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.labels,
@@ -158,6 +162,17 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         text: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runOcrOnAllDocuments,
                         iconProps: { iconName: "Documentation" },
                         onClick: () => props.handleRunOcrForAllDocuments(),
+                    },
+                    {
+                        key: "runAutoLabelingCurrentDocument",
+                        text: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runAutoLabelingCurrentDocument,
+                        iconProps: { iconName: "Tag" },
+                        disabled: !props.project.predictModelId,
+                        title: props.project.predictModelId ? "" :
+                            strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.noPredictModelOnProject,
+                        onClick: () => {
+                            props.handleRunAutoLabelingOnCurrentDocument();
+                        },
                     },
                     {
                         key: 'divider_1',

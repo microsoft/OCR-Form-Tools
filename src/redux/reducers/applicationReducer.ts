@@ -18,6 +18,8 @@ export const reducer = (state: IAppSettings = null, action: AnyAction): IAppSett
             return { ...action.payload };
         case ActionTypes.ENSURE_SECURITY_TOKEN_SUCCESS:
             return { ...action.payload };
+        case ActionTypes.ADD_ASSET_TO_PROJECT_SUCCESS:
+            return { ...state, hideUploadingOption: true };
         default:
             return state;
     }
