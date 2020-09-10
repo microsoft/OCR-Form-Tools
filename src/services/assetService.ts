@@ -127,7 +127,8 @@ export class AssetService {
     async uploadAssetPredictResult(asset: IAsset, predictResults: any): Promise<IAssetMetadata> {
         const assetMeatadata = this.getAssetPredictMetadata(asset, predictResults);
         if (assetMeatadata) {
-            const ocrData = { ...predictResults };
+
+            const ocrData = JSON.parse(JSON.stringify(predictResults));
             delete ocrData.analyzeResult.documentResults;
             if (ocrData.analyzeResult.errors) {
                 delete ocrData.analyzeResult.errors;
@@ -326,7 +327,7 @@ export class AssetService {
                 return asset;
             })
         } else {
-           return assets.map((asset) => {
+            return assets.map((asset) => {
                 asset.name = decodeURIComponent(asset.name);
                 return asset;
             }).filter((asset) => this.isInExactFolderPath(asset.name, folderPath));
