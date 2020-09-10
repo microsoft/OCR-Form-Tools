@@ -292,7 +292,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             trainMessage: strings.train.training,
         });
 
-        this.trainProcess().then((trainResult) => {
+        this.trainProcess().then(async (trainResult) => {
             this.setState((prevState, props) => ({
                 isTraining: false,
                 trainMessage: this.getTrainMessage(trainResult),
@@ -303,12 +303,11 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             const assetService = new AssetService(this.props.project);
             for (const asset of assets) {
                 asset.labelingState = AssetLabelingState.Training;
-                assetService.getAssetMetadata(asset).then(async metadata => {
-                    if (metadata.labelData) {
-                        metadata.labelData.labelingState = AssetLabelingState.Training;
-                    }
+                const metadata = await assetService.getAssetMetadata(asset);
+                if (metadata.labelData && metadata.labelData.labelingState !== AssetLabelingState.Training) {
+                    metadata.labelData.labelingState = AssetLabelingState.Training;
                     await assetService.save({ ...metadata });
-                });
+                }
             }
         }).catch((err) => {
             this.setState({
