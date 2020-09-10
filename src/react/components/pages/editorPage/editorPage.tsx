@@ -13,7 +13,7 @@ import { strings, interpolate } from "../../../../common/strings";
 import {
     AssetState, AssetType, EditorMode, FieldType,
     IApplicationState, IAppSettings, IAsset, IAssetMetadata,
-    ILabel, IProject, IRegion, ISize, ITag, FeatureCategory, FieldFormat,
+    ILabel, IProject, IRegion, ISize, ITag, FeatureCategory, FieldFormat, AssetLabelingState,
 } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -762,13 +762,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                         try {
                             this.updateAssetState({ id: asset.id, isRunningAutoLabeling: true });
                             const predictResult = await predictService.getPrediction(asset.path);
-                            await assetService.uploadAssetPredictResult(asset, predictResult);
+                            const assetMetadata = await assetService.uploadAssetPredictResult(asset, predictResult);
                             this.updateAssetState({
                                 id: asset.id, isRunningAutoLabeling: false,
                                 assetState: AssetState.Tagged
                             });
-
-                            const assetMetadata = await assetService.getAssetMetadata({ ...asset });
                             this.props.actions.updatedAssetMetadata(this.props.project, assetMetadata);
                         } catch (err) {
                             this.updateAssetState({ id: asset.id, isRunningOCR: false, isRunningAutoLabeling: false });
@@ -791,7 +789,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         id: string,
         isRunningOCR?: boolean,
         isRunningAutoLabeling?: boolean,
-        assetState?: AssetState
+        assetState?: AssetState,
+        labelingState?: AssetLabelingState
     }) => {
         this.setState((state) => ({
             assets: state.assets.map((asset) => {
@@ -799,6 +798,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                     const updatedAsset = { ...asset, isRunningOCR: newState.isRunningOCR || false };
                     if (newState.assetState !== undefined && asset.state === AssetState.NotVisited) {
                         updatedAsset.state = newState.assetState;
+                    }
+                    if(newState.labelingState){
+                        updatedAsset.labelingState = newState.labelingState;
                     }
                     if (newState.isRunningAutoLabeling !== undefined) {
                         updatedAsset.isRunningAutoLabeling = newState.isRunningAutoLabeling;
@@ -827,11 +829,12 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const updatedAssets = [...this.state.assets];
         let needUpdate = false;
         updatedAssets.forEach((asset) => {
-            const projectAsset = _.get(this.props, "project.assets[asset.id]", null);
+            const projectAsset = _.get(this.props, `project.assets[${asset.id}]`, null);
             if (projectAsset) {
-                if (asset.state !== projectAsset.state) {
+                if (asset.state !== projectAsset.state || asset.labelingState !== projectAsset.labelingState) {
                     needUpdate = true;
                     asset.state = projectAsset.state;
+                    asset.labelingState = projectAsset.labelingState;
                 }
             }
         });

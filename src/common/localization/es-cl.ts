@@ -130,6 +130,10 @@ export const spanish: IAppStrings = {
         backEndNotAvailable: "La función de casilla de verificación funcionará en la versión futura del servicio de reconocimiento de formularios, manténgase atento.",
         addName: "Agregar nombre de modelo ...",
         downloadJson: "Descargar archivo JSON",
+        trainConfirm: {
+            title: "Etiquetas no revisadas todavía",
+            message: "Tiene archivos de etiquetas que aún no han sido revisados, ¿desea entrenar con esos archivos?"
+        }
     },
     modelCompose: {
         title: "Modelo componer",
@@ -417,7 +421,7 @@ export const spanish: IAppStrings = {
             },
             canvasCommandBar: {
                 items: {
-                    layers:{
+                    layers: {
                         text: "Capas",
                         subMenuItems: {
                             text: "Texto",
@@ -439,8 +443,8 @@ export const spanish: IAppStrings = {
                         subIMenuItems: {
                             runOcrOnCurrentDocument: "Ejecutar OCR en el documento actual",
                             runOcrOnAllDocuments: "Ejecute OCR en todos los documentos",
-                            runAutoLabelingCurrentDocument: "Ejecutar AutoLabeling en el documento actual",
-                            runAutoLabelingOnNotLabelingDocuments: "Ejecute AutoLabeling en documentos sin etiquetar",
+                            runAutoLabelingCurrentDocument: "Etiquetar automáticamente el documento actual",
+                            runAutoLabelingOnNotLabelingDocuments: "Etiquetar documentos nuevos automáticamente",
                             noPredictModelOnProject: "Predecir modelo no disponible, entrene el modelo primero.",
                         }
                     }
@@ -473,7 +477,7 @@ export const spanish: IAppStrings = {
             keys: {
                 lessThan: "<",
                 greaterThan: ">",
-                },
+            },
             description: {
                 prevPage: "Ir a la página anterior en documentos de varias páginas",
                 nextPage: "Ir a la página siguiente en documentos de varias páginas",
@@ -484,7 +488,7 @@ export const spanish: IAppStrings = {
                 minus: "-",
                 plus: "=",
                 slash: "/",
-                },
+            },
             description: {
                 in: "Acercarse",
                 out: "Disminuir el zoom",
@@ -495,11 +499,11 @@ export const spanish: IAppStrings = {
             keys: {
                 delete: "Delete",
                 backSpace: "Backspace",
-                },
+            },
             description: {
                 delete: "Eliminar selección del mapa del documento o clave de selección de una etiqueta",
                 backSpace: "Eliminar selección del mapa del documento o clave de selección de una etiqueta",
-                },
+            },
         },
         drawnRegions: {
             keys: {
@@ -515,7 +519,7 @@ export const spanish: IAppStrings = {
         tips: {
             quickLabeling: {
                 name: "Etiquetado rápido",
-            description: "Las teclas de acceso rápido de 1 a 0 y todas las letras se asignan a las primeras 36 etiquetas, después de seleccionar una o varias palabras de los elementos de texto resaltados, al presionar estas teclas de acceso rápido, puede etiquetar las palabras seleccionadas.",
+                description: "Las teclas de acceso rápido de 1 a 0 y todas las letras se asignan a las primeras 36 etiquetas, después de seleccionar una o varias palabras de los elementos de texto resaltados, al presionar estas teclas de acceso rápido, puede etiquetar las palabras seleccionadas.",
             },
             renameTag: {
                 name: "Rename Tag",

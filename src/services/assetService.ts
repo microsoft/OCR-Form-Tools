@@ -5,7 +5,7 @@ import _ from "lodash";
 import Guard from "../common/guard";
 import {
     IAsset, AssetType, IProject, IAssetMetadata, AssetState,
-    ILabelData, ILabel,
+    ILabelData, ILabel, AssetLabelingState,
 } from "../models/applicationState";
 import { AssetProviderFactory, IAssetProvider } from "../providers/storage/assetProviderFactory";
 import { StorageProviderFactory, IStorageProvider } from "../providers/storage/storageProviderFactory";
@@ -92,30 +92,30 @@ export class AssetService {
                 };
             });
         };
-        const labels = [];
-        predictResults.analyzeResult.documentResults
-            .map(result => Object.keys(result.fields)
-                .filter(key => result.fields[key])
-                .map<ILabel>(key => (
-                    {
-                        label: key,
-                        key: null,
-                        value: getLabelValues(result.fields[key])
-                    }))).forEach(items => {
-                        labels.push(...items);
-                    });
+        const labels =
+            predictResults.analyzeResult.documentResults
+                .map(result => Object.keys(result.fields)
+                    .filter(key => result.fields[key])
+                    .map<ILabel>(key => (
+                        {
+                            label: key,
+                            key: null,
+                            confidence: result.fields[key].confidence,
+                            value: getLabelValues(result.fields[key])
+                        }))).flat(2);
 
         if (labels.length > 0) {
             const fileName = decodeURIComponent(asset.name).split('/').pop();
             const labelData: ILabelData = {
                 document: fileName,
+                labelingState: AssetLabelingState.AutoLabeling,
                 labels
             };
-            const metadata = {
-                asset: { ...asset },
+            const metadata: IAssetMetadata = {
+                asset: { ...asset, labelingState: AssetLabelingState.AutoLabeling },
                 regions: [],
                 version: appInfo.version,
-                labelData
+                labelData,
             };
             metadata.asset.state = AssetState.Tagged;
             return metadata;
@@ -152,10 +152,10 @@ export class AssetService {
                     this.storageProvider.deleteFile(labelFileName, true, true),
                     this.storageProvider.writeText(ocrFileName, JSON.stringify(ocrData, null, 2))
                 ]);
-            } catch(err) {
-                console.error(err);
+            } catch (err) {
+                // The label file may not exist - that's OK.
             }
-            return  null;
+            return null;
         }
     }
     /**
@@ -426,7 +426,7 @@ export class AssetService {
             }
             toast.dismiss();
             return {
-                asset: { ...asset },
+                asset: { ...asset, labelingState: labelData.labelingState },
                 regions: [],
                 version: appInfo.version,
                 labelData,

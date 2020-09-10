@@ -4,7 +4,8 @@ import { ICustomizations, Customizer } from "@fluentui/react/lib/Utilities";
 import { getDarkGreyTheme } from "../../../../common/themes";
 import { strings } from '../../../../common/strings';
 import { ContextualMenuItemType } from "@fluentui/react";
-import { IProject } from "../../../../models/applicationState";
+import { IProject, IAssetMetadata, AssetLabelingState } from "../../../../models/applicationState";
+import _ from "lodash";
 import "./canvasCommandBar.scss";
 
 interface ICanvasCommandBarProps {
@@ -21,6 +22,7 @@ interface ICanvasCommandBarProps {
     handleAssetDeleted?: () => void;
     layers: any;
     project: IProject;
+    selectedAsset?: IAssetMetadata;
 }
 
 export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> = (props: ICanvasCommandBarProps) => {
@@ -30,6 +32,14 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
         },
         scopedSettings: {},
     };
+    const disableAutoLabeling = !props.project.predictModelId;
+    let disableAutoLabelingCurrentAsset = disableAutoLabeling;
+    if (!disableAutoLabeling) {
+        const labelingState = _.get(props.selectedAsset, "labelData.labelingState");
+        if (labelingState === AssetLabelingState.ManualLabeling || labelingState === AssetLabelingState.Training) {
+            disableAutoLabelingCurrentAsset = true;
+        }
+    }
 
     const commandBarItems: ICommandBarItemProps[] = [
         {
@@ -143,7 +153,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         key: "runAutoLabelingCurrentDocument",
                         text: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runAutoLabelingCurrentDocument,
                         iconProps: { iconName: "Tag" },
-                        disabled: !props.project.predictModelId,
+                        disabled: disableAutoLabelingCurrentAsset,
                         title: props.project.predictModelId ? "" :
                             strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.noPredictModelOnProject,
                         onClick: () => {
@@ -154,7 +164,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         key: "runAutoLabelingForRestDocuments",
                         text: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runAutoLabelingOnNotLabelingDocuments,
                         iconProps: { iconName: "Tag" },
-                        disabled: !props.project.predictModelId,
+                        disabled: disableAutoLabeling,
                         title: props.project.predictModelId ? "" :
                             strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.noPredictModelOnProject,
                         onClick: () => {

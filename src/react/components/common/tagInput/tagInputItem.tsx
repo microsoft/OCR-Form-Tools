@@ -7,6 +7,7 @@ import { ITag, ILabel, FieldType, FieldFormat } from "../../../../models/applica
 import { strings } from "../../../../common/strings";
 import TagInputItemLabel from "./tagInputItemLabel";
 import { tagIndexKeys } from "./tagIndexKeys";
+import _ from "lodash";
 
 export interface ITagClickProps {
     ctrlKey?: boolean;
@@ -79,13 +80,18 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         const style: any = {
             background: this.props.tag.color,
         };
-
+        const confidence = _.get(this.props, "labels[0].confidence", null);
         return (
             <div className={"tag-item-block"}>
                 <div
                     className={"tag-color"}
                     style={style}
                     onClick={this.onColorClick}>
+                    {confidence &&
+                        <div className="tag-item-confidence">
+                            {confidence}
+                        </div>
+                    }
                 </div>
                 <div className={"tag-item-block-2"}>
                     {
@@ -107,6 +113,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                     }
                     {this.renderTagDetail()}
                 </div>
+
             </div>
         );
     }
@@ -190,7 +197,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                         title={strings.tags.toolbar.contextualMenu}
                         ariaLabel={strings.tags.toolbar.contextualMenu}
                         className="tag-input-toolbar-iconbutton ml-2"
-                        iconProps={{iconName: "ChevronDown"}}
+                        iconProps={{ iconName: "ChevronDown" }}
                         onClick={this.onDropdownClick} />
                 </div>
             </div>
@@ -258,7 +265,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
     }
 
     private isTypeOrFormatSpecified = () => {
-        const {tag} = this.props;
+        const { tag } = this.props;
         return (tag.type && tag.type !== FieldType.String) ||
             (tag.format && tag.format !== FieldFormat.NotSpecified);
     }

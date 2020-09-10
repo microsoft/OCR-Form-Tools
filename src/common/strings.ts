@@ -129,6 +129,10 @@ export interface IAppStrings {
         backEndNotAvailable: string,
         addName: string,
         downloadJson: string;
+        trainConfirm: {
+            title: string;
+            message: string;
+        }
     };
     modelCompose: {
         title: string,

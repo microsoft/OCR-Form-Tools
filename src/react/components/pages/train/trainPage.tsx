@@ -5,12 +5,12 @@ import React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
-import { FontIcon, PrimaryButton, Spinner, SpinnerSize, TextField} from "@fluentui/react";
+import { FontIcon, PrimaryButton, Spinner, SpinnerSize, TextField } from "@fluentui/react";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import {
-    IApplicationState, IConnection, IProject, IAppSettings, FieldType, IRecentModel,
+    IApplicationState, IConnection, IProject, IAppSettings, FieldType, IRecentModel, AssetLabelingState,
 } from "../../../../models/applicationState";
 import TrainChart from "./trainChart";
 import TrainPanel from "./trainPanel";
@@ -26,6 +26,8 @@ import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
 import { getPrimaryGreenTheme, getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
 import { getAppInsights } from '../../../../services/telemetryService';
+import { AssetService } from "../../../../services/assetService";
+import Confirm from "../../common/confirm/confirm";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -78,6 +80,7 @@ function mapDispatchToProps(dispatch) {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class TrainPage extends React.Component<ITrainPageProps, ITrainPageState> {
     private appInsights: any = null;
+    private notAdjustedLabelsConfirm: React.RefObject<Confirm> = React.createRef();
 
     constructor(props) {
         super(props);
@@ -118,7 +121,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     public render() {
         const currTrainRecord = this.state.currTrainRecord;
         const localFileSystemProvider: boolean = this.props.project && this.props.project.sourceConnection &&
-                                                 this.props.project.sourceConnection.providerType === "localFileSystemProxy";
+            this.props.project.sourceConnection.providerType === "localFileSystemProxy";
         const trainDisabled: boolean = localFileSystemProvider && (this.state.inputtedLabelFolderURL.length === 0 ||
             this.state.inputtedLabelFolderURL === strings.train.defaultLabelFolderURL);
 
@@ -176,9 +179,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                 >
                                 </TextField>
                                 {!this.state.isTraining ? (
-                                    <div  className="container-items-end">
+                                    <div className="container-items-end">
                                         <PrimaryButton
-                                            style={{"margin": "15px 0px"}}
+                                            style={{ "margin": "15px 0px" }}
                                             id="train_trainButton"
                                             theme={getPrimaryGreenTheme()}
                                             autoFocus={true}
@@ -191,16 +194,16 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                         </PrimaryButton>
                                     </div>
                                 ) : (
-                                    <div className="loading-container">
-                                        <Spinner
-                                            label="Training in progress..."
-                                            ariaLive="assertive"
-                                            labelPosition="right"
-                                            size={SpinnerSize.large}
-                                            className={"training-spinner"}
-                                        />
-                                    </div>
-                                )
+                                        <div className="loading-container">
+                                            <Spinner
+                                                label="Training in progress..."
+                                                ariaLive="assertive"
+                                                labelPosition="right"
+                                                size={SpinnerSize.large}
+                                                className={"training-spinner"}
+                                            />
+                                        </div>
+                                    )
                                 }
                             </div>
                             <div className={!this.state.isTraining ? "" : "greyOut"}>
@@ -210,22 +213,22 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                             currTrainRecord={currTrainRecord}
                                             viewType={this.state.viewType}
                                             updateViewTypeCallback={this.handleViewTypeClick}
-                                    />
-                                    <PrimaryButton
-                                        ariaDescription={strings.train.downloadJson}
-                                        style={{ "margin": "2rem auto" }}
-                                        id="train-download-json_button"
-                                        theme={getPrimaryGreenTheme()}
-                                        autoFocus={true}
-                                        className="flex-center"
-                                        onClick={this.handleDownloadJSONClick}
-                                        disabled={trainDisabled}>
-                                        <FontIcon
-                                            iconName="Download"
-                                            style={{ fontWeight: 600 }}/>
-                                        <h6 className="d-inline text-shadow-none ml-2 mb-0">
-                                            {strings.train.downloadJson}</h6>
-                                    </PrimaryButton>
+                                        />
+                                        <PrimaryButton
+                                            ariaDescription={strings.train.downloadJson}
+                                            style={{ "margin": "2rem auto" }}
+                                            id="train-download-json_button"
+                                            theme={getPrimaryGreenTheme()}
+                                            autoFocus={true}
+                                            className="flex-center"
+                                            onClick={this.handleDownloadJSONClick}
+                                            disabled={trainDisabled}>
+                                            <FontIcon
+                                                iconName="Download"
+                                                style={{ fontWeight: 600 }} />
+                                            <h6 className="d-inline text-shadow-none ml-2 mb-0">
+                                                {strings.train.downloadJson}</h6>
+                                        </PrimaryButton>
                                     </>
                                 }
                             </div>
@@ -242,25 +245,46 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                     when={this.state.isTraining}
                     message={"A training operation is currently in progress, are you sure you want to leave?"}
                 />
+                <Confirm
+                    ref={this.notAdjustedLabelsConfirm}
+                    title={strings.train.trainConfirm.title}
+                    message={strings.train.trainConfirm.message}
+                    onConfirm={this.handleModelTrainConfirm}
+                    confirmButtonTheme={getPrimaryGreenTheme()}
+                />
             </div>
         );
     }
 
     private removeDefaultInputtedLabelFolderURL = () => {
         if (this.state.inputtedLabelFolderURL === strings.train.defaultLabelFolderURL) {
-            this.setState({inputtedLabelFolderURL: ""});
+            this.setState({ inputtedLabelFolderURL: "" });
         }
     }
 
     private setInputtedLabelFolderURL = (event) => {
-        this.setState({inputtedLabelFolderURL: event.target.value});
+        this.setState({ inputtedLabelFolderURL: event.target.value });
     }
 
     private onTextChanged = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string) => {
-        this.setState({modelName: text});
+        this.setState({ modelName: text });
     }
 
     private handleTrainClick = () => {
+        const assets = Object.values(this.props.project.assets)
+            .filter(asset => asset.labelingState === AssetLabelingState.AutoLabeling);
+        if (assets.length > 0) {
+            this.notAdjustedLabelsConfirm.current.open();
+        } else {
+            this.handleModelTrain();
+        }
+    }
+
+    private handleModelTrainConfirm = () => {
+        this.handleModelTrain();
+    }
+
+    private handleModelTrain = () => {
         this.setState({
             isTraining: true,
             trainMessage: strings.train.training,
@@ -273,6 +297,17 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 currTrainRecord: this.getProjectTrainRecord(),
                 modelName: "",
             }));
+            const assets = Object.values(this.props.project.assets);
+            const assetService = new AssetService(this.props.project);
+            for (const asset of assets) {
+                asset.labelingState = AssetLabelingState.Training;
+                assetService.getAssetMetadata(asset).then(async metadata => {
+                    if (metadata.labelData) {
+                        metadata.labelData.labelingState = AssetLabelingState.Training;
+                    }
+                    await assetService.save({ ...metadata });
+                });
+            }
         }).catch((err) => {
             this.setState({
                 isTraining: false,
@@ -280,7 +315,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             });
         });
         if (this.appInsights) {
-            this.appInsights.trackEvent({name: "TRAIN_MODEL_EVENT"});
+            this.appInsights.trackEvent({ name: "TRAIN_MODEL_EVENT" });
         }
     }
 
@@ -340,7 +375,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 {},
                 this.props.project.apiKey as string,
             );
-            this.setState({modelUrl: result.headers.location});
+            this.setState({ modelUrl: result.headers.location });
             return result;
         } catch (err) {
             ServiceHelper.handleServiceError(err);
@@ -362,8 +397,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
     private buildUpdatedProject = (newTrainRecord: ITrainRecordProps): IProject => {
         const recentModelRecords: IRecentModel[] = this.props.project.recentModelRecords ?
-                                                   [...this.props.project.recentModelRecords] : [];
-        recentModelRecords.unshift({...newTrainRecord, isComposed: false} as IRecentModel);
+            [...this.props.project.recentModelRecords] : [];
+        recentModelRecords.unshift({ ...newTrainRecord, isComposed: false } as IRecentModel);
         if (recentModelRecords.length > constants.recentModelRecordsCount) {
             recentModelRecords.pop();
         }
@@ -468,7 +503,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             new Blob([modelJSON]));
         const fileLink = document.createElement("a");
         const fileBaseName = "model";
-        const downloadFileName =`${fileBaseName}-${this.state.currTrainRecord.modelInfo.modelId}.json`;
+        const downloadFileName = `${fileBaseName}-${this.state.currTrainRecord.modelInfo.modelId}.json`;
 
         fileLink.href = fileURL;
         fileLink.setAttribute("download", downloadFileName);

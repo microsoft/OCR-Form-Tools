@@ -155,7 +155,7 @@ export interface IAsset {
     id: string,
     type: AssetType,
     state: AssetState,
-    labelingState: AssetLabelingState,
+    labelingState?: AssetLabelingState,
     name: string,
     path: string,
     size: ISize,
@@ -209,6 +209,7 @@ export interface IRegion {
     boundingBox?: IBoundingBox,
     value?: string,
     pageNumber: number,
+    changed?: boolean,
 }
 
 /**
@@ -217,6 +218,7 @@ export interface IRegion {
  */
 export interface ILabelData {
     document: string,
+    labelingState?: AssetLabelingState;
     labels: ILabel[],
 }
 
@@ -229,6 +231,7 @@ export interface ILabel {
     key?: IFormRegion[],
     value: IFormRegion[],
     labelType?: string,
+    confidence?: number,
 }
 
 /**
@@ -369,10 +372,10 @@ export enum AssetState {
  * @member AutoLabelingAndAdusted -specifies as an asset that has run auto-labeling and tags manual adjusted
  */
 export enum AssetLabelingState {
-    ManualLabeling,
-    Training,
-    AutoLabeling,
-    AutoLabelingAndAdusted,
+    ManualLabeling = 1,
+    Training = 2,
+    AutoLabeling = 3,
+    AutoLabelingAndAdusted = 4,
 }
 
 /**
