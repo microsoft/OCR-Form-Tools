@@ -26,6 +26,7 @@ import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
 import { getPrimaryGreenTheme, getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
 import { getAppInsights } from '../../../../services/telemetryService';
+import UseLocalStorage from '../../../../services/useLocalStorage';
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -110,6 +111,15 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         }
         if (this.state.currTrainRecord) {
             this.setState({ currModelId: this.state.currTrainRecord.modelInfo.modelId });
+        }
+        const lStorage = JSON.parse(localStorage.getItem("trainPage_inputs"));
+        if (lStorage) {
+            if (lStorage.modelName) {
+                this.setState({ modelName: lStorage.modelName });
+            }
+            if (lStorage.labelURL) {
+                this.setState({inputtedLabelFolderURL: lStorage.modelName })
+            }
         }
         this.appInsights = getAppInsights();
         document.title = strings.train.title + " - " + strings.appName;
@@ -255,11 +265,14 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private setInputtedLabelFolderURL = (event) => {
-        this.setState({inputtedLabelFolderURL: event.target.value});
+        const text = event.target.value;
+        this.setState({ inputtedLabelFolderURL: text });
+        UseLocalStorage.setItem("trainPage_inputs", "labelURL", text);
     }
 
     private onTextChanged = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string) => {
-        this.setState({modelName: text});
+        this.setState({ modelName: text });
+        UseLocalStorage.setItem("trainPage_inputs", "modelName", text);
     }
 
     private handleTrainClick = () => {
