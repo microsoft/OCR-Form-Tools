@@ -260,7 +260,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleToggleDrawRegionMode={this.handleToggleDrawRegionMode}
                     // drawRegionMode={this.state.drawRegionMode}
                     project={this.props.project}
-                    selectedAsset={this.props.selectedAsset}
                     parentPage={strings.editorPage.title}
                 />
                 <ImageMap
@@ -1916,8 +1915,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             });
         }
         const tag: ITag = this.props.project.tags.find((tag) => tag.name === tagName);
-
-        let regionCategory;
+        let regionCategory: string;
         if (labelType) {
             regionCategory = labelType;
         } else if (tag && tag.type === FieldType.SelectionMark) {

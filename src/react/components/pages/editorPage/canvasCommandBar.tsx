@@ -17,13 +17,14 @@ interface ICanvasCommandBarProps {
     handleRunAutoLabelingForRestDocuments?: () => void;
     handleLayerChange?: (layer: string) => void;
     handleToggleDrawRegionMode?: () => void;
-    // drawRegionMode: boolean;
-    // connectionType: string;
     handleAssetDeleted?: () => void;
-    layers: any;
     project: IProject;
     selectedAsset?: IAssetMetadata;
     handleRotateImage: (degrees: number) => void;
+
+    drawRegionMode?: boolean;
+    connectionType?: string;
+    layers?: any;
     parentPage: string;
 }
 
