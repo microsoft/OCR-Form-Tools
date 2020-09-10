@@ -203,7 +203,7 @@ export const english: IAppStrings = {
         defaultLocalFileInput: "Browse for a file...",
         defaultURLInput: "Paste or type URL...",
         editAndUploadToTrainingSet: "Edit & upload to training set",
-        editAndUploadToTrainingSetNotify: "by clicking on this button, this form will be added to the Azure Storage Blob for this project, where you can edit these labels.",
+        editAndUploadToTrainingSetNotify: "by clicking on this button, this form will be added to this project, where you can edit these labels.",
         editAndUploadToTrainingSetNotify2: "We are adding this file to your training set, where you could edit the labels and re-train the model.",
         uploadInPrgoress: "Upload in progress...",
         confirmDuplicatedAssetName: {
