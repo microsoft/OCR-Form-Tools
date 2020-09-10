@@ -118,7 +118,7 @@ export class OCRService {
                     return data;
                 });
         } catch (error) {
-            if (error.response.status === 400) {
+            if (error?.toJSON()?.message === "Network Error" || error.response.status === 400) {
                 throw new Error(strings.errors.getOcrError.message);
             } else {
                 throw new Error(error);
