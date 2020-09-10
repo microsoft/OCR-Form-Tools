@@ -550,7 +550,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             this.setState({
                 isLoading: false,
             });
-            ServiceHelper.handleServiceError(err);
+            toast.warn("Over rate limitation, please try again later",{autoClose: 10000})
         }
     }
 
