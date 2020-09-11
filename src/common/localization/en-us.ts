@@ -202,6 +202,14 @@ export const english: IAppStrings = {
         downloadScript: "Analyze with python script",
         defaultLocalFileInput: "Browse for a file...",
         defaultURLInput: "Paste or type URL...",
+        editAndUploadToTrainingSet: "Edit & upload to training set",
+        editAndUploadToTrainingSetNotify: "by clicking on this button, this form will be added to this project, where you can edit these labels.",
+        editAndUploadToTrainingSetNotify2: "We are adding this file to your training set, where you could edit the labels and re-train the model.",
+        uploadInPrgoress: "Upload in progress...",
+        confirmDuplicatedAssetName: {
+            title: "Asset name exists",
+            message: "Asset with name '${name}' exists in project, override?"
+        }
     },
     recentModelsView: {
         header: "Select a model to analyze with",
@@ -434,6 +442,8 @@ export const english: IAppStrings = {
                         subIMenuItems: {
                             runOcrOnCurrentDocument: "Run OCR on current document",
                             runOcrOnAllDocuments: "Run OCR on all documents",
+                            runAutoLabelingCurrentDocument: "Run AutoLabeling on current document",
+                            noPredictModelOnProject: "Predict model not avaliable, please train the model first.",
                         }
                     }
                 }
