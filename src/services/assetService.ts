@@ -183,7 +183,7 @@ export class AssetService {
                 const FileType = require('file-type');
                 const fileType = await FileType.fromFile(normalizedPath);
                 types = [fileType.ext];
-                corruptFileName = fileName.split(/[\\\/]/).pop().replace(/%20/g, " ");
+                corruptFileName = fileName.split(/[\\/]/).pop().replace(/%20/g, " ");
 
             } else {
                 types = await this.getMimeType(filePath);
