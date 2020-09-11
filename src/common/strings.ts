@@ -200,6 +200,14 @@ export interface IAppStrings {
         downloadScript: string,
         defaultLocalFileInput: string,
         defaultURLInput: string,
+        editAndUploadToTrainingSet: string,
+        editAndUploadToTrainingSetNotify: string,
+        editAndUploadToTrainingSetNotify2: string,
+        uploadInPrgoress: string,
+        confirmDuplicatedAssetName: {
+            title: string,
+            message: string
+        },
     };
     recentModelsView: {
         header: string;
@@ -277,7 +285,7 @@ export interface IAppStrings {
         messages: {
             saveSuccess: string,
             deleteSuccess: string,
-            doNotAllowDuplicateNames:string,
+            doNotAllowDuplicateNames: string,
         },
         imageCorsWarning: string,
         blobCorsWarning: string,
@@ -429,6 +437,8 @@ export interface IAppStrings {
                         subIMenuItems: {
                             runOcrOnCurrentDocument: string,
                             runOcrOnAllDocuments: string,
+                            runAutoLabelingCurrentDocument: string,
+                            noPredictModelOnProject: string,
                         }
                     }
                 }

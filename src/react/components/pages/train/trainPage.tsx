@@ -85,7 +85,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         super(props);
 
         this.state = {
-            inputtedLabelFolderURL: "",
+            inputtedLabelFolderURL: strings.train.defaultLabelFolderURL + (this.props.project?.folderPath ? "/" + this.props.project.folderPath : ""),
             trainMessage: strings.train.notTrainedYet,
             isTraining: false,
             currTrainRecord: null,
@@ -123,8 +123,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         const currTrainRecord = this.state.currTrainRecord;
         const localFileSystemProvider: boolean = this.props.project && this.props.project.sourceConnection &&
                                                  this.props.project.sourceConnection.providerType === "localFileSystemProxy";
-        const trainDisabled: boolean = localFileSystemProvider && (this.state.inputtedLabelFolderURL.length === 0 ||
-            this.state.inputtedLabelFolderURL === strings.train.defaultLabelFolderURL);
 
         return (
             <div className="train-page skipToMainContent" id="pageTrain">
@@ -162,8 +160,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                             theme={getGreenWithWhiteBackgroundTheme()}
                                             onFocus={this.removeDefaultInputtedLabelFolderURL}
                                             onChange={this.setInputtedLabelFolderURL}
-                                            placeholder={strings.train.defaultLabelFolderURL + (this.props.project.folderPath ?
-                                                "/" + this.props.project.folderPath : "")}
                                             value={this.state.inputtedLabelFolderURL}
                                             disabled={this.state.isTraining}
                                         />
@@ -190,7 +186,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                             autoFocus={true}
                                             className="flex-center"
                                             onClick={this.handleTrainClick}
-                                            disabled={trainDisabled}>
+                                            disabled={this.state.isTraining}>
                                             <FontIcon iconName="MachineLearning" />
                                             <h6 className="d-inline text-shadow-none ml-2 mb-0">
                                                 {strings.train.title} </h6>
@@ -225,7 +221,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                         autoFocus={true}
                                         className="flex-center"
                                         onClick={this.handleDownloadJSONClick}
-                                        disabled={trainDisabled}>
+                                        disabled={this.state.isTraining}>
                                         <FontIcon
                                             iconName="Download"
                                             style={{ fontWeight: 600 }}/>
