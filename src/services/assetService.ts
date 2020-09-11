@@ -124,7 +124,7 @@ export class AssetService {
             return null;
         }
     }
-    async uploadAssetPredictResult(asset: IAsset, predictResults: any): Promise<IAssetMetadata> {
+    async syncAssetPredictResult(asset: IAsset, predictResults: any): Promise<IAssetMetadata> {
         const assetMeatadata = this.getAssetPredictMetadata(asset, predictResults);
         if (assetMeatadata) {
 

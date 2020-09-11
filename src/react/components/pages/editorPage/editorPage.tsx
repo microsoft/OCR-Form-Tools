@@ -762,7 +762,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                         try {
                             this.updateAssetState({ id: asset.id, isRunningAutoLabeling: true });
                             const predictResult = await predictService.getPrediction(asset.path);
-                            const assetMetadata = await assetService.uploadAssetPredictResult(asset, predictResult);
+                            const assetMetadata = await assetService.syncAssetPredictResult(asset, predictResult);
                             this.updateAssetState({
                                 id: asset.id, isRunningAutoLabeling: false,
                                 assetState: AssetState.Tagged
