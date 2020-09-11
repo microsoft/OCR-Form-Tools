@@ -130,6 +130,11 @@ export const spanish: IAppStrings = {
         backEndNotAvailable: "La función de casilla de verificación funcionará en la versión futura del servicio de reconocimiento de formularios, manténgase atento.",
         addName: "Agregar nombre de modelo ...",
         downloadJson: "Descargar archivo JSON",
+        errors: {
+            electron: {
+                cantAccessFiles: "No se puede acceder a los archivos. La ruta de la carpeta '$ {folder}' o / y la configuración de conexión no son válidos. Verifique la ruta de la carpeta y su configuración de conexión."
+            }
+        }
     },
     modelCompose: {
         title: "Modelo componer",

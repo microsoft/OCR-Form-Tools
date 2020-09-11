@@ -129,6 +129,11 @@ export interface IAppStrings {
         backEndNotAvailable: string,
         addName: string,
         downloadJson: string;
+        errors: {
+            electron: {
+                cantAccessFiles: string;
+            }
+        }
     };
     modelCompose: {
         title: string,
