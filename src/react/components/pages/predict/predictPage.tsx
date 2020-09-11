@@ -1076,7 +1076,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
     private onAddAssetToProjectClick = async () => {
         if (this.state.file) {
-            // this.props.project.assets
             const fileName = `${this.props.project.folderPath}/${decodeURIComponent(this.state.file.name)}`;
             const asset = Object.values(this.props.project.assets).find(asset => asset.name === fileName);
             if (asset) {

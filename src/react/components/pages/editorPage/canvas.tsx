@@ -256,11 +256,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleRunOcrForAllDocuments={this.runOcrForAllDocuments}
                     handleRunAutoLabelingOnCurrentDocument={this.runAutoLabelingOnCurrentDocument}
                     handleRunAutoLabelingForRestDocuments={this.runAutoLabelingForRestDocuments}
-                    // connectionType={this.props.project.sourceConnection.providerType}
                     handleToggleDrawRegionMode={this.handleToggleDrawRegionMode}
-                    // drawRegionMode={this.state.drawRegionMode}
                     connectionType={this.props.project.sourceConnection.providerType}
-                    // handleToggleDrawRegionMode={this.handleToggleDrawRegionMode}
                     drawRegionMode={this.state.drawRegionMode}
                     project={this.props.project}
                     selectedAsset={this.props.selectedAsset}
