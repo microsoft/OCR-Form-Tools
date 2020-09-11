@@ -300,8 +300,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             const assets = Object.values(this.props.project.assets);
             const assetService = new AssetService(this.props.project);
             for (const asset of assets) {
-                asset.labelingState = AssetLabelingState.Training;
-                const metadata = await assetService.getAssetMetadata(asset);
+                const newAsset = JSON.parse(JSON.stringify(asset));
+                newAsset.labelingState = AssetLabelingState.Training;
+                const metadata = await assetService.getAssetMetadata(newAsset);
                 if (metadata.labelData && metadata.labelData.labelingState !== AssetLabelingState.Training) {
                     metadata.labelData.labelingState = AssetLabelingState.Training;
                     await assetService.save({ ...metadata });

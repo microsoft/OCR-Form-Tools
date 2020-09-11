@@ -83,15 +83,15 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         const confidence = _.get(this.props, "labels[0].confidence", null);
         return (
             <div className={"tag-item-block"}>
+                {confidence &&
+                    <div className="tag-item-confidence">
+                        {confidence}
+                    </div>
+                }
                 <div
                     className={"tag-color"}
                     style={style}
                     onClick={this.onColorClick}>
-                    {confidence &&
-                        <div className="tag-item-confidence">
-                            {confidence}
-                        </div>
-                    }
                 </div>
                 <div className={"tag-item-block-2"}>
                     {
@@ -170,20 +170,20 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                 <div className="tag-name-body">
                     {
                         this.state.isRenaming
-                        ?
-                        <input
-                            ref={this.onInputRef}
-                            className={`tag-name-editor ${this.getContentClassName()}`}
-                            type="text"
-                            defaultValue={this.props.tag.name}
-                            onKeyDown={(e) => this.onInputKeyDown(e)}
-                            onBlur={this.onInputBlur}
-                            autoFocus={true}
-                        />
-                        :
-                        <span title={this.props.tag.name} className={this.getContentClassName()}>
-                            {this.props.tag.name}
-                        </span>
+                            ?
+                            <input
+                                ref={this.onInputRef}
+                                className={`tag-name-editor ${this.getContentClassName()}`}
+                                type="text"
+                                defaultValue={this.props.tag.name}
+                                onKeyDown={(e) => this.onInputKeyDown(e)}
+                                onBlur={this.onInputBlur}
+                                autoFocus={true}
+                            />
+                            :
+                            <span title={this.props.tag.name} className={this.getContentClassName()}>
+                                {this.props.tag.name}
+                            </span>
                     }
                 </div>
                 <div className={"tag-icons-container"}>
