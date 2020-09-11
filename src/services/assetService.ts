@@ -66,6 +66,7 @@ export class AssetService {
         return _.get(analyzeResult, "analyzeResult.readResults", []);
     }
     getAssetPredictMetadata(asset: IAsset, predictResults: any) {
+        asset = JSON.parse(JSON.stringify(asset));
         const getBoundingBox = (pageIndex, arr: number[]) => {
             const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(predictResults)[pageIndex - 1];
             const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
