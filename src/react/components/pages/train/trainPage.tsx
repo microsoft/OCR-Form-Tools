@@ -112,13 +112,19 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         if (this.state.currTrainRecord) {
             this.setState({ currModelId: this.state.currTrainRecord.modelInfo.modelId });
         }
-        const lStorage = JSON.parse(localStorage.getItem("trainPage_inputs"));
-        if (lStorage) {
-            if (lStorage.modelName) {
-                this.setState({ modelName: lStorage.modelName });
+
+        // if new project reset stored trainInputs
+        if (this.props.project.id !== this.props.recentProjects[0].id) {
+            localStorage.setItem("trainPage_inputs", "{}");
+        }
+
+        const storedTrainInputs = JSON.parse(localStorage.getItem("trainPage_inputs"));
+        if (storedTrainInputs) {
+            if (storedTrainInputs.modelName) {
+                this.setState({ modelName: storedTrainInputs.modelName });
             }
-            if (lStorage.labelURL) {
-                this.setState({inputtedLabelFolderURL: lStorage.modelName })
+            if (storedTrainInputs.labelURL) {
+                this.setState({inputtedLabelFolderURL: storedTrainInputs.modelName })
             }
         }
         this.appInsights = getAppInsights();
@@ -288,6 +294,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 currTrainRecord: this.getProjectTrainRecord(),
                 modelName: "",
             }));
+            // reset localStorage successful train process
+            localStorage.setItem("trainPage_inputs", "{}");
         }).catch((err) => {
             this.setState({
                 isTraining: false,
