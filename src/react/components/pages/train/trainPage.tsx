@@ -17,7 +17,7 @@ import TrainPanel from "./trainPanel";
 import TrainTable from "./trainTable";
 import { ITrainRecordProps } from "./trainRecord";
 import "./trainPage.scss";
-import { strings } from "../../../../common/strings";
+import { strings, interpolate } from "../../../../common/strings";
 import { constants } from "../../../../common/constants";
 import _ from "lodash";
 import Alert from "../../common/alert/alert";
@@ -26,6 +26,7 @@ import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
 import { getPrimaryGreenTheme, getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
 import { getAppInsights } from '../../../../services/telemetryService';
+import { isElectron } from "../../../../common/hostProcess";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -297,11 +298,13 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             await this.props.actions.saveProject(updatedProject, false, false);
 
             return trainStatusRes;
-        } catch (errorMessage) {
+        } catch (error) {
+            const isOnPrem = isElectron && this.props.project.sourceConnection.providerType === "localFileSystemProxy";
             this.setState({
                 showTrainingFailedWarning: true,
-                trainingFailedMessage: (errorMessage !== undefined && errorMessage.message !== undefined
-                    ? errorMessage.message : errorMessage),
+                trainingFailedMessage: isOnPrem ? interpolate(strings.train.errors.electron.cantAccessFiles, { folderUri: this.state.inputtedLabelFolderURL }) :
+                    error?.message !== undefined
+                    ? error.message : error,
             });
         }
     }
