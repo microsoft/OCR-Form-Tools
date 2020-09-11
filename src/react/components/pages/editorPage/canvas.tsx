@@ -460,16 +460,16 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private addRegions = (regions: IRegion[]) => {
-        this.addRegionsToAsset(regions, true);
+        this.addRegionsToAsset(regions);
         this.addRegionsToImageMap(regions.filter((region) => region.pageNumber === this.state.currentPage));
     }
 
-    private addRegionsToAsset = (regions: IRegion[], manualOption: boolean = false) => {
+    private addRegionsToAsset = (regions: IRegion[]) => {
 
         const regionsToBeKept = this.state.currentAsset.regions.filter((assetRegion) => {
             return regions.findIndex((r) => r.id === assetRegion.id) === -1;
         });
-        this.updateAssetRegions(regionsToBeKept.concat(regions), manualOption);
+        this.updateAssetRegions(regionsToBeKept.concat(regions));
     }
 
     private addRegionsToImageMap = (regions: IRegion[]) => {
