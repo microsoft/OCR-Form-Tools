@@ -17,7 +17,7 @@ import TrainPanel from "./trainPanel";
 import TrainTable from "./trainTable";
 import { ITrainRecordProps } from "./trainRecord";
 import "./trainPage.scss";
-import { strings } from "../../../../common/strings";
+import { strings, interpolate } from "../../../../common/strings";
 import { constants } from "../../../../common/constants";
 import _ from "lodash";
 import Alert from "../../common/alert/alert";
@@ -26,6 +26,7 @@ import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
 import { getPrimaryGreenTheme, getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
 import { getAppInsights } from '../../../../services/telemetryService';
+import { isElectron } from "../../../../common/hostProcess";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -83,7 +84,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         super(props);
 
         this.state = {
-            inputtedLabelFolderURL: "",
+            inputtedLabelFolderURL: strings.train.defaultLabelFolderURL + (this.props.project?.folderPath ? "/" + this.props.project.folderPath : ""),
             trainMessage: strings.train.notTrainedYet,
             isTraining: false,
             currTrainRecord: null,
@@ -119,8 +120,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         const currTrainRecord = this.state.currTrainRecord;
         const localFileSystemProvider: boolean = this.props.project && this.props.project.sourceConnection &&
                                                  this.props.project.sourceConnection.providerType === "localFileSystemProxy";
-        const trainDisabled: boolean = localFileSystemProvider && (this.state.inputtedLabelFolderURL.length === 0 ||
-            this.state.inputtedLabelFolderURL === strings.train.defaultLabelFolderURL);
 
         return (
             <div className="train-page skipToMainContent" id="pageTrain">
@@ -158,8 +157,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                             theme={getGreenWithWhiteBackgroundTheme()}
                                             onFocus={this.removeDefaultInputtedLabelFolderURL}
                                             onChange={this.setInputtedLabelFolderURL}
-                                            placeholder={strings.train.defaultLabelFolderURL + (this.props.project.folderPath ?
-                                                "/" + this.props.project.folderPath : "")}
                                             value={this.state.inputtedLabelFolderURL}
                                             disabled={this.state.isTraining}
                                         />
@@ -186,7 +183,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                             autoFocus={true}
                                             className="flex-center"
                                             onClick={this.handleTrainClick}
-                                            disabled={trainDisabled}>
+                                            disabled={this.state.isTraining}>
                                             <FontIcon iconName="MachineLearning" />
                                             <h6 className="d-inline text-shadow-none ml-2 mb-0">
                                                 {strings.train.title} </h6>
@@ -221,7 +218,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                         autoFocus={true}
                                         className="flex-center"
                                         onClick={this.handleDownloadJSONClick}
-                                        disabled={trainDisabled}>
+                                        disabled={this.state.isTraining}>
                                         <FontIcon
                                             iconName="Download"
                                             style={{ fontWeight: 600 }}/>
@@ -301,11 +298,13 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             await this.props.actions.saveProject(updatedProject, false, false);
 
             return trainStatusRes;
-        } catch (errorMessage) {
+        } catch (error) {
+            const isOnPrem = isElectron && this.props.project.sourceConnection.providerType === "localFileSystemProxy";
             this.setState({
                 showTrainingFailedWarning: true,
-                trainingFailedMessage: (errorMessage !== undefined && errorMessage.message !== undefined
-                    ? errorMessage.message : errorMessage),
+                trainingFailedMessage: isOnPrem ? interpolate(strings.train.errors.electron.cantAccessFiles, { folderUri: this.state.inputtedLabelFolderURL }) :
+                    error?.message !== undefined
+                    ? error.message : error,
             });
         }
     }

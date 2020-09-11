@@ -29,6 +29,7 @@ export default interface IProjectActions {
     saveProject(project: IProject, saveTags?: boolean, updateTagsFromFiles?: boolean): Promise<IProject>;
     deleteProject(project: IProject): Promise<void>;
     closeProject(): void;
+    addAssetToProject(project: IProject, fileName: string, buffer: Buffer, analyzeResult: any): Promise<IAsset>;
     deleteAsset(project: IProject, assetMetadata: IAssetMetadata): Promise<void>;
     loadAssets(project: IProject): Promise<IAsset[]>;
     loadAssetMetadata(project: IProject, asset: IAsset): Promise<IAssetMetadata>;
@@ -64,7 +65,7 @@ export function loadProject(project: IProject, sharedToken?: ISecurityToken):
                     ]
                 }));
             } else if (existingToken.key !== sharedToken.key) {
-                const reason = interpolate(strings.shareProject.errors.tokenNameExist, {sharedTokenName: sharedToken.name})
+                const reason = interpolate(strings.shareProject.errors.tokenNameExist, { sharedTokenName: sharedToken.name })
                 toast.error(reason, { autoClose: false, closeOnClick: false });
                 return null;
             }
@@ -126,7 +127,7 @@ export function updateProjectTagsFromFiles(project: IProject, asset?: string): (
 }
 
 export function updatedAssetMetadata(project: IProject,
-                                     assetDocumentCountDifference: any): (dispatch: Dispatch) => Promise<void> {
+    assetDocumentCountDifference: any): (dispatch: Dispatch) => Promise<void> {
     return async (dispatch: Dispatch) => {
         const projectService = new ProjectService();
         const updatedProject = await projectService.updatedAssetMetadata(project, assetDocumentCountDifference);
@@ -169,7 +170,22 @@ export function closeProject(): (dispatch: Dispatch) => void {
         dispatch({ type: ActionTypes.CLOSE_PROJECT_SUCCESS });
     };
 }
+/**
+ * add asset, ocr data, labels to project storage.
+ */
+export function addAssetToProject(project: IProject, fileName: string, buffer: Buffer, analyzeResult: any): (dispatch: Dispatch) => Promise<IAsset> {
+    return async (dispatch: Dispatch) => {
+        const assetService = new AssetService(project);
+        await assetService.uploadBuffer(fileName, buffer);
+        const assets = await assetService.getAssets();
+        const assetName = project.folderPath ? `${project.folderPath}/${fileName}` : fileName;
+        const asset = assets.find(a => a.name === assetName);
 
+        await assetService.uploadAssetPredictResult(asset, analyzeResult);
+        dispatch(addAssetToProjectAction(asset));
+        return asset;
+    };
+}
 /**
  * Dispatches Delete Asset action
  */
@@ -352,6 +368,12 @@ export interface IDeleteProjectAction extends IPayloadAction<string, IProject> {
 }
 
 /**
+ * Add asset to project action type
+ */
+export interface IAddAssetToProjectAction extends IPayloadAction<string, IAsset> {
+    type: ActionTypes.ADD_ASSET_TO_PROJECT_SUCCESS;
+}
+/**
  * Load project assets action type
  */
 export interface ILoadProjectAssetsAction extends IPayloadAction<string, IAsset[]> {
@@ -409,6 +431,10 @@ export const saveProjectAction = createPayloadAction<ISaveProjectAction>(ActionT
  * Instance of Delete Project action
  */
 export const deleteProjectAction = createPayloadAction<IDeleteProjectAction>(ActionTypes.DELETE_PROJECT_SUCCESS);
+/**
+ * Instance of Add Asset to Project action
+ */
+export const addAssetToProjectAction = createPayloadAction<IAddAssetToProjectAction>(ActionTypes.ADD_ASSET_TO_PROJECT_SUCCESS);
 /**
  * Instance of Load Project Assets action
  */

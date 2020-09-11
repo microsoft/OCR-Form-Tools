@@ -1,5 +1,52 @@
 # FoTT Changelog 
 
+## 2.1-preview.1-b92b73b (09-09-2020)
+* fix: support project folder in project settings for local file system ([#559](https://github.com/microsoft/OCR-Form-Tools/commit/b92b73bb8076f9b9bb55dd38fcd223b7b93eaa2e))
+* feat: enable canvas rotation ([#553](https://github.com/microsoft/OCR-Form-Tools/commit/c27a110251df1fc7a595524846e20fd09c79f915))
+* fix: handle tag is undefined error ([#557](https://github.com/microsoft/OCR-Form-Tools/commit/7e4d3fbbc3a2bf925c126cd2b3f493cca48e7a62))
+
+## 2.1-preview.1-193520e (09-08-2020)
+* fix: accept selection of only .fott files for open local project ([#554](https://github.com/microsoft/OCR-Form-Tools/commit/193520e2c3e40b58c3612507efc2249aaf4e9d05))
+* fix: use default shared folder for label URI when training ([#551](https://github.com/microsoft/OCR-Form-Tools/commit/656de2ff07c2083affc2adf52f1a56c5a9c024b8))
+* fix: show label folder uri while training ([#539](https://github.com/microsoft/OCR-Form-Tools/commit/0ad389c06328cd6428653bb7d94d5af716e02ab7))
+* feat: add canvas command bar to analyze page with only zoom buttons ([#549](https://github.com/microsoft/OCR-Form-Tools/commit/895b52740cd1e8d61b5b021e6c0d992f44ce8052))
+
+ ## 2.1-preview.1-4852c84 (09-05-2020)
+* fix buttons styles - makes them more visible ([#526](https://github.com/microsoft/OCR-Form-Tools/commit/4852c8429d25b5569c3335b014da5972cbcc6162))
+
+## 2.1-preview.1-343ea16 (09-04-2020)
+* refactor: remove array for drawn region labels ([#542](https://github.com/microsoft/OCR-Form-Tools/commit/343ea16e18199ab5098395ae8b7a164cd8bab55e))
+* fix: add key prop to region icon ([#540](https://github.com/microsoft/OCR-Form-Tools/commit/87b69093f2d35d91a2a939c46ac66ba4d22a5cb7))
+
+## 2.1-preview.1-b370c9a (09-02-2020)
+* fix: resize canvas on asset preview resize ([#535](https://github.com/microsoft/OCR-Form-Tools/commit/b370c9a9bcf7da416944c626f6d4fd7bd29088bb))
+
+## 2.1-preview.1-de1c304 (08-31-2020)
+* refactor: upgrade tsconfig es2017 to esnext ([#531](https://github.com/microsoft/OCR-Form-Tools/commit/de1c30410b860c9576108f076ec4dd8273e61a79))
+
+## 2.1-preview.1-530545c (08-28-2020)
+* fix: remove existing bounding boxes from document on analyze ([#523](https://github.com/microsoft/OCR-Form-Tools/commit/6a1aedfb89b0499a0f4782e16ccbd8a06887841d))
+* feat: enable download JSON of trained model ([#513](https://github.com/microsoft/OCR-Form-Tools/commits/master)) 
+
+## 2.1-preview.1-529a0e8 (08-27-2020)
+* fix: show loading indicator while loading model info ([#514](https://github.com/microsoft/OCR-Form-Tools/commit/529a0e819f4cb405e290f34d18d15c487a7bcfad))
+* docs: update telemetry disclaimer ([#521](https://github.com/microsoft/OCR-Form-Tools/pull/521))
+* fix: disable clearing of drawn regions on analyze page ([#518](https://github.com/microsoft/OCR-Form-Tools/commit/298d7c97da1278996d2ee6020d3face0785bc4eb))
+
+## 2.1-preview.1-b2d9a0b (08-26-2020)
+* docs: notice that telemetry is disabled ([#501](https://github.com/microsoft/OCR-Form-Tools/commit/b2d9a0b008ebf350dfcb5fe897fc5dfe0d4d5cb6))
+
+## 2.1-preview.1-d9db4ee (08-24-2020)
+* refactor: upgrade storage-blob to v12.1.2 ([#509](https://github.com/microsoft/OCR-Form-Tools/commit/d9db4ee027240a82feef5b54e5e406c3793d8050))
+* feat: support region labeling ([#481](https://github.com/microsoft/OCR-Form-Tools/commit/dd78ed06761a341908bdb1b09e73fd1f2868431c))
+* feat: support adding model to recent models from compose page ([#510](https://github.com/microsoft/OCR-Form-Tools/commit/65fc92b5737ceea14ff89aa78052be26835ad0ae))
+
+## 2.1-preview.1-2402cba (08-17-2020)
+* fix: notify error message when open project with invalid security token ([#506](https://github.com/microsoft/OCR-Form-Tools/commit/2402cbaf73eba47ad188f851227c04cd44a208d4))
+
+## 2.1-preview.1-a8ef8fa (08-17-2020)
+* fix: don't allow create or update connection with duplicate name ([#486](https://github.com/microsoft/OCR-Form-Tools/commit/a8ef8fab603b3d2c08c533cb5dfe67da117942a0))
+
 ## 2.1-preview.1-530545c (08-14-2020)
 * fix: "failed to fetch()" error ([#491](https://github.com/microsoft/OCR-Form-Tools/commit/530545c7cd2b4a3ff444e9c7e1f40c68d4a7376c))
 * fix: sync layer visibility ([#497](https://github.com/microsoft/OCR-Form-Tools/commit/bea552b28acb9b652ffaedf40009d6df5a3197ef))
@@ -9,7 +56,6 @@
 ## 2.1-preview.1-da405b3 (08-10-2020)
 * fix: restrict tag type through hot keys ([#482](https://github.com/microsoft/OCR-Form-Tools/commit/da405b354428b829e895a35a020736b1d88c153f))
 * docs: add share project description to README ([#488](https://github.com/microsoft/OCR-Form-Tools/commit/7ee215f735a84aaa30201748d19207bcc6a05580))
-
 
 ## 2.1-preview.1-29d1f93 (08-07-2020)
 * fix: handle multi selection of non-compatible types with multi-selection tool ([#487](https://github.com/microsoft/OCR-Form-Tools/commit/29d1f93a290e55fdd84f8cf2ee9a914fed702beb))
