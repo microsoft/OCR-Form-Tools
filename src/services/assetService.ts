@@ -381,7 +381,7 @@ export class AssetService {
                 // The file may not exist - that's OK.
             }
         }
-        return metadata;
+        return JSON.parse(JSON.stringify(metadata));
     }
 
     /**

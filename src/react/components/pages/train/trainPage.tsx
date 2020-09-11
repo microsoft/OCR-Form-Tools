@@ -86,7 +86,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         super(props);
 
         this.state = {
-            inputtedLabelFolderURL: "",
+            inputtedLabelFolderURL: strings.train.defaultLabelFolderURL + (this.props.project?.folderPath ? "/" + this.props.project.folderPath : ""),
             trainMessage: strings.train.notTrainedYet,
             isTraining: false,
             currTrainRecord: null,
@@ -161,8 +161,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                             theme={getGreenWithWhiteBackgroundTheme()}
                                             onFocus={this.removeDefaultInputtedLabelFolderURL}
                                             onChange={this.setInputtedLabelFolderURL}
-                                            placeholder={strings.train.defaultLabelFolderURL + (this.props.project.folderPath ?
-                                                "/" + this.props.project.folderPath : "")}
                                             value={this.state.inputtedLabelFolderURL}
                                             disabled={this.state.isTraining}
                                         />
@@ -189,7 +187,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                             autoFocus={true}
                                             className="flex-center"
                                             onClick={this.handleTrainClick}
-                                            disabled={trainDisabled}>
+                                            disabled={this.state.isTraining}>
                                             <FontIcon iconName="MachineLearning" />
                                             <h6 className="d-inline text-shadow-none ml-2 mb-0">
                                                 {strings.train.title} </h6>

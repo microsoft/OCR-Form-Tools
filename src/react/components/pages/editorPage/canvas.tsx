@@ -259,7 +259,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     // connectionType={this.props.project.sourceConnection.providerType}
                     handleToggleDrawRegionMode={this.handleToggleDrawRegionMode}
                     // drawRegionMode={this.state.drawRegionMode}
+                    connectionType={this.props.project.sourceConnection.providerType}
+                    // handleToggleDrawRegionMode={this.handleToggleDrawRegionMode}
+                    drawRegionMode={this.state.drawRegionMode}
                     project={this.props.project}
+                    selectedAsset={this.props.selectedAsset}
                     parentPage={strings.editorPage.title}
                 />
                 <ImageMap
@@ -386,6 +390,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         await this.props.runAutoLabelingOnAllDocs(false);
         this.setState({ autoLableingStatus: AutoLabelingStatus.done });
     }
+
     public updateSize() {
         this.imageMap.updateSize();
     }
