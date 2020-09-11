@@ -132,7 +132,7 @@ export const spanish: IAppStrings = {
         downloadJson: "Descargar archivo JSON",
         errors: {
             electron: {
-                cantAccessFiles: "No se puede acceder a los archivos. La ruta de la carpeta '$ {folder}' o / y la configuración de conexión no son válidos. Verifique la ruta de la carpeta y su configuración de conexión."
+                cantAccessFiles: "No se puede acceder a los archivos en '${folderUri}' para entrenamiento. Compruebe si el URI de la carpeta especificada es correcto."
             }
         }
     },

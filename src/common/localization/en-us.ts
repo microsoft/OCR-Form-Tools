@@ -131,7 +131,7 @@ export const english: IAppStrings = {
         downloadJson: "Download JSON file",
         errors: {
             electron: {
-                cantAccessFiles: "Cannot access to files. Folder path '${folder}' or/and connection settings are invalid. Please check folder path and your connection settings."
+                cantAccessFiles: "Cannot access files in '${folderUri}' for training. Please check if specified folder URI is correct."
             }
         }
 
