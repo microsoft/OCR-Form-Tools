@@ -49,7 +49,7 @@ export default class CondensedList extends React.Component<ICondensedListProps> 
                     {newLinkTo &&
                         <Link to={newLinkTo} className="float-right add-button" role="button" title={newLinkToTitle}
                             id="addConnection">
-                            <FontIcon iconName="Add" />
+                            <FontIcon iconName="AddTo" />
                         </Link>
                     }
                 </div>

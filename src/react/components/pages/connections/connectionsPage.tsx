@@ -151,10 +151,19 @@ export default class ConnectionPage extends React.Component<IConnectionPageProps
             if (connection.providerType === "azureBlobStorage") {
                 connection.providerOptions["sas"] = connection.providerOptions["sas"].trim();
             }
-            await this.props.actions.saveConnection(connection);
-            toast.success(interpolate(strings.connections.messages.saveSuccess, { connection }));
 
-            this.props.history.push("/connections");
+            // don't allow use the same name create the duplicate connections.
+            // don't allow update the connection name same as other connections.
+            if ((!connection.id && this.props.connections.find(a => a.name === connection.name))
+                || (connection.id && this.props.connections.find(a => a.name === connection.name && a.id !== connection.id))) {
+                    toast.error(interpolate(strings.connections.messages.doNotAllowDuplicateNames, { connection }), { autoClose: 10000 });
+            } else {
+                await this.props.actions.saveConnection(connection);
+                toast.success(interpolate(strings.connections.messages.saveSuccess, { connection }));
+
+                this.props.history.push("/connections");
+            }
+
         } catch (error) {
             alert(error);
         }

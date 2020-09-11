@@ -105,7 +105,9 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                                 </a>
                                 <FilePicker ref={this.filePicker}
                                     onChange={this.onProjectFileUpload}
-                                    onError={this.onProjectFileUploadError} />
+                                    onError={this.onProjectFileUploadError}
+                                    accept={[".fott"]}
+                                />
                             </li>
                         }
                         <li>
@@ -164,6 +166,9 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
         } catch (error) {
             if (error instanceof AppError && error.errorCode === ErrorCode.SecurityTokenNotFound) {
                 toast.error(strings.errors.securityTokenNotFound.message, { autoClose: 5000 });
+            }
+            if(error instanceof AppError && error.errorCode === ErrorCode.ProjectInvalidSecurityToken) {
+                toast.error(strings.errors.projectInvalidSecurityToken.message, { autoClose: 5000 });
             }
         }
     }
