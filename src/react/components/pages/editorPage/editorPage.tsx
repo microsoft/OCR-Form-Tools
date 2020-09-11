@@ -762,10 +762,13 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                         try {
                             this.updateAssetState({ id: asset.id, isRunningAutoLabeling: true });
                             const predictResult = await predictService.getPrediction(asset.path);
-                            const assetMetadata = await assetService.syncAssetPredictResult(asset, predictResult);
+                            const assetMetadata = await assetService.getAssetPredictMetadata(asset, predictResult);
+                            await assetService.uploadPredictResultAsOrcResult(asset, predictResult);
+                            this.onAssetMetadataChanged(assetMetadata);
                             this.updateAssetState({
                                 id: asset.id, isRunningAutoLabeling: false,
-                                assetState: AssetState.Tagged
+                                assetState: AssetState.Tagged,
+                                labelingState: AssetLabelingState.AutoLabeling,
                             });
                             this.props.actions.updatedAssetMetadata(this.props.project, assetMetadata);
                         } catch (err) {
@@ -799,7 +802,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                     if (newState.assetState !== undefined && asset.state === AssetState.NotVisited) {
                         updatedAsset.state = newState.assetState;
                     }
-                    if(newState.labelingState){
+                    if (newState.labelingState) {
                         updatedAsset.labelingState = newState.labelingState;
                     }
                     if (newState.isRunningAutoLabeling !== undefined) {

@@ -125,16 +125,27 @@ export class AssetService {
             return null;
         }
     }
+    async uploadPredictResultAsOrcResult(asset: IAsset, predictResults: any): Promise<void> {
+        const ocrData = JSON.parse(JSON.stringify(predictResults));
+        delete ocrData.analyzeResult.documentResults;
+        if (ocrData.analyzeResult.errors) {
+            delete ocrData.analyzeResult.errors;
+        }
+        const ocrFileName = `${asset.name}${constants.ocrFileExtension}`;
+        await this.storageProvider.writeText(ocrFileName, JSON.stringify(ocrData, null, 2));
+    }
+
     async syncAssetPredictResult(asset: IAsset, predictResults: any): Promise<IAssetMetadata> {
         const assetMeatadata = this.getAssetPredictMetadata(asset, predictResults);
+        const ocrData = JSON.parse(JSON.stringify(predictResults));
+        delete ocrData.analyzeResult.documentResults;
+        if (ocrData.analyzeResult.errors) {
+            delete ocrData.analyzeResult.errors;
+        }
+        const ocrFileName = `${asset.name}${constants.ocrFileExtension}`;
         if (assetMeatadata) {
 
-            const ocrData = JSON.parse(JSON.stringify(predictResults));
-            delete ocrData.analyzeResult.documentResults;
-            if (ocrData.analyzeResult.errors) {
-                delete ocrData.analyzeResult.errors;
-            }
-            const ocrFileName = `${asset.name}${constants.ocrFileExtension}`;
+
             await Promise.all([
                 this.save(assetMeatadata),
                 this.storageProvider.writeText(ocrFileName, JSON.stringify(ocrData, null, 2))
@@ -142,13 +153,7 @@ export class AssetService {
             return assetMeatadata;
         }
         else {
-            const ocrData = { ...predictResults };
-            delete ocrData.analyzeResult.documentResults;
-            if (ocrData.analyzeResult.errors) {
-                delete ocrData.analyzeResult.errors;
-            }
             const labelFileName = decodeURIComponent(`${asset.name}${constants.labelFileExtension}`);
-            const ocrFileName = decodeURIComponent(`${asset.name}${constants.ocrFileExtension}`);
             try {
                 await Promise.all([
                     this.storageProvider.deleteFile(labelFileName, true, true),

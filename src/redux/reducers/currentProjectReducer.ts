@@ -38,9 +38,9 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
             };
         case ActionTypes.DELETE_PROJECT_ASSET_SUCCESS:
         case ActionTypes.LOAD_PROJECT_ASSETS_SUCCESS:
-            const assets = {};
+            let assets = {};
             action.payload.forEach((asset) => {
-                assets[asset.id] = asset;
+                assets = { ...assets, [asset.id]: asset };
             });
 
             return {
@@ -52,22 +52,17 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
                 return state;
             }
 
-            const updatedAssets = { ...state.assets } || {};
-            updatedAssets[action.payload.asset.id] = { ...action.payload.asset };
-
+            const updatedAssets = { ...state.assets || {}, [action.payload.asset.id]: action.payload.asset };
             const assetTags = new Set();
             action.payload.regions.forEach((region) => region.tags.forEach((tag) => assetTags.add(tag)));
 
-            const newTags: ITag[] = state.tags ? [...state.tags] : [];
+            let newTags: ITag[] = state.tags ? [...state.tags] : [];
             let updateTags = false;
 
             assetTags.forEach((tag) => {
                 if (!state.tags || state.tags.length === 0 ||
                     !state.tags.find((projectTag) => tag === projectTag.name)) {
-                    newTags.push({
-                        name: tag,
-                        color: tagColors[newTags.length % tagColors.length],
-                    } as ITag);
+                    newTags = [...newTags, { name: tag, color: tagColors[newTags.length % tagColors.length] } as ITag];
                     updateTags = true;
                 }
             });
