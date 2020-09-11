@@ -27,6 +27,7 @@ import ServiceHelper from "../../../../services/serviceHelper";
 import { getPrimaryGreenTheme, getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
 import { getAppInsights } from '../../../../services/telemetryService';
 import UseLocalStorage from '../../../../services/useLocalStorage';
+import { ListGroup } from "reactstrap";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -113,20 +114,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             this.setState({ currModelId: this.state.currTrainRecord.modelInfo.modelId });
         }
 
-        // if new project reset stored trainInputs
-        if (this.props.project.id !== this.props.recentProjects[0].id) {
-            localStorage.setItem("trainPage_inputs", "{}");
-        }
-
-        const storedTrainInputs = JSON.parse(localStorage.getItem("trainPage_inputs"));
-        if (storedTrainInputs) {
-            if (storedTrainInputs.modelName) {
-                this.setState({ modelName: storedTrainInputs.modelName });
-            }
-            if (storedTrainInputs.labelURL) {
-                this.setState({inputtedLabelFolderURL: storedTrainInputs.modelName })
-            }
-        }
+        this.checkAndUpdateInputsInLocalStorage(this.props.project.id);
         this.appInsights = getAppInsights();
         document.title = strings.train.title + " - " + strings.appName;
     }
@@ -262,6 +250,24 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 />
             </div>
         );
+    }
+
+    private checkAndUpdateInputsInLocalStorage = (projectId: string) => {
+        const storedTrainInputs = JSON.parse(window.localStorage.getItem("trainPage_inputs"));
+
+        if (storedTrainInputs?.id !== projectId) {
+            window.localStorage.removeItem("trainPage_inputs");
+            UseLocalStorage.setItem("trainPage_inputs", "projectId", projectId);
+        }
+
+        if (storedTrainInputs) {
+            if (storedTrainInputs.modelName) {
+                this.setState({ modelName: storedTrainInputs.modelName });
+            }
+            if (storedTrainInputs.labelURL) {
+                this.setState({ inputtedLabelFolderURL: storedTrainInputs.labelURL })
+            }
+        }
     }
 
     private removeDefaultInputtedLabelFolderURL = () => {
