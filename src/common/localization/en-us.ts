@@ -129,6 +129,11 @@ export const english: IAppStrings = {
         backEndNotAvailable: "Checkbox feature will work in future version of Form Recognizer service, please stay tuned.",
         addName: "Add a model name...",
         downloadJson: "Download JSON file",
+        errors: {
+            electron: {
+                cantAccessFiles: "Cannot access files in '${folderUri}' for training. Please check if specified folder URI is correct."
+            }
+        }
 
     },
     modelCompose: {
@@ -328,7 +333,7 @@ export const english: IAppStrings = {
                 browse: "Browse",
                 selectFolder: "Select folder",
                 chooseFolder: "Choose folder",
-                invalidFolderMessage: "Connection [${project.sourceConnection.providerOptions.folderPath}] and project folder [${project.folderPath}] are invalid. Please check the specified folders in the Connection and Project Settings pages",
+                invalidFolderMessage: "Connection [${project.sourceConnection.providerOptions.folderPath}] and/or project folder [${project.folderPath}] are invalid. Please check the specified folders in the Connection and Project Settings pages",
             },
         },
     },
