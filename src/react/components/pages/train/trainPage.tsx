@@ -26,6 +26,7 @@ import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
 import { getPrimaryGreenTheme, getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
 import { getAppInsights } from '../../../../services/telemetryService';
+import UseLocalStorage from '../../../../services/useLocalStorage';
 import { isElectron } from "../../../../common/hostProcess";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
@@ -112,6 +113,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         if (this.state.currTrainRecord) {
             this.setState({ currModelId: this.state.currTrainRecord.modelInfo.modelId });
         }
+
+        this.checkAndUpdateInputsInLocalStorage(this.props.project.id);
         this.appInsights = getAppInsights();
         document.title = strings.train.title + " - " + strings.appName;
     }
@@ -245,6 +248,24 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         );
     }
 
+    private checkAndUpdateInputsInLocalStorage = (projectId: string) => {
+        const storedTrainInputs = JSON.parse(window.localStorage.getItem("trainPage_inputs"));
+
+        if (storedTrainInputs?.id !== projectId) {
+            window.localStorage.removeItem("trainPage_inputs");
+            UseLocalStorage.setItem("trainPage_inputs", "projectId", projectId);
+        }
+
+        if (storedTrainInputs) {
+            if (storedTrainInputs.modelName) {
+                this.setState({ modelName: storedTrainInputs.modelName });
+            }
+            if (storedTrainInputs.labelURL) {
+                this.setState({ inputtedLabelFolderURL: storedTrainInputs.labelURL })
+            }
+        }
+    }
+
     private removeDefaultInputtedLabelFolderURL = () => {
         if (this.state.inputtedLabelFolderURL === strings.train.defaultLabelFolderURL) {
             this.setState({inputtedLabelFolderURL: ""});
@@ -252,11 +273,14 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private setInputtedLabelFolderURL = (event) => {
-        this.setState({inputtedLabelFolderURL: event.target.value});
+        const text = event.target.value;
+        this.setState({ inputtedLabelFolderURL: text });
+        UseLocalStorage.setItem("trainPage_inputs", "labelURL", text);
     }
 
     private onTextChanged = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string) => {
-        this.setState({modelName: text});
+        this.setState({ modelName: text });
+        UseLocalStorage.setItem("trainPage_inputs", "modelName", text);
     }
 
     private handleTrainClick = () => {
@@ -272,6 +296,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 currTrainRecord: this.getProjectTrainRecord(),
                 modelName: "",
             }));
+            // reset localStorage successful train process
+            localStorage.setItem("trainPage_inputs", "{}");
         }).catch((err) => {
             this.setState({
                 isTraining: false,
