@@ -13,7 +13,7 @@ We maintain two releases of FoTT:
 - **v2.1-Preview**: A preview that conatains previews of new features.  
 To checkout the preview release, run `git checkout tags/v2.1-Preview`
 - **v2.0-GA**: A genaral availability (GA) that is more stable.  
-To checkout the GA release, run `git checkout tags/v2.0-GA`.
+To checkout the GA release, run `git checkout tags/v2.0-GA`
 ___
 
 FOTT's Labeling Tool is a React + Redux Web application, written in [TypeScript](https://github.com/Microsoft/TypeScript). This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
