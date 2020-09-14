@@ -11,9 +11,13 @@ The purpose of this repo is to allow customers to test the latest tools availabl
 
 We maintain two releases of FoTT:  
 - **v2.1-Preview**: A preview that conatains previews of new features.  
-To checkout the preview release, run `git checkout tags/v2.1-Preview`
+To checkout the preview release, either:  
+  - After cloning this repository, run `git checkout tags/v2.1-Preview`   
+  - Visit https://fott-preview.azurewebsites.net/  
 - **v2.0-GA**: A genaral availability (GA) that is more stable.  
-To checkout the GA release, run `git checkout tags/v2.0-GA`
+To checkout the GA release, either:  
+  - After cloning this repository, run `git checkout tags/v2.0-GA`  
+  - Visit https://fott.azurewebsites.net/  
 ___
 
 FOTT's Labeling Tool is a React + Redux Web application, written in [TypeScript](https://github.com/Microsoft/TypeScript). This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
