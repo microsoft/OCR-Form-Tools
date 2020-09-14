@@ -116,7 +116,6 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
             scopedSettings: {},
         };
 
-        console.log("# items", this.state.items)
         return (
             <Customizer {...dark}>
                 <Modal

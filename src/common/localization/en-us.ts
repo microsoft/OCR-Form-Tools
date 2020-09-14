@@ -132,6 +132,11 @@ export const english: IAppStrings = {
         trainConfirm: {
             title: "Labels not revised yet",
             message: "You have label files not yet revised, do you want to train with those files?"
+        },
+        errors: {
+            electron: {
+                cantAccessFiles: "Cannot access files in '${folderUri}' for training. Please check if specified folder URI is correct."
+            }
         }
 
     },
@@ -340,7 +345,7 @@ export const english: IAppStrings = {
                 browse: "Browse",
                 selectFolder: "Select folder",
                 chooseFolder: "Choose folder",
-                invalidFolderMessage: "Connection [${project.sourceConnection.providerOptions.folderPath}] and project folder [${project.folderPath}] are invalid. Please check the specified folders in the Connection and Project Settings pages",
+                invalidFolderMessage: "Connection [${project.sourceConnection.providerOptions.folderPath}] and/or project folder [${project.folderPath}] are invalid. Please check the specified folders in the Connection and Project Settings pages",
             },
         },
     },

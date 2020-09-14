@@ -133,6 +133,11 @@ export const spanish: IAppStrings = {
         trainConfirm: {
             title: "Etiquetas no revisadas todavía",
             message: "Tiene archivos de etiquetas que aún no han sido revisados, ¿desea entrenar con esos archivos?"
+        },
+        errors: {
+            electron: {
+                cantAccessFiles: "No se puede acceder a los archivos en '${folderUri}' para entrenamiento. Compruebe si el URI de la carpeta especificada es correcto."
+            }
         }
     },
     modelCompose: {

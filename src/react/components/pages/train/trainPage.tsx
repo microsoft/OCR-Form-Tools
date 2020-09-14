@@ -17,7 +17,7 @@ import TrainPanel from "./trainPanel";
 import TrainTable from "./trainTable";
 import { ITrainRecordProps } from "./trainRecord";
 import "./trainPage.scss";
-import { strings } from "../../../../common/strings";
+import { strings, interpolate } from "../../../../common/strings";
 import { constants } from "../../../../common/constants";
 import _ from "lodash";
 import Alert from "../../common/alert/alert";
@@ -28,6 +28,8 @@ import { getPrimaryGreenTheme, getGreenWithWhiteBackgroundTheme } from "../../..
 import { getAppInsights } from '../../../../services/telemetryService';
 import { AssetService } from "../../../../services/assetService";
 import Confirm from "../../common/confirm/confirm";
+import UseLocalStorage from '../../../../services/useLocalStorage';
+import { isElectron } from "../../../../common/hostProcess";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -114,6 +116,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         if (this.state.currTrainRecord) {
             this.setState({ currModelId: this.state.currTrainRecord.modelInfo.modelId });
         }
+
+        this.checkAndUpdateInputsInLocalStorage(this.props.project.id);
         this.appInsights = getAppInsights();
         document.title = strings.train.title + " - " + strings.appName;
     }
@@ -256,6 +260,24 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         );
     }
 
+    private checkAndUpdateInputsInLocalStorage = (projectId: string) => {
+        const storedTrainInputs = JSON.parse(window.localStorage.getItem("trainPage_inputs"));
+
+        if (storedTrainInputs?.id !== projectId) {
+            window.localStorage.removeItem("trainPage_inputs");
+            UseLocalStorage.setItem("trainPage_inputs", "projectId", projectId);
+        }
+
+        if (storedTrainInputs) {
+            if (storedTrainInputs.modelName) {
+                this.setState({ modelName: storedTrainInputs.modelName });
+            }
+            if (storedTrainInputs.labelURL) {
+                this.setState({ inputtedLabelFolderURL: storedTrainInputs.labelURL })
+            }
+        }
+    }
+
     private removeDefaultInputtedLabelFolderURL = () => {
         if (this.state.inputtedLabelFolderURL === strings.train.defaultLabelFolderURL) {
             this.setState({ inputtedLabelFolderURL: "" });
@@ -263,11 +285,14 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private setInputtedLabelFolderURL = (event) => {
-        this.setState({ inputtedLabelFolderURL: event.target.value });
+        const text = event.target.value;
+        this.setState({ inputtedLabelFolderURL: text });
+        UseLocalStorage.setItem("trainPage_inputs", "labelURL", text);
     }
 
     private onTextChanged = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string) => {
         this.setState({ modelName: text });
+        UseLocalStorage.setItem("trainPage_inputs", "modelName", text);
     }
 
     private handleTrainClick = () => {
@@ -308,6 +333,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                     await assetService.save({ ...metadata });
                 }
             }
+            // reset localStorage successful train process
+            localStorage.setItem("trainPage_inputs", "{}");
         }).catch((err) => {
             this.setState({
                 isTraining: false,
@@ -334,11 +361,13 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             await this.props.actions.saveProject(updatedProject, false, false);
 
             return trainStatusRes;
-        } catch (errorMessage) {
+        } catch (error) {
+            const isOnPrem = isElectron && this.props.project.sourceConnection.providerType === "localFileSystemProxy";
             this.setState({
                 showTrainingFailedWarning: true,
-                trainingFailedMessage: (errorMessage !== undefined && errorMessage.message !== undefined
-                    ? errorMessage.message : errorMessage),
+                trainingFailedMessage: isOnPrem ? interpolate(strings.train.errors.electron.cantAccessFiles, { folderUri: this.state.inputtedLabelFolderURL }) :
+                    error?.message !== undefined
+                    ? error.message : error,
             });
         }
     }

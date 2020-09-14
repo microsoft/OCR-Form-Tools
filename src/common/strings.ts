@@ -132,6 +132,11 @@ export interface IAppStrings {
         trainConfirm: {
             title: string;
             message: string;
+        },
+        errors: {
+            electron: {
+                cantAccessFiles: string;
+            }
         }
     };
     modelCompose: {
