@@ -997,6 +997,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const regionId = feature.get("id");
         if (isToggle && this.isRegionSelected(regionId)) {
             this.removeFromSelectedRegions(regionId);
+            this.imageMap.setSwiping(false);
         } else {
             this.handleMultiSelection(regionId, category);
             const polygon = regionId.split(",").map(parseFloat);

@@ -78,6 +78,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
     private mapElement: HTMLDivElement | null = null;
 
+    private dragPan: DragPan;
     private draw: Draw;
     private dragBox: DragBox;
     private modify: Modify;
@@ -192,7 +193,11 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
     public render() {
         return (
-            <div onMouseLeave={this.handlePonterLeaveImageMap} className="map-wrapper">
+            <div
+                onMouseLeave={this.handlePonterLeaveImageMap}
+                onMouseEnter={this.handlePointerEnterImageMap}
+                className="map-wrapper"
+            >
                 <div style={{cursor: this.getCursor()}} id="map" className="map" ref={(el) => this.mapElement = el}/>
             </div>
         );
@@ -640,16 +645,14 @@ export class ImageMap extends React.Component<IImageMapProps> {
             return;
         }
 
-        this.countPointerDown += 1;
-        if (this.countPointerDown >= 2) {
-            this.setDragPanInteraction(true /*dragPanEnabled*/);
-            this.isSwiping = false;
-            return;
-        }
-
         const eventPixel =  this.map.getEventPixel(event.originalEvent);
 
         const filter = this.getLayerFilterAtPixel(eventPixel);
+
+        const isPixelOnFeature = !!filter;
+        if (isPixelOnFeature) {
+            this.setDragPanInteraction(false);
+        }
 
         if (filter && this.props.handleFeatureSelect) {
             this.map.forEachFeatureAtPixel(
@@ -660,9 +663,6 @@ export class ImageMap extends React.Component<IImageMapProps> {
                 filter.layerfilter,
             );
         }
-        const isPixelOnFeature = !!filter;
-        this.setDragPanInteraction(!isPixelOnFeature /*dragPanEnabled*/);
-        this.isSwiping = isPixelOnFeature;
     }
 
     private getLayerFilterAtPixel = (eventPixel: any) => {
@@ -786,18 +786,21 @@ export class ImageMap extends React.Component<IImageMapProps> {
             return;
         }
 
-        this.countPointerDown -= 1;
-        this.setDragPanInteraction(true /*dragPanEnabled*/);
-        this.isSwiping = false;
-        this.pointerMoveEventCount = 0;
+        this.setDragPanInteraction(true);
     }
 
     private setDragPanInteraction = (dragPanEnabled: boolean) => {
-        this.map.getInteractions().forEach((interaction) => {
-            if (interaction instanceof DragPan) {
-                interaction.setActive(dragPanEnabled);
-            }
-        });
+        if (dragPanEnabled) {
+            this.addInteraction(this.dragPan)
+            this.setSwiping(false);
+        } else {
+            this.removeInteraction(this.dragPan)
+            this.setSwiping(true);
+        }
+    }
+
+    public setSwiping = (swiping: boolean) => {
+        this.isSwiping = swiping;
     }
 
     private shouldIgnorePointerMove = () => {
@@ -806,11 +809,6 @@ export class ImageMap extends React.Component<IImageMapProps> {
         }
 
         if (!this.isSwiping) {
-            return true;
-        }
-
-        if (this.ignorePointerMoveEventCount > this.pointerMoveEventCount) {
-            ++this.pointerMoveEventCount;
             return true;
         }
 
@@ -849,6 +847,8 @@ export class ImageMap extends React.Component<IImageMapProps> {
     }
 
     private initializeDefaultSelectionMode = () => {
+        this.initializeDragPan();
+        this.setDragPanInteraction(true);
         this.initializeSnapCheck();
         this.initializePointerOnImageCheck();
         this.initializeDragBox();
@@ -965,6 +965,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
         });
     }
 
+    private initializeDragPan = () => {
+        this.dragPan = new DragPan();
+    }
+
     private initializeDragBox = () => {
         this.dragBox = new DragBox({
             condition: shiftKeyOnly,
@@ -1058,6 +1062,10 @@ export class ImageMap extends React.Component<IImageMapProps> {
             }
             this.props.handleIsPointerOnImage(false);
         }
+    }
+
+    private handlePointerEnterImageMap = () => {
+        this.setDragPanInteraction(true);
     }
 
     private initializeEditorLayers = (projection: Projection) => {
