@@ -63,7 +63,7 @@
         "electron:start:dev": "yarn electron-start",
         "electron:start:prod": "yarn webpack:prod && yarn electron-start",
         "electron-start": "node src/electron/start",
-        "release": "env-cmd -f .env.release \"yarn build && yarn webpack:prod && yarn electron-builder\"",
+        "release": "env-cmd -f .env.release yarn build && yarn webpack:prod && yarn electron-builder",
         "tslint": "./node_modules/.bin/tslint 'src/**/*.ts*'",
         "tslintfix": "./node_modules/.bin/tslint 'src/**/*.ts*' --fix"
     },
