@@ -120,7 +120,7 @@ export const english: IAppStrings = {
     },
     train: {
         modelNameTitle: "Model name",
-        labelFolderTitle: "Label folder URI",
+        labelFolderTitle: "Source",
         defaultLabelFolderURL: "/shared",
         title: "Train",
         training: "Training",
