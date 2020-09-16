@@ -552,7 +552,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const filteredRegions = this.state.currentAsset.regions.filter((assetRegion) => {
             return regions.findIndex((r) => r.id === assetRegion.id) === -1;
         });
-        this.updateAssetRegions(filteredRegions, true);
+        this.updateAssetRegions(filteredRegions, regions.length > 0);
     }
 
     private deleteRegionsFromImageMap = (regions: IRegion[]) => {

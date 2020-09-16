@@ -541,28 +541,29 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      */
     private onAssetMetadataChanged = async (assetMetadata: IAssetMetadata): Promise<void> => {
         // Comment out below code as we allow regions without tags, it would make labeler's work easier.
-
+        assetMetadata= JSON.parse(JSON.stringify(assetMetadata));
         const initialState = assetMetadata.asset.state;
 
         const asset = { ...assetMetadata.asset };
 
-        if (this.isTaggableAssetType(assetMetadata.asset)) {
-            assetMetadata.asset.state = _.get(assetMetadata, "labelData.labels.length", 0) > 0 ?
+        if (this.isTaggableAssetType(asset)) {
+            asset.state = _.get(assetMetadata, "labelData.labels.length", 0) > 0 ?
                 AssetState.Tagged :
                 AssetState.Visited;
-        } else if (assetMetadata.asset.state === AssetState.NotVisited) {
-            assetMetadata.asset.state = AssetState.Visited;
+        } else if (asset.state === AssetState.NotVisited) {
+            asset.state = AssetState.Visited;
         }
 
         // Only update asset metadata if state changes or is different
-        if (initialState !== assetMetadata.asset.state || this.state.selectedAsset !== assetMetadata) {
+        if (initialState !== asset.state || this.state.selectedAsset !== assetMetadata) {
             if (this.state.selectedAsset.labelData && this.state.selectedAsset.labelData.labels &&
                 assetMetadata.labelData && assetMetadata.labelData.labels &&
                 assetMetadata.labelData.labels.toString() !== this.state.selectedAsset.labelData.labels.toString()) {
                 await this.updatedAssetMetadata(assetMetadata);
             }
+            assetMetadata.asset = asset;
             await this.props.actions.saveAssetMetadata(this.props.project, assetMetadata);
-            if (this.props.project.lastVisitedAssetId === assetMetadata.asset.id) {
+            if (this.props.project.lastVisitedAssetId === asset.id) {
                 this.setState({ selectedAsset: assetMetadata });
             }
         }

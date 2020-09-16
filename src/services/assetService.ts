@@ -401,6 +401,10 @@ export class AssetService {
         try {
             const json = await this.storageProvider.readText(labelFileName, true);
             const labelData = JSON.parse(json) as ILabelData;
+            if (labelData) {
+                labelData.labelingState = labelData.labelingState || AssetLabelingState.ManualLabeling;
+                asset.labelingState = labelData.labelingState;
+            }
             if (!labelData.document || !labelData.labels) {
                 const reason = interpolate(strings.errors.missingRequiredFieldInLabelFile.message, { labelFileName });
                 toast.error(reason, { autoClose: false });

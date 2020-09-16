@@ -113,7 +113,6 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                     }
                     {this.renderTagDetail()}
                 </div>
-
             </div>
         );
     }

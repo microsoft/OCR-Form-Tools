@@ -217,7 +217,6 @@ export class AzureBlobStorage implements IStorageProvider {
                 } else {
                     asset.state = AssetState.NotVisited;
                 }
-
                 result.push(asset);
             }
         }
