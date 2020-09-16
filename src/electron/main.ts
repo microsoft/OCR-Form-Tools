@@ -108,7 +108,7 @@ function registerContextMenu(browserWindow: BrowserWindow): void {
                 { role: "togglefullscreen" },
                 { type: "separator", label: "separator2" },
                 { role: "resetZoom", label: "Reset Zoom" },
-                { role: "zoomIn" },
+                { role: "zoomIn", accelerator:  "CmdOrCtrl+="},
                 { role: "zoomOut" },
             ],
         },
