@@ -13,12 +13,12 @@ import { ITrainRecordProps } from "../react/components/pages/train/trainRecord";
  * @member appError - error in the app if any
  */
 export interface IApplicationState {
-    appSettings: IAppSettings;
-    connections: IConnection[];
-    recentProjects: IProject[];
-    currentProject: IProject;
-    appError?: IAppError;
-    appTitle?: string;
+    appSettings: IAppSettings,
+    connections: IConnection[],
+    recentProjects: IProject[],
+    currentProject: IProject,
+    appError?: IAppError,
+    appTitle?: string,
 }
 
 /**
@@ -29,9 +29,9 @@ export interface IApplicationState {
  * @member errorCode - error category
  */
 export interface IAppError {
-    errorCode: ErrorCode;
-    message: any;
-    title?: string;
+    errorCode: ErrorCode,
+    message: any,
+    title?: string,
 }
 
 /**
@@ -55,7 +55,7 @@ export class AppError extends Error implements IAppError {
  * @description - Property map of key values used within a export / asset / storage provider
  */
 export interface IProviderOptions {
-    [key: string]: any;
+    [key: string]: any,
 }
 
 /**
@@ -65,8 +65,9 @@ export interface IProviderOptions {
  * @member securityTokens - Token used to encrypt sensitive project settings
  */
 export interface IAppSettings {
-    securityTokens: ISecurityToken[];
-    thumbnailSize?: ISize;
+    securityTokens: ISecurityToken[],
+    thumbnailSize?: ISize,
+    hideUploadingOption?: boolean;
 }
 
 /**
@@ -81,21 +82,21 @@ export interface IAppSettings {
  * @member assets - Map of assets within a project
  */
 export interface IProject {
-    id: string;
-    name: string;
-    version: string;
-    securityToken: string;
-    description?: string;
-    tags: ITag[];
-    sourceConnection: IConnection;
-    assets?: { [index: string]: IAsset };
-    lastVisitedAssetId?: string;
-    apiUriBase: string;
-    apiKey?: string | ISecureString;
-    folderPath: string;
-    trainRecord: ITrainRecordProps;
-    recentModelRecords: IRecentModel[];
-    predictModelId: string;
+    id: string,
+    name: string,
+    version: string,
+    securityToken: string,
+    description?: string,
+    tags: ITag[],
+    sourceConnection: IConnection,
+    assets?: { [index: string]: IAsset },
+    lastVisitedAssetId?: string,
+    apiUriBase: string,
+    apiKey?: string | ISecureString,
+    folderPath: string,
+    trainRecord: ITrainRecordProps,
+    recentModelRecords: IRecentModel[],
+    predictModelId: string,
 }
 
 /**
@@ -105,8 +106,8 @@ export interface IProject {
  * @member file - The File object point to the V1 project file
  */
 export interface IFileInfo {
-    content: string | ArrayBuffer;
-    file: File;
+    content: string | ArrayBuffer,
+    file: File,
 }
 
 /**
@@ -135,11 +136,11 @@ export interface ITag {
  * @member providerOptions - Provider specific options used to connect to the data source
  */
 export interface IConnection {
-    id: string;
-    name: string;
-    description?: string;
-    providerType: string;
-    providerOptions: IProviderOptions | ISecureString;
+    id: string,
+    name: string,
+    description?: string,
+    providerType: string,
+    providerOptions: IProviderOptions | ISecureString,
 }
 
 /**
@@ -153,18 +154,18 @@ export interface IConnection {
  * @member format - The asset format (jpg, png, mp4, etc)
  */
 export interface IAsset {
-    id: string;
-    type: AssetType;
-    state: AssetState;
-    name: string;
-    path: string;
-    size: ISize;
-    format?: string;
-    timestamp?: number;
-    predicted?: boolean;
-    ocr?: any;
-    isRunningOCR?: boolean;
-    cachedImage?: string;
+    id: string,
+    type: AssetType,
+    state: AssetState,
+    name: string,
+    path: string,
+    size: ISize,
+    format?: string,
+    timestamp?: number,
+    predicted?: boolean,
+    ocr?: any,
+    isRunningOCR?: boolean,
+    cachedImage?: string,
 }
 
 /**
@@ -174,10 +175,10 @@ export interface IAsset {
  * @member regions - The list of regions drawn on the asset
  */
 export interface IAssetMetadata {
-    asset: IAsset;
-    regions: IRegion[];
-    version: string;
-    labelData: ILabelData;
+    asset: IAsset,
+    regions: IRegion[],
+    version: string,
+    labelData: ILabelData,
 }
 
 /**
@@ -187,8 +188,8 @@ export interface IAssetMetadata {
  * @member height - The actual height of an asset
  */
 export interface ISize {
-    width: number;
-    height: number;
+    width: number,
+    height: number,
 }
 
 /**
@@ -200,14 +201,14 @@ export interface ISize {
  * @member points - Defines a list of points that define a region
  */
 export interface IRegion {
-    id: string;
-    type: RegionType;
-    category: FeatureCategory;
-    tags: string[];
-    points?: IPoint[];
-    boundingBox?: IBoundingBox;
-    value?: string;
-    pageNumber: number;
+    id: string,
+    type: RegionType,
+    category: FeatureCategory,
+    tags: string[],
+    points?: IPoint[],
+    boundingBox?: IBoundingBox,
+    value?: string,
+    pageNumber: number,
 }
 
 /**
@@ -215,8 +216,8 @@ export interface IRegion {
  * @description - Defines a label data correspond to an asset
  */
 export interface ILabelData {
-    document: string;
-    labels: ILabel[];
+    document: string,
+    labels: ILabel[],
 }
 
 /**
@@ -224,9 +225,10 @@ export interface ILabelData {
  * @description - Defines a label
  */
 export interface ILabel {
-    label: string;
-    key?: IFormRegion[];
-    value: IFormRegion[];
+    label: string,
+    key?: IFormRegion[],
+    value: IFormRegion[],
+    labelType?: string,
 }
 
 /**
@@ -234,9 +236,9 @@ export interface ILabel {
  * @description - Defines a region which consumed by FormRecognizer
  */
 export interface IFormRegion {
-    page: number;
-    text: string;
-    boundingBoxes: [number[]];
+    page: number,
+    text: string,
+    boundingBoxes: [number[]],
 }
 
 /**
@@ -248,10 +250,10 @@ export interface IFormRegion {
  * @member height - Defines the height of the bounding box
  */
 export interface IBoundingBox {
-    left: number;
-    top: number;
-    width: number;
-    height: number;
+    left: number,
+    top: number,
+    width: number,
+    height: number,
 }
 
 /**
@@ -261,17 +263,17 @@ export interface IBoundingBox {
  * @member y - The y value relative to the asset
  */
 export interface IPoint {
-    x: number;
-    y: number;
+    x: number,
+    y: number,
 }
 
 export interface ISecureString {
-    encrypted: string;
+    encrypted: string,
 }
 
 export interface ISecurityToken {
-    name: string;
-    key: string;
+    name: string,
+    key: string,
 }
 
 export interface IField {
@@ -283,19 +285,19 @@ export interface IField {
 }
 
 export interface IFieldInfo {
-    fields: IField[];
+    fields: IField[],
 }
 
 export interface IRecentModel {
-    readonly composedTrainResults?: object;
-    readonly accuracies?: object;
-    readonly averageAccuracy?: number;
+    readonly composedTrainResults?: object,
+    readonly accuracies?: object,
+    readonly averageAccuracy?: number,
     readonly modelInfo: {
-        readonly isComposed: boolean;
-        readonly modelId: string;
-        readonly createdDateTime: string;
-        readonly modelName: string;
-    };
+        readonly isComposed: boolean,
+        readonly modelId: string,
+        readonly createdDateTime: string,
+        readonly modelName: string,
+    },
 }
 
 /**
@@ -396,6 +398,10 @@ export enum FieldType {
     Table = "table",
 }
 
+export enum LabelType {
+    DrawnRegion = "drawnRegion"
+}
+
 export enum FieldFormat {
     NotSpecified = "not-specified",
     Currency = "currency",
@@ -414,6 +420,12 @@ export enum FeatureCategory {
     Text = "text",
     Checkbox = "checkbox",
     Label = "label",
+    DrawnRegion = "drawnRegion"
+}
+
+export enum ImageMapParent {
+    Predict = "predict",
+    Editor = "editor",
 }
 
 export enum TagInputMode {

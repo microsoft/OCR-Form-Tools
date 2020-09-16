@@ -121,13 +121,20 @@ export const english: IAppStrings = {
     train: {
         modelNameTitle: "Model name",
         labelFolderTitle: "Label folder URI",
-        defaultLabelFolderURL: "https://example.com/folder",
+        defaultLabelFolderURL: "/shared",
         title: "Train",
         training: "Training",
         pleaseWait: "Please wait",
         notTrainedYet: "Not trained yet",
         backEndNotAvailable: "Checkbox feature will work in future version of Form Recognizer service, please stay tuned.",
         addName: "Add a model name...",
+        downloadJson: "Download JSON file",
+        errors: {
+            electron: {
+                cantAccessFiles: "Cannot access files in '${folderUri}' for training. Please check if specified folder URI is correct."
+            }
+        }
+
     },
     modelCompose: {
         title: "Model compose",
@@ -156,7 +163,7 @@ export const english: IAppStrings = {
                 headerName: "Created",
                 fieldName: "created",
             },
-            lastupdated: {
+            lastUpdated: {
                 headerName: "Last Updated",
                 fieldName: "lastUpdated",
             },
@@ -166,7 +173,10 @@ export const english: IAppStrings = {
             addComposeModelName: "Add compose model name...",
             NotEnoughModels: " Should have at least more than one selected model to compose a new model",
             modelsCannotBeIncluded: "Warning: These models will not be included in composed model!",
-            modelCannotBeIncluded: "Warning: This model will not be included in composed model!"
+            modelCannotBeIncluded: "Warning: This model will not be included in composed model!",
+            addModelToRecentModels: "Model [${modelID}] added to recent models",
+            recentModelsAlreadyContainsModel: "Recent models already contains model [${modelID}]",
+            loadingDetails: "Loading model details..."
         },
         commandBar: {
             ariaLabel: "Please use command bar to compose models",
@@ -197,10 +207,19 @@ export const english: IAppStrings = {
         downloadScript: "Analyze with python script",
         defaultLocalFileInput: "Browse for a file...",
         defaultURLInput: "Paste or type URL...",
+        editAndUploadToTrainingSet: "Edit & upload to training set",
+        editAndUploadToTrainingSetNotify: "by clicking on this button, this form will be added to this project, where you can edit these labels.",
+        editAndUploadToTrainingSetNotify2: "We are adding this file to your training set, where you could edit the labels and re-train the model.",
+        uploadInPrgoress: "Upload in progress...",
+        confirmDuplicatedAssetName: {
+            title: "Asset name exists",
+            message: "Asset with name '${name}' exists in project, override?"
+        }
     },
-    recentModelsView:{
+    recentModelsView: {
         header: "Select a model to analyze with",
-        checkboxAriaLabel: "Select model checkbox"
+        checkboxAriaLabel: "Select model checkbox",
+        addToRecentModels: "Select to analyze with",
     },
     projectMetrics: {
         title: "Project Metrics",
@@ -245,6 +264,7 @@ export const english: IAppStrings = {
             unknownTagName: "Unknown",
             notCompatibleTagType: "Tag type is not compatible with this feature. If you want to change type of this tag, please remove or reassign all labels which using this tag in your project.",
             checkboxPerTagLimit: "Cannot assign more than one checkbox per tag",
+            notCompatibleWithDrawnRegionTag: "drawnRegion and ${otherCatagory} values cannot both be assigned to the same document's tag",
         },
         toolbar: {
             addTable: "Add new table tag",
@@ -322,7 +342,7 @@ export const english: IAppStrings = {
                 browse: "Browse",
                 selectFolder: "Select folder",
                 chooseFolder: "Choose folder",
-                invalidFolderMessage: "\"${project.sourceConnection.name}\" has an invalid folder. Please check it's selected folder in the Connections page",
+                invalidFolderMessage: "Connection [${project.sourceConnection.providerOptions.folderPath}] and/or project folder [${project.folderPath}] are invalid. Please check the specified folders in the Connection and Project Settings pages",
             },
         },
     },
@@ -407,12 +427,18 @@ export const english: IAppStrings = {
                         subMenuItems: {
                             text: "Text",
                             tables: "Tables",
-                            selectionMarks: "Selection Marks (Preview)",
+                            selectionMarks: "Selection marks (preview)",
+                            drawnRegions: "Drawn regions (preview)",
                             labels: "Labels"
                         },
-                    }
+                    },
+                    drawRegion: "Draw region",
                 },
                 farItems: {
+                    rotate: {
+                        clockwise: "Rotate image clockwise 90°",
+                        counterClockwise: "Rotate image counterclockwise 90°",
+                    },
                     zoom: {
                         zoomOut: "Zoom out",
                         zoomIn: "Zoom in",
@@ -422,6 +448,8 @@ export const english: IAppStrings = {
                         subIMenuItems: {
                             runOcrOnCurrentDocument: "Run OCR on current document",
                             runOcrOnAllDocuments: "Run OCR on all documents",
+                            runAutoLabelingCurrentDocument: "Run AutoLabeling on current document",
+                            noPredictModelOnProject: "Predict model not avaliable, please train the model first.",
                         }
                     }
                 }
@@ -481,9 +509,20 @@ export const english: IAppStrings = {
                 backSpace: "Remove selection and delete labels of selected words",
                 },
         },
+        drawnRegions: {
+            keys: {
+                escape: "Escape",
+                alt: "Alt",
+                backSpace: "Backspace",
+            },
+            description: {
+                deleteSelectedDrawnRegions: "Delete selected drawn regions",
+                cancelDrawOrReshape: "Cancel drawing or reshaping of regions",
+            }
+        },
         tips: {
             quickLabeling: {
-                name: "Quick labeling",
+                name: "Lable with hot keys",
             description: "Hotkeys 1 through 0 and all letters are assigned to first 36 tags. After selecting one or multiple words, press tag's assigned hotkey.",
             },
             renameTag: {
@@ -491,8 +530,8 @@ export const english: IAppStrings = {
                 description: "Hold Alt key and click on tag name.",
             },
             multipleWordSelection: {
-                name: "Select multiple words",
-                description: "Click and hold on word. Then, hover over additional words.",
+                name: "Select multiple words by dragging pointer across words",
+                description: "Click and hold on a word. Then, hover over additional words with pointer.",
             },
             deleteAllLabelsForTag: {
                 name: "Delete all labels for a tag",

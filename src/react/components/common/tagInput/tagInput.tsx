@@ -14,11 +14,11 @@ import {
     ChoiceGroup,
     IChoiceGroupOption,
 } from "@fluentui/react";
-import { strings } from "../../../../common/strings";
+import { strings, interpolate } from "../../../../common/strings";
 import { getDarkTheme } from "../../../../common/themes";
 import { AlignPortal } from "../align/alignPortal";
 import { getNextColor } from "../../../../common/utils";
-import { IRegion, ITag, ILabel, FieldType, FieldFormat, IField, TagInputMode } from "../../../../models/applicationState";
+import { IRegion, ITag, ILabel, FieldType, FieldFormat, IField, TagInputMode, FeatureCategory } from "../../../../models/applicationState";
 import { ColorPicker } from "../colorPicker";
 import "./tagInput.scss";
 import "../condensedList/condensedList.scss";
@@ -529,9 +529,21 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 const { category } = selectedRegions[0];
                 const { format, type, documentCount, name } = tag;
                 const tagCategory = this.getTagCategory(type);
-                if (tagCategory === category ||
+                const isTagLabelTypeDrawnRegion = this.labelAssignedDrawnRegion(labels, tag.name);
+                const labelAssigned = this.labelAssigned(labels, name);
+
+                if (labelAssigned && ((category === FeatureCategory.DrawnRegion) !== isTagLabelTypeDrawnRegion)) {
+                    if (isTagLabelTypeDrawnRegion) {
+                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, {otherCatagory: category}));
+                    } else if (tagCategory === FeatureCategory.Checkbox) {
+                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, {otherCatagory:  FeatureCategory.Checkbox}));
+                    } else {
+                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, {otherCatagory: FeatureCategory.Text}));
+                    }
+                    return;
+                } else if (tagCategory === category || category === FeatureCategory.DrawnRegion ||
                     (documentCount === 0 && type === FieldType.String && format === FieldFormat.NotSpecified)) {
-                    if (category === "checkbox" && this.labelAssigned(labels, name)) {
+                    if (tagCategory === FeatureCategory.Checkbox && labelAssigned) {
                         toast.warn(strings.tags.warnings.checkboxPerTagLimit);
                         return;
                     }
@@ -548,8 +560,22 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         }
     }
 
-    public labelAssigned = (labels, name): boolean => {
-         return labels.find((label) => label.label === name ? true : false);
+    public labelAssigned = (labels: ILabel[], name): boolean => {
+         const label = labels.find((label) => label.label === name ? true : false);
+         if (!label) {
+             return false;
+         } else {
+             return true;
+         }
+    }
+
+    public labelAssignedDrawnRegion = (labels: ILabel[], name): boolean => {
+        const label = labels.find((label) => label.label === name ? true : false);
+        if (label?.labelType === FeatureCategory.DrawnRegion) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public getTagCategory = (tagType: string) => {

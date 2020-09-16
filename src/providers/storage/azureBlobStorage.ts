@@ -1,18 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-
-import { AzureBlobStorageError } from "./azureBlobStorageError";
-import { IStorageProvider } from "./storageProviderFactory";
-import { IAsset, AssetType, StorageType, AssetState, AppError } from "../../models/applicationState";
-import { AssetService } from "../../services/assetService";
-import {
-    TokenCredential, AnonymousCredential, ContainerURL,
-    StorageURL, Credential, Aborter, BlockBlobURL, ServiceURL
-} from "@azure/storage-blob";
+import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
 import { constants } from "../../common/constants";
-import { ErrorCode } from "../../models/applicationState";
 import { strings } from "../../common/strings";
+import { AppError, AssetState, AssetType, ErrorCode, IAsset, StorageType } from "../../models/applicationState";
 import { throwUnhandledRejectionForEdge } from "../../react/components/common/errorHandler/errorHandler";
+import { AssetService } from "../../services/assetService";
+import { IStorageProvider } from "./storageProviderFactory";
 
 /**
  * Options for Azure Cloud Storage
@@ -34,7 +28,10 @@ export class AzureBlobStorage implements IStorageProvider {
      */
     public storageType: StorageType = StorageType.Cloud;
 
-    constructor(private options?: IAzureCloudStorageOptions) { }
+    private containerClient: ContainerClient;
+    constructor(private options?: IAzureCloudStorageOptions) {
+        this.containerClient = new ContainerClient(options!.sas!);
+    }
 
     /**
      * Initialize connection to Blob Storage account & container
@@ -45,33 +42,35 @@ export class AzureBlobStorage implements IStorageProvider {
      * connect to Azure Blob Storage
      */
     // tslint:disable-next-line:no-empty
-    public async initialize(): Promise<void> {}
+    public async initialize(): Promise<void> { }
 
     /**
      * Reads text from specified blob
      * @param blobName - Name of blob in container
      */
-    public async readText(blobName: string, ignoreNotFound?: boolean): Promise<string> {
+    public async readText(blobName: string, ignoreNotFound?: boolean | undefined): Promise<string> {
         try {
-            const blockBlobURL = this.getBlockBlobURL(blobName);
-            const downloadResponse = await blockBlobURL.download(Aborter.none, 0);
-            return await this.bodyToString(downloadResponse);
+            const client = this.containerClient.getBlockBlobClient(blobName);
+            const result = await client.download();
+
+            return await this.blobToString(await result.blobBody!);
         } catch (exception) {
             this.azureBlobStorageErrorHandler(exception, ignoreNotFound);
         }
     }
 
-    public async isValidProjectConnection() {
+    public async isValidProjectConnection(filepath?: string | undefined): Promise<boolean> {
         try {
-            return await new ServiceURL(this.options.sas, StorageURL.newPipeline(this.getCredential())).getAccountInfo(Aborter.timeout(5000))
-            .then(() => {
-                return true;
-            })
-            .catch(() => {
-                return false;
-            })
+            const client = new BlobServiceClient(this.options!.sas!);
+            return await client.getAccountInfo()
+                .then(() => {
+                    return true;
+                })
+                .catch(() => {
+                    return false;
+                });
         } catch {
-            return (false);
+            return false;
         }
     }
 
@@ -79,10 +78,13 @@ export class AzureBlobStorage implements IStorageProvider {
      * Reads Buffer from specified blob
      * @param blobName - Name of blob in container
      */
-    public async readBinary(blobName: string) {
+    public async readBinary(blobName: string): Promise<Buffer> {
         try {
-            const text = await this.readText(blobName);
-            return Buffer.from(text);
+            const client = this.containerClient.getBlockBlobClient(blobName);
+            const result = await client.download();
+
+            const arrayBuffer = await this.blobToArrayBuffer(await result.blobBody!);
+            return Buffer.from(arrayBuffer);
         } catch (exception) {
             this.azureBlobStorageErrorHandler(exception);
         }
@@ -95,13 +97,7 @@ export class AzureBlobStorage implements IStorageProvider {
      */
     public async writeText(blobName: string, content: string | Buffer) {
         try {
-            const containerURL = new ContainerURL(this.options.sas, StorageURL.newPipeline(this.getCredential()));
-            const blockBlobURL = BlockBlobURL.fromContainerURL(containerURL, blobName);
-            await blockBlobURL.upload(
-                Aborter.none,
-                content,
-                content.length,
-            );
+            await this.containerClient.uploadBlockBlob(blobName, content, content.length);
         } catch (exception) {
             this.azureBlobStorageErrorHandler(exception);
         }
@@ -112,9 +108,9 @@ export class AzureBlobStorage implements IStorageProvider {
      * @param blobName - Name of blob in container
      * @param content - Buffer to write to blob
      */
-    public writeBinary(blobName: string, content: Buffer) {
+    public async writeBinary(blobName: string, content: Buffer) {
         try {
-            return this.writeText(blobName, content);
+            await this.containerClient.uploadBlockBlob(blobName, content, content.length);
         } catch (exception) {
             this.azureBlobStorageErrorHandler(exception);
         }
@@ -126,7 +122,7 @@ export class AzureBlobStorage implements IStorageProvider {
      */
     public async deleteFile(blobName: string, ignoreNotFound?: boolean, ignoreForbidden?: boolean): Promise<void> {
         try {
-            await this.getBlockBlobURL(blobName).delete(Aborter.none);
+            await this.containerClient.deleteBlob(blobName);
         } catch (exception) {
             this.azureBlobStorageErrorHandler(exception, ignoreNotFound, ignoreForbidden);
         }
@@ -143,33 +139,11 @@ export class AzureBlobStorage implements IStorageProvider {
     public async listFiles(path?: string, ext?: string): Promise<string[]> {
         try {
             const result: string[] = [];
-            let marker;
-            const containerURL = new ContainerURL(this.options.sas, StorageURL.newPipeline(this.getCredential()));
-            do {
-                const pathIsString = typeof path === "string";
-                if (pathIsString && path.length > 0 && path[path.length - 1] !== "/") {
-                    path += "/";
+            for await (const blob of this.containerClient.listBlobsFlat({ prefix: path, includeDeleted: false })) {
+                if ((ext && blob.name.endsWith(ext)) || !ext) {
+                    result.push(blob.name);
                 }
-                const listBlobsResponse = pathIsString
-                    ? await containerURL.listBlobHierarchySegment(
-                        Aborter.none,
-                        "/",
-                        marker,
-                        { prefix: path })
-                    : await containerURL.listBlobFlatSegment(
-                        Aborter.none,
-                        marker);
-                if (!listBlobsResponse.segment || !listBlobsResponse.containerName) {
-                    throw new AzureBlobStorageError(404);
-                }
-                marker = listBlobsResponse.nextMarker;
-                for (const blob of listBlobsResponse.segment.blobItems) {
-                    if ((ext && blob.name.endsWith(ext)) || !ext) {
-                        result.push(blob.name);
-                    }
-                }
-            } while (marker);
-
+            }
             return result;
         } catch (exception) {
             this.azureBlobStorageErrorHandler(exception);
@@ -192,9 +166,8 @@ export class AzureBlobStorage implements IStorageProvider {
      * provider, this function creates that container. Included to satisfy interface
      */
     public async createContainer(containerName: string): Promise<void> {
-        const containerURL = new ContainerURL(this.options.sas, StorageURL.newPipeline(this.getCredential()));
         try {
-            await containerURL.create(Aborter.none);
+            await this.containerClient.create();
         } catch (e) {
             if (e.statusCode === 409) {
                 return;
@@ -212,8 +185,7 @@ export class AzureBlobStorage implements IStorageProvider {
      */
     public async deleteContainer(containerName: string): Promise<void> {
         try {
-            const containerURL = new ContainerURL(this.options.sas, StorageURL.newPipeline(this.getCredential()));
-            await containerURL.delete(Aborter.none);
+            await this.containerClient.delete();
         } catch (exception) {
             this.azureBlobStorageErrorHandler(exception);
         }
@@ -222,7 +194,7 @@ export class AzureBlobStorage implements IStorageProvider {
     /**
      * Retrieves assets from Azure Blob Storage container
      */
-    public async getAssets(folderPath?: string): Promise<IAsset[]> {
+    public async getAssets(folderPath?: string, folderName?: string): Promise<IAsset[]> {
         const files: string[] = await this.listFiles(folderPath);
         const result: IAsset[] = [];
         for (const file of files) {
@@ -259,38 +231,8 @@ export class AzureBlobStorage implements IStorageProvider {
         return assetType === AssetType.Image || assetType === AssetType.TIFF || assetType === AssetType.PDF;
     }
 
-    /**
-     * Gets a Credential object. OAuthToken if specified in options, anonymous
-     * credential otherwise (uses the SAS token)
-     * @returns - Credential object from Azure Storage SDK
-     */
-    private getCredential(): Credential {
-        if (this.options.oauthToken) {
-            return new TokenCredential(this.options.oauthToken);
-        } else {
-            return new AnonymousCredential();
-        }
-    }
-
-    private getBlockBlobURL(blobName: string): BlockBlobURL {
-        const containerURL = new ContainerURL(this.options.sas, StorageURL.newPipeline(this.getCredential()));
-        return BlockBlobURL.fromContainerURL(containerURL, blobName);
-    }
-
     private getUrl(blobName: string): string {
-        return this.getBlockBlobURL(blobName).url;
-    }
-
-    private async bodyToString(
-        response: {
-            readableStreamBody?: NodeJS.ReadableStream;
-            blobBody?: Promise<Blob>;
-        },
-        // tslint:disable-next-line:variable-name
-        _length?: number,
-    ): Promise<string> {
-        const blob = await response.blobBody!;
-        return this.blobToString(blob);
+        return this.containerClient.getBlobClient(blobName).url;
     }
 
     private async blobToString(blob: Blob): Promise<string> {
@@ -302,6 +244,16 @@ export class AzureBlobStorage implements IStorageProvider {
             };
             fileReader.onerror = reject;
             fileReader.readAsText(blob);
+        });
+    }
+    private async blobToArrayBuffer(blob: Blob): Promise<ArrayBuffer> {
+        const fileReader = new FileReader();
+        return new Promise<ArrayBuffer>((resolve, reject) => {
+            fileReader.onloadend = (ev: any) => {
+                resolve(ev.target!.result);
+            };
+            fileReader.onerror = reject;
+            fileReader.readAsArrayBuffer(blob);
         });
     }
 

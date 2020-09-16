@@ -76,6 +76,10 @@ export function registerIcons() {
             EditTable: "\uE4C4",
             TableGroup: "\uF6D9",
             FixedColumnWidth: "\uE3EA",
+            AddField: "\uE4C7",
+            RectangleShape: "\uF1A9",
+            Rotate90CounterClockwise: "\uF80E",
+            Rotate90Clockwise: "\uF80D",
         },
     });
 }

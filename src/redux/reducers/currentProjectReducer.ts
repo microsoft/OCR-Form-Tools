@@ -25,6 +25,8 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
             return null;
         case ActionTypes.LOAD_PROJECT_SUCCESS:
             return { ...action.payload };
+        case ActionTypes.ADD_ASSET_TO_PROJECT_SUCCESS:
+            return { ...state, lastVisitedAssetId: action.payload.id };
         case ActionTypes.LOAD_ASSET_METADATA_SUCCESS:
             if (!state) {
                 return state;

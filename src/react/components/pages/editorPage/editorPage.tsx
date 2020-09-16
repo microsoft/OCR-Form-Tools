@@ -9,16 +9,16 @@ import SplitPane from "react-split-pane";
 import { bindActionCreators } from "redux";
 import { PrimaryButton } from "@fluentui/react";
 import HtmlFileReader from "../../../../common/htmlFileReader";
-import { strings } from "../../../../common/strings";
+import { strings, interpolate } from "../../../../common/strings";
 import {
     AssetState, AssetType, EditorMode, FieldType,
     IApplicationState, IAppSettings, IAsset, IAssetMetadata,
-    ILabel, IProject, IRegion, ISize, ITag, FeatureCategory, TagInputMode,
+    ILabel, IProject, IRegion, ISize, ITag, FeatureCategory, TagInputMode,FieldFormat,
 } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
-import {AssetPreview, ContentSource} from "../../common/assetPreview/assetPreview";
+import { AssetPreview, ContentSource } from "../../common/assetPreview/assetPreview";
 import { KeyboardBinding } from "../../common/keyboardBinding/keyboardBinding";
 import { KeyEventType } from "../../common/keyboardManager/keyboardManager";
 import { TagInput } from "../../common/tagInput/tagInput";
@@ -37,6 +37,8 @@ import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
 import { getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/themes";
 import { toast } from "react-toastify";
+import { PredictService } from "../../../../services/predictService";
+import { AssetService } from "../../../../services/assetService";
 
 /**
  * Properties for Editor Page
@@ -87,6 +89,7 @@ export interface IEditorPageState {
     isRunningOCRs?: boolean;
     /** Whether OCR is running in the main canvas */
     isCanvasRunningOCR?: boolean;
+    isCanvasRunningAutoLabeling?: boolean;
     isError?: boolean;
     errorTitle?: string;
     errorMessage?: string;
@@ -183,7 +186,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     public render() {
         const { project } = this.props;
-        const { assets, selectedAsset, isRunningOCRs, isCanvasRunningOCR } = this.state;
+        const { assets, selectedAsset, isRunningOCRs, isCanvasRunningOCR, isCanvasRunningAutoLabeling } = this.state;
 
         const labels = (selectedAsset &&
             selectedAsset.labelData &&
@@ -228,7 +231,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                 className="editor-page-sidebar-run-ocr"
                                 type="button"
                                 onClick={() => this.loadOcrForNotVisited()}
-                                disabled={this.state.isRunningOCRs}>
+                                disabled={this.isBusy()}>
                                 {this.state.isRunningOCRs ?
                                     <div>
                                         <Spinner
@@ -258,10 +261,15 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                             defaultSize={size}
                             pane1Style = {{height: "100%"}}
                             pane2Style = {{height: "auto"}}
-                            resizerStyle = {{width: "5px", margin: "0px", border: "2px", background: "transparent"}}
+                            resizerStyle={{
+                                width: "5px",
+                                margin: "0px",
+                                border: "2px",
+                                background: "transparent"
+                            }}
                             onChange = {() => this.resizeCanvas()}>
                             <div className="editor-page-content-main" >
-                                <div className="editor-page-content-main-body" onClick = {this.onPageContainerClick}>
+                                <div className="editor-page-content-main-body" onClick={this.onPageContainerClick}>
                                     {selectedAsset &&
                                         <Canvas
                                             ref={this.canvas}
@@ -270,6 +278,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             onCanvasRendered={this.onCanvasRendered}
                                             onSelectedRegionsChanged={this.onSelectedRegionsChanged}
                                             onRunningOCRStatusChanged={this.onCanvasRunningOCRStatusChanged}
+                                            onRunningAutoLabelingStatusChanged={this.onCanvasRunningAutoLabelingStatusChanged}
                                             onTagChanged={this.onTagChanged}
                                             onAssetDeleted={this.confirmDocumentDeleted}
                                             editorMode={this.state.editorMode}
@@ -280,7 +289,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             closeTableView={this.closeTableView}
                                             runOcrForAllDocs={this.loadOcrForNotVisited}
                                             appSettings={this.props.appSettings}
-                                            >
+                                        >
                                             <AssetPreview
                                                 controlsEnabled={this.state.isValid}
                                                 onBeforeAssetChanged={this.onBeforeAssetSelected}
@@ -331,14 +340,14 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                         title={strings.editorPage.asset.delete.title}
                                         ref={this.deleteDocumentConfirm}
                                         message={
-                                                    strings.editorPage.asset.delete.confirmation +
-                                                    "\"" + this.state.selectedAsset.asset.name + "\"?"
-                                                }
+                                            strings.editorPage.asset.delete.confirmation +
+                                            "\"" + this.state.selectedAsset.asset.name + "\"?"
+                                        }
                                         confirmButtonTheme={getPrimaryRedTheme()}
                                         onConfirm={this.onAssetDeleted}
                                     />
                                 }
-                          </div>
+                            </div>
                         </SplitPane>
                     </div>
                 </SplitPane>
@@ -363,6 +372,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                     when={isRunningOCRs || isCanvasRunningOCR}
                     message={"An OCR operation is currently in progress, are you sure you want to leave?"}
                 />
+                <PreventLeaving
+                    when={isCanvasRunningAutoLabeling}
+                    message={"An AutoLabeling option is currently in progress, are you sure you want to leave?"} />
             </div>
         );
     }
@@ -384,7 +396,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 tagInputMode,
             }, () => {
                 this.resizeCanvas();
-            });    
+            });
         }
     }
 
@@ -394,8 +406,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             selectedTableTagToLabel,
         }, () => {
             this.resizeCanvas();
-        });    
-        
+        });
+
     }
 
     /**
@@ -409,6 +421,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 height: newWidth / (4 / 3),
             },
         });
+        this.resizeCanvas()
     }
 
     /**
@@ -519,18 +532,31 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const selection = this.canvas.current.getSelectedRegions();
 
         if (tag && selection.length) {
+            const { format, type, documentCount, name } = tag;
             const tagCategory = this.tagInputRef.current.getTagCategory(tag.type);
-            const selectionCategory = this.tagInputRef.current.getTagCategory(selection[0].category);
+            const category = selection[0].category;
             const labels = this.state.selectedAsset.labelData.labels;
+            const isTagLabelTypeDrawnRegion = this.tagInputRef.current.labelAssignedDrawnRegion(labels, tag.name);
+            const labelAssigned = this.tagInputRef.current.labelAssigned(labels, name);
 
-            if (selectionCategory === tagCategory) {
-                if (tagCategory === FeatureCategory.Checkbox && this.tagInputRef.current.labelAssigned(labels, tag.name)) {
-                    toast.warn(strings.tags.warnings.checkboxPerTagLimit);
+            if (labelAssigned && ((category === FeatureCategory.DrawnRegion) !== isTagLabelTypeDrawnRegion)) {
+                if (isTagLabelTypeDrawnRegion) {
+                    toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, { otherCatagory: category }));
+                } else if (tagCategory === FeatureCategory.Checkbox) {
+                    toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, { otherCatagory: FeatureCategory.Checkbox }));
                 } else {
-                    this.onTagClicked(tag);
+                    toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, { otherCatagory: FeatureCategory.Text }));
                 }
+                return;
+            } else if (tagCategory === category || category === FeatureCategory.DrawnRegion ||
+                (documentCount === 0 && type === FieldType.String && format === FieldFormat.NotSpecified)) {
+                if (tagCategory === FeatureCategory.Checkbox && labelAssigned) {
+                    toast.warn(strings.tags.warnings.checkboxPerTagLimit);
+                    return;
+                }
+                this.onTagClicked(tag);
             } else {
-                toast.warn(strings.tags.warnings.notCompatibleTagType)
+                toast.warn(strings.tags.warnings.notCompatibleTagType, { autoClose: 7000 });
             }
         }
         // do nothing if region was not selected
@@ -571,7 +597,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             }
             await this.props.actions.saveAssetMetadata(this.props.project, assetMetadata);
             if (this.props.project.lastVisitedAssetId === assetMetadata.asset.id) {
-                this.setState({selectedAsset: assetMetadata});
+                this.setState({ selectedAsset: assetMetadata });
             }
         }
 
@@ -599,10 +625,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const assetIndex = assets.findIndex((item) => item.id === asset.id);
         if (assetIndex > -1) {
             const assets = [...this.state.assets];
-            const item = {...assets[assetIndex]};
+            const item = { ...assets[assetIndex] };
             item.cachedImage = (contentSource as HTMLImageElement).src;
             assets[assetIndex] = item;
-            this.setState({assets});
+            this.setState({ assets });
         }
     }
 
@@ -646,6 +672,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         if (!this.state.isValid) {
             this.setState({ showInvalidRegionWarning: true });
+            return;
+        }
+        if (this.state.isCanvasRunningAutoLabeling) {
             return;
         }
 
@@ -704,9 +733,12 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             throw Error(error);
         }
     }
+    private isBusy = (): boolean => {
+        return this.state.isRunningOCRs || this.state.isCanvasRunningOCR || this.state.isCanvasRunningAutoLabeling;
+    }
 
     public loadOcrForNotVisited = async (runForAll?: boolean) => {
-        if (this.state.isRunningOCRs) {
+        if (this.isBusy()) {
             return;
         }
         const { project } = this.props;
@@ -791,17 +823,19 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private onLabelEnter = (label: ILabel) => {
-        this.setState({hoveredLabel: label});
+        this.setState({ hoveredLabel: label });
     }
 
     private onLabelLeave = (label: ILabel) => {
-        this.setState({hoveredLabel: null});
+        this.setState({ hoveredLabel: null });
     }
 
     private onCanvasRunningOCRStatusChanged = (isCanvasRunningOCR: boolean) => {
         this.setState({ isCanvasRunningOCR });
     }
-
+    private onCanvasRunningAutoLabelingStatusChanged = (isCanvasRunningAutoLabeling: boolean) => {
+        this.setState({ isCanvasRunningAutoLabeling });
+    }
     private onFocused = () => {
         this.loadProjectAssets();
     }

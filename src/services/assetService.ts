@@ -23,7 +23,7 @@ const supportedImageFormats = {
 
 interface IMime {
     types: string[];
-    pattern: (number|undefined)[];
+    pattern: (number | undefined)[];
 }
 
 // tslint:disable number-literal-format
@@ -62,6 +62,91 @@ const mimeBytesNeeded: number = (Math.max(...imageMimes.map((m) => m.pattern.len
  * @description - Functions for dealing with project assets
  */
 export class AssetService {
+    private getOcrFromAnalyzeResult(analyzeResult: any) {
+        return _.get(analyzeResult, "analyzeResult.readResults", []);
+    }
+    async uploadAssetPredictResult(asset: IAsset, readResults: any): Promise<void> {
+        const getBoundingBox = (pageIndex, arr: number[]) => {
+            const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(readResults)[pageIndex - 1];
+            const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
+            const ocrWidth = ocrExtent[2] - ocrExtent[0];
+            const ocrHeight = ocrExtent[3] - ocrExtent[1];
+            const result = [];
+            for (let i = 0; i < arr.length; i += 2) {
+                result.push([
+                    (arr[i] / ocrWidth),
+                    (arr[i + 1] / ocrHeight),
+                ]);
+            }
+            return result;
+        };
+        const getLabelValues = (field: any) => {
+            return field.elements.map((path: string) => {
+                const pathArr = path.split('/').slice(1);
+                const word = pathArr.reduce((obj: any, key: string) => obj[key], { ...readResults.analyzeResult });
+                return {
+                    page: field.page,
+                    text: word.text || word.state,
+                    confidence: word.confidence,
+                    boundingBoxes: [getBoundingBox(field.page, word.boundingBox)]
+                };
+            });
+        };
+        const labels = [];
+        readResults.analyzeResult.documentResults
+            .map(result => Object.keys(result.fields)
+                .filter(key => result.fields[key])
+                .map<ILabel>(key => (
+                    {
+                        label: key,
+                        key: null,
+                        value: getLabelValues(result.fields[key])
+                    }))).forEach(items => {
+                        labels.push(...items);
+                    });
+
+        if (labels.length > 0) {
+            const fileName = decodeURIComponent(asset.name).split('/').pop();
+            const labelData: ILabelData = {
+                document: fileName,
+                labels
+            };
+            const metadata = {
+                ...await this.getAssetMetadata(asset),
+                labelData
+            };
+            metadata.asset.state = AssetState.Tagged;
+
+            const ocrData = JSON.parse(JSON.stringify(readResults));
+            delete ocrData.analyzeResult.documentResults;
+            if (ocrData.analyzeResult.errors) {
+                delete ocrData.analyzeResult.errors;
+            }
+            const ocrFileName = `${asset.name}${constants.ocrFileExtension}`;
+            await Promise.all([
+                this.save(metadata),
+                this.storageProvider.writeText(ocrFileName, JSON.stringify(ocrData, null, 2))
+            ]);
+        }
+        else {
+            const ocrData = { ...readResults };
+            delete ocrData.analyzeResult.documentResults;
+            if (ocrData.analyzeResult.errors) {
+                delete ocrData.analyzeResult.errors;
+            }
+            const labelFileName = decodeURIComponent(`${asset.name}${constants.labelFileExtension}`);
+            const ocrFileName = decodeURIComponent(`${asset.name}${constants.ocrFileExtension}`);
+            try {
+                await Promise.all([
+                    this.storageProvider.deleteFile(labelFileName, true, true),
+                    this.storageProvider.writeText(ocrFileName, JSON.stringify(ocrData, null, 2))
+                ]);
+            }
+            catch{
+                return;
+            }
+        }
+    }
     /**
      * Create IAsset from filePath
      * @param filePath - filepath of asset
@@ -93,14 +178,17 @@ export class AssetService {
 
         if (supportedImageFormats.hasOwnProperty(assetFormat)) {
             let types;
+            let corruptFileName;
             if (nodejsMode) {
                 const FileType = require('file-type');
                 const fileType = await FileType.fromFile(normalizedPath);
                 types = [fileType.ext];
+                corruptFileName = fileName.split(/[\\\/]/).pop().replace(/%20/g, " ");
+
             } else {
                 types = await this.getMimeType(filePath);
+                corruptFileName = fileName.split("%2F").pop().replace(/%20/g, " ");
             }
-            const corruptFileName = fileName.split("%2F").pop().replace(/%20/g, " ");
             if (!types) {
                 console.error(interpolate(strings.editorPage.assetWarning.incorrectFileExtension.failedToFetch, { fileName: corruptFileName.toLocaleUpperCase() }));
             }
@@ -217,14 +305,30 @@ export class AssetService {
     public async getAssets(): Promise<IAsset[]> {
         const folderPath = this.project.folderPath;
         const assets = await this.assetProvider.getAssets(folderPath);
-        const returnedAssets = assets.map((asset) => {
-            asset.name = decodeURIComponent(asset.name);
-            return asset;
-        }).filter((asset) => this.isInExactFolderPath(asset.name, folderPath));
-
-        return returnedAssets;
+        return this.filterAssets(assets, folderPath);
     }
 
+    private filterAssets = (assets, folderPath) => {
+        if (this.project.sourceConnection.providerType === "localFileSystemProxy") {
+            return assets.map((asset) => {
+                asset.name = decodeURIComponent(asset.name);
+                return asset;
+            })
+        } else {
+            return assets.map((asset) => {
+                asset.name = decodeURIComponent(asset.name);
+                return asset;
+            }).filter((asset) => this.isInExactFolderPath(asset.name, folderPath));
+        }
+    }
+    public async uploadBuffer(name: string, buffer: Buffer) {
+        const path = this.project.folderPath ? `${this.project.folderPath}/${name}` : name;
+        await this.storageProvider.writeBinary(path, buffer);
+    }
+    public async uploadText(name: string, contents: string) {
+        const path = this.project.folderPath ? `${this.project.folderPath}/${name}` : name;
+        await this.storageProvider.writeText(path, contents);
+    }
     /**
      * Delete asset
      * @param metadata - Metadata for asset

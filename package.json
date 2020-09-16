@@ -15,7 +15,7 @@
     "private": true,
     "main": "build/main.js",
     "dependencies": {
-        "@azure/storage-blob": "10.3.0",
+        "@azure/storage-blob": "12.1.2",
         "@fluentui/react": "^7.117.2",
         "@microsoft/applicationinsights-react-js": "^3.0.1",
         "@microsoft/applicationinsights-web": "^2.5.6",
@@ -63,7 +63,7 @@
         "electron:start:dev": "yarn electron-start",
         "electron:start:prod": "yarn webpack:prod && yarn electron-start",
         "electron-start": "node src/electron/start",
-        "release": "yarn build && yarn webpack:prod && yarn electron-builder",
+        "release": "env-cmd -f .env.release yarn build && yarn webpack:prod && yarn electron-builder",
         "tslint": "./node_modules/.bin/tslint 'src/**/*.ts*'",
         "tslintfix": "./node_modules/.bin/tslint 'src/**/*.ts*' --fix"
     },
@@ -100,6 +100,7 @@
         "acorn": "^7.1.1",
         "electron": "8.3.0",
         "electron-builder": "^22.6.1",
+        "env-cmd": "^10.1.0",
         "enzyme": "^3.10.0",
         "enzyme-adapter-react-16": "^1.15.1",
         "eslint-utils": "^1.4.3",
