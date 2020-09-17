@@ -541,7 +541,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      */
     private onAssetMetadataChanged = async (assetMetadata: IAssetMetadata): Promise<void> => {
         // Comment out below code as we allow regions without tags, it would make labeler's work easier.
-        assetMetadata= JSON.parse(JSON.stringify(assetMetadata));
+        assetMetadata = JSON.parse(JSON.stringify(assetMetadata));
         const initialState = assetMetadata.asset.state;
 
         const asset = { ...assetMetadata.asset };
@@ -845,9 +845,36 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         if (needUpdate) {
             this.setState({ assets: updatedAssets });
+            if (this.state.selectedAsset) {
+                const asset = this.state.selectedAsset.asset;
+                const currentAsset = _.get(this.props, `project.assets[${this.state.selectedAsset.asset.id}]`, null);
+                if (asset.state !== currentAsset.state || asset.labelingState !== currentAsset.labelingState) {
+                    this.updateSelectAsset(asset);
+                }
+            }
         }
     }
 
+    private updateSelectAsset = async (asset: IAsset) => {
+        const assetMetadata = await this.props.actions.loadAssetMetadata(this.props.project, asset);
+
+        try {
+            if (!assetMetadata.asset.size) {
+                const assetProps = await HtmlFileReader.readAssetAttributes(asset);
+                assetMetadata.asset.size = { width: assetProps.width, height: assetProps.height };
+            }
+        } catch (err) {
+            console.warn("Error computing asset size");
+        }
+        this.setState({
+            tableToView: null,
+            tableToViewId: null,
+            selectedAsset: assetMetadata,
+        }, async () => {
+            await this.onAssetMetadataChanged(assetMetadata);
+            await this.props.actions.saveProject(this.props.project, false, false);
+        });
+    }
     private onLabelEnter = (label: ILabel) => {
         this.setState({ hoveredLabel: label });
     }
