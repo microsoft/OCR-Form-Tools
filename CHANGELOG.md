@@ -1,9 +1,35 @@
 # FoTT Changelog 
 ## Released conatiner's currently referenced commit
-2.1-Preview's released container image (mcr.microsoft.com/azure-cognitive-services/custom-form/labeltool:2.1.012970002-amd64-preview) currently references **2.1-preview.1-193520e (09-08-2020)**
+2.1-Preview's released container image (mcr.microsoft.com/azure-cognitive-services/custom-form/labeltool:2.1.012970002-amd64-preview) currently references **2.1-preview.1-0633507 (09-14-2020)**
 
 ## Commit history
-### 2.1-preview.1-b92b73b (09-09-2020)
+### 2.1-preview.1-1a6b78e (09-16-2020)
+* fix: normalize folder path starting with a period ([#592](https://github.com/microsoft/OCR-Form-Tools/commit/1a6b78e054235da3188aafbe65636a8c18b439bf))
+* fix: change label folder uri title ([#588](https://github.com/microsoft/OCR-Form-Tools/commit/7e4233e568d94817e23dda5ef5513b9ee7475d11))
+
+### 2.1-preview.1-6a1ced5 (09-15-2020)
+* fix: initialize drag pan for analyze page ([#586](https://github.com/microsoft/OCR-Form-Tools/commit/6a1ced5a0bfb03ceba515faddbfa010ac8451460))
+* fix: zoomIn keyboar shortcut for macOS ([#581](https://github.com/microsoft/OCR-Form-Tools/commit/5afeebfee28e10e390f073990f90348c5117475f))
+* fix: appId ([#584](https://github.com/microsoft/OCR-Form-Tools/commit/e053b151441e956641ed05c29106d02358a40792))
+* fix: remove escape quote from release script ([#579](https://github.com/microsoft/OCR-Form-Tools/commit/bd5d51e8e15809b95f15bc495f7d0f91fecfc22d))
+* Stew ro/support drag pan for release ([#576](https://github.com/microsoft/OCR-Form-Tools/commit/77620eccd21d564473c81b43341f59de22339248))
+
+### 2.1-preview.1-0633507 (09-14-2020)
+* Update README.md([#??](https://github.com/microsoft/OCR-Form-Tools/commit/0633507aa767f996add313ced06c2365c5f240c8))
+
+### 2.1-preview.1-8d2286f (09-13-2020)
+* persist trainPage inputs in localStorage ([#568](https://github.com/microsoft/OCR-Form-Tools/commit/8d2286f50236e41fe5540dbb9b161ea88bbf2d7a))
+
+### 2.1-preview.1-bb23e31 (09-11-2020)
+* build(deps): bump node-fetch from 2.6.0 to 2.6.1 ([#575](https://github.com/microsoft/OCR-Form-Tools/commit/bb23e3199c5721338241c8c5ccc0bda104fd15f8))
+* fix: support multiple env files ([#574](https://github.com/microsoft/OCR-Form-Tools/commit/cf64a8ddde05e7e73cad37d271f5d6dfa61c5d7f))
+* fix: "Azure blob storage"  error on on premise scenario ([#572](https://github.com/microsoft/OCR-Form-Tools/commit/46f0bc59f3a531c366bc2c7cec955d2cb6ed7cd6))
+* fix ([#563](https://github.com/microsoft/OCR-Form-Tools/commit/28c792e10692e3cc1f511852ffc9fdbc8dcdda8a))
+
+### 2.1-preview.1-7e828ff (09-10-2020)
+* fix: allow training with placeholder ([#569](https://github.com/microsoft/OCR-Form-Tools/commit/7e828ff02ff8a22b64b4b7d16787d77afb76af62))
+* docs: update changelog ([#564](https://github.com/microsoft/OCR-Form-Tools/commit/1dec72c5df3206554a1e0864b65cc769835785fd))
+* Yongbing chen/human in the loop ([#517](https://github.com/microsoft/OCR-Form-Tools/commit/be9d56481510e3033bcd705743c1ee9aeee20522))
 * fix: support project folder in project settings for local file system ([#559](https://github.com/microsoft/OCR-Form-Tools/commit/b92b73bb8076f9b9bb55dd38fcd223b7b93eaa2e))
 * feat: enable canvas rotation ([#553](https://github.com/microsoft/OCR-Form-Tools/commit/c27a110251df1fc7a595524846e20fd09c79f915))
 * fix: handle tag is undefined error ([#557](https://github.com/microsoft/OCR-Form-Tools/commit/7e4d3fbbc3a2bf925c126cd2b3f493cca48e7a62))
