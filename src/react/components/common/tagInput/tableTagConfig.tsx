@@ -1,7 +1,6 @@
-import React from 'react';
-import { toast } from "react-toastify";
+import React, { useState } from 'react';
 import "./tableTagConfig.scss";
-import { IconButton, Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, IDropdownOption, SelectionMode, DetailsListLayoutMode, FontIcon } from "@fluentui/react";
+import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, IDropdownOption, SelectionMode, DetailsListLayoutMode, FontIcon } from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme } from '../../../../common/themes';
 import { FieldFormat, FieldType, TagInputMode } from '../../../../models/applicationState';
 
@@ -42,189 +41,207 @@ interface ITableTagConfigState {
     format: string,
 }
 
-// @connect(mapStateToProps)
-export default class TableTagConfig extends React.Component<ITableTagConfigProps> {
-    public static defaultProps: ITableTagConfigProps = {
-        setTagInputMode: null,
-        addTableTag: null,
-    };
+const options: IChoiceGroupOption[] = [
+    {
+        key: 'fixed',
+        text: 'fixed',
+        iconProps: { iconName: 'Table' }
+    },
+    {
+        key: 'rowDynamic',
+        text: 'row-dynamic',
+        iconProps: { iconName: 'InsertRowsBelow' }
+    },
+];
 
-    public state: ITableTagConfigState = {
-        rows: [{name: "", type: FieldType.String, format: FieldFormat.NotSpecified}],
-        columns: [{name: "", type: FieldType.String, format: FieldFormat.NotSpecified}],
+const dark: ICustomizations = {
+    settings: {
+        theme: getRightPaneDefaultButtonTheme(),
+    },
+    scopedSettings: {},
+};
+
+
+
+
+
+
+export default function TableTagConfig(props: ITableTagConfigProps) {
+    const { setTagInputMode = null, addTableTag = null } = props;
+
+    const initialState: ITableTagConfigState = {
         name: "",
         format: "fixed",
+        rows: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
+        columns: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
     };
 
-    public componentDidMount = async () => {
+    const [name, setName] = useState(initialState.name);
+    const [format, setFormat] = useState(initialState.format);
+    const [columns, setColumns] = useState(initialState.columns);
+    const [rows, setRows] = useState(initialState.rows);
 
-    }
 
-    public componentDidUpdate = async (prevProps: Readonly<ITableTagConfigProps>, prevState: Readonly<ITableTagConfigState>) => {
 
-    }
 
-    public render() {
-        const options: IChoiceGroupOption[] = [
-            { key: 'fixed', text: 'fixed', iconProps: { iconName: 'Table' } },
-            { key: 'rowDynamic', text: 'row-dynamic', iconProps: { iconName: 'InsertRowsBelow' } },
-          ];
+    // public componentDidUpdate = async (prevProps: Readonly<ITableTagConfigProps>, prevState: Readonly<ITableTagConfigState>) => {  // }
 
-          const dark: ICustomizations = {
-            settings: {
-              theme: getRightPaneDefaultButtonTheme(),
-            },
-            scopedSettings: {},
-        };
+    const typeOptions: IDropdownOption[] = [
+        { key: FieldType.String, text: FieldType.String },
+    ];
 
-        const typeOptions: IDropdownOption[] = [
-            { key: FieldType.String, text: FieldType.String },
-        ];
+    const formatOptions: IDropdownOption[] = [
+        { key: FieldFormat.NotSpecified, text: FieldFormat.NotSpecified },
+    ];
 
-        const formatOptions: IDropdownOption[] = [
-            { key: FieldFormat.NotSpecified, text: FieldFormat.NotSpecified },
-        ];
-
-          const columnListcolumns: IColumn[] = [
-            {
-                key: "name",
-                name: "name",
-                // className: "composed-icon-cell",
-                fieldName: "name",
-                minWidth: 100,
-                maxWidth: 400,
-                isResizable: false,
-                onRender: (row, index) => {
-                    return (
-                        <div className="maxyoo">
-                <TextField
-                className="maxyoo"
-                theme={getGreenWithWhiteBackgroundTheme()}
-                    onChange={(event) => this.setColumnName(index,  event.target["value"])}
-                    value={row.name}
-                />
-
-                        </div>
-
-                )
-                },
-                // headerClassName: "list-header",
-            },
-            {
-                key: "type",
-                name: "type",
-                fieldName: "type",
-                minWidth: 100,
-                maxWidth: 100,
-                isResizable: false,
-                onRender: (row, index) => {
-                    return (      
-                    <Dropdown
-                        // className="sourceDropdown"
-                        selectedKey={FieldType.String}
-                        options={typeOptions}
+    const columnListColumns: IColumn[] = [
+        {
+            key: "name",
+            name: "name",
+            // className: "composed-icon-cell",
+            fieldName: "name",
+            minWidth: 100,
+            maxWidth: 400,
+            isResizable: false,
+            onRender: (row, index) => (
+                <div className="maxyoo">
+                    <TextField
+                        className="maxyoo"
                         theme={getGreenWithWhiteBackgroundTheme()}
+                        onChange={(event) => setColumnName(index, event.target["value"])}
+                        value={row.name}
+                    />
+                </div>),
+            // headerClassName: "list-header",
+        },
+        {
+            key: "type",
+            name: "type",
+            fieldName: "type",
+            minWidth: 100,
+            maxWidth: 100,
+            isResizable: false,
+            onRender: (row, index) =>
+                <Dropdown
+                    // className="sourceDropdown"
+                    selectedKey={FieldType.String}
+                    options={typeOptions}
+                    theme={getGreenWithWhiteBackgroundTheme()}
+                    // onChange={this.selectSource}
+                />
+        },
+        {
+            key: "format",
+            name: "format",
+            fieldName: "format",
+            minWidth: 100,
+            maxWidth: 100,
+            isResizable: false,
+            onRender: (row, index) =>
+                <Dropdown
+                    // className="sourceDropdown"
+                    selectedKey={FieldFormat.NotSpecified}
+                    options={formatOptions}
+                    theme={getGreenWithWhiteBackgroundTheme()}
+                    // onChange={this.selectSource}
+                />
+        },
+    ]
 
-                        // onChange={this.selectSource}
-                    />)
-                
-                    }            
-                },
-                {
-                    key: "format",
-                    name: "format",
-                    fieldName: "format",
-                    minWidth: 100,
-                    maxWidth: 100,
-                    isResizable: false,
-                    onRender: (row, index) => {
-                        return (      
-                        <Dropdown
-                            // className="sourceDropdown"
-                            selectedKey={FieldFormat.NotSpecified}
-                            options={formatOptions}
+
+
+    const addColumn = () => setColumns([...columns, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified }]);
+    const addRow = () => setRows([...rows, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified }]);
+
+    const setRowName = (rowIndex, name) => {
+        setRows(
+            rows.map((row, currIndex) => (rowIndex === currIndex) ?
+                { name, type: row.type, format: row.format }
+                : row)
+        );
+    };
+
+    const setColumnName = (rowIndex, name) => {
+        setColumns(
+            columns.map((row, currIndex) => (rowIndex === currIndex)
+                ? { name, type: row.type, format: row.format }
+                : row)
+        );
+    };
+
+    const rowListColumns: IColumn[] = [
+        {
+            key: "name",
+            name: "name",
+            // className: "composed-icon-cell",
+            fieldName: "name",
+            minWidth: 100,
+            maxWidth: 400,
+            isResizable: false,
+            onRender: (row, index) => {
+                return (
+                    <div className="maxyoo">
+                        <TextField
+                            className="maxyoo"
                             theme={getGreenWithWhiteBackgroundTheme()}
-    
-                            // onChange={this.selectSource}
-                        />)
-                    
-                        }            
-                    },
-        ]
-
-        const rowListColumns: IColumn[] = [
-            {
-                key: "name",
-                name: "name",
-                // className: "composed-icon-cell",
-                fieldName: "name",
-                minWidth: 100,
-                maxWidth: 400,
-                isResizable: false,
-                onRender: (row, index) => {
-                    return (
-                        <div className="maxyoo">
-                            <TextField
-                                className="maxyoo"
-                                theme={getGreenWithWhiteBackgroundTheme()}
-                                onChange={(event) => this.setRowName(index,  event.target["value"])}
-                                value={row.name}
-                            />
-                        </div>
-)
-                },
-                // headerClassName: "list-header",
+                            onChange={(event) => setRowName(index, event.target["value"])}
+                            value={row.name}
+                        />
+                    </div>
+                )
             },
-        ]
-          
-        return (
-            <Customizer {...dark}>
+            // headerClassName: "list-header",
+        },
+    ];
+
+    return (
+        <Customizer {...dark}>
 
             <div className="zzpppzz">
                 <h4 className="mt-2">Configure table tag</h4>
                 <h5 className="mt-3">Name:</h5>
                 <TextField
-                className="zzyy"
-                theme={getGreenWithWhiteBackgroundTheme()}
-                    onChange={(event) => this.setState({name: event.target["value"]}) }
-                    value={this.state.name}
+                    className="zzyy"
+                    theme={getGreenWithWhiteBackgroundTheme()}
+                    onChange={(event) => setName(event.target["value"])}
+                    value={name}
                 />
                 <h5 className="mt-3">Format:</h5>
-                <ChoiceGroup 
-                    onChange={(event, option) => this.setState({format: option.key})}
+                <ChoiceGroup
+                    onChange={(event, option) => setFormat(option.key)}
                     defaultSelectedKey="fixed"
                     options={options}
                     theme={getRightPaneDefaultButtonTheme()}
-                 />
-                <h5 className="mt-3">Column headers:</h5> 
-                <div className="details-list-container">
-                <DetailsList
-                    className="detailsListRows"
-                    items={this.state.columns}
-                    columns={columnListcolumns}
-                    isHeaderVisible={true}
-                    theme={getRightPaneDefaultButtonTheme()}
-                    compact={true}
-                    setKey="none"
-                    selectionMode={SelectionMode.none}
-                    layoutMode={DetailsListLayoutMode.justified}
                 />
-                <PrimaryButton
-                    theme={getPrimaryBlueTheme()}
-                    className="ml-2 mt-1"
-                    autoFocus={true}
-                    onClick={this.addColumn}>
-                    <FontIcon iconName = "AddTo" className="mr-2" />
+                <h5 className="mt-3">Column headers:</h5>
+                <div className="details-list-container">
+                    <DetailsList
+                        className="detailsListRows"
+                        items={columns}
+                        columns={columnListColumns}
+                        isHeaderVisible={true}
+                        theme={getRightPaneDefaultButtonTheme()}
+                        compact={true}
+                        setKey="none"
+                        selectionMode={SelectionMode.none}
+                        layoutMode={DetailsListLayoutMode.justified}
+                    />
+                    <PrimaryButton
+                        theme={getPrimaryBlueTheme()}
+                        className="ml-2 mt-1"
+                        autoFocus={true}
+                        onClick={addColumn}>
+                        <FontIcon iconName="AddTo" className="mr-2" />
                     Add column
                 </PrimaryButton>
                 </div>
-                {this.state.format === "fixed" &&
+                { format === "fixed" &&
                     <>
                         <h5 className="mt-3">Row headers:</h5>
                         <div className="details-list-container zzyy">
                             <DetailsList
-                                // className="zzpppzz"
-                                items={this.state.rows}
+                                className="zzpppzz"
+                                items={rows}
                                 columns={rowListColumns}
                                 isHeaderVisible={true}
                                 theme={getRightPaneDefaultButtonTheme()}
@@ -237,8 +254,8 @@ export default class TableTagConfig extends React.Component<ITableTagConfigProps
                                 theme={getPrimaryBlueTheme()}
                                 className="ml-2 mt-1"
                                 autoFocus={true}
-                                onClick={this.addRow}>
-                                <FontIcon iconName = "AddTo" className="mr-2" />
+                                onClick={addRow}>
+                                <FontIcon iconName="AddTo" className="mr-2" />
                                 Add row
                             </PrimaryButton>
                         </div>
@@ -246,64 +263,22 @@ export default class TableTagConfig extends React.Component<ITableTagConfigProps
                 }
 
                 <div className="modal-buttons-container mb-2 mr-1">
-
                     <PrimaryButton
                         className="modal-cancel mr-3"
                         theme={getPrimaryGreyTheme()}
-                        onClick={() => this.props.setTagInputMode(TagInputMode.Basic)}
-                    >
-                        Cancel
-                    </PrimaryButton>
+                        onClick={() => setTagInputMode(TagInputMode.Basic)}
+                    >Cancel</PrimaryButton>
                     <PrimaryButton
                         className="modal-cancel"
                         theme={getPrimaryGreenTheme()}
                         onClick={() => {
-                            this.props.addTableTag(this.state)
-                            this.props.setTagInputMode(TagInputMode.Basic)
-                        }}
-                    >
-                        Save
-                    </PrimaryButton>
+                            addTableTag({name, format, rows, columns});
+                            setTagInputMode(TagInputMode.Basic)
+                        }}>Save</PrimaryButton>
                 </div>
-
             </div>
-            </Customizer>
-        )
-    }
-
-    private addColumn = () => {
-        this.setState({
-            columns: [...this.state.columns, {name: "", type: FieldType.String, format: FieldFormat.NotSpecified}]
-        })
-    }
-
-    private addRow = () => {
-        this.setState({
-            rows: [...this.state.rows, {name: "", type: FieldType.String, format: FieldFormat.NotSpecified}]
-        })
-    }
-
-    private setRowName = (rowIndex, name) => {
-        this.setState({
-            rows: this.state.rows.map((row, currIndex) => {
-                if (rowIndex === currIndex) {
-                    return {name, type: row.type, format: row.format}
-                } else {
-                    return row;
-                }
-            })
-        })
-    }
-
-    private setColumnName = (rowIndex, name) => {
-        this.setState({
-            columns: this.state.columns.map((row, currIndex) => {
-                if (rowIndex === currIndex) {
-                    return {name, type: row.type, format: row.format}
-                } else {
-                    return row;
-                }
-            })
-        })
-    }
+        </Customizer>
+    );
 }
+
+
