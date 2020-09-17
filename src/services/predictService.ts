@@ -63,7 +63,7 @@ export class PredictService {
                 } else if (response.data.status.toLowerCase() === constants.statusCodeFailed) {
                     reject(_.get(
                         response,
-                        "data.analyzeResult.errors[0].errorMessage",
+                        "data.analyzeResult.errors[0]",
                         "Generic error during prediction"));
                 } else if (Number(new Date()) < endTime) {
                     // If the request isn't succeeded and the timeout hasn't elapsed, go again
