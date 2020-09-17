@@ -12,55 +12,52 @@ export interface ITagInputItemLabelProps {
     tag?: ITag;
 }
 
-export interface ITagInputItemLabelState {}
+export interface ITagInputItemLabelState { }
 
-export default class TagInputItemLabel extends React.Component<ITagInputItemLabelProps, ITagInputItemLabelState> {
-    public render() {
-
-        const texts = [];
-        let hasEmptyTextValue = false;
-        this.props.label.value.forEach((formRegion: IFormRegion, idx) => {
-            if (formRegion.text === "") {
-                hasEmptyTextValue = true;
-            } else {
-                texts.push(formRegion.text);
-            }
-        })
-        const text = texts.join(" ");
-
-        console.log(this.props.tag)
-        if (this.props?.tag?.type === FieldType.Table && this.props.label.value.length > 0) {
-            return (
-                <div
-                    className={"tag-item-label px-2"}
-                    onMouseEnter={this.handleMouseEnter}
-                    onMouseLeave={this.handleMouseLeave}>
-                    <FontIcon className="pr-1 pl-1" iconName="Table" />
-                </div>
-            );
+export default function TagInputItemLabel(props: ITagInputItemLabelProps) {
+    const { label, onLabelEnter, onLabelLeave, tag = null } = props
+    const texts = [];
+    let hasEmptyTextValue = false;
+    label.value.forEach((formRegion: IFormRegion, idx) => {
+        if (formRegion.text === "") {
+            hasEmptyTextValue = true;
+        } else {
+            texts.push(formRegion.text);
         }
+    })
+    const text = texts.join(" ");
 
+    const handleMouseEnter = () => {
+        onLabelEnter(label);
+    };
+    const handleMouseLeave = () => {
+        onLabelLeave(label);
+    };
+
+    // console.log("# tag:", tag)
+    if (tag?.type === FieldType.Table && label.value.length > 0) {
+        return (
+            <div
+                className={"tag-item-label px-2"}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}>
+                <FontIcon className="pr-1 pl-1" iconName="Table" />
+            </div>
+        );
+    }
         return (
             <div
                 className={"tag-item-label flex-center px-2"}
-                onMouseEnter={this.handleMouseEnter}
-                onMouseLeave={this.handleMouseLeave}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
             >
                 <div className="flex-center">
                     {text}
                     {hasEmptyTextValue &&
-                        <FontIcon className="pr-1 pl-1" iconName="RectangleShape"/>
+                        <FontIcon className="pr-1 pl-1" iconName="RectangleShape" />
                     }
                 </div>
             </div>
         );
     }
 
-    private handleMouseEnter = () => {
-        this.props.onLabelEnter(this.props.label);
-    }
-
-    private handleMouseLeave = () => {
-        this.props.onLabelLeave(this.props.label);
-    }
-}
