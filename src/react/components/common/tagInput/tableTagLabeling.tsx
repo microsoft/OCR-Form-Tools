@@ -45,18 +45,18 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
     }
 
     public render() {
-        
+
           const dark: ICustomizations = {
             settings: {
               theme: getRightPaneDefaultButtonTheme(),
             },
             scopedSettings: {},
         };
-    
+
         return (
             <Customizer {...dark}>
 
-                <div className="zzpppzz"> 
+                <div className="zzpppzz">
                     <h4 className="mt-2">{"Label table"}</h4>
                     <div className="table-view-container">
                         <table className="viewed-table">
@@ -118,7 +118,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
     private handleCellClick = (iToChange, jToChange) => {
         console.log(this.props.selectedRegions)
         const prevTableBody = this.state.tableBody;
-        let tableBody = [];
+        const tableBody = [];
         for (let i = 0; i < prevTableBody.length; i++) {
             const tableRow = [];
             for (let j = 0; j < prevTableBody[i].props.children.length; j++) {
