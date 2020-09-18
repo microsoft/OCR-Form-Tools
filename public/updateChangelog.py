@@ -37,15 +37,15 @@ repo = git.Repo("../")
 commits = list(repo.iter_commits("master"))
 for commit in commits:
     commitHex = commit.hexsha[:7]
-    if commitHex == lastChanglogCommit:
-        print("found last change log commit")
-        break
     commitDate = commit.committed_datetime.strftime("%m-%d-%Y")
     if currentCommitDate != commitDate:
         if currentCommitDate is not None:
             insterIntoChanglogContents("\n")
         currentCommitDate = commitDate
         insterIntoChanglogContents("### " + appVersion + "-" + commitHex + " (" + commitDate + ")\n")
+    if commitHex == lastChanglogCommit:
+        print("found last change log commit")
+        break
     commitMessage = commit.message.partition('\n')[0]
     commitMessageRegex = re.compile("(.*)\(\#(\d+)\)\s*$")
     match = commitMessageRegex.search(commitMessage)
