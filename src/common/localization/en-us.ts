@@ -33,6 +33,12 @@ export const english: IAppStrings = {
         restore: "Restore",
         close: "Close",
     },
+    statusBar: {
+        newVersionAvaliable: {
+            title: "New version avaliable",
+            message: "New version ${newVersion.version}-${newVersion.commit} is avaliable, you can upgrade from fott site."
+        }
+    },
     homePage: {
         title: "Home",
         newProject: "New Project",
@@ -145,7 +151,7 @@ export const english: IAppStrings = {
         composing: "Model is composing, please wait...",
         column: {
             icon: {
-                name:"Composed Icon",
+                name: "Composed Icon",
             },
             id: {
                 headerName: "Model Id",
@@ -480,7 +486,7 @@ export const english: IAppStrings = {
             keys: {
                 lessThan: "<",
                 greaterThan: ">",
-                },
+            },
             description: {
                 prevPage: "Go to previous page",
                 nextPage: "Go to next page",
@@ -491,7 +497,7 @@ export const english: IAppStrings = {
                 minus: "-",
                 plus: "=",
                 slash: "/",
-                },
+            },
             description: {
                 in: "Zoom in",
                 out: "Zoom out",
@@ -502,11 +508,11 @@ export const english: IAppStrings = {
             keys: {
                 delete: "Delete",
                 backSpace: "Backspace",
-                },
+            },
             description: {
                 delete: "Remove selection and delete labels of selected words",
                 backSpace: "Remove selection and delete labels of selected words",
-                },
+            },
         },
         drawnRegions: {
             keys: {
@@ -522,7 +528,7 @@ export const english: IAppStrings = {
         tips: {
             quickLabeling: {
                 name: "Lable with hot keys",
-            description: "Hotkeys 1 through 0 and all letters are assigned to first 36 tags. After selecting one or multiple words, press tag's assigned hotkey.",
+                description: "Hotkeys 1 through 0 and all letters are assigned to first 36 tags. After selecting one or multiple words, press tag's assigned hotkey.",
             },
             renameTag: {
                 name: "Rename tag",

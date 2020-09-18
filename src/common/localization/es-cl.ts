@@ -33,6 +33,12 @@ export const spanish: IAppStrings = {
         restore: "Restaurar",
         close: "Cerrar",
     },
+    statusBar: {
+        newVersionAvaliable: {
+            title: "Nueva versión disponible",
+            message: "Nueva versión ${newVersion.version}-${newVersion.commit} está disponible, puede actualizar desde el sitio fott."
+        }
+    },
     homePage: {
         title: "Página de Inicio",
         newProject: "Nuevo Proyecto",
@@ -422,7 +428,7 @@ export const spanish: IAppStrings = {
             },
             canvasCommandBar: {
                 items: {
-                    layers:{
+                    layers: {
                         text: "Capas",
                         subMenuItems: {
                             text: "Texto",
@@ -481,7 +487,7 @@ export const spanish: IAppStrings = {
             keys: {
                 lessThan: "<",
                 greaterThan: ">",
-                },
+            },
             description: {
                 prevPage: "Ir a la página anterior en documentos de varias páginas",
                 nextPage: "Ir a la página siguiente en documentos de varias páginas",
@@ -492,7 +498,7 @@ export const spanish: IAppStrings = {
                 minus: "-",
                 plus: "=",
                 slash: "/",
-                },
+            },
             description: {
                 in: "Acercarse",
                 out: "Disminuir el zoom",
@@ -503,11 +509,11 @@ export const spanish: IAppStrings = {
             keys: {
                 delete: "Delete",
                 backSpace: "Backspace",
-                },
+            },
             description: {
                 delete: "Eliminar selección del mapa del documento o clave de selección de una etiqueta",
                 backSpace: "Eliminar selección del mapa del documento o clave de selección de una etiqueta",
-                },
+            },
         },
         drawnRegions: {
             keys: {
@@ -523,7 +529,7 @@ export const spanish: IAppStrings = {
         tips: {
             quickLabeling: {
                 name: "Etiquetado rápido",
-            description: "Las teclas de acceso rápido de 1 a 0 y todas las letras se asignan a las primeras 36 etiquetas, después de seleccionar una o varias palabras de los elementos de texto resaltados, al presionar estas teclas de acceso rápido, puede etiquetar las palabras seleccionadas.",
+                description: "Las teclas de acceso rápido de 1 a 0 y todas las letras se asignan a las primeras 36 etiquetas, después de seleccionar una o varias palabras de los elementos de texto resaltados, al presionar estas teclas de acceso rápido, puede etiquetar las palabras seleccionadas.",
             },
             renameTag: {
                 name: "Rename Tag",
