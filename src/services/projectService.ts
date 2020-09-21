@@ -318,7 +318,7 @@ export default class ProjectService implements IProjectService {
                         documentCount: 0,
                         rowKeys: field.rowKeys,
                         columnKeys: field.columnKeys
-                    } as ITag);    
+                    } as ITag);
                 } else {
                     tags.push({
                         name: field.fieldKey,
@@ -326,7 +326,7 @@ export default class ProjectService implements IProjectService {
                         type: normalizeFieldType(field.fieldType),
                         format: field.fieldFormat,
                         documentCount: 0,
-                    } as ITag);    
+                    } as ITag);
                 }
             });
             if (project.tags) {
