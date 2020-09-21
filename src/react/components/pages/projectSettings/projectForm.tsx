@@ -224,8 +224,8 @@ export default class ProjectForm extends React.Component<IProjectFormProps, IPro
         let normalizePath = folderPath ? folderPath.trim() : "";
 
         // trim left slash
-        while (normalizePath.length > 0 && normalizePath.indexOf("/") === 0) {
-            normalizePath = normalizePath.substr(1, normalizePath.length - 1);
+        while (normalizePath.length > 0 && normalizePath.indexOf("/") === 0 || normalizePath.indexOf(".") === 0) {
+            normalizePath = normalizePath.substr(normalizePath.indexOf("/") + 1, normalizePath.length - 1);
         }
 
         // trim right slash
