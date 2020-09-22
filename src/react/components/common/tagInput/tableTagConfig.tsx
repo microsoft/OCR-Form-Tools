@@ -101,9 +101,10 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
     const selectColumnType = (idx: number, type: string) => {
         setColumns(columns.map((col, currIdx) =>
-            idx === currIdx ? { ...col, type } : col
+            idx === currIdx ? { ...col, type, format: FieldFormat.NotSpecified } : col
         ));
     };
+
     const selectColumnFormat = (idx: number, format: string) => {
         setColumns(columns.map((col, currIdx) =>
             idx === currIdx ? { ...col, format } : col
@@ -142,7 +143,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 <Dropdown
                     placeholder={row.type}
                     defaultSelectedKey={FieldType.String}
-
                     options={typeOptions()}
                     theme={getGreenWithWhiteBackgroundTheme()}
                     onChange={(e, val) => {
@@ -160,7 +160,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             onRender: (row, index) =>
                 <Dropdown
                     placeholder={row.format}
-                    defaultSelectedKey={FieldFormat.NotSpecified}
+                    selectedKey={row.format}
                     options={formatOptions(row.type)}
                     theme={getGreenWithWhiteBackgroundTheme()}
                     onChange={(e, val) => {
