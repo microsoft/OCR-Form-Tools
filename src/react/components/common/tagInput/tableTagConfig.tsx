@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import "./tableTagConfig.scss";
-import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, IDropdownOption, SelectionMode, DetailsListLayoutMode, FontIcon } from "@fluentui/react";
-import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme } from '../../../../common/themes';
+import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, IDropdownOption, SelectionMode, DetailsListLayoutMode, FontIcon, DefaultPalette } from "@fluentui/react";
+import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme, getPrimaryWhiteTheme, getDefaultTheme } from '../../../../common/themes';
 import { FieldFormat, FieldType, TagInputMode } from '../../../../models/applicationState';
 import { filterFormat } from "../../../../common/utils";
 
@@ -58,6 +58,12 @@ const options: IChoiceGroupOption[] = [
 const dark: ICustomizations = {
     settings: {
         theme: getRightPaneDefaultButtonTheme(),
+    },
+    scopedSettings: {},
+};
+const defaultTheme: ICustomizations = {
+    settings: {
+        theme: getDefaultTheme(),
     },
     scopedSettings: {},
 };
@@ -140,15 +146,18 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             maxWidth: 100,
             isResizable: false,
             onRender: (row, index) =>
-                <Dropdown
-                    placeholder={row.type}
-                    defaultSelectedKey={FieldType.String}
-                    options={typeOptions()}
-                    theme={getGreenWithWhiteBackgroundTheme()}
-                    onChange={(e, val) => {
-                        selectColumnType(index, val.text);
-                    }}
-                />
+                <Customizer {...defaultTheme}>
+                    <Dropdown
+                        placeholder={row.type}
+                        defaultSelectedKey={FieldType.String}
+                        options={typeOptions()}
+                        theme={getGreenWithWhiteBackgroundTheme()}
+                        onChange={(e, val) => {
+                            selectColumnType(index, val.text);
+                        }}
+
+                    />
+                </Customizer>
         },
         {
             key: "format",
@@ -158,15 +167,18 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             maxWidth: 100,
             isResizable: false,
             onRender: (row, index) =>
-                <Dropdown
-                    placeholder={row.format}
-                    selectedKey={row.format}
-                    options={formatOptions(row.type)}
-                    theme={getGreenWithWhiteBackgroundTheme()}
-                    onChange={(e, val) => {
-                        selectColumnFormat(index, val.text);
-                    }}
-                />
+                <Customizer {...defaultTheme}>
+                    <Dropdown
+                        placeholder={row.format}
+                        selectedKey={row.format}
+                        options={formatOptions(row.type)}
+                        theme={getGreenWithWhiteBackgroundTheme()}
+                        onChange={(e, val) => {
+                            selectColumnFormat(index, val.text);
+                        }}
+                    />
+                </Customizer>
+
         },
     ]
 
@@ -186,7 +198,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     const setColumnName = (colIndex, name) => {
         setColumns(
             columns.map((column, currIndex) => (colIndex === currIndex)
-                ? { ...column, name}
+                ? { ...column, name }
                 : column)
         );
     };
@@ -256,7 +268,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     Add column
                 </PrimaryButton>
                 </div>
-                { format === "fixed" &&
+                {format === "fixed" &&
                     <>
                         <h5 className="mt-3">Row headers:</h5>
                         <div className="details-list-container zzyy">
@@ -293,9 +305,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         className="modal-cancel"
                         theme={getPrimaryGreenTheme()}
                         onClick={() => {
-                            addTableTag({name, format, rows, columns});
+                            addTableTag({ name, format, rows, columns });
                             setTagInputMode(TagInputMode.Basic)
-                            console.log("# table:",{name, format, rows, columns} )
+                            console.log("# table:", { name, format, rows, columns })
                         }}>Save</PrimaryButton>
                 </div>
             </div>
