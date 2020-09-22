@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import "./tableTagConfig.scss";
 import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, IDropdownOption, SelectionMode, DetailsListLayoutMode, FontIcon } from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme } from '../../../../common/themes';
 import { FieldFormat, FieldType, TagInputMode } from '../../../../models/applicationState';
+import { filterFormat } from "../../../../common/utils";
 
 
 interface IShareProps {
@@ -61,9 +62,10 @@ const dark: ICustomizations = {
     scopedSettings: {},
 };
 
-const formatOptions = (type) => {
-    const options= [];
-    Object.entries(FieldFormat).forEach(([key, value]) => {
+const formatOptions = (type = "string") => {
+    const options = [];
+    const formats = filterFormat(type)
+    Object.entries(formats).forEach(([key, value]) => {
         options.push({ key, text: value })
     });
 
@@ -139,6 +141,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             onRender: (row, index) =>
                 <Dropdown
                     placeholder={row.type}
+                    defaultSelectedKey={FieldType.String}
+
                     options={typeOptions()}
                     theme={getGreenWithWhiteBackgroundTheme()}
                     onChange={(e, val) => {
@@ -156,7 +160,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             onRender: (row, index) =>
                 <Dropdown
                     placeholder={row.format}
-                    options={formatOptions()}
+                    defaultSelectedKey={FieldFormat.NotSpecified}
+                    options={formatOptions(row.type)}
                     theme={getGreenWithWhiteBackgroundTheme()}
                     onChange={(e, val) => {
                         selectColumnFormat(index, val.text);

@@ -17,7 +17,7 @@ import {
 import { strings, interpolate } from "../../../../common/strings";
 import { getDarkTheme } from "../../../../common/themes";
 import { AlignPortal } from "../align/alignPortal";
-import { getNextColor } from "../../../../common/utils";
+import { filterFormat, getNextColor } from "../../../../common/utils";
 import { IRegion, ITag, ILabel, FieldType, FieldFormat, IField, TagInputMode, FeatureCategory } from "../../../../models/applicationState";
 import { ColorPicker } from "../colorPicker";
 import "./tagInput.scss";
@@ -95,31 +95,6 @@ export interface ITagInputState {
     searchTags: boolean;
     searchQuery: string;
     selectedTag: ITag;
-}
-
-function filterFormat(type: FieldType): FieldFormat[] {
-    switch (type) {
-        case FieldType.String:
-            return [
-                FieldFormat.NotSpecified,
-                FieldFormat.Alphanumeric,
-                FieldFormat.NoWhiteSpaces,
-            ];
-        case FieldType.Number:
-            return [
-                FieldFormat.NotSpecified,
-                FieldFormat.Currency,
-            ];
-        case FieldType.Date:
-            return [
-                FieldFormat.NotSpecified,
-                FieldFormat.DMY,
-                FieldFormat.MDY,
-                FieldFormat.YMD,
-            ];
-        default:
-            return [ FieldFormat.NotSpecified ];
-    }
 }
 
 function isNameEqual(x: string, y: string) {
