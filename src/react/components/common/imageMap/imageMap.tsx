@@ -565,6 +565,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
         const projection = this.createProjection(this.imageExtent);
         const layers = this.initializePredictLayers(projection);
         this.initializeMap(projection, layers);
+        this.initializeDragPan();
     }
 
     private initEditorMap = () => {
@@ -578,6 +579,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.map.on("pointerup", this.handlePointerUp);
 
         this.initializeDefaultSelectionMode();
+        this.initializeDragPan();
     }
 
     private setImage = (imageUri: string, imageExtent: number[]) => {
@@ -847,8 +849,6 @@ export class ImageMap extends React.Component<IImageMapProps> {
     }
 
     private initializeDefaultSelectionMode = () => {
-        this.initializeDragPan();
-        this.setDragPanInteraction(true);
         this.initializeSnapCheck();
         this.initializePointerOnImageCheck();
         this.initializeDragBox();
@@ -967,6 +967,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
     private initializeDragPan = () => {
         this.dragPan = new DragPan();
+        this.setDragPanInteraction(true);
     }
 
     private initializeDragBox = () => {
