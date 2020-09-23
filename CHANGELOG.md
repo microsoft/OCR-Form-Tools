@@ -1,6 +1,6 @@
 # FoTT Changelog 
 ## Released conatiner's currently referenced commit
-2.1-Preview's released container image (mcr.microsoft.com/azure-cognitive-services/custom-form/labeltool:2.1.012970002-amd64-preview) currently references **2.1-preview.1-0633507 (09-14-2020)**
+2.1-Preview's released container image, tracked by the `latest-preview` docker image tag, currently references **2.1-preview.1-0633507 (09-14-2020)**
 
 ## Commit history
 ### 2.1-preview.1-f2db74e (09-17-2020)
@@ -191,8 +191,7 @@
 * fix: capitalize python in analyze page ([#320](https://github.com/microsoft/OCR-Form-Tools/commit/96626636a96a3d19030df283ac794fa9c2aab18c))
 * fix: fix spelling correction for string match ([#318](https://github.com/microsoft/OCR-Form-Tools/commit/28e53cefcf0bb462d547d6e38b24c480c03b946f))
 * feature: keep prediction in UI ([#285](https://github.com/microsoft/OCR-Form-Tools/commit/dad98b9bd1d305a6bfeb2846ef4067da186ff801))
-
-### 2.0.0-1c39800 (06-05-2020)
+0)
 * feat: add description - how to delete info ([#292](https://github.com/microsoft/OCR-Form-Tools/commit/1c39800b1152f186dfc19834bb969abbc4fe0ac2))
 * feat: enable download analyze script ([#304](https://github.com/microsoft/OCR-Form-Tools/commit/9c97ed0ff9b0aa72ec9a197fc92f3a5998135c36))
 * fix: check ocrread results before getting image extent ([#296](https://github.com/microsoft/OCR-Form-Tools/commit/61dba02fc6f19eb854e1f499e475b1336e6171b9))
