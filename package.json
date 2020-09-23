@@ -50,7 +50,7 @@
         "yarn": "^1.22.4"
     },
     "scripts": {
-        "start": "nf start -p 3000",
+        "start": "env-cmd -f .env.electron nf start -p 3000",
         "compile": "tsc",
         "build": "react-scripts build",
         "react-start": "react-scripts start",
@@ -63,7 +63,7 @@
         "electron:start:dev": "yarn electron-start",
         "electron:start:prod": "yarn webpack:prod && yarn electron-start",
         "electron-start": "node src/electron/start",
-        "release": "env-cmd -f .env.release yarn build && yarn webpack:prod && yarn electron-builder",
+        "release": "env-cmd -f .env.electron yarn build && yarn webpack:prod && yarn electron-builder",
         "tslint": "./node_modules/.bin/tslint 'src/**/*.ts*'",
         "tslintfix": "./node_modules/.bin/tslint 'src/**/*.ts*' --fix"
     },
