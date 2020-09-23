@@ -4,6 +4,7 @@ import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryBu
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme, getPrimaryWhiteTheme, getDefaultTheme } from '../../../../common/themes';
 import { FieldFormat, FieldType, TagInputMode } from '../../../../models/applicationState';
 import { filterFormat } from "../../../../common/utils";
+import { toast } from "react-toastify";
 
 
 interface IShareProps {
@@ -227,6 +228,26 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             // headerClassName: "list-header",
         },
     ];
+
+    function save() {
+        addTableTag({name, format, rows, columns});
+        setTagInputMode(TagInputMode.Basic);
+    }
+
+    function validateInputAndSave() {
+        console.log("# table", {name, format, rows, columns}, rows.length)
+        if (format === "fixed") {
+            if (rows.length < 2) {
+                toast.warn("Please assign at least one row.")
+            }
+        } else if (columns.length < 1) {
+            toast.warn("Please assign at least one column.")
+        } else if (!name.length) {
+            toast.warn("Please assign name fot your table tag.")
+        } else {
+            save();
+        }
+    }
 
     return (
         <Customizer {...dark}>
