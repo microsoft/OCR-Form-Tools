@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import Guard from "./guard";
-import { IProject, ISecurityToken, IProviderOptions, ISecureString, ITag } from "../models/applicationState";
+import { IProject, ISecurityToken, IProviderOptions, ISecureString, ITag, FieldType, FieldFormat } from "../models/applicationState";
 import { encryptObject, decryptObject, encrypt, decrypt } from "./crypto";
 import UTIF from "utif";
 
@@ -356,4 +356,35 @@ export function fixedEncodeURIComponent(str: string) {
     return encodeURIComponent(str).replace(/[!'()*]/g, (c) => {
       return '%' + c.charCodeAt(0).toString(16)
     })
-  }
+}
+
+
+/**
+ * Filters tag's format according to chosen tag's type
+ * @param FieldType The json object
+ * @returns [] of corresponding tag's formats
+ */
+export function filterFormat(type: FieldType | string): any[] {
+    switch (type) {
+        case FieldType.String:
+            return [
+                FieldFormat.NotSpecified,
+                FieldFormat.Alphanumeric,
+                FieldFormat.NoWhiteSpaces,
+            ];
+        case FieldType.Number:
+            return [
+                FieldFormat.NotSpecified,
+                FieldFormat.Currency,
+            ];
+        case FieldType.Date:
+            return [
+                FieldFormat.NotSpecified,
+                FieldFormat.DMY,
+                FieldFormat.MDY,
+                FieldFormat.YMD,
+            ];
+        default:
+            return [ FieldFormat.NotSpecified ];
+    }
+}
