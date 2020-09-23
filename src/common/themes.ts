@@ -1,4 +1,4 @@
-import {createTheme, IPalette} from "@fluentui/react";
+import {createTheme, IPalette, DefaultPalette} from "@fluentui/react";
 
 const rightPaneDefaultButtonPalette = {
     themePrimary: "#E9ECEF",
@@ -306,6 +306,7 @@ const subMenuPalette = {
 
 const rightPaneDefaultButtonTheme = createTheme({palette: rightPaneDefaultButtonPalette});
 const defaultDarkTheme = createTheme({palette: DarkDefaultPalette});
+const defaultTheme = createTheme({palette: DefaultPalette});
 const whiteTheme = createTheme({palette: whiteButtonPalette});
 const redTheme = createTheme({palette: redButtonPalette});
 const greenTheme = createTheme({palette: greenButtonPalette});
@@ -355,6 +356,9 @@ export function getGreenWithWhiteBackgroundTheme() {
 
 export function getDefaultDarkTheme() {
     return defaultDarkTheme;
+}
+export function getDefaultTheme() {
+    return defaultTheme;
 }
 
 export function getSubMenuTheme() {

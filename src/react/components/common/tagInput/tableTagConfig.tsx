@@ -1,10 +1,9 @@
-
-
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import "./tableTagConfig.scss";
-import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, IDropdownOption, SelectionMode, DetailsListLayoutMode, FontIcon } from "@fluentui/react";
-import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme } from '../../../../common/themes';
+import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, IDropdownOption, SelectionMode, DetailsListLayoutMode, FontIcon, DefaultPalette } from "@fluentui/react";
+import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme, getPrimaryWhiteTheme, getDefaultTheme } from '../../../../common/themes';
 import { FieldFormat, FieldType, TagInputMode } from '../../../../models/applicationState';
+import { filterFormat } from "../../../../common/utils";
 
 
 interface IShareProps {
@@ -62,6 +61,29 @@ const dark: ICustomizations = {
     },
     scopedSettings: {},
 };
+const defaultTheme: ICustomizations = {
+    settings: {
+        theme: getDefaultTheme(),
+    },
+    scopedSettings: {},
+};
+
+const formatOptions = (type = "string") => {
+    const options = [];
+    const formats = filterFormat(type)
+    Object.entries(formats).forEach(([key, value]) => {
+        options.push({ key, text: value })
+    });
+
+    return options;
+};
+const typeOptions = () => {
+    const options = [];
+    Object.entries(FieldType).forEach(([key, value]) => {
+        options.push({ key, text: value })
+    });
+    return options;
+};
 
 
 
@@ -83,18 +105,18 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     const [columns, setColumns] = useState(initialState.columns);
     const [rows, setRows] = useState(initialState.rows);
 
+    const selectColumnType = (idx: number, type: string) => {
+        setColumns(columns.map((col, currIdx) =>
+            idx === currIdx ? { ...col, type, format: FieldFormat.NotSpecified } : col
+        ));
+    };
 
+    const selectColumnFormat = (idx: number, format: string) => {
+        setColumns(columns.map((col, currIdx) =>
+            idx === currIdx ? { ...col, format } : col
+        ));
+    };
 
-
-    // public componentDidUpdate = async (prevProps: Readonly<ITableTagConfigProps>, prevState: Readonly<ITableTagConfigState>) => {  // }
-
-    const typeOptions: IDropdownOption[] = [
-        { key: FieldType.String, text: FieldType.String },
-    ];
-
-    const formatOptions: IDropdownOption[] = [
-        { key: FieldFormat.NotSpecified, text: FieldFormat.NotSpecified },
-    ];
 
     const columnListColumns: IColumn[] = [
         {
@@ -122,13 +144,19 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             maxWidth: 100,
             isResizable: false,
             onRender: (row, index) =>
-                <Dropdown
-                    className="type_dropdown"
-                    selectedKey={FieldType.String}
-                    options={typeOptions}
-                    theme={getGreenWithWhiteBackgroundTheme()}
-                // onChange={this.selectSource}
-                />
+                <Customizer {...defaultTheme}>
+                    <Dropdown
+                        className="type_dropdown"
+                        placeholder={row.type}
+                        defaultSelectedKey={FieldType.String}
+                        options={typeOptions()}
+                        theme={getGreenWithWhiteBackgroundTheme()}
+                        onChange={(e, val) => {
+                            selectColumnType(index, val.text);
+                        }}
+
+                    />
+                </Customizer>
         },
         {
             key: "format",
@@ -138,13 +166,19 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             maxWidth: 100,
             isResizable: false,
             onRender: (row, index) =>
-                <Dropdown
-                    className="format_dropdown"
-                    selectedKey={FieldFormat.NotSpecified}
-                    options={formatOptions}
-                    theme={getGreenWithWhiteBackgroundTheme()}
-                // onChange={this.selectSource}
-                />
+                <Customizer {...defaultTheme}>
+                    <Dropdown
+                        className="format_dropdown"
+                        placeholder={row.format}
+                        selectedKey={row.format}
+                        options={formatOptions(row.type)}
+                        theme={getGreenWithWhiteBackgroundTheme()}
+                        onChange={(e, val) => {
+                            selectColumnFormat(index, val.text);
+                        }}
+                    />
+                </Customizer>
+
         },
     ];
 
@@ -179,16 +213,16 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     const setRowName = (rowIndex, name) => {
         setRows(
             rows.map((row, currIndex) => (rowIndex === currIndex) ?
-                { name, type: row.type, format: row.format }
+                { ...row, name }
                 : row)
         );
     };
 
-    const setColumnName = (rowIndex, name) => {
+    const setColumnName = (colIndex, name) => {
         setColumns(
-            columns.map((row, currIndex) => (rowIndex === currIndex)
-                ? { name, type: row.type, format: row.format }
-                : row)
+            columns.map((column, currIndex) => (colIndex === currIndex)
+                ? { ...column, name }
+                : column)
         );
     };
 
@@ -273,8 +307,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         className="save"
                         theme={getPrimaryGreenTheme()}
                         onClick={() => {
-                            addTableTag({name, format, rows, columns});
+                            addTableTag({ name, format, rows, columns });
                             setTagInputMode(TagInputMode.Basic)
+                            console.log("# table:", { name, format, rows, columns })
                         }}>Save</PrimaryButton>
                 </div>
             </div>
