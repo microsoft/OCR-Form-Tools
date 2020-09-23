@@ -6,7 +6,7 @@ import { Redirect } from "react-router";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { RouteComponentProps } from "react-router-dom";
-import { FontIcon } from "@fluentui/react";
+import { FontIcon, Label, Spinner, SpinnerSize } from "@fluentui/react";
 import ProjectForm from "./projectForm";
 import { constants } from "../../../../common/constants";
 import { strings, interpolate } from "../../../../common/strings";
@@ -43,6 +43,7 @@ export interface IProjectSettingsPageState {
     project: IProject;
     action: ProjectSettingAction;
     isError: boolean;
+    isCommiting: boolean;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -72,6 +73,7 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
         project: this.props.project,
         action: null,
         isError: false,
+        isCommiting: false,
     };
 
     public async componentDidMount() {
@@ -132,6 +134,14 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
                 {this.state.isError &&
                     <Redirect to="/" />
                 }
+                {this.state.isCommiting &&
+                    <div className="project-saving">
+                        <div className="project-saving-spinner">
+                            <Label className="p-0" ></Label>
+                            <Spinner size={SpinnerSize.large} label="Saving Project..." ariaLive="assertive" labelPosition="right" />
+                        </div>
+                    </div>
+                }
             </div>
         );
     }
@@ -176,29 +186,34 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
 
     private onFormSubmit = async (project: IProject) => {
         const isNew = !(!!project.id);
+        try {
+            this.setState({ isCommiting: true });
+            const projectService = new ProjectService();
+            if (!(await projectService.isValidProjectConnection(project))) {
+                return;
+            }
 
-        const projectService = new ProjectService();
-        if (!(await projectService.isValidProjectConnection(project))) {
-            return;
+            if (await this.isValidProjectName(project, isNew)) {
+                toast.error(interpolate(strings.projectSettings.messages.projectExisted, { project }));
+                return;
+            }
+
+            await this.deleteOldProjectWhenRenamed(project, isNew);
+            await this.props.applicationActions.ensureSecurityToken(project);
+            await this.props.projectActions.saveProject(project, false, true);
+            removeStorageItem(constants.projectFormTempKey);
+
+            toast.success(interpolate(strings.projectSettings.messages.saveSuccess, { project }));
+
+            if (isNew) {
+                this.props.history.push(`/projects/${this.props.project.id}/edit`);
+            } else {
+                this.props.history.goBack();
+            }
+        } finally {
+            this.setState({ isCommiting: false });
         }
 
-        if (await this.isValidProjectName(project, isNew)) {
-            toast.error(interpolate(strings.projectSettings.messages.projectExisted, { project }));
-            return;
-        }
-
-        await this.deleteOldProjectWhenRenamed(project, isNew);
-        await this.props.applicationActions.ensureSecurityToken(project);
-        await this.props.projectActions.saveProject(project, false, true);
-        removeStorageItem(constants.projectFormTempKey);
-
-        toast.success(interpolate(strings.projectSettings.messages.saveSuccess, { project }));
-
-        if (isNew) {
-            this.props.history.push(`/projects/${this.props.project.id}/edit`);
-        } else {
-            this.props.history.goBack();
-        }
     }
 
     private onFormCancel = () => {
