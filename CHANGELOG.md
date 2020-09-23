@@ -1,6 +1,6 @@
 # FoTT Changelog 
 ## Released conatiner's currently referenced commit
-2.1-Preview's released container image, tracked by the `latest-preview` docker image tag, currently references **2.1-preview.1-0633507 (09-14-2020)**
+2.1-Preview's released container image, tracked by the `latest-preview` image tag in our [docker hub repository](https://hub.docker.com/_/microsoft-azure-cognitive-services-custom-form-labeltool), currently references **2.1-preview.1-0633507 (09-14-2020)**
 
 ## Commit history
 ### 2.1-preview.1-ffafc20 (09-23-2020)
