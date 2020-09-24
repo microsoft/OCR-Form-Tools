@@ -413,7 +413,7 @@ export enum FieldType {
 }
 
 export enum LabelType {
-    DrawnRegion = "drawnRegion"
+    DrawnRegion = "region"
 }
 
 export enum FieldFormat {
@@ -432,7 +432,7 @@ export enum FeatureCategory {
     Text = "text",
     Checkbox = "checkbox",
     Label = "label",
-    DrawnRegion = "drawnRegion"
+    DrawnRegion = "region"
 }
 
 export enum ImageMapParent {
