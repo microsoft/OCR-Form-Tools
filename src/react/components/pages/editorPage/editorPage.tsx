@@ -39,6 +39,7 @@ import { getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/the
 import { toast } from "react-toastify";
 import { PredictService } from "../../../../services/predictService";
 import { AssetService } from "../../../../services/assetService";
+import clone from "rfdc";
 
 /**
  * Properties for Editor Page
@@ -97,7 +98,7 @@ export interface IEditorPageState {
     tableToViewId: string;
     tagInputMode: TagInputMode;
     selectedTableTagToLabel: ITag;
-
+    selectedTableTagBody: string[][];
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -136,6 +137,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         tableToViewId: null,
         tagInputMode: TagInputMode.Basic,
         selectedTableTagToLabel: null,
+        selectedTableTagBody: [[]],
     };
 
     private tagInputRef: RefObject<TagInput>;
@@ -319,6 +321,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     tagInputMode={this.state.tagInputMode}
                                     handleLabelTable={this.handleLabelTable}
                                     selectedTableTagToLabel={this.state.selectedTableTagToLabel}
+                                    handleTableCellClick={this.handleTableCellClick}
+                                    selectedTableTagBody={this.state.selectedTableTagBody}
                                 />
                                 <Confirm
                                     title={strings.editorPage.tags.rename.title}
@@ -401,13 +405,27 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private handleLabelTable = (tagInputMode: TagInputMode, selectedTableTagToLabel) => {
+        console.log("EditorPage -> privatehandleLabelTable -> selectedTableTagToLabel", selectedTableTagToLabel)
+        const selectedTableTagBody = new Array(selectedTableTagToLabel.rowKeys.length);
+        for (let i = 0; i < selectedTableTagBody.length; i++) {
+            selectedTableTagBody[i] = new Array(selectedTableTagToLabel.columnKeys.length);
+        }
+        console.log("EditorPage -> privatehandleLabelTable -> selectedTableTagBody[0][0]", selectedTableTagBody[0][0])
         this.setState({
             tagInputMode,
             selectedTableTagToLabel,
+            selectedTableTagBody,
         }, () => {
             this.resizeCanvas();
         });
 
+    }
+
+    private handleTableCellClick = (iTableCellIndex, jTableCellIndex) => {
+        const selectedTableTagBody = clone()(this.state.selectedTableTagBody);
+        selectedTableTagBody[iTableCellIndex][jTableCellIndex] = this.state.selectedRegions;
+        this.setState({selectedTableTagBody});
+        this.onTagClicked(this.state.selectedTableTagToLabel); // temp
     }
 
     /**

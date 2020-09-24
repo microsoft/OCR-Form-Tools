@@ -86,6 +86,8 @@ export interface ITagInputProps {
     tagInputMode: TagInputMode;
     selectedTableTagToLabel: ITag;
     handleLabelTable: (tagInputMode: TagInputMode, selectedTableTagToLabel) => void;
+    handleTableCellClick: (iTableCellIndex, jTableCellIndex) => void;
+    selectedTableTagBody: string[][];
 }
 
 export interface ITagInputState {
@@ -179,6 +181,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                             selectedRegions={this.props.selectedRegions}
                             setTagInputMode={this.props.setTagInputMode}
                             selectedTag={this.props.selectedTableTagToLabel}
+                            handleTableCellClick={this.props.handleTableCellClick}
+                            selectedTableTagBody={this.props.selectedTableTagBody}
                         />
                     <div className="tag-input-body-container">
                         <div className="tag-input-body">
