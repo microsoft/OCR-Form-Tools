@@ -1,8 +1,14 @@
 # FoTT Changelog 
 ## Released conatiner's currently referenced commit
-2.1-Preview's released container image (mcr.microsoft.com/azure-cognitive-services/custom-form/labeltool:2.1.012970002-amd64-preview) currently references **2.1-preview.1-0633507 (09-14-2020)**
+2.1-Preview's released container image, tracked by the `latest-preview` image tag in our [docker hub repository](https://hub.docker.com/_/microsoft-azure-cognitive-services-custom-form-labeltool), currently references **2.1-preview.1-0633507 (09-14-2020)**
 
 ## Commit history
+### 2.1-preview.1-ffafc20 (09-23-2020)
+* fix: use region instead of drawnRegion for labelType in label file ([#582](https://github.com/microsoft/OCR-Form-Tools/commit/ffafc200249a1c47698fedb279b4b55cef0190ba))
+* docs: update readme with docker hub info ([#604](https://github.com/microsoft/OCR-Form-Tools/commit/63bbea076d598d0286095fa0eca48d8c9d0ed706))
+* fix: remove opening browser for yarn start ([#605](https://github.com/microsoft/OCR-Form-Tools/commit/f6c4dc3585df71d09252a28f65e835a594389118))
+* fix: update changelog updater script ([#607](https://github.com/microsoft/OCR-Form-Tools/commit/7c4848c3a72259562c0461f0e2eadfb4a660fa64))
+
 ### 2.1-preview.1-f2db74e (09-17-2020)
 * docs: udpate changlog with docker image reference ([#590](https://github.com/microsoft/OCR-Form-Tools/commit/f2db74e322c32338eba3b2df06c01a51cfb7ebc1))
 
