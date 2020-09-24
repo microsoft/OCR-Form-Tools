@@ -3,6 +3,9 @@
 2.1-Preview's released container image (mcr.microsoft.com/azure-cognitive-services/custom-form/labeltool:2.1.012970002-amd64-preview) currently references **2.1-preview.1-0633507 (09-14-2020)**
 
 ## Commit history
+### 2.1-preview.1-f2db74e (09-17-2020)
+* docs: udpate changlog with docker image reference ([#590](https://github.com/microsoft/OCR-Form-Tools/commit/f2db74e322c32338eba3b2df06c01a51cfb7ebc1))
+
 ### 2.1-preview.1-1a6b78e (09-16-2020)
 * fix: normalize folder path starting with a period ([#592](https://github.com/microsoft/OCR-Form-Tools/commit/1a6b78e054235da3188aafbe65636a8c18b439bf))
 * fix: change label folder uri title ([#588](https://github.com/microsoft/OCR-Form-Tools/commit/7e4233e568d94817e23dda5ef5513b9ee7475d11))
