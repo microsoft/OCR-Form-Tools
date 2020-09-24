@@ -9,6 +9,7 @@ import { FieldFormat, FieldType, IApplicationState, TagInputMode } from '../../.
 import { filterFormat } from "../../../../common/utils";
 import { toast } from "react-toastify";
 import "./tableTagConfig.scss";
+import { strings } from "../../../../common/strings";
 
 
 
@@ -122,19 +123,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         setColumns(columns.map((col, currIdx) =>
             idx === currIdx ? { ...col, format } : col
         ));
-    };
-
-
-    const getTextInputError = (array: any[], rowName: string, index: number) => {
-        if (!rowName.length) {
-            setErrors(true);
-            return "Name cannot be empty"
-        } else if (array.length && array.findIndex((item) => (item === index)) !== -1) {
-            setErrors(true);
-            return "Name should be unique";
-        } else {
-            // setErrors(false);
-        }
     };
 
     const columnListColumns: IColumn[] = [
@@ -260,6 +248,18 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
     // Validation //
 
+    function getTextInputError (array: any[], rowName: string, index: number) {
+        if (!rowName.length) {
+            setErrors(true);
+            return strings.tags.regionTableTags.configureTag.errors.emptyName
+        } else if (array.length && array.findIndex((item) => (item === index)) !== -1) {
+            setErrors(true);
+            return strings.tags.regionTableTags.configureTag.errors.notUniqueName;
+        } else {
+            // setErrors(false);
+        }
+    };
+
     function checkNameUniqueness(array, arrayName) {
         const duplicates = {};
         let notUnique = [];
@@ -298,22 +298,22 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
     function validateInputAndSave() {
         if (!name.length) {
-            toast.error("Please assign name fot your table tag.")
+            toast.error(strings.tags.regionTableTags.configureTag.errors.emptyTagName)
         }
 
         if (format === "fixed") {
             if (columns.length === 1 && !columns[0].name.length) {
-                toast.error("Please assign at least one column.")
+                toast.error(strings.tags.regionTableTags.configureTag.errors.atLeastOneColumn)
             }
             if (rows.length === 1 && !rows[0].name.length) {
-                toast.error("Please assign at least one row.")
+                toast.error(strings.tags.regionTableTags.configureTag.errors.atLeastOneRow)
             }
         }
         if (format !== "fixed") {
-            toast.error("Please assign at least one column.")
+            toast.error(strings.tags.regionTableTags.configureTag.errors.atLeastOneColumn)
         }
         if (errors) {
-            toast.error("Please check if you filled out of required fields correctly.")
+            toast.error(strings.tags.regionTableTags.configureTag.errors.checkFields)
         } else {
             save();
         }
@@ -330,8 +330,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     theme={getGreenWithWhiteBackgroundTheme()}
                     onChange={(event) => setTableName(event.target["value"])}
                     value={name}
-                    errorMessage={name ? notUniqueNames.tags ? "Tag name should be unique" : "" : "Tag name cannot be empty"}
-
+                    errorMessage={name ? notUniqueNames.tags ? strings.tags.regionTableTags.configureTag.errors.notUniqueTagName : "" : strings.tags.regionTableTags.configureTag.errors.assignTagName}
                 />
                 <h5 className="mt-3">Format:</h5>
                 <ChoiceGroup

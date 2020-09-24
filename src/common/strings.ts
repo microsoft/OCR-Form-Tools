@@ -279,6 +279,20 @@ export interface IAppStrings {
             checkboxPerTagLimit: string,
             notCompatibleWithDrawnRegionTag: string,
         }
+        regionTableTags: {
+            configureTag: {
+                errors: {
+                    atLeastOneColumn: string,
+                    atLeastOneRow: string,
+                    checkFields: string,
+                    assignTagName: string,
+                    notUniqueTagName: string,
+                    emptyTagName: string,
+                    emptyName: string,
+                    notUniqueName: string,
+                }
+            }
+        }
     };
     connections: {
         title: string,

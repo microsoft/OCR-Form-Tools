@@ -266,6 +266,20 @@ export const english: IAppStrings = {
             checkboxPerTagLimit: "Cannot assign more than one checkbox per tag",
             notCompatibleWithDrawnRegionTag: "drawnRegion and ${otherCatagory} values cannot both be assigned to the same document's tag",
         },
+        regionTableTags: {
+            configureTag: {
+                errors: {
+                    atLeastOneColumn: "Please assign at least one column.",
+                    atLeastOneRow: "Please assign at least one row.",
+                    checkFields: "Please check if you filled out of required fields correctly.",
+                    assignTagName: "Tag name cannot be empty",
+                    notUniqueTagName: "Tag name should be unique",
+                    emptyTagName: "Please assign name for your table tag.",
+                    emptyName: "Name cannot be empty",
+                    notUniqueName: "Name should be unique",
+                }
+            }
+        },
         toolbar: {
             addTable: "Add new table tag",
             add: "Add new tag",
