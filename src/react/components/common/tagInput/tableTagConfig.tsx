@@ -1,10 +1,15 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
 import React, { useEffect, useState } from 'react';
-import "./tableTagConfig.scss";
-import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, IDropdownOption, SelectionMode, DetailsListLayoutMode, FontIcon, DefaultPalette } from "@fluentui/react";
-import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme, getPrimaryWhiteTheme, getDefaultTheme } from '../../../../common/themes';
-import { FieldFormat, FieldType, TagInputMode } from '../../../../models/applicationState';
+import { useSelector } from 'react-redux'
+
+import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, SelectionMode, DetailsListLayoutMode, FontIcon } from "@fluentui/react";
+import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme, getDefaultTheme } from '../../../../common/themes';
+import { FieldFormat, FieldType, IApplicationState, TagInputMode } from '../../../../models/applicationState';
 import { filterFormat } from "../../../../common/utils";
 import { toast } from "react-toastify";
+import "./tableTagConfig.scss";
+
 
 
 interface IShareProps {
@@ -16,12 +21,7 @@ interface IShareState {
     // currentProject: IProject;
 }
 
-// function mapStateToProps(state: IApplicationState) {
-//     return {
-//         appSettings: state.appSettings,
-//         currentProject: state.currentProject,
-//     };
-// }
+
 
 // const dark: ICustomizations = {
 //     settings: {
@@ -86,25 +86,31 @@ const typeOptions = () => {
     return options;
 };
 
-
-
-
-
+/**
+ * @name - Table tag configuration
+ * @description - Configures table tag (assigns row's/column's headers and their respective data types and formats)
+ */
 
 export default function TableTagConfig(props: ITableTagConfigProps) {
     const { setTagInputMode = null, addTableTag = null } = props;
-
-    const initialState: ITableTagConfigState = {
+    const table: ITableTagConfigState = {
         name: "",
         format: "fixed",
         rows: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
         columns: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
     };
+    const tags = useSelector((state: IApplicationState) => {
+        return state.currentProject.tags
+    });
 
-    const [name, setName] = useState(initialState.name);
-    const [format, setFormat] = useState(initialState.format);
-    const [columns, setColumns] = useState(initialState.columns);
-    const [rows, setRows] = useState(initialState.rows);
+    const [name, setName] = useState(table.name);
+    const [format, setFormat] = useState(table.format);
+    const [columns, setColumns] = useState(table.columns);
+    const [rows, setRows] = useState(table.rows);
+    const [notUniqueNames, setNotUniqueNames] = useState({ columns: [], rows: [], tags: false });
+    const [errors, setErrors] = useState(false);
+
+
 
     const selectColumnType = (idx: number, type: string) => {
         setColumns(columns.map((col, currIdx) =>
@@ -118,6 +124,18 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         ));
     };
 
+
+    const getTextInputError = (array: any[], rowName: string, index: number) => {
+        if (!rowName.length) {
+            setErrors(true);
+            return "Name cannot be empty"
+        } else if (array.length && array.findIndex((item) => (item === index)) !== -1) {
+            setErrors(true);
+            return "Name should be unique";
+        } else {
+            // setErrors(false);
+        }
+    };
 
     const columnListColumns: IColumn[] = [
         {
@@ -135,6 +153,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         theme={getGreenWithWhiteBackgroundTheme()}
                         onChange={(event) => setColumnName(index, event.target["value"])}
                         value={row.name}
+                        placeholder={`header name ${index + 1}`}
+                        errorMessage={getTextInputError(notUniqueNames.columns, row.name, index)}
                     />
                 </div>),
             // headerClassName: "list-header",
@@ -202,6 +222,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 ? { ...column, name }
                 : column)
         );
+
     };
 
     const rowListColumns: IColumn[] = [
@@ -221,6 +242,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                             theme={getGreenWithWhiteBackgroundTheme()}
                             onChange={(event) => setRowName(index, event.target["value"])}
                             value={row.name}
+                            placeholder={`header name ${index + 1}`}
+                            errorMessage={getTextInputError(notUniqueNames.rows, row.name, index)}
                         />
                     </div>
                 )
@@ -229,26 +252,74 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         },
     ];
 
+    function setTableName(name: string) {
+        setName(name);
+        setErrors(!name.length ? true : false);
+    }
+
+
+    // Validation //
+
+    function checkNameUniqueness(array, arrayName) {
+        const duplicates = {};
+        let notUnique = [];
+        array.forEach((item, idx) => {
+            if (item.name && item.name.length) {
+                duplicates[item.name] = duplicates[item.name] || [];
+                duplicates[item.name].push(idx)
+            }
+
+        });
+        for (const name in duplicates) {
+            if (duplicates[name].length > 1) {
+                notUnique = duplicates[name];
+            }
+        }
+        setNotUniqueNames({ ...notUniqueNames, [arrayName]: notUnique })
+    }
+
+    // check input names as you type
+    useEffect(() => {
+        checkNameUniqueness(columns, "columns");
+    }, [columns]);
+    useEffect(() => {
+        checkNameUniqueness(rows, "rows");
+    }, [rows]);
+
+    useEffect(() => {
+        const existingTagName = tags.find((item) => item.name === name); setNotUniqueNames({ ...notUniqueNames, tags: existingTagName })
+        setErrors(existingTagName ? true : false);
+    }, [name, tags]);
+
     function save() {
-        addTableTag({name, format, rows, columns});
+        addTableTag({ name, format, rows, columns });
         setTagInputMode(TagInputMode.Basic);
     }
 
     function validateInputAndSave() {
-        console.log("# table", {name, format, rows, columns}, rows.length)
+        if (!name.length) {
+            toast.error("Please assign name fot your table tag.")
+        }
+
         if (format === "fixed") {
-            if (rows.length < 2) {
-                toast.warn("Please assign at least one row.")
+            if (columns.length === 1 && !columns[0].name.length) {
+                toast.error("Please assign at least one column.")
             }
-        } else if (columns.length < 1) {
-            toast.warn("Please assign at least one column.")
-        } else if (!name.length) {
-            toast.warn("Please assign name fot your table tag.")
+            if (rows.length === 1 && !rows[0].name.length) {
+                toast.error("Please assign at least one row.")
+            }
+        }
+        if (format !== "fixed") {
+            toast.error("Please assign at least one column.")
+        }
+        if (errors) {
+            toast.error("Please check if you filled out of required fields correctly.")
         } else {
             save();
         }
     }
 
+    // render
     return (
         <Customizer {...dark}>
             <div className="zzpppzz">
@@ -257,8 +328,10 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 <TextField
                     className="zzyy"
                     theme={getGreenWithWhiteBackgroundTheme()}
-                    onChange={(event) => setName(event.target["value"])}
+                    onChange={(event) => setTableName(event.target["value"])}
                     value={name}
+                    errorMessage={name ? notUniqueNames.tags ? "Tag name should be unique" : "" : "Tag name cannot be empty"}
+
                 />
                 <h5 className="mt-3">Format:</h5>
                 <ChoiceGroup
@@ -325,11 +398,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     <PrimaryButton
                         className="modal-cancel"
                         theme={getPrimaryGreenTheme()}
-                        onClick={() => {
-                            addTableTag({ name, format, rows, columns });
-                            setTagInputMode(TagInputMode.Basic)
-                            console.log("# table:", { name, format, rows, columns })
-                        }}>Save</PrimaryButton>
+                        onClick={() =>
+                            validateInputAndSave()
+                        }>Save</PrimaryButton>
                 </div>
             </div>
         </Customizer>
