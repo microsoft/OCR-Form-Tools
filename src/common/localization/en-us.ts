@@ -271,7 +271,7 @@ export const english: IAppStrings = {
                 errors: {
                     atLeastOneColumn: "Please assign at least one column.",
                     atLeastOneRow: "Please assign at least one row.",
-                    checkFields: "Please check if you filled out of required fields correctly.",
+                    checkFields: "Please check if you filled out all required fields correctly.",
                     assignTagName: "Tag name cannot be empty",
                     notUniqueTagName: "Tag name should be unique",
                     emptyTagName: "Please assign name for your table tag.",
