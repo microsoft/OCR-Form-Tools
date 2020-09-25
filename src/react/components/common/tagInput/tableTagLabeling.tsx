@@ -4,6 +4,7 @@ import "./tableTagConfig.scss";
 import { IconButton, Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, IDropdownOption, SelectionMode, DetailsListLayoutMode, FontIcon } from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme } from '../../../../common/themes';
 import { FieldFormat, FieldType, TagInputMode, ITag, IRegion } from '../../../../models/applicationState';
+import clone from "rfdc";
 
 
 interface ITableTagLabelingProps {
@@ -11,31 +12,26 @@ interface ITableTagLabelingProps {
     selectedTag: ITag,
     selectedRegions?: IRegion[];
     onTagClick?: (tag: ITag) => void;
+    selectedTableTagBody: string[][];
+    handleTableCellClick: (iTableCellIndex, jTableCellIndex) => void;
 }
 
 
 interface ITableTagLabelingState {
     selectedRowIndex: number;
     selectedColumnIndex: number;
-    tableBody: any[];
 }
 
 // @connect(mapStateToProps)
 export default class TableTagLabeling extends React.Component<ITableTagLabelingProps> {
-    public static defaultProps: ITableTagLabelingProps = {
-        setTagInputMode: null,
-        selectedTag: null,
-    };
-
     public state: ITableTagLabelingState = {
         selectedRowIndex: null,
         selectedColumnIndex: null,
-        tableBody: [],
     };
 
     public componentDidMount = async () => {
-        this.getTableBody();
-        console.log(this.props.selectedRegions)
+        console.log(this.props)
+        console.log("TableTagLabeling -> publiccomponentDidMount -> this.props", this.props)
 
     }
 
@@ -52,6 +48,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
             },
             scopedSettings: {},
         };
+        console.log(this.props.selectedTableTagBody)
 
         return (
             <Customizer {...dark}>
@@ -61,7 +58,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                     <div className="table-view-container">
                         <table className="viewed-table">
                             <tbody>
-                                {this.state.tableBody}
+                                {this.getTableBody()}
                             </tbody>
                         </table>
                     </div>
@@ -105,36 +102,21 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                         tableRow.push(<td key={j}>{columns[j-1].fieldKey}</td>);
                     } else if (j === 0 && i !== 0) {
                         tableRow.push(<td key={j}>{rows[i-1].fieldKey}</td>);
+                    } else if (j === 0 && i === 0) {
+                        tableRow.push(<td/>);
                     } else {
-                        tableRow.push(<td onClick={() => this.handleCellClick(i, j)} key={j}></td>);
+                        tableRow.push(<td onClick={() => this.handleCellClick(i-1, j-1)} key={j}>{this.props.selectedTableTagBody[i-1][j-1]}</td>);
                     }
                 }
                 tableBody.push(<tr key={i}>{tableRow}</tr>);
             }
         }
-        this.setState({tableBody})
+        return tableBody
     }
 
     private handleCellClick = (iToChange, jToChange) => {
-        console.log(this.props.selectedRegions)
-        const prevTableBody = this.state.tableBody;
-        const tableBody = [];
-        for (let i = 0; i < prevTableBody.length; i++) {
-            const tableRow = [];
-            for (let j = 0; j < prevTableBody[i].props.children.length; j++) {
-                if (i !== iToChange || j !== jToChange) {
-                    tableRow.push(<td onClick={() => this.handleCellClick(i, j)} key={j}> {prevTableBody[i].props.children[j].props.children} </td>);
-                }
-                else {
-                    tableRow.push(<td onClick={() => this.handleCellClick(i, j)} key={j}>{this.props.selectedRegions.map((region) => region.value).join(" ")}</td>);
-                }
-            }
-            tableBody.push(<tr key={i}>{tableRow}</tr>);
-        }
-
-        console.log(tableBody)
-        console.log(this.state.tableBody)
-        this.setState({tableBody})
-        this.props.onTagClick(this.props.selectedTag)
+        // const tableBody = clone()(this.props.tableBody);
+        // tableBody[iToChange].props.children[jToChange] = this.props.selectedRegions.map((region) => region.value).join(" ")};
+        this.props.handleTableCellClick(iToChange, jToChange)
     }
 }

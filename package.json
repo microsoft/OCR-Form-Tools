@@ -42,6 +42,7 @@
         "reactstrap": "^8.2.0",
         "redux": "^4.0.4",
         "redux-thunk": "^2.3.0",
+        "rfdc": "^1.1.4",
         "rimraf": "^3.0.2",
         "serialize-javascript": "^3.0.0",
         "shortid": "^2.2.15",

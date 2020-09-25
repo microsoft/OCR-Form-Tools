@@ -1,23 +1,61 @@
 @import "../../../../assets/sass/theme.scss";
 @import "./tagInputSize.scss";
 
-.detailsListRows {
+
+.config-view_container {
+    padding: 0 2rem 0 0rem;
+    margin-left: .5rem;
+    h5, h4 {
+        margin-left: 12px;
+    }
+
+    .table-name_input {
+        width: 100%;
+        padding-right: 18px;
+    }
+
+    .columns_container {
+        margin-top: 2rem;
+        margin-bottom: 4rem;
+        .columns-list_container {
+        }
+    }
+
+
+    .rows_container {
+      .rows-list_container {
+          display: flex;
+          width: 100%;
+          flex-direction: column;
+      }
+    }
+
+    .add_button {
+        margin-top: .5rem;
+    }
+
+    .control-buttons_container {
+        display: flex;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        padding-right: .5rem;
+        justify-content: flex-end;
+        .save {
+            margin-left: 1rem;
+        }
+    }
+
+
 }
 
-.zzpppzz2 {
-    width: 400px;
-}
-
-.zzpppzz {
-    width: 600px;
-}
-
-.zzyy {
+.rows-list_container {
     width: 360px;
 }
 
-.details-list-container .ms-DetailsHeader {
-    padding-top: 0px;
+
+// ========= utility classes
+.ml-12px {
+    margin-left: 12px;
 }
 
 .maxyoo {
