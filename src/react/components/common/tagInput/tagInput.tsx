@@ -165,7 +165,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         };
 
         const { selectedTag, tagOperation } = this.state;
-        const selectedTagRef = selectedTag ? this.tagItemRefs.get(selectedTag.name).getTagNameRef() : null;
+        const selectedTagRef = selectedTag ? this.tagItemRefs.get(selectedTag.name)?.getTagNameRef() : null;
 
         return (
             <div className="tag-input">
@@ -178,6 +178,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                             searchTags: !this.state.searchTags,
                             searchQuery: "",
                         })}
+                        searchingTags={this.state.searchQuery.length > 0}
                         onRenameTag={this.onRenameTag}
                         onLockTag={this.onLockTag}
                         onDelete={this.onDeleteTag}
@@ -198,6 +199,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                                         onChange={(e) => this.setState({ searchQuery: e.target.value })}
                                         placeholder="Search tags"
                                         autoFocus={true}
+                                        onFocus={() => this.setState({selectedTag: null, tagOperation: TagOperationMode.Rename})}
                                     />
                                     <FontIcon iconName="Search" />
                                 </div>
@@ -648,6 +650,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 },
                 text: strings.tags.toolbar.moveUp,
                 onClick: this.onMenuItemClick,
+                disabled: this.state.searchQuery.length > 0,
             },
             {
                 key: TagMenuItem.MoveDown,
@@ -656,6 +659,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 },
                 text: strings.tags.toolbar.moveDown,
                 onClick: this.onMenuItemClick,
+                disabled: this.state.searchQuery.length > 0,
             },
             {
                 key: TagMenuItem.Delete,
