@@ -3,12 +3,8 @@
 
 
 .config-view_container {
-    display: flex;
-    height: 100vh;
-    width: 100%;
-    flex-direction: column;
-    padding: 0 .5rem;
-    background-color: $darker-2;
+    padding: 0 2rem 0 0rem;
+    margin-left: .5rem;
     h5, h4 {
         margin-left: 12px;
     }
@@ -28,6 +24,9 @@
 
     .rows_container {
       .rows-list_container {
+          display: flex;
+          width: 100%;
+          flex-direction: column;
       }
     }
 

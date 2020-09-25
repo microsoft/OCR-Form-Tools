@@ -129,11 +129,11 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             maxWidth: 360,
             isResizable: false,
             onRender: (row, index) => (
-                    <TextField
+                <TextField
                     theme={getGreenWithWhiteBackgroundTheme()}
-                        onChange={(event) => setColumnName(index, event.target["value"])}
-                        value={row.name}
-                    />),
+                    onChange={(event) => setColumnName(index, event.target["value"])}
+                    value={row.name}
+                />),
             // headerClassName: "list-header",
         },
         {
@@ -188,20 +188,39 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             name: "name",
             // className: "composed-icon-cell",
             fieldName: "name",
-            minWidth: 100,
-            maxWidth: 360,
+            minWidth: 340,
+            maxWidth: 340,
             isResizable: false,
             onRender: (row, index) => {
                 return (
-                        <TextField
-                            className="row-name_input"
-                            theme={getGreenWithWhiteBackgroundTheme()}
-                            onChange={(event) => setRowName(index, event.target["value"])}
-                            value={row.name}
-                        />
+                    <TextField
+                        className="row-name_input"
+                        theme={getGreenWithWhiteBackgroundTheme()}
+                        onChange={(event) => setRowName(index, event.target["value"])}
+                        value={row.name}
+                    />
                 )
             },
             headerClassName: "list-header",
+        },
+        {
+            key: "type",
+            name: "",
+            fieldName: "",
+            minWidth: 100,
+            maxWidth: 100,
+            isResizable: false,
+            onRender: () => <></>
+        },
+        {
+            key: "format",
+            name: "",
+            fieldName: "",
+            minWidth: 100,
+            maxWidth: 100,
+            isResizable: false,
+            onRender: () => <></>
+
         },
     ];
 
@@ -270,7 +289,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 </PrimaryButton>
                     </div>
                 </div>
-                { format === "fixed" &&
+                {format === "fixed" &&
                     <div className="rows_container">
                         <h5 className="">Row headers:</h5>
                         <div className="rows-list_container">
@@ -285,18 +304,17 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                                 selectionMode={SelectionMode.none}
                                 layoutMode={DetailsListLayoutMode.justified}
                             />
-                            <PrimaryButton
-                                theme={getPrimaryBlueTheme()}
-                                className="add_button ml-12px"
-                                autoFocus={true}
-                                onClick={addRow}>
-                                <FontIcon iconName="Add" className="mr-2" />
+                        </div>
+                        <PrimaryButton
+                            theme={getPrimaryBlueTheme()}
+                            className="add_button ml-12px"
+                            autoFocus={true}
+                            onClick={addRow}>
+                            <FontIcon iconName="Add" className="mr-2" />
                                 Add row
                             </PrimaryButton>
-                        </div>
                     </div>
                 }
-
                 <div className="control-buttons_container">
                     <PrimaryButton
                         className="cancel"
@@ -315,6 +333,4 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             </div>
         </Customizer>
     );
-}
-
-
+};
