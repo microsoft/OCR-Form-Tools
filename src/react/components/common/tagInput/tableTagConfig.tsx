@@ -123,19 +123,17 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             key: "name",
             name: "name",
             // className: "composed-icon-cell",
+            className: "column-name_input",
             fieldName: "name",
             minWidth: 100,
-            maxWidth: 400,
+            maxWidth: 360,
             isResizable: false,
             onRender: (row, index) => (
-                <div className="maxyoo">
-                    <TextField
-                        className="maxyoo"
-                        theme={getGreenWithWhiteBackgroundTheme()}
-                        onChange={(event) => setColumnName(index, event.target["value"])}
-                        value={row.name}
-                    />
-                </div>),
+                <TextField
+                    theme={getGreenWithWhiteBackgroundTheme()}
+                    onChange={(event) => setColumnName(index, event.target["value"])}
+                    value={row.name}
+                />),
             // headerClassName: "list-header",
         },
         {
@@ -148,6 +146,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             onRender: (row, index) =>
                 <Customizer {...defaultTheme}>
                     <Dropdown
+                        className="type_dropdown"
                         placeholder={row.type}
                         defaultSelectedKey={FieldType.String}
                         options={typeOptions()}
@@ -169,6 +168,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             onRender: (row, index) =>
                 <Customizer {...defaultTheme}>
                     <Dropdown
+                        className="format_dropdown"
                         placeholder={row.format}
                         selectedKey={row.format}
                         options={formatOptions(row.type)}
@@ -180,7 +180,49 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 </Customizer>
 
         },
-    ]
+    ];
+
+    const rowListColumns: IColumn[] = [
+        {
+            key: "name",
+            name: "name",
+            // className: "composed-icon-cell",
+            fieldName: "name",
+            minWidth: 340,
+            maxWidth: 340,
+            isResizable: false,
+            onRender: (row, index) => {
+                return (
+                    <TextField
+                        className="row-name_input"
+                        theme={getGreenWithWhiteBackgroundTheme()}
+                        onChange={(event) => setRowName(index, event.target["value"])}
+                        value={row.name}
+                    />
+                )
+            },
+            headerClassName: "list-header",
+        },
+        {
+            key: "type",
+            name: "",
+            fieldName: "",
+            minWidth: 100,
+            maxWidth: 100,
+            isResizable: false,
+            onRender: () => <></>
+        },
+        {
+            key: "format",
+            name: "",
+            fieldName: "",
+            minWidth: 100,
+            maxWidth: 100,
+            isResizable: false,
+            onRender: () => <></>
+
+        },
+    ];
 
 
 
@@ -203,77 +245,56 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         );
     };
 
-    const rowListColumns: IColumn[] = [
-        {
-            key: "name",
-            name: "name",
-            // className: "composed-icon-cell",
-            fieldName: "name",
-            minWidth: 100,
-            maxWidth: 400,
-            isResizable: false,
-            onRender: (row, index) => {
-                return (
-                    <div className="maxyoo">
-                        <TextField
-                            className="maxyoo"
-                            theme={getGreenWithWhiteBackgroundTheme()}
-                            onChange={(event) => setRowName(index, event.target["value"])}
-                            value={row.name}
-                        />
-                    </div>
-                )
-            },
-            // headerClassName: "list-header",
-        },
-    ];
 
     return (
         <Customizer {...dark}>
-            <div className="zzpppzz">
+            <div className="config-view_container">
                 <h4 className="mt-2">Configure table tag</h4>
-                <h5 className="mt-3">Name:</h5>
+                <h5 className="mt-3 ">Name:</h5>
                 <TextField
-                    className="zzyy"
+                    className="table-name_input ml-12px"
                     theme={getGreenWithWhiteBackgroundTheme()}
                     onChange={(event) => setName(event.target["value"])}
                     value={name}
                 />
-                <h5 className="mt-3">Format:</h5>
+                <h5 className="mt-4">Format:</h5>
                 <ChoiceGroup
+                    className="ml-12px"
                     onChange={(event, option) => setFormat(option.key)}
                     defaultSelectedKey="fixed"
                     options={options}
                     theme={getRightPaneDefaultButtonTheme()}
                 />
-                <h5 className="mt-3">Column headers:</h5>
-                <div className="details-list-container">
-                    <DetailsList
-                        className="detailsListRows"
-                        items={columns}
-                        columns={columnListColumns}
-                        isHeaderVisible={true}
-                        theme={getRightPaneDefaultButtonTheme()}
-                        compact={true}
-                        setKey="none"
-                        selectionMode={SelectionMode.none}
-                        layoutMode={DetailsListLayoutMode.justified}
-                    />
-                    <PrimaryButton
-                        theme={getPrimaryBlueTheme()}
-                        className="ml-2 mt-1"
-                        autoFocus={true}
-                        onClick={addColumn}>
-                        <FontIcon iconName="AddTo" className="mr-2" />
+                <div className="columns_container">
+                    <h5 className="mt-3">Column headers:</h5>
+                    <div className="columns-container">
+                        <DetailsList
+                            className="columns"
+                            items={columns}
+                            columns={columnListColumns}
+                            isHeaderVisible={true}
+                            theme={getRightPaneDefaultButtonTheme()}
+                            compact={true}
+                            setKey="none"
+                            selectionMode={SelectionMode.none}
+                            layoutMode={DetailsListLayoutMode.justified}
+                        />
+                        <PrimaryButton
+                            theme={getPrimaryBlueTheme()}
+                            className="add_button ml-12px"
+                            autoFocus={true}
+                            onClick={addColumn}>
+                            <FontIcon iconName="Add" className="mr-2" />
                     Add column
                 </PrimaryButton>
+                    </div>
                 </div>
                 {format === "fixed" &&
-                    <>
-                        <h5 className="mt-3">Row headers:</h5>
-                        <div className="details-list-container zzyy">
+                    <div className="rows_container">
+                        <h5 className="">Row headers:</h5>
+                        <div className="rows-list_container">
                             <DetailsList
-                                className="zzpppzz"
+                                className="rows"
                                 items={rows}
                                 columns={rowListColumns}
                                 isHeaderVisible={true}
@@ -283,26 +304,25 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                                 selectionMode={SelectionMode.none}
                                 layoutMode={DetailsListLayoutMode.justified}
                             />
-                            <PrimaryButton
-                                theme={getPrimaryBlueTheme()}
-                                className="ml-2 mt-1"
-                                autoFocus={true}
-                                onClick={addRow}>
-                                <FontIcon iconName="AddTo" className="mr-2" />
+                        </div>
+                        <PrimaryButton
+                            theme={getPrimaryBlueTheme()}
+                            className="add_button ml-12px"
+                            autoFocus={true}
+                            onClick={addRow}>
+                            <FontIcon iconName="Add" className="mr-2" />
                                 Add row
                             </PrimaryButton>
-                        </div>
-                    </>
+                    </div>
                 }
-
-                <div className="modal-buttons-container mb-2 mr-1">
+                <div className="control-buttons_container">
                     <PrimaryButton
-                        className="modal-cancel mr-3"
+                        className="cancel"
                         theme={getPrimaryGreyTheme()}
                         onClick={() => setTagInputMode(TagInputMode.Basic)}
                     >Cancel</PrimaryButton>
                     <PrimaryButton
-                        className="modal-cancel"
+                        className="save"
                         theme={getPrimaryGreenTheme()}
                         onClick={() => {
                             addTableTag({ name, format, rows, columns });
@@ -313,6 +333,4 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             </div>
         </Customizer>
     );
-}
-
-
+};
