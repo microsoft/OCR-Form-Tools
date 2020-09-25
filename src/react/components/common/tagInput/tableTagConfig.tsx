@@ -109,8 +109,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     const [columns, setColumns] = useState(table.columns);
     const [rows, setRows] = useState(table.rows);
     const [notUniqueNames, setNotUniqueNames] = useState({ columns: [], rows: [], tags: false });
-    const [errors, setErrors] = useState(false);
-
 
 
     const selectColumnType = (idx: number, type: string) => {
@@ -242,21 +240,18 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
     function setTableName(name: string) {
         setName(name);
-        setErrors(!name.length ? true : false);
     }
 
 
     // Validation //
 
-    function getTextInputError (array: any[], rowName: string, index: number) {
+    function getTextInputError(array: any[], rowName: string, index: number) {
         if (!rowName.length) {
-            setErrors(true);
             return strings.tags.regionTableTags.configureTag.errors.emptyName
         } else if (array.length && array.findIndex((item) => (item === index)) !== -1) {
-            setErrors(true);
             return strings.tags.regionTableTags.configureTag.errors.notUniqueName;
         } else {
-            // setErrors(false);
+            return undefined
         }
     };
 
@@ -287,8 +282,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     }, [rows]);
 
     useEffect(() => {
-        const existingTagName = tags.find((item) => item.name === name); setNotUniqueNames({ ...notUniqueNames, tags: existingTagName })
-        setErrors(existingTagName ? true : false);
+        const existingTagName = tags.find((item) => item.name === name);
+        setNotUniqueNames({ ...notUniqueNames, tags: existingTagName !== undefined ? true : false})
     }, [name, tags]);
 
     function save() {
@@ -296,24 +291,13 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         setTagInputMode(TagInputMode.Basic);
     }
 
-    function validateInputAndSave() {
-        if (!name.length) {
-            toast.error(strings.tags.regionTableTags.configureTag.errors.emptyTagName)
-        }
+    function hasEmptyNames(array) {
+       return array.find((i) => !i.name.length) !== undefined ? true : false
+    }
 
-        if (format === "fixed") {
-            if (columns.length === 1 && !columns[0].name.length) {
-                toast.error(strings.tags.regionTableTags.configureTag.errors.atLeastOneColumn)
-            }
-            if (rows.length === 1 && !rows[0].name.length) {
-                toast.error(strings.tags.regionTableTags.configureTag.errors.atLeastOneRow)
-            }
-        }
-        if (format !== "fixed") {
-            toast.error(strings.tags.regionTableTags.configureTag.errors.atLeastOneColumn)
-        }
-        if (errors) {
-            toast.error(strings.tags.regionTableTags.configureTag.errors.checkFields)
+    function validateInputAndSave() {
+        if (notUniqueNames.columns.length > 0 || notUniqueNames.rows.length > 0 || notUniqueNames.tags || !name.length || hasEmptyNames(rows) || hasEmptyNames(columns)) {
+            toast.error(strings.tags.regionTableTags.configureTag.errors.checkFields, { autoClose: 8000 });
         } else {
             save();
         }
