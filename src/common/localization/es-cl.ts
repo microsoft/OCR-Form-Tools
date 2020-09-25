@@ -231,7 +231,11 @@ export const spanish: IAppStrings = {
         tagsSectionTitle: "Etiquetas & etiquetas",
         totalRegionCount: "Total de regiones",
         totalTagCount: "Total de etiquetas",
+        totalAssignedTags: "Total de etiquetas asignadas",
         avgTagCountPerAsset: "Recuento promedio de etiquetas por activo",
+        tagOccurrence: "Aparición de etiquetas en el proyecto",
+        noAssignedTagsMessage: "Aún no se han etiquetado etiquetas.",
+        loading: "Generando métricas del proyecto ..."
     },
     tags: {
         title: "Etiquetas",

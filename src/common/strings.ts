@@ -220,17 +220,21 @@ export interface IAppStrings {
         addToRecentModels: string;
     }
     projectMetrics: {
-        title: string,
-        assetsSectionTitle: string,
-        totalAssetCount: string,
-        visitedAssets: string,
-        taggedAssets: string,
-        nonVisitedAssets: string,
-        nonTaggedAssets: string,
-        tagsSectionTitle: string,
-        totalRegionCount: string,
-        totalTagCount: string,
-        avgTagCountPerAsset: string,
+        title: string;
+        assetsSectionTitle: string
+        totalAssetCount: string;
+        visitedAssets: string;
+        taggedAssets: string;
+        nonVisitedAssets: string;
+        nonTaggedAssets: string;
+        tagsSectionTitle: string;
+        totalRegionCount: string;
+        totalTagCount: string;
+        totalAssignedTags: string;
+        avgTagCountPerAsset: string;
+        tagOccurrence: string;
+        noAssignedTagsMessage: string;
+        loading: string
     };
     tags: {
         title: string,

@@ -11,17 +11,18 @@
   }
 
   &-metrics {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    min-width: 325px;
-    max-width: 420px;
-    color: #fff;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      min-width: 20%;
+      max-width: 50%;
 
     .loading {
-      position: absolute;
-      left: 50%;
-      top: 25%;
+      margin-top: calc(50vh - 10rem);
+        .ms-Spinner-circle{
+            height: 8rem;
+            width: 8rem;
+        }
     }
 
     p {
@@ -29,16 +30,21 @@
     }
   }
 
+    .rv-discrete-color-legend-item__color {
+        height: .25rem;
+        margin-right: .25rem;
+    }
+
   svg {
-    margin-top: 1em;
     text {
       fill: #fff;
-      font-weight: 500;
+      font-weight: 400;
     }
   }
 
   .asset-chart {
-    font-size: 90%;
+      font-size: 90%;
+      padding: 1rem;
 
     @media (max-width: 1920px) {
         display: flex;
@@ -68,15 +74,20 @@
   }
 
   .tag-chart {
-    margin: 0 auto;
-
+      overflow-x: auto;
     line {
       stroke: $lighter-5;
     }
   }
+    .vertical-bars-labels {
+        color: #00a1f1;
+        background-color: red;
+
+    }
 }
 
+
 .assetCount {
-  display: flex;
-  align-items: center;
+    display: flex;
+    align-items: center;
 }
