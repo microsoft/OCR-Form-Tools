@@ -96,7 +96,6 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
 
     private renderItems = () => {
         const moveModifierDisabled = !this.props.selectedTag || this.props.searchingTags;
-        console.log("TagInputToolbar -> privaterenderItems -> this.props.searchingTags", this.props.searchingTags)
         const renameModifierDisabled = !this.props.selectedTag;
         const moveModifierClassNames = ["tag-input-toolbar-iconbutton"];
         const renameModifierClassNames = ["tag-input-toolbar-iconbutton"];
