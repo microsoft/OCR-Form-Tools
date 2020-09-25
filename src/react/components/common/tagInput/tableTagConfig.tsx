@@ -22,13 +22,6 @@ interface IShareState {
 //     };
 // }
 
-// const dark: ICustomizations = {
-//     settings: {
-//       theme: getDarkGreyTheme(),
-//     },
-//     scopedSettings: {},
-// };
-
 interface ITableTagConfigProps {
     setTagInputMode: (addTableMode: TagInputMode) => void;
     addTableTag: (table: any) => void;
@@ -42,7 +35,7 @@ interface ITableTagConfigState {
     format: string,
 }
 
-const options: IChoiceGroupOption[] = [
+const tableFormatOptions: IChoiceGroupOption[] = [
     {
         key: 'fixed',
         text: 'fixed',
@@ -52,6 +45,16 @@ const options: IChoiceGroupOption[] = [
         key: 'rowDynamic',
         text: 'row-dynamic',
         iconProps: { iconName: 'InsertRowsBelow' }
+    },
+];
+const headersFormatAndTypeOptions: IChoiceGroupOption[] = [
+    {
+        key: 'columns',
+        text: 'Column headers',
+    },
+    {
+        key: 'rows',
+        text: 'Row headers',
     },
 ];
 
@@ -104,6 +107,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     const [format, setFormat] = useState(initialState.format);
     const [columns, setColumns] = useState(initialState.columns);
     const [rows, setRows] = useState(initialState.rows);
+    const [headersFormatAndType, setHeadersFormatAndType] = useState("columns");
+
 
     const selectColumnType = (idx: number, type: string) => {
         setColumns(columns.map((col, currIdx) =>
@@ -114,6 +119,17 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     const selectColumnFormat = (idx: number, format: string) => {
         setColumns(columns.map((col, currIdx) =>
             idx === currIdx ? { ...col, format } : col
+        ));
+    };
+    const selectRowType = (idx: number, type: string) => {
+        setRows(rows.map((row, currIdx) =>
+            idx === currIdx ? { ...row, type, format: FieldFormat.NotSpecified } : row
+        ));
+    };
+
+    const selectRowFormat = (idx: number, format: string) => {
+        setRows(rows.map((row, currIdx) =>
+            idx === currIdx ? { ...row, format } : row
         ));
     };
 
@@ -143,7 +159,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             minWidth: 100,
             maxWidth: 100,
             isResizable: false,
-            onRender: (row, index) =>
+            onRender: (row, index) => headersFormatAndType === "columns" ?
                 <Customizer {...defaultTheme}>
                     <Dropdown
                         className="type_dropdown"
@@ -154,9 +170,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         onChange={(e, val) => {
                             selectColumnType(index, val.text);
                         }}
-
                     />
                 </Customizer>
+                : <></>
         },
         {
             key: "format",
@@ -165,7 +181,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             minWidth: 100,
             maxWidth: 100,
             isResizable: false,
-            onRender: (row, index) =>
+            onRender: (row, index) => headersFormatAndType === "columns" ?
                 <Customizer {...defaultTheme}>
                     <Dropdown
                         className="format_dropdown"
@@ -178,6 +194,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         }}
                     />
                 </Customizer>
+                : <></>
 
         },
     ];
@@ -205,21 +222,48 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         },
         {
             key: "type",
-            name: "",
-            fieldName: "",
+            name: "type",
+            fieldName: "type",
             minWidth: 100,
             maxWidth: 100,
             isResizable: false,
-            onRender: () => <></>
+            onRender: (row, index) => headersFormatAndType === "rows" ?
+                <Customizer {...defaultTheme}>
+                    <Dropdown
+                        className="type_dropdown"
+                        placeholder={row.type}
+                        defaultSelectedKey={FieldType.String}
+                        options={typeOptions()}
+                        theme={getGreenWithWhiteBackgroundTheme()}
+                        onChange={(e, val) => {
+                            selectRowType(index, val.text);
+                        }}
+
+                    />
+                </Customizer>
+                : <></>
         },
         {
             key: "format",
-            name: "",
-            fieldName: "",
+            name: "format",
+            fieldName: "format",
             minWidth: 100,
             maxWidth: 100,
             isResizable: false,
-            onRender: () => <></>
+            onRender: (row, index) => headersFormatAndType === "rows" ?
+                <Customizer {...defaultTheme}>
+                    <Dropdown
+                        className="format_dropdown"
+                        placeholder={row.format}
+                        selectedKey={row.format}
+                        options={formatOptions(row.type)}
+                        theme={getGreenWithWhiteBackgroundTheme()}
+                        onChange={(e, val) => {
+                            selectRowFormat(index, val.text);
+                        }}
+                    />
+                </Customizer>
+                : <></>
 
         },
     ];
@@ -260,11 +304,26 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 <h5 className="mt-4">Format:</h5>
                 <ChoiceGroup
                     className="ml-12px"
-                    onChange={(event, option) => setFormat(option.key)}
+                    onChange={(event, option) => {
+                        setFormat(option.key)
+                        if (option.key === "rowDynamic") {
+                            setHeadersFormatAndType("columns");
+                        }
+                    }}
                     defaultSelectedKey="fixed"
-                    options={options}
+                    options={tableFormatOptions}
                     theme={getRightPaneDefaultButtonTheme()}
                 />
+                {format === "fixed" && <>
+                    <h5 className="mt-4" >Configure type and format for:</h5>
+                    <ChoiceGroup
+                        className="ml-12px"
+                        defaultSelectedKey={"columns"}
+                        options={headersFormatAndTypeOptions}
+                        onChange={(e, option) => setHeadersFormatAndType(option.key)}
+                        required={false} />
+                </>
+                }
                 <div className="columns_container">
                     <h5 className="mt-3">Column headers:</h5>
                     <div className="columns-container">
@@ -325,8 +384,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         className="save"
                         theme={getPrimaryGreenTheme()}
                         onClick={() => {
-                            addTableTag({ name, format, rows, columns });
-                            setTagInputMode(TagInputMode.Basic)
+                            console.log("# headersFormatAndType:", headersFormatAndType);
+                            // addTableTag({ name, format, rows, columns });
+                            // setTagInputMode(TagInputMode.Basic)
                             console.log("# table:", { name, format, rows, columns })
                         }}>Save</PrimaryButton>
                 </div>
