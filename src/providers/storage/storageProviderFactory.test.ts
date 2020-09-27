@@ -48,6 +48,9 @@ class TestStorageProvider implements IStorageProvider {
     public listFiles(folderPath?: string): Promise<string[]> {
         throw new Error("Method not implemented.");
     }
+    isFileExists(filepath: string): Promise<boolean> {
+        throw new Error("Method not implemented.");
+    }
     public listContainers(folderPath?: string): Promise<string[]> {
         throw new Error("Method not implemented.");
     }
