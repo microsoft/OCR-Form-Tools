@@ -6,7 +6,7 @@ import { FontIcon } from "@fluentui/react";
 
 export interface ITrainRecordProps {
     accuracies?: object;
-    averageAccuracy: number;
+    averageAccuracy?: number;
     modelInfo: {
         isComposed?: boolean;
         modelId: string;
@@ -41,7 +41,7 @@ export default class TrainRecord extends React.Component<ITrainRecordProps, ITra
                     </p>
                     <h6>Average accuracy:</h6>
                     <p>
-                        {this.props.averageAccuracy}
+                        {(this.props.averageAccuracy * 100).toFixed(2)+"%"}
                     </p>
                     <div className="accuracy-info">
                         <a href="https://aka.ms/form-recognizer/docs/train" target="_blank" rel="noopener noreferrer">

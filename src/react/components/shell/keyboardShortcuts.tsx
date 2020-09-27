@@ -14,6 +14,8 @@ export interface IHotKeysModalState {
     showModal: boolean;
 }
 interface IKeyItem {
+    modifierKey?: string;
+    secondKeyOption?: string;
     key: string;
     description: string;
 }
@@ -63,12 +65,18 @@ export const KeyboardShortcuts: React.FC = () => {
             description: strings.shortcuts.zoomKeys.description.reset,
         },
         {
+            secondKeyOption: strings.shortcuts.deleteAndBackspace.keys.backSpace,
             key: strings.shortcuts.deleteAndBackspace.keys.delete,
             description: strings.shortcuts.deleteAndBackspace.description.delete,
         },
         {
-            key: strings.shortcuts.deleteAndBackspace.keys.backSpace,
-            description: strings.shortcuts.deleteAndBackspace.description.backSpace,
+            key: strings.shortcuts.drawnRegions.keys.escape,
+            description: strings.shortcuts.drawnRegions.description.cancelDrawOrReshape,
+        },
+        {
+            modifierKey: "Alt",
+            key: strings.shortcuts.drawnRegions.keys.backSpace,
+            description: strings.shortcuts.drawnRegions.description.deleteSelectedDrawnRegions,
         },
 
     ];
@@ -83,27 +91,48 @@ export const KeyboardShortcuts: React.FC = () => {
             description: strings.shortcuts.tips.renameTag.description,
         },
         {
-            name: strings.shortcuts.tips.multipleWordSelection.name,
-            description: strings.shortcuts.tips.multipleWordSelection.description,
-        },
-        {
             name: strings.shortcuts.tips.deleteAllLabelsForTag.name,
             description: strings.shortcuts.tips.deleteAllLabelsForTag.description,
         },
         {
             name: strings.shortcuts.tips.groupSelect.name,
             description: strings.shortcuts.tips.groupSelect.description,
-        }
+        },
+        {
+            name: strings.shortcuts.tips.multipleWordSelection.name,
+            description: strings.shortcuts.tips.multipleWordSelection.description,
+        },
     ];
     const ShortcutsListItems = ({ items }): JSX.Element => {
         return items.map((item, idx) => (
             <li key={`${item.key}-${idx}`} className="shortcut">
                 <div className="shortcut-description description">{item.description}</div>
                 <div className="shortcut-keys">
+                    {item.secondKeyOption &&
+                    <>
+                        <span
+                            className="keyboard-key"
+                            aria-label={`keyboard key - ${item.secondKeyOption}`}
+                        >
+                            {item.secondKeyOption}
+                        </span>
+                        <span className="mr-2 ml-2 mt-1">or</span>
+                    </>
+                    }
+                    {item.modifierKey &&
+                        <span
+                            className="keyboard-key key-modifier"
+                            aria-label={`keyboard key - ${item.modifierKey}`}
+                        >
+                            {item.modifierKey}
+                        </span>
+                    }
                     <span
                         className="keyboard-key"
                         aria-label={`keyboard key - ${item.key}`}
-                    >{item.key}</span>
+                    >
+                        {item.key}
+                    </span>
                 </div>
             </li>));
     };

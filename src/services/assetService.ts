@@ -23,11 +23,11 @@ const supportedImageFormats = {
 
 interface IMime {
     types: string[];
-    pattern: (number|undefined)[];
+    pattern: (number | undefined)[];
 }
 
-  // tslint:disable number-literal-format
-  // tslint:disable no-magic-numbers
+// tslint:disable number-literal-format
+// tslint:disable no-magic-numbers
 const imageMimes: IMime[] = [
     {
         types: ["bmp"],
@@ -62,6 +62,91 @@ const mimeBytesNeeded: number = (Math.max(...imageMimes.map((m) => m.pattern.len
  * @description - Functions for dealing with project assets
  */
 export class AssetService {
+    private getOcrFromAnalyzeResult(analyzeResult: any) {
+        return _.get(analyzeResult, "analyzeResult.readResults", []);
+    }
+    async uploadAssetPredictResult(asset: IAsset, readResults: any): Promise<void> {
+        const getBoundingBox = (pageIndex, arr: number[]) => {
+            const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(readResults)[pageIndex - 1];
+            const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
+            const ocrWidth = ocrExtent[2] - ocrExtent[0];
+            const ocrHeight = ocrExtent[3] - ocrExtent[1];
+            const result = [];
+            for (let i = 0; i < arr.length; i += 2) {
+                result.push([
+                    (arr[i] / ocrWidth),
+                    (arr[i + 1] / ocrHeight),
+                ]);
+            }
+            return result;
+        };
+        const getLabelValues = (field: any) => {
+            return field.elements.map((path: string) => {
+                const pathArr = path.split('/').slice(1);
+                const word = pathArr.reduce((obj: any, key: string) => obj[key], { ...readResults.analyzeResult });
+                return {
+                    page: field.page,
+                    text: word.text || word.state,
+                    confidence: word.confidence,
+                    boundingBoxes: [getBoundingBox(field.page, word.boundingBox)]
+                };
+            });
+        };
+        const labels = [];
+        readResults.analyzeResult.documentResults
+            .map(result => Object.keys(result.fields)
+                .filter(key => result.fields[key])
+                .map<ILabel>(key => (
+                    {
+                        label: key,
+                        key: null,
+                        value: getLabelValues(result.fields[key])
+                    }))).forEach(items => {
+                        labels.push(...items);
+                    });
+
+        if (labels.length > 0) {
+            const fileName = decodeURIComponent(asset.name).split('/').pop();
+            const labelData: ILabelData = {
+                document: fileName,
+                labels
+            };
+            const metadata = {
+                ...await this.getAssetMetadata(asset),
+                labelData
+            };
+            metadata.asset.state = AssetState.Tagged;
+
+            const ocrData = JSON.parse(JSON.stringify(readResults));
+            delete ocrData.analyzeResult.documentResults;
+            if (ocrData.analyzeResult.errors) {
+                delete ocrData.analyzeResult.errors;
+            }
+            const ocrFileName = `${asset.name}${constants.ocrFileExtension}`;
+            await Promise.all([
+                this.save(metadata),
+                this.storageProvider.writeText(ocrFileName, JSON.stringify(ocrData, null, 2))
+            ]);
+        }
+        else {
+            const ocrData = { ...readResults };
+            delete ocrData.analyzeResult.documentResults;
+            if (ocrData.analyzeResult.errors) {
+                delete ocrData.analyzeResult.errors;
+            }
+            const labelFileName = decodeURIComponent(`${asset.name}${constants.labelFileExtension}`);
+            const ocrFileName = decodeURIComponent(`${asset.name}${constants.ocrFileExtension}`);
+            try {
+                await Promise.all([
+                    this.storageProvider.deleteFile(labelFileName, true, true),
+                    this.storageProvider.writeText(ocrFileName, JSON.stringify(ocrData, null, 2))
+                ]);
+            }
+            catch{
+                return;
+            }
+        }
+    }
     /**
      * Create IAsset from filePath
      * @param filePath - filepath of asset
@@ -93,20 +178,24 @@ export class AssetService {
 
         if (supportedImageFormats.hasOwnProperty(assetFormat)) {
             let types;
+            let corruptFileName;
             if (nodejsMode) {
                 const FileType = require('file-type');
                 const fileType = await FileType.fromFile(normalizedPath);
                 types = [fileType.ext];
+                corruptFileName = fileName.split(/[\\\/]/).pop().replace(/%20/g, " ");
+
             } else {
                 types = await this.getMimeType(filePath);
+                corruptFileName = fileName.split("%2F").pop().replace(/%20/g, " ");
             }
-
+            if (!types) {
+                console.error(interpolate(strings.editorPage.assetWarning.incorrectFileExtension.failedToFetch, { fileName: corruptFileName.toLocaleUpperCase() }));
+            }
             // If file was renamed/spoofed - fix file extension to true MIME type and show message
-            if (!types.includes(assetFormat)) {
+            else if (!types.includes(assetFormat)) {
                 assetFormat = types[0];
-                const corruptFileName = fileName.split("%2F").pop().replace(/%20/g, " ");
-
-                toast.info(`${strings.editorPage.assetWarning.incorrectFileExtension.attention} ${corruptFileName.toLocaleUpperCase()} ${strings.editorPage.assetWarning.incorrectFileExtension.text} ${corruptFileName.toLocaleUpperCase()}`, { delay: 3000 });
+                console.error(`${strings.editorPage.assetWarning.incorrectFileExtension.attention} ${corruptFileName.toLocaleUpperCase()} ${strings.editorPage.assetWarning.incorrectFileExtension.text} ${corruptFileName.toLocaleUpperCase()}`);
             }
         }
 
@@ -144,13 +233,21 @@ export class AssetService {
         }
     }
 
-    // If extension of a file was spoofed, we fetch only first 4 bytes of the file and read MIME type
+    // If extension of a file was spoofed, we fetch only first 4 or needed amount of bytes of the file and read MIME type
     public static async getMimeType(uri: string): Promise<string[]> {
-        const first4bytes: Response = await fetch(uri, { headers: { range: `bytes=0-${mimeBytesNeeded}` } });
+        const getFirst4bytes = (): Promise<Response> => this.pollForFetchAPI(() => fetch(uri, { headers: { range: `bytes=0-${mimeBytesNeeded}` } }), 1000, 200);
+        let first4bytes: Response;
+        try {
+            first4bytes = await getFirst4bytes()
+        } catch {
+            return new Promise<string[]>((resolve) => {
+                resolve(null);
+            });
+        }
         const arrayBuffer: ArrayBuffer = await first4bytes.arrayBuffer();
-        const blob = new Blob([new Uint8Array(arrayBuffer).buffer]);
+        const blob: Blob = new Blob([new Uint8Array(arrayBuffer).buffer]);
         const isMime = (bytes: Uint8Array, mime: IMime): boolean => {
-                return mime.pattern.every((p, i) => !p || bytes[i] === p);
+            return mime.pattern.every((p, i) => !p || bytes[i] === p);
         };
         const fileReader: FileReader = new FileReader();
 
@@ -208,14 +305,30 @@ export class AssetService {
     public async getAssets(): Promise<IAsset[]> {
         const folderPath = this.project.folderPath;
         const assets = await this.assetProvider.getAssets(folderPath);
-        const returnedAssets = assets.map((asset) => {
-            asset.name = decodeURIComponent(asset.name);
-            return asset;
-        }).filter((asset) => this.isInExactFolderPath(asset.name, folderPath));
-
-        return returnedAssets;
+        return this.filterAssets(assets, folderPath);
     }
 
+    private filterAssets = (assets, folderPath) => {
+        if (this.project.sourceConnection.providerType === "localFileSystemProxy") {
+            return assets.map((asset) => {
+                asset.name = decodeURIComponent(asset.name);
+                return asset;
+            })
+        } else {
+            return assets.map((asset) => {
+                asset.name = decodeURIComponent(asset.name);
+                return asset;
+            }).filter((asset) => this.isInExactFolderPath(asset.name, folderPath));
+        }
+    }
+    public async uploadBuffer(name: string, buffer: Buffer) {
+        const path = this.project.folderPath ? `${this.project.folderPath}/${name}` : name;
+        await this.storageProvider.writeBinary(path, buffer);
+    }
+    public async uploadText(name: string, contents: string) {
+        const path = this.project.folderPath ? `${this.project.folderPath}/${name}` : name;
+        await this.storageProvider.writeText(path, contents);
+    }
     /**
      * Delete asset
      * @param metadata - Metadata for asset
@@ -429,5 +542,38 @@ export class AssetService {
 
         const startsWithFolderPath = assetName.indexOf(`${normalizedPath}/`) === 0;
         return startsWithFolderPath && assetName.lastIndexOf("/") === normalizedPath.length;
+    }
+
+    /**
+     * Poll function to repeatedly check if request succeeded
+     * @param func - function that will be called repeatedly
+     * @param timeout - timeout
+     * @param interval - interval
+     */
+    private static pollForFetchAPI = (func, timeout, interval): Promise<any> => {
+        const endTime = Number(new Date()) + (timeout || 10000);
+        interval = interval || 100;
+
+        const checkSucceeded = (resolve, reject) => {
+            const ajax = func();
+            ajax.then(
+                response => {
+                    if (response.ok) {
+                        resolve(response);
+                    } else {
+                        // Didn't succeeded after too much time, reject
+                        reject("Timed out, please try other file or check your network setting.");
+                    }
+                }).catch(() => {
+                    if (Number(new Date()) < endTime) {
+                        // If the request isn't succeeded and the timeout hasn't elapsed, go again
+                        setTimeout(checkSucceeded, interval, resolve, reject);
+                    } else {
+                        // Didn't succeeded after too much time, reject
+                        reject("Timed out fetching file.");
+                    }
+                });
+        };
+        return new Promise(checkSucceeded);
     }
 }

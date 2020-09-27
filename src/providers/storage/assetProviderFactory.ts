@@ -12,7 +12,7 @@ import getHostProcess, { HostProcessType } from "../../common/hostProcess";
  */
 export interface IAssetProvider {
     initialize?(): Promise<void>;
-    getAssets(folderPath?: string): Promise<IAsset[]>;
+    getAssets(folderPath?: string, folderName?: string): Promise<IAsset[]>;
 }
 
 /**
