@@ -122,13 +122,19 @@ export const spanish: IAppStrings = {
     train: {
         modelNameTitle: "Nombre del modelo",
         labelFolderTitle: "URI de carpeta de etiquetas",
-        defaultLabelFolderURL: "https://example.com/folder",
+        defaultLabelFolderURL: "/shared",
         title: "Entrenar",
         training: "Entrenamiento",
         pleaseWait: "Por favor espera",
         notTrainedYet: "Aún no entrenado",
         backEndNotAvailable: "La función de casilla de verificación funcionará en la versión futura del servicio de reconocimiento de formularios, manténgase atento.",
-        addName:"Agregar nombre de modelo ...",
+        addName: "Agregar nombre de modelo ...",
+        downloadJson: "Descargar archivo JSON",
+        errors: {
+            electron: {
+                cantAccessFiles: "No se puede acceder a los archivos en '${folderUri}' para entrenamiento. Compruebe si el URI de la carpeta especificada es correcto."
+            }
+        }
     },
     modelCompose: {
         title: "Modelo componer",
@@ -157,7 +163,7 @@ export const spanish: IAppStrings = {
                 headerName: "Creada",
                 fieldName: "created",
             },
-            lastupdated: {
+            lastUpdated: {
                 headerName: "Última Actualización",
                 fieldName: "lastUpdated",
             },
@@ -168,6 +174,9 @@ export const spanish: IAppStrings = {
             NotEnoughModels: "Debe tener más de un modelo seleccionado para componer un nuevo modelo",
             modelsCannotBeIncluded: "Advertencia: ¡estos modelos no se incluirán en el modelo compuesto!",
             modelCannotBeIncluded: "Advertencia: ¡Este modelo no se incluirá en el modelo compuesto!",
+            addModelToRecentModels: "Modelo [${modelID}] agregado a modelos recientes",
+            recentModelsAlreadyContainsModel: "Los modelos recientes ya contienen el modelo [${modelID}]",
+            loadingDetails: "Cargando detalles del modelo ..."
         },
         commandBar: {
             ariaLabel: "Utilice la barra de comandos para componer modelos",
@@ -197,10 +206,19 @@ export const spanish: IAppStrings = {
         downloadScript: "Analizar con script python",
         defaultLocalFileInput: "Busca un archivo...",
         defaultURLInput: "Pegar o escribir URL...",
+        editAndUploadToTrainingSet: "Editar y cargar al conjunto de entrenamiento",
+        editAndUploadToTrainingSetNotify: "Al hacer clic en este botón, este formulario se agregará al Blob de Azure Storage para este proyecto, donde puede editar estas etiquetas.",
+        editAndUploadToTrainingSetNotify2: "Estamos agregando este archivo a su conjunto de entrenamiento, donde puede editar las etiquetas y volver a entrenar el modelo.",
+        uploadInPrgoress: "carga en curso...",
+        confirmDuplicatedAssetName: {
+            title: "El nombre del activo existe",
+            message: "El activo con el nombre '${name}' existe en el proyecto, ¿anularlo?"
+        }
     },
     recentModelsView: {
         header: "Seleccionar modelo para analizar con",
         checkboxAriaLabel: "Seleccione la casilla de verificación del modelo",
+        addToRecentModels: "Seleccionar para analizar con"
     },
     projectMetrics: {
         title: "Métricas del proyecto",
@@ -243,8 +261,9 @@ export const spanish: IAppStrings = {
             existingName: "Nombre de etiqueta ya existe. Elige otro nombre",
             emptyName: "El nombre de etiqueta no puede ser vacío",
             unknownTagName: "Desconocido",
-            notCompatibleTagType: "El tipo de etiqueta no es compatible con esta función",
+            notCompatibleTagType: "El tipo de etiqueta no es compatible con esta función. Si desea cambiar el tipo de esta etiqueta, elimine o reasigne todas las etiquetas que utilizan esta etiqueta en su proyecto.",
             checkboxPerTagLimit: "No se puede asignar más de una casilla de verificación por etiqueta",
+            notCompatibleWithDrawnRegionTag: "Los valores de drawnRegion y $ {otherCatagory} no pueden asignarse a la misma etiqueta del documento",
         },
         toolbar: {
             add: "Agregar nueva etiqueta",
@@ -272,6 +291,7 @@ export const spanish: IAppStrings = {
         messages: {
             saveSuccess: "${connection.name} guardado correctamente",
             deleteSuccess: "${connection.name} eliminado correctamente",
+            doNotAllowDuplicateNames: "La conexión con el nombre \"${connection.name}\" ya existe. Por favor, use otro nombre"
         },
         imageCorsWarning: "Advertencia: Cuando se usa VoTT en un navegador web, es posible que algunos activos de este \
                           Búsqueda de Imágenes Bing no se exporten correctamente debido a las restricciones de CORS \
@@ -321,7 +341,7 @@ export const spanish: IAppStrings = {
                 browse: "vistazo",
                 selectFolder: "Seleccionar la carpeta",
                 chooseFolder: "Elijir la carpeta",
-                invalidFolderMessage: "\"${project.sourceConnection.name}\" tiene una carpeta no válida Por favor verifique su carpeta seleccionada en la página de Conexiones",
+                invalidFolderMessage: "La conexión [${project.sourceConnection.providerOptions.folderPath}] y la carpeta del proyecto [${project.folderPath}] no son válidas. Compruebe las carpetas especificadas en las páginas Configuración de conexión y proyecto",
             },
         },
     },
@@ -375,6 +395,7 @@ export const spanish: IAppStrings = {
             incorrectFileExtension: {
                 attention: "¡Atención!",
                 text: "-- la extensión de este archivo no corresponde al tipo MIME. Por favor revise el archivo:",
+                failedToFetch: "No se pudo recuperar ${fileName} para la validación del tipo de mímica",
             },
         },
         assetError: "No se puede mostrar el activo",
@@ -407,11 +428,17 @@ export const spanish: IAppStrings = {
                             text: "Texto",
                             tables: "Tablas",
                             selectionMarks: "Marcas de selección (vista previa)",
+                            drawnRegions: "Regiones dibujadas (vista previa)",
                             labels: "Etiquetas"
                         },
-                    }
+                    },
+                    drawRegion: "Dibujar regiones",
                 },
                 farItems: {
+                    rotate: {
+                        clockwise: "Girar la imagen 90 ° en el sentido de las agujas del reloj",
+                        counterClockwise: "Girar la imagen 90 ° en sentido antihorario",
+                    },
                     zoom: {
                         zoomOut: "Alejar",
                         zoomIn: "Acercarse",
@@ -421,6 +448,8 @@ export const spanish: IAppStrings = {
                         subIMenuItems: {
                             runOcrOnCurrentDocument: "Ejecutar OCR en el documento actual",
                             runOcrOnAllDocuments: "Ejecute OCR en todos los documentos",
+                            runAutoLabelingCurrentDocument: "Ejecutar AutoLabeling en el documento actual",
+                            noPredictModelOnProject: "Predecir modelo no disponible, entrene el modelo primero.",
                         }
                     }
                 }
@@ -480,6 +509,17 @@ export const spanish: IAppStrings = {
                 backSpace: "Eliminar selección del mapa del documento o clave de selección de una etiqueta",
                 },
         },
+        drawnRegions: {
+            keys: {
+                escape: "Escape",
+                alt: "Alt",
+                backSpace: "Backspace",
+            },
+            description: {
+                deleteSelectedDrawnRegions: "Eliminar regiones dibujadas seleccionadas",
+                cancelDrawOrReshape: "Cancelar la modificación o remodelación de regiones",
+            }
+        },
         tips: {
             quickLabeling: {
                 name: "Etiquetado rápido",
@@ -490,8 +530,8 @@ export const spanish: IAppStrings = {
                 description: "Mantenga presionada la tecla Alt y haga clic en el nombre de la etiqueta, el usuario puede cambiar el nombre de la etiqueta.",
             },
             multipleWordSelection: {
-                name: "Selección de palabras múltiples",
-                description: "Haga clic y mantenga presionada la palabra, luego desplace el cursor sobre otras palabras para seleccionar varias palabras a la vez.",
+                name: "Seleccione varias palabras pasando el cursor con el puntero",
+                description: "Haga clic y mantenga presionada una palabra. Luego, coloca el cursor sobre palabras adicionales con el puntero.",
             },
             deleteAllLabelsForTag: {
                 name: "Eliminar información asociada a una etiqueta",

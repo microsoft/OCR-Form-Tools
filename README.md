@@ -1,3 +1,4 @@
+
 # Form OCR Testing Tool
 
 ## Features Preview
@@ -37,11 +38,12 @@ Form Labeling Tool requires [NodeJS (>= 10.x, Dubnium) and NPM](https://github.c
 
 ### Set up this tool with Docker
 
-Please see instructions [here](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/quickstarts/label-tool#set-up-the-sample-labeling-tool)
+Please see instructions [here](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/quickstarts/label-tool#set-up-the-sample-labeling-tool), and view our docker hub repository [here](https://hub.docker.com/_/microsoft-azure-cognitive-services-custom-form-labeltool?tab=description) for the latest container image info. The `latest-preview` and `latest` docker image tags track the preview and general availability releases of FOTT.
 
 ### Run as web application
 
-Using a modern Web browser, FOTT can be run directly at: https://fott.azurewebsites.net/
+Using a modern Web browser, FOTT can be run directly at: https://fott.azurewebsites.net/  (for Form Recognizer 2.0 GA services), and https://fott-preview.azurewebsites.net/  (for Form REcognizer 2.1-preview.* services). 
+Note: these web apps are for testing purpose only. 
 
 ### Run as desktop application
 
@@ -187,6 +189,23 @@ When you want to resume your project, you first need to create a connection to t
 
 Finally, go to the main page (house icon) and click Open Cloud Project. Then select the blob storage connection, and select your project's .proj file. The application will load all of the project's settings because it has the security token.
 
+##### Share a project
+
+FoTT allow sharing of projects with somebody who use the tool too and share access to same Azure Blob Storage container where a project is located.
+In order to share project follow these steps:
+
+###### On the sending side:
+
+1. Open the project you want to share in the tool. In the right top corner find and click "share" icon ![alt text](docs/images/share-icon.png "Share project menu icon").
+You should see a message pop-up saying that your share string been saved in your clipboard.
+2. Share the string in you clipboard via any convenient way for you.
+
+###### On the receiving side:
+
+1. Go to the "Home Page", and click on "Open Cloud Project".
+2. Insert shared string to appropriate field in the pop-up.
+3. Click okay.
+
 #### Keyboard Shortcuts and useful tips ####
 
 Labeling tool allows a number of keyboard shortcuts to support accessibility and also sometimes make labeling easier and faster. You can view them by clicking the following icon on the right side of the title bar:\
@@ -205,9 +224,12 @@ Hold Alt key and click on tag name, user can change the tag's name.
 To delete all labels for a tag - select all labels for a tag on document then press 'delete' key.
 
 ### **Disclaimer**
-For development purposes and for better understanding of our tool usage we are collecting some data, such as:
 
-custom events (training, model compose and prediction), Form recognizer API version, browser version, OS version, approximate location (according your ISP: country and city)  
+For development purposes and for better understanding of our tool usage we are [collecting*](#Data-Collection) some data, such as:
+
+custom events (training, model compose and prediction), Form recognizer API version, browser version, OS version, approximate location (according your ISP: country and city).
+
+ >**ℹ️Telemetry service feature is currently disabled**
 
 *If you do not like to share this information with us, feel free to delete telemetry key. It is located at ```src/common/constant.ts```. It should not affect any of the tool's operations.*
 
@@ -226,3 +248,8 @@ the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) o
 with any additional questions or comments.
 
 [简体中文](README.zh-cn.md)
+
+___
+
+#### ***Data Collection**
+ The software may collect information about you and your use of the software and send it to Microsoft. Microsoft may use this information to provide services and improve our products and services. You may turn off the telemetry as described in the repository. There are also some features in the software that may enable you and Microsoft to collect data from users of your applications. If you use these features, you must comply with applicable law, including providing appropriate notices to users of your applications together with a copy of Microsoft's privacy statement. Our privacy statement is located at https://go.microsoft.com/fwlink/?LinkID=824704. You can learn more about data collection and use in the help documentation and our privacy statement. Your use of the software operates as your consent to these practices.

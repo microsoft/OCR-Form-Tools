@@ -195,3 +195,16 @@ h4 {
         background: transparent;
     }
 }
+
+.model-information-container {
+    display: flex;
+    flex-flow: row wrap;
+}
+
+.model-information-prop {
+    min-width: 100px;
+}
+
+.composed-of-list .ms-DetailsHeader {
+    padding-top: 6px;
+}

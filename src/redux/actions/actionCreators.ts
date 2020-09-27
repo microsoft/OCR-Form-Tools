@@ -24,6 +24,7 @@ import {
     IUpdateProjectTagAction,
     IUpdateProjectTagsFromFilesAction,
     IUpdateTagDocumentCount,
+    IAddAssetToProjectAction,
 } from "./projectActions";
 import {
     IShowAppErrorAction,
@@ -83,6 +84,7 @@ export type AnyAction = IOtherAction |
     IDeleteConnectionAction |
     ILoadConnectionAction |
     ISaveConnectionAction |
+    IAddAssetToProjectAction|
     IDeleteConnectionAction |
     ILoadProjectAction |
     ICloseProjectAction |

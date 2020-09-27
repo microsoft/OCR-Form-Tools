@@ -6,7 +6,7 @@ import { FontIcon } from "@fluentui/react";
 
 export interface ITrainRecordProps {
     accuracies?: object;
-    averageAccuracy: number;
+    averageAccuracy?: number;
     modelInfo: {
         isComposed?: boolean;
         modelId: string;
