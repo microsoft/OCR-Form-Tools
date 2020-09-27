@@ -165,7 +165,11 @@ export default class ProjectService implements IProjectService {
         const storageProvider = StorageProviderFactory.createFromConnection(project.sourceConnection);
         let isValid;
         try {
-            isValid = await storageProvider.isValidProjectConnection();
+            if (project.sourceConnection.providerType === "localFileSystemProxy") {
+                isValid = await storageProvider.isValidProjectConnection(project.folderPath);
+            } else {
+                isValid = await storageProvider.isValidProjectConnection();
+            }
         } catch {
             isValid = false;
         }

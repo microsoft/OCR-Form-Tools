@@ -122,7 +122,7 @@ export const spanish: IAppStrings = {
     train: {
         modelNameTitle: "Nombre del modelo",
         labelFolderTitle: "URI de carpeta de etiquetas",
-        defaultLabelFolderURL: "https://example.com/folder",
+        defaultLabelFolderURL: "/shared",
         title: "Entrenar",
         training: "Entrenamiento",
         pleaseWait: "Por favor espera",
@@ -130,6 +130,11 @@ export const spanish: IAppStrings = {
         backEndNotAvailable: "La función de casilla de verificación funcionará en la versión futura del servicio de reconocimiento de formularios, manténgase atento.",
         addName: "Agregar nombre de modelo ...",
         downloadJson: "Descargar archivo JSON",
+        errors: {
+            electron: {
+                cantAccessFiles: "No se puede acceder a los archivos en '${folderUri}' para entrenamiento. Compruebe si el URI de la carpeta especificada es correcto."
+            }
+        }
     },
     modelCompose: {
         title: "Modelo componer",
@@ -201,6 +206,14 @@ export const spanish: IAppStrings = {
         downloadScript: "Analizar con script python",
         defaultLocalFileInput: "Busca un archivo...",
         defaultURLInput: "Pegar o escribir URL...",
+        editAndUploadToTrainingSet: "Editar y cargar al conjunto de entrenamiento",
+        editAndUploadToTrainingSetNotify: "Al hacer clic en este botón, este formulario se agregará al Blob de Azure Storage para este proyecto, donde puede editar estas etiquetas.",
+        editAndUploadToTrainingSetNotify2: "Estamos agregando este archivo a su conjunto de entrenamiento, donde puede editar las etiquetas y volver a entrenar el modelo.",
+        uploadInPrgoress: "carga en curso...",
+        confirmDuplicatedAssetName: {
+            title: "El nombre del activo existe",
+            message: "El activo con el nombre '${name}' existe en el proyecto, ¿anularlo?"
+        }
     },
     recentModelsView: {
         header: "Seleccionar modelo para analizar con",
@@ -328,7 +341,7 @@ export const spanish: IAppStrings = {
                 browse: "vistazo",
                 selectFolder: "Seleccionar la carpeta",
                 chooseFolder: "Elijir la carpeta",
-                invalidFolderMessage: "\"${project.sourceConnection.name}\" tiene una carpeta no válida Por favor verifique su carpeta seleccionada en la página de Conexiones",
+                invalidFolderMessage: "La conexión [${project.sourceConnection.providerOptions.folderPath}] y la carpeta del proyecto [${project.folderPath}] no son válidas. Compruebe las carpetas especificadas en las páginas Configuración de conexión y proyecto",
             },
         },
     },
@@ -422,6 +435,10 @@ export const spanish: IAppStrings = {
                     drawRegion: "Dibujar regiones",
                 },
                 farItems: {
+                    rotate: {
+                        clockwise: "Girar la imagen 90 ° en el sentido de las agujas del reloj",
+                        counterClockwise: "Girar la imagen 90 ° en sentido antihorario",
+                    },
                     zoom: {
                         zoomOut: "Alejar",
                         zoomIn: "Acercarse",
@@ -431,6 +448,8 @@ export const spanish: IAppStrings = {
                         subIMenuItems: {
                             runOcrOnCurrentDocument: "Ejecutar OCR en el documento actual",
                             runOcrOnAllDocuments: "Ejecute OCR en todos los documentos",
+                            runAutoLabelingCurrentDocument: "Ejecutar AutoLabeling en el documento actual",
+                            noPredictModelOnProject: "Predecir modelo no disponible, entrene el modelo primero.",
                         }
                     }
                 }

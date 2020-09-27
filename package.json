@@ -50,7 +50,7 @@
         "yarn": "^1.22.4"
     },
     "scripts": {
-        "start": "nf start -p 3000",
+        "start": "env-cmd -f .env.electron nf start -p 3000",
         "compile": "tsc",
         "build": "react-scripts build",
         "react-start": "react-scripts start",
@@ -63,7 +63,7 @@
         "electron:start:dev": "yarn electron-start",
         "electron:start:prod": "yarn webpack:prod && yarn electron-start",
         "electron-start": "node src/electron/start",
-        "release": "yarn build && yarn webpack:prod && yarn electron-builder",
+        "release": "env-cmd -f .env.electron yarn build && yarn webpack:prod && yarn electron-builder",
         "tslint": "./node_modules/.bin/tslint 'src/**/*.ts*'",
         "tslintfix": "./node_modules/.bin/tslint 'src/**/*.ts*' --fix"
     },
@@ -100,6 +100,7 @@
         "acorn": "^7.1.1",
         "electron": "8.3.0",
         "electron-builder": "^22.6.1",
+        "env-cmd": "^10.1.0",
         "enzyme": "^3.10.0",
         "enzyme-adapter-react-16": "^1.15.1",
         "eslint-utils": "^1.4.3",
@@ -107,6 +108,7 @@
         "jquery": "^3.5.0",
         "kind-of": "^6.0.3",
         "minimist": "^1.2.2",
+        "node-forge": "^0.10.0",
         "node-sass": "^4.14.1",
         "pdfjs-dist": "^2.4.456",
         "react-scripts": "3.4.1",

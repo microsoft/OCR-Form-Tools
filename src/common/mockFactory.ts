@@ -339,7 +339,7 @@ export default class MockFactory {
     public static createAssetProvider(): IAssetProvider {
         return {
             initialize: jest.fn(() => Promise.resolve()),
-            getAssets(folderPath?: string): Promise<IAsset[]> {
+            getAssets(folderPath?: string, folderName?: string): Promise<IAsset[]> {
                 throw new Error("Method not implemented.");
             },
         };
@@ -475,6 +475,7 @@ export default class MockFactory {
             saveProject: jest.fn(() => Promise.resolve()),
             deleteProject: jest.fn(() => Promise.resolve()),
             closeProject: jest.fn(() => Promise.resolve()),
+            addAssetToProject: jest.fn(() => Promise.resolve()),
             deleteAsset: jest.fn(() => Promise.resolve()),
             loadAssets: jest.fn(() => Promise.resolve()),
             loadAssetMetadata: jest.fn(() => Promise.resolve()),

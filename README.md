@@ -38,11 +38,12 @@ Form Labeling Tool requires [NodeJS (>= 10.x, Dubnium) and NPM](https://github.c
 
 ### Set up this tool with Docker
 
-Please see instructions [here](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/quickstarts/label-tool#set-up-the-sample-labeling-tool)
+Please see instructions [here](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/quickstarts/label-tool#set-up-the-sample-labeling-tool), and view our docker hub repository [here](https://hub.docker.com/_/microsoft-azure-cognitive-services-custom-form-labeltool?tab=description) for the latest container image info. The `latest-preview` and `latest` docker image tags track the preview and general availability releases of FOTT.
 
 ### Run as web application
 
-Using a modern Web browser, FOTT can be run directly at: https://fott.azurewebsites.net/
+Using a modern Web browser, FOTT can be run directly at: https://fott.azurewebsites.net/  (for Form Recognizer 2.0 GA services), and https://fott-preview.azurewebsites.net/  (for Form REcognizer 2.1-preview.* services). 
+Note: these web apps are for testing purpose only. 
 
 ### Run as desktop application
 

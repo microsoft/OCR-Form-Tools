@@ -163,11 +163,14 @@ export default class LocalFileSystem implements IStorageProvider {
         });
     }
 
-    public async getAssets(folderPath?: string): Promise<IAsset[]> {
+    public async getAssets(folderPath?: string, folderName?: string): Promise<IAsset[]> {
+        folderPath = [folderPath, folderName].join("/");
         const result: IAsset[] = [];
         const files = await this.listFiles(path.normalize(folderPath));
         for (const file of files) {
-            const asset = await AssetService.createAssetFromFilePath(file, undefined, true);
+            const fileParts = file.split(/[\\\/]/);
+            const fileName = fileParts[fileParts.length - 1];
+            const asset = await AssetService.createAssetFromFilePath(file, folderName + "/" + fileName, true);
             if (this.isSupportedAssetType(asset.type)) {
                 const labelFileName = decodeURIComponent(`${file}${constants.labelFileExtension}`);
                 const ocrFileName = decodeURIComponent(`${file}${constants.ocrFileExtension}`);
