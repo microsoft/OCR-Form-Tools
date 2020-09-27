@@ -76,6 +76,7 @@ export interface ITagInputProps {
     onLabelLeave: (label: ILabel) => void;
     /** Function to handle tag change */
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
+    notifyMultiSelectionTool?: () => void;
 }
 
 export interface ITagInputState {
@@ -480,10 +481,11 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 const { category } = selectedRegions[0];
                 const { format, type, documentCount, name } = tag;
                 const tagCategory = this.getTagCategory(type);
-                const isTagLabelTypeDrawnRegion = this.labelAssignedDrawnRegion(labels, tag.name);
-                const labelAssigned = this.labelAssigned(labels, name);
+                const label = this.getLabel(labels, name);
+                const isTagLabelTypeDrawnRegion = this.isLabelDrawnRegion(label);
+                this.notifyMultiSelectionToolCheck(label);
 
-                if (labelAssigned && ((category === FeatureCategory.DrawnRegion) !== isTagLabelTypeDrawnRegion)) {
+                if (label && ((category === FeatureCategory.DrawnRegion) !== isTagLabelTypeDrawnRegion)) {
                     if (isTagLabelTypeDrawnRegion) {
                         toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, {otherCatagory: category}));
                     } else if (tagCategory === FeatureCategory.Checkbox) {
@@ -494,14 +496,19 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     return;
                 } else if (tagCategory === category || category === FeatureCategory.DrawnRegion ||
                     (documentCount === 0 && type === FieldType.String && format === FieldFormat.NotSpecified)) {
-                    if (tagCategory === FeatureCategory.Checkbox && labelAssigned) {
+                    if (tagCategory === FeatureCategory.Checkbox && label) {
                         toast.warn(strings.tags.warnings.checkboxPerTagLimit);
                         return;
                     }
                     onTagClick(tag);
                     deselect = false;
                 } else {
-                    toast.warn(strings.tags.warnings.notCompatibleTagType, {autoClose: 7000});
+                    if (label) {
+                        toast.warn(strings.tags.warnings.labeledNotCompatibleTagType, {autoClose: 7000});
+                    } else {
+                        toast.warn(strings.tags.warnings.emptyNotCompatibleTagType, {autoClose: 7000});
+                    }
+                    return;
                 }
             }
             this.setState({
@@ -511,22 +518,18 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         }
     }
 
-    public labelAssigned = (labels: ILabel[], name): boolean => {
-         const label = labels.find((label) => label.label === name ? true : false);
-         if (!label) {
-             return false;
-         } else {
-             return true;
-         }
+    public notifyMultiSelectionToolCheck = (label: ILabel) => {
+        if (label?.value?.length > 10) {
+            this.props.notifyMultiSelectionTool();
+        }
     }
 
-    public labelAssignedDrawnRegion = (labels: ILabel[], name): boolean => {
-        const label = labels.find((label) => label.label === name ? true : false);
-        if (label?.labelType === FeatureCategory.DrawnRegion) {
-            return true;
-        } else {
-            return false;
-        }
+    public getLabel = (labels: ILabel[], name): ILabel => {
+         return labels.find((label) => label.label === name);
+    }
+
+    public isLabelDrawnRegion = (label: ILabel): boolean => {
+        return label?.labelType === FeatureCategory.DrawnRegion;
     }
 
     public getTagCategory = (tagType: string) => {

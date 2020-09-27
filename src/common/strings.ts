@@ -274,7 +274,8 @@ export interface IAppStrings {
             existingName: string,
             emptyName: string,
             unknownTagName: string,
-            notCompatibleTagType: string,
+            labeledNotCompatibleTagType: string,
+            emptyNotCompatibleTagType: string,
             checkboxPerTagLimit: string,
             notCompatibleWithDrawnRegionTag: string,
         }

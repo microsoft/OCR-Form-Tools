@@ -126,7 +126,7 @@ export const english: IAppStrings = {
         training: "Training",
         pleaseWait: "Please wait",
         notTrainedYet: "Not trained yet",
-        backEndNotAvailable: "Checkbox feature will work in future version of Form Recognizer service, please stay tuned.",
+        backEndNotAvailable: "Selection mark feature will work in future version of Form Recognizer service, please stay tuned.",
         addName: "Add a model name...",
         downloadJson: "Download JSON file",
         errors: {
@@ -262,9 +262,10 @@ export const english: IAppStrings = {
             existingName: "Tag name already exists. Choose another name",
             emptyName: "Cannot have an empty tag name",
             unknownTagName: "Unknown",
-            notCompatibleTagType: "Tag type is not compatible with this feature. If you want to change type of this tag, please remove or reassign all labels which using this tag in your project.",
-            checkboxPerTagLimit: "Cannot assign more than one checkbox per tag",
-            notCompatibleWithDrawnRegionTag: "Drawn regions and ${otherCatagory} values cannot both be assigned to the same document's tag",
+            emptyNotCompatibleTagType: "Tag type is not compatible with selected regions. To change tag type, select another type from the tag's drop-down menu",
+            labeledNotCompatibleTagType: "Tag type is not compatible with selected regions. To change tag type, remove all labels for this tag in your project and select another type from the tag's drop-down menu",
+            checkboxPerTagLimit: "Cannot assign more than one selection mark to tag per document",
+            notCompatibleWithDrawnRegionTag: "Drawn regions and ${otherCatagory} regions cannot both be assigned to the same document's tag",
         },
         toolbar: {
             add: "Add new tag",

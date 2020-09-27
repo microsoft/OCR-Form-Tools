@@ -142,6 +142,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private deleteTagConfirm: React.RefObject<Confirm> = React.createRef();
     private deleteDocumentConfirm: React.RefObject<Confirm> = React.createRef();
     private isUnmount: boolean = false;
+    private hasShownMultiSelectionTool: boolean = false;
 
     constructor(props) {
         super(props);
@@ -277,6 +278,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             closeTableView={this.closeTableView}
                                             runOcrForAllDocs={this.loadOcrForNotVisited}
                                             appSettings={this.props.appSettings}
+                                            notifyMultiSelectionTool={this.notifyMultiSelectionTool}
                                         >
                                             <AssetPreview
                                                 controlsEnabled={this.state.isValid}
@@ -303,6 +305,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     onLabelLeave={this.onLabelLeave}
                                     onTagChanged={this.onTagChanged}
                                     ref={this.tagInputRef}
+                                    notifyMultiSelectionTool={this.notifyMultiSelectionTool}
                                 />
                                 <Confirm
                                     title={strings.editorPage.tags.rename.title}
@@ -405,6 +408,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      * @param tag Tag clicked
      */
     private onTagClicked = (tag: ITag): void => {
+        this.canvas.current.setSelectedRegionOneByOneCount(0);
         this.setState({
             selectedTag: tag.name,
             lockedTags: [],
@@ -500,10 +504,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             const tagCategory = this.tagInputRef.current.getTagCategory(tag.type);
             const category = selection[0].category;
             const labels = this.state.selectedAsset.labelData.labels;
-            const isTagLabelTypeDrawnRegion = this.tagInputRef.current.labelAssignedDrawnRegion(labels, tag.name);
-            const labelAssigned = this.tagInputRef.current.labelAssigned(labels, name);
+            const label = this.tagInputRef.current.getLabel(labels, name);
+            const isTagLabelTypeDrawnRegion = this.tagInputRef.current.isLabelDrawnRegion(label);
+            this.tagInputRef.current.notifyMultiSelectionToolCheck(label);
 
-            if (labelAssigned && ((category === FeatureCategory.DrawnRegion) !== isTagLabelTypeDrawnRegion)) {
+            if (label && ((category === FeatureCategory.DrawnRegion) !== isTagLabelTypeDrawnRegion)) {
                 if (isTagLabelTypeDrawnRegion) {
                     toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, { otherCatagory: category }));
                 } else if (tagCategory === FeatureCategory.Checkbox) {
@@ -514,14 +519,18 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 return;
             } else if (tagCategory === category || category === FeatureCategory.DrawnRegion ||
                 (documentCount === 0 && type === FieldType.String && format === FieldFormat.NotSpecified)) {
-                if (tagCategory === FeatureCategory.Checkbox && labelAssigned) {
+                if (tagCategory === FeatureCategory.Checkbox && label) {
                     toast.warn(strings.tags.warnings.checkboxPerTagLimit);
                     return;
                 }
                 this.onTagClicked(tag);
             } else {
-                toast.warn(strings.tags.warnings.notCompatibleTagType, { autoClose: 7000 });
-            }
+                if (label) {
+                    toast.warn(strings.tags.warnings.labeledNotCompatibleTagType, {autoClose: 7000});
+                } else {
+                    toast.warn(strings.tags.warnings.emptyNotCompatibleTagType, {autoClose: 7000});
+                }
+                return;            }
         }
         // do nothing if region was not selected
     }
@@ -593,6 +602,13 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             item.cachedImage = (contentSource as HTMLImageElement).src;
             assets[assetIndex] = item;
             this.setState({ assets });
+        }
+    }
+
+    private notifyMultiSelectionTool = () => {
+        if (!this.hasShownMultiSelectionTool) {
+            toast.info("You can label multiple values easily with the multi-selection tool. See keyboard shortcuts for more info");
+            this.hasShownMultiSelectionTool = true;
         }
     }
 
