@@ -547,7 +547,10 @@ export const spanish: IAppStrings = {
             keyboardShortcuts: "Atajos de teclado",
             otherTips: "Otros consejos",
         },
-        iconTitle: "Atajos de teclado y consejos útiles"
+        iconTitle: "Atajos de teclado y consejos útiles",
+        notifications: {
+            multiSelection: "Puede etiquetar varios valores fácilmente con la herramienta de selección múltiple. Ver atajos de teclado para más información",
+        }
     },
     errors: {
         unknown: {

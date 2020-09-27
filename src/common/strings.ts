@@ -541,6 +541,9 @@ export interface IAppStrings {
             otherTips: string,
         },
         iconTitle: string,
+        notifications: {
+            multiSelection: string,
+        }
     };
     errors: {
         unknown: IErrorMetadata,

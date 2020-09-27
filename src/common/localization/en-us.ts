@@ -546,7 +546,10 @@ export const english: IAppStrings = {
             keyboardShortcuts: "Keyboard shortcuts",
             otherTips: "Other tips",
         },
-        iconTitle: "Keyboard shortcuts and useful tips"
+        iconTitle: "Keyboard shortcuts and useful tips",
+        notifications: {
+            multiSelection: "You can label multiple values easily with the multi-selection tool. See keyboard shortcuts for more info",
+        }
     },
     errors: {
         unknown: {
