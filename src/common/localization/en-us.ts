@@ -264,7 +264,7 @@ export const english: IAppStrings = {
             unknownTagName: "Unknown",
             emptyNotCompatibleTagType: "Tag type is not compatible with selected regions. To change tag type, select another type from the tag's drop-down menu",
             labeledNotCompatibleTagType: "Tag type is not compatible with selected regions. To change tag type, remove all labels for this tag in your project and select another type from the tag's drop-down menu",
-            checkboxPerTagLimit: "Cannot assign more than one selection mark to tag per document",
+            checkboxPerTagLimit: "Cannot assign more than one selection mark region to a tag per document",
             notCompatibleWithDrawnRegionTag: "Drawn regions and ${otherCatagory} regions cannot both be assigned to the same document's tag",
         },
         toolbar: {
