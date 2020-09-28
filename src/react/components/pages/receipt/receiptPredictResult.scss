@@ -1,0 +1,187 @@
+@import "../../../../index.scss";
+
+.predictiontag {
+    &-item-block {
+        margin: 2px 0;
+    }
+
+    &-item {
+        display: flex;
+        flex-direction: row;
+        height: 27px;
+        line-height: 27px;
+        margin-left: -1rem;
+        margin-right: -1rem;
+
+        &-selected {
+            .tag-content {
+                color: white;
+                margin: 1px 1px 1px 0;
+                background: $darker-10 !important;
+            }
+        }
+
+        &-applied {
+            .tag-content {
+                color: #fff;
+                font-weight: 600;
+                background: $darker-10 !important;
+            }
+        }
+
+        &-label {
+            display: flex;
+            flex-direction: row;
+            margin-top: 2px;
+            margin-bottom: 2px;
+            padding-left: 3px;
+            font-size: 0.95em;
+        }
+    }
+
+    &-content {
+        flex: 1;
+        background: $darker-15;
+    }
+
+    &-content:hover {
+        background: $darker-8;
+    }
+
+    &-name {
+        &-body {
+            flex-grow: 1;
+        }
+
+        &-editor {
+            background: transparent;
+            border: none;
+            color: #fff;
+
+            &:focus {
+                outline: none;
+            }
+        }
+
+        &-container {
+            display: flex;
+            flex-direction: row;
+            min-height: 1.8em;
+            align-items: center;
+        }
+
+        &-text {
+            max-width: 195px;
+            display: block;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+    }
+
+    &-confidence {
+        flex-basis: 70px;
+        padding: 0 5px;
+        text-align: right;
+    }
+
+    &-item:hover {
+        color: #fff;
+        background: $lighter-4;
+        cursor: pointer;
+    }
+
+    &-item-label:hover {
+        color: #fff;
+        background: $lighter-4;
+        cursor: pointer;
+    }
+
+    &-color-edit:hover {
+        background: $darker-1;
+        cursor: pointer;
+    }
+
+    &-color {
+        width: 2.2rem;
+        font-size: xx-small;
+        text-align: center;
+    }
+
+    &-lock-icon {
+        font-size: 90%;
+    }
+
+    &-input {
+        &-color-picker {
+            position: absolute;
+            z-index: 1;
+        }
+
+        &-toolbar {
+            display: flex;
+            flex-direction: row;
+            &-item {
+                color: #ccc;
+                padding: 1px;
+            }
+            &-item:hover {
+                color: white;
+                cursor: pointer;
+            }
+        }
+    }
+}
+
+.prediction-header {
+    text-align: center;
+}
+
+.prediction-header-result {
+    display: inline;
+    vertical-align: middle;
+    padding-right: 8px;
+}
+
+.prediction-header-download {
+    vertical-align: middle;
+}
+
+.prediction-field-header {
+    margin-bottom: 5px;
+    display: grid;
+    grid-template-columns: auto auto;
+    align-content: end;
+}
+
+.prediction-field-header-field {
+    margin-bottom: 0px;
+    align-self: center;
+}
+
+.prediction-field-header-confidence {
+    margin-bottom: 0px;
+    justify-self: end;
+    align-self: center;
+}
+
+.prediction-header-clear {
+    height: 0;
+    clear: both;
+}
+
+div.github-picker > span > div {
+    margin: 2px;
+}
+
+div.circle-picker-container {
+    background: #252526;
+}
+
+.results-container {
+    margin-top: 30px;
+    margin-bottom: 7px;
+}
+.results-header {
+    margin-bottom: 0px;
+}

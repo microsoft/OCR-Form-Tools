@@ -1,0 +1,120 @@
+@import '../../../../assets/sass/theme.scss';
+
+.model-select {
+  margin: 5px 0 5px 0;
+}
+
+.predict {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: row;
+  height: 10px; // Not sure why it helps
+}
+
+.predict-main {
+  position: relative;
+  display: flex;
+  flex-grow: 1;
+  height: 100%;
+  justify-content: center;
+  > i {
+    font-size: 36pt;
+  }
+}
+
+.predict-sidebar {
+  height: 100%;
+  display: flex;
+  width: 400px;
+  min-width: 400px;
+}
+
+.input-disabled {
+  color: #bbb;
+  background-color: white;
+}
+
+.dummyInputFile {
+  color: #757575;
+  border: 1px;
+  padding: 4px;
+  padding-left: 8px;
+  padding-right: 8px;
+  border-radius: 2px;
+  width: 100%;
+  flex: 1;
+}
+
+.seperator {
+  margin: 20px 10px;
+  position: relative;
+  background-color: inherit;
+  width: 45%;
+  display: inline-block;
+}
+
+.seperator:before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  border-top: 1px solid white;
+  background: white;
+  width: 100%;
+  transform: translateY(-50%);
+}
+
+.sourceDropdown {
+  width: 95px;
+  margin-bottom: 10px;
+}
+
+.predict-button {
+  margin-bottom: 20px;
+}
+
+.no-models-warning {
+  margin-top: 8px;
+}
+
+.model-selection-container {
+  padding-top: 8px;
+  padding-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.model-selection-header {
+  margin-bottom: 4px;
+}
+
+.model-selection-info-header {
+  margin-bottom: 0px;
+}
+
+.model-selection-info-key {
+  font-size: 12px;
+  color: #d1d1d1;
+  min-width: 80px;
+  float: left;
+}
+
+.model-selection-info-value {
+  max-width: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: #d1d1d1;
+  float: left;
+}
+
+.apikeyContainer {
+    display: flex;
+    margin-bottom: 30px;
+  }
+
+  .apikey {
+    width: 100%;
+  }
+
