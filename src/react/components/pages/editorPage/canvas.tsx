@@ -236,7 +236,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     key={"Delete"}
                     keyEventType={KeyEventType.KeyDown}
                     accelerators={["Escape", "Alt+Backspace", "Shift", "Delete", "Backspace", "<", ",", ">", ".",
-                        "{", "[", "}", "]", "+", "-", "/", "=", "_", "?"]}
+                        "{", "[", "}", "]", "+", "-", "=", "_", "|", "\\"]}
                     handler={this.handleKeyDown}
                 />
                 <KeyboardBinding
@@ -1484,8 +1484,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 this.handleCanvasZoomOut();
                 break;
 
-            case "/":
-            case "?":
+            case "\\":
+            case "|":
                 this.handleZoomReset();
                 break;
 

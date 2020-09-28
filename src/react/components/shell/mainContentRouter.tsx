@@ -12,13 +12,15 @@ import ProjectSettingsPage from "../pages/projectSettings/projectSettingsPage";
 import ModelComposePage from "../pages/modelCompose/modelCompose";
 import { PredictPageRoute } from './preditcPageRoute';
 
-
+interface IMainContentRouterProps {
+    setShowKeyboardShortcuts: (...params: any[]) => void;
+}
 /**
  * @name - Main Content Router
  * @description - Controls main content pane based on route
  */
 
-export function MainContentRouter() {
+export function MainContentRouter(propsMain: IMainContentRouterProps) {
     return (
         <div className="app-content text-light">
             <Switch>
@@ -26,7 +28,7 @@ export function MainContentRouter() {
                 <Route path="/settings" component={AppSettingsPage} />
                 <Route path="/connections/:connectionId" component={ConnectionPage} />
                 <Route path="/connections" exact component={ConnectionPage} />
-                <Route path="/projects/:projectId/edit" component={EditorPage} />
+                <Route path="/projects/:projectId/edit" render={(props) => <EditorPage {...props} setShowKeyboardShortcuts={propsMain.setShowKeyboardShortcuts} />}/>
                 <Route path="/projects/create" component={ProjectSettingsPage} />
                 <Route path="/projects/:projectId/modelcompose" component={ModelComposePage} />
                 <Route path="/projects/:projectId/train" component={TrainPage} />

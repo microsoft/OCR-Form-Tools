@@ -7,7 +7,7 @@ import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import SplitPane from "react-split-pane";
 import { bindActionCreators } from "redux";
-import { PrimaryButton } from "@fluentui/react";
+import { PrimaryButton, TeachingBubble } from "@fluentui/react";
 import HtmlFileReader from "../../../../common/htmlFileReader";
 import { strings, interpolate } from "../../../../common/strings";
 import {
@@ -39,6 +39,7 @@ import { getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/the
 import { toast } from "react-toastify";
 import { PredictService } from "../../../../services/predictService";
 import { AssetService } from "../../../../services/assetService";
+import { TeachingBubbleBasic } from "../../common/teachingBubbleBasic/teachingBubbleBasic";
 
 /**
  * Properties for Editor Page
@@ -48,12 +49,13 @@ import { AssetService } from "../../../../services/assetService";
  * @member applicationActions - Application setting actions
  */
 export interface IEditorPageProps extends RouteComponentProps, React.Props<EditorPage> {
-    project: IProject;
-    recentProjects: IProject[];
-    appSettings: IAppSettings;
-    actions: IProjectActions;
-    applicationActions: IApplicationActions;
-    appTitleActions: IAppTitleActions;
+    project?: IProject;
+    recentProjects?: IProject[];
+    appSettings?: IAppSettings;
+    actions?: IProjectActions;
+    applicationActions?: IApplicationActions;
+    appTitleActions?: IAppTitleActions;
+    setShowKeyboardShortcuts?: (...params: any[]) => void;
 }
 
 /**
@@ -95,6 +97,7 @@ export interface IEditorPageState {
     errorMessage?: string;
     tableToView: object;
     tableToViewId: string;
+    showTeachingBubble: boolean;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -131,6 +134,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         hoveredLabel: null,
         tableToView: null,
         tableToViewId: null,
+        showTeachingBubble: false,
     };
 
     private tagInputRef: RefObject<TagInput>;
@@ -332,6 +336,17 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                         }
                                         confirmButtonTheme={getPrimaryRedTheme()}
                                         onConfirm={this.onAssetDeleted}
+                                    />
+                                }
+                                {this.state.showTeachingBubble &&
+                                    <TeachingBubbleBasic
+                                        primary={strings.shortcuts.teachingBubble.multiSelection.primary}
+                                        secondary={strings.shortcuts.teachingBubble.multiSelection.secondary}
+                                        headline={strings.shortcuts.teachingBubble.multiSelection.headline}
+                                        target="#keyboard-shortcuts-id"
+                                        onClick={this.props.setShowKeyboardShortcuts}
+                                        onDismiss={() => this.setState({showTeachingBubble: false})                                }
+                                        message={strings.shortcuts.teachingBubble.multiSelection.message}
                                     />
                                 }
                             </div>
@@ -607,7 +622,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     private notifyMultiSelectionTool = () => {
         if (!this.hasShownMultiSelectionTool) {
-            toast.info("You can label multiple values easily with the multi-selection tool. See keyboard shortcuts for more info");
+            this.setState({showTeachingBubble: true})
             this.hasShownMultiSelectionTool = true;
         }
     }

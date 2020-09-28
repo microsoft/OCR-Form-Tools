@@ -468,6 +468,14 @@ export const spanish: IAppStrings = {
         settings: "Configuración de Perfíl",
     },
     shortcuts: {
+        openKeyboardShortcuts: {
+            keys: {
+                forwardSlash: "/",
+                },
+            description: {
+                openKeyboardShortcuts: "Abre atajos de teclado",
+            },
+        },
         squareBrackets: {
             keys: {
                 leftBracket: "[",
@@ -548,8 +556,14 @@ export const spanish: IAppStrings = {
             otherTips: "Otros consejos",
         },
         iconTitle: "Atajos de teclado y consejos útiles",
-        notifications: {
-            multiSelection: "Puede etiquetar varios valores fácilmente con la herramienta de selección múltiple. Ver atajos de teclado para más información",
+        teachingBubble: {
+            multiSelection: {
+                primary: "Ver atajos de teclado",
+                secondary: "Quizas mas tarde",
+                headline: "Consejo de etiquetado",
+                message: "Puede etiquetar varias regiones fácilmente con herramientas de selección múltiple. Ver atajos de teclado para más información",
+
+            }
         }
     },
     errors: {

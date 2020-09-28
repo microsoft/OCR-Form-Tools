@@ -461,6 +461,14 @@ export interface IAppStrings {
         settings: string,
     };
     shortcuts: {
+        openKeyboardShortcuts: {
+            keys: {
+                forwardSlash: string,
+            },
+            description: {
+                openKeyboardShortcuts: string,
+            },
+        },
         squareBrackets: {
             keys: {
                 leftBracket: string,
@@ -541,8 +549,13 @@ export interface IAppStrings {
             otherTips: string,
         },
         iconTitle: string,
-        notifications: {
-            multiSelection: string,
+        teachingBubble: {
+            multiSelection: {
+                primary: string;
+                secondary: string;
+                headline: string;
+                message: string;
+            }
         }
     };
     errors: {
