@@ -126,7 +126,7 @@ export const english: IAppStrings = {
         training: "Training",
         pleaseWait: "Please wait",
         notTrainedYet: "Not trained yet",
-        backEndNotAvailable: "Checkbox feature will work in future version of Form Recognizer service, please stay tuned.",
+        backEndNotAvailable: "Selection mark feature will work in a future version of Form Recognizer service, please stay tuned.",
         addName: "Add a model name...",
         downloadJson: "Download JSON file",
         errors: {
@@ -262,9 +262,10 @@ export const english: IAppStrings = {
             existingName: "Tag name already exists. Choose another name",
             emptyName: "Cannot have an empty tag name",
             unknownTagName: "Unknown",
-            notCompatibleTagType: "Tag type is not compatible with this feature. If you want to change type of this tag, please remove or reassign all labels which using this tag in your project.",
-            checkboxPerTagLimit: "Cannot assign more than one checkbox per tag",
-            notCompatibleWithDrawnRegionTag: "Drawn regions and ${otherCatagory} values cannot both be assigned to the same document's tag",
+            emptyNotCompatibleTagType: "Tag type is not compatible with selected regions. To change tag type, select another type from the tag's drop-down menu",
+            labeledNotCompatibleTagType: "Tag type is not compatible with selected regions. To change tag type, remove all labels for this tag in your project and select another type from the tag's drop-down menu",
+            checkboxPerTagLimit: "Cannot assign more than one selection mark region to a tag per document",
+            notCompatibleWithDrawnRegionTag: "Drawn regions and ${otherCatagory} regions cannot both be assigned to the same document's tag",
         },
         toolbar: {
             add: "Add new tag",
@@ -466,14 +467,22 @@ export const english: IAppStrings = {
         settings: "Profile Settings",
     },
     shortcuts: {
+        openKeyboardShortcuts: {
+            keys: {
+                forwardSlash: "/",
+                },
+            description: {
+                openKeyboardShortcuts: "Open keyboard shortcuts and useful tips",
+            },
+        },
         squareBrackets: {
             keys: {
                 leftBracket: "[",
                 rightBracket: "]",
             },
             description: {
-                prevWord: "Select previous word",
-                nextWord: "Select next word",
+                prevWord: "Select previous region",
+                nextWord: "Select next region",
             },
         },
         greaterAndLessThan: {
@@ -490,7 +499,7 @@ export const english: IAppStrings = {
             keys: {
                 minus: "-",
                 plus: "=",
-                slash: "/",
+                slash: "\\",
                 },
             description: {
                 in: "Zoom in",
@@ -504,8 +513,8 @@ export const english: IAppStrings = {
                 backSpace: "Backspace",
                 },
             description: {
-                delete: "Remove selection and delete labels of selected words",
-                backSpace: "Remove selection and delete labels of selected words",
+                delete: "Remove selection and delete labels of selected regions",
+                backSpace: "Remove selection and delete labels of selected regions",
                 },
         },
         drawnRegions: {
@@ -522,30 +531,39 @@ export const english: IAppStrings = {
         tips: {
             quickLabeling: {
                 name: "Lable with hot keys",
-            description: "Hotkeys 1 through 0 and all letters are assigned to first 36 tags. After selecting one or multiple words, press tag's assigned hotkey.",
+            description: "Hotkeys 1 through 0 and all letters are assigned to first 36 tags. After selecting one or multiple regions, press tag's assigned hotkey.",
             },
             renameTag: {
                 name: "Rename tag",
                 description: "Hold Alt key and click on tag name.",
             },
             multipleWordSelection: {
-                name: "Select multiple words by dragging pointer across words",
-                description: "Click and hold on a word. Then, hover over additional words with pointer.",
+                name: "Select multiple regions by dragging pointer across regions",
+                description: "Click and hold on a region. Then, hover over additional regions with pointer.",
             },
             deleteAllLabelsForTag: {
                 name: "Delete all labels for a tag",
                 description: "Select all labels for a tag on document and press 'delete' key"
             },
             groupSelect: {
-                name: "Select multiple words by drawing a bounding box around encompased words",
-                description: "Press and hold the shift key. Then, click and hold left mouse button. Then, drag the pointer to draw the bounding box around encompased words"
+                name: "Select multiple regions by drawing a bounding box around encompased regions",
+                description: "Press and hold the shift key. Then, click and hold left mouse button. Then, drag the pointer to draw the bounding box around encompased regions"
             }
         },
         headers: {
             keyboardShortcuts: "Keyboard shortcuts",
-            otherTips: "Other tips",
+            otherTips: "Useful tips",
         },
-        iconTitle: "Keyboard shortcuts and useful tips"
+        iconTitle: "Keyboard shortcuts and useful tips",
+        teachingBubble: {
+            multiSelection: {
+                primary: "View useful tips",
+                secondary: "Maybe later",
+                headline: "Labeling tip",
+                message: "You can label multiple regions easily with multi-selection tools. View useful tips for more info.",
+
+            }
+        }
     },
     errors: {
         unknown: {

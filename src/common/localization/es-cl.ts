@@ -261,9 +261,10 @@ export const spanish: IAppStrings = {
             existingName: "Nombre de etiqueta ya existe. Elige otro nombre",
             emptyName: "El nombre de etiqueta no puede ser vacío",
             unknownTagName: "Desconocido",
-            notCompatibleTagType: "El tipo de etiqueta no es compatible con esta función. Si desea cambiar el tipo de esta etiqueta, elimine o reasigne todas las etiquetas que utilizan esta etiqueta en su proyecto.",
-            checkboxPerTagLimit: "No se puede asignar más de una casilla de verificación por etiqueta",
-            notCompatibleWithDrawnRegionTag: "Los valores de drawnRegion y $ {otherCatagory} no pueden asignarse a la misma etiqueta del documento",
+            emptyNotCompatibleTagType: "El tipo de etiqueta no es compatible con las regiones seleccionadas. Para cambiar el tipo de etiqueta, seleccione otro tipo en el menú desplegable de la etiqueta",
+            labeledNotCompatibleTagType: "El tipo de etiqueta no es compatible con las regiones seleccionadas. Para cambiar el tipo de etiqueta, elimine todas las etiquetas de esta etiqueta en su proyecto y seleccione otro tipo en el menú desplegable de la etiqueta",
+            checkboxPerTagLimit: "No se puede asignar más de una marca de selección a la etiqueta por documento",
+            notCompatibleWithDrawnRegionTag: "Regiones dibujadas y $ {otherCatagory} no pueden asignarse a la misma etiqueta del documento",
         },
         toolbar: {
             add: "Agregar nueva etiqueta",
@@ -467,6 +468,14 @@ export const spanish: IAppStrings = {
         settings: "Configuración de Perfíl",
     },
     shortcuts: {
+        openKeyboardShortcuts: {
+            keys: {
+                forwardSlash: "/",
+                },
+            description: {
+                openKeyboardShortcuts: "Abre atajos de teclado",
+            },
+        },
         squareBrackets: {
             keys: {
                 leftBracket: "[",
@@ -546,7 +555,16 @@ export const spanish: IAppStrings = {
             keyboardShortcuts: "Atajos de teclado",
             otherTips: "Otros consejos",
         },
-        iconTitle: "Atajos de teclado y consejos útiles"
+        iconTitle: "Atajos de teclado y consejos útiles",
+        teachingBubble: {
+            multiSelection: {
+                primary: "Ver atajos de teclado",
+                secondary: "Quizas mas tarde",
+                headline: "Consejo de etiquetado",
+                message: "Puede etiquetar varias regiones fácilmente con herramientas de selección múltiple. Ver atajos de teclado para más información",
+
+            }
+        }
     },
     errors: {
         unknown: {

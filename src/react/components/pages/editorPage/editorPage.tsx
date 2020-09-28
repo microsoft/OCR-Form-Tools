@@ -7,7 +7,7 @@ import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import SplitPane from "react-split-pane";
 import { bindActionCreators } from "redux";
-import { PrimaryButton } from "@fluentui/react";
+import { PrimaryButton, TeachingBubble } from "@fluentui/react";
 import HtmlFileReader from "../../../../common/htmlFileReader";
 import { strings, interpolate } from "../../../../common/strings";
 import {
@@ -39,6 +39,7 @@ import { getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/the
 import { toast } from "react-toastify";
 import { PredictService } from "../../../../services/predictService";
 import { AssetService } from "../../../../services/assetService";
+import { TeachingBubbleBasic } from "../../common/teachingBubbleBasic/teachingBubbleBasic";
 
 /**
  * Properties for Editor Page
@@ -48,12 +49,13 @@ import { AssetService } from "../../../../services/assetService";
  * @member applicationActions - Application setting actions
  */
 export interface IEditorPageProps extends RouteComponentProps, React.Props<EditorPage> {
-    project: IProject;
-    recentProjects: IProject[];
-    appSettings: IAppSettings;
-    actions: IProjectActions;
-    applicationActions: IApplicationActions;
-    appTitleActions: IAppTitleActions;
+    project?: IProject;
+    recentProjects?: IProject[];
+    appSettings?: IAppSettings;
+    actions?: IProjectActions;
+    applicationActions?: IApplicationActions;
+    appTitleActions?: IAppTitleActions;
+    setShowKeyboardShortcuts?: (...params: any[]) => void;
 }
 
 /**
@@ -95,6 +97,7 @@ export interface IEditorPageState {
     errorMessage?: string;
     tableToView: object;
     tableToViewId: string;
+    showTeachingBubble: boolean;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -131,6 +134,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         hoveredLabel: null,
         tableToView: null,
         tableToViewId: null,
+        showTeachingBubble: false,
     };
 
     private tagInputRef: RefObject<TagInput>;
@@ -142,6 +146,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private deleteTagConfirm: React.RefObject<Confirm> = React.createRef();
     private deleteDocumentConfirm: React.RefObject<Confirm> = React.createRef();
     private isUnmount: boolean = false;
+    private hasShownMultiSelectionTool: boolean = false;
 
     constructor(props) {
         super(props);
@@ -277,6 +282,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             closeTableView={this.closeTableView}
                                             runOcrForAllDocs={this.loadOcrForNotVisited}
                                             appSettings={this.props.appSettings}
+                                            notifyMultiSelectionTool={this.notifyMultiSelectionTool}
                                         >
                                             <AssetPreview
                                                 controlsEnabled={this.state.isValid}
@@ -303,6 +309,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     onLabelLeave={this.onLabelLeave}
                                     onTagChanged={this.onTagChanged}
                                     ref={this.tagInputRef}
+                                    notifyMultiSelectionTool={this.notifyMultiSelectionTool}
                                 />
                                 <Confirm
                                     title={strings.editorPage.tags.rename.title}
@@ -329,6 +336,17 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                         }
                                         confirmButtonTheme={getPrimaryRedTheme()}
                                         onConfirm={this.onAssetDeleted}
+                                    />
+                                }
+                                {this.state.showTeachingBubble &&
+                                    <TeachingBubbleBasic
+                                        primary={strings.shortcuts.teachingBubble.multiSelection.primary}
+                                        secondary={strings.shortcuts.teachingBubble.multiSelection.secondary}
+                                        headline={strings.shortcuts.teachingBubble.multiSelection.headline}
+                                        target="#keyboard-shortcuts-id"
+                                        onClick={this.props.setShowKeyboardShortcuts}
+                                        onDismiss={() => this.setState({showTeachingBubble: false})                                }
+                                        message={strings.shortcuts.teachingBubble.multiSelection.message}
                                     />
                                 }
                             </div>
@@ -405,6 +423,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      * @param tag Tag clicked
      */
     private onTagClicked = (tag: ITag): void => {
+        this.canvas.current.setSelectedRegionOneByOneCount(0);
         this.setState({
             selectedTag: tag.name,
             lockedTags: [],
@@ -500,10 +519,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             const tagCategory = this.tagInputRef.current.getTagCategory(tag.type);
             const category = selection[0].category;
             const labels = this.state.selectedAsset.labelData.labels;
-            const isTagLabelTypeDrawnRegion = this.tagInputRef.current.labelAssignedDrawnRegion(labels, tag.name);
-            const labelAssigned = this.tagInputRef.current.labelAssigned(labels, name);
+            const label = this.tagInputRef.current.getLabel(labels, name);
+            const isTagLabelTypeDrawnRegion = this.tagInputRef.current.isLabelDrawnRegion(label);
+            this.tagInputRef.current.notifyMultiSelectionToolCheck(label);
 
-            if (labelAssigned && ((category === FeatureCategory.DrawnRegion) !== isTagLabelTypeDrawnRegion)) {
+            if (label && ((category === FeatureCategory.DrawnRegion) !== isTagLabelTypeDrawnRegion)) {
                 if (isTagLabelTypeDrawnRegion) {
                     toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, { otherCatagory: category }));
                 } else if (tagCategory === FeatureCategory.Checkbox) {
@@ -514,14 +534,18 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 return;
             } else if (tagCategory === category || category === FeatureCategory.DrawnRegion ||
                 (documentCount === 0 && type === FieldType.String && format === FieldFormat.NotSpecified)) {
-                if (tagCategory === FeatureCategory.Checkbox && labelAssigned) {
+                if (tagCategory === FeatureCategory.Checkbox && label) {
                     toast.warn(strings.tags.warnings.checkboxPerTagLimit);
                     return;
                 }
                 this.onTagClicked(tag);
             } else {
-                toast.warn(strings.tags.warnings.notCompatibleTagType, { autoClose: 7000 });
-            }
+                if (label) {
+                    toast.warn(strings.tags.warnings.labeledNotCompatibleTagType, {autoClose: 7000});
+                } else {
+                    toast.warn(strings.tags.warnings.emptyNotCompatibleTagType, {autoClose: 7000});
+                }
+                return;            }
         }
         // do nothing if region was not selected
     }
@@ -592,6 +616,13 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             item.cachedImage = (contentSource as HTMLImageElement).src;
             assets[assetIndex] = item;
             this.setState({ assets });
+        }
+    }
+
+    private notifyMultiSelectionTool = () => {
+        if (!this.hasShownMultiSelectionTool) {
+            this.setState({showTeachingBubble: true})
+            this.hasShownMultiSelectionTool = true;
         }
     }
 

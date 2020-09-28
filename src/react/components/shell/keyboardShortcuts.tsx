@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { useState } from "react";
+import React from "react";
 import { Modal } from "@fluentui/react/lib/Modal";
 import { FontIcon } from "@fluentui/react";
 import { ICustomizations, Customizer } from "@fluentui/react/lib/Utilities";
@@ -13,6 +13,12 @@ import "./keyboardShortcuts.scss";
 export interface IHotKeysModalState {
     showModal: boolean;
 }
+
+interface IKeyboardShortcutsProps {
+    setShowKeyboardShortcuts: (showKeyboardShortcuts: boolean) => void;
+    showKeyboardShortcuts: boolean;
+}
+
 interface IKeyItem {
     modifierKey?: string;
     secondKeyOption?: string;
@@ -24,7 +30,7 @@ interface ITipsItem {
     description: string;
 }
 
-export const KeyboardShortcuts: React.FC = () => {
+export const KeyboardShortcuts = (props: IKeyboardShortcutsProps) => {
     const dark: ICustomizations = {
         settings: {
             theme: getDarkGreyTheme(),
@@ -32,10 +38,11 @@ export const KeyboardShortcuts: React.FC = () => {
         scopedSettings: {},
     };
 
-    const [showModal, setShowModal] = useState(false);
-    const closeModal = () => setShowModal(false);
-
     const shortcutsItems: IKeyItem[] = [
+        {
+            key: strings.shortcuts.openKeyboardShortcuts.keys.forwardSlash,
+            description: strings.shortcuts.openKeyboardShortcuts.description.openKeyboardShortcuts,
+        },
         {
             key: strings.shortcuts.squareBrackets.keys.leftBracket,
             description: strings.shortcuts.squareBrackets.description.prevWord,
@@ -83,24 +90,24 @@ export const KeyboardShortcuts: React.FC = () => {
 
     const tipsItems: ITipsItem[] = [
         {
-            name: strings.shortcuts.tips.quickLabeling.name,
-            description: strings.shortcuts.tips.quickLabeling.description,
-        },
-        {
-            name: strings.shortcuts.tips.renameTag.name,
-            description: strings.shortcuts.tips.renameTag.description,
-        },
-        {
-            name: strings.shortcuts.tips.deleteAllLabelsForTag.name,
-            description: strings.shortcuts.tips.deleteAllLabelsForTag.description,
-        },
-        {
             name: strings.shortcuts.tips.groupSelect.name,
             description: strings.shortcuts.tips.groupSelect.description,
         },
         {
             name: strings.shortcuts.tips.multipleWordSelection.name,
             description: strings.shortcuts.tips.multipleWordSelection.description,
+        },
+        {
+            name: strings.shortcuts.tips.quickLabeling.name,
+            description: strings.shortcuts.tips.quickLabeling.description,
+        },
+        {
+            name: strings.shortcuts.tips.deleteAllLabelsForTag.name,
+            description: strings.shortcuts.tips.deleteAllLabelsForTag.description,
+        },
+        {
+            name: strings.shortcuts.tips.renameTag.name,
+            description: strings.shortcuts.tips.renameTag.description,
         },
     ];
     const ShortcutsListItems = ({ items }): JSX.Element => {
@@ -152,19 +159,19 @@ export const KeyboardShortcuts: React.FC = () => {
                 className="shortcuts-modal-button"
                 iconName="BookAnswers"
                 role="button"
-                onClick={() => setShowModal(true)}
+                onClick={() => props.setShowKeyboardShortcuts(true)}
                 title={strings.shortcuts.iconTitle}
             />
             <Modal
                 titleAriaId={"Hot Keys Modal"}
-                isOpen={showModal}
-                onDismiss={closeModal}
+                isOpen={props.showKeyboardShortcuts}
+                onDismiss={() => props.setShowKeyboardShortcuts(false)}
                 isBlocking={false}
                 containerClassName="container"
             >
                 <div className="header">
                     <h3>{strings.shortcuts.headers.keyboardShortcuts}</h3>
-                    <FontIcon className="close-modal" role="button" onClick={closeModal} iconName="Cancel" />
+                    <FontIcon className="close-modal" role="button" onClick={() => props.setShowKeyboardShortcuts(false)} iconName="Cancel" />
                 </div>
                 <div className="content">
                     <div className="shortcuts-list-container">

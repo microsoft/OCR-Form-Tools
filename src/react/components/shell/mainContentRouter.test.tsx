@@ -35,7 +35,7 @@ describe("Main Content Router", () => {
     }
 
     it("renders correct routes", () => {
-        const wrapper = shallow(<MainContentRouter />);
+        const wrapper = shallow(<MainContentRouter setShowKeyboardShortcuts={null}/>);
         const pathMap = wrapper.find(Route).reduce((pathMap, route) => {
             const routeProps = route.props() as any;
             pathMap[routeProps.path] = routeProps.component;

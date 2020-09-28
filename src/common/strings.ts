@@ -274,7 +274,8 @@ export interface IAppStrings {
             existingName: string,
             emptyName: string,
             unknownTagName: string,
-            notCompatibleTagType: string,
+            labeledNotCompatibleTagType: string,
+            emptyNotCompatibleTagType: string,
             checkboxPerTagLimit: string,
             notCompatibleWithDrawnRegionTag: string,
         }
@@ -460,6 +461,14 @@ export interface IAppStrings {
         settings: string,
     };
     shortcuts: {
+        openKeyboardShortcuts: {
+            keys: {
+                forwardSlash: string,
+            },
+            description: {
+                openKeyboardShortcuts: string,
+            },
+        },
         squareBrackets: {
             keys: {
                 leftBracket: string,
@@ -540,6 +549,14 @@ export interface IAppStrings {
             otherTips: string,
         },
         iconTitle: string,
+        teachingBubble: {
+            multiSelection: {
+                primary: string;
+                secondary: string;
+                headline: string;
+                message: string;
+            }
+        }
     };
     errors: {
         unknown: IErrorMetadata,

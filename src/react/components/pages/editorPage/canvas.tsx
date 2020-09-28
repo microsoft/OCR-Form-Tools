@@ -38,6 +38,7 @@ import { IAppSettings } from '../../../../models/applicationState';
 import { AutoLabelingStatus, PredictService } from "../../../../services/predictService";
 import { AssetService } from "../../../../services/assetService";
 import { strings } from "../../../../common/strings";
+import { toast } from "react-toastify";
 
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
@@ -61,6 +62,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
     runOcrForAllDocs?: (runForAllDocs: boolean) => void;
     onAssetDeleted?: () => void;
+    notifyMultiSelectionTool?: () => void;
 }
 
 export interface ICanvasState {
@@ -169,6 +171,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private tableIDToIndexMap: object;
 
+    private selectedRegionOneByOneCount: number = 0;
+
     public componentDidMount = async () => {
         this.ocrService = new OCRService(this.props.project);
         const asset = this.state.currentAsset.asset;
@@ -232,7 +236,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     key={"Delete"}
                     keyEventType={KeyEventType.KeyDown}
                     accelerators={["Escape", "Alt+Backspace", "Shift", "Delete", "Backspace", "<", ",", ">", ".",
-                        "{", "[", "}", "]", "+", "-", "/", "=", "_", "?"]}
+                        "{", "[", "}", "]", "+", "-", "=", "_", "|", "\\"]}
                     handler={this.handleKeyDown}
                 />
                 <KeyboardBinding
@@ -1046,6 +1050,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private removeFromSelectedRegions = (regionId: string) => {
         const iRegionId = this.getIndexOfSelectedRegionIndex(regionId);
         if (iRegionId >= 0) {
+            this.selectedRegionOneByOneCount -= 1;
             const region = this.getSelectedRegions().find((r) => r.id === regionId);
             if (region && region.tags && region.tags.length === 0) {
                 this.onRegionDelete(regionId);
@@ -1088,6 +1093,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 pageNumber: this.state.currentPage,
             };
             this.addRegions([selectedRegion]);
+        }
+        this.selectedRegionOneByOneCount += 1;
+        if (this.selectedRegionOneByOneCount > 10) {
+            this.props.notifyMultiSelectionTool();
         }
 
         this.selectedRegionIds.push(regionId);
@@ -1475,8 +1484,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 this.handleCanvasZoomOut();
                 break;
 
-            case "/":
-            case "?":
+            case "\\":
+            case "|":
                 this.handleZoomReset();
                 break;
 
@@ -2175,5 +2184,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             }
         });
         this.imageMap.modifyStartFeatureCoordinates = {};
+    }
+
+    public setSelectedRegionOneByOneCount = (count: number) => {
+        this.selectedRegionOneByOneCount = count;
     }
 }
