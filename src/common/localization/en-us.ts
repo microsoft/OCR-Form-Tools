@@ -126,7 +126,7 @@ export const english: IAppStrings = {
         training: "Training",
         pleaseWait: "Please wait",
         notTrainedYet: "Not trained yet",
-        backEndNotAvailable: "Selection mark feature will work in future version of Form Recognizer service, please stay tuned.",
+        backEndNotAvailable: "Selection mark feature will work in a future version of Form Recognizer service, please stay tuned.",
         addName: "Add a model name...",
         downloadJson: "Download JSON file",
         errors: {
