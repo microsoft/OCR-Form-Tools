@@ -265,6 +265,20 @@ export const spanish: IAppStrings = {
             checkboxPerTagLimit: "No se puede asignar más de una casilla de verificación por etiqueta",
             notCompatibleWithDrawnRegionTag: "Los valores de drawnRegion y $ {otherCatagory} no pueden asignarse a la misma etiqueta del documento",
         },
+        regionTableTags: {
+            configureTag: {
+                errors: {
+                    atLeastOneColumn: "Asigne al menos una columna.",
+                    atLeastOneRow: "Asigne al menos una fila.",
+                    checkFields: "Verifique si completó todos los campos obligatorios correctamente.",
+                    assignTagName: "El nombre de la etiqueta no puede estar vacío.",
+                    notUniqueTagName: "El nombre de la etiqueta debe ser único",
+                    emptyTagName: "Asigne un nombre para la etiqueta de su mesa.",
+                    emptyName: "El nombre no puede estar vacío",
+                    notUniqueName: "El nombre debe ser único",
+                }
+            }
+        },
         toolbar: {
             addTable: "Agregar nueva etiqueta",
             add: "Agregar nueva etiqueta",
