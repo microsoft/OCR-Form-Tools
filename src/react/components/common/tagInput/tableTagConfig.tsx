@@ -36,6 +36,11 @@ interface ITableTagConfigState {
     name: string,
     format: string,
 }
+interface ITableConfigItem {
+    name: string,
+    format: string,
+    type: string;
+}
 
 const tableFormatOptions: IChoiceGroupOption[] = [
     {
@@ -107,36 +112,33 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         return state.currentProject.tags
     });
 
-    const [name, setName] = useState(table.name);
-    const [format, setFormat] = useState(table.format);
-    const [columns, setColumns] = useState(table.columns);
-    const [rows, setRows] = useState(table.rows);
-    const [notUniqueNames, setNotUniqueNames] = useState({ columns: [], rows: [], tags: false });
-    const [headersFormatAndType, setHeadersFormatAndType] = useState("columns");
+    const [name, setName] = useState<string>(table.name);
+    const [format, setFormat] = useState<string>(table.format);
+    const [columns, setColumns] = useState<ITableConfigItem[]>(table.columns);
+    const [rows, setRows] = useState<ITableConfigItem[]>(table.rows);
+    const [notUniqueNames, setNotUniqueNames] = useState<{ columns: [], rows: [], tags: boolean }>({ columns: [], rows: [], tags: false });
+    const [headersFormatAndType, setHeadersFormatAndType] = useState<string>("columns");
 
 
-    const selectColumnType = (idx: number, type: string) => {
-        setColumns(columns.map((col, currIdx) =>
-            idx === currIdx ? { ...col, type, format: FieldFormat.NotSpecified } : col
-        ));
-    };
 
-    const selectColumnFormat = (idx: number, format: string) => {
-        setColumns(columns.map((col, currIdx) =>
-            idx === currIdx ? { ...col, format } : col
+    function selectColumnType(idx: number, type: string) {
+        setColumns(columns.map((col, currIdx) => idx === currIdx ? { ...col, type, format: FieldFormat.NotSpecified } : col
         ));
-    };
-    const selectRowType = (idx: number, type: string) => {
-        setRows(rows.map((row, currIdx) =>
-            idx === currIdx ? { ...row, type, format: FieldFormat.NotSpecified } : row
-        ));
-    };
+    }
 
-    const selectRowFormat = (idx: number, format: string) => {
-        setRows(rows.map((row, currIdx) =>
-            idx === currIdx ? { ...row, format } : row
+    function selectColumnFormat(idx: number, format: string) {
+        setColumns(columns.map((col, currIdx) => idx === currIdx ? { ...col, format } : col
         ));
-    };
+    }
+    function selectRowType(idx: number, type: string) {
+        setRows(rows.map((row, currIdx) => idx === currIdx ? { ...row, type, format: FieldFormat.NotSpecified } : row
+        ));
+    }
+
+    function selectRowFormat(idx: number, format: string) {
+        setRows(rows.map((row, currIdx) => idx === currIdx ? { ...row, format } : row
+        ));
+    }
 
     const columnListColumns: IColumn[] = [
         {
@@ -204,7 +206,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     />
                 </Customizer>
                 : <></>
-
         },
     ];
 
@@ -249,7 +250,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         onChange={(e, val) => {
                             selectRowType(index, val.text);
                         }}
-
                     />
                 </Customizer>
                 : <></>
@@ -275,31 +275,34 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     />
                 </Customizer>
                 : <></>
-
         },
     ];
 
 
 
-    const addColumn = () => setColumns([...columns, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified }]);
-    const addRow = () => setRows([...rows, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified }]);
+    function addColumn() {
+        return setColumns([...columns, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified }]);
+    }
 
-    const setRowName = (rowIndex, name) => {
+    function addRow() {
+        return setRows([...rows, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified }]);
+    }
+
+    function setRowName(rowIndex: number, name: string) {
         setRows(
             rows.map((row, currIndex) => (rowIndex === currIndex) ?
                 { ...row, name }
                 : row)
         );
-    };
+    }
 
-    const setColumnName = (colIndex, name) => {
+    function setColumnName(colIndex: number, name: string) {
         setColumns(
             columns.map((column, currIndex) => (colIndex === currIndex)
                 ? { ...column, name }
                 : column)
         );
-
-    };
+    }
 
     function setTableName(name: string) {
         setName(name);
@@ -307,7 +310,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
 
     // Validation //
-
     function getTextInputError(array: any[], rowName: string, index: number) {
         if (!rowName.length) {
             return strings.tags.regionTableTags.configureTag.errors.emptyName
@@ -336,7 +338,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         setNotUniqueNames({ ...notUniqueNames, [arrayName]: notUnique })
     }
 
-    // check input names as you type
+    // check input names as you type[]
     useEffect(() => {
         checkNameUniqueness(columns, "columns");
     }, [columns]);
@@ -346,23 +348,48 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
     useEffect(() => {
         const existingTagName = tags.find((item) => item.name === name);
-        setNotUniqueNames({ ...notUniqueNames, tags: existingTagName !== undefined ? true : false})
+        setNotUniqueNames({ ...notUniqueNames, tags: existingTagName !== undefined ? true : false })
     }, [name, tags]);
 
-    function save() {
+    function save(rows, columns) {
         addTableTag({ name, format, rows, columns });
         setTagInputMode(TagInputMode.Basic);
     }
 
-    function hasEmptyNames(array) {
-       return array.find((i) => !i.name.length) !== undefined ? true : false
+    function hasEmptyNames(array: ITableConfigItem[]) {
+        return array.find((i) => !i.name.length) !== undefined ? true : false
+    }
+
+    function resetTypAndFormatAndSave(headersFormatAndType) {
+        let newRows = rows;
+        let newColumns = columns;
+        if (headersFormatAndType === "columns") {
+            newRows = rows.map((row) => {
+                return {
+                    ...row,
+                    type: FieldType.String,
+                    format: FieldFormat.NotSpecified,
+                }
+            });
+        } else if (headersFormatAndType === "rows") {
+            newColumns = columns.map((col) => ({
+                ...col,
+                type: FieldType.String,
+                format: FieldFormat.NotSpecified
+            }));
+        }
+        save(newRows, newColumns);
     }
 
     function validateInputAndSave() {
-        if (notUniqueNames.columns.length > 0 || notUniqueNames.rows.length > 0 || notUniqueNames.tags || !name.length || hasEmptyNames(rows) || hasEmptyNames(columns)) {
+        if (notUniqueNames.columns.length > 0
+            || notUniqueNames.rows.length > 0
+            || notUniqueNames.tags
+            || !name.length
+            || hasEmptyNames(rows) || hasEmptyNames(columns)) {
             toast.error(strings.tags.regionTableTags.configureTag.errors.checkFields, { autoClose: 8000 });
         } else {
-            save();
+            resetTypAndFormatAndSave(headersFormatAndType);
         }
     }
 
