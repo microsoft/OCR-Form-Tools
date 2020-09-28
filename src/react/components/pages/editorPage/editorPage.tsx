@@ -566,8 +566,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         const initialState = assetMetadata.asset.state;
 
-        const asset = { ...assetMetadata.asset };
-
         if (this.isTaggableAssetType(assetMetadata.asset)) {
             assetMetadata.asset.state = _.get(assetMetadata, "labelData.labels.length", 0) > 0 ?
                 AssetState.Tagged :
@@ -593,6 +591,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         // This forces the root assets that are displayed in the sidebar to
         // accurately show their correct state (not-visited, visited or tagged)
         const assets = [...this.state.assets];
+        const asset = { ...assetMetadata.asset };
         const assetIndex = assets.findIndex((a) => a.id === asset.id);
         if (assetIndex > -1) {
             assets[assetIndex] = {
