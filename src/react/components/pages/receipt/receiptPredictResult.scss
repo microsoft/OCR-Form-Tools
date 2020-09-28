@@ -132,42 +132,37 @@
         }
     }
 }
-
-.prediction-header {
-    text-align: center;
-}
-
-.prediction-header-result {
-    display: inline;
-    vertical-align: middle;
-    padding-right: 8px;
-}
-
-.prediction-header-download {
-    vertical-align: middle;
-}
-
-.prediction-field-header {
-    margin-bottom: 5px;
-    display: grid;
-    grid-template-columns: auto auto;
-    align-content: end;
-}
-
-.prediction-field-header-field {
-    margin-bottom: 0px;
-    align-self: center;
-}
-
-.prediction-field-header-confidence {
-    margin-bottom: 0px;
-    justify-self: end;
-    align-self: center;
-}
-
-.prediction-header-clear {
-    height: 0;
-    clear: both;
+.prediction {
+    &-header {
+        text-align: center;
+        &-result {
+            display: inline;
+            vertical-align: middle;
+            padding-right: 8px;
+        }
+        &-download {
+            vertical-align: middle;
+        }
+        &-clear {
+            height: 0;
+            clear: both;
+        }
+    }
+    &-field-header {
+        margin-bottom: 5px;
+        display: grid;
+        grid-template-columns: auto auto;
+        align-content: end;
+        &-field {
+            margin-bottom: 0px;
+            align-self: center;
+        }
+        &-confidence {
+            margin-bottom: 0px;
+            justify-self: end;
+            align-self: center;
+        }
+    }
 }
 
 div.github-picker > span > div {
