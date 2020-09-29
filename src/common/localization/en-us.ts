@@ -145,7 +145,7 @@ export const english: IAppStrings = {
         composing: "Model is composing, please wait...",
         column: {
             icon: {
-                name:"Composed Icon",
+                name: "Composed Icon",
             },
             id: {
                 headerName: "Model Id",
@@ -480,7 +480,7 @@ export const english: IAppStrings = {
             keys: {
                 lessThan: "<",
                 greaterThan: ">",
-                },
+            },
             description: {
                 prevPage: "Go to previous page",
                 nextPage: "Go to next page",
@@ -491,7 +491,7 @@ export const english: IAppStrings = {
                 minus: "-",
                 plus: "=",
                 slash: "/",
-                },
+            },
             description: {
                 in: "Zoom in",
                 out: "Zoom out",
@@ -502,11 +502,11 @@ export const english: IAppStrings = {
             keys: {
                 delete: "Delete",
                 backSpace: "Backspace",
-                },
+            },
             description: {
                 delete: "Remove selection and delete labels of selected words",
                 backSpace: "Remove selection and delete labels of selected words",
-                },
+            },
         },
         drawnRegions: {
             keys: {
@@ -574,6 +574,10 @@ export const english: IAppStrings = {
             title: "Error deleting project",
             message: `An error occured while deleting the project.
                 Validate the project file and security token exist and try again`,
+        },
+        projectDeleteErrorSecurityTokenNotFound: {
+            title: "Security token not found when delete project",
+            message: "Security Token Not Found. Project [${project.name}] has been removed from FoTT tool."
         },
         projectNotFound: {
             title: "Error loading project",
@@ -671,6 +675,10 @@ export const english: IAppStrings = {
         modelNotFound: {
             title: "Model not found",
             message: "Model \"${modelID}\" not found. Please use another model.",
+        },
+        connectionNotExistError: {
+            title: "Connection doesn't exist",
+            message: "Connection doesn't exist."
         },
         getOcrError: {
             title: "Cannot load OCR file",
