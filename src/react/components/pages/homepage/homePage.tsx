@@ -217,7 +217,16 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
     }
 
     private deleteProject = async (project: IProject) => {
-        await this.props.actions.deleteProject(project);
+        try {
+            await this.props.actions.deleteProject(project);
+        } catch (error) {
+            if(error instanceof AppError && error.errorCode === ErrorCode.SecurityTokenNotFound){
+                toast.error(error.message, {autoClose:false});
+            }
+            else{
+                throw error;
+            }
+        }
     }
 
     private onProjectFileUpload = async (e, project) => {
