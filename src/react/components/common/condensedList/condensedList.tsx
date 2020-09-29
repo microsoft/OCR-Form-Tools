@@ -27,13 +27,18 @@ interface ICondensedListProps {
     onDelete?: (item) => void;
 }
 
+interface ICondensedListState {
+    currentId: string;
+}
+
 /**
  * @name - Condensed List
  * @description - Clickable, deletable and linkable list of items
  */
-export default class CondensedList extends React.Component<ICondensedListProps> {
+export default class CondensedList extends React.Component<ICondensedListProps, ICondensedListState> {
     constructor(props, context) {
         super(props, context);
+        this.state = { currentId: null };
 
         this.onItemClick = this.onItemClick.bind(this);
         this.onItemDelete = this.onItemDelete.bind(this);
@@ -66,6 +71,7 @@ export default class CondensedList extends React.Component<ICondensedListProps> 
                         <ul className="condensed-list-items">
                             {items.map((item) => <Component key={item.id}
                                 item={item}
+                                currentId={this.state.currentId}
                                 onClick={(e) => this.onItemClick(e, item)}
                                 onDelete={(e) => this.onItemDelete(e, item)} />)}
                         </ul>
@@ -79,6 +85,7 @@ export default class CondensedList extends React.Component<ICondensedListProps> 
         if (this.props.onClick) {
             this.props.onClick(item);
         }
+        this.setState({ currentId: item.id });
     }
 
     private onItemDelete = (e: SyntheticEvent, item) => {
@@ -95,11 +102,11 @@ export default class CondensedList extends React.Component<ICondensedListProps> 
  * Generic list item with an onClick function and a name
  * @param param0 - {item: {name: ""}, onClick: (item) => void;}
  */
-export function ListItem({ item, onClick }) {
+export function ListItem({ item, onClick, currentId }) {
     return (
         <li>
             {/* eslint-disable-next-line */}
-            <a className="condensed-list-item" onClick={onClick}>
+            <a className={["condensed-list-item", currentId === item.id? "current":""].join(" ")} onClick={onClick}>
                 <span className="px-2">{item.name}</span>
             </a>
         </li>
