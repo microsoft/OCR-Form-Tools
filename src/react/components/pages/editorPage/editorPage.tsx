@@ -258,7 +258,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                     <div className="editor-page-content" onClick={this.onPageClick}>
                         <SplitPane split = "vertical"
                             primary = "second"
-                            maxSize = {625}
+                            maxSize = {670}
                             minSize = {290}
                             defaultSize={size}
                             pane1Style = {{height: "100%"}}
