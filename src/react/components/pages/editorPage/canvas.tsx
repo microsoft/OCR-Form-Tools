@@ -2056,17 +2056,29 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
 
         const prevTypes = {};
-        prevTags.forEach((tag) => prevTypes[tag.name] = tag.type);
-
+        const prevColors = {};
+        prevTags.forEach((tag) => {
+            prevTypes[tag.name] = tag.type;
+            prevColors[tag.name] = tag.color;
+        });
         const types = {};
-        tags.forEach((tag) => types[tag.name] = tag.type);
-
+        const colors = {};
+        tags.forEach((tag) => {
+            types[tag.name] = tag.type;
+            colors[tag.name] = tag.color;
+        });
         for (const name of names) {
             const prevType = prevTypes[name];
             const type = types[name];
             if (prevType !== type
                 && (prevType === FieldType.SelectionMark || type === FieldType.SelectionMark)) {
                 // some tag change between checkbox and text
+                return true;
+            }
+            const prevColor = prevColors[name];
+            const color = colors[name];
+            if (prevColor !== color) {
+                // some tag color changed
                 return true;
             }
         }

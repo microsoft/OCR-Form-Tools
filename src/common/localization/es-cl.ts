@@ -580,6 +580,10 @@ export const spanish: IAppStrings = {
             message: `Se ha producido un error al eliminar el proyecto.
                 Validar el archivo de proyecto y el token de seguridad existen e inténtelo de nuevo`,
         },
+        projectDeleteErrorSecurityTokenNotFound: {
+            title: 'No se encontró el token de seguridad al eliminar el proyecto',
+            message: "Token de seguridad no encontrado. El proyecto [$ {project.name}] se ha eliminado de la herramienta FoTT."
+        },
         projectNotFound: {
             title: "",
             message: "",
@@ -676,6 +680,10 @@ export const spanish: IAppStrings = {
         modelNotFound: {
             title: "Modelo no encontrado",
             message: "Modelo \"${modelID}\" no encontrado. Por favor use otro modelo.",
+        },
+        connectionNotExistError: {
+            title: "La conexión no existe",
+            message: "La conexión no existe."
         },
         getOcrError: {
             title: "No se puede cargar el archivo OCR",

@@ -580,6 +580,10 @@ export const english: IAppStrings = {
             message: `An error occured while deleting the project.
                 Validate the project file and security token exist and try again`,
         },
+        projectDeleteErrorSecurityTokenNotFound: {
+            title: "Security token not found when delete project",
+            message: "Security Token Not Found. Project [${project.name}] has been removed from FoTT tool."
+        },
         projectNotFound: {
             title: "Error loading project",
             message: "We couldn't find the project file ${file} at the target blob container ${container}.\
@@ -676,6 +680,10 @@ export const english: IAppStrings = {
         modelNotFound: {
             title: "Model not found",
             message: "Model \"${modelID}\" not found. Please use another model.",
+        },
+        connectionNotExistError: {
+            title: "Connection doesn't exist",
+            message: "Connection doesn't exist."
         },
         getOcrError: {
             title: "Cannot load OCR file",

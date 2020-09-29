@@ -552,6 +552,7 @@ export interface IAppStrings {
         projectInvalidSecurityToken: IErrorMetadata,
         projectUploadError: IErrorMetadata,
         projectDeleteError: IErrorMetadata,
+        projectDeleteErrorSecurityTokenNotFound: IErrorMetadata,
         projectNotFound: IErrorMetadata,
         genericRenderError: IErrorMetadata,
         securityTokenNotFound: IErrorMetadata,
@@ -576,6 +577,7 @@ export interface IAppStrings {
         modelCountLimitExceeded: IErrorMetadata,
         requestSendError: IErrorMetadata,
         modelNotFound: IErrorMetadata,
+        connectionNotExistError: IErrorMetadata,
         getOcrError: IErrorMetadata,
     };
     shareProject: {

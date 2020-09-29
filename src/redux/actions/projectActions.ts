@@ -152,11 +152,11 @@ export function deleteProject(project: IProject)
             .find((securityToken) => securityToken.name === project.securityToken);
 
         if (!projectToken) {
-            throw new AppError(ErrorCode.SecurityTokenNotFound, "Security Token Not Found");
+            dispatch(deleteProjectAction(project));
+            throw new AppError(ErrorCode.SecurityTokenNotFound, interpolate(strings.errors.projectDeleteErrorSecurityTokenNotFound.message, {project}));
         }
 
         const decryptedProject = await projectService.load(project, projectToken);
-
         await projectService.delete(decryptedProject);
         dispatch(deleteProjectAction(decryptedProject));
     };
