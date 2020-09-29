@@ -37,7 +37,6 @@ import ReceiptPredictResult from "./receiptPredictResult";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
-const tagColors = require("../../common/tagColors.json");
 
 export interface IReceiptPredictPageProps extends RouteComponentProps {
 
@@ -118,6 +117,7 @@ export default class ReceiptPredictPage extends React.Component<IReceiptPredictP
     private currPdf: any;
     private tiffImages: any[];
     private imageMap: ImageMap;
+    private tagColors = require("../../common/tagColors.json");
 
     public async componentDidMount() {
         this.appInsights = getAppInsights();
@@ -646,7 +646,7 @@ export default class ReceiptPredictPage extends React.Component<IReceiptPredictP
         Object.keys(predictions).forEach((key, index) => {
             receiptTags.push({
                 name: key,
-                color: tagColors[index],
+                color: this.tagColors[index],
                 // use default type
                 type: FieldType.String,
                 format: FieldFormat.NotSpecified,
