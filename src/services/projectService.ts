@@ -10,6 +10,7 @@ import {
     FieldFormat,
     IField,
     IFieldInfo,
+    ITableTag, ITableField, TableHeaderTypeAndFormat
 } from "../models/applicationState";
 import Guard from "../common/guard";
 import { constants } from "../common/constants";
@@ -316,9 +317,10 @@ export default class ProjectService implements IProjectService {
                         type: normalizeFieldType(field.fieldType),
                         format: field.fieldFormat,
                         documentCount: 0,
-                        rowKeys: field.rowKeys,
-                        columnKeys: field.columnKeys
-                    } as ITag);
+                        rowKeys: (field as ITableField).rowKeys,
+                        columnKeys: (field as ITableField).columnKeys,
+                        // tableTypeAndFormatFor: TableHeaderTypeAndFormat.Columns,
+                    } as ITableTag);
                 } else {
                     tags.push({
                         name: field.fieldKey,
@@ -392,15 +394,16 @@ export default class ProjectService implements IProjectService {
         Guard.null(project.tags);
 
         const fieldInfo = {
-            fields: project.tags.map((tag) => {
+            fields: project.tags.map((tag ) => {
                 if (tag.type === FieldType.Table) {
                     return ({
                         fieldKey: tag.name,
                         fieldType: tag.type ? tag.type : FieldType.String,
                         fieldFormat: tag.format ? tag.format : FieldFormat.NotSpecified,
-                        columnKeys: tag.columnKeys,
-                        rowKeys: tag.rowKeys,
-                    } as IField)
+                        columnKeys: (tag as ITableTag).columnKeys,
+                        rowKeys: (tag as ITableTag).rowKeys,
+                        // tableTypeAndFormatFor: TableHeaderTypeAndFormat.Columns,
+                    } as ITableField)
                 } else {
                     return ({
                         fieldKey: tag.name,

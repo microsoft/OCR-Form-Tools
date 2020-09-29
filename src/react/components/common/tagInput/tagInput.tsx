@@ -18,7 +18,7 @@ import { strings, interpolate } from "../../../../common/strings";
 import { getDarkTheme } from "../../../../common/themes";
 import { AlignPortal } from "../align/alignPortal";
 import { filterFormat, getNextColor } from "../../../../common/utils";
-import { IRegion, ITag, ILabel, FieldType, FieldFormat, IField, TagInputMode, FeatureCategory } from "../../../../models/applicationState";
+import { IRegion, ITag, ILabel, FieldType, FieldFormat, IField, TagInputMode, FeatureCategory, ITableTag, TableHeaderTypeAndFormat } from "../../../../models/applicationState";
 import { ColorPicker } from "../colorPicker";
 import "./tagInput.scss";
 import "../condensedList/condensedList.scss";
@@ -152,7 +152,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         };
 
         const { selectedTag, tagOperation } = this.state;
-        const selectedTagRef = selectedTag ? this.tagItemRefs.get(selectedTag.name).getTagNameRef() : null;
+        const selectedTagRef = selectedTag ? this.tagItemRefs.get(selectedTag.name)?.getTagNameRef() : null;
 
         if (this.props.tagInputMode === TagInputMode.ConfigureTable) {
             return (
@@ -180,7 +180,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                             onTagClick={this.props.onTagClick}
                             selectedRegions={this.props.selectedRegions}
                             setTagInputMode={this.props.setTagInputMode}
-                            selectedTag={this.props.selectedTableTagToLabel}
+                            selectedTag={this.props.selectedTableTagToLabel as ITableTag}
                             handleTableCellClick={this.props.handleTableCellClick}
                             selectedTableTagBody={this.props.selectedTableTagBody}
                         />
@@ -424,6 +424,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 onLabelEnter={this.props.onLabelEnter}
                 onLabelLeave={this.props.onLabelLeave}
                 onTagChanged={this.props.onTagChanged}
+                handleLabelTable={this.props.handleLabelTable}
             />);
     }
 
@@ -470,9 +471,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
     private onTagItemClick = (tag: ITag, props: ITagClickProps) => {
     console.log("TagInput -> privateonTagItemClick -> tag", tag);
-        if (tag.type === FieldType.Table && this.props.selectedRegions?.length) {
-            this.props.handleLabelTable(TagInputMode.LabelTable, tag)
-        } else if (props.ctrlKey && this.props.onCtrlTagClick) { // Lock tags
+        if (props.ctrlKey && this.props.onCtrlTagClick) { // Lock tags
             this.props.onCtrlTagClick(tag);
         } else if (props.altKey) { // Edit tag
             this.setState({
@@ -511,7 +510,10 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 const isTagLabelTypeDrawnRegion = this.labelAssignedDrawnRegion(labels, tag.name);
                 const labelAssigned = this.labelAssigned(labels, name);
 
-                if (labelAssigned && ((category === FeatureCategory.DrawnRegion) !== isTagLabelTypeDrawnRegion)) {
+                if (tag.type === FieldType.Table && this.props.selectedRegions?.length) {
+                    this.props.handleLabelTable(TagInputMode.LabelTable, tag)
+                    deselect = false;
+                } else if (labelAssigned && ((category === FeatureCategory.DrawnRegion) !== isTagLabelTypeDrawnRegion)) {
                     if (isTagLabelTypeDrawnRegion) {
                         toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, {otherCatagory: category}));
                     } else if (tagCategory === FeatureCategory.Checkbox) {
@@ -614,7 +616,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     private addTableTag = (tableConfig: any) => {
-        const newTag: ITag = {
+        console.log("TagInput -> privateaddTableTag -> tableConfig", tableConfig)
+        const newTag: ITableTag = {
             name: tableConfig.name,
             color: getNextColor(this.state.tags),
             type: FieldType.Table,
@@ -634,6 +637,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     fieldFormat: row.format,
                 } as IField)
             }),
+            tableTypeAndFormatFor: tableConfig.headersFormatAndType
         };
         if (newTag.name.length && ![...this.state.tags, newTag].containsDuplicates((t) => t.name)) {
             this.addTag(newTag);

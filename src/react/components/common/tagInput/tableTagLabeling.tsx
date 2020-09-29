@@ -3,15 +3,15 @@ import { toast } from "react-toastify";
 import "./tableTagConfig.scss";
 import { IconButton, Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, IDropdownOption, SelectionMode, DetailsListLayoutMode, FontIcon } from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme } from '../../../../common/themes';
-import { FieldFormat, FieldType, TagInputMode, ITag, IRegion } from '../../../../models/applicationState';
+import { FieldFormat, FieldType, TagInputMode, ITag, IRegion, ITableTag } from '../../../../models/applicationState';
 import clone from "rfdc";
 
 
 interface ITableTagLabelingProps {
     setTagInputMode: (addTableMode: TagInputMode) => void;
-    selectedTag: ITag,
+    selectedTag: ITableTag,
     selectedRegions?: IRegion[];
-    onTagClick?: (tag: ITag) => void;
+    onTagClick?: (tag: ITableTag) => void;
     selectedTableTagBody: string[][];
     handleTableCellClick: (iTableCellIndex, jTableCellIndex) => void;
 }
@@ -103,7 +103,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                     } else if (j === 0 && i !== 0) {
                         tableRow.push(<td key={j}>{rows[i-1].fieldKey}</td>);
                     } else if (j === 0 && i === 0) {
-                        tableRow.push(<td/>);
+                        tableRow.push(<td key={j}/>);
                     } else {
                         tableRow.push(<td onClick={() => this.handleCellClick(i-1, j-1)} key={j}>{this.props.selectedTableTagBody[i-1][j-1]}</td>);
                     }

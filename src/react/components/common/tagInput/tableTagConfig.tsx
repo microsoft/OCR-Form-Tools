@@ -352,7 +352,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     }, [name, tags]);
 
     function save(rows, columns) {
-        addTableTag({ name, format, rows, columns });
+        addTableTag({ name, format, rows, columns, headersFormatAndType });
         setTagInputMode(TagInputMode.Basic);
     }
 

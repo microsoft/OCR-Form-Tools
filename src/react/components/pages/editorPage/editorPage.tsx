@@ -13,7 +13,7 @@ import { strings, interpolate } from "../../../../common/strings";
 import {
     AssetState, AssetType, EditorMode, FieldType,
     IApplicationState, IAppSettings, IAsset, IAssetMetadata,
-    ILabel, IProject, IRegion, ISize, ITag, FeatureCategory, TagInputMode,FieldFormat,
+    ILabel, IProject, IRegion, ISize, ITag, FeatureCategory, TagInputMode,FieldFormat, ITableTag
 } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -400,6 +400,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 tagInputMode,
             }, () => {
                 this.resizeCanvas();
+                console.log("EditorPage -> privatesetTagInputMode -> resizeCanvas")
             });
         }
     }
@@ -410,22 +411,26 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         for (let i = 0; i < selectedTableTagBody.length; i++) {
             selectedTableTagBody[i] = new Array(selectedTableTagToLabel.columnKeys.length);
         }
-        console.log("EditorPage -> privatehandleLabelTable -> selectedTableTagBody[0][0]", selectedTableTagBody[0][0])
+        console.log("EditorPage -> privatehandleLabelTable -> selectedTableTagBody", selectedTableTagBody)
         this.setState({
-            tagInputMode,
             selectedTableTagToLabel,
             selectedTableTagBody,
         }, () => {
-            this.resizeCanvas();
+            this.setTagInputMode(tagInputMode);
         });
 
     }
 
     private handleTableCellClick = (iTableCellIndex, jTableCellIndex) => {
+        const inputTag = this.props.project.tags.find((t) => t.name === this.state.selectedTag);
+        // if ((inputTag as ITableTag).rowKeys[iTableCellIndex].fieldType) {
+
+        // }
         const selectedTableTagBody = clone()(this.state.selectedTableTagBody);
-        selectedTableTagBody[iTableCellIndex][jTableCellIndex] = this.state.selectedRegions;
+        selectedTableTagBody[iTableCellIndex][jTableCellIndex] = this.state.selectedRegions.map((region) => region.value).join(" ");
+        console.log("EditorPage -> privatehandleTableCellClick -> selectedTableTagBody", selectedTableTagBody)
         this.setState({selectedTableTagBody});
-        this.onTagClicked(this.state.selectedTableTagToLabel); // temp
+        // this.onTagClicked(this.state.selectedTableTagToLabel); // temp
     }
 
     /**

@@ -3,7 +3,7 @@
 
 import React, { MouseEvent } from "react";
 import { FontIcon, IconButton } from "@fluentui/react";
-import { ITag, ILabel, FieldType, FieldFormat } from "../../../../models/applicationState";
+import { ITag, ILabel, FieldType, FieldFormat, TagInputMode } from "../../../../models/applicationState";
 import { strings } from "../../../../common/strings";
 import TagInputItemLabel from "./tagInputItemLabel";
 import { tagIndexKeys } from "./tagIndexKeys";
@@ -41,6 +41,7 @@ export interface ITagInputItemProps {
     onLabelEnter: (label: ILabel) => void;
     onLabelLeave: (label: ILabel) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
+    handleLabelTable: (tagInputMode: TagInputMode, selectedTableTagToLabel) => void;
 }
 
 export interface ITagInputItemState {
@@ -205,6 +206,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                 label={label}
                 onLabelEnter={this.props.onLabelEnter}
                 onLabelLeave={this.props.onLabelLeave}
+                handleLabelTable={this.props.handleLabelTable}
             />);
     }
 
