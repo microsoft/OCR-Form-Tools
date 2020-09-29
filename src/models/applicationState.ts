@@ -122,8 +122,17 @@ export interface ITag {
     type: FieldType;
     format: FieldFormat;
     documentCount?: number;
-    columnKeys?: any[];
-    rowKeys?: any[];
+}
+
+export interface ITableTag extends ITag {
+    columnKeys: IField[];
+    rowKeys?: IField[];
+    tableTypeAndFormatFor?: TableHeaderTypeAndFormat,
+}
+
+export enum TableHeaderTypeAndFormat {
+    Rows = "rows",
+    Columns = "columns"
 }
 
 /**
@@ -280,8 +289,12 @@ export interface IField {
     fieldKey: string;
     fieldType: FieldType;
     fieldFormat: FieldFormat;
-    columnKeys?: any[];
-    rowKeys?: any[];
+}
+
+export interface ITableField extends IField {
+    columnKeys: IField[];
+    rowKeys?: IField[];
+    tableTypeAndFormatFor: TableHeaderTypeAndFormat;
 }
 
 export interface IFieldInfo {
