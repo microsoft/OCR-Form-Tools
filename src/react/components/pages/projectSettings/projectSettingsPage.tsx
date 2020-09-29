@@ -109,6 +109,11 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
         }
     }
 
+    componentWillUnmount() {
+        if (this.state.project?.id) {
+            removeStorageItem(constants.projectFormTempKey);
+        }
+    }
     // Hide ProjectMetrics for private-preview
     public render() {
         return (
@@ -181,7 +186,7 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
     private onFormChange = (project: IProject) => {
         if (this.isPartialProject(project)) {
             setStorageItem(constants.projectFormTempKey, JSON.stringify(project));
-            this.setState({project});
+            this.setState({ project });
         }
     }
 
@@ -202,7 +207,7 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
             await this.deleteOldProjectWhenRenamed(project, isNew);
             await this.props.applicationActions.ensureSecurityToken(project);
             await this.props.projectActions.saveProject(project, false, true);
-            removeStorageItem(constants.projectFormTempKey);
+            // removeStorageItem(constants.projectFormTempKey);
 
             toast.success(interpolate(strings.projectSettings.messages.saveSuccess, { project }));
 
@@ -226,7 +231,7 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
      * Checks whether a project is partially populated
      */
     private isPartialProject = (project: IProject): boolean => {
-        return project && !(!!project.id) &&
+        return project &&
             (
                 !!project.name
                 || !!project.description
