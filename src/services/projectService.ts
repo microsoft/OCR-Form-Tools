@@ -10,7 +10,7 @@ import {
     FieldFormat,
     IField,
     IFieldInfo,
-    ITableTag, ITableField, TableHeaderTypeAndFormat
+    ITableTag, ITableField, TableHeaderTypeAndFormat, ITableLabel, ILabelData
 } from "../models/applicationState";
 import Guard from "../common/guard";
 import { constants } from "../common/constants";
@@ -249,13 +249,21 @@ export default class ProjectService implements IProjectService {
                     && blobs.has(blob.substr(0, blob.length - constants.labelFileExtension.length))) {
                     try {
                         if (!assetLabel || assetLabel === blob) {
-                            const content = JSON.parse(await storageProvider.readText(blob));
+                            const content = JSON.parse(await storageProvider.readText(blob)) as ILabelData;
                             content.labels.forEach((label) => {
                                 tagNameSet.add(label.label);
                                 if (tagDocumentCount[label.label]) {
                                     tagDocumentCount[label.label] += 1;
                                 } else {
                                     tagDocumentCount[label.label] = 1;
+                                }
+                            });
+                            content.tableLabels.forEach((tableLabel) => {
+                                tagNameSet.add(tableLabel.tableKey);
+                                if (tagDocumentCount[tableLabel.tableKey]) {
+                                    tagDocumentCount[tableLabel.tableKey] += 1;
+                                } else {
+                                    tagDocumentCount[tableLabel.tableKey] = 1;
                                 }
                             });
                         }

@@ -66,20 +66,13 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                     <div className="modal-buttons-container mb-2 mr-1">
 
                         <PrimaryButton
-                            className="modal-cancel mr-3"
-                            theme={getPrimaryGreyTheme()}
-                            onClick={() => this.props.setTagInputMode(TagInputMode.Basic)}
-                        >
-                            Cancel
-                        </PrimaryButton>
-                        <PrimaryButton
                             className="modal-cancel"
                             theme={getPrimaryGreenTheme()}
                             onClick={() => {
                                 this.props.setTagInputMode(TagInputMode.Basic)
                             }}
                         >
-                            Apply
+                            Done
                         </PrimaryButton>
                     </div>
 
