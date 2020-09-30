@@ -76,6 +76,16 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         isChecked: props.layers["checkboxes"],
                         onClick: () => props.handleLayerChange("checkboxes"),
                     },
+                    // {
+                    //   key: "DrawnRegions",
+                    //   text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.drawnRegions,
+                    //   canCheck: true,
+                    //   iconProps: { iconName: "AddField" },
+                    //   isChecked: props.layers["drawnRegions"],
+                    //   className: props.drawRegionMode ? "disabled" : "",
+                    //   onClick: () => props.handleLayerChange("drawnRegions"),
+                    //   disabled: props.drawRegionMode
+                    // },
                     {
                         key: "Label",
                         text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.labels,
@@ -84,6 +94,16 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         isChecked: props.layers["label"],
                         onClick: () => props.handleLayerChange("label"),
                     },
+                    // {
+                    //   key: "drawRegion",
+                    //   text: strings.editorPage.canvas.canvasCommandBar.items.drawRegion,
+                    //   iconProps: { iconName: "AddField" },
+                    //   toggle: true,
+                    //   checked: props.drawRegionMode,
+                    //   className: !props.layers["drawnRegions"] ? "disabled" : "",
+                    //   onClick: () => props.handleToggleDrawRegionMode(),
+                    //   disabled: !props.layers["drawnRegions"],
+                    // }
                 ],
             },
         },
