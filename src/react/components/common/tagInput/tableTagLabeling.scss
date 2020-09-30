@@ -1,0 +1,27 @@
+
+@import "../../../../assets/sass/theme.scss";
+
+.table-view-container {
+    .column_header {
+        background-color: $lighter-4;
+        border: 2px solid grey;
+        text-align: center;
+        padding: .125rem .25rem;
+    }
+    .row_header {
+        border: 2px solid grey;
+        background-color: $lighter-2;
+        text-align: center;
+        padding: .125rem .5rem;
+    }
+    .empty_header {
+        border: 2px solid grey;
+        background-color: $lighter-1;
+
+    }
+    .table-cell {
+        text-align: center;
+        background-color: $darker-3;
+        color: rgba(255, 255, 255, 0.75);
+    }
+}
