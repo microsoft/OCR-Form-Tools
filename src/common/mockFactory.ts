@@ -319,6 +319,7 @@ export default class MockFactory {
             createContainer: jest.fn(),
             deleteContainer: jest.fn(),
             getAssets: jest.fn(),
+            isFileExists: jest.fn(),
         };
     }
 
