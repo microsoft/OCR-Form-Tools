@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux'
 
-import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, SelectionMode, DetailsListLayoutMode, FontIcon } from "@fluentui/react";
+import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, SelectionMode, DetailsListLayoutMode, FontIcon, CheckboxVisibility, IContextualMenuItem, CommandBar, Selection, Separator } from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme, getDefaultTheme } from '../../../../common/themes';
 import { FieldFormat, FieldType, IApplicationState, TagInputMode } from '../../../../models/applicationState';
 import { filterFormat } from "../../../../common/utils";
@@ -37,6 +37,7 @@ interface ITableTagConfigState {
     format: string,
 }
 interface ITableConfigItem {
+    index?: number,
     name: string,
     format: string,
     type: string;
@@ -105,8 +106,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     const table: ITableTagConfigState = {
         name: "",
         format: "fixed",
-        rows: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
-        columns: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
+        rows: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified, index: 0 }],
+        columns: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified, index: 0 }],
+
     };
     const tags = useSelector((state: IApplicationState) => {
         return state.currentProject.tags
@@ -118,6 +120,29 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     const [rows, setRows] = useState<ITableConfigItem[]>(table.rows);
     const [notUniqueNames, setNotUniqueNames] = useState<{ columns: [], rows: [], tags: boolean }>({ columns: [], rows: [], tags: false });
     const [headersFormatAndType, setHeadersFormatAndType] = useState<string>("columns");
+    const [selectedColumn, setSelectedColumn] = useState(undefined);
+    const [selectedRow, setSelectedRow] = useState(undefined)
+
+
+    // const getSelectionDetails = (): string =>  {
+    //     let selectionCount = selection.getSelectedCount();
+
+    //     switch (selectionCount) {
+    //         case 0:
+    //             return 'No items selected';
+    //         case 1:
+    //             return '1 item selected: '
+    //         default:
+    //             return `${selectionCount} items selected`;
+    //     }
+    // }
+    // const [selectionDetails, setSelectionDetails] = useState({})
+    // const [selection, setSelection] = useState(new Selection({
+    //     onSelectionChanged: () => setSelectionDetails(getSelectionDetails())
+    // }))
+    // const [selection, setSelection] = useState(new Selection({
+    //     onSelectionChanged: () => setSelectionDetails(getSelectionDetails())
+    // }))
 
 
 
@@ -146,6 +171,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             name: "name",
             // className: "composed-icon-cell",
             fieldName: "name",
+            isRowHeader: false,
             minWidth: 340,
             maxWidth: 340,
             isResizable: false,
@@ -218,6 +244,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             minWidth: 340,
             maxWidth: 340,
             isResizable: false,
+            // isRowHeader: true,
             onRender: (row, index) => {
                 return (
                     <TextField
@@ -281,11 +308,11 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
 
     function addColumn() {
-        return setColumns([...columns, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified }]);
+        return setColumns([...columns, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified, index: columns.length++ }]);
     }
 
     function addRow() {
-        return setRows([...rows, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified }]);
+        return setRows([...rows, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified, index: rows.length++ }]);
     }
 
     function setRowName(rowIndex: number, name: string) {
@@ -308,10 +335,137 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         setName(name);
     }
 
+    // CommandBar
+    // function _getHeaderFarItems(): IContextualMenuItem[] { }
+    function getRowsHeaderItems(): IContextualMenuItem[] {
+        return [
+            {
+                key: 'ingore',
+                text: '',
+                disabled: true,
+            },
+            {
+                key: 'Name',
+                text: 'Name',
+                style: { width: 230, textAlign: "left", marginLeft: -12 },
+                disabled: true,
+            },
+            {
+                key: 'moveUp',
+                text: 'Move up',
+                iconOnly: true,
+                iconProps: { iconName: 'Up' },
+                onClick: (e) => {
+                    console.log("# selectedRow:", selectedRow)
+                    onReOrder(selectedRow, -1, "rows")
+                },
+                disabled: !selectedRow!,
+            },
+            {
+                key: 'moveDown',
+                text: 'Move down',
+                iconOnly: true,
+                iconProps: { iconName: 'Down' },
+                onClick: (e) => {
+                    onReOrder(selectedRow, 1, "rows")
+                },
+                disabled: !selectedRow!,
+            },
+            {
+                key: 'deleteRow',
+                text: 'Delete row',
+                iconOnly: true,
+                iconProps: { iconName: 'Delete' },
+                onClick: (e) => {
+                    setRows(rows
+                        .filter((row) => row.index !== selectedRow.index)
+                        .map((row, newIdx) => ({ ...row, index: newIdx })));
+                },
+                disabled: !selectedRow!,
+
+            },
+            {
+                key: 'type',
+                text: 'Type',
+                style: { width: 100, textAlign: "left", marginLeft: 12 },
+                disabled: true,
+
+            },
+            {
+                key: 'format',
+                text: 'Format',
+                style: { width: 100, textAlign: "left", marginLeft: 12 },
+                disabled: true,
+            },
+        ];
+    };
+    function getColumnsHeaderItems(): IContextualMenuItem[] {
+        return [
+            {
+                key: 'ingore',
+                text: '',
+                disabled: true,
+            },
+            {
+                key: 'Name',
+                text: 'Name',
+                style: { width: 230, textAlign: "left", marginLeft: -12 },
+                disabled: true,
+            },
+            {
+                key: 'moveUp',
+                text: 'Move up',
+                iconOnly: true,
+                iconProps: { iconName: 'Up' },
+                onClick: (e) => {
+                    console.log("#: TableTagConfig -> selectedColumn", selectedColumn);
+                    onReOrder(selectedColumn, -1, "columns")
+
+                },
+                disabled: !selectedColumn,
+            },
+            {
+                key: 'moveDown',
+                text: 'Move down',
+                iconOnly: true,
+                iconProps: { iconName: 'Down' },
+                onClick: (e) => {
+                    onReOrder(selectedColumn, 1,  "columns")
+                },
+                disabled: !selectedColumn,
+            },
+            {
+                key: 'deleteColumn',
+                text: 'Delete column',
+                iconOnly: true,
+                iconProps: { iconName: 'Delete' },
+                onClick: (e) => {
+                    setColumns(columns
+                        .filter((col) => col.index !== selectedColumn.index)
+                        .map((col, newIdx) => ({ ...col, index: newIdx })));
+                },
+                disabled: !selectedColumn,
+
+            },
+            {
+                key: 'type',
+                text: 'Type',
+                style: { width: 100, textAlign: "left", marginLeft: 12 },
+                disabled: true,
+
+            },
+            {
+                key: 'format',
+                text: 'Format',
+                style: { width: 100, textAlign: "left", marginLeft: 12 },
+                disabled: true,
+            },
+        ];
+    };
 
     // Validation //
     function getTextInputError(array: any[], rowName: string, index: number) {
-        if (!rowName.length) {
+        if (!rowName?.length) {
             return strings.tags.regionTableTags.configureTag.errors.emptyName
         } else if (array.length && array.findIndex((item) => (item === index)) !== -1) {
             return strings.tags.regionTableTags.configureTag.errors.notUniqueName;
@@ -351,7 +505,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         setNotUniqueNames({ ...notUniqueNames, tags: existingTagName !== undefined ? true : false })
     }, [name, tags]);
 
-    function save(rows, columns) {
+    function save(rows: ITableConfigItem[], columns: ITableConfigItem[]) {
         addTableTag({ name, format, rows, columns, headersFormatAndType });
         setTagInputMode(TagInputMode.Basic);
     }
@@ -393,6 +547,59 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         }
     }
 
+    // row selection
+    const rowSelection = useMemo(() =>
+        new Selection({
+            onSelectionChanged: () => {
+                setSelectedRow(rowSelection.getSelection()[0])
+            }, selectionMode: SelectionMode.single,
+        }), []
+    );
+
+    const columnSelection = useMemo(() =>
+        new Selection({
+            onSelectionChanged: () => {
+                setSelectedColumn(columnSelection.getSelection()[0])
+            }, selectionMode: SelectionMode.single,
+        }), []
+    );
+
+    // reorder items
+    function onReOrder (item, displacement, role){
+
+        if (!item.name) {
+            return;
+        }
+        // debugger;
+        const items = role === "rows" ? [...rows] : [...columns];
+        const newItem = items.find(i => i.name === item.name);
+
+        const currentIndex = items.indexOf(newItem);
+        const newIndex = currentIndex + displacement;
+        if (newIndex < 0 || newIndex > items.length) {
+            // ???
+            console.log("# OUT!!!")
+            return;
+        }
+
+        items.splice(currentIndex, 1);
+        items.splice(newIndex, 0, { ...newItem, index: newIndex });
+
+        const updatedIndicesItems = items.map((i, newIdx) => ({ ...i, index: newIdx }));
+
+        if (role === "rows") {
+            setRows(updatedIndicesItems);
+        } else {
+            setColumns(updatedIndicesItems);
+        }
+        // this.setState({
+        //     items,
+        // }, () => this.debouncedSetTags(items));
+    }
+
+    useEffect(() => {
+        console.log("# rows:", rows, ", cols:", columns)
+    }, [columns, rows]);
     // render
     return (
         <Customizer {...dark}>
@@ -440,9 +647,19 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                             theme={getRightPaneDefaultButtonTheme()}
                             compact={true}
                             setKey="none"
-                            selectionMode={SelectionMode.none}
+                            // selectionMode={SelectionMode.single}
+                            selection={columnSelection}
                             layoutMode={DetailsListLayoutMode.justified}
+                            checkboxVisibility={CheckboxVisibility.always}
+                            onRenderDetailsHeader={() => (
+                                <>
+                                    <CommandBar items={getColumnsHeaderItems()} />
+                                    <Separator styles={{ root: { height: 2, padding: 0 } }} />
+                                </>
+                            )}
+
                         />
+
                         <PrimaryButton
                             theme={getPrimaryBlueTheme()}
                             className="add_button ml-12px"
@@ -465,8 +682,17 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                                 theme={getRightPaneDefaultButtonTheme()}
                                 compact={true}
                                 setKey="none"
-                                selectionMode={SelectionMode.none}
+                                // selectionMode={SelectionMode.single}
+                                selection={rowSelection}
                                 layoutMode={DetailsListLayoutMode.justified}
+                            checkboxVisibility={CheckboxVisibility.always}
+                            selectionPreservedOnEmptyClick={true}
+                                onRenderDetailsHeader={() => (
+                                    <>
+                                        <CommandBar items={getRowsHeaderItems()} />
+                                        <Separator styles={{ root: { height: 2, padding: 0 } }} />
+                                    </>
+                                )}
                             />
                         </div>
                         <PrimaryButton
