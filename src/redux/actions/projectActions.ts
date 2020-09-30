@@ -254,7 +254,7 @@ export function saveAssetMetadata(
     project: IProject,
     assetMetadata: IAssetMetadata): (dispatch: Dispatch) => Promise<IAssetMetadata> {
     const newAssetMetadata = { ...assetMetadata, version: appInfo.version };
-
+console.log("saveAssetMetadata saving", assetMetadata)
     return async (dispatch: Dispatch) => {
         const assetService = new AssetService(project);
         const savedMetadata = await assetService.save(newAssetMetadata);

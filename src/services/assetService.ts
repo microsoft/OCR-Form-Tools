@@ -383,49 +383,49 @@ export class AssetService {
         try {
             const json = await this.storageProvider.readText(labelFileName, true);
             const labelData = JSON.parse(json) as ILabelData;
-            if (!labelData.document || !labelData.labels) {
-                const reason = interpolate(strings.errors.missingRequiredFieldInLabelFile.message, { labelFileName });
-                toast.error(reason, { autoClose: false });
-                throw new Error("Invalid label file");
-            }
-            if (labelData.labels.length === 0) {
-                const reason = interpolate(strings.errors.noLabelInLabelFile.message, { labelFileName });
-                toast.info(reason);
-                throw new Error("Empty label file");
-            }
-            if (labelData.labels.find((f) => f.label.trim().length === 0)) {
-                toast.error(strings.tags.warnings.emptyName, { autoClose: false });
-                throw new Error("Invalid label file");
-            }
-            if (labelData.labels.containsDuplicates<ILabel>((f) => f.label)) {
-                const reason = interpolate(strings.errors.duplicateFieldKeyInLabelsFile.message, { labelFileName });
-                toast.error(reason, { autoClose: false });
-                throw new Error("Invalid label file");
-            }
-            const labelHash = new Set<string>();
-            for (const label of labelData.labels) {
-                const pageSet = new Set<number>();
-                for (const valueObj of label.value) {
-                    if (pageSet.size !== 0 && !pageSet.has(valueObj.page)) {
-                        const reason = interpolate(
-                            strings.errors.sameLabelInDifferentPageError.message, { tagName: label.label });
-                        toast.error(reason, { autoClose: false });
-                        throw new Error("Invalid label file");
-                    }
-                    pageSet.add(valueObj.page);
-                    for (const box of valueObj.boundingBoxes) {
-                        const hash = [valueObj.page, ...box].join();
-                        if (labelHash.has(hash)) {
-                            const reason = interpolate(
-                                strings.errors.duplicateBoxInLabelFile.message, { page: valueObj.page });
-                            toast.error(reason, { autoClose: false });
-                            throw new Error("Invalid label file");
-                        }
-                        labelHash.add(hash);
-                    }
-                }
-            }
-            toast.dismiss();
+            // if (!labelData.document || !labelData.labels && !labelData.tableLabels) {
+            //     const reason = interpolate(strings.errors.missingRequiredFieldInLabelFile.message, { labelFileName });
+            //     toast.error(reason, { autoClose: false });
+            //     throw new Error("Invalid label file");
+            // }
+            // if (labelData.labels.length === 0) {
+            //     const reason = interpolate(strings.errors.noLabelInLabelFile.message, { labelFileName });
+            //     toast.info(reason);
+            //     throw new Error("Empty label file");
+            // }
+            // if (labelData.labels.find((f) => f.label.trim().length === 0)) {
+            //     toast.error(strings.tags.warnings.emptyName, { autoClose: false });
+            //     throw new Error("Invalid label file");
+            // }
+            // if (labelData.labels.containsDuplicates<ILabel>((f) => f.label)) {
+            //     const reason = interpolate(strings.errors.duplicateFieldKeyInLabelsFile.message, { labelFileName });
+            //     toast.error(reason, { autoClose: false });
+            //     throw new Error("Invalid label file");
+            // }
+            // const labelHash = new Set<string>();
+            // for (const label of labelData.labels) {
+            //     const pageSet = new Set<number>();
+            //     for (const valueObj of label.value) {
+            //         if (pageSet.size !== 0 && !pageSet.has(valueObj.page)) {
+            //             const reason = interpolate(
+            //                 strings.errors.sameLabelInDifferentPageError.message, { tagName: label.label });
+            //             toast.error(reason, { autoClose: false });
+            //             throw new Error("Invalid label file");
+            //         }
+            //         pageSet.add(valueObj.page);
+            //         for (const box of valueObj.boundingBoxes) {
+            //             const hash = [valueObj.page, ...box].join();
+            //             if (labelHash.has(hash)) {
+            //                 const reason = interpolate(
+            //                     strings.errors.duplicateBoxInLabelFile.message, { page: valueObj.page });
+            //                 toast.error(reason, { autoClose: false });
+            //                 throw new Error("Invalid label file");
+            //             }
+            //             labelHash.add(hash);
+            //         }
+            //     }
+            // }
+            // toast.dismiss();
             return {
                 asset: { ...asset },
                 regions: [],

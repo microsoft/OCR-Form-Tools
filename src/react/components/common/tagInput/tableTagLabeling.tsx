@@ -4,6 +4,8 @@ import "./tableTagConfig.scss";
 import { IconButton, Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, IDropdownOption, SelectionMode, DetailsListLayoutMode, FontIcon } from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme } from '../../../../common/themes';
 import { FieldFormat, FieldType, TagInputMode, ITag, IRegion, ITableTag } from '../../../../models/applicationState';
+import "./tableTagLabeling.scss";
+
 import clone from "rfdc";
 
 
@@ -66,20 +68,13 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                     <div className="modal-buttons-container mb-2 mr-1">
 
                         <PrimaryButton
-                            className="modal-cancel mr-3"
-                            theme={getPrimaryGreyTheme()}
-                            onClick={() => this.props.setTagInputMode(TagInputMode.Basic)}
-                        >
-                            Cancel
-                        </PrimaryButton>
-                        <PrimaryButton
                             className="modal-cancel"
                             theme={getPrimaryGreenTheme()}
                             onClick={() => {
                                 this.props.setTagInputMode(TagInputMode.Basic)
                             }}
                         >
-                            Apply
+                            Done
                         </PrimaryButton>
                     </div>
 
@@ -88,8 +83,10 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
         )
     }
 
-    private getTableBody = () => {
-        const table = {rows: this.props.selectedTag.rowKeys, columns: this.props.selectedTag.columnKeys};
+    public getTableBody = () => {
+        const table = { rows: this.props.selectedTag.rowKeys, columns: this.props.selectedTag.columnKeys };
+
+        console.log("#: TableTagLabeling -> privategetTableBody -> table", table);
         let tableBody = null;
         if (table.rows.length !== 0 && table.columns.length !== 0) {
             tableBody = [];
@@ -99,13 +96,13 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                 const tableRow = [];
                 for (let j = 0; j < columns.length+1; j++) {
                     if (i === 0 && j !== 0) {
-                        tableRow.push(<td key={j}>{columns[j-1].fieldKey}</td>);
+                        tableRow.push(<th key={j} className={"column_header"}>{columns[j-1].fieldKey}</th>);
                     } else if (j === 0 && i !== 0) {
-                        tableRow.push(<td key={j}>{rows[i-1].fieldKey}</td>);
+                        tableRow.push(<th key={j} className={"row_header"}>{rows[i-1].fieldKey}</th>);
                     } else if (j === 0 && i === 0) {
-                        tableRow.push(<td key={j}/>);
+                        tableRow.push(<th key={j} className={"empty_header"}/>);
                     } else {
-                        tableRow.push(<td onClick={() => this.handleCellClick(i-1, j-1)} key={j}>{this.props.selectedTableTagBody[i-1][j-1]}</td>);
+                        tableRow.push(<td onClick={() => this.handleCellClick(i-1, j-1)} key={j} className={"table-cell"}>{this.props.selectedTableTagBody[i-1][j-1]}</td>);
                     }
                 }
                 tableBody.push(<tr key={i}>{tableRow}</tr>);

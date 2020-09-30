@@ -13,7 +13,7 @@ import { strings, interpolate } from "../../../../common/strings";
 import {
     AssetState, AssetType, EditorMode, FieldType,
     IApplicationState, IAppSettings, IAsset, IAssetMetadata,
-    ILabel, IProject, IRegion, ISize, ITag, FeatureCategory, TagInputMode,FieldFormat, ITableTag
+    ILabel, IProject, IRegion, ISize, ITag, FeatureCategory, TagInputMode,FieldFormat, ITableTag, ITableRegion
 } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -258,7 +258,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                     <div className="editor-page-content" onClick={this.onPageClick}>
                         <SplitPane split = "vertical"
                             primary = "second"
-                            maxSize = {625}
+                            maxSize = {670}
                             minSize = {290}
                             defaultSize={size}
                             pane1Style = {{height: "100%"}}
@@ -395,22 +395,35 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private setTagInputMode = (tagInputMode: TagInputMode) => {
-        if (tagInputMode !== this.state.tagInputMode) {
+        this.resizeCanvas();
+
             this.setState({
                 tagInputMode,
             }, () => {
                 this.resizeCanvas();
                 console.log("EditorPage -> privatesetTagInputMode -> resizeCanvas")
             });
-        }
+
     }
 
-    private handleLabelTable = (tagInputMode: TagInputMode, selectedTableTagToLabel) => {
+    private handleLabelTable = (tagInputMode: TagInputMode, selectedTableTagToLabel: ITableTag) => {
         console.log("EditorPage -> privatehandleLabelTable -> selectedTableTagToLabel", selectedTableTagToLabel)
         const selectedTableTagBody = new Array(selectedTableTagToLabel.rowKeys.length);
+        const tagAssets = this.state.selectedAsset.regions.filter((region) => region.tags[0] === selectedTableTagToLabel.name) as ITableRegion[];
+        console.log("EditorPage -> privatehandleLabelTable -> tagAssets", tagAssets)
         for (let i = 0; i < selectedTableTagBody.length; i++) {
             selectedTableTagBody[i] = new Array(selectedTableTagToLabel.columnKeys.length);
         }
+        tagAssets.forEach((region => {
+            const rowInex = selectedTableTagToLabel.rowKeys.findIndex(rowKey => rowKey.fieldKey === region.rowKey)
+            const colInex = selectedTableTagToLabel.columnKeys.findIndex(colKey => colKey.fieldKey === region.columnKey)
+            if (selectedTableTagBody[rowInex][colInex]) {
+                selectedTableTagBody[rowInex][colInex] += " " + region.value
+            } else {
+                selectedTableTagBody[rowInex][colInex] = region.value
+
+            }
+        }))
         console.log("EditorPage -> privatehandleLabelTable -> selectedTableTagBody", selectedTableTagBody)
         this.setState({
             selectedTableTagToLabel,
@@ -421,16 +434,24 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     }
 
-    private handleTableCellClick = (iTableCellIndex, jTableCellIndex) => {
-        const inputTag = this.props.project.tags.find((t) => t.name === this.state.selectedTag);
-        // if ((inputTag as ITableTag).rowKeys[iTableCellIndex].fieldType) {
-
-        // }
+    private handleTableCellClick = (rowIndex, columnIndex) => {
+        const inputTag = this.state.selectedTableTagToLabel as ITableTag;
+        console.log("EditorPage -> privatehandleTableCellClick -> this.props.project.tags", this.props.project.tags)
+        console.log("EditorPage -> privatehandleTableCellClick -> this.state.selectedTag", this.state.selectedTag)
+        console.log(inputTag, rowIndex, columnIndex);
+        if (inputTag.rowKeys[rowIndex].fieldType === FieldType.SelectionMark || inputTag.columnKeys[columnIndex].fieldType === FieldType.SelectionMark) {
+            toast.warn("selection mark support for semantic tables is still a work in progress");
+            return;
+        }
         const selectedTableTagBody = clone()(this.state.selectedTableTagBody);
-        selectedTableTagBody[iTableCellIndex][jTableCellIndex] = this.state.selectedRegions.map((region) => region.value).join(" ");
+        if (selectedTableTagBody[rowIndex][columnIndex]) {
+            selectedTableTagBody[rowIndex][columnIndex] += " " + this.state.selectedRegions.map((region) => region.value).join(" ");
+        } else {
+            selectedTableTagBody[rowIndex][columnIndex] = this.state.selectedRegions.map((region) => region.value).join(" ");
+        }
         console.log("EditorPage -> privatehandleTableCellClick -> selectedTableTagBody", selectedTableTagBody)
         this.setState({selectedTableTagBody});
-        // this.onTagClicked(this.state.selectedTableTagToLabel); // temp
+        this.onTableTagClicked(this.state.selectedTableTagToLabel, rowIndex, columnIndex);
     }
 
     /**
@@ -468,6 +489,13 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             selectedTag: tag.name,
             lockedTags: [],
         }, () => this.canvas.current.applyTag(tag.name));
+    }
+
+    private onTableTagClicked = (tag: ITag, rowIndex: number, columnIndex: number): void => {
+        this.setState({
+            selectedTag: tag.name,
+            lockedTags: [],
+        }, () => this.canvas.current.applyTag(tag.name, rowIndex, columnIndex));
     }
 
     /**
@@ -597,14 +625,18 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      * This can either be a parent or child asset
      */
     private onAssetMetadataChanged = async (assetMetadata: IAssetMetadata): Promise<void> => {
+    console.log("EditorPage -> assetMetadata", assetMetadata)
         // Comment out below code as we allow regions without tags, it would make labeler's work easier.
 
         const initialState = assetMetadata.asset.state;
 
         const asset = { ...assetMetadata.asset };
 
+        console.log("EditorPage -> asset", asset)
         if (this.isTaggableAssetType(assetMetadata.asset)) {
-            assetMetadata.asset.state = _.get(assetMetadata, "labelData.labels.length", 0) > 0 ?
+            const hasLabels = _.get(assetMetadata, "labelData.labels.length", 0) > 0;
+            const hasTableLabels = _.get(assetMetadata, "labelData.tableLabels.length", 0) > 0
+            assetMetadata.asset.state = hasLabels || hasTableLabels ?
                 AssetState.Tagged :
                 AssetState.Visited;
         } else if (assetMetadata.asset.state === AssetState.NotVisited) {
@@ -613,8 +645,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         // Only update asset metadata if state changes or is different
         if (initialState !== assetMetadata.asset.state || this.state.selectedAsset !== assetMetadata) {
-            if (this.state.selectedAsset.labelData && this.state.selectedAsset.labelData.labels &&
-                assetMetadata.labelData && assetMetadata.labelData.labels &&
+            if (this.state.selectedAsset?.labelData?.labels && assetMetadata?.labelData?.labels &&
                 assetMetadata.labelData.labels.toString() !== this.state.selectedAsset.labelData.labels.toString()) {
                 await this.updatedAssetMetadata(assetMetadata);
             }

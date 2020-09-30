@@ -36,13 +36,13 @@ export default function TagInputItemLabel(props: ITagInputItemLabelProps) {
     };
 
     // console.log("# tag:", tag)
-    if (tag?.type === FieldType.Table && label.value.length > 0) {
+    if (tag?.type === FieldType.Table) {
         return (
             <div
                 className={"tag-item-label px-2"}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
-            >
+            >hjhj
                 <FontIcon
                     onClick={() => props.handleLabelTable(TagInputMode.LabelTable, tag)}
                     className="pr-1 pl-1" iconName="Table"

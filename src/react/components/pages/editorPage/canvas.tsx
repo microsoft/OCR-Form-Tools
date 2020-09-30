@@ -9,7 +9,7 @@ import {
     EditorMode, IAssetMetadata,
     IProject, IRegion, RegionType,
     AssetType, ILabelData, ILabel,
-    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, ImageMapParent, LabelType,
+    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, ImageMapParent, LabelType, ITableRegion, ITableTag, ITableLabel, ITableCellLabel
 } from "../../../../models/applicationState";
 import CanvasHelpers from "./canvasHelpers";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
@@ -393,8 +393,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
      * Toggles tag on all selected regions
      * @param selectedTag Tag name
      */
-    public applyTag = (tag: string) => {
-        const selectedRegions = this.getSelectedRegions();
+    public applyTag = (tag: string, rowIndex?: number, columnIndex?: number) => {
+        const selectedRegions: IRegion[] = this.getSelectedRegions();
         const regionsEmpty = !selectedRegions || !selectedRegions.length;
         if (!tag || regionsEmpty) {
             return;
@@ -405,10 +405,18 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
 
         const transformer: (tags: string[], tag: string) => string[] = CanvasHelpers.setSingleTag;
-        const inputTag = this.props.project.tags.filter((t) => t.name === tag);
+        const inputTag: ITag[] = this.props.project.tags.filter((t) => t.name === tag);
 
         for (const selectedRegion of selectedRegions) {
             selectedRegion.tags = transformer(selectedRegion.tags, tag);
+        }
+
+        if (rowIndex !== undefined && columnIndex !== undefined) {
+            for (const selectedRegion of selectedRegions as ITableRegion[]) {
+                selectedRegion.rowKey = (inputTag as ITableTag[])[0].rowKeys[rowIndex].fieldKey;
+                selectedRegion.columnKey = (inputTag as ITableTag[])[0].columnKeys[columnIndex].fieldKey;
+                selectedRegion.isTableRegion = true;
+            }
         }
 
         this.updateRegions(selectedRegions);
@@ -595,6 +603,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
      */
     private updateAssetRegions = (regions: IRegion[]) => {
         const labelData = this.convertRegionsToLabelData(regions, this.state.currentAsset.asset.name);
+        console.log("Canvas -> privateupdateAssetRegions -> labelData", labelData)
         const currentAsset: IAssetMetadata = {
             ...this.state.currentAsset,
             regions,
@@ -647,6 +656,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
      */
     private updateRegions = (updates: IRegion[]) => {
         const regions = this.state.currentAsset.regions;
+        console.log(regions)
         const updatedRegions = [].concat(regions);
         for (const update of updates) {
             const region = regions.find((r) => r.id === update.id);
@@ -656,7 +666,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 updatedRegions.push(update);
             }
         }
-
+        console.log("Canvas -> privateupdateRegions -> updatedRegions", updatedRegions)
         updatedRegions.sort(this.compareRegionOrder);
         this.updateAssetRegions(updatedRegions);
     }
@@ -1302,46 +1312,93 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             });
         }
 
+        if (labelData && labelData.tableLabels) {
+            labelData.tableLabels.forEach((tableLabel) => {
+                tableLabel.labels.forEach((tableCell) => {
+                    tableCell.value.forEach((formRegion) => {
+                        if (formRegion.boundingBoxes) {
+                            formRegion.boundingBoxes.forEach((boundingBox, boundingBoxIndex) => {
+                                const text = this.getBoundingBoxTextFromRegion(formRegion, boundingBoxIndex);
+                                const tx = {...this.createRegion(boundingBox, text, tableLabel.tableKey, formRegion.page, undefined), rowKey: tableCell.rowKey, columnKey: tableCell.columnKey, isTableRegion: true} as ITableRegion;
+                                console.log("tx", tx)
+
+                                regions.push(tx);
+                            });
+                        }
+                    });
+                });
+            });
+        }
+
         return regions;
     }
 
     private convertRegionsToLabelData = (regions: IRegion[], assetName: string) => {
         const labelData: ILabelData = {
             document: decodeURIComponent(assetName).split("/").pop(),
-            labels: [],
+            labels: [] as ILabel[],
+            tableLabels: [] as ITableLabel[],
         };
 
         regions.forEach((region) => {
-            const labelType = this.getLabelType(region.category);
-            const boundingBox = region.id.split(",").map(parseFloat);
-            const formRegion = {
-                page: region.pageNumber,
-                text: region.value,
-                boundingBoxes: [boundingBox],
-            } as IFormRegion;
-            region.tags.forEach((tag) => {
-                const label = labelData.labels.find((label) => { return label.label === tag });
-                if (label) {
-                    label.value.push(formRegion);
-                } else {
-                    let newLabel;
-                    if (labelType) {
-                        newLabel = {
-                            label: tag,
-                            key: null,
-                            labelType,
-                            value: [formRegion],
-                        } as ILabel;
+                const labelType = this.getLabelType(region.category);
+                const boundingBox = region.id.split(",").map(parseFloat);
+                const formRegion = {
+                    page: region.pageNumber,
+                    text: region.value,
+                    boundingBoxes: [boundingBox],
+                } as IFormRegion;
+                region.tags.forEach((tag) => {
+                    if (region.isTableRegion) {
+                        const tableRegion = region as ITableRegion;
+                        const tableLabel: ITableLabel = labelData.tableLabels.find((tableLabel) => { return tableLabel.tableKey === tag });
+                        if (tableLabel) {
+                            const tableLabelCell = tableLabel.labels.find((tableLabelCell) => { return tableLabelCell.columnKey === tableRegion.columnKey &&tableLabelCell.rowKey === tableRegion.rowKey });
+                            if (tableLabelCell) {
+                                tableLabelCell.value.push(formRegion)
+                            } else {
+                                tableLabel.labels.push({
+                                    rowKey: tableRegion.rowKey,
+                                    columnKey: tableRegion.columnKey,
+                                    value: [formRegion]
+                                });
+                            }
+                        } else {
+                            const tableCellLabel: ITableCellLabel = {
+                                rowKey: tableRegion.rowKey,
+                                columnKey: tableRegion.columnKey,
+                                value: [formRegion]
+                            }
+                            labelData.tableLabels.push({
+                                tableKey: tag,
+                                labels: [tableCellLabel]
+                            })
+                        }
                     } else {
-                        newLabel = {
-                            label: tag,
-                            key: null,
-                            value: [formRegion],
-                        } as ILabel;
+                        const label = labelData.labels.find((label) => { return label.label === tag });
+                        if (label) {
+                            label.value.push(formRegion);
+                        } else {
+                            let newLabel;
+                            if (labelType) {
+                                newLabel = {
+                                    label: tag,
+                                    key: null,
+                                    labelType,
+                                    value: [formRegion],
+                                } as ILabel;
+                            } else {
+                                newLabel = {
+                                    label: tag,
+                                    key: null,
+                                    value: [formRegion],
+                                } as ILabel;
+                            }
+                            labelData.labels.push(newLabel);
+                        }
                     }
-                    labelData.labels.push(newLabel);
-                }
-            });
+                });
+
         });
         return labelData;
     }
@@ -1608,6 +1665,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (asset.id === this.state.currentAsset.asset.id &&
             this.state.currentAsset.labelData != null) {
             const regionsFromLabelData = this.convertLabelDataToRegions(this.state.currentAsset.labelData);
+            console.log("privateloadLabelData -> regionsFromLabelData", regionsFromLabelData)
             if (regionsFromLabelData.length > 0) {
                 this.addRegionsToAsset(regionsFromLabelData);
             }

@@ -218,6 +218,12 @@ export interface IRegion {
     boundingBox?: IBoundingBox,
     value?: string,
     pageNumber: number,
+    isTableRegion?: boolean,
+}
+
+export interface ITableRegion extends IRegion {
+    rowKey: string,
+    columnKey: string,
 }
 
 /**
@@ -227,6 +233,7 @@ export interface IRegion {
 export interface ILabelData {
     document: string,
     labels: ILabel[],
+    tableLabels?: ITableLabel[],
 }
 
 /**
@@ -238,6 +245,17 @@ export interface ILabel {
     key?: IFormRegion[],
     value: IFormRegion[],
     labelType?: string,
+}
+
+export interface ITableLabel {
+    tableKey: string,
+    labels: ITableCellLabel[],
+}
+
+export interface ITableCellLabel {
+    rowKey: string,
+    columnKey: string,
+    value: IFormRegion[],
 }
 
 /**

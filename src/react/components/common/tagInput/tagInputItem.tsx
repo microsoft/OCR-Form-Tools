@@ -199,6 +199,21 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
     }
 
     private renderTagDetail = () => {
+            // console.log("# tag:", tag)
+    if (this.props.tag.type === FieldType.Table) {
+        return (
+            <div
+                className={"tag-item-label px-2"}
+                // onMouseEnter={this.props.onLabelEnter}
+                // onMouseLeave={this.props.onLabelLeave}
+            >
+                <FontIcon
+                    onClick={() => this.props.handleLabelTable(TagInputMode.LabelTable, this.props.tag)}
+                    className="pr-1 pl-1" iconName="Table"
+                />
+            </div>
+        );
+    }
         return this.props.labels.map((label, idx) =>
             <TagInputItemLabel
                 tag={this.props.tag}
