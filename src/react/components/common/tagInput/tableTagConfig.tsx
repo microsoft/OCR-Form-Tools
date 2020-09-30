@@ -363,18 +363,20 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 text: 'Move up',
                 iconOnly: true,
                 iconProps: { iconName: 'Up' },
-                // onClick: {},
-                // disabled: true,
-
+                onClick: (e) => {
+                    onReOrder(selectedRow, -1, "rows")
+                },
+                disabled: !selectedRow!,
             },
             {
                 key: 'moveDown',
                 text: 'Move down',
                 iconOnly: true,
                 iconProps: { iconName: 'Down' },
-                // onClick: {},
-                // disabled: true,
-
+                onClick: (e) => {
+                    onReOrder(selectedRow, 1, "rows")
+                },
+                disabled: !selectedRow!,
             },
             {
                 key: 'deleteRow',
@@ -382,9 +384,11 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 iconOnly: true,
                 iconProps: { iconName: 'Delete' },
                 onClick: (e) => {
-                    setRows(rows.filter((row) => row.index !== selectedRow.index));
+                    setRows(rows
+                        .filter((row) => row.index !== selectedRow.index)
+                        .map((row, newIdx) => ({ ...row, index: newIdx })));
                 },
-                disabled: selectedRow === undefined,
+                disabled: !selectedRow!,
 
             },
             {
@@ -420,18 +424,21 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 text: 'Move up',
                 iconOnly: true,
                 iconProps: { iconName: 'Up' },
-                // onClick: {},
-                // disabled: true,
+                onClick: (e) => {
+                    onReOrder(selectedColumn, -1, "columns")
 
+                },
+                disabled: !selectedColumn,
             },
             {
                 key: 'moveDown',
                 text: 'Move down',
                 iconOnly: true,
                 iconProps: { iconName: 'Down' },
-                // onClick: {},
-                // disabled: true,
-
+                onClick: (e) => {
+                    onReOrder(selectedColumn, 1, "columns")
+                },
+                disabled: !selectedColumn,
             },
             {
                 key: 'deleteColumn',
@@ -439,10 +446,11 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 iconOnly: true,
                 iconProps: { iconName: 'Delete' },
                 onClick: (e) => {
-                    setColumns(columns.filter((col) => col.index !== selectedColumn.index
-                    ))
+                    setColumns(columns
+                        .filter((col) => col.index !== selectedColumn.index)
+                        .map((col, newIdx) => ({ ...col, index: newIdx })));
                 },
-                disabled: selectedColumn === undefined,
+                disabled: !selectedColumn,
 
             },
             {
@@ -463,7 +471,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
     // Validation //
     function getTextInputError(array: any[], rowName: string, index: number) {
-        if (!rowName.length) {
+        if (!rowName?.length) {
             return strings.tags.regionTableTags.configureTag.errors.emptyName
         } else if (array.length && array.findIndex((item) => (item === index)) !== -1) {
             return strings.tags.regionTableTags.configureTag.errors.notUniqueName;
@@ -562,6 +570,37 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         }), []
     );
 
+    // reorder items
+    function onReOrder(item, displacement, role) {
+
+        if (!item.name) {
+            return;
+        }
+        // debugger;
+        const items = role === "rows" ? [...rows] : [...columns];
+        const newItem = items.find(i => i.name === item.name);
+
+        const currentIndex = items.indexOf(newItem);
+        const newIndex = currentIndex + displacement;
+        if (newIndex < 0 || newIndex > items.length) {
+            return;
+        }
+
+        items.splice(currentIndex, 1);
+        items.splice(newIndex, 0, { ...newItem, index: newIndex });
+
+        const updatedIndicesItems = items.map((i, newIdx) => ({ ...i, index: newIdx }));
+
+        if (role === "rows") {
+            setRows(updatedIndicesItems);
+        } else {
+            setColumns(updatedIndicesItems);
+        }
+    }
+
+    // useEffect(() => {
+    //     console.log("# rows:", rows, ", cols:", columns)
+    // }, [columns, rows]);
 
 
     // Table preview
@@ -592,7 +631,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
     useEffect(() => {
         setTableChanged(
-            (_.isEqual(columns, table.columns) && _.isEqual(rows, table.rows)) ? false : true )
+            (_.isEqual(columns, table.columns) && _.isEqual(rows, table.rows)) ? false : true)
     }, [columns, rows, table.columns, table.rows]);
 
 
@@ -682,6 +721,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                                 selection={rowSelection}
                                 layoutMode={DetailsListLayoutMode.justified}
                                 checkboxVisibility={CheckboxVisibility.always}
+                                selectionPreservedOnEmptyClick={true}
                                 onRenderDetailsHeader={() => (
                                     <>
                                         <CommandBar items={getRowsHeaderItems()} />
