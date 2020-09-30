@@ -265,6 +265,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             onAssetMetadataChanged={this.onAssetMetadataChanged}
                                             onCanvasRendered={this.onCanvasRendered}
                                             onSelectedRegionsChanged={this.onSelectedRegionsChanged}
+                                            onRegionDoubleClick={this.onRegionDoubleClick}
                                             onRunningOCRStatusChanged={this.onCanvasRunningOCRStatusChanged}
                                             onRunningAutoLabelingStatusChanged={this.onCanvasRunningAutoLabelingStatusChanged}
                                             onTagChanged={this.onTagChanged}
@@ -605,6 +606,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     private onSelectedRegionsChanged = (selectedRegions: IRegion[]) => {
         this.setState({ selectedRegions });
+    }
+    private onRegionDoubleClick = (region: IRegion) => {
+        if (region.tags?.length > 0) {
+            this.tagInputRef.current.focusTag(region.tags[0]);
+        }
     }
 
     private onTagsChanged = async (tags) => {

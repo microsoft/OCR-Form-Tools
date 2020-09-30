@@ -55,6 +55,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     closeTableView?: (state: string) => void;
     onAssetMetadataChanged?: (assetMetadata: IAssetMetadata) => void;
     onSelectedRegionsChanged?: (regions: IRegion[]) => void;
+    onRegionDoubleClick?: (region: IRegion) => void;
     onCanvasRendered?: (canvas: HTMLCanvasElement) => void;
     onRunningOCRStatusChanged?: (isRunning: boolean) => void;
     onRunningAutoLabelingStatusChanged?: (isRunning: boolean) => void;
@@ -266,6 +267,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     imageHeight={this.state.imageHeight}
                     enableFeatureSelection={!this.state.drawRegionMode && !this.state.groupSelectMode}
                     handleFeatureSelect={this.handleFeatureSelect}
+                    handleFeatureDoubleClick={this.handleFeatureDoubleClick}
                     featureStyler={this.featureStyler}
                     groupSelectMode={this.state.groupSelectMode}
                     handleIsPointerOnImage={this.handleIsPointerOnImage}
@@ -640,6 +642,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.props.onSelectedRegionsChanged(selectedRegions);
         }
     }
+    private onRegionDoubleClick = (id: string) => {
+        if (this.props.onRegionDoubleClick) {
+            const region = this.state.currentAsset.regions.find(region=>region.id === id);
+            this.props.onRegionDoubleClick(region);
+        }
+    }
 
     /**
      * Updates regions in both Canvas Tools and the asset data store
@@ -1004,6 +1012,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.addToSelectedRegions(regionId, feature.get("text"), polygon, category);
         }
         this.redrawAllFeatures();
+    }
+    private handleFeatureDoubleClick = (feature: Feature, isToggle: boolean = true, category: FeatureCategory) => {
+        const regionId = feature.get("id");
+        if (this.isRegionSelected(regionId)) {
+            this.onRegionDoubleClick(regionId);
+        }
     }
 
     private handleMultiSelection = (regionId: any, category: FeatureCategory) => {
