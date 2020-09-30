@@ -41,8 +41,8 @@
     font-size: 90%;
 
     @media (max-width: 1920px) {
-        display: flex;
-        align-items: center;
+      display: flex;
+      align-items: center;
     }
 
     .hint-content {
@@ -63,7 +63,7 @@
     }
 
     .rv-hint {
-        white-space: nowrap;
+      white-space: nowrap;
     }
   }
 
@@ -79,4 +79,19 @@
 .assetCount {
   display: flex;
   align-items: center;
+}
+
+.project-saving {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  text-align: center;
+  display: flex;
+  .project-saving-spinner {
+    margin: auto;
+    font-size: 24px;
+  }
 }

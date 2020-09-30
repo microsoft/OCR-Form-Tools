@@ -35,6 +35,7 @@ export interface IStorageProvider extends IAssetProvider {
     isValidProjectConnection(filepath?): Promise<boolean>;
 
     listFiles(folderPath?: string, ext?: string): Promise<string[]>;
+    isFileExists(filepath: string): Promise<boolean>;
     listContainers(folderPath?: string): Promise<string[]>;
 
     createContainer(folderPath: string): Promise<void>;
