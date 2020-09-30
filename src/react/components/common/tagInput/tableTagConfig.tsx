@@ -180,8 +180,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             // className: "composed-icon-cell",
             fieldName: "name",
             isRowHeader: false,
-            minWidth: 340,
-            maxWidth: 340,
+            minWidth: 360,
+            maxWidth: 360,
             isResizable: false,
             onRender: (row, index) => {
                 return (
@@ -249,8 +249,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             name: "name",
             // className: "composed-icon-cell",
             fieldName: "name",
-            minWidth: 340,
-            maxWidth: 340,
+            minWidth: 360,
+            maxWidth: 360,
             isResizable: false,
             // isRowHeader: true,
             onRender: (row, index) => {
@@ -355,7 +355,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             {
                 key: 'Name',
                 text: 'Name',
-                style: { width: 230, textAlign: "left", marginLeft: -12 },
+                style: { width: 250, textAlign: "left", marginLeft: -48 },
                 disabled: true,
             },
             {
@@ -416,7 +416,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             {
                 key: 'Name',
                 text: 'Name',
-                style: { width: 230, textAlign: "left", marginLeft: -12 },
+                style: { width: 250, textAlign: "left", marginLeft: -48 },
                 disabled: true,
             },
             {
