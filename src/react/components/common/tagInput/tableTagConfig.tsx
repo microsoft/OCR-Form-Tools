@@ -10,12 +10,20 @@ import { filterFormat } from "../../../../common/utils";
 import { toast } from "react-toastify";
 import "./tableTagConfig.scss";
 import { strings } from "../../../../common/strings";
+import _ from "lodash";
+
 
 
 
 interface IShareProps {
     // appSettings?: IAppSettings,
     // currentProject?: IProject;
+}
+
+interface ItableCell {
+    fieldKey: string,
+    fieldType: string,
+    fieldFormat: string,
 }
 interface IShareState {
     // appSettings: IAppSettings,
@@ -554,6 +562,40 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         }), []
     );
 
+
+
+    // Table preview
+    function getTableBody() {
+        let tableBody = null;
+        if (table.rows.length !== 0 && table.columns.length !== 0) {
+            tableBody = [];
+            for (let i = 0; i < rows.length + 1; i++) {
+                const tableRow = [];
+                for (let j = 0; j < columns.length + 1; j++) {
+                    if (i === 0 && j !== 0) {
+                        tableRow.push(<th key={j} className={"column_header"}>{columns[j - 1].name}</th>);
+                    } else if (j === 0 && i !== 0) {
+                        tableRow.push(<th key={j} className={"row_header"}>{rows[i - 1].name}</th>);
+                    } else if (j === 0 && i === 0) {
+                        tableRow.push(<th className={"empty_header"} />);
+                    } else {
+                        tableRow.push(<td className={"table-cell"}></td>);
+                    }
+                }
+                tableBody.push(<tr key={i}>{tableRow}</tr>);
+            }
+        }
+        return tableBody
+    };
+
+    const [tableChanged, setTableChanged] = useState(false);
+
+    useEffect(() => {
+        setTableChanged(
+            (_.isEqual(columns, table.columns) && _.isEqual(rows, table.rows)) ? false : true )
+    }, [columns, rows, table.columns, table.rows]);
+
+
     // render
     return (
         <Customizer {...dark}>
@@ -656,6 +698,17 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                             <FontIcon iconName="Add" className="mr-2" />
                                 Add row
                             </PrimaryButton>
+                    </div>
+                }
+                {
+                    tableChanged &&
+                    <div className="preview_container">
+                        <h5 className="mt-3 ">Preview:</h5>
+                        <table className="table">
+                            <tbody>
+                                {getTableBody()}
+                            </tbody>
+                        </table>
                     </div>
                 }
                 <div className="control-buttons_container">
