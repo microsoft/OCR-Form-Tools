@@ -18,7 +18,7 @@ import { strings, interpolate } from "../../../../common/strings";
 import { getDarkTheme } from "../../../../common/themes";
 import { AlignPortal } from "../align/alignPortal";
 import { filterFormat, getNextColor } from "../../../../common/utils";
-import { IRegion, ITag, ILabel, FieldType, FieldFormat, IField, TagInputMode, FeatureCategory, ITableTag, TableHeaderTypeAndFormat } from "../../../../models/applicationState";
+import { IRegion, ITag, ILabel, FieldType, FieldFormat, IField, TagInputMode, FeatureCategory, ITableTag, TableHeaderTypeAndFormat, ITableRegion } from "../../../../models/applicationState";
 import { ColorPicker } from "../colorPicker";
 import "./tagInput.scss";
 import "../condensedList/condensedList.scss";
@@ -87,7 +87,7 @@ export interface ITagInputProps {
     selectedTableTagToLabel: ITag;
     handleLabelTable: (tagInputMode: TagInputMode, selectedTableTagToLabel) => void;
     handleTableCellClick: (iTableCellIndex, jTableCellIndex) => void;
-    selectedTableTagBody: string[][];
+    selectedTableTagBody: ITableRegion[][][];
 }
 
 export interface ITagInputState {

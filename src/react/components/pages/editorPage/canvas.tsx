@@ -61,6 +61,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
     runOcrForAllDocs?: (runForAllDocs: boolean) => void;
     onAssetDeleted?: () => void;
+    handleLabelTable?: () => void;
 }
 
 export interface ICanvasState {
@@ -619,6 +620,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.setState({
             currentAsset,
         }, () => {
+            this.props.handleLabelTable();
             this.props.onAssetMetadataChanged(currentAsset);
         });
     }

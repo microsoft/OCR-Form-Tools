@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import "./tableTagConfig.scss";
 import { IconButton, Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, IDropdownOption, SelectionMode, DetailsListLayoutMode, FontIcon } from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme } from '../../../../common/themes';
-import { FieldFormat, FieldType, TagInputMode, ITag, IRegion, ITableTag } from '../../../../models/applicationState';
+import { FieldFormat, FieldType, TagInputMode, ITag, IRegion, ITableTag, ITableRegion } from '../../../../models/applicationState';
 import "./tableTagLabeling.scss";
 
 import clone from "rfdc";
@@ -14,7 +14,7 @@ interface ITableTagLabelingProps {
     selectedTag: ITableTag,
     selectedRegions?: IRegion[];
     onTagClick?: (tag: ITableTag) => void;
-    selectedTableTagBody: string[][];
+    selectedTableTagBody: ITableRegion[][][];
     handleTableCellClick: (iTableCellIndex, jTableCellIndex) => void;
 }
 
@@ -102,7 +102,10 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                     } else if (j === 0 && i === 0) {
                         tableRow.push(<th key={j} className={"empty_header"}/>);
                     } else {
-                        tableRow.push(<td onClick={() => this.handleCellClick(i-1, j-1)} key={j} className={"table-cell"}>{this.props.selectedTableTagBody[i-1][j-1]}</td>);
+                        tableRow.push(
+                        <td onClick={() => this.handleCellClick(i-1, j-1)} key={j}>
+                            {this.props.selectedTableTagBody[i-1][j-1]?.map((tableRegion) => tableRegion.value).join(" ")}
+                        </td>);
                     }
                 }
                 tableBody.push(<tr key={i}>{tableRow}</tr>);

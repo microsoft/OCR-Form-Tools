@@ -97,8 +97,8 @@ export interface IEditorPageState {
     tableToView: object;
     tableToViewId: string;
     tagInputMode: TagInputMode;
-    selectedTableTagToLabel: ITag;
-    selectedTableTagBody: string[][];
+    selectedTableTagToLabel: ITableTag;
+    selectedTableTagBody: ITableRegion[][][];
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -291,6 +291,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             closeTableView={this.closeTableView}
                                             runOcrForAllDocs={this.loadOcrForNotVisited}
                                             appSettings={this.props.appSettings}
+                                            handleLabelTable={this.handleLabelTable}
                                         >
                                             <AssetPreview
                                                 controlsEnabled={this.state.isValid}
@@ -406,22 +407,22 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     }
 
-    private handleLabelTable = (tagInputMode: TagInputMode, selectedTableTagToLabel: ITableTag) => {
-        console.log("EditorPage -> privatehandleLabelTable -> selectedTableTagToLabel", selectedTableTagToLabel)
+    private handleLabelTable = (tagInputMode: TagInputMode = TagInputMode.LabelTable, selectedTableTagToLabel: ITableTag = this.state.selectedTableTagToLabel) => {
+        if (selectedTableTagToLabel == null) {
+            return;
+        }
         const selectedTableTagBody = new Array(selectedTableTagToLabel.rowKeys.length);
-        const tagAssets = this.state.selectedAsset.regions.filter((region) => region.tags[0] === selectedTableTagToLabel.name) as ITableRegion[];
-        console.log("EditorPage -> privatehandleLabelTable -> tagAssets", tagAssets)
         for (let i = 0; i < selectedTableTagBody.length; i++) {
             selectedTableTagBody[i] = new Array(selectedTableTagToLabel.columnKeys.length);
         }
+        const tagAssets = clone()(this.state.selectedAsset.regions).filter((region) => region.tags[0] === selectedTableTagToLabel.name) as ITableRegion[];
         tagAssets.forEach((region => {
             const rowInex = selectedTableTagToLabel.rowKeys.findIndex(rowKey => rowKey.fieldKey === region.rowKey)
             const colInex = selectedTableTagToLabel.columnKeys.findIndex(colKey => colKey.fieldKey === region.columnKey)
-            if (selectedTableTagBody[rowInex][colInex]) {
-                selectedTableTagBody[rowInex][colInex] += " " + region.value
+            if (selectedTableTagBody[rowInex][colInex] != null) {
+                selectedTableTagBody[rowInex][colInex].push(region)
             } else {
-                selectedTableTagBody[rowInex][colInex] = region.value
-
+                selectedTableTagBody[rowInex][colInex] = [region]
             }
         }))
         console.log("EditorPage -> privatehandleLabelTable -> selectedTableTagBody", selectedTableTagBody)
@@ -435,24 +436,47 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private handleTableCellClick = (rowIndex, columnIndex) => {
-        const inputTag = this.state.selectedTableTagToLabel as ITableTag;
-        console.log("EditorPage -> privatehandleTableCellClick -> this.props.project.tags", this.props.project.tags)
-        console.log("EditorPage -> privatehandleTableCellClick -> this.state.selectedTag", this.state.selectedTag)
-        console.log(inputTag, rowIndex, columnIndex);
-        if (inputTag.rowKeys[rowIndex].fieldType === FieldType.SelectionMark || inputTag.columnKeys[columnIndex].fieldType === FieldType.SelectionMark) {
-            toast.warn("selection mark support for semantic tables is still a work in progress");
-            return;
-        }
-        const selectedTableTagBody = clone()(this.state.selectedTableTagBody);
-        if (selectedTableTagBody[rowIndex][columnIndex]) {
-            selectedTableTagBody[rowIndex][columnIndex] += " " + this.state.selectedRegions.map((region) => region.value).join(" ");
-        } else {
-            selectedTableTagBody[rowIndex][columnIndex] = this.state.selectedRegions.map((region) => region.value).join(" ");
-        }
-        console.log("EditorPage -> privatehandleTableCellClick -> selectedTableTagBody", selectedTableTagBody)
-        this.setState({selectedTableTagBody});
+        // const inputTag = this.state.selectedTableTagToLabel as ITableTag;
+        // console.log("EditorPage -> privatehandleTableCellClick -> this.props.project.tags", this.props.project.tags)
+        // console.log("EditorPage -> privatehandleTableCellClick -> this.state.selectedTag", this.state.selectedTag)
+        // console.log(inputTag, rowIndex, columnIndex);
+        // if (inputTag.rowKeys[rowIndex].fieldType === FieldType.SelectionMark || inputTag.columnKeys[columnIndex].fieldType === FieldType.SelectionMark) {
+        //     toast.warn("selection mark support for semantic tables is still a work in progress");
+        //     return;
+        // }
+        // const selectedTableTagBody = clone()(this.state.selectedTableTagBody);
+        // if (selectedTableTagBody[rowIndex][columnIndex] != null) {
+        //     selectedTableTagBody[rowIndex][columnIndex].concat(clone()(this.state.selectedRegions));
+        // } else {
+        //     selectedTableTagBody[rowIndex][columnIndex] = clone()(this.state.selectedRegions);
+        // }
+        // console.log("EditorPage -> privatehandleTableCellClick -> selectedTableTagBody", selectedTableTagBody)
         this.onTableTagClicked(this.state.selectedTableTagToLabel, rowIndex, columnIndex);
     }
+
+    // private resetTableBody = () => {
+    //     const selectedTableTagToLabel = this.state.selectedTableTagToLabel as ITableTag;
+    //     const selectedTableTagBody = new Array(selectedTableTagToLabel.rowKeys.length);
+    //     const tagAssets = this.state.selectedAsset.regions.filter((region) => region.tags[0] === selectedTableTagToLabel.name) as ITableRegion[];
+    //     console.log("EditorPage -> privatehandleLabelTable -> tagAssets", tagAssets)
+    //     for (let i = 0; i < selectedTableTagBody.length; i++) {
+    //         selectedTableTagBody[i] = new Array(selectedTableTagToLabel.columnKeys.length);
+    //     }
+    //     tagAssets.forEach((region => {
+    //         const rowInex = selectedTableTagToLabel.rowKeys.findIndex(rowKey => rowKey.fieldKey === region.rowKey)
+    //         const colInex = selectedTableTagToLabel.columnKeys.findIndex(colKey => colKey.fieldKey === region.columnKey)
+    //         if (selectedTableTagBody[rowInex][colInex]) {
+    //             selectedTableTagBody[rowInex][colInex] += " " + region.value
+    //         } else {
+    //             selectedTableTagBody[rowInex][colInex] = region.value
+
+    //         }
+    //     }))
+    //     console.log("EditorPage -> privatehandleLabelTable -> selectedTableTagBody", selectedTableTagBody)
+    //     this.setState({
+    //         selectedTableTagBody,
+    //     })
+    // }
 
     /**
      * Called when the asset side bar is resized
@@ -666,7 +690,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             };
         }
 
-        this.setState({ assets, isValid: true });
+        this.setState({ assets, isValid: true }, () => {
+            this.handleLabelTable();
+        });
 
         // Workaround for if component is unmounted
         if (!this.isUnmount) {
