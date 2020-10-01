@@ -612,16 +612,16 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 const tableRow = [];
                 for (let j = 0; j < columns.length + 1; j++) {
                     if (i === 0 && j !== 0) {
-                        tableRow.push(<th key={j} className={"column_header"}>{columns[j - 1].name}</th>);
+                        tableRow.push(<th key={`col-h-${j}`} className={"column_header"}>{columns[j - 1].name}</th>);
                     } else if (j === 0 && i !== 0) {
-                        tableRow.push(<th key={j} className={"row_header"}>{rows[i - 1].name}</th>);
+                        tableRow.push(<th key={`row-h-${j}`} className={"row_header"}>{rows[i - 1].name}</th>);
                     } else if (j === 0 && i === 0) {
-                        tableRow.push(<th className={"empty_header"} />);
+                        tableRow.push(<th key={"ignore"}  className={"empty_header"} />);
                     } else {
-                        tableRow.push(<td className={"table-cell"}></td>);
+                        tableRow.push(<td key={`cell-${i}-${j}`}className={"table-cell"} />);
                     }
                 }
-                tableBody.push(<tr key={i}>{tableRow}</tr>);
+                tableBody.push(<tr key={`row-${i}`}>{tableRow}</tr>);
             }
         }
         return tableBody
