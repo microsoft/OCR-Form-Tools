@@ -204,13 +204,12 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         return (
             <div
                 className={"tag-item-label px-2"}
-                // onMouseEnter={this.props.onLabelEnter}
-                // onMouseLeave={this.props.onLabelLeave}
+                onClick={() => this.props.handleLabelTable(TagInputMode.LabelTable, this.props.tag)}
             >
                 <FontIcon
-                    onClick={() => this.props.handleLabelTable(TagInputMode.LabelTable, this.props.tag)}
                     className="pr-1 pl-1" iconName="Table"
                 />
+                Click to assign labels
             </div>
         );
     }
