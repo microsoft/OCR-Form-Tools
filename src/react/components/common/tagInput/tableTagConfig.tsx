@@ -45,7 +45,6 @@ interface ITableTagConfigState {
     format: string,
 }
 interface ITableConfigItem {
-    index?: number,
     name: string,
     format: string,
     type: string;
@@ -114,9 +113,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     const table: ITableTagConfigState = {
         name: "",
         format: "fixed",
-        rows: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified, index: 0 }],
-        columns: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified, index: 0 }],
-
+        rows: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
+        columns: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
     };
     const tags = useSelector((state: IApplicationState) => {
         return state.currentProject.tags
@@ -316,11 +314,11 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
 
     function addColumn() {
-        return setColumns([...columns, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified, index: columns.length++ }]);
+        return setColumns([...columns, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified }]);
     }
 
     function addRow() {
-        return setRows([...rows, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified, index: rows.length++ }]);
+        return setRows([...rows, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified }]);
     }
 
     function setRowName(rowIndex: number, name: string) {
@@ -364,7 +362,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 iconOnly: true,
                 iconProps: { iconName: 'Up' },
                 onClick: (e) => {
-                    onReOrder(selectedRow, -1, "rows")
+                    onReOrder(-1, "rows")
                 },
                 disabled: !selectedRow!,
             },
@@ -374,7 +372,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 iconOnly: true,
                 iconProps: { iconName: 'Down' },
                 onClick: (e) => {
-                    onReOrder(selectedRow, 1, "rows")
+                    onReOrder(1, "rows")
                 },
                 disabled: !selectedRow!,
             },
@@ -383,13 +381,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 text: 'Delete row',
                 iconOnly: true,
                 iconProps: { iconName: 'Delete' },
-                onClick: (e) => {
-                    setRows(rows
-                        .filter((row) => row.index !== selectedRow.index)
-                        .map((row, newIdx) => ({ ...row, index: newIdx })));
-                },
+                onClick: () => setRows(rows.filter((i, idx) => idx !== rowSelection.getSelectedIndices()[0])),
                 disabled: !selectedRow!,
-
             },
             {
                 key: 'type',
@@ -425,7 +418,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 iconOnly: true,
                 iconProps: { iconName: 'Up' },
                 onClick: (e) => {
-                    onReOrder(selectedColumn, -1, "columns")
+                    onReOrder(-1, "columns")
 
                 },
                 disabled: !selectedColumn,
@@ -436,7 +429,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 iconOnly: true,
                 iconProps: { iconName: 'Down' },
                 onClick: (e) => {
-                    onReOrder(selectedColumn, 1, "columns")
+                    onReOrder(1, "columns")
                 },
                 disabled: !selectedColumn,
             },
@@ -444,14 +437,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 key: 'deleteColumn',
                 text: 'Delete column',
                 iconOnly: true,
-                iconProps: { iconName: 'Delete' },
-                onClick: (e) => {
-                    setColumns(columns
-                        .filter((col) => col.index !== selectedColumn.index)
-                        .map((col, newIdx) => ({ ...col, index: newIdx })));
-                },
+                iconProps: { iconName: 'Delete', },
+                onClick: () => setColumns(columns.filter((i, idx) => idx !== columnSelection.getSelectedIndices()[0])),
                 disabled: !selectedColumn,
-
             },
             {
                 key: 'type',
@@ -570,31 +558,27 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         }), []
     );
 
+
     // reorder items
-    function onReOrder(item, displacement, role) {
-
-        if (!item.name) {
-            return;
-        }
-        // debugger;
+    function onReOrder(displacement: number, role: string) {
         const items = role === "rows" ? [...rows] : [...columns];
-        const newItem = items.find(i => i.name === item.name);
-
-        const currentIndex = items.indexOf(newItem);
-        const newIndex = currentIndex + displacement;
-        if (newIndex < 0 || newIndex > items.length) {
+        const selection = role === "rows" ? rowSelection : columnSelection;
+        const selectedIndex = selection.getSelectedIndices()[0];
+        const itemToBeMoved = items[selectedIndex];
+        const newIndex = selectedIndex + displacement;
+        if (newIndex < 0 || newIndex > items.length - 1) {
             return;
         }
 
-        items.splice(currentIndex, 1);
-        items.splice(newIndex, 0, { ...newItem, index: newIndex });
-
-        const updatedIndicesItems = items.map((i, newIdx) => ({ ...i, index: newIdx }));
+        items.splice(selectedIndex, 1);
+        items.splice(newIndex, 0, itemToBeMoved);
 
         if (role === "rows") {
-            setRows(updatedIndicesItems);
+            rowSelection.setIndexSelected(newIndex, true, false);
+            setRows(items);
         } else {
-            setColumns(updatedIndicesItems);
+            columnSelection.setIndexSelected(newIndex, true, true);
+            setColumns(items);
         }
     }
 
