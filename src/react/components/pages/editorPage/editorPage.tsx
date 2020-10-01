@@ -407,7 +407,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     }
 
-    private handleLabelTable = (tagInputMode: TagInputMode = TagInputMode.LabelTable, selectedTableTagToLabel: ITableTag = this.state.selectedTableTagToLabel) => {
+    private handleLabelTable = (tagInputMode: TagInputMode = this.state.tagInputMode, selectedTableTagToLabel: ITableTag = this.state.selectedTableTagToLabel) => {
         if (selectedTableTagToLabel == null) {
             return;
         }
