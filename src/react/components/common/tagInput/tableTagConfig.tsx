@@ -344,6 +344,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     // CommandBar
     // function _getHeaderFarItems(): IContextualMenuItem[] { }
     function getRowsHeaderItems(): IContextualMenuItem[] {
+        const currSelectionIndex = rowSelection.getSelectedIndices()[0];
         return [
             {
                 key: 'ingore',
@@ -364,7 +365,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 onClick: (e) => {
                     onReOrder(-1, "rows")
                 },
-                disabled: !selectedRow!,
+                disabled: !selectedRow || currSelectionIndex === 0,
             },
             {
                 key: 'moveDown',
@@ -374,7 +375,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 onClick: (e) => {
                     onReOrder(1, "rows")
                 },
-                disabled: !selectedRow!,
+                disabled: !selectedRow! || currSelectionIndex === rows.length -1,
             },
             {
                 key: 'deleteRow',
@@ -400,6 +401,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         ];
     };
     function getColumnsHeaderItems(): IContextualMenuItem[] {
+        const currSelectionIndex = columnSelection.getSelectedIndices()[0];
+
         return [
             {
                 key: 'ingore',
@@ -421,7 +424,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     onReOrder(-1, "columns")
 
                 },
-                disabled: !selectedColumn,
+                disabled: !selectedColumn || currSelectionIndex === 0,
             },
             {
                 key: 'moveDown',
@@ -431,7 +434,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 onClick: (e) => {
                     onReOrder(1, "columns")
                 },
-                disabled: !selectedColumn,
+                disabled: !selectedColumn || currSelectionIndex === columns.length -1,
             },
             {
                 key: 'deleteColumn',
