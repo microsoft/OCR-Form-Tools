@@ -383,7 +383,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 iconOnly: true,
                 iconProps: { iconName: 'Delete' },
                 onClick: () => setRows(rows.filter((i, idx) => idx !== rowSelection.getSelectedIndices()[0])),
-                disabled: !selectedRow!,
+                disabled: !selectedRow!  || rows.length === 1,
             },
             {
                 key: 'type',
@@ -442,7 +442,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 iconOnly: true,
                 iconProps: { iconName: 'Delete', },
                 onClick: () => setColumns(columns.filter((i, idx) => idx !== columnSelection.getSelectedIndices()[0])),
-                disabled: !selectedColumn,
+                disabled: !selectedColumn || columns.length === 1,
             },
             {
                 key: 'type',
