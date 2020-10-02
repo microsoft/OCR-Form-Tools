@@ -14,13 +14,18 @@
         padding-right: 18px;
     }
 
+    .row-name_input, .column-name_input {
+        input::placeholder {
+            color: $darker-2;
+          }
+    }
+
     .columns_container {
         margin-top: 2rem;
         margin-bottom: 4rem;
         .columns-list_container {
         }
     }
-
 
     .rows_container {
       .rows-list_container {
