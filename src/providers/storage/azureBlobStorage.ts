@@ -151,6 +151,14 @@ export class AzureBlobStorage implements IStorageProvider {
     }
 
     /**
+     * check file is exists
+     * @param filePath
+     */
+    public async isFileExists(filePath: string) :Promise<boolean> {
+        const client = this.containerClient.getBlobClient(filePath);
+        return await client.exists();
+    }
+    /**
      * Lists the containers with in the Azure Blob Storage account
      * @param path - NOT USED IN CURRENT IMPLEMENTATION. Lists containers in storage account.
      * Path does not really make sense in this scenario. Included to satisfy interface

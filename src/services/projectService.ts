@@ -151,14 +151,7 @@ export default class ProjectService implements IProjectService {
 
     public async isProjectNameAlreadyUsed(project: IProject): Promise<boolean> {
         const storageProvider = StorageProviderFactory.createFromConnection(project.sourceConnection);
-        const fileList = await storageProvider.listFiles("", constants.projectFileExtension/*ext*/);
-        for (const fileName of fileList) {
-            if (fileName === `${project.name}${constants.projectFileExtension}`) {
-                return true;
-            }
-        }
-
-        return false;
+        return await storageProvider.isFileExists(`${project.name}${constants.projectFileExtension}`);
     }
 
     public async isValidProjectConnection(project: IProject): Promise<boolean> {

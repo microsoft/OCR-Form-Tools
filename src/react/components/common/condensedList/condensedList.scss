@@ -42,6 +42,9 @@ ul.condensed-list-items {
             &.active, &:hover {
                 background-color: $lighter-2;
             }
+            &.current{
+                background-color: $lighter-3;
+            }
         }
     }
 }
