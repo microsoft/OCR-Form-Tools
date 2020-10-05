@@ -1,7 +1,7 @@
 import React from 'react';
 import { toast } from "react-toastify";
 import "./tableTagConfig.scss";
-import { IconButton, Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, IDropdownOption, SelectionMode, DetailsListLayoutMode, FontIcon } from "@fluentui/react";
+import { IconButton, Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, IDropdownOption, SelectionMode, DetailsListLayoutMode, FontIcon, ThemeSettingName } from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme } from '../../../../common/themes';
 import { FieldFormat, FieldType, TagInputMode, ITag, IRegion, ITableTag, ITableRegion } from '../../../../models/applicationState';
 import "./tableTagLabeling.scss";
@@ -16,12 +16,14 @@ interface ITableTagLabelingProps {
     onTagClick?: (tag: ITableTag) => void;
     selectedTableTagBody: ITableRegion[][][];
     handleTableCellClick: (iTableCellIndex, jTableCellIndex) => void;
+    splitPaneWidth: number;
 }
 
 
 interface ITableTagLabelingState {
     selectedRowIndex: number;
     selectedColumnIndex: number;
+    containerWidth: number;
 }
 
 // @connect(mapStateToProps)
@@ -29,6 +31,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
     public state: ITableTagLabelingState = {
         selectedRowIndex: null,
         selectedColumnIndex: null,
+        containerWidth: null
     };
 
     public componentDidMount = async () => {
@@ -54,9 +57,8 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
 
         return (
             <Customizer {...dark}>
-
-                <div className="zzpppzz">
-                    <h4 className="mt-2">{"Label table"}</h4>
+                <div className="table-labeling_container" style={{width: this.props.splitPaneWidth}}>
+                    <h4 className="mt-2  ml-2">{"Label table"}</h4>
                     <div className="table-view-container">
                         <table className="viewed-table">
                             <tbody>
@@ -64,17 +66,14 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                             </tbody>
                         </table>
                     </div>
-
-                    <div className="modal-buttons-container mb-2 mr-1">
-
+                    <div className="buttons-container">
                         <PrimaryButton
                             className="modal-cancel"
                             theme={getPrimaryGreenTheme()}
                             onClick={() => {
                                 this.props.setTagInputMode(TagInputMode.Basic)
                             }}
-                        >
-                            Done
+                        >Done
                         </PrimaryButton>
                     </div>
 
@@ -86,7 +85,6 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
     public getTableBody = () => {
         const table = { rows: this.props.selectedTag.rowKeys, columns: this.props.selectedTag.columnKeys };
 
-        console.log("#: TableTagLabeling -> privategetTableBody -> table", table);
         let tableBody = null;
         if (table.rows.length !== 0 && table.columns.length !== 0) {
             tableBody = [];

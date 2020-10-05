@@ -77,14 +77,15 @@
                     margin: 0;
                 }
                 .column_header {
+                    min-width: 130px;
                     background-color: $lighter-4;
                     border: 2px solid grey;
                     text-align: center;
                     padding: .125rem .25rem;
-                    min-width: 30px;
                     height: 1.5rem;
                 }
                 .row_header {
+                    min-width: 130px;
                     background-color: $lighter-2;
                     border: 2px solid grey;
                     text-align: center;

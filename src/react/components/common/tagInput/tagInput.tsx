@@ -178,14 +178,15 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     <div className="tag-input-header p-2">
                         <span className="tag-input-title">{strings.tags.title}</span>
                     </div>
-                        <TableTagLabeling
-                            onTagClick={this.props.onTagClick}
-                            selectedRegions={this.props.selectedRegions}
-                            setTagInputMode={this.props.setTagInputMode}
-                            selectedTag={this.props.selectedTableTagToLabel as ITableTag}
-                            handleTableCellClick={this.props.handleTableCellClick}
-                            selectedTableTagBody={this.props.selectedTableTagBody}
-                        />
+                    <TableTagLabeling
+                        onTagClick={this.props.onTagClick}
+                        selectedRegions={this.props.selectedRegions}
+                        setTagInputMode={this.props.setTagInputMode}
+                        selectedTag={this.props.selectedTableTagToLabel as ITableTag}
+                        handleTableCellClick={this.props.handleTableCellClick}
+                        selectedTableTagBody={this.props.selectedTableTagBody}
+                        splitPaneWidth={this.props.splitPaneWidth}
+                    />
                 </div>
             )
         } else {

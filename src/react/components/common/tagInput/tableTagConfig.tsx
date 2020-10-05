@@ -156,7 +156,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             name: "name",
             fieldName: "name",
             minWidth: nameInputWidth,
-            // maxWidth: nameInputWidth,
             isResizable: false,
             onRender: (row, index) => {
                 return (
