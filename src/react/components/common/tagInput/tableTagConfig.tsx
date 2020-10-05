@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import React, { useEffect, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux'
+import { useSelector } from 'react-redux';
 
 import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, SelectionMode, DetailsListLayoutMode, FontIcon, CheckboxVisibility, IContextualMenuItem, CommandBar, Selection, Separator } from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme, getDefaultTheme } from '../../../../common/themes';
@@ -11,9 +11,6 @@ import { toast } from "react-toastify";
 import "./tableTagConfig.scss";
 import { strings } from "../../../../common/strings";
 import _ from "lodash";
-
-
-
 
 interface IShareProps {
     // appSettings?: IAppSettings,
@@ -35,6 +32,7 @@ interface IShareState {
 interface ITableTagConfigProps {
     setTagInputMode: (addTableMode: TagInputMode) => void;
     addTableTag: (table: any) => void;
+    splitPaneWidth: number;
 }
 
 
@@ -109,7 +107,7 @@ const typeOptions = () => {
  */
 
 export default function TableTagConfig(props: ITableTagConfigProps) {
-    const { setTagInputMode = null, addTableTag = null } = props;
+    const { setTagInputMode = null, addTableTag = null, splitPaneWidth = null } = props;
     const table: ITableTagConfigState = {
         name: "",
         format: "fixed",
@@ -127,30 +125,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     const [notUniqueNames, setNotUniqueNames] = useState<{ columns: [], rows: [], tags: boolean }>({ columns: [], rows: [], tags: false });
     const [headersFormatAndType, setHeadersFormatAndType] = useState<string>("columns");
     const [selectedColumn, setSelectedColumn] = useState(undefined);
-    const [selectedRow, setSelectedRow] = useState(undefined)
-
-
-    // const getSelectionDetails = (): string =>  {
-    //     let selectionCount = selection.getSelectedCount();
-
-    //     switch (selectionCount) {
-    //         case 0:
-    //             return 'No items selected';
-    //         case 1:
-    //             return '1 item selected: '
-    //         default:
-    //             return `${selectionCount} items selected`;
-    //     }
-    // }
-    // const [selectionDetails, setSelectionDetails] = useState({})
-    // const [selection, setSelection] = useState(new Selection({
-    //     onSelectionChanged: () => setSelectionDetails(getSelectionDetails())
-    // }))
-    // const [selection, setSelection] = useState(new Selection({
-    //     onSelectionChanged: () => setSelectionDetails(getSelectionDetails())
-    // }))
-
-
+    const [selectedRow, setSelectedRow] = useState(undefined);
 
     function selectColumnType(idx: number, type: string) {
         setColumns(columns.map((col, currIdx) => idx === currIdx ? { ...col, type, format: FieldFormat.NotSpecified } : col
@@ -171,15 +146,17 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         ));
     }
 
+    const nameInputWidth = splitPaneWidth * 0.50;
+    const typeInputWidth = splitPaneWidth * 0.17;
+    const formatInputWidth = splitPaneWidth * 0.172;
+
     const columnListColumns: IColumn[] = [
         {
             key: "name",
             name: "name",
-            // className: "composed-icon-cell",
             fieldName: "name",
-            isRowHeader: false,
-            minWidth: 360,
-            maxWidth: 360,
+            minWidth: nameInputWidth,
+            // maxWidth: nameInputWidth,
             isResizable: false,
             onRender: (row, index) => {
                 return (
@@ -193,14 +170,12 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     />
                 )
             },
-            headerClassName: "list-header",
         },
         {
             key: "type",
             name: "type",
             fieldName: "type",
-            minWidth: 100,
-            maxWidth: 100,
+            minWidth: typeInputWidth,
             isResizable: false,
             onRender: (row, index) => headersFormatAndType === "columns" ?
                 <Customizer {...defaultTheme}>
@@ -221,8 +196,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             key: "format",
             name: "format",
             fieldName: "format",
-            minWidth: 100,
-            maxWidth: 100,
+            minWidth: formatInputWidth,
             isResizable: false,
             onRender: (row, index) => headersFormatAndType === "columns" ?
                 <Customizer {...defaultTheme}>
@@ -245,12 +219,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         {
             key: "name",
             name: "name",
-            // className: "composed-icon-cell",
             fieldName: "name",
-            minWidth: 360,
-            maxWidth: 360,
+            minWidth: nameInputWidth,
             isResizable: false,
-            // isRowHeader: true,
             onRender: (row, index) => {
                 return (
                     <TextField
@@ -263,14 +234,12 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     />
                 )
             },
-            headerClassName: "list-header",
         },
         {
             key: "type",
             name: "type",
             fieldName: "type",
-            minWidth: 100,
-            maxWidth: 100,
+            minWidth: typeInputWidth,
             isResizable: false,
             onRender: (row, index) => headersFormatAndType === "rows" ?
                 <Customizer {...defaultTheme}>
@@ -291,8 +260,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             key: "format",
             name: "format",
             fieldName: "format",
-            minWidth: 100,
-            maxWidth: 100,
+            minWidth: formatInputWidth,
             isResizable: false,
             onRender: (row, index) => headersFormatAndType === "rows" ?
                 <Customizer {...defaultTheme}>
@@ -342,19 +310,15 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     }
 
     // CommandBar
-    // function _getHeaderFarItems(): IContextualMenuItem[] { }
+
     function getRowsHeaderItems(): IContextualMenuItem[] {
         const currSelectionIndex = rowSelection.getSelectedIndices()[0];
         return [
             {
-                key: 'ingore',
-                text: '',
-                disabled: true,
-            },
-            {
                 key: 'Name',
                 text: 'Name',
-                style: { width: 250, textAlign: "left", marginLeft: -48 },
+                className: "list-headers_name",
+                style: {width: nameInputWidth - 105},
                 disabled: true,
             },
             {
@@ -388,15 +352,15 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             {
                 key: 'type',
                 text: 'Type',
-                style: { width: 100, textAlign: "left", marginLeft: 12 },
-                disabled: true,
-
+                className: "list-headers_type",
+                style: {width: typeInputWidth}
             },
             {
                 key: 'format',
                 text: 'Format',
-                style: { width: 100, textAlign: "left", marginLeft: 12 },
-                disabled: true,
+                className: "list-headers_format",
+                style: { width: formatInputWidth },
+
             },
         ];
     };
@@ -405,15 +369,12 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
         return [
             {
-                key: 'ingore',
-                text: '',
-                disabled: true,
-            },
-            {
                 key: 'Name',
                 text: 'Name',
-                style: { width: 250, textAlign: "left", marginLeft: -48 },
+                className: "list-headers_name",
+                style: {width: nameInputWidth - 105},
                 disabled: true,
+                resizable: true,
             },
             {
                 key: 'moveUp',
@@ -447,15 +408,15 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             {
                 key: 'type',
                 text: 'Type',
-                style: { width: 100, textAlign: "left", marginLeft: 12 },
-                disabled: true,
-
+                className: "list-headers_type",
+                style: {width: typeInputWidth}
             },
             {
                 key: 'format',
                 text: 'Format',
-                style: { width: 100, textAlign: "left", marginLeft: 12 },
-                disabled: true,
+                className: "list-headers_format",
+                style: { width: formatInputWidth },
+
             },
         ];
     };
@@ -625,7 +586,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     // render
     return (
         <Customizer {...dark}>
-            <div className="config-view_container">
+            <div className="config-view_container" style={{width: splitPaneWidth}}>
                 <h4 className="mt-2">Configure table tag</h4>
                 <h5 className="mt-3 ">Name:</h5>
                 <TextField
@@ -651,7 +612,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 {format === "fixed" && <>
                     <h5 className="mt-4" >Configure type and format for:</h5>
                     <ChoiceGroup
-                        className="ml-12px"
+                        className="ml-12px type-format"
                         defaultSelectedKey={"columns"}
                         options={headersFormatAndTypeOptions}
                         onChange={(e, option) => setHeadersFormatAndType(option.key)}
@@ -660,7 +621,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 }
                 <div className="columns_container">
                     <h5 className="mt-3">Column headers:</h5>
-                    <div className="columns-container">
+                    <div className="columns-list_container">
                         <DetailsList
                             className="columns"
                             items={columns}
@@ -669,19 +630,18 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                             theme={getRightPaneDefaultButtonTheme()}
                             compact={true}
                             setKey="none"
-                            // selectionMode={SelectionMode.single}
                             selection={columnSelection}
                             layoutMode={DetailsListLayoutMode.justified}
                             checkboxVisibility={CheckboxVisibility.always}
                             onRenderDetailsHeader={() => (
-                                <>
+                                <div className="list_header">
                                     <CommandBar items={getColumnsHeaderItems()} />
                                     <Separator styles={{ root: { height: 2, padding: 0 } }} />
-                                </>
+                                </div>
                             )}
 
                         />
-
+                    </div>
                         <PrimaryButton
                             theme={getPrimaryBlueTheme()}
                             className="add_button ml-12px"
@@ -690,7 +650,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                             <FontIcon iconName="Add" className="mr-2" />
                     Add column
                 </PrimaryButton>
-                    </div>
                 </div>
                 {format === "fixed" &&
                     <div className="rows_container">
@@ -710,10 +669,10 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                                 checkboxVisibility={CheckboxVisibility.always}
                                 selectionPreservedOnEmptyClick={true}
                                 onRenderDetailsHeader={() => (
-                                    <>
-                                        <CommandBar items={getRowsHeaderItems()} />
+                                    <div className="list_header">
+                                        <CommandBar items={getRowsHeaderItems()}/>
                                         <Separator styles={{ root: { height: 2, padding: 0 } }} />
-                                    </>
+                                    </div>
                                 )}
                             />
                         </div>
@@ -731,11 +690,13 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     tableChanged &&
                     <div className="preview_container">
                         <h5 className="mt-3 ">Preview:</h5>
-                        <table className="table">
-                            <tbody>
-                                {getTableBody()}
-                            </tbody>
-                        </table>
+                        <div className="table_container">
+                            <table className="table">
+                                <tbody>
+                                    {getTableBody()}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 }
                 <div className="control-buttons_container">

@@ -99,6 +99,7 @@ export interface IEditorPageState {
     tagInputMode: TagInputMode;
     selectedTableTagToLabel: ITableTag;
     selectedTableTagBody: ITableRegion[][][];
+    rightSplitPaneWidth?: number;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -138,6 +139,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         tagInputMode: TagInputMode.Basic,
         selectedTableTagToLabel: null,
         selectedTableTagBody: [[]],
+        rightSplitPaneWidth: 650,
     };
 
     private tagInputRef: RefObject<TagInput>;
@@ -200,7 +202,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             return (<div>Loading...</div>);
         }
 
-        const size = this.state.tagInputMode !== TagInputMode.Basic ? 625 : 290;
+        const size = this.state.tagInputMode !== TagInputMode.Basic ? 650 : 290;
         return (
             <div className="editor-page skipToMainContent" id="pageEditor">
                 {this.state.tableToView !== null &&
@@ -254,12 +256,14 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                             onAssetLoaded={this.onAssetLoaded}
                             thumbnailSize={this.state.thumbnailSize}
                         />
+
                     </div>
                     <div className="editor-page-content" onClick={this.onPageClick}>
                         <SplitPane split = "vertical"
                             primary = "second"
-                            maxSize = {655}
-                            minSize = {290}
+                            maxSize = {800}
+                            minSize={size}
+                            className={"right-vertical_splitPane"}
                             defaultSize={size}
                             pane1Style = {{height: "100%"}}
                             pane2Style = {{height: "auto"}}
@@ -269,7 +273,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                 border: "2px",
                                 background: "transparent"
                             }}
-                            onChange = {() => this.resizeCanvas()}>
+                            onChange={(width) => {
+                                this.resizeCanvas();
+                                this.setState({rightSplitPaneWidth: width})
+                            }}>
                             <div className="editor-page-content-main" >
                                 <div className="editor-page-content-main-body" onClick={this.onPageContainerClick}>
                                     {selectedAsset &&
@@ -324,6 +331,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     selectedTableTagToLabel={this.state.selectedTableTagToLabel}
                                     handleTableCellClick={this.handleTableCellClick}
                                     selectedTableTagBody={this.state.selectedTableTagBody}
+                                    splitPaneWidth={this.state.rightSplitPaneWidth}
                                 />
                                 <Confirm
                                     title={strings.editorPage.tags.rename.title}
