@@ -2,13 +2,17 @@
 @import "../../../../assets/sass/theme.scss";
 
 .table-labeling_container {
-
+    .labeling-guideline {
+        margin: 1rem 1rem 2rem 1.75rem;
+        color: rgba(255, 255, 255, 0.6);
+        }
     .table-view-container {
         display: flex;
         flex-direction: column;
         align-items: flex-start;
         overflow: auto;
         margin: 1rem;
+
         .viewed-table {
             margin-bottom: 1rem;
             .column_header {
