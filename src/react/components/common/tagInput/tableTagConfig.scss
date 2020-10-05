@@ -14,25 +14,37 @@
         padding-right: 18px;
     }
 
+    .columns-list_container, .rows-list_container  {
+            background-color: $darker-2;
+
+    }
+
     .columns_container {
         margin-top: 2rem;
         margin-bottom: 4rem;
-        .columns-list_container {
+        width: 100%;
+    }
+    .list_header {
+        .list-headers {
+        &_name {
+            text-align: left;
+            margin-left: -8px;
+        }
+        &_type {
+            text-align: left;
+            margin-right: 20px;
+            margin-left: 4px;
+        }
+        &_format {
+            text-align: left;
         }
     }
-
-
-    .rows_container {
-      .rows-list_container {
-          display: flex;
-          width: 100%;
-          flex-direction: column;
-      }
-    }
+}
 
     .add_button {
-        margin-top: .5rem;
+        margin-top: 1rem;
         margin-left: 0px;
+        width: 140px
     }
 
     .control-buttons_container {
@@ -48,48 +60,50 @@
 
     .preview_container {
         margin-top: 2rem;
-        .table {
-            td, th {
-                border: 2px solid #8D8D8D;
-                min-width: 30px;
-                // padding: 0.5rem 1rem;
-                color: white;
-                padding: 0;
-                margin: 0;
-            }
-            .column_header {
-                background-color: $lighter-4;
-                border: 2px solid grey;
-                text-align: center;
-                padding: .125rem .25rem;
-            }
-            .row_header {
-                background-color: $lighter-2;
-                border: 2px solid grey;
-                text-align: center;
-                padding: .125rem .5rem;
-                min-width: 0;
-            }
-            .empty_header {
-                border: 2px solid grey;
-                background-color: $lighter-1;
-            }
-            .table-cell {
-                text-align: center;
-                background-color: $darker-3;
-                color: rgba(255, 255, 255, 0.75);
+        .table_container {
+            overflow: auto;
+            .table {
+                td, th {
+                    border: 2px solid #8D8D8D;
+                    color: white;
+                    padding: 0;
+                    margin: 0;
+                }
+                .column_header {
+                    background-color: $lighter-4;
+                    border: 2px solid grey;
+                    text-align: center;
+                    padding: .125rem .25rem;
+                    min-width: 30px;
+                    height: 1.5rem;
+                }
+                .row_header {
+                    background-color: $lighter-2;
+                    border: 2px solid grey;
+                    text-align: center;
+                    padding: .125rem .5rem;
+                }
+                .empty_header {
+                    border: 2px solid grey;
+                    background-color: $lighter-1;
+                }
+                .table-cell {
+                    text-align: center;
+                    background-color: $darker-3;
+                    color: rgba(255, 255, 255, 0.75);
+                    height: 1.5rem;
+                }
             }
         }
 
 
+
     }
-
-
 }
 
-.rows-list_container {
-    width: 360px;
-}
+// .rows-list_container {
+//     width: 360px;
+// }
 
 
 // ========= utility classes
@@ -109,5 +123,5 @@
     width: 22px;
     height: 28px;
     margin-right: -12px;
-    margin-top: 8px;
+    margin-top: 6px;
  }
