@@ -16,7 +16,12 @@
 
     .columns-list_container, .rows-list_container  {
             background-color: $darker-2;
+    }
 
+    .row-name_input, .column-name_input {
+        input::placeholder {
+            color: $darker-2;
+          }
     }
 
     .columns_container {
@@ -24,6 +29,7 @@
         margin-bottom: 4rem;
         width: 100%;
     }
+
     .list_header {
         .list-headers {
         &_name {
@@ -57,6 +63,7 @@
             margin-left: 1rem;
         }
     }
+
 
     .preview_container {
         margin-top: 2rem;
@@ -95,15 +102,9 @@
                 }
             }
         }
-
-
-
     }
 }
 
-// .rows-list_container {
-//     width: 360px;
-// }
 
 
 // ========= utility classes
