@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, SelectionMode, DetailsListLayoutMode, FontIcon, CheckboxVisibility, IContextualMenuItem, CommandBar, Selection, Separator } from "@fluentui/react";
@@ -146,7 +146,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         ));
     }
 
-    // console.log("# With: ", splitPaneWidth)
     const nameInputWidth = splitPaneWidth * 0.50;
     const typeInputWidth = splitPaneWidth * 0.17;
     const formatInputWidth = splitPaneWidth * 0.172;
@@ -171,14 +170,12 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     />
                 )
             },
-            // headerClassName: "list-header",
         },
         {
             key: "type",
             name: "type",
             fieldName: "type",
             minWidth: typeInputWidth,
-            // maxWidth: typeInputWidth,
             isResizable: false,
             onRender: (row, index) => headersFormatAndType === "columns" ?
                 <Customizer {...defaultTheme}>
@@ -200,7 +197,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             name: "format",
             fieldName: "format",
             minWidth: formatInputWidth,
-            maxWidth: formatInputWidth,
             isResizable: false,
             onRender: (row, index) => headersFormatAndType === "columns" ?
                 <Customizer {...defaultTheme}>
@@ -219,15 +215,12 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         },
     ];
 
-    // here
     const rowListColumns: IColumn[] = [
         {
             key: "name",
             name: "name",
-            // className: "composed-icon-cell",
             fieldName: "name",
             minWidth: nameInputWidth,
-            maxWidth: nameInputWidth,
             isResizable: false,
             onRender: (row, index) => {
                 return (
@@ -241,14 +234,12 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     />
                 )
             },
-            // headerClassName: "list-header",
         },
         {
             key: "type",
             name: "type",
             fieldName: "type",
             minWidth: typeInputWidth,
-            maxWidth: typeInputWidth,
             isResizable: false,
             onRender: (row, index) => headersFormatAndType === "rows" ?
                 <Customizer {...defaultTheme}>
@@ -270,7 +261,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             name: "format",
             fieldName: "format",
             minWidth: formatInputWidth,
-            maxWidth: formatInputWidth,
             isResizable: false,
             onRender: (row, index) => headersFormatAndType === "rows" ?
                 <Customizer {...defaultTheme}>
@@ -321,7 +311,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
     // CommandBar
 
-    // here
     function getRowsHeaderItems(): IContextualMenuItem[] {
         const currSelectionIndex = rowSelection.getSelectedIndices()[0];
         return [
@@ -595,7 +584,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
 
     // render
-    // console.log("# width:", width);
     return (
         <Customizer {...dark}>
             <div className="config-view_container" style={{width: splitPaneWidth}}>
@@ -610,7 +598,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 />
                 <h5 className="mt-4">Format:</h5>
                 <ChoiceGroup
-                    className="ml-12px format"
+                    className="ml-12px"
                     onChange={(event, option) => {
                         setFormat(option.key)
                         if (option.key === "rowDynamic") {
