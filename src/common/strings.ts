@@ -290,6 +290,14 @@ export interface IAppStrings {
                     emptyTagName: string,
                     emptyName: string,
                     notUniqueName: string,
+                },
+            },
+            tableLabeling: {
+                title: string,
+                description: string,
+                buttons: {
+                    done: string,
+                    reconfigureTable: string,
                 }
             }
         }

@@ -278,6 +278,14 @@ export const english: IAppStrings = {
                     emptyName: "Name cannot be empty",
                     notUniqueName: "Name should be unique",
                 }
+            },
+            tableLabeling: {
+                title: "Label table",
+                description: "To start labeling your table first click the content on the document ypu would like to capture and then cell you would like to store that content in.",
+                buttons: {
+                    done: "Done",
+                    reconfigureTable: "Reconfigure table",
+                }
             }
         },
         toolbar: {

@@ -7,6 +7,7 @@ import { FieldFormat, FieldType, TagInputMode, ITag, IRegion, ITableTag, ITableR
 import "./tableTagLabeling.scss";
 
 import clone from "rfdc";
+import { strings } from "../../../../common/strings";
 
 
 interface ITableTagLabelingProps {
@@ -58,9 +59,9 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
         return (
             <Customizer {...dark}>
                 <div className="table-labeling_container" style={{width: this.props.splitPaneWidth}}>
-                    <h4 className="mt-2  ml-4">{"Label table"}</h4>
+                    <h4 className="mt-2  ml-4">{strings.tags.regionTableTags.tableLabeling.title}</h4>
                     <div className="labeling-guideline">
-                        To start labeling your table first click the content on the document ypu would like to capture and then cell you would like to store that content in.
+                        {strings.tags.regionTableTags.tableLabeling.description}
                     </div>
                     <div className="table-view-container">
                         <table className="viewed-table">
@@ -76,14 +77,14 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                             onClick={() => {
                                 this.props.setTagInputMode(TagInputMode.Basic)
                             }}
-                        >Done
+                        >{strings.tags.regionTableTags.tableLabeling.buttons.done}
                         </PrimaryButton>
                         <DefaultButton
                             className="button-reconfigure"
                             theme={getPrimaryGreenTheme()}
                             onClick={() => { }}
                             disabled={true}
-                        >Reconfigure table
+                        >{strings.tags.regionTableTags.tableLabeling.buttons.reconfigureTable}
                         </DefaultButton>
                     </div>
 

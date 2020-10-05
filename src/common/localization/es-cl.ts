@@ -277,6 +277,14 @@ export const spanish: IAppStrings = {
                     emptyName: "El nombre no puede estar vacío",
                     notUniqueName: "El nombre debe ser único",
                 }
+            },
+            tableLabeling: {
+                title: "Tabla de etiquetas",
+                description: "Para comenzar a etiquetar su tabla, primero haga clic en el contenido del documento que le gustaría capturar y luego en la celda en la que le gustaría almacenar ese contenido.",
+                buttons: {
+                    done: "Hecho",
+                    reconfigureTable: "Reconfigurar la tabla",
+                }
             }
         },
         toolbar: {
