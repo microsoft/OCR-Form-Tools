@@ -2,8 +2,13 @@
 @import "../../../../assets/sass/theme.scss";
 
 .table-labeling_container {
+
     .table-view-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
         overflow: auto;
+        margin: 1rem;
         .viewed-table {
             margin-bottom: 1rem;
             .column_header {
@@ -35,8 +40,13 @@
         }
     }
     .buttons-container {
-        margin-right: 1rem;
-        margin-top: 1.5rem;
+        display: flex;
+        margin:1rem;
+        margin-left: 1.75rem;
+        justify-content: space-between;
+        button {
+            width: 160px;
+        }
     }
 }
 

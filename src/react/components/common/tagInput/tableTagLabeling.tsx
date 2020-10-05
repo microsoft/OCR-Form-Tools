@@ -1,7 +1,7 @@
 import React from 'react';
 import { toast } from "react-toastify";
 import "./tableTagConfig.scss";
-import { IconButton, Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, IDropdownOption, SelectionMode, DetailsListLayoutMode, FontIcon, ThemeSettingName } from "@fluentui/react";
+import { IconButton, Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, IDropdownOption, SelectionMode, DetailsListLayoutMode, FontIcon, ThemeSettingName, DefaultButton } from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme } from '../../../../common/themes';
 import { FieldFormat, FieldType, TagInputMode, ITag, IRegion, ITableTag, ITableRegion } from '../../../../models/applicationState';
 import "./tableTagLabeling.scss";
@@ -68,13 +68,20 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                     </div>
                     <div className="buttons-container">
                         <PrimaryButton
-                            className="modal-cancel"
+                            className="button-done"
                             theme={getPrimaryGreenTheme()}
                             onClick={() => {
                                 this.props.setTagInputMode(TagInputMode.Basic)
                             }}
                         >Done
                         </PrimaryButton>
+                        <DefaultButton
+                            className="button-reconfigure"
+                            theme={getPrimaryGreenTheme()}
+                            onClick={() => { }}
+                            disabled={true}
+                        >Reconfigure table
+                        </DefaultButton>
                     </div>
 
                 </div>
