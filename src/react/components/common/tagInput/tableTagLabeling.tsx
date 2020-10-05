@@ -31,7 +31,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
     public state: ITableTagLabelingState = {
         selectedRowIndex: null,
         selectedColumnIndex: null,
-        containerWidth: null
+        containerWidth: this.props.splitPaneWidth
     };
 
     public componentDidMount = async () => {

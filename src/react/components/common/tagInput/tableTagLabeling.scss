@@ -7,12 +7,16 @@
         .viewed-table {
             margin-bottom: 1rem;
             .column_header {
+                min-width: 130px;
+                max-width: 200px;
                 background-color: $lighter-4;
                 border: 2px solid grey;
                 text-align: center;
                 padding: .125rem .25rem;
             }
             .row_header {
+                min-width: 130px;
+                max-width: 200px;
                 border: 2px solid grey;
                 background-color: $lighter-2;
                 text-align: center;
@@ -33,7 +37,6 @@
     .buttons-container {
         margin-right: 1rem;
         margin-top: 1.5rem;
-        background-color: red;
     }
 }
 
