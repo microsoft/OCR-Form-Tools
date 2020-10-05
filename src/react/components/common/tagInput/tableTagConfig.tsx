@@ -96,7 +96,9 @@ const formatOptions = (type = "string") => {
 const typeOptions = () => {
     const options = [];
     Object.entries(FieldType).forEach(([key, value]) => {
-        options.push({ key, text: value })
+        if (value !== "table") {
+            options.push({ key, text: value });
+        }
     });
     return options;
 };
