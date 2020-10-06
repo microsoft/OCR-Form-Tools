@@ -182,7 +182,7 @@ export class AssetService {
             if (nodejsMode) {
                 const FileType = require('file-type');
                 const fileType = await FileType.fromFile(normalizedPath);
-                types = [fileType.ext];
+                types = fileType?.ext;
                 corruptFileName = fileName.split(/[\\\/]/).pop().replace(/%20/g, " ");
 
             } else {
@@ -193,7 +193,7 @@ export class AssetService {
                 console.error(interpolate(strings.editorPage.assetWarning.incorrectFileExtension.failedToFetch, { fileName: corruptFileName.toLocaleUpperCase() }));
             }
             // If file was renamed/spoofed - fix file extension to true MIME if it's type is in supported file types and show message
-            else if (types[0] && !types.includes(assetFormat)) {
+            else if (types.length > 0 && !types.includes(assetFormat)) {
                 assetFormat = types[0];
                 console.error(`${strings.editorPage.assetWarning.incorrectFileExtension.attention} ${corruptFileName.toLocaleUpperCase()} ${strings.editorPage.assetWarning.incorrectFileExtension.text} ${corruptFileName.toLocaleUpperCase()}`);
             }
