@@ -563,6 +563,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             case FieldType.SelectionMark:
             case "checkbox":
                 return "checkbox";
+            case FieldType.Table:
+                return FieldType.Table;
             default:
                 return "text";
         }
@@ -736,19 +738,20 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
     private isTypeCompatibleWithTag = (tag, type) => {
         // If free tag we can assign any type
-        if (tag && tag.documentCount <= 0) {
+        if (tag && tag.documentCount <= 0 && tag.type !== FieldType.Table) {
             return true;
         }
         const tagType = this.getTagCategory(tag.type);
         const menuItemType = this.getTagCategory(type);
         return tagType === menuItemType;
     }
-
+    // here
     private getTypeSubMenuItems = (): IContextualMenuItem[] => {
         const tag = this.state.selectedTag;
         const types = Object.values(FieldType);
         return types.map((type) => {
             const isCompatible = this.isTypeCompatibleWithTag(tag, type);
+
             return {
                 key: type,
                 text: type,
