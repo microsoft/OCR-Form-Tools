@@ -192,8 +192,8 @@ export class AssetService {
             if (!types) {
                 console.error(interpolate(strings.editorPage.assetWarning.incorrectFileExtension.failedToFetch, { fileName: corruptFileName.toLocaleUpperCase() }));
             }
-            // If file was renamed/spoofed - fix file extension to true MIME type and show message
-            else if (!types.includes(assetFormat)) {
+            // If file was renamed/spoofed - fix file extension to true MIME if it's type is in supported file types and show message
+            else if (types[0] && !types.includes(assetFormat)) {
                 assetFormat = types[0];
                 console.error(`${strings.editorPage.assetWarning.incorrectFileExtension.attention} ${corruptFileName.toLocaleUpperCase()} ${strings.editorPage.assetWarning.incorrectFileExtension.text} ${corruptFileName.toLocaleUpperCase()}`);
             }
@@ -238,7 +238,7 @@ export class AssetService {
         const getFirst4bytes = (): Promise<Response> => this.pollForFetchAPI(() => fetch(uri, { headers: { range: `bytes=0-${mimeBytesNeeded}` } }), 1000, 200);
         let first4bytes: Response;
         try {
-            first4bytes = await getFirst4bytes()
+            first4bytes = await getFirst4bytes();
         } catch {
             return new Promise<string[]>((resolve) => {
                 resolve(null);
