@@ -94,10 +94,8 @@ export class OCRService {
                     ]
                 );
                 body = bodyAndType[0];
-                const contentType = bodyAndType[1]?.mime ? bodyAndType[1].mime : mimeType;
-                headers = { "Content-Type": contentType, "cache-control": "no-cache" };
-            }
-            else {
+                headers = { "Content-Type": mimeType, "cache-control": "no-cache" };
+            } else {
                 body = { url: filePath };
                 headers = { "Content-Type": "application/json" };
             }

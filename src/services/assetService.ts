@@ -16,6 +16,9 @@ import { strings, interpolate } from "../common/strings";
 import { sha256Hash } from "../common/crypto";
 import { toast } from "react-toastify";
 import allSettled from "promise.allsettled"
+import mime from 'mime';
+import FileType from 'file-type';
+import BrowserFileType from 'file-type/browser';
 
 const supportedImageFormats = {
     jpg: null, jpeg: null, null: null, png: null, bmp: null, tif: null, tiff: null, pdf: null,
@@ -175,14 +178,12 @@ export class AssetService {
         // eslint-disable-next-line
         const extensionParts = fileNameParts[fileNameParts.length - 1].split(/[\?#]/);
         let assetFormat = extensionParts[0].toLowerCase();
-        let assetMimeType = this.getAssetMimeType(assetFormat);
-
+        let assetMimeType = mime.getType(assetFormat);
         if (supportedImageFormats.hasOwnProperty(assetFormat)) {
             let checkFileType;
             let corruptFileName;
             if (nodejsMode) {
-                try{
-                    const FileType = require('file-type');
+                try {
                     checkFileType = await FileType.fromFile(normalizedPath);
                 } catch {
                     // do nothing
@@ -192,9 +193,8 @@ export class AssetService {
             } else {
                 try {
                     const getFetchSteam = (): Promise<Response> => this.pollForFetchAPI(() => fetch(filePath), 1000, 200);
-                    const FileType = require('file-type/browser');
                     const response = await getFetchSteam();
-                    checkFileType = await FileType.fromStream(response.body);
+                    checkFileType = await BrowserFileType.fromStream(response.body);
                 } catch {
                     // do nothing
                 }
@@ -253,24 +253,6 @@ export class AssetService {
         }
     }
 
-    public static getAssetMimeType(format: string): AssetMimeType {
-        switch (format?.toLowerCase()) {
-            case "jpg":
-            case "jpeg":
-                return AssetMimeType.JPG
-            case "png":
-                return AssetMimeType.PNG
-            case "bmp":
-                return AssetMimeType.BMP
-            case "tif":
-            case "tiff":
-                return AssetMimeType.TIFF;
-            case "pdf":
-                return AssetMimeType.PDF;
-            default:
-                return undefined;
-        }
-    }
 
     private assetProviderInstance: IAssetProvider;
     private storageProviderInstance: IStorageProvider;
