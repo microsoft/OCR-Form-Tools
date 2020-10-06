@@ -5,7 +5,7 @@ import _ from "lodash";
 import Guard from "../common/guard";
 import {
     IAsset, AssetType, IProject, IAssetMetadata, AssetState,
-    ILabelData, ILabel,
+    ILabelData, ILabel, AssetMimeType
 } from "../models/applicationState";
 import { AssetProviderFactory, IAssetProvider } from "../providers/storage/assetProviderFactory";
 import { StorageProviderFactory, IStorageProvider } from "../providers/storage/storageProviderFactory";
@@ -175,26 +175,45 @@ export class AssetService {
         // eslint-disable-next-line
         const extensionParts = fileNameParts[fileNameParts.length - 1].split(/[\?#]/);
         let assetFormat = extensionParts[0].toLowerCase();
+        let assetMimeType = this.getAssetMimeType(assetFormat);
 
         if (supportedImageFormats.hasOwnProperty(assetFormat)) {
-            let types;
+            let checkFileType;
             let corruptFileName;
             if (nodejsMode) {
-                const FileType = require('file-type');
-                const fileType = await FileType.fromFile(normalizedPath);
-                types = fileType?.ext;
+                try{
+                    const FileType = require('file-type');
+                    checkFileType = await FileType.fromFile(normalizedPath);
+                } catch {
+                    // do nothing
+                }
                 corruptFileName = fileName.split(/[\\\/]/).pop().replace(/%20/g, " ");
 
             } else {
-                types = await this.getMimeType(filePath);
+                try {
+                    const getFetchSteam = (): Promise<Response> => this.pollForFetchAPI(() => fetch(filePath), 1000, 200);
+                    const FileType = require('file-type/browser');
+                    const response = await getFetchSteam();
+                    checkFileType = await FileType.fromStream(response.body);
+                } catch {
+                    // do nothing
+                }
                 corruptFileName = fileName.split("%2F").pop().replace(/%20/g, " ");
             }
-            if (!types) {
+            let fileType;
+            let mimeType;
+            if (checkFileType) {
+                fileType = checkFileType.ext;
+                mimeType = checkFileType.mime;
+            }
+
+            if (!fileType) {
                 console.error(interpolate(strings.editorPage.assetWarning.incorrectFileExtension.failedToFetch, { fileName: corruptFileName.toLocaleUpperCase() }));
             }
             // If file was renamed/spoofed - fix file extension to true MIME if it's type is in supported file types and show message
-            else if (types.length > 0 && !types.includes(assetFormat)) {
-                assetFormat = types[0];
+            else if (fileType !== assetFormat) {
+                assetFormat = fileType;
+                assetMimeType = mimeType;
                 console.error(`${strings.editorPage.assetWarning.incorrectFileExtension.attention} ${corruptFileName.toLocaleUpperCase()} ${strings.editorPage.assetWarning.incorrectFileExtension.text} ${corruptFileName.toLocaleUpperCase()}`);
             }
         }
@@ -209,6 +228,7 @@ export class AssetService {
             name: fileName,
             path: filePath,
             size: null,
+            mimeType: assetMimeType,
         };
     }
 
@@ -233,35 +253,23 @@ export class AssetService {
         }
     }
 
-    // If extension of a file was spoofed, we fetch only first 4 or needed amount of bytes of the file and read MIME type
-    public static async getMimeType(uri: string): Promise<string[]> {
-        const getFirst4bytes = (): Promise<Response> => this.pollForFetchAPI(() => fetch(uri, { headers: { range: `bytes=0-${mimeBytesNeeded}` } }), 1000, 200);
-        let first4bytes: Response;
-        try {
-            first4bytes = await getFirst4bytes();
-        } catch {
-            return new Promise<string[]>((resolve) => {
-                resolve(null);
-            });
+    public static getAssetMimeType(format: string): AssetMimeType {
+        switch (format?.toLowerCase()) {
+            case "jpg":
+            case "jpeg":
+                return AssetMimeType.JPG
+            case "png":
+                return AssetMimeType.PNG
+            case "bmp":
+                return AssetMimeType.BMP
+            case "tif":
+            case "tiff":
+                return AssetMimeType.TIFF;
+            case "pdf":
+                return AssetMimeType.PDF;
+            default:
+                return undefined;
         }
-        const arrayBuffer: ArrayBuffer = await first4bytes.arrayBuffer();
-        const blob: Blob = new Blob([new Uint8Array(arrayBuffer).buffer]);
-        const isMime = (bytes: Uint8Array, mime: IMime): boolean => {
-            return mime.pattern.every((p, i) => !p || bytes[i] === p);
-        };
-        const fileReader: FileReader = new FileReader();
-
-        return new Promise<string[]>((resolve, reject) => {
-            fileReader.onloadend = (e) => {
-                if (!e || !fileReader.result) {
-                    return [];
-                }
-                const bytes: Uint8Array = new Uint8Array(fileReader.result as ArrayBuffer);
-                const type: string[] = imageMimes.filter((mime) => isMime(bytes, mime))?.[0]?.types;
-                resolve(type || []);
-            };
-            fileReader.readAsArrayBuffer(blob);
-        });
     }
 
     private assetProviderInstance: IAssetProvider;
