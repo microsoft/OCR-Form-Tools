@@ -755,13 +755,14 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     // here
     private getTypeSubMenuItems = (): IContextualMenuItem[] => {
         const tag = this.state.selectedTag;
-        const types = Object.values(FieldType);
+        let types = Object.values(FieldType);
         if (tag.type === FieldType.Table) {
             return []
+        } else {
+            types = types.filter((i) => i !== FieldType.Table)
         }
         return types.map((type) => {
             const isCompatible = this.isTypeCompatibleWithTag(tag, type);
-
             return {
                 key: type,
                 text: type,
