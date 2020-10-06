@@ -177,12 +177,12 @@ export class AssetService {
         let assetFormat = extensionParts[0].toLowerCase();
 
         if (supportedImageFormats.hasOwnProperty(assetFormat)) {
-            let types;
-            let corruptFileName;
+            let types: any[];
+            let corruptFileName: string;
             if (nodejsMode) {
                 const FileType = require('file-type');
                 const fileType = await FileType.fromFile(normalizedPath);
-                types = fileType?.ext;
+                types = fileType?.ext ? [fileType.ext] : [];
                 corruptFileName = fileName.split(/[\\\/]/).pop().replace(/%20/g, " ");
 
             } else {
