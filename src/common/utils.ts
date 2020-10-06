@@ -384,6 +384,11 @@ export function filterFormat(type: FieldType | string): any[] {
                 FieldFormat.MDY,
                 FieldFormat.YMD,
             ];
+        case FieldType.Table:
+            return [
+                FieldFormat.Fixed,
+                FieldFormat.RowDynamic
+            ];
         default:
             return [ FieldFormat.NotSpecified ];
     }

@@ -682,8 +682,11 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 },
                 text: tag.type ? tag.type : strings.tags.toolbar.type,
                 subMenuProps: {
-                    items: this.getTypeSubMenuItems(),
+                    items: this.getTypeSubMenuItems()
                 },
+                submenuIconProps: {
+                    iconName: tag.type !== FieldType.Table  ? "ChevronRight": ""
+                }
             },
             {
                 key: "format",
@@ -694,6 +697,10 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 subMenuProps: {
                     items: this.getFormatSubMenuItems(),
                 },
+                submenuIconProps: {
+                    iconName: tag.type !== FieldType.Table  ? "ChevronRight": ""
+                }
+
             },
             {
                 key: "divider_1",
@@ -749,6 +756,9 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     private getTypeSubMenuItems = (): IContextualMenuItem[] => {
         const tag = this.state.selectedTag;
         const types = Object.values(FieldType);
+        if (tag.type === FieldType.Table) {
+            return []
+        }
         return types.map((type) => {
             const isCompatible = this.isTypeCompatibleWithTag(tag, type);
 
@@ -766,6 +776,9 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     private getFormatSubMenuItems = (): IContextualMenuItem[] => {
         const tag = this.state.selectedTag;
         const formats = filterFormat(tag.type);
+        if (tag.type === FieldType.Table) {
+            return []
+        }
 
         return formats.map((format) => {
             return {
