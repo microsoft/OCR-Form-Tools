@@ -706,6 +706,14 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
             },
             {
+                key: "reconfigureTable",
+                iconProps: {
+                    iconName: "EditTable",
+                },
+                text: strings.tags.regionTableTags.tableLabeling.buttons.reconfigureTable,
+                onClick: () => this.props.setTagInputMode(TagInputMode.ConfigureTable)
+            },
+            {
                 key: "divider_1",
                 itemType: ContextualMenuItemType.Divider,
             },
@@ -742,8 +750,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 onClick: this.onMenuItemClick,
             },
         ];
-
-        return menuItems;
+        return tag.type === FieldType.Table ? menuItems : menuItems.filter((item) => (item.key !== "reconfigureTable"));
+        // return menuItems;
     }
 
     private isTypeCompatibleWithTag = (tag, type) => {
