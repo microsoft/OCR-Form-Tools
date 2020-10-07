@@ -47,14 +47,13 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
     }
 
     public render() {
-
-        const dark: ICustomizations = {
+          const dark: ICustomizations = {
             settings: {
               theme: getRightPaneDefaultButtonTheme(),
             },
             scopedSettings: {},
         };
-        console.log(this.props.selectedTableTagBody)
+        // console.log(this.props.selectedTableTagBody)
 
         return (
             <Customizer {...dark}>
@@ -99,6 +98,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
 
     public getTableBody = () => {
         const table = { rows: this.props.selectedTag.rowKeys, columns: this.props.selectedTag.columnKeys };
+        const isFixedTable = this.props.selectedTag.format === FieldFormat.Fixed;
 
         let tableBody = null;
         if (table.rows.length !== 0 && table.columns.length !== 0) {
@@ -111,14 +111,18 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                     if (i === 0 && j !== 0) {
                         tableRow.push(<th key={j} className={"column_header"}>{columns[j-1].fieldKey}</th>);
                     } else if (j === 0 && i !== 0) {
-                        tableRow.push(<th key={j} className={"row_header"}>{rows[i-1].fieldKey}</th>);
+                        if (isFixedTable) {
+                            tableRow.push(<th key={j} className={"row_header"}>{rows[i - 1].fieldKey}</th>);
+                        }
                     } else if (j === 0 && i === 0) {
-                        tableRow.push(<th key={j} className={"empty_header"}/>);
+                        if (isFixedTable) {
+                            tableRow.push(<th key={j} className={"empty_header"} />);
+                        }
                     } else {
-                        tableRow.push(
-                        <td className={"table-cell"} onClick={() => this.handleCellClick(i-1, j-1)} key={j}>
-                            {this.props.selectedTableTagBody[i-1][j-1]?.map((tableRegion) => tableRegion.value).join(" ")}
-                        </td>);
+                            tableRow.push(
+                                <td className={"table-cell"} onClick={() => this.handleCellClick(i - 1, j - 1)} key={j}>
+                                    {this.props.selectedTableTagBody[i - 1][j - 1]?.map((tableRegion) => tableRegion.value).join(" ")}
+                                </td>);
                     }
                 }
                 tableBody.push(<tr key={i}>{tableRow}</tr>);

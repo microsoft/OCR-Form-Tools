@@ -620,12 +620,12 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     private addTableTag = (tableConfig: any) => {
-        console.log("TagInput -> privateaddTableTag -> tableConfig", tableConfig)
+        // console.log("TagInput -> privateaddTableTag -> tableConfig", tableConfig)
         const newTag: ITableTag = {
             name: tableConfig.name,
             color: getNextColor(this.state.tags),
             type: FieldType.Table,
-            format: FieldFormat.Fixed,
+            format: tableConfig.format,
             documentCount: 0,
             columnKeys: tableConfig.columns.map((column) => {
                 return({
