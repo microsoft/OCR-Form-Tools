@@ -18,7 +18,7 @@
             .column_header {
                 min-width: 130px;
                 max-width: 200px;
-                background-color: $lighter-4;
+                background-color: $lighter-3;
                 border: 2px solid grey;
                 text-align: center;
                 padding: .125rem .25rem;
@@ -27,20 +27,29 @@
                 min-width: 130px;
                 max-width: 200px;
                 border: 2px solid grey;
-                background-color: $lighter-2;
+                background-color: $lighter-3;
                 text-align: center;
                 padding: .125rem .5rem;
             }
             .empty_header {
                 border: 2px solid grey;
-                background-color: $lighter-1;
+                background-color: $lighter-3;
 
             }
             .table-cell {
                 text-align: center;
                 background-color: $darker-3;
                 color: rgba(255, 255, 255, 0.75);
+                &:hover {
+                    background-color: $lighter-1;
+                }
+                &:active {
+                    background-color: $lighter-2;
+
+                }
             }
+                
+
         }
     }
     .buttons-container {

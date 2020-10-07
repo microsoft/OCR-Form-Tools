@@ -13,7 +13,7 @@
         "no-string-literal": false,
         "no-bitwise": false,
         "function-constructor": false,
-        "linebreak-style": [true, "CRLF"]
+        "linebreak-style": [true, "LF"]
     },
     "rulesDirectory": []
 }

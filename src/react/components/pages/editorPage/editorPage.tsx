@@ -35,11 +35,12 @@ import { throttle } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
-import { getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/themes";
+import { getPrimaryBlueTheme, getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/themes";
 import { toast } from "react-toastify";
 import { PredictService } from "../../../../services/predictService";
 import { AssetService } from "../../../../services/assetService";
 import clone from "rfdc";
+import { Tag } from "reactstrap";
 
 /**
  * Properties for Editor Page
@@ -100,6 +101,7 @@ export interface IEditorPageState {
     selectedTableTagToLabel: ITableTag;
     selectedTableTagBody: ITableRegion[][][];
     rightSplitPaneWidth?: number;
+    reconfigureTableConfirm?: boolean;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -150,6 +152,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private renameCanceled: () => void;
     private deleteTagConfirm: React.RefObject<Confirm> = React.createRef();
     private deleteDocumentConfirm: React.RefObject<Confirm> = React.createRef();
+    private reconfigTableConfirm: React.RefObject<Confirm> = React.createRef();
+
     private isUnmount: boolean = false;
 
     constructor(props) {
@@ -332,6 +336,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     handleTableCellClick={this.handleTableCellClick}
                                     selectedTableTagBody={this.state.selectedTableTagBody}
                                     splitPaneWidth={this.state.rightSplitPaneWidth}
+                                    reconfigureTableConfirm={this.reconfigureTableConfirm}
                                 />
                                 <Confirm
                                     title={strings.editorPage.tags.rename.title}
@@ -360,6 +365,15 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                         onConfirm={this.onAssetDeleted}
                                     />
                                 }
+                                
+                                    <Confirm
+                                        title={"Are you sure you want to reconfigure this tag?"}
+                                        ref={this.reconfigTableConfirm}
+                                        message={"Any changes will be applied to all assets"}
+                                        confirmButtonTheme={getPrimaryBlueTheme()}
+                                        onConfirm={()=> {this.setState({tagInputMode: TagInputMode.LabelTable}, () => this.resizeCanvas()); this.resizeCanvas(); }}
+                                    />
+                                
                             </div>
                         </SplitPane>
                     </div>
@@ -785,6 +799,12 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             await this.onAssetMetadataChanged(assetMetadata);
             await this.props.actions.saveProject(this.props.project, false, false);
         });
+    }
+
+    private reconfigureTableConfirm = () => {
+        this.setState({reconfigureTableConfirm: true})
+        this.reconfigTableConfirm.current.open();
+
     }
 
     private loadProjectAssets = async (): Promise<void> => {

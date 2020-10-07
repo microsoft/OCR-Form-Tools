@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 
 import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, SelectionMode, DetailsListLayoutMode, FontIcon, CheckboxVisibility, IContextualMenuItem, CommandBar, Selection, Separator } from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme, getDefaultTheme } from '../../../../common/themes';
-import { FieldFormat, FieldType, IApplicationState, TagInputMode } from '../../../../models/applicationState';
+import { FieldFormat, FieldType, IApplicationState, ITableTag, TagInputMode } from '../../../../models/applicationState';
 import { filterFormat } from "../../../../common/utils";
 import { toast } from "react-toastify";
 import "./tableTagConfig.scss";
@@ -33,6 +33,8 @@ interface ITableTagConfigProps {
     setTagInputMode: (addTableMode: TagInputMode) => void;
     addTableTag: (table: any) => void;
     splitPaneWidth: number;
+    tableTag?: ITableTag;
+    reconfigureTableConfirm?: () => void;
 }
 
 
@@ -41,6 +43,7 @@ interface ITableTagConfigState {
     columns: any[],
     name: string,
     format: string,
+    headerTypeAndFormat: string;
 }
 interface ITableConfigItem {
     name: string,
@@ -110,12 +113,22 @@ const typeOptions = () => {
 
 export default function TableTagConfig(props: ITableTagConfigProps) {
     const { setTagInputMode = null, addTableTag = null, splitPaneWidth = null } = props;
-    const table: ITableTagConfigState = {
-        name: "",
-        format: "fixed",
-        rows: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
-        columns: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
-    };
+    let table: ITableTagConfigState;
+    if (props.tableTag) {
+        table = { name: props.tableTag.name + " ",
+            format: "fixed",
+            rows: props.tableTag.rowKeys.map((row) => {return { name: row.fieldKey, type: row.fieldType, format: row.fieldFormat }}),
+            columns: props.tableTag.columnKeys.map((col) => {return { name: col.fieldKey, type: col.fieldType, format: col.fieldFormat }}),
+            headerTypeAndFormat: "columns",
+        };
+    } else {
+        table = { name: "",
+            format: "fixed",
+            rows: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
+            columns: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
+            headerTypeAndFormat: "columns",
+        };
+    }
     const tags = useSelector((state: IApplicationState) => {
         return state.currentProject.tags
     });
@@ -128,6 +141,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     const [headersFormatAndType, setHeadersFormatAndType] = useState<string>("columns");
     const [selectedColumn, setSelectedColumn] = useState(undefined);
     const [selectedRow, setSelectedRow] = useState(undefined);
+    const [headerTypeAndFormat, setHeaderTypeAndFormat] = useState<string>(table.headerTypeAndFormat);
 
     function selectColumnType(idx: number, type: string) {
         setColumns(columns.map((col, currIdx) => idx === currIdx ? { ...col, type, format: FieldFormat.NotSpecified } : col
@@ -588,7 +602,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     return (
         <Customizer {...dark}>
             <div className="config-view_container" style={{width: splitPaneWidth}}>
-                <h4 className="mt-2">Configure table tag</h4>
+                <h4 className="mt-2">{props.tableTag ? "Reconfigure table tag" : "Configure table tag"}</h4>
                 <h5 className="mt-3 ">Name:</h5>
                 <TextField
                     className="table-name_input ml-12px"
@@ -597,28 +611,32 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     value={name}
                     errorMessage={name ? notUniqueNames.tags ? strings.tags.regionTableTags.configureTag.errors.notUniqueTagName : "" : strings.tags.regionTableTags.configureTag.errors.assignTagName}
                 />
-                <h5 className="mt-4">Format:</h5>
-                <ChoiceGroup
-                    className="ml-12px"
-                    onChange={(event, option) => {
-                        setFormat(option.key)
-                        if (option.key === "rowDynamic") {
-                            setHeadersFormatAndType("columns");
+                {!props.tableTag && 
+                    <>
+                        <h5 className="mt-4">Format:</h5>
+                        <ChoiceGroup
+                            className="ml-12px"
+                            onChange={(event, option) => {
+                                setFormat(option.key)
+                                if (option.key === "rowDynamic") {
+                                    setHeadersFormatAndType("columns");
+                                }
+                            }}
+                            defaultSelectedKey="fixed"
+                            options={tableFormatOptions}
+                            theme={getRightPaneDefaultButtonTheme()}
+                        />
+                        {format === "fixed" && <>
+                            <h5 className="mt-4" >Configure type and format for:</h5>
+                            <ChoiceGroup
+                                className="ml-12px type-format"
+                                defaultSelectedKey={"columns"}
+                                options={headersFormatAndTypeOptions}
+                                onChange={(e, option) => setHeadersFormatAndType(option.key)}
+                                required={false} />
+                        </>
                         }
-                    }}
-                    defaultSelectedKey="fixed"
-                    options={tableFormatOptions}
-                    theme={getRightPaneDefaultButtonTheme()}
-                />
-                {format === "fixed" && <>
-                    <h5 className="mt-4" >Configure type and format for:</h5>
-                    <ChoiceGroup
-                        className="ml-12px type-format"
-                        defaultSelectedKey={"columns"}
-                        options={headersFormatAndTypeOptions}
-                        onChange={(e, option) => setHeadersFormatAndType(option.key)}
-                        required={false} />
-                </>
+                    </>
                 }
                 <div className="columns_container">
                     <h5 className="mt-3">Column headers:</h5>
@@ -688,7 +706,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     </div>
                 }
                 {
-                    tableChanged &&
+                    (tableChanged || props.tableTag) &&
                     <div className="preview_container">
                         <h5 className="mt-3 ">Preview:</h5>
                         <div className="table_container">
@@ -709,8 +727,13 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     <PrimaryButton
                         className="save"
                         theme={getPrimaryGreenTheme()}
-                        onClick={() =>
-                            validateInputAndSave()
+                        onClick={() => {
+                            if (props.tableTag) {
+                                props.reconfigureTableConfirm();
+                            } else {
+                                validateInputAndSave()
+                            }
+                        }
                         }>Save</PrimaryButton>
                 </div>
             </div>

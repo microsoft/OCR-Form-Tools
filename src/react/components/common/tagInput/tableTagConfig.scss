@@ -78,7 +78,7 @@
                 }
                 .column_header {
                     min-width: 130px;
-                    background-color: $lighter-4;
+                    background-color: $lighter-3;
                     border: 2px solid grey;
                     text-align: center;
                     padding: .125rem .25rem;
@@ -86,14 +86,14 @@
                 }
                 .row_header {
                     min-width: 130px;
-                    background-color: $lighter-2;
+                    background-color: $lighter-3;
                     border: 2px solid grey;
                     text-align: center;
                     padding: .125rem .5rem;
                 }
                 .empty_header {
                     border: 2px solid grey;
-                    background-color: $lighter-1;
+                    background-color: $lighter-3;
                 }
                 .table-cell {
                     text-align: center;

@@ -61,7 +61,11 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                 <div className="table-labeling_container" style={{width: this.props.splitPaneWidth}}>
                     <h4 className="mt-2  ml-4">{strings.tags.regionTableTags.tableLabeling.title}</h4>
                     <div className="labeling-guideline">
-                        {strings.tags.regionTableTags.tableLabeling.description}
+                        To start labeling your table:
+                        <ol>
+                            <li>Select the words on the document you want to label</li>
+                            <li>Click the table cell you want to label selected words to</li>
+                        </ol>
                     </div>
                     <div className="table-view-container">
                         <table className="viewed-table">
@@ -82,8 +86,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                         <DefaultButton
                             className="button-reconfigure"
                             theme={getPrimaryGreenTheme()}
-                            onClick={() => { }}
-                            disabled={true}
+                            onClick={() => { this.props.setTagInputMode(TagInputMode.ConfigureTable)}}
                         >{strings.tags.regionTableTags.tableLabeling.buttons.reconfigureTable}
                         </DefaultButton>
                     </div>
@@ -112,7 +115,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                         tableRow.push(<th key={j} className={"empty_header"}/>);
                     } else {
                         tableRow.push(
-                        <td onClick={() => this.handleCellClick(i-1, j-1)} key={j}>
+                        <td className={"table-cell"} onClick={() => this.handleCellClick(i-1, j-1)} key={j}>
                             {this.props.selectedTableTagBody[i-1][j-1]?.map((tableRegion) => tableRegion.value).join(" ")}
                         </td>);
                     }
