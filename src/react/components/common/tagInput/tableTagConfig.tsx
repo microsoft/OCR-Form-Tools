@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
-import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, SelectionMode, DetailsListLayoutMode, FontIcon, CheckboxVisibility, IContextualMenuItem, CommandBar, Selection, Separator } from "@fluentui/react";
+import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, SelectionMode, DetailsListLayoutMode, FontIcon, CheckboxVisibility, IContextualMenuItem, CommandBar, Selection, Separator, IObjectWithKey } from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme, getDefaultTheme } from '../../../../common/themes';
 import { FieldFormat, FieldType, IApplicationState, ITableTag, TagInputMode } from '../../../../models/applicationState';
 import { filterFormat } from "../../../../common/utils";
@@ -129,7 +129,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             headerTypeAndFormat: "columns",
         };
     }
-    const tags = useSelector((state: IApplicationState) => {
+    const currentProjectTags = useSelector((state: IApplicationState) => {
         return state.currentProject.tags
     });
 
@@ -139,8 +139,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     const [rows, setRows] = useState<ITableConfigItem[]>(table.rows);
     const [notUniqueNames, setNotUniqueNames] = useState<{ columns: [], rows: [], tags: boolean }>({ columns: [], rows: [], tags: false });
     const [headersFormatAndType, setHeadersFormatAndType] = useState<string>("columns");
-    const [selectedColumn, setSelectedColumn] = useState(undefined);
-    const [selectedRow, setSelectedRow] = useState(undefined);
+    const [selectedColumn, setSelectedColumn] = useState<IObjectWithKey>(undefined);
+    const [selectedRow, setSelectedRow] = useState<IObjectWithKey>(undefined);
     const [headerTypeAndFormat, setHeaderTypeAndFormat] = useState<string>(table.headerTypeAndFormat);
 
     function selectColumnType(idx: number, type: string) {
@@ -474,9 +474,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     }, [rows]);
 
     useEffect(() => {
-        const existingTagName = tags.find((item) => item.name === name);
+        const existingTagName = currentProjectTags.find((item) => item.name === name);
         setNotUniqueNames({ ...notUniqueNames, tags: existingTagName !== undefined ? true : false })
-    }, [name, tags]);
+    }, [name, currentProjectTags]);
 
     function save(rows: ITableConfigItem[], columns: ITableConfigItem[]) {
         addTableTag({ name, format, rows, columns, headersFormatAndType });
@@ -611,7 +611,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     value={name}
                     errorMessage={name ? notUniqueNames.tags ? strings.tags.regionTableTags.configureTag.errors.notUniqueTagName : "" : strings.tags.regionTableTags.configureTag.errors.assignTagName}
                 />
-                {!props.tableTag && 
+                {!props.tableTag &&
                     <>
                         <h5 className="mt-4">Format:</h5>
                         <ChoiceGroup
