@@ -48,7 +48,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
 
     public render() {
 
-          const dark: ICustomizations = {
+        const dark: ICustomizations = {
             settings: {
               theme: getRightPaneDefaultButtonTheme(),
             },
@@ -67,6 +67,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                             <li>Click the table cell you want to label selected words to</li>
                         </ol>
                     </div>
+                    <h6 className="ml-4">Table name: {this.props.selectedTag.name}</h6>
                     <div className="table-view-container">
                         <table className="viewed-table">
                             <tbody>
