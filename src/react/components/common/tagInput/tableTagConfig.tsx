@@ -479,6 +479,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     }, [name, currentProjectTags]);
 
     function save(rows: ITableConfigItem[], columns: ITableConfigItem[]) {
+
         addTableTag({ name, format, rows, columns, headersFormatAndType });
         setTagInputMode(TagInputMode.Basic);
     }
@@ -513,7 +514,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             || notUniqueNames.rows.length > 0
             || notUniqueNames.tags
             || !name.length
-            || hasEmptyNames(rows) || hasEmptyNames(columns)) {
+            || hasEmptyNames(columns)
+            || (format === FieldFormat.Fixed && hasEmptyNames(rows))) {
             toast.error(strings.tags.regionTableTags.configureTag.errors.checkFields, { autoClose: 8000 });
         } else {
             resetTypAndFormatAndSave(headersFormatAndType);
@@ -565,7 +567,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     //     console.log("# rows:", rows, ", cols:", columns)
     // }, [columns, rows]);
 
-
     // Table preview
     function getTableBody() {
         let tableBody = null;
@@ -575,13 +576,19 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 const tableRow = [];
                 for (let j = 0; j < columns.length + 1; j++) {
                     if (i === 0 && j !== 0) {
-                        tableRow.push(<th key={`col-h-${j}`} className={"column_header"}>{columns[j - 1].name}</th>);
+                            tableRow.push(<th key={`col-h-${j}`} className={"column_header"}>{columns[j - 1].name}</th>);
                     } else if (j === 0 && i !== 0) {
-                        tableRow.push(<th key={`row-h-${j}`} className={"row_header"}>{rows[i - 1].name}</th>);
+                        if (format === FieldFormat.Fixed) {
+                            tableRow.push(<th key={`row-h-${j}`} className={"row_header"}>{rows[i - 1].name}</th>);
+                        }
                     } else if (j === 0 && i === 0) {
-                        tableRow.push(<th key={"ignore"}  className={"empty_header"} />);
+                        if (format === FieldFormat.Fixed) {
+                            tableRow.push(<th key={"ignore"} className={"empty_header"} />);
+                        }
                     } else {
-                        tableRow.push(<td key={`cell-${i}-${j}`}className={"table-cell"} />);
+                        if (format === FieldFormat.Fixed) {
+                            tableRow.push(<td key={`cell-${i}-${j}`} className={"table-cell"} />);
+                        }
                     }
                 }
                 tableBody.push(<tr key={`row-${i}`}>{tableRow}</tr>);
