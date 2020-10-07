@@ -66,8 +66,10 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                             <li>Click the table cell you want to label selected words to</li>
                         </ol>
                     </div>
-                    <h6 className="ml-4">Table name: {this.props.selectedTag.name}</h6>
                     <div className="table-view-container">
+                        <h5 className="mb-4 table-name">
+                            <span  style={{borderBottom: `4px solid ${this.props.selectedTag.color}`}}>Table name: {this.props.selectedTag.name}</span>
+                        </h5>
                         <table className="viewed-table">
                             <tbody>
                                 {this.getTableBody()}

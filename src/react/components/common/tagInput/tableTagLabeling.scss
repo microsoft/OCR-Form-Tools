@@ -6,6 +6,11 @@
         margin: 1rem 1rem 2rem 1.75rem;
         color: rgba(255, 255, 255, 0.6);
         }
+        .table-name {
+            span {
+                padding-bottom: .2rem;
+            }
+        }
     .table-view-container {
         overflow: auto;
         margin: 1rem;
