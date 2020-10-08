@@ -1158,7 +1158,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             return;
         }
         try {
-            const ocr = await this.ocrService.getRecognizedText(asset.path, asset.name, this.setOCRStatus, force);
+            const ocr = await this.ocrService.getRecognizedText(asset.path, asset.name, asset.mimeType, this.setOCRStatus, force);
             if (asset.id === this.state.currentAsset.asset.id) {
                 // since get OCR is async, we only set currentAsset's OCR
                 this.setState({

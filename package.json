@@ -107,6 +107,7 @@
         "foreman": "^3.0.1",
         "jquery": "^3.5.0",
         "kind-of": "^6.0.3",
+        "mime": "^2.4.6",
         "minimist": "^1.2.2",
         "node-forge": "^0.10.0",
         "node-sass": "^4.14.1",
