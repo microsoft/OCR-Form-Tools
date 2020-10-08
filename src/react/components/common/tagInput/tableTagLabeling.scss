@@ -11,10 +11,13 @@
                 padding-bottom: .2rem;
             }
         }
-    .table-view-container {
+        .add-row-button_container {
+            margin-left: 1.75rem;
+            margin-bottom: 4rem;
+        }
+        .table-view-container {
         overflow: auto;
         margin: 1rem;
-
         .viewed-table {
             margin-bottom: 1rem;
             .column_header {

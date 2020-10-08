@@ -1,9 +1,9 @@
 import React from 'react';
 import { toast } from "react-toastify";
 import "./tableTagConfig.scss";
-import { IconButton, Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, IDropdownOption, SelectionMode, DetailsListLayoutMode, FontIcon, ThemeSettingName, DefaultButton } from "@fluentui/react";
+import { IconButton, Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, IDropdownOption, SelectionMode, DetailsListLayoutMode, FontIcon, ThemeSettingName, DefaultButton, DetailsRowBase } from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme } from '../../../../common/themes';
-import { FieldFormat, FieldType, TagInputMode, ITag, IRegion, ITableTag, ITableRegion } from '../../../../models/applicationState';
+import { FieldFormat, FieldType, TagInputMode, ITag, IRegion, ITableTag, ITableRegion, IField } from '../../../../models/applicationState';
 import "./tableTagLabeling.scss";
 
 import clone from "rfdc";
@@ -25,6 +25,8 @@ interface ITableTagLabelingState {
     selectedRowIndex: number;
     selectedColumnIndex: number;
     containerWidth: number;
+    rows: IField[],
+    columns: IField[]
 }
 
 // @connect(mapStateToProps)
@@ -32,12 +34,16 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
     public state: ITableTagLabelingState = {
         selectedRowIndex: null,
         selectedColumnIndex: null,
-        containerWidth: this.props.splitPaneWidth
+        containerWidth: this.props.splitPaneWidth,
+        rows: this.props.selectedTag.rowKeys,
+        columns: this.props.selectedTag.columnKeys
     };
 
     public componentDidMount = async () => {
+
         console.log(this.props)
-        console.log("TableTagLabeling -> publiccomponentDidMount -> this.props", this.props)
+        console.log("# TableTagLabeling -> publiccomponentDidMount -> this.props", this.props)
+        console.log("# col:", this.state.columns, "#rows:", this.state.rows)
 
     }
 
@@ -76,6 +82,17 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                             </tbody>
                         </table>
                     </div>
+                    {this.props.selectedTag.format === FieldFormat.RowDynamic &&  <div className="add-row-button_container">
+                        <PrimaryButton
+                            theme={getPrimaryBlueTheme()}
+                            className="add_button ml-6"
+                            autoFocus={true}
+                            onClick={(e) => this.addRow(e)}
+                        >
+                            <FontIcon iconName="Add" className="mr-2" />
+                                Add row
+                            </PrimaryButton>
+                    </div>}
                     <div className="buttons-container">
                         <PrimaryButton
                             className="button-done"
@@ -99,7 +116,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
     }
 
     public getTableBody = () => {
-        const table = { rows: this.props.selectedTag.rowKeys, columns: this.props.selectedTag.columnKeys };
+        const table = { rows: this.state.rows, columns: this.state.columns };
         const isFixedTable = this.props.selectedTag.format === FieldFormat.Fixed;
 
         let tableBody = null;
@@ -132,6 +149,11 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
         }
         return tableBody
     }
+
+    private addRow = (event) => {
+        // Add row to dynamic table
+        return console.log("# props:", this.props)
+    };
 
     private handleCellClick = (iToChange, jToChange) => {
         // const tableBody = clone()(this.props.tableBody);
