@@ -299,6 +299,12 @@ export interface IAppStrings {
                     done: string,
                     reconfigureTable: string,
                 }
+            },
+            confirm: {
+                reconfigure: {
+                    title: string,
+                    message: string,
+                }
             }
         }
     };

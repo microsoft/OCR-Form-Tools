@@ -286,6 +286,12 @@ export const english: IAppStrings = {
                     done: "Done",
                     reconfigureTable: "Reconfigure table",
                 }
+            },
+            confirm: {
+                reconfigure: {
+                    title: "Reconfigure tag",
+                    message: "Are you sure you want to reconfigure this tag? \n It will be reconfigured for all documents.",
+                }
             }
         },
         toolbar: {

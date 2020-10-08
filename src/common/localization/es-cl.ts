@@ -285,6 +285,12 @@ export const spanish: IAppStrings = {
                     done: "Hecho",
                     reconfigureTable: "Reconfigurar la tabla",
                 }
+            },
+            confirm: {
+                reconfigure: {
+                    title: "Reconfigurar etiqueta",
+                    message: "¿Está seguro de que desea volver a configurar esta etiqueta?\n Se volverá a configurar para todos los documentos.",
+                }
             }
         },
         toolbar: {

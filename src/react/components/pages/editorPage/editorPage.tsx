@@ -365,15 +365,14 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                         onConfirm={this.onAssetDeleted}
                                     />
                                 }
-                                
                                     <Confirm
-                                        title={"Are you sure you want to reconfigure this tag?"}
+                                        title={strings.tags.regionTableTags.confirm.reconfigure.title}
                                         ref={this.reconfigTableConfirm}
-                                        message={"Any changes will be applied to all assets"}
+                                        message={strings.tags.regionTableTags.confirm.reconfigure.message}
                                         confirmButtonTheme={getPrimaryBlueTheme()}
                                         onConfirm={()=> {this.setState({tagInputMode: TagInputMode.LabelTable}, () => this.resizeCanvas()); this.resizeCanvas(); }}
                                     />
-                                
+
                             </div>
                         </SplitPane>
                     </div>
