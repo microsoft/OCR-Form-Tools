@@ -95,6 +95,7 @@ export interface IEditorPageState {
     errorMessage?: string;
     tableToView: object;
     tableToViewId: string;
+    pageNumber: number;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -131,6 +132,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         hoveredLabel: null,
         tableToView: null,
         tableToViewId: null,
+        pageNumber: 1
     };
 
     private tagInputRef: RefObject<TagInput>;
@@ -276,6 +278,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             setTableToView={this.setTableToView}
                                             closeTableView={this.closeTableView}
                                             runOcrForAllDocs={this.loadOcrForNotVisited}
+                                            onPageLoaded={this.onPageLoaded}
                                             appSettings={this.props.appSettings}
                                         >
                                             <AssetPreview
@@ -293,6 +296,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     lockedTags={this.state.lockedTags}
                                     selectedRegions={this.state.selectedRegions}
                                     labels={labels}
+                                    pageNumber={this.state.pageNumber}
                                     onChange={this.onTagsChanged}
                                     onLockedTagsChange={this.onLockedTagsChanged}
                                     onTagClick={this.onTagClicked}
@@ -613,6 +617,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             tags,
         };
         await this.props.actions.saveProject(project, true, false);
+    }
+
+    private onPageLoaded = async (pageNumber: number) => {
+        this.setState({ pageNumber });
     }
 
     private onLockedTagsChanged = (lockedTags: string[]) => {

@@ -267,6 +267,7 @@ export const spanish: IAppStrings = {
         },
         toolbar: {
             add: "Agregar nueva etiqueta",
+            "onlyShowCurrentPageTags":"Mostrar solo las etiquetas utilizadas en la página actual",
             contextualMenu: "Menú contextual",
             delete: "Borrar etiqueta",
             edit: "Editar etiqueta",

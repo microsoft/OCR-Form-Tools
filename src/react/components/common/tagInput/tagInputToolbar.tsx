@@ -29,6 +29,7 @@ export interface ITagInputToolbarProps {
     onDelete: (tag: ITag) => void;
     /** Function to call when one of the re-order buttons is clicked */
     onReorder: (tag: ITag, displacement: number) => void;
+    onOnlyCurrentPageTags: () => void;
     searchingTags: boolean;
 }
 
@@ -56,6 +57,12 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
                 icon: "Add",
                 category: Categories.General,
                 handler: this.handleAdd,
+            },
+            {
+                displayName: strings.tags.toolbar.onlyShowCurrentPageTags,
+                icon: "View",
+                category: Categories.General,
+                handler: this.handleOnlyCurrentPageTags,
             },
             {
                 displayName: strings.tags.toolbar.search,
@@ -160,6 +167,9 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
 
     private handleAdd = () => {
         this.props.onAddTags();
+    }
+    private handleOnlyCurrentPageTags = () => {
+        this.props.onOnlyCurrentPageTags();
     }
 
     private handleSearch = () => {

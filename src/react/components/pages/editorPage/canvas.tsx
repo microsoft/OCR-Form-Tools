@@ -61,6 +61,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
     runOcrForAllDocs?: (runForAllDocs: boolean) => void;
     onAssetDeleted?: () => void;
+    onPageLoaded?: (pageNumber: number) => void;
 }
 
 export interface ICanvasState {
@@ -1239,6 +1240,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 currentPage: pageNumber,
                 pdfFile: pdf,
             });
+            if (this.props.onPageLoaded) {
+                this.props.onPageLoaded(pageNumber);
+            }
         }
     }
 

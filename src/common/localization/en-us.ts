@@ -268,6 +268,7 @@ export const english: IAppStrings = {
         },
         toolbar: {
             add: "Add new tag",
+            onlyShowCurrentPageTags:"Only show tags used in current page",
             contextualMenu: "Contextual Menu",
             delete: "Delete tag",
             edit: "Edit tag",
