@@ -7,9 +7,17 @@
     align-items: center;
     min-height: 24px;
     flex-direction: row;
-    padding: 0.25em 0.8em;
+    padding: 0 0 0 0.8em;
     background-color: rgba($color-blue, 0.50);
-
+    &-version {
+        padding: 0 10px;
+        &.new-version-avaliable {
+            background-color: rgba(214, 112, 160, 0.9) !important;
+            height: 24px;
+            line-height: 24px;
+            color: white;
+        }
+    }
     ul {
         display: inline-block;
         margin: 0;

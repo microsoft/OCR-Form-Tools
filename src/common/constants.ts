@@ -35,7 +35,7 @@ export const constants = {
     convertedThumbnailQuality: 0.2,
     recentModelRecordsCount: 5,
     apiModelsPath: `/formrecognizer/${apiVersion}/custom/models`,
-
+    versionInfoUrl: "https://raw.githubusercontent.com/microsoft/OCR-Form-Tools/master/src/react/components/common/version-info.json",
     pdfjsWorkerSrc(version: string) {
         return `https://fotts.azureedge.net/npm/pdfjs-dist/${version}/pdf.worker.js`;
     },

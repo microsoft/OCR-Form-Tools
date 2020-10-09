@@ -33,6 +33,12 @@ export const spanish: IAppStrings = {
         restore: "Restaurar",
         close: "Cerrar",
     },
+    statusBar: {
+        newVersionAvaliable: {
+            title: "Nueva versión disponible",
+            message: "Nueva versión ${newVersion.version}-${newVersion.commit} está disponible, puede actualizar desde el sitio fott."
+        }
+    },
     homePage: {
         title: "Página de Inicio",
         newProject: "Nuevo Proyecto",

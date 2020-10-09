@@ -34,6 +34,12 @@ export interface IAppStrings {
         restore: string,
         close: string,
     };
+    statusBar: {
+        newVersionAvaliable: {
+            title: string,
+            message: string
+        },
+    }
     homePage: {
         title: string,
         newProject: string,

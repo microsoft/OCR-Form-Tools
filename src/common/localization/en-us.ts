@@ -33,6 +33,12 @@ export const english: IAppStrings = {
         restore: "Restore",
         close: "Close",
     },
+    statusBar: {
+        newVersionAvaliable: {
+            title: "New version avaliable",
+            message: "New version ${newVersion.version}-${newVersion.commit} is avaliable, you can upgrade from fott site."
+        }
+    },
     homePage: {
         title: "Home",
         newProject: "New Project",
@@ -522,7 +528,7 @@ export const english: IAppStrings = {
         tips: {
             quickLabeling: {
                 name: "Lable with hot keys",
-            description: "Hotkeys 1 through 0 and all letters are assigned to first 36 tags. After selecting one or multiple words, press tag's assigned hotkey.",
+                description: "Hotkeys 1 through 0 and all letters are assigned to first 36 tags. After selecting one or multiple words, press tag's assigned hotkey.",
             },
             renameTag: {
                 name: "Rename tag",
