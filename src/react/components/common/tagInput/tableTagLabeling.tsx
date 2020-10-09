@@ -48,7 +48,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
     }
 
     public componentDidUpdate = async (prevProps: Readonly<ITableTagLabelingProps>, prevState: Readonly<ITableTagLabelingState>) => {
-        console.log(this.props.selectedRegions)
+        // console.log(this.props.selectedRegions)
 
     }
 
@@ -60,10 +60,13 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
             scopedSettings: {},
         };
         // console.log(this.props.selectedTableTagBody)
+        // const containerWidth = this.props.splitPaneWidth < 650 ? 650 : this.props.splitPaneWidth;
+
 
         return (
             <Customizer {...dark}>
-                <div className="table-labeling_container" style={{width: this.props.splitPaneWidth}}>
+                <div className="table-labeling_container"
+                    style={{ width: this.props.splitPaneWidth < 650 ? 650 : this.props.splitPaneWidth }}>
                     <h4 className="mt-2  ml-4">{strings.tags.regionTableTags.tableLabeling.title}</h4>
                     <div className="labeling-guideline">
                         To start labeling your table:

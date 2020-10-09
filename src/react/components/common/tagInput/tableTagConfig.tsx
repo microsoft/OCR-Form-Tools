@@ -112,6 +112,8 @@ const typeOptions = () => {
 
 export default function TableTagConfig(props: ITableTagConfigProps) {
     const { setTagInputMode = null, addTableTag = null, splitPaneWidth = null } = props;
+    const containerWidth = splitPaneWidth > 650 ? splitPaneWidth : 650;
+
     let table: ITableTagConfigState;
     if (props.tableTag) {
         table = {
@@ -161,9 +163,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         ));
     }
 
-    const nameInputWidth = splitPaneWidth * 0.50;
-    const typeInputWidth = splitPaneWidth * 0.17;
-    const formatInputWidth = splitPaneWidth * 0.172;
+    const nameInputWidth = containerWidth * 0.50;
+    const typeInputWidth = containerWidth * 0.17;
+    const formatInputWidth = containerWidth * 0.172;
 
     const columnListColumns: IColumn[] = [
         {
@@ -615,11 +617,10 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             (_.isEqual(columns, table.columns) && _.isEqual(rows, table.rows)) ? false : true)
     }, [columns, rows, table.columns, table.rows]);
 
-
     // render
     return (
         <Customizer {...dark}>
-            <div className="config-view_container" style={{width: splitPaneWidth}}>
+            <div className="config-view_container" style={{width: containerWidth}}>
                 <h4 className="mt-2">{props.tableTag ? "Reconfigure table tag" : "Configure table tag"}</h4>
                 <h5 className="mt-3 ">Name:</h5>
                 <TextField
