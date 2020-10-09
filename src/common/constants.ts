@@ -7,7 +7,7 @@ const appVersionArr = appInfo.version.split(".");
 appVersionArr[1] = appVersionArr[1] + "-preview";
 const appVersion = appVersionArr.join(".");
 
-const apiVersion = "v2.1-preview.1";
+const apiVersion = "v2.1-preview.3";
 
 /**
  * Constants used throughout application
