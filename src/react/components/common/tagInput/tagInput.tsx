@@ -516,7 +516,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             tagItemRef.current.classList.add("tag-item-highlight");
             setTimeout(() => {
                 tagItemRef.current.classList.remove("tag-item-highlight");
-                console.log('remove("tag-item-highlight")');
             }, 2000);
         }
     }
