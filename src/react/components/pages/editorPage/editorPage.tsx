@@ -728,7 +728,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                         if (asset && (asset.state === AssetState.NotVisited || runForAll)) {
                             try {
                                 this.updateAssetState({ id: asset.id, isRunningOCR: true });
-                                await ocrService.getRecognizedText(asset.path, asset.name, undefined, runForAll);
+                                await ocrService.getRecognizedText(asset.path, asset.name, asset.mimeType, undefined, runForAll);
                                 this.updateAssetState({ id: asset.id, isRunningOCR: false, assetState: AssetState.Visited });
                             } catch (err) {
                                 this.updateAssetState({ id: asset.id, isRunningOCR: false });

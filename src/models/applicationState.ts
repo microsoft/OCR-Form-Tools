@@ -166,6 +166,7 @@ export interface IAsset {
     isRunningOCR?: boolean,
     isRunningAutoLabeling?: boolean,
     cachedImage?: string,
+    mimeType?: string,
 }
 
 /**
@@ -349,6 +350,14 @@ export enum AssetType {
     Image = 1,
     PDF = 5,
     TIFF = 6,
+}
+
+export enum AssetMimeType {
+    PDF = "application/pdf",
+    TIFF = "image/tiff",
+    JPG = "image/jpg",
+    PNG = "image/png",
+    BMP = "image/bmp",
 }
 
 /**
