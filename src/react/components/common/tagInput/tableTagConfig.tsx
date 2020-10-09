@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 
 import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, SelectionMode, DetailsListLayoutMode, FontIcon, CheckboxVisibility, IContextualMenuItem, CommandBar, Selection, Separator, IObjectWithKey } from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme, getDefaultTheme } from '../../../../common/themes';
-import { FieldFormat, FieldType, IApplicationState, ITableTag, TagInputMode } from '../../../../models/applicationState';
+import { FieldFormat, FieldType, IApplicationState, ITableTag, ITag, TagInputMode } from '../../../../models/applicationState';
 import { filterFormat } from "../../../../common/utils";
 import { toast } from "react-toastify";
 import "./tableTagConfig.scss";
@@ -27,8 +27,6 @@ interface IShareState {
     // currentProject: IProject;
 }
 
-
-
 interface ITableTagConfigProps {
     setTagInputMode: (addTableMode: TagInputMode) => void;
     addTableTag: (table: any) => void;
@@ -36,7 +34,6 @@ interface ITableTagConfigProps {
     tableTag?: ITableTag;
     reconfigureTableConfirm?: () => void;
 }
-
 
 interface ITableTagConfigState {
     rows: any[],
@@ -80,6 +77,7 @@ const dark: ICustomizations = {
     },
     scopedSettings: {},
 };
+
 const defaultTheme: ICustomizations = {
     settings: {
         theme: getDefaultTheme(),
@@ -96,6 +94,7 @@ const formatOptions = (type = "string") => {
 
     return options;
 };
+
 const typeOptions = () => {
     const options = [];
     Object.entries(FieldType).forEach(([key, value]) => {
@@ -115,25 +114,25 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     const { setTagInputMode = null, addTableTag = null, splitPaneWidth = null } = props;
     let table: ITableTagConfigState;
     if (props.tableTag) {
-        table = { name: props.tableTag.name + " ",
+        table = {
+            name: props.tableTag.name + " ",
             format: "fixed",
-            rows: props.tableTag.rowKeys.map((row) => {return { name: row.fieldKey, type: row.fieldType, format: row.fieldFormat }}),
-            columns: props.tableTag.columnKeys.map((col) => {return { name: col.fieldKey, type: col.fieldType, format: col.fieldFormat }}),
+            rows: props.tableTag.rowKeys.map((row) => { return { name: row.fieldKey, type: row.fieldType, format: row.fieldFormat } }),
+            columns: props.tableTag.columnKeys.map((col) => { return { name: col.fieldKey, type: col.fieldType, format: col.fieldFormat } }),
             headerTypeAndFormat: "columns",
         };
     } else {
-        table = { name: "",
+        table = {
+            name: "",
             format: "fixed",
             rows: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
             columns: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
             headerTypeAndFormat: "columns",
         };
     }
-    const currentProjectTags = useSelector((state: IApplicationState) => {
-        return state.currentProject.tags
-    });
 
-    const [name, setName] = useState<string>(table.name);
+    const currentProjectTags = useSelector<ITag[]>((state: IApplicationState) => state.currentProject.tags);
+    const [tableTagName, setTableTagName] = useState<string>(table.name);
     const [format, setFormat] = useState<string>(table.format);
     const [columns, setColumns] = useState<ITableConfigItem[]>(table.columns);
     const [rows, setRows] = useState<ITableConfigItem[]>(table.rows);
@@ -181,7 +180,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         onChange={(event) => setColumnName(index, event.target["value"])}
                         value={row.name}
                         placeholder={`header name ${index + 1}`}
-                        errorMessage={getTextInputError(notUniqueNames.columns, row.name, index)}
+                        errorMessage={getTextInputError(notUniqueNames.columns, row.name.trim(), index)}
                     />
                 )
             },
@@ -321,7 +320,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     }
 
     function setTableName(name: string) {
-        setName(name);
+        setTableTagName(name);
     }
 
     // CommandBar
@@ -447,22 +446,24 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         }
     };
 
-    function checkNameUniqueness(array, arrayName) {
-        const duplicates = {};
-        let notUnique = [];
+    function checkNameUniqueness(array: ITableConfigItem[], arrayName: string) {
+        const namesMap = {};
+        let notUniques = [];
         array.forEach((item, idx) => {
-            if (item.name && item.name.length) {
-                duplicates[item.name] = duplicates[item.name] || [];
-                duplicates[item.name].push(idx)
-            }
 
+            if (item.name && item.name.length) {
+                const name = item.name.trim();
+                namesMap[name] = namesMap[name] || [];
+                namesMap[name].push(idx)
+            }
         });
-        for (const name in duplicates) {
-            if (duplicates[name].length > 1) {
-                notUnique = duplicates[name];
+
+        for (const name in namesMap) {
+            if (namesMap[name].length > 1) {
+                notUniques = namesMap[name];
             }
         }
-        setNotUniqueNames({ ...notUniqueNames, [arrayName]: notUnique })
+        setNotUniqueNames({ ...notUniqueNames, [arrayName]: notUniques })
     }
 
     // check input names as you type[]
@@ -474,13 +475,23 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     }, [rows]);
 
     useEffect(() => {
-        const existingTagName = currentProjectTags.find((item) => item.name === name);
+        const existingTagName = currentProjectTags.find((item: ITag) => item.name === tableTagName.trim());
         setNotUniqueNames({ ...notUniqueNames, tags: existingTagName !== undefined ? true : false })
-    }, [name, currentProjectTags]);
+    }, [tableTagName, currentProjectTags]);
+
+    function trimFieldNames(array: ITableConfigItem[]) {
+        return array.map(i => ({...i, name: i.name.trim()}));
+    }
 
     function save(rows: ITableConfigItem[], columns: ITableConfigItem[]) {
 
-        addTableTag({ name, format, rows, columns, headersFormatAndType });
+        addTableTag({
+            name: tableTagName.trim(),
+            rows: trimFieldNames(rows),
+            columns: trimFieldNames(columns),
+            format,
+            headersFormatAndType
+        });
         setTagInputMode(TagInputMode.Basic);
     }
 
@@ -513,7 +524,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         if (notUniqueNames.columns.length > 0
             || notUniqueNames.rows.length > 0
             || notUniqueNames.tags
-            || !name.length
+            || !tableTagName.length
             || hasEmptyNames(columns)
             || (format === FieldFormat.Fixed && hasEmptyNames(rows))) {
             toast.error(strings.tags.regionTableTags.configureTag.errors.checkFields, { autoClose: 8000 });
@@ -615,8 +626,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     className="table-name_input ml-12px"
                     theme={getGreenWithWhiteBackgroundTheme()}
                     onChange={(event) => setTableName(event.target["value"])}
-                    value={name}
-                    errorMessage={name ? notUniqueNames.tags ? strings.tags.regionTableTags.configureTag.errors.notUniqueTagName : "" : strings.tags.regionTableTags.configureTag.errors.assignTagName}
+                    value={tableTagName}
+                    errorMessage={tableTagName ? notUniqueNames.tags ? strings.tags.regionTableTags.configureTag.errors.notUniqueTagName : "" : strings.tags.regionTableTags.configureTag.errors.assignTagName}
                 />
                 {!props.tableTag &&
                     <>

@@ -643,13 +643,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             }),
             tableTypeAndFormatFor: tableConfig.headersFormatAndType
         };
-        if (newTag.name.length && ![...this.state.tags, newTag].containsDuplicates((t) => t.name)) {
-            this.addTag(newTag);
-        } else if (!newTag.name.length) {
-            toast.warn(strings.tags.warnings.emptyName);
-        } else {
-            toast.warn(strings.tags.warnings.existingName);
-        }
+        this.addTag(newTag);
     }
 
     private validateTagLength = (tag: ITag) => {
