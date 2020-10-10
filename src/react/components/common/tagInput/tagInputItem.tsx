@@ -41,7 +41,7 @@ export interface ITagInputItemProps {
     onLabelEnter: (label: ILabel) => void;
     onLabelLeave: (label: ILabel) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
-    onDoubleClick :(label:ILabel) => void;
+    onDoubleClick?: (label:ILabel) => void;
 }
 
 export interface ITagInputItemState {

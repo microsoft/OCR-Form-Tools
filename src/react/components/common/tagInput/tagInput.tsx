@@ -76,7 +76,7 @@ export interface ITagInputProps {
     onLabelLeave: (label: ILabel) => void;
     /** Function to handle tag change */
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
-    onDoubleClick: (label: ILabel) => void;
+    onDoubleClick?: (label: ILabel) => void;
 }
 
 export interface ITagInputState {
