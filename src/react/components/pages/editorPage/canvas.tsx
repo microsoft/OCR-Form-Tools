@@ -2202,4 +2202,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         });
         this.imageMap.modifyStartFeatureCoordinates = {};
     }
+
+    async focusOnLabel(label: ILabel) {
+        const { page } = label.value[ 0 ];
+        if (this.state.currentPage !== page) {
+            await this.goToPage(page);
+        }
+    }
 }

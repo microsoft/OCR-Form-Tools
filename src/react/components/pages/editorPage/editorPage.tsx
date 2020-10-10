@@ -303,6 +303,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     onLabelEnter={this.onLabelEnter}
                                     onLabelLeave={this.onLabelLeave}
                                     onTagChanged={this.onTagChanged}
+                                    onDoubleClick={this.onLabelDoubleClicked}
                                     ref={this.tagInputRef}
                                 />
                                 <Confirm
@@ -793,6 +794,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     private onLabelEnter = (label: ILabel) => {
         this.setState({ hoveredLabel: label });
+    }
+
+    private onLabelDoubleClicked = (label:ILabel) =>{
+        this.canvas.current.focusOnLabel(label);
     }
 
     private onLabelLeave = (label: ILabel) => {
