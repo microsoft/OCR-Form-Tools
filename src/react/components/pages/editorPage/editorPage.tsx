@@ -303,7 +303,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     onLabelEnter={this.onLabelEnter}
                                     onLabelLeave={this.onLabelLeave}
                                     onTagChanged={this.onTagChanged}
-                                    onDoubleClick={this.onLabelDoubleClicked}
+                                    onTagDoubleClick={this.onLabelDoubleClicked}
                                     ref={this.tagInputRef}
                                 />
                                 <Confirm

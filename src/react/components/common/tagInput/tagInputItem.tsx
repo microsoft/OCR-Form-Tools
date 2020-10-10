@@ -41,7 +41,7 @@ export interface ITagInputItemProps {
     onLabelEnter: (label: ILabel) => void;
     onLabelLeave: (label: ILabel) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
-    onDoubleClick?: (label:ILabel) => void;
+    onTagDoubleClick?: (label:ILabel) => void;
 }
 
 export interface ITagInputItemState {
@@ -145,7 +145,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         e.stopPropagation();
         const { labels } = this.props;
         if (labels.length > 0) {
-            this.props.onDoubleClick(labels[0]);
+            this.props.onTagDoubleClick(labels[0]);
         }
     }
 
