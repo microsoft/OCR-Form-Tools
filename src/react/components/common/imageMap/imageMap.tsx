@@ -362,7 +362,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
      */
     public addInteraction = (interaction: Interaction) => {
         if (undefined === this.map.getInteractions().array_.find((existingInteraction) => {
-            return interaction.constructor.name === existingInteraction.constructor.name
+            return interaction.constructor === existingInteraction.constructor;
         })) {
             this.map.addInteraction(interaction);
         }
@@ -517,7 +517,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
      */
     public removeInteraction = (interaction: Interaction) => {
         const existingInteraction = this.map.getInteractions().array_.find((existingInteraction) => {
-            return interaction.constructor.name === existingInteraction.constructor.name
+            return interaction.constructor === existingInteraction.constructor;
         });
 
         if (existingInteraction !== undefined) {
@@ -654,7 +654,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
         const filter = this.getLayerFilterAtPixel(eventPixel);
 
         const isPixelOnFeature = !!filter;
-        if (isPixelOnFeature) {
+        if (isPixelOnFeature && !this.props.isSnapped) {
             this.setDragPanInteraction(false);
         }
 
@@ -805,6 +805,9 @@ export class ImageMap extends React.Component<IImageMapProps> {
         }
 
         this.setDragPanInteraction(true);
+        this.removeInteraction(this.modify);
+        this.initializeModify();
+        this.addInteraction(this.modify)
     }
 
     private setDragPanInteraction = (dragPanEnabled: boolean) => {
@@ -871,6 +874,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.initializeModify();
         this.initializeSnap();
         this.initializeDraw();
+        this.addInteraction(this.dragBox);
         this.addInteraction(this.modify);
         this.addInteraction(this.snap);
     }
