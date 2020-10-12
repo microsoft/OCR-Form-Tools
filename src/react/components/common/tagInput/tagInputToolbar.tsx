@@ -60,7 +60,7 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
             },
             {
                 displayName: strings.tags.toolbar.onlyShowCurrentPageTags,
-                icon: "View",
+                icon: "Hide3",
                 category: Categories.General,
                 handler: this.handleOnlyCurrentPageTags,
             },
