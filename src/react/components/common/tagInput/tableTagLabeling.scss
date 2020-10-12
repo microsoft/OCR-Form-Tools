@@ -2,22 +2,28 @@
 @import "../../../../assets/sass/theme.scss";
 
 .table-labeling_container {
+    overflow: auto;
     .labeling-guideline {
-        margin: 1rem 1rem 2rem 1.75rem;
+        margin: 1rem 1rem 2rem 1.5rem;
         color: rgba(255, 255, 255, 0.6);
         }
         .table-name {
             span {
                 padding-bottom: .2rem;
+                margin-left: 1.25rem;
             }
         }
         .add-row-button_container {
-            margin-left: 1.75rem;
-            margin-bottom: 4rem;
+            margin-left: 1.5rem;
+            margin-bottom: 3rem;
+            margin-top: -.75rem;
         }
         .table-view-container {
         overflow: auto;
         margin: 1rem;
+        margin-left: .75rem;
+        margin-right: 1.5rem;
+        max-height: 57.5vh;
         .viewed-table {
             margin-bottom: 1rem;
             .column_header {
@@ -62,16 +68,18 @@
                 border: none;
                 padding: 0;
             }
-
         }
     }
     .buttons-container {
         display: flex;
-        margin:1rem;
-        margin-left: 1.75rem;
+        margin: 1rem;
+        margin-left: 1.5rem;
         justify-content: space-between;
         button {
             width: 160px;
+        }
+        .button-reconfigure {
+            margin-right: .5rem;
         }
     }
 }
