@@ -11,7 +11,6 @@ import { toast } from "react-toastify";
 import "./tableTagConfig.scss";
 import { strings } from "../../../../common/strings";
 import _ from "lodash";
-
 interface IShareProps {
     // appSettings?: IAppSettings,
     // currentProject?: IProject;
@@ -326,7 +325,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     }
 
     // CommandBar
-
     function getRowsHeaderItems(): IContextualMenuItem[] {
         const currSelectionIndex = rowSelection.getSelectedIndices()[0];
         return [
@@ -486,10 +484,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     }
 
     function save(rows: ITableConfigItem[], columns: ITableConfigItem[]) {
-
         addTableTag({
             name: tableTagName.trim(),
-            rows: trimFieldNames(rows),
+            rows: format === FieldFormat.RowDynamic ? [{name: "#1", type: FieldType.String, format: FieldFormat.NotSpecified}] : trimFieldNames(rows),
             columns: trimFieldNames(columns),
             format,
             headersFormatAndType
