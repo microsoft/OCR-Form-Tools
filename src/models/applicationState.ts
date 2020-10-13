@@ -331,7 +331,7 @@ export enum ErrorCode {
 export enum APIVersionPatches {
     patch1 = "v2.1-preview.1",
     patch2 = "v2.1-preview.2",
-    patch3 = "v2.1-preview.3 (unreleased)",
+    patch3 = "v2.1-preview.3",
 }
 
 /**

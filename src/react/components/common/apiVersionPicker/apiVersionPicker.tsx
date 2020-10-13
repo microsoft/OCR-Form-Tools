@@ -36,7 +36,7 @@ export class APIVersionPicker extends React.Component<IAPIVersionPickerProps> {
                 onChange={this.onChange}>
                 <option value={APIVersionPatches.patch1}>{APIVersionPatches.patch1}</option>
                 <option value={APIVersionPatches.patch2}>{APIVersionPatches.patch2}</option>
-                <option value={APIVersionPatches.patch3}>{APIVersionPatches.patch3}</option>
+                <option value={APIVersionPatches.patch3}>{APIVersionPatches.patch3 + " (unreleased)"}</option>
             </select>
         );
     }
