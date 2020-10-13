@@ -38,9 +38,9 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
             };
         case ActionTypes.DELETE_PROJECT_ASSET_SUCCESS:
         case ActionTypes.LOAD_PROJECT_ASSETS_SUCCESS:
-            const assets = {};
+            let assets = {};
             action.payload.forEach((asset) => {
-                assets[asset.id] = asset;
+                assets = { ...assets, [asset.id]: { ...asset } };
             });
 
             return {

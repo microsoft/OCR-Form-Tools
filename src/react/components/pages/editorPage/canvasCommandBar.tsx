@@ -4,22 +4,26 @@ import { ICustomizations, Customizer } from "@fluentui/react/lib/Utilities";
 import { getDarkGreyTheme } from "../../../../common/themes";
 import { strings } from '../../../../common/strings';
 import { ContextualMenuItemType } from "@fluentui/react";
-import { IProject } from "../../../../models/applicationState";
+import { IProject, IAssetMetadata, AssetLabelingState } from "../../../../models/applicationState";
+import _ from "lodash";
 import "./canvasCommandBar.scss";
 
 interface ICanvasCommandBarProps {
     handleZoomIn: () => void;
     handleZoomOut: () => void;
-    handleRunAutoLabelingOnCurrentDocument?: () => void;
-    project: IProject;
-    handleRotateImage: (degrees: number) => void;
     handleRunOcr?: () => void;
     handleRunOcrForAllDocuments?: () => void;
+    handleRunAutoLabelingOnCurrentDocument?: () => void;
+    handleRunAutoLabelingForRestDocuments?: () => void;
     handleLayerChange?: (layer: string) => void;
     handleToggleDrawRegionMode?: () => void;
+    handleAssetDeleted?: () => void;
+    project: IProject;
+    selectedAsset?: IAssetMetadata;
+    handleRotateImage: (degrees: number) => void;
+
     drawRegionMode?: boolean;
     connectionType?: string;
-    handleAssetDeleted?: () => void;
     layers?: any;
     parentPage: string;
 }
@@ -31,6 +35,14 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
         },
         scopedSettings: {},
     };
+    const disableAutoLabeling = !props.project.predictModelId;
+    let disableAutoLabelingCurrentAsset = disableAutoLabeling;
+    if (!disableAutoLabeling) {
+        const labelingState = _.get(props.selectedAsset, "labelData.labelingState");
+        if (labelingState === AssetLabelingState.ManualLabeling || labelingState === AssetLabelingState.Training) {
+            disableAutoLabelingCurrentAsset = true;
+        }
+    }
 
     let commandBarItems: ICommandBarItemProps[] = [];
     if (props.parentPage === strings.editorPage.title) {
@@ -82,19 +94,19 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         isChecked: props.layers["label"],
                         onClick: () => props.handleLayerChange("label"),
                     },
+                    // {
+                    //   key: "drawRegion",
+                    //   text: strings.editorPage.canvas.canvasCommandBar.items.drawRegion,
+                    //   iconProps: { iconName: "AddField" },
+                    //   toggle: true,
+                    //   checked: props.drawRegionMode,
+                    //   className: !props.layers["drawnRegions"] ? "disabled" : "",
+                    //   onClick: () => props.handleToggleDrawRegionMode(),
+                    //   disabled: !props.layers["drawnRegions"],
+                    // }
                 ],
             },
         },
-            // {
-            //   key: "drawRegion",
-            //   text: strings.editorPage.canvas.canvasCommandBar.items.drawRegion,
-            //   iconProps: { iconName: "AddField" },
-            //   toggle: true,
-            //   checked: props.drawRegionMode,
-            //   className: !props.layers["drawnRegions"] ? "disabled" : "",
-            //   onClick: () => props.handleToggleDrawRegionMode(),
-            //   disabled: !props.layers["drawnRegions"],
-            // }
         ];
     }
 
@@ -155,23 +167,34 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         key: "runOcrForCurrentDocument",
                         text: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runOcrOnCurrentDocument,
                         iconProps: { iconName: "TextDocument" },
-                        onClick: () => props.handleRunOcr(),
+                        onClick: () => { if (props.handleRunOcr) props.handleRunOcr(); },
                     },
                     {
                         key: "runOcrForAllDocuments",
                         text: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runOcrOnAllDocuments,
                         iconProps: { iconName: "Documentation" },
-                        onClick: () => props.handleRunOcrForAllDocuments(),
+                        onClick: () => { if (props.handleRunOcrForAllDocuments) props.handleRunOcrForAllDocuments(); },
                     },
                     {
                         key: "runAutoLabelingCurrentDocument",
                         text: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runAutoLabelingCurrentDocument,
                         iconProps: { iconName: "Tag" },
-                        disabled: !props.project.predictModelId,
+                        disabled: disableAutoLabelingCurrentAsset,
                         title: props.project.predictModelId ? "" :
                             strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.noPredictModelOnProject,
                         onClick: () => {
-                            props.handleRunAutoLabelingOnCurrentDocument();
+                            if (props.handleRunAutoLabelingOnCurrentDocument) props.handleRunAutoLabelingOnCurrentDocument();
+                        },
+                    },
+                    {
+                        key: "runAutoLabelingForRestDocuments",
+                        text: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runAutoLabelingOnNotLabelingDocuments,
+                        iconProps: { iconName: "Tag" },
+                        disabled: disableAutoLabeling,
+                        title: props.project.predictModelId ? "" :
+                            strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.noPredictModelOnProject,
+                        onClick: () => {
+                            if (props.handleRunAutoLabelingForRestDocuments) props.handleRunAutoLabelingForRestDocuments();
                         },
                     },
                     {
@@ -182,7 +205,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         key: "deleteAsset",
                         text: strings.editorPage.asset.delete.title,
                         iconProps: { iconName: "Delete" },
-                        onClick: () => props.handleAssetDeleted(),
+                        onClick: () => { if (props.handleAssetDeleted) props.handleAssetDeleted(); },
                     }
                 ],
             },
