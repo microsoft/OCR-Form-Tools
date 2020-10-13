@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { KeyboardEvent } from "react";
 import {
     ContextualMenu,
     ContextualMenuItemType,
@@ -10,20 +9,21 @@ import {
     IContextualMenuItem,
     ICustomizations,
     Spinner,
-    SpinnerSize,
+    SpinnerSize
 } from "@fluentui/react";
-import { strings, interpolate } from "../../../../common/strings";
-import { getDarkTheme } from "../../../../common/themes";
-import { AlignPortal } from "../align/alignPortal";
-import { getNextColor } from "../../../../common/utils";
-import { IRegion, ITag, ILabel, FieldType, FieldFormat, FeatureCategory } from "../../../../models/applicationState";
-import { ColorPicker } from "../colorPicker";
-import "./tagInput.scss";
-import "../condensedList/condensedList.scss";
-import TagInputItem, { ITagInputItemProps, ITagClickProps } from "./tagInputItem";
-import TagInputToolbar from "./tagInputToolbar";
-import { toast } from "react-toastify";
 import debounce from 'lodash/debounce';
+import React, {KeyboardEvent} from "react";
+import {toast} from "react-toastify";
+import {interpolate, strings} from "../../../../common/strings";
+import {getDarkTheme} from "../../../../common/themes";
+import {getNextColor} from "../../../../common/utils";
+import {FeatureCategory, FieldFormat, FieldType, ILabel, IRegion, ITag} from "../../../../models/applicationState";
+import {AlignPortal} from "../align/alignPortal";
+import {ColorPicker} from "../colorPicker";
+import "../condensedList/condensedList.scss";
+import "./tagInput.scss";
+import TagInputItem, {ITagClickProps, ITagInputItemProps} from "./tagInputItem";
+import TagInputToolbar from "./tagInputToolbar";
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../../common/tagColors.json");
 
@@ -112,7 +112,7 @@ function filterFormat(type: FieldType): FieldFormat[] {
                 FieldFormat.YMD,
             ];
         default:
-            return [FieldFormat.NotSpecified];
+            return [ FieldFormat.NotSpecified ];
     }
 }
 
@@ -169,7 +169,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             scopedSettings: {},
         };
 
-        const { selectedTag, tagOperation } = this.state;
+        const {selectedTag, tagOperation} = this.state;
         const selectedTagRef = selectedTag ? this.tagItemRefs.get(selectedTag.name)?.getTagNameRef() : null;
 
         return (
@@ -178,8 +178,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     <span className="tag-input-title">{strings.tags.title}</span>
                     <TagInputToolbar
                         selectedTag={this.state.selectedTag}
-                        onAddTags={() => this.setState({ addTags: !this.state.addTags })}
-                        onOnlyCurrentPageTags={() => this.setState({ onlyCurrentPageTags: !this.state.onlyCurrentPageTags })}
+                        onAddTags={() => this.setState({addTags: !this.state.addTags})}
+                        onOnlyCurrentPageTags={() => this.setState({onlyCurrentPageTags: !this.state.onlyCurrentPageTags})}
                         onSearchTags={() => this.setState({
                             searchTags: !this.state.searchTags,
                             searchQuery: "",
@@ -201,10 +201,10 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                                         className="tag-search-box"
                                         type="text"
                                         onKeyDown={this.onSearchKeyDown}
-                                        onChange={(e) => this.setState({ searchQuery: e.target.value })}
+                                        onChange={(e) => this.setState({searchQuery: e.target.value})}
                                         placeholder="Search tags"
                                         autoFocus={true}
-                                        onFocus={() => this.setState({ selectedTag: null, tagOperation: TagOperationMode.Rename })}
+                                        onFocus={() => this.setState({selectedTag: null, tagOperation: TagOperationMode.Rename})}
                                     />
                                     <FontIcon iconName="Search" />
                                 </div>
@@ -367,10 +367,10 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     private getColorPickerPortal = () => {
-        const { selectedTag } = this.state;
+        const {selectedTag} = this.state;
         const showColorPicker = this.state.tagOperation === TagOperationMode.ColorPicker;
         return (
-            <AlignPortal align={{ points: [ "tr", "tl" ] }} target={() => this.headerRef.current}>
+            <AlignPortal align={{points: [ "tr", "tl" ]}} target={() => this.headerRef.current}>
                 <div className="tag-input-colorpicker-container">
                     {
                         showColorPicker &&
@@ -418,30 +418,30 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     private createTagItemProps = (): ITagInputItemProps[] => {
-        const { tags, selectedTag, tagOperation, onlyCurrentPageTags } = this.state;
+        const {tags, selectedTag, tagOperation, onlyCurrentPageTags} = this.state;
         const selectedRegionTagSet = this.getSelectedRegionTagSet();
 
         if (onlyCurrentPageTags) {
+
             const labels = this.props.labels.filter(item => item.value[ 0 ].page === this.props.pageNumber)
                 .map(item => item.label);
             if (labels.length) {
 
-
-                return labels.filter(name => tags.find(a => a.name === name)).map<ITagInputItemProps>(name => {
-                    const tag: ITag = tags.find(a => a.name === name);
-                    return {
-                        tag,
-                        index: tags.findIndex((t) => isNameEqual(t.name, tag.name)),
-                        isLocked: this.props.lockedTags
-                            && this.props.lockedTags.findIndex((str) => isNameEqual(tag.name, str)) > -1,
-                        isRenaming: selectedTag && isNameEqual(selectedTag.name, tag.name)
-                            && tagOperation === TagOperationMode.Rename,
-                        isSelected: selectedTag && isNameEqual(selectedTag.name, tag.name),
-                        appliedToSelectedRegions: selectedRegionTagSet.has(tag.name),
-                        onClick: this.onTagItemClick,
-                        onRename: this.onTagRename,
-                    } as ITagInputItemProps;
-                });
+                return tags.filter(tag => labels.find(a => a === tag.name))
+                    .map<ITagInputItemProps>(tag => {
+                        return {
+                            tag,
+                            index: tags.findIndex((t) => isNameEqual(t.name, tag.name)),
+                            isLocked: this.props.lockedTags
+                                && this.props.lockedTags.findIndex((str) => isNameEqual(tag.name, str)) > -1,
+                            isRenaming: selectedTag && isNameEqual(selectedTag.name, tag.name)
+                                && tagOperation === TagOperationMode.Rename,
+                            isSelected: selectedTag && isNameEqual(selectedTag.name, tag.name),
+                            appliedToSelectedRegions: selectedRegionTagSet.has(tag.name),
+                            onClick: this.onTagItemClick,
+                            onRename: this.onTagRename,
+                        } as ITagInputItemProps;
+                    });
             }
             return [];
         }
@@ -483,7 +483,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 tagOperation: TagOperationMode.Rename,
             });
         } else if (props.clickedDropDown) {
-            const { selectedTag } = this.state;
+            const {selectedTag} = this.state;
             const showContextualMenu = !selectedTag || !isNameEqual(selectedTag.name, tag.name)
                 || this.state.tagOperation !== TagOperationMode.ContextualMenu;
             const tagOperation = showContextualMenu ? TagOperationMode.ContextualMenu : TagOperationMode.None;
@@ -492,7 +492,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 tagOperation,
             });
         } else if (props.clickedColor) {
-            const { selectedTag, tagOperation } = this.state;
+            const {selectedTag, tagOperation} = this.state;
             const showColorPicker = tagOperation !== TagOperationMode.ColorPicker;
             const newTagOperation = showColorPicker ? TagOperationMode.ColorPicker : TagOperationMode.None;
             this.setState({
@@ -500,27 +500,27 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 tagOperation: newTagOperation,
             });
         } else { // Select tag
-            const { selectedTag, tagOperation: oldTagOperation } = this.state;
+            const {selectedTag, tagOperation: oldTagOperation} = this.state;
             const selected = selectedTag && isNameEqual(selectedTag.name, tag.name);
             const tagOperation = selected ? oldTagOperation : TagOperationMode.None;
             let deselect = selected && oldTagOperation === TagOperationMode.None;
 
             // Only fire click event if a region is selected
-            const { selectedRegions, onTagClick, labels } = this.props;
+            const {selectedRegions, onTagClick, labels} = this.props;
             if (selectedRegions && selectedRegions.length && onTagClick) {
-                const { category } = selectedRegions[ 0 ];
-                const { format, type, documentCount, name } = tag;
+                const {category} = selectedRegions[ 0 ];
+                const {format, type, documentCount, name} = tag;
                 const tagCategory = this.getTagCategory(type);
                 const isTagLabelTypeDrawnRegion = this.labelAssignedDrawnRegion(labels, tag.name);
                 const labelAssigned = this.labelAssigned(labels, name);
 
                 if (labelAssigned && ((category === FeatureCategory.DrawnRegion) !== isTagLabelTypeDrawnRegion)) {
                     if (isTagLabelTypeDrawnRegion) {
-                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, { otherCatagory: category }));
+                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, {otherCatagory: category}));
                     } else if (tagCategory === FeatureCategory.Checkbox) {
-                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, { otherCatagory: FeatureCategory.Checkbox }));
+                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, {otherCatagory: FeatureCategory.Checkbox}));
                     } else {
-                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, { otherCatagory: FeatureCategory.Text }));
+                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, {otherCatagory: FeatureCategory.Text}));
                     }
                     return;
                 } else if (tagCategory === category || category === FeatureCategory.DrawnRegion ||
@@ -532,7 +532,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     onTagClick(tag);
                     deselect = false;
                 } else {
-                    toast.warn(strings.tags.warnings.notCompatibleTagType, { autoClose: 7000 });
+                    toast.warn(strings.tags.warnings.notCompatibleTagType, {autoClose: 7000});
                 }
             }
             this.setState({
@@ -544,7 +544,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     focusTag(tag: string) {
         const tagItemRef = this.tagItemRefs.get(tag)?.getTagNameRef();
         if (tagItemRef) {
-            tagItemRef.current.scrollIntoView({ behavior: "smooth" });
+            tagItemRef.current.scrollIntoView({behavior: "smooth"});
             tagItemRef.current.classList.add("tag-item-highlight");
             setTimeout(() => {
                 tagItemRef.current.classList.remove("tag-item-highlight");
@@ -616,7 +616,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             format: FieldFormat.NotSpecified,
             documentCount: 0,
         };
-        if (newTag.name.length && ![...this.state.tags, newTag].containsDuplicates((t) => t.name)) {
+        if (newTag.name.length && ![ ...this.state.tags, newTag ].containsDuplicates((t) => t.name)) {
             this.addTag(newTag);
         } else if (!newTag.name.length) {
             toast.warn(strings.tags.warnings.emptyName);
@@ -641,7 +641,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     private onHideContextualMenu = () => {
-        this.setState({ tagOperation: TagOperationMode.None });
+        this.setState({tagOperation: TagOperationMode.None});
     }
 
     private getContextualMenuItems = (): IContextualMenuItem[] => {

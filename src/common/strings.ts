@@ -247,6 +247,7 @@ export interface IAppStrings {
         toolbar: {
             add: string,
             onlyShowCurrentPageTags:string,
+            showAllTags:string,
             contextualMenu: string,
             delete: string,
             edit: string,

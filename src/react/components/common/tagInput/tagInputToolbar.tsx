@@ -2,9 +2,9 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { IconButton } from "@fluentui/react";
-import { strings } from "../../../../common/strings";
-import { ITag } from "../../../../models/applicationState";
+import {IconButton} from "@fluentui/react";
+import {strings} from "../../../../common/strings";
+import {ITag} from "../../../../models/applicationState";
 
 enum Categories {
     General,
@@ -29,7 +29,7 @@ export interface ITagInputToolbarProps {
     onDelete: (tag: ITag) => void;
     /** Function to call when one of the re-order buttons is clicked */
     onReorder: (tag: ITag, displacement: number) => void;
-    onOnlyCurrentPageTags: () => void;
+    onOnlyCurrentPageTags: (onlyCurrentPageTags: boolean) => void;
     searchingTags: boolean;
 }
 
@@ -41,7 +41,15 @@ interface ITagInputToolbarItemProps {
     accelerators?: string[];
 }
 
-export default class TagInputToolbar extends React.Component<ITagInputToolbarProps> {
+interface ITagInputToolbarItemState {
+    tagFilterToggled: boolean;
+}
+
+export default class TagInputToolbar extends React.Component<ITagInputToolbarProps, ITagInputToolbarItemState> {
+    state = {
+        tagFilterToggled: false,
+    };
+
     public render() {
         return (
             <div className="tag-input-toolbar">
@@ -59,8 +67,8 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
                 handler: this.handleAdd,
             },
             {
-                displayName: strings.tags.toolbar.onlyShowCurrentPageTags,
-                icon: "Hide3",
+                displayName: this.state.tagFilterToggled ? strings.tags.toolbar.showAllTags : strings.tags.toolbar.onlyShowCurrentPageTags,
+                icon: this.state.tagFilterToggled ? "ClearFilter" : "Filter",
                 category: Categories.General,
                 handler: this.handleOnlyCurrentPageTags,
             },
@@ -104,8 +112,8 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
     private renderItems = () => {
         const moveModifierDisabled = !this.props.selectedTag || this.props.searchingTags;
         const renameModifierDisabled = !this.props.selectedTag;
-        const moveModifierClassNames = ["tag-input-toolbar-iconbutton"];
-        const renameModifierClassNames = ["tag-input-toolbar-iconbutton"];
+        const moveModifierClassNames = [ "tag-input-toolbar-iconbutton" ];
+        const renameModifierClassNames = [ "tag-input-toolbar-iconbutton" ];
         if (moveModifierDisabled) {
             moveModifierClassNames.push("tag-input-toolbar-iconbutton-disabled");
         }
@@ -116,7 +124,7 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
         const moveModifierClassName = moveModifierClassNames.join(" ");
         const renameModifierClassName = renameModifierClassNames.join(" ");
 
-        return(
+        return (
             this.getToolbarItems().map((itemConfig, index) => {
                 if (itemConfig.category === Categories.General) {
                     return (
@@ -169,7 +177,10 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
         this.props.onAddTags();
     }
     private handleOnlyCurrentPageTags = () => {
-        this.props.onOnlyCurrentPageTags();
+        this.setState({tagFilterToggled: !this.state.tagFilterToggled}, () => {
+            this.props.onOnlyCurrentPageTags(this.state.tagFilterToggled);
+        });
+
     }
 
     private handleSearch = () => {

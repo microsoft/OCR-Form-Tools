@@ -55,6 +55,7 @@ export function registerIcons() {
             StatusCircleCheckmark: "\uF13E",
             CircleRing: "\uEA3A",
             Filter: "\uE71C",
+            ClearFilter: "\uEF8F",
             Table: "\uED86",
             MapLayers: "\uE81E",
             BookAnswers: "\uF8A4",

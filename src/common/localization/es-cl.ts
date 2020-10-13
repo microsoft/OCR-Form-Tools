@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { IAppStrings } from "../strings";
+import {IAppStrings} from "../strings";
 
 /*eslint-disable no-template-curly-in-string, no-multi-str*/
 
@@ -271,7 +271,8 @@ export const spanish: IAppStrings = {
         },
         toolbar: {
             add: "Agregar nueva etiqueta",
-            "onlyShowCurrentPageTags":"Mostrar solo las etiquetas utilizadas en la página actual",
+            onlyShowCurrentPageTags: "Mostrar solo las etiquetas utilizadas en la página actual",
+            showAllTags: "Mostrar todas las etiquetas",
             contextualMenu: "Menú contextual",
             delete: "Borrar etiqueta",
             edit: "Editar etiqueta",
