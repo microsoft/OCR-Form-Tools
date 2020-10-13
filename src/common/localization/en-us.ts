@@ -129,6 +129,10 @@ export const english: IAppStrings = {
         backEndNotAvailable: "Checkbox feature will work in future version of Form Recognizer service, please stay tuned.",
         addName: "Add a model name...",
         downloadJson: "Download JSON file",
+        trainConfirm: {
+            title: "Labels not revised yet",
+            message: "You have label files not yet revised, do you want to train with those files?"
+        },
         errors: {
             electron: {
                 cantAccessFiles: "Cannot access files in '${folderUri}' for training. Please check if specified folder URI is correct."
@@ -209,7 +213,7 @@ export const english: IAppStrings = {
         defaultURLInput: "Paste or type URL...",
         editAndUploadToTrainingSet: "Edit & upload to training set",
         editAndUploadToTrainingSetNotify: "by clicking on this button, this form will be added to this project, where you can edit these labels.",
-        editAndUploadToTrainingSetNotify2: "We are adding this file to your training set, where you could edit the labels and re-train the model.",
+        editAndUploadToTrainingSetNotify2: "We are adding this file to your training set, where you can edit the labels and re-train the model.",
         uploadInPrgoress: "Upload in progress...",
         confirmDuplicatedAssetName: {
             title: "Asset name exists",
@@ -447,7 +451,8 @@ export const english: IAppStrings = {
                         subIMenuItems: {
                             runOcrOnCurrentDocument: "Run OCR on current document",
                             runOcrOnAllDocuments: "Run OCR on all documents",
-                            runAutoLabelingCurrentDocument: "Run AutoLabeling on current document",
+                            runAutoLabelingCurrentDocument: "Auto-label the current document",
+                            runAutoLabelingOnNotLabelingDocuments: "Auto-label new documents",
                             noPredictModelOnProject: "Predict model not avaliable, please train the model first.",
                         }
                     }
@@ -522,7 +527,7 @@ export const english: IAppStrings = {
         tips: {
             quickLabeling: {
                 name: "Lable with hot keys",
-            description: "Hotkeys 1 through 0 and all letters are assigned to first 36 tags. After selecting one or multiple words, press tag's assigned hotkey.",
+                description: "Hotkeys 1 through 0 and all letters are assigned to first 36 tags. After selecting one or multiple words, press tag's assigned hotkey.",
             },
             renameTag: {
                 name: "Rename tag",
