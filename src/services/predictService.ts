@@ -60,11 +60,10 @@ export class PredictService {
                 if (response.data.status.toLowerCase() === constants.statusCodeSucceeded) {
                     resolve(response.data);
                     // prediction response from API
-                    console.log("raw data", JSON.parse(response.request.response));
                 } else if (response.data.status.toLowerCase() === constants.statusCodeFailed) {
                     reject(_.get(
                         response,
-                        "data.analyzeResult.errors[0].errorMessage",
+                        "data.analyzeResult.errors[0]",
                         "Generic error during prediction"));
                 } else if (Number(new Date()) < endTime) {
                     // If the request isn't succeeded and the timeout hasn't elapsed, go again

@@ -37,6 +37,18 @@
             &-container {
                 overflow-x: visible;
                 overflow-y: auto;
+                padding: 0 0 0 100px;
+                margin: 0 0 0 -100px;
+                &::before{
+                    content: " ";
+                    display: inline-block;
+                    position: absolute;
+                    width: 80px;
+                    height: 100%;
+                    left: -80px;
+                    background: linear-gradient(to right, #00000000 0%,#000000 100%);
+                }
+
             };
         }
 
@@ -73,12 +85,22 @@
     }
 
     &-item-block {
+        position: relative;
         display: flex;
         flex-direction: row;
         margin: 2px 0;
 
         &-2 {
             width: 100%;
+        }
+        .tag-item-confidence{
+            position: absolute;
+            line-height: 2em;
+            left: -70PX;
+            z-index: 900;
+            text-align: right;
+            width:50px;
+            text-shadow: 1px 1px 1px #333;
         }
     }
 
@@ -276,5 +298,5 @@ div.circle-picker-container {
 }
 
 .loading-tag {
-    height: 100%; 
+    height: 100%;
 }

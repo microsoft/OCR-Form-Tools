@@ -130,6 +130,10 @@ export const spanish: IAppStrings = {
         backEndNotAvailable: "La función de casilla de verificación funcionará en la versión futura del servicio de reconocimiento de formularios, manténgase atento.",
         addName: "Agregar nombre de modelo ...",
         downloadJson: "Descargar archivo JSON",
+        trainConfirm: {
+            title: "Etiquetas no revisadas todavía",
+            message: "Tiene archivos de etiquetas que aún no han sido revisados, ¿desea entrenar con esos archivos?"
+        },
         errors: {
             electron: {
                 cantAccessFiles: "No se puede acceder a los archivos en '${folderUri}' para entrenamiento. Compruebe si el URI de la carpeta especificada es correcto."
@@ -448,7 +452,8 @@ export const spanish: IAppStrings = {
                         subIMenuItems: {
                             runOcrOnCurrentDocument: "Ejecutar OCR en el documento actual",
                             runOcrOnAllDocuments: "Ejecute OCR en todos los documentos",
-                            runAutoLabelingCurrentDocument: "Ejecutar AutoLabeling en el documento actual",
+                            runAutoLabelingCurrentDocument: "Etiquetar automáticamente el documento actual",
+                            runAutoLabelingOnNotLabelingDocuments: "Etiquetar documentos nuevos automáticamente",
                             noPredictModelOnProject: "Predecir modelo no disponible, entrene el modelo primero.",
                         }
                     }

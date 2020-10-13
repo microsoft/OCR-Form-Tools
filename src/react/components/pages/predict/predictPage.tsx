@@ -649,6 +649,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     handleRotateImage={this.handleRotateCanvas}
                     project={this.props.project}
                     parentPage={"predict"}
+                    layers={{}}
                 />
                 <ImageMap
                     parentPage={ImageMapParent.Predict}
@@ -1037,7 +1038,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 } else if (response.data.status.toLowerCase() === constants.statusCodeFailed) {
                     reject(_.get(
                         response,
-                        "data.analyzeResult.errors[0].errorMessage",
+                        "data.analyzeResult.errors[0]",
                         "Generic error during prediction"));
                 } else if (Number(new Date()) < endTime) {
                     // If the request isn't succeeded and the timeout hasn't elapsed, go again
@@ -1075,7 +1076,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
     private onAddAssetToProjectClick = async () => {
         if (this.state.file) {
-            // this.props.project.assets
             const fileName = `${this.props.project.folderPath}/${decodeURIComponent(this.state.file.name)}`;
             const asset = Object.values(this.props.project.assets).find(asset => asset.name === fileName);
             if (asset) {
