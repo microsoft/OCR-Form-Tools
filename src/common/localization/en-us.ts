@@ -456,6 +456,9 @@ export const english: IAppStrings = {
                             noPredictModelOnProject: "Predict model not avaliable, please train the model first.",
                         }
                     }
+                },
+                warings: {
+                    drawRegionUnsupportedAPIVersion: "Drawing regions is not supported with API version ${apiVersion}. It will be supported with the release of v2.1-preview.3",
                 }
             }
         },

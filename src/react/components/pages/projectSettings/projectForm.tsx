@@ -16,6 +16,7 @@ import { ProjectSettingAction } from "./projectSettingAction";
 import { ProtectedInput } from "../../common/protectedInput/protectedInput";
 import { PrimaryButton } from "@fluentui/react";
 import { getPrimaryGreenTheme, getPrimaryGreyTheme } from "../../../../common/themes";
+import { APIVersionPicker, IAPIVersionPickerProps } from "../../common/apiVersionPicker/apiVersionPicker";
 
 // tslint:disable-next-line:no-var-requires
 const newFormSchema = addLocValues(require("./newProjectForm.json"));
@@ -62,6 +63,7 @@ export interface IProjectFormState {
 export default class ProjectForm extends React.Component<IProjectFormProps, IProjectFormState> {
     private widgets = {
         protectedInput: (ProtectedInput as any) as Widget,
+        apiVersion: (APIVersionPicker as any) as Widget
     };
 
     constructor(props, context) {
@@ -155,6 +157,11 @@ export default class ProjectForm extends React.Component<IProjectFormProps, IPro
                     onChange: props.onChange,
                 };
             }),
+            apiVersion: CustomField<IAPIVersionPickerProps>(APIVersionPicker, (props) => ({
+                id: props.idSchema.$id,
+                value: props.formData,
+                onChange: props.onChange,
+            })),
             targetConnection: CustomField<IConnectionProviderPickerProps>(ConnectionPickerWithRouter, (props) => {
                 const targetConnections = this.props.connections
                     .filter((connection) => StorageProviderFactory.isRegistered(connection.providerType));
@@ -209,6 +216,7 @@ export default class ProjectForm extends React.Component<IProjectFormProps, IPro
             sourceConnection: args.formData.sourceConnection,
             folderPath: this.normalizeFolderPath(args.formData.folderPath),
             apiUriBase: args.formData.apiUriBase.trim(),
+            apiVersion: args.formData.apiVersion,
         };
         this.props.onSubmit(project);
     }

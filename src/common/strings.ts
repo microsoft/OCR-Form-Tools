@@ -451,6 +451,9 @@ export interface IAppStrings {
                             noPredictModelOnProject: string,
                         }
                     }
+                },
+                warings: {
+                    drawRegionUnsupportedAPIVersion: string,
                 }
             },
         },

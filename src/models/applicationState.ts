@@ -93,6 +93,7 @@ export interface IProject {
     lastVisitedAssetId?: string,
     apiUriBase: string,
     apiKey?: string | ISecureString,
+    apiVersion?: string;
     folderPath: string,
     trainRecord: ITrainRecordProps,
     recentModelRecords: IRecentModel[],
@@ -325,6 +326,12 @@ export enum ErrorCode {
     HttpStatusTooManyRequests = "tooManyRequests",
     RequestSendError = "requestSendError",
     ProjectUploadError = "ProjectUploadError",
+}
+
+export enum APIVersionPatches {
+    patch1 = "v2.1-preview.1",
+    patch2 = "v2.1-preview.2",
+    patch3 = "v2.1-preview.3 (inreleased)",
 }
 
 /**

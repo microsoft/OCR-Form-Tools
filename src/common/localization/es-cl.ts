@@ -457,6 +457,9 @@ export const spanish: IAppStrings = {
                             noPredictModelOnProject: "Predecir modelo no disponible, entrene el modelo primero.",
                         }
                     }
+                },
+                warings: {
+                    drawRegionUnsupportedAPIVersion: "Las regiones de dibujo no son compatibles con la versión de API ${apiVersion}. Será compatible con el lanzamiento de v2.1-preview.3",
                 }
             }
         },
