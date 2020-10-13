@@ -69,8 +69,8 @@ export function Sidebar({ project }) {
             </ul>
             <div className="app-sidebar-fill"></div>
             <ul>
-            <li className="receipt-demo-sidebar-item">
-                    <NavLink title={"Receipts"} to={`/receipts-predict`} role="button">
+            <li className="prebuilt-demo-sidebar-item">
+                    <NavLink title={"Prebuilt predict"} to={`/prebuilts-predict`} role="button">
                         <FontIcon iconName="KeyPhraseExtraction" />
                     </NavLink>
                 </li>

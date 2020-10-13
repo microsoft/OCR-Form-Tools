@@ -32,19 +32,19 @@ import { getAppInsights } from "../../../../services/telemetryService";
 import Alert from "../../common/alert/alert";
 import { ImageMap } from "../../common/imageMap/imageMap";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
-import "./receiptPredictPage.scss";
-import ReceiptPredictResult from "./receiptPredictResult";
+import "./prebuiltPredictPage.scss";
+import PrebuiltPredictResult from "./prebuiltPredictResult";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
 
-export interface IReceiptPredictPageProps extends RouteComponentProps {
+export interface IPrebuiltPredictPageProps extends RouteComponentProps {
 
     appTitleActions: IAppTitleActions;
 }
 
-export interface IReceiptPredictPageState {
-    receiptTags?: ITag[];
+export interface IPrebuiltPredictPageState {
+    tags?: ITag[];
     inputedAPIKey?: string;
     inputedServiceURI?: string;
     showInputedAPIKey: boolean;
@@ -54,7 +54,7 @@ export interface IReceiptPredictPageState {
     isFetching: boolean;
     fetchedFileURL: string;
     inputedFileURL: string;
-    analyzeResult: {};
+    analyzeResult: object;
     fileLabel: string;
     predictionLoaded: boolean;
     currPage: number;
@@ -62,6 +62,7 @@ export interface IReceiptPredictPageState {
     imageWidth: number;
     imageHeight: number;
     shouldShowAlert: boolean;
+    invalidFileFormat: boolean;
     alertTitle: string;
     alertMessage: string;
     fileChanged: boolean;
@@ -83,10 +84,10 @@ function mapDispatchToProps(dispatch) {
 }
 
 @connect(mapStateToProps, mapDispatchToProps)
-export default class ReceiptPredictPage extends React.Component<IReceiptPredictPageProps, IReceiptPredictPageState> {
+export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPageProps, IPrebuiltPredictPageState> {
     private appInsights: any = null;
 
-    public state: IReceiptPredictPageState = {
+    public state: IPrebuiltPredictPageState = {
         inputedAPIKey: "3f1523d3ece8448eb0d16c583ce3e2a9",
         inputedServiceURI: "https://cognitiveusw2ppe.azure-api.net/",
         showInputedAPIKey: false,
@@ -96,7 +97,7 @@ export default class ReceiptPredictPage extends React.Component<IReceiptPredictP
         fetchedFileURL: "",
         inputedFileURL: strings.predict.defaultURLInput,
         inputedLocalFile: strings.predict.defaultLocalFileInput,
-        analyzeResult: {},
+        analyzeResult: null,
         fileLabel: "",
         predictionLoaded: true,
         currPage: undefined,
@@ -104,6 +105,7 @@ export default class ReceiptPredictPage extends React.Component<IReceiptPredictP
         imageWidth: 0,
         imageHeight: 0,
         shouldShowAlert: false,
+        invalidFileFormat: false,
         alertTitle: "",
         alertMessage: "",
         fileChanged: false,
@@ -122,7 +124,7 @@ export default class ReceiptPredictPage extends React.Component<IReceiptPredictP
     public async componentDidMount() {
         this.appInsights = getAppInsights();
         document.title = strings.predict.title + " - " + strings.appName;
-        this.props.appTitleActions.setTitle(`Receipt ${strings.predict.title}`);
+        this.props.appTitleActions.setTitle(`${strings.predict.title}`);
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -153,7 +155,7 @@ export default class ReceiptPredictPage extends React.Component<IReceiptPredictP
     public render() {
         const browseFileDisabled: boolean = !this.state.predictionLoaded;
         const urlInputDisabled: boolean = !this.state.predictionLoaded || this.state.isFetching;
-        const predictDisabled: boolean = !this.state.predictionLoaded || !this.state.file;
+        const predictDisabled: boolean = !this.state.predictionLoaded || !this.state.file || this.state.invalidFileFormat;
         const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
         // const modelInfo: IAnalyzeModelInfo = this.getAnalyzeModelInfo(this.state.analyzeResult);
         const fetchDisabled: boolean =
@@ -167,13 +169,13 @@ export default class ReceiptPredictPage extends React.Component<IReceiptPredictP
             { key: "url", text: "URL" },
         ];
 
-        const onReceiptsPath: boolean = this.props.match.path.includes("receipts");
+        const onPrebuiltsPath: boolean = this.props.match.path.includes("prebuilts");
 
         return (
             <div
-                className={`predict skipToMainContent ${onReceiptsPath ? "" : "hidden"} `}
+                className={`predict skipToMainContent ${onPrebuiltsPath ? "" : "hidden"} `}
                 id="pagePredict"
-                style={{ display: `${onReceiptsPath ? "flex" : "none"}` }} >
+                style={{ display: `${onPrebuiltsPath ? "flex" : "none"}` }} >
                 <div className="predict-main">
                     {this.state.file && this.state.imageUri && this.renderImageMap()}
                     {this.renderPrevPageButton()}
@@ -191,7 +193,7 @@ export default class ReceiptPredictPage extends React.Component<IReceiptPredictP
                                 <>
                                     <div className="p-3" style={{ marginTop: "8px" }}>
                                         <h5>Service configuration</h5>
-                                        <div style={{ marginBottom: "3px" }}>Receipt recognizer service URI</div>
+                                        <div style={{ marginBottom: "3px" }}>Form recognizer service endpoint</div>
                                         <TextField
                                             className="mb-1"
                                             theme={getGreenWithWhiteBackgroundTheme()}
@@ -329,12 +331,12 @@ export default class ReceiptPredictPage extends React.Component<IReceiptPredictP
                                             </div>
                                         }
                                         {Object.keys(predictions).length > 0 &&
-                                            <ReceiptPredictResult
+                                            <PrebuiltPredictResult
                                                 predictions={predictions}
                                                 analyzeResult={this.state.analyzeResult}
                                                 // analyzeModelInfo={modelInfo}
                                                 page={this.state.currPage}
-                                                tags={this.state.receiptTags}
+                                                tags={this.state.tags}
                                                 downloadResultLabel={this.state.fileLabel}
                                                 onPredictionClick={this.onPredictionClick}
                                                 onPredictionMouseEnter={this.onPredictionMouseEnter}
@@ -420,7 +422,7 @@ export default class ReceiptPredictPage extends React.Component<IReceiptPredictP
                     return;
                 }
                 const contentType = response.headers.get("Content-Type");
-                if (!["application/pdf", "image/jpeg", "image/png", "image/tiff"].includes(contentType)) {
+                if (![ "application/pdf", "image/jpeg", "image/png", "image/tiff" ].includes(contentType)) {
                     this.setState({
                         isFetching: false,
                         shouldShowAlert: true,
@@ -433,7 +435,7 @@ export default class ReceiptPredictPage extends React.Component<IReceiptPredictP
                 response.blob().then((blob) => {
                     const fileAsURL = new URL(this.state.inputedFileURL);
                     const fileName = fileAsURL.pathname.split("/").pop();
-                    const file = new File([blob], fileName, { type: contentType });
+                    const file = new File([ blob ], fileName, { type: contentType });
                     this.setState({
                         fetchedFileURL: this.state.inputedFileURL,
                         isFetching: false,
@@ -477,7 +479,7 @@ export default class ReceiptPredictPage extends React.Component<IReceiptPredictP
                 inputedLocalFile: strings.predict.defaultLocalFileInput,
                 fileLabel: "",
                 currPage: undefined,
-                analyzeResult: {},
+                analyzeResult: null,
                 fileChanged: true,
                 file: undefined,
                 predictRun: false,
@@ -573,15 +575,16 @@ export default class ReceiptPredictPage extends React.Component<IReceiptPredictP
 
     private handleFileChange = () => {
         if (this.fileInput.current.value !== "") {
+            this.setState({ invalidFileFormat: false });
             const fileName = this.fileInput.current.value.split("\\").pop();
             if (fileName !== "") {
                 this.setState({
                     inputedLocalFile: fileName,
                     fileLabel: fileName,
                     currPage: 1,
-                    analyzeResult: {},
+                    analyzeResult: null,
                     fileChanged: true,
-                    file: this.fileInput.current.files[0],
+                    file: this.fileInput.current.files[ 0 ],
                     predictRun: false,
                 }, () => {
                     if (this.imageMap) {
@@ -596,11 +599,11 @@ export default class ReceiptPredictPage extends React.Component<IReceiptPredictP
         this.setState({ predictionLoaded: false, isPredicting: true });
         this.getPrediction()
             .then((result) => {
-                const receiptTags = this.getTagsForReceiptResults(
+                const tags = this.getTagsForPredictResults(
                     this.getPredictionsFromAnalyzeResult(result),
                 );
                 this.setState({
-                    receiptTags,
+                    tags,
                     analyzeResult: result,
                     predictionLoaded: true,
                     predictRun: true,
@@ -641,21 +644,21 @@ export default class ReceiptPredictPage extends React.Component<IReceiptPredictP
         return 1;
     }
 
-    private getTagsForReceiptResults(predictions) {
-        const receiptTags: ITag[] = [];
+    private getTagsForPredictResults(predictions) {
+        const tags: ITag[] = [];
         Object.keys(predictions).forEach((key, index) => {
-            receiptTags.push({
+            tags.push({
                 name: key,
-                color: this.tagColors[index],
+                color: this.tagColors[ index ],
                 // use default type
                 type: FieldType.String,
                 format: FieldFormat.NotSpecified,
             } as ITag);
         });
         this.setState({
-            receiptTags,
+            tags,
         });
-        return receiptTags;
+        return tags;
     }
 
     private async getPrediction(): Promise<any> {
@@ -685,7 +688,7 @@ export default class ReceiptPredictPage extends React.Component<IReceiptPredictP
             ServiceHelper.handleServiceError(err);
         }
 
-        const operationLocation = response.headers["operation-location"];
+        const operationLocation = response.headers[ "operation-location" ];
 
         // Make the second REST API call and get the response.
         return this.poll(() =>
@@ -720,6 +723,7 @@ export default class ReceiptPredictPage extends React.Component<IReceiptPredictP
                 this.setState({
                     imageUri: "",
                     shouldShowAlert: true,
+                    invalidFileFormat: true,
                     alertTitle: "Not supported file type",
                     alertMessage: "Sorry, we currently only support JPG/PNG/PDF files.",
                 });
@@ -745,7 +749,7 @@ export default class ReceiptPredictPage extends React.Component<IReceiptPredictP
     }
 
     private loadTiffPage = (tiffImages: any[], pageNumber: number) => {
-        const tiffImage = tiffImages[pageNumber - 1];
+        const tiffImage = tiffImages[ pageNumber - 1 ];
         const canvas = renderTiffToCanvas(tiffImage);
         this.setState({
             currPage: pageNumber,
@@ -807,22 +811,22 @@ export default class ReceiptPredictPage extends React.Component<IReceiptPredictP
         const coordinates: number[][] = [];
 
         // extent is int[4] to represent image dimentions: [left, bottom, right, top]
-        const imageWidth = imageExtent[2] - imageExtent[0];
-        const imageHeight = imageExtent[3] - imageExtent[1];
-        const ocrWidth = ocrExtent[2] - ocrExtent[0];
-        const ocrHeight = ocrExtent[3] - ocrExtent[1];
+        const imageWidth = imageExtent[ 2 ] - imageExtent[ 0 ];
+        const imageHeight = imageExtent[ 3 ] - imageExtent[ 1 ];
+        const ocrWidth = ocrExtent[ 2 ] - ocrExtent[ 0 ];
+        const ocrHeight = ocrExtent[ 3 ] - ocrExtent[ 1 ];
 
         for (let i = 0; i < boundingBox.length; i += 2) {
             coordinates.push([
-                Math.round((boundingBox[i] / ocrWidth) * imageWidth),
-                Math.round((1 - (boundingBox[i + 1] / ocrHeight)) * imageHeight),
+                Math.round((boundingBox[ i ] / ocrWidth) * imageWidth),
+                Math.round((1 - (boundingBox[ i + 1 ] / ocrHeight)) * imageHeight),
             ]);
         }
 
         const feature = new Feature({
-            geometry: new Polygon([coordinates]),
+            geometry: new Polygon([ coordinates ]),
         });
-        const tag = this.state.receiptTags.find((tag) => tag.name.toLocaleLowerCase() === text.toLocaleLowerCase());
+        const tag = this.state.tags.find((tag) => tag.name.toLocaleLowerCase() === text.toLocaleLowerCase());
         const isHighlighted = (text.toLocaleLowerCase() === this.state.highlightedField.toLocaleLowerCase());
         feature.setProperties({
             color: _.get(tag, "color", "#333333"),
@@ -848,13 +852,13 @@ export default class ReceiptPredictPage extends React.Component<IReceiptPredictP
     private drawPredictionResult = (): void => {
         this.imageMap.removeAllFeatures();
         const features = [];
-        const imageExtent = [0, 0, this.state.imageWidth, this.state.imageHeight];
-        const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[this.state.currPage - 1];
-        const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
+        const imageExtent = [ 0, 0, this.state.imageWidth, this.state.imageHeight ];
+        const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[ this.state.currPage - 1 ];
+        const ocrExtent = [ 0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height ];
         const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
 
         for (const fieldName of Object.keys(predictions)) {
-            const field = predictions[fieldName];
+            const field = predictions[ fieldName ];
             if (_.get(field, "page", null) === this.state.currPage) {
                 const text = fieldName;
                 const boundingbox = _.get(field, "boundingBox", []);
@@ -914,9 +918,9 @@ export default class ReceiptPredictPage extends React.Component<IReceiptPredictP
             }
             predictionsCopy.Items.valueArray.forEach((item, index) => {
                 const itemName = "Item " + (index + 1);
-                predictionsCopy[itemName] = item.valueObject.Name;
+                predictionsCopy[ itemName ] = item.valueObject.Name;
                 if (item.valueObject.TotalPrice) {
-                    predictionsCopy[itemName + " price"] = item.valueObject.TotalPrice;
+                    predictionsCopy[ itemName + " price" ] = item.valueObject.TotalPrice;
                 }
             });
             delete predictionsCopy.Items;

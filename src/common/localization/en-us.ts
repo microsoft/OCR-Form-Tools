@@ -197,7 +197,7 @@ export const english: IAppStrings = {
         }
     },
     predict: {
-        title: "Analyze",
+        title: "Analyze with prebuilt models",
         uploadFile: "Choose an image to analyze with",
         inProgress: "Analysis in progress...",
         noRecentModels: "This project doesn't have any recent models. Please train or compose a new model to analyze with.",

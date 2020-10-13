@@ -5,10 +5,10 @@ import { PrimaryButton } from "@fluentui/react";
 import React from "react";
 import { getPrimaryGreenTheme } from "../../../../common/themes";
 import { ITag } from "../../../../models/applicationState";
-import "./receiptPredictResult.scss";
+import "./prebuiltPredictResult.scss";
 
 
-export interface IReceiptPredictResultProps {
+export interface IPrebuiltPredictResultProps {
     predictions: { [key: string]: any };
     analyzeResult: {};
     page: number;
@@ -20,9 +20,9 @@ export interface IReceiptPredictResultProps {
     onPredictionMouseLeave?: (item: any) => void;
 }
 
-export interface IReceiptPredictResultState { }
+export interface IPrebuiltPredictResultState { }
 
-export default class ReceiptPredictResult extends React.Component<IReceiptPredictResultProps, IReceiptPredictResultState> {
+export default class PrebuiltPredictResult extends React.Component<IPrebuiltPredictResultProps, IPrebuiltPredictResultState> {
     public render() {
         const { tags, predictions } = this.props;
         const tagsDisplayOrder = tags.map((tag) => tag.name);
