@@ -60,13 +60,15 @@
                 }
             }
             .hidden {
-                // background-color:red;
-                // display: none;
-                visibility:hidden;
-                min-width: 0;
-                max-width: 0;
                 border: none;
-                padding: 0;
+                font-size: small;
+                font-weight: 300;
+                background-color: transparent;
+                text-align: center;
+                color: rgba(255, 255, 255, 0.45);
+                min-width: 12px;
+                max-width: 48px;
+                padding-right: 0.15rem;
             }
         }
     }

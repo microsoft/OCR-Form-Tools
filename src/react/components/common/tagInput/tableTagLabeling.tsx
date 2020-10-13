@@ -44,6 +44,9 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
 
     public componentDidMount = async () => {
         console.log(this.props)
+        if (this.props.selectedTag.format === FieldFormat.RowDynamic && !this.props.selectedTag.rowKeys) {
+            this.setState({rows: [{fieldKey: "1", fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified}]})
+        }
     }
 
     public componentDidUpdate = async (prevProps: Readonly<ITableTagLabelingProps>, prevState: Readonly<ITableTagLabelingState>) => {
@@ -78,7 +81,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                     <div className="table-view-container">
                         <table className="viewed-table">
                             <tbody>
-                                {this.getTableBody(this.state.rows, this.state.columns)}
+                                {this.state.rows && this.getTableBody(this.state.rows, this.state.columns)}
                             </tbody>
                         </table>
                     </div>
@@ -105,7 +108,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                         <DefaultButton
                             className="button-reconfigure"
                             theme={getPrimaryGreenTheme()}
-                            onClick={() => { this.props.setTagInputMode(TagInputMode.ConfigureTable)}}
+                            onClick={() => { this.props.setTagInputMode(TagInputMode.ConfigureTable) }}
                         >{strings.tags.regionTableTags.tableLabeling.buttons.reconfigureTable}
                         </DefaultButton>
                     </div>
@@ -118,7 +121,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
     public getTableBody = (rows: any, columns: any) => {
         const table = { rows, columns };
         let selectedTableTagBody = this.props.selectedTableTagBody;
-        console.log("#: TableTagLabeling -> publicgetTableBody -> rows", rows);
+        console.log("#: TableTagLabeling -> getTableBody -> columns", columns);
         const isRowDynamic = this.props.selectedTag.format === FieldFormat.RowDynamic;
 
         if (isRowDynamic) {
@@ -141,7 +144,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                     } else if (j === 0 && i !== 0) {
                         tableRow.push(<th key={j} className={`row_header ${isRowDynamic ? "hidden" : ""}`}>{rows[i - 1].fieldKey}</th>);
                     } else if (j === 0 && i === 0) {
-                        tableRow.push(<th key={j} className={`empty_header  ${isRowDynamic ? "hidden" : ""}`} />);
+                        tableRow.push(<th key={j} className={`empty_header  ${isRowDynamic ? "hidden" : ""}`} >Row #</th>);
                     } else {
                             console.log(
                                 "\nselectedTableTagBody", selectedTableTagBody, "\ntableRow:", tableRow
@@ -159,11 +162,12 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
 
     private addRow = () => {
         // Add row to dynamic table
-        const rows = [...this.state.rows, {
-            fieldKey: `#${this.state.rows.length + 1}`,
+        const rows = [...this.state.rows,
+        {
+            fieldKey: `${this.state.rows.length + 1}`,
             fieldType: FieldType.String,
             fieldFormat: FieldFormat.NotSpecified
-        }]
+        }];
         this.setState({ rows });
     };
 
