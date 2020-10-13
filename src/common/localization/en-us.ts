@@ -201,7 +201,7 @@ export const english: IAppStrings = {
         }
     },
     predict: {
-        title: "Analyze with prebuilt models",
+        title: "Analyze",
         uploadFile: "Choose an image to analyze with",
         inProgress: "Analysis in progress...",
         noRecentModels: "This project doesn't have any recent models. Please train or compose a new model to analyze with.",
@@ -219,6 +219,13 @@ export const english: IAppStrings = {
             title: "Asset name exists",
             message: "Asset with name '${name}' exists in project, override?"
         }
+    },
+    prebuiltPredict: {
+        title: "Analyze with prebuilt models",
+        defaultLocalFileInput: "Browse for a file...",
+        defaultURLInput: "Paste or type URL...",
+        uploadFile: "Choose an image to analyze with",
+        inProgress: "Analysis in progress..."
     },
     recentModelsView: {
         header: "Select a model to analyze with",

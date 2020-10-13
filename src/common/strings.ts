@@ -218,6 +218,13 @@ export interface IAppStrings {
             message: string
         },
     };
+    prebuiltPredict:{
+        title:string;
+        defaultLocalFileInput: string,
+        defaultURLInput: string,
+        uploadFile:string,
+        inProgress:string,
+    }
     recentModelsView: {
         header: string;
         checkboxAriaLabel: string;

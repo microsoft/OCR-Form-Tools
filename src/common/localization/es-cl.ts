@@ -219,6 +219,13 @@ export const spanish: IAppStrings = {
             message: "El activo con el nombre '${name}' existe en el proyecto, ¿anularlo?"
         }
     },
+    prebuiltPredict: {
+        title: "Analizar con modelos prediseñados",
+        defaultLocalFileInput: "Busca un archivo...",
+        defaultURLInput: "Pegar o escribir URL...",
+        uploadFile: "Elija una imagen para analizar con",
+        inProgress: "Análisis en curso...",
+    },
     recentModelsView: {
         header: "Seleccionar modelo para analizar con",
         checkboxAriaLabel: "Seleccione la casilla de verificación del modelo",

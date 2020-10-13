@@ -95,8 +95,8 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
         sourceOption: "localFile",
         isFetching: false,
         fetchedFileURL: "",
-        inputedFileURL: strings.predict.defaultURLInput,
-        inputedLocalFile: strings.predict.defaultLocalFileInput,
+        inputedFileURL: strings.prebuiltPredict.defaultURLInput,
+        inputedLocalFile: strings.prebuiltPredict.defaultLocalFileInput,
         analyzeResult: null,
         fileLabel: "",
         predictionLoaded: true,
@@ -123,8 +123,8 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
 
     public async componentDidMount() {
         this.appInsights = getAppInsights();
-        document.title = strings.predict.title + " - " + strings.appName;
-        this.props.appTitleActions.setTitle(`${strings.predict.title}`);
+        document.title = strings.prebuiltPredict.title + " - " + strings.appName;
+        this.props.appTitleActions.setTitle(`${strings.prebuiltPredict.title}`);
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -162,7 +162,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
             !this.state.predictionLoaded ||
             this.state.isFetching ||
             this.state.inputedFileURL.length === 0 ||
-            this.state.inputedFileURL === strings.predict.defaultURLInput;
+            this.state.inputedFileURL === strings.prebuiltPredict.defaultURLInput;
 
         const sourceOptions: IDropdownOption[] = [
             { key: "localFile", text: "Local file" },
@@ -260,7 +260,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                                                     style={{ cursor: (browseFileDisabled ? "default" : "pointer") }}
                                                     onClick={this.handleDummyInputClick}
                                                     readOnly={true}
-                                                    aria-label={strings.predict.uploadFile}
+                                                    aria-label={strings.prebuiltPredict.uploadFile}
                                                     value={this.state.inputedLocalFile}
                                                     disabled={browseFileDisabled}
                                                 />
@@ -283,7 +283,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                                                         theme={getGreenWithWhiteBackgroundTheme()}
                                                         onFocus={this.removeDefaultInputedFileURL}
                                                         onChange={this.setInputedFileURL}
-                                                        aria-label={strings.predict.uploadFile}
+                                                        aria-label={strings.prebuiltPredict.uploadFile}
                                                         value={this.state.inputedFileURL}
                                                         disabled={urlInputDisabled}
                                                     />
@@ -304,7 +304,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                                                 theme={getPrimaryWhiteTheme()}
                                                 iconProps={{ iconName: "Insights" }}
                                                 text="Run analysis"
-                                                aria-label={!this.state.predictionLoaded ? strings.predict.inProgress : ""}
+                                                aria-label={!this.state.predictionLoaded ? strings.prebuiltPredict.inProgress : ""}
                                                 allowDisabledFocus
                                                 disabled={predictDisabled}
                                                 onClick={this.handleClick}
@@ -323,7 +323,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                                         {!this.state.predictionLoaded &&
                                             <div className="loading-container">
                                                 <Spinner
-                                                    label={strings.predict.inProgress}
+                                                    label={strings.prebuiltPredict.inProgress}
                                                     ariaLive="assertive"
                                                     labelPosition="right"
                                                     size={SpinnerSize.large}
@@ -398,7 +398,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
     }
 
     private removeDefaultInputedFileURL = () => {
-        if (this.state.inputedFileURL === strings.predict.defaultURLInput) {
+        if (this.state.inputedFileURL === strings.prebuiltPredict.defaultURLInput) {
             this.setState({ inputedFileURL: "" });
         }
     }
@@ -475,8 +475,8 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
         if (option.key !== this.state.sourceOption) {
             this.setState({
                 sourceOption: option.key,
-                inputedFileURL: strings.predict.defaultURLInput,
-                inputedLocalFile: strings.predict.defaultLocalFileInput,
+                inputedFileURL: strings.prebuiltPredict.defaultURLInput,
+                inputedLocalFile: strings.prebuiltPredict.defaultLocalFileInput,
                 fileLabel: "",
                 currPage: undefined,
                 analyzeResult: null,
