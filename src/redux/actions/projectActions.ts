@@ -181,7 +181,7 @@ export function addAssetToProject(project: IProject, fileName: string, buffer: B
         const assetName = project.folderPath ? `${project.folderPath}/${fileName}` : fileName;
         const asset = assets.find(a => a.name === assetName);
 
-        await assetService.uploadAssetPredictResult(asset, analyzeResult);
+        await assetService.syncAssetPredictResult(asset, analyzeResult);
         dispatch(addAssetToProjectAction(asset));
         return asset;
     };

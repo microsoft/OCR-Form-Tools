@@ -78,6 +78,7 @@ export interface ITagInputProps {
     onLabelLeave: (label: ILabel) => void;
     /** Function to handle tag change */
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
+    onTagDoubleClick?: (label: ILabel) => void;
 }
 
 export interface ITagInputState {
@@ -111,7 +112,7 @@ function filterFormat(type: FieldType): FieldFormat[] {
                 FieldFormat.YMD,
             ];
         default:
-            return [ FieldFormat.NotSpecified ];
+            return [FieldFormat.NotSpecified];
     }
 }
 
@@ -403,6 +404,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 onLabelEnter={this.props.onLabelEnter}
                 onLabelLeave={this.props.onLabelLeave}
                 onTagChanged={this.props.onTagChanged}
+                onTagDoubleClick={this.props.onTagDoubleClick}
             />);
     }
 
@@ -539,7 +541,16 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             });
         }
     }
-
+    focusTag(tag: string) {
+        const tagItemRef = this.tagItemRefs.get(tag)?.getTagNameRef();
+        if (tagItemRef) {
+            tagItemRef.current.scrollIntoView({ behavior: "smooth" });
+            tagItemRef.current.classList.add("tag-item-highlight");
+            setTimeout(() => {
+                tagItemRef.current.classList.remove("tag-item-highlight");
+            }, 2000);
+        }
+    }
     public labelAssigned = (labels: ILabel[], name): boolean => {
         const label = labels.find((label) => label.label === name ? true : false);
         if (!label) {
@@ -630,7 +641,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     private onHideContextualMenu = () => {
-        this.setState({tagOperation: TagOperationMode.None});
+        this.setState({ tagOperation: TagOperationMode.None });
     }
 
     private getContextualMenuItems = (): IContextualMenuItem[] => {

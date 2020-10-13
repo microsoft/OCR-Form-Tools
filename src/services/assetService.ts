@@ -5,7 +5,7 @@ import _ from "lodash";
 import Guard from "../common/guard";
 import {
     IAsset, AssetType, IProject, IAssetMetadata, AssetState,
-    ILabelData, ILabel, AssetMimeType
+    ILabelData, ILabel, AssetLabelingState
 } from "../models/applicationState";
 import { AssetProviderFactory, IAssetProvider } from "../providers/storage/assetProviderFactory";
 import { StorageProviderFactory, IStorageProvider } from "../providers/storage/storageProviderFactory";
@@ -68,9 +68,10 @@ export class AssetService {
     private getOcrFromAnalyzeResult(analyzeResult: any) {
         return _.get(analyzeResult, "analyzeResult.readResults", []);
     }
-    async uploadAssetPredictResult(asset: IAsset, readResults: any): Promise<void> {
+    getAssetPredictMetadata(asset: IAsset, predictResults: any) {
+        asset = JSON.parse(JSON.stringify(asset));
         const getBoundingBox = (pageIndex, arr: number[]) => {
-            const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(readResults)[pageIndex - 1];
+            const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(predictResults)[pageIndex - 1];
             const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
             const ocrWidth = ocrExtent[2] - ocrExtent[0];
             const ocrHeight = ocrExtent[3] - ocrExtent[1];
@@ -86,7 +87,7 @@ export class AssetService {
         const getLabelValues = (field: any) => {
             return field.elements.map((path: string) => {
                 const pathArr = path.split('/').slice(1);
-                const word = pathArr.reduce((obj: any, key: string) => obj[key], { ...readResults.analyzeResult });
+                const word = pathArr.reduce((obj: any, key: string) => obj[key], { ...predictResults.analyzeResult });
                 return {
                     page: field.page,
                     text: word.text || word.state,
@@ -95,59 +96,76 @@ export class AssetService {
                 };
             });
         };
-        const labels = [];
-        readResults.analyzeResult.documentResults
-            .map(result => Object.keys(result.fields)
-                .filter(key => result.fields[key])
-                .map<ILabel>(key => (
-                    {
-                        label: key,
-                        key: null,
-                        value: getLabelValues(result.fields[key])
-                    }))).forEach(items => {
-                        labels.push(...items);
-                    });
+        const labels =
+            predictResults.analyzeResult.documentResults
+                .map(result => Object.keys(result.fields)
+                    .filter(key => result.fields[key])
+                    .map<ILabel>(key => (
+                        {
+                            label: key,
+                            key: null,
+                            confidence: result.fields[key].confidence,
+                            value: getLabelValues(result.fields[key])
+                        }))).flat(2);
 
         if (labels.length > 0) {
             const fileName = decodeURIComponent(asset.name).split('/').pop();
             const labelData: ILabelData = {
                 document: fileName,
+                labelingState: AssetLabelingState.AutoLabeling,
                 labels
             };
-            const metadata = {
-                ...await this.getAssetMetadata(asset),
-                labelData
+            const metadata: IAssetMetadata = {
+                asset: { ...asset, labelingState: AssetLabelingState.AutoLabeling },
+                regions: [],
+                version: appInfo.version,
+                labelData,
             };
             metadata.asset.state = AssetState.Tagged;
-
-            const ocrData = JSON.parse(JSON.stringify(readResults));
-            delete ocrData.analyzeResult.documentResults;
-            if (ocrData.analyzeResult.errors) {
-                delete ocrData.analyzeResult.errors;
-            }
-            const ocrFileName = `${asset.name}${constants.ocrFileExtension}`;
-            await Promise.all([
-                this.save(metadata),
-                this.storageProvider.writeText(ocrFileName, JSON.stringify(ocrData, null, 2))
-            ]);
+            return metadata;
         }
         else {
-            const ocrData = { ...readResults };
-            delete ocrData.analyzeResult.documentResults;
-            if (ocrData.analyzeResult.errors) {
-                delete ocrData.analyzeResult.errors;
-            }
+            return null;
+        }
+    }
+    async uploadPredictResultAsOrcResult(asset: IAsset, predictResults: any): Promise<void> {
+        const ocrData = JSON.parse(JSON.stringify(predictResults));
+        delete ocrData.analyzeResult.documentResults;
+        if (ocrData.analyzeResult.errors) {
+            delete ocrData.analyzeResult.errors;
+        }
+        const ocrFileName = `${asset.name}${constants.ocrFileExtension}`;
+        await this.storageProvider.writeText(ocrFileName, JSON.stringify(ocrData, null, 2));
+    }
+
+    async syncAssetPredictResult(asset: IAsset, predictResults: any): Promise<IAssetMetadata> {
+        const assetMeatadata = this.getAssetPredictMetadata(asset, predictResults);
+        const ocrData = JSON.parse(JSON.stringify(predictResults));
+        delete ocrData.analyzeResult.documentResults;
+        if (ocrData.analyzeResult.errors) {
+            delete ocrData.analyzeResult.errors;
+        }
+        const ocrFileName = `${asset.name}${constants.ocrFileExtension}`;
+        if (assetMeatadata) {
+
+
+            await Promise.all([
+                this.save(assetMeatadata),
+                this.storageProvider.writeText(ocrFileName, JSON.stringify(ocrData, null, 2))
+            ]);
+            return assetMeatadata;
+        }
+        else {
             const labelFileName = decodeURIComponent(`${asset.name}${constants.labelFileExtension}`);
-            const ocrFileName = decodeURIComponent(`${asset.name}${constants.ocrFileExtension}`);
             try {
                 await Promise.all([
                     this.storageProvider.deleteFile(labelFileName, true, true),
                     this.storageProvider.writeText(ocrFileName, JSON.stringify(ocrData, null, 2))
                 ]);
+            } catch (err) {
+                // The label file may not exist - that's OK.
             }
-            catch{
-                return;
-            }
+            return null;
         }
     }
     /**
@@ -359,7 +377,7 @@ export class AssetService {
                 // The file may not exist - that's OK.
             }
         }
-        return metadata;
+        return JSON.parse(JSON.stringify(metadata));
     }
 
     /**
@@ -373,6 +391,10 @@ export class AssetService {
         try {
             const json = await this.storageProvider.readText(labelFileName, true);
             const labelData = JSON.parse(json) as ILabelData;
+            if (labelData) {
+                labelData.labelingState = labelData.labelingState || AssetLabelingState.ManualLabeling;
+                asset.labelingState = labelData.labelingState;
+            }
             if (!labelData.document || !labelData.labels) {
                 const reason = interpolate(strings.errors.missingRequiredFieldInLabelFile.message, { labelFileName });
                 toast.error(reason, { autoClose: false });
@@ -417,7 +439,7 @@ export class AssetService {
             }
             toast.dismiss();
             return {
-                asset: { ...asset },
+                asset: { ...asset, labelingState: labelData.labelingState },
                 regions: [],
                 version: appInfo.version,
                 labelData,

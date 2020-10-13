@@ -3,7 +3,7 @@
 import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
 import { constants } from "../../common/constants";
 import { strings } from "../../common/strings";
-import { AppError, AssetState, AssetType, ErrorCode, IAsset, StorageType } from "../../models/applicationState";
+import { AppError, AssetState, AssetType, ErrorCode, IAsset, StorageType, ILabelData, AssetLabelingState } from "../../models/applicationState";
 import { throwUnhandledRejectionForEdge } from "../../react/components/common/errorHandler/errorHandler";
 import { AssetService } from "../../services/assetService";
 import { IStorageProvider } from "./storageProviderFactory";
@@ -214,12 +214,17 @@ export class AzureBlobStorage implements IStorageProvider {
 
                 if (files.find((str) => str === labelFileName)) {
                     asset.state = AssetState.Tagged;
+                    const labelFileName = decodeURIComponent(`${asset.name}${constants.labelFileExtension}`);
+                    const json = await this.readText(labelFileName, true);
+                    const labelData = JSON.parse(json) as ILabelData;
+                    if (labelData) {
+                        asset.labelingState = labelData.labelingState || AssetLabelingState.ManualLabeling;
+                    }
                 } else if (files.find((str) => str === ocrFileName)) {
                     asset.state = AssetState.Visited;
                 } else {
                     asset.state = AssetState.NotVisited;
                 }
-
                 result.push(asset);
             }
         }

@@ -129,6 +129,10 @@ export interface IAppStrings {
         backEndNotAvailable: string,
         addName: string,
         downloadJson: string;
+        trainConfirm: {
+            title: string;
+            message: string;
+        },
         errors: {
             electron: {
                 cantAccessFiles: string;
@@ -444,6 +448,7 @@ export interface IAppStrings {
                             runOcrOnCurrentDocument: string,
                             runOcrOnAllDocuments: string,
                             runAutoLabelingCurrentDocument: string,
+                            runAutoLabelingOnNotLabelingDocuments: string,
                             noPredictModelOnProject: string,
                         }
                     }
