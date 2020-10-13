@@ -35,8 +35,8 @@ interface ITableTagConfigProps {
 }
 
 interface ITableTagConfigState {
-    rows: any[],
-    columns: any[],
+    rows?: ITableConfigItem[],
+    columns: ITableConfigItem[],
     name: string,
     format: string,
     headerTypeAndFormat: string;
@@ -115,13 +115,24 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
     let table: ITableTagConfigState;
     if (props.tableTag) {
-        table = {
-            name: props.tableTag.name + " ",
-            format: "fixed",
-            rows: props.tableTag.rowKeys.map((row) => { return { name: row.fieldKey, type: row.fieldType, format: row.fieldFormat } }),
-            columns: props.tableTag.columnKeys.map((col) => { return { name: col.fieldKey, type: col.fieldType, format: col.fieldFormat } }),
-            headerTypeAndFormat: "columns",
-        };
+        if (props.tableTag.format === FieldFormat.Fixed) {
+            table = {
+                name: props.tableTag.name,
+                format: FieldFormat.Fixed,
+                rows: props.tableTag.rowKeys?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat })),
+                columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat })),
+                headerTypeAndFormat: "columns",
+            }
+        } else {
+            table = {
+                name: props.tableTag.name,
+                format: FieldFormat.RowDynamic,
+                rows: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
+                columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat })),
+                headerTypeAndFormat: "columns",
+            }
+        }
+
     } else {
         table = {
             name: "",
@@ -486,7 +497,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     function save(rows: ITableConfigItem[], columns: ITableConfigItem[]) {
         addTableTag({
             name: tableTagName.trim(),
-            rows: format === FieldFormat.RowDynamic ? [{name: "#1", type: FieldType.String, format: FieldFormat.NotSpecified}] : trimFieldNames(rows),
+            rows: format === FieldFormat.RowDynamic ? null : trimFieldNames(rows),
             columns: trimFieldNames(columns),
             format,
             headersFormatAndType
@@ -580,25 +591,29 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     // Table preview
     function getTableBody() {
         let tableBody = null;
+        const isRowDynamic = format === FieldFormat.RowDynamic;
         if (table.rows.length !== 0 && table.columns.length !== 0) {
             tableBody = [];
             for (let i = 0; i < rows.length + 1; i++) {
                 const tableRow = [];
                 for (let j = 0; j < columns.length + 1; j++) {
                     if (i === 0 && j !== 0) {
-                            tableRow.push(<th key={`col-h-${j}`} className={"column_header"}>{columns[j - 1].name}</th>);
+                        tableRow.push(<th key={`col-h-${j}`} className="column_header">{columns[j - 1].name}</th>);
                     } else if (j === 0 && i !== 0) {
-                        if (format === FieldFormat.Fixed) {
-                            tableRow.push(<th key={`row-h-${j}`} className={"row_header"}>{rows[i - 1].name}</th>);
+                        if (isRowDynamic) {
+                            tableRow.push(<th key={`row-h-${j}`} className="hidden">{i}</th>);
+                        } else {
+                            tableRow.push(<th key={`row-h-${j}`} className="row_header">{rows[i - 1].name}</th>);
                         }
+
                     } else if (j === 0 && i === 0) {
-                        if (format === FieldFormat.Fixed) {
-                            tableRow.push(<th key={"ignore"} className={"empty_header"} />);
+                        if (isRowDynamic) {
+                            tableRow.push(<th key={"ignore"} className="hidden" >Row #</th>);
+                        } else {
+                            tableRow.push(<th key={"ignore"} className="empty_header" ></th>);
                         }
                     } else {
-                        if (format === FieldFormat.Fixed) {
-                            tableRow.push(<td key={`cell-${i}-${j}`} className={"table-cell"} />);
-                        }
+                        tableRow.push(<td key={`cell-${i}-${j}`} className="table-cell"/>);
                     }
                 }
                 tableBody.push(<tr key={`row-${i}`}>{tableRow}</tr>);
@@ -625,7 +640,12 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     theme={getGreenWithWhiteBackgroundTheme()}
                     onChange={(event) => setTableName(event.target["value"])}
                     value={tableTagName}
-                    errorMessage={tableTagName ? notUniqueNames.tags ? strings.tags.regionTableTags.configureTag.errors.notUniqueTagName : "" : strings.tags.regionTableTags.configureTag.errors.assignTagName}
+                    errorMessage={
+                        tableTagName?
+                            (notUniqueNames.tags && tableTagName !== props.tableTag.name) ?
+                                strings.tags.regionTableTags.configureTag.errors.notUniqueTagName : ""
+                            : strings.tags.regionTableTags.configureTag.errors.assignTagName
+                    }
                 />
                 {!props.tableTag &&
                     <>
@@ -654,7 +674,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         }
                     </>
                 }
-                <div className="columns_container">
+                <div className="columns_container ml-12px">
                     <h5 className="mt-3">Column headers:</h5>
                     <div className="columns-list_container">
                         <DetailsList
@@ -686,8 +706,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     Add column
                 </PrimaryButton>
                 </div>
-                {format === "fixed" &&
-                    <div className="rows_container">
+                {(format === FieldFormat.Fixed || (props.tableTag && format === FieldFormat.Fixed)) &&
+                    <div className="rows_container ml-12px">
                         <h5 className="">Row headers:</h5>
                         <div className="rows-list_container">
                             <DetailsList
@@ -723,7 +743,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 }
                 {
                     (tableChanged || props.tableTag) &&
-                    <div className="preview_container">
+                    <div className="preview_container  ml-12px">
                         <h5 className="mt-3 ">Preview:</h5>
                         <div className="table_container">
                             <table className="table">
@@ -732,6 +752,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                                 </tbody>
                             </table>
                         </div>
+                        {
+                            format === FieldFormat.RowDynamic && <div className="rowDynamic_message">The number of rows is specified when labeling each document.</div>
+                        }
                     </div>
                 }
                 <div className="control-buttons_container">

@@ -24,10 +24,13 @@
           }
     }
 
-    .columns_container {
+    .columns_container, .rows_container {
         margin-top: 2rem;
         margin-bottom: 4rem;
         width: 100%;
+        h5 {
+            margin-left: 0;
+        }
     }
 
     .list_header {
@@ -67,6 +70,9 @@
 
     .preview_container {
         margin-top: 2rem;
+        h5 {
+            margin-left: 0;
+        }
         .table_container {
             overflow: auto;
             .table {
@@ -101,7 +107,21 @@
                     color: rgba(255, 255, 255, 0.75);
                     height: 1.5rem;
                 }
+                .hidden {
+                    border: none;
+                    font-size: small;
+                    font-weight: 300;
+                    background-color: transparent;
+                    text-align: right;
+                    vertical-align: middle;
+                    color: rgba(255, 255, 255, 0.45);
+                    width: 3rem;
+                    padding-right: 0.4rem;
+                }
             }
+        }
+        .rowDynamic_message {
+            color: rgba(255, 255, 255, 0.8);
         }
     }
 }
