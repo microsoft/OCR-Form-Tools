@@ -42,6 +42,7 @@ export interface ITagInputItemProps {
     onLabelEnter: (label: ILabel) => void;
     onLabelLeave: (label: ILabel) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
+    onTagDoubleClick?: (label:ILabel) => void;
 }
 
 export interface ITagInputItemState {
@@ -102,6 +103,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                             style={style}>
                             <div
                                 className={"tag-content pr-2"}
+                                onDoubleClick={this.onNameDoubleClick}
                                 onClick={this.onNameClick}>
                                 {this.getTagContent()}
                             </div>
@@ -143,6 +145,14 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         const ctrlKey = e.ctrlKey || e.metaKey;
         const altKey = e.altKey;
         this.props.onClick(this.props.tag, { ctrlKey, altKey });
+    }
+
+    private onNameDoubleClick = (e:MouseEvent) => {
+        e.stopPropagation();
+        const { labels } = this.props;
+        if (labels.length > 0) {
+            this.props.onTagDoubleClick(labels[0]);
+        }
     }
 
     private getItemClassName = () => {

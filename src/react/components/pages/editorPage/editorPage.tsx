@@ -266,6 +266,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             onAssetMetadataChanged={this.onAssetMetadataChanged}
                                             onCanvasRendered={this.onCanvasRendered}
                                             onSelectedRegionsChanged={this.onSelectedRegionsChanged}
+                                            onRegionDoubleClick={this.onRegionDoubleClick}
                                             onRunningOCRStatusChanged={this.onCanvasRunningOCRStatusChanged}
                                             onRunningAutoLabelingStatusChanged={this.onCanvasRunningAutoLabelingStatusChanged}
                                             onTagChanged={this.onTagChanged}
@@ -304,6 +305,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     onLabelEnter={this.onLabelEnter}
                                     onLabelLeave={this.onLabelLeave}
                                     onTagChanged={this.onTagChanged}
+                                    onTagDoubleClick={this.onLabelDoubleClicked}
                                     ref={this.tagInputRef}
                                 />
                                 <Confirm
@@ -611,6 +613,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private onSelectedRegionsChanged = (selectedRegions: IRegion[]) => {
         this.setState({ selectedRegions });
     }
+    private onRegionDoubleClick = (region: IRegion) => {
+        if (region.tags?.length > 0) {
+            this.tagInputRef.current.focusTag(region.tags[0]);
+        }
+    }
 
     private onTagsChanged = async (tags) => {
         const project = {
@@ -878,6 +885,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
     private onLabelEnter = (label: ILabel) => {
         this.setState({ hoveredLabel: label });
+    }
+
+    private onLabelDoubleClicked = (label:ILabel) =>{
+        this.canvas.current.focusOnLabel(label);
     }
 
     private onLabelLeave = (label: ILabel) => {
