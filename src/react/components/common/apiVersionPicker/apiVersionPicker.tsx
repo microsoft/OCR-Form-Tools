@@ -5,10 +5,9 @@ import React, { SyntheticEvent } from "react";
 import { APIVersionPatches } from "../../../../models/applicationState";
 
 /**
- * Security Token Picker Properties
+ * api version Picker Properties
  * @member id - The id to bind to the input element
  * @member value - The value to bind to the input element
- * @member securityTokens - The list of security tokens to display
  * @member onChange - The event handler to call when the input value changes
  */
 export interface IAPIVersionPickerProps {
@@ -18,8 +17,7 @@ export interface IAPIVersionPickerProps {
 }
 
 /**
- * Security Token Picker
- * @description - Used to display a list of security tokens
+ * api version Picker
  */
 export class APIVersionPicker extends React.Component<IAPIVersionPickerProps> {
     constructor(props) {
@@ -36,7 +34,7 @@ export class APIVersionPicker extends React.Component<IAPIVersionPickerProps> {
                 onChange={this.onChange}>
                 <option value={APIVersionPatches.patch1}>{APIVersionPatches.patch1}</option>
                 <option value={APIVersionPatches.patch2}>{APIVersionPatches.patch2}</option>
-                <option value={APIVersionPatches.patch3}>{APIVersionPatches.patch3 + " (unreleased)"}</option>
+                <option value={APIVersionPatches.patch3}>{APIVersionPatches.patch3 + " (testing)"}</option>
             </select>
         );
     }
