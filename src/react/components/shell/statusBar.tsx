@@ -20,7 +20,7 @@ export class StatusBar extends React.Component<IStatusBarProps> {
                     <ul>
                         {this.props.project &&
                             <li>
-                                <a href="https://github.com/microsoft/OCR-Form-Tools/blob/master/CHANGELOG.md" target="blank" rel="noopener noreferrer">
+                                <a href="https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/whats-new" target="blank" rel="noopener noreferrer">
                                     <FontIcon iconName="AzureAPIManagement" />
                                     <span>{ this.props.project.apiVersion || constants.apiVersion }</span>
                                 </a>
