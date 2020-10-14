@@ -13,7 +13,7 @@ import { ITrainRecordProps } from "../react/components/pages/train/trainRecord";
  * @member appError - error in the app if any
  */
 export interface IApplicationState {
-    prebuiltSettings: IPrebuiltSettings;
+    prebuiltSettings?: IPrebuiltSettings;
     appSettings: IAppSettings,
     connections: IConnection[],
     recentProjects: IProject[],
