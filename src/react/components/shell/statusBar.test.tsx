@@ -11,7 +11,7 @@ describe("StatusBar component", () => {
 
     function createComponent() {
         return mount(
-            <StatusBar>
+            <StatusBar project={null}>
                 <div className="child-component">Child Component</div>
             </StatusBar>,
         );
