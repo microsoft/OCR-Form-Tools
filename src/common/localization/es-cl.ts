@@ -453,7 +453,7 @@ export const spanish: IAppStrings = {
                             runOcrOnCurrentDocument: "Ejecutar OCR en el documento actual",
                             runOcrOnAllDocuments: "Ejecute OCR en todos los documentos",
                             runAutoLabelingCurrentDocument: "Etiquetar automáticamente el documento actual",
-                            runAutoLabelingOnNotLabelingDocuments: "Etiquetar documentos nuevos automáticamente",
+                            runAutoLabelingOnNotLabelingDocuments: "Etiquetar automáticamente los siguientes 10 documentos sin etiquetar",
                             noPredictModelOnProject: "Predecir modelo no disponible, entrene el modelo primero.",
                         }
                     }

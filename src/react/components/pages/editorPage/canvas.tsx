@@ -61,7 +61,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onRunningAutoLabelingStatusChanged?: (isRunning: boolean) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
     runOcrForAllDocs?: (runForAllDocs: boolean) => void;
-    runAutoLabelingOnAllDocs?: (runForAll: boolean) => Promise<void>;
+    runAutoLabelingOnNextBatch?: () => Promise<void>;
     onAssetDeleted?: () => void;
 }
 
@@ -386,7 +386,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
     private runAutoLabelingForRestDocuments = async () => {
         this.setState({ autoLableingStatus: AutoLabelingStatus.running });
-        await this.props.runAutoLabelingOnAllDocs(false);
+        await this.props.runAutoLabelingOnNextBatch();
         this.setState({ autoLableingStatus: AutoLabelingStatus.done });
     }
 
