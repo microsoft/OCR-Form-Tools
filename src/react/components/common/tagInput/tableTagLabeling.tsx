@@ -144,14 +144,9 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                     } else if (j === 0 && i !== 0) {
                         tableRow.push(<th key={j} className={`row_header ${isRowDynamic ? "hidden" : ""}`}>{rows[i - 1].fieldKey}</th>);
                     } else if (j === 0 && i === 0) {
-                        tableRow.push(<th key={j} className={`empty_header  ${isRowDynamic ? "hidden" : ""}`} >Row #</th>);
+                        tableRow.push(<th key={j} className={`empty_header  ${isRowDynamic ? "hidden" : ""}`} >{isRowDynamic ? "Row #" : null}</th>);
                     } else {
-                            console.log(
-                                "\nselectedTableTagBody", selectedTableTagBody, "\ntableRow:", tableRow
-                            );
-                            tableRow.push(
-                                <td className={"table-cell"} onClick={() => this.handleCellClick(i - 1, j - 1)} key={j}>{selectedTableTagBody[i - 1][j - 1]?.map((tableRegion) => tableRegion.value).join(" ")}
-                                </td>);
+                        tableRow.push(<td className={"table-cell"} onClick={() => this.handleCellClick(i - 1, j - 1)} key={j}>{selectedTableTagBody[i - 1][j - 1]?.map((tableRegion) => tableRegion.value).join(" ")}</td>);
                     }
                 }
                 tableBody.push(<tr key={i}>{tableRow}</tr>);
