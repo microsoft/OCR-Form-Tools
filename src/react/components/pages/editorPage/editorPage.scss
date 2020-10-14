@@ -232,16 +232,16 @@ canvas {
 .badge-tagged {
   background-color: rgba(green, 0.9);
   border: 1px solid $lighter-2;
-  &-ManualLabeling{
+  &-ManuallyLabeled{
     background-color: rgba(rgb(128, 41, 0), 0.9);
   }
-  &-Training{
+  &-Trained {
     background-color: rgba(green, 0.9);
   }
-  &-AutoLabeling{
+  &-AutoLabeled {
     background-color: rgba(rgb(136, 0, 91), 0.9);
   }
-  &-AutoLabelingAndAdusted{
+  &-AutoLabeledAndAdjusted{
     background-color: rgba(rgb(0, 92, 128), 0.9);
   }
 }

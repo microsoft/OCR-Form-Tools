@@ -39,7 +39,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
     let disableAutoLabelingCurrentAsset = disableAutoLabeling;
     if (!disableAutoLabeling) {
         const labelingState = _.get(props.selectedAsset, "labelData.labelingState");
-        if (labelingState === AssetLabelingState.ManualLabeling || labelingState === AssetLabelingState.Training) {
+        if (labelingState === AssetLabelingState.ManuallyLabeled || labelingState === AssetLabelingState.Trained) {
             disableAutoLabelingCurrentAsset = true;
         }
     }

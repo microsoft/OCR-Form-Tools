@@ -622,21 +622,21 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 const labelingState = _.get(this.state, "currentAsset.labelData.labelingState", null);
                 if (labelingState) {
                     switch (labelingState) {
-                        case AssetLabelingState.AutoLabeling:
-                        case AssetLabelingState.AutoLabelingAndAdusted:
-                            currentAsset.labelData.labelingState = AssetLabelingState.AutoLabelingAndAdusted;
+                        case AssetLabelingState.AutoLabeled:
+                        case AssetLabelingState.AutoLabeledAndAdjusted:
+                            currentAsset.labelData.labelingState = AssetLabelingState.AutoLabeledAndAdjusted;
                             break;
-                        case AssetLabelingState.ManualLabeling:
-                        case AssetLabelingState.Training:
-                            currentAsset.labelData.labelingState = AssetLabelingState.ManualLabeling;
+                        case AssetLabelingState.ManuallyLabeled:
+                        case AssetLabelingState.Trained:
+                            currentAsset.labelData.labelingState = AssetLabelingState.ManuallyLabeled;
                             break;
                         default:
-                            currentAsset.labelData.labelingState = AssetLabelingState.ManualLabeling;
+                            currentAsset.labelData.labelingState = AssetLabelingState.ManuallyLabeled;
                             break;
                     }
                 }
                 else {
-                    currentAsset.labelData.labelingState = AssetLabelingState.ManualLabeling;
+                    currentAsset.labelData.labelingState = AssetLabelingState.ManuallyLabeled;
                 }
             }
         }

@@ -783,7 +783,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                             this.updateAssetState({
                                 id: asset.id, isRunningAutoLabeling: false,
                                 assetState: AssetState.Tagged,
-                                labelingState: AssetLabelingState.AutoLabeling,
+                                labelingState: AssetLabelingState.AutoLabeled,
                             });
                             this.props.actions.updatedAssetMetadata(this.props.project, assetMetadata);
                         } catch (err) {
