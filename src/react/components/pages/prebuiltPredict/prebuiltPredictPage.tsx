@@ -7,30 +7,31 @@ import {
     Spinner, SpinnerSize, TextField
 } from "@fluentui/react";
 import _ from "lodash";
-import { Feature } from "ol";
+import {Feature} from "ol";
 import Polygon from "ol/geom/Polygon";
 import Fill from "ol/style/Fill";
 import Stroke from "ol/style/Stroke";
 import Style from "ol/style/Style";
 import pdfjsLib from "pdfjs-dist";
 import React from "react";
-import { connect } from "react-redux";
-import { RouteComponentProps } from "react-router-dom";
-import { bindActionCreators } from "redux";
+import {connect} from "react-redux";
+import {RouteComponentProps} from "react-router-dom";
+import {bindActionCreators} from "redux";
 import url from "url";
-import { constants } from "../../../../common/constants";
+import {constants} from "../../../../common/constants";
 import HtmlFileReader from "../../../../common/htmlFileReader";
-import { interpolate, strings } from "../../../../common/strings";
+import {interpolate, strings} from "../../../../common/strings";
 import {
     getGreenWithWhiteBackgroundTheme, getPrimaryGreenTheme, getPrimaryGreyTheme, getPrimaryWhiteTheme
 } from "../../../../common/themes";
-import { loadImageToCanvas, parseTiffData, renderTiffToCanvas } from "../../../../common/utils";
-import { ErrorCode, FieldFormat, FieldType, IApplicationState, ImageMapParent, ITag } from "../../../../models/applicationState";
+import {loadImageToCanvas, parseTiffData, renderTiffToCanvas} from "../../../../common/utils";
+import {ErrorCode, FieldFormat, FieldType, IApplicationState, ImageMapParent, IPrebuiltSettings, ITag} from "../../../../models/applicationState";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
+import IAppPrebuiltSettingsActions, * as appPrebuiltSettingsActions from "../../../../redux/actions/prebuiltSettingsActions";
 import ServiceHelper from "../../../../services/serviceHelper";
-import { getAppInsights } from "../../../../services/telemetryService";
+import {getAppInsights} from "../../../../services/telemetryService";
 import Alert from "../../common/alert/alert";
-import { ImageMap } from "../../common/imageMap/imageMap";
+import {ImageMap} from "../../common/imageMap/imageMap";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import "./prebuiltPredictPage.scss";
 import PrebuiltPredictResult from "./prebuiltPredictResult";
@@ -39,14 +40,15 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.versi
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
 
 export interface IPrebuiltPredictPageProps extends RouteComponentProps {
-
+    prebuiltSettings: IPrebuiltSettings;
     appTitleActions: IAppTitleActions;
+    actions: IAppPrebuiltSettingsActions;
 }
 
 export interface IPrebuiltPredictPageState {
     tags?: ITag[];
-    inputedAPIKey?: string;
-    inputedServiceURI?: string;
+    // inputedAPIKey?: string;
+    // inputedServiceURI?: string;
     showInputedAPIKey: boolean;
 
     inputedLocalFile: string;
@@ -74,12 +76,14 @@ export interface IPrebuiltPredictPageState {
 }
 function mapStateToProps(state: IApplicationState) {
     return {
+        prebuiltSettings: state.prebuiltSettings
     };
 }
 
 function mapDispatchToProps(dispatch) {
     return {
         appTitleActions: bindActionCreators(appTitleActions, dispatch),
+        actions: bindActionCreators(appPrebuiltSettingsActions, dispatch),
     };
 }
 
@@ -88,8 +92,6 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
     private appInsights: any = null;
 
     public state: IPrebuiltPredictPageState = {
-        inputedAPIKey: "3f1523d3ece8448eb0d16c583ce3e2a9",
-        inputedServiceURI: "https://cognitiveusw2ppe.azure-api.net/",
         showInputedAPIKey: false,
 
         sourceOption: "localFile",
@@ -133,7 +135,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                 this.currPdf = null;
                 this.tiffImages = [];
                 this.loadFile(this.state.file);
-                this.setState({ fileChanged: false });
+                this.setState({fileChanged: false});
             } else if (prevState.currPage !== this.state.currPage) {
                 if (this.currPdf !== null) {
                     this.loadPdfPage(this.currPdf, this.state.currPage);
@@ -155,7 +157,10 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
     public render() {
         const browseFileDisabled: boolean = !this.state.predictionLoaded;
         const urlInputDisabled: boolean = !this.state.predictionLoaded || this.state.isFetching;
-        const predictDisabled: boolean = !this.state.predictionLoaded || !this.state.file || this.state.invalidFileFormat;
+        const predictDisabled: boolean = !this.state.predictionLoaded || !this.state.file
+            || this.state.invalidFileFormat ||
+            !this.props.prebuiltSettings.apiKey || !this.props.prebuiltSettings.serviceURI;
+
         const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
         // const modelInfo: IAnalyzeModelInfo = this.getAnalyzeModelInfo(this.state.analyzeResult);
         const fetchDisabled: boolean =
@@ -165,8 +170,8 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
             this.state.inputedFileURL === strings.prebuiltPredict.defaultURLInput;
 
         const sourceOptions: IDropdownOption[] = [
-            { key: "localFile", text: "Local file" },
-            { key: "url", text: "URL" },
+            {key: "localFile", text: "Local file"},
+            {key: "url", text: "URL"},
         ];
 
         const onPrebuiltsPath: boolean = this.props.match.path.includes("prebuilts");
@@ -175,7 +180,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
             <div
                 className={`predict skipToMainContent ${onPrebuiltsPath ? "" : "hidden"} `}
                 id="pagePredict"
-                style={{ display: `${onPrebuiltsPath ? "flex" : "none"}` }} >
+                style={{display: `${onPrebuiltsPath ? "flex" : "none"}`}} >
                 <div className="predict-main">
                     {this.state.file && this.state.imageUri && this.renderImageMap()}
                     {this.renderPrevPageButton()}
@@ -191,23 +196,23 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                         <>
                             {
                                 <>
-                                    <div className="p-3" style={{ marginTop: "8px" }}>
+                                    <div className="p-3" style={{marginTop: "8px"}}>
                                         <h5>Service configuration</h5>
-                                        <div style={{ marginBottom: "3px" }}>Form recognizer service endpoint</div>
+                                        <div style={{marginBottom: "3px"}}>Form recognizer service endpoint</div>
                                         <TextField
                                             className="mb-1"
                                             theme={getGreenWithWhiteBackgroundTheme()}
-                                            value={this.state.inputedServiceURI}
+                                            value={this.props.prebuiltSettings?.serviceURI}
                                             onChange={this.setInputedServiceURI}
                                             disabled={this.state.isPredicting}
                                         />
-                                        <div style={{ marginBottom: "3px" }}>API key</div>
+                                        <div style={{marginBottom: "3px"}}>API key</div>
                                         <div className="apikeyContainer">
                                             <TextField
                                                 className="apikey"
                                                 theme={getGreenWithWhiteBackgroundTheme()}
                                                 type={this.state.showInputedAPIKey ? "text" : "password"}
-                                                value={this.state.inputedAPIKey}
+                                                value={this.props.prebuiltSettings?.apiKey}
                                                 onChange={this.setInputedAPIKey}
                                                 disabled={this.state.isPredicting}
                                             />
@@ -229,11 +234,11 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                                             </DefaultButton>
                                         </div>
                                     </div>
-                                    <div className="p-3" style={{ marginTop: "8px" }}>
+                                    <div className="p-3" style={{marginTop: "8px"}}>
                                         <h5>
                                             Upload file and run analysis
                                         </h5>
-                                        <div style={{ marginBottom: "3px" }}>Image source</div>
+                                        <div style={{marginBottom: "3px"}}>Image source</div>
                                         <div className="container-space-between">
                                             <Dropdown
                                                 className="sourceDropdown"
@@ -257,7 +262,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                                                 <TextField
                                                     className="mr-2 ml-2"
                                                     theme={getGreenWithWhiteBackgroundTheme()}
-                                                    style={{ cursor: (browseFileDisabled ? "default" : "pointer") }}
+                                                    style={{cursor: (browseFileDisabled ? "default" : "pointer")}}
                                                     onClick={this.handleDummyInputClick}
                                                     readOnly={true}
                                                     aria-label={strings.prebuiltPredict.uploadFile}
@@ -302,7 +307,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                                         <div className="container-items-end predict-button">
                                             <PrimaryButton
                                                 theme={getPrimaryWhiteTheme()}
-                                                iconProps={{ iconName: "Insights" }}
+                                                iconProps={{iconName: "Insights"}}
                                                 text="Run analysis"
                                                 aria-label={!this.state.predictionLoaded ? strings.prebuiltPredict.inProgress : ""}
                                                 allowDisabledFocus
@@ -375,12 +380,14 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
         );
     }
 
-    private setInputedServiceURI = (event) => {
-        this.setState({ inputedServiceURI: event.target.value });
+    private setInputedServiceURI = (e: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
+        // this.setState({inputedServiceURI: event.target.value});
+        this.props.actions.update({...this.props.prebuiltSettings, serviceURI: newValue});
+
     }
 
-    private setInputedAPIKey = (event) => {
-        this.setState({ inputedAPIKey: event.target.value });
+    private setInputedAPIKey = (e: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
+        this.props.actions.update({...this.props.prebuiltSettings, apiKey: newValue});
     }
     private toggleAPIKeyVisibility = () => {
         this.setState({
@@ -390,7 +397,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
     private async copyKey() {
         const clipboard = (navigator as any).clipboard;
         if (clipboard && clipboard.writeText && typeof clipboard.writeText === "function") {
-            await clipboard.writeText(this.state.inputedAPIKey);
+            await clipboard.writeText(this.props.prebuiltSettings.apiKey);
         }
     }
     private handleDummyInputClick = () => {
@@ -399,17 +406,17 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
 
     private removeDefaultInputedFileURL = () => {
         if (this.state.inputedFileURL === strings.prebuiltPredict.defaultURLInput) {
-            this.setState({ inputedFileURL: "" });
+            this.setState({inputedFileURL: ""});
         }
     }
 
     private setInputedFileURL = (event) => {
-        this.setState({ inputedFileURL: event.target.value });
+        this.setState({inputedFileURL: event.target.value});
     }
 
     private getFileFromURL = () => {
-        this.setState({ isFetching: true });
-        fetch(this.state.inputedFileURL, { headers: { Accept: "application/pdf, image/jpeg, image/png, image/tiff" } })
+        this.setState({isFetching: true});
+        fetch(this.state.inputedFileURL, {headers: {Accept: "application/pdf, image/jpeg, image/png, image/tiff"}})
             .then(async (response) => {
                 if (!response.ok) {
                     this.setState({
@@ -435,7 +442,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                 response.blob().then((blob) => {
                     const fileAsURL = new URL(this.state.inputedFileURL);
                     const fileName = fileAsURL.pathname.split("/").pop();
-                    const file = new File([ blob ], fileName, { type: contentType });
+                    const file = new File([ blob ], fileName, {type: contentType});
                     this.setState({
                         fetchedFileURL: this.state.inputedFileURL,
                         isFetching: false,
@@ -519,7 +526,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                 <IconButton
                     className="toolbar-btn prev"
                     title="Previous"
-                    iconProps={{ iconName: "ChevronLeft" }}
+                    iconProps={{iconName: "ChevronLeft"}}
                     onClick={prevPage}
                 />
             );
@@ -548,7 +555,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                     className="toolbar-btn next"
                     title="Next"
                     onClick={nextPage}
-                    iconProps={{ iconName: "ChevronRight" }}
+                    iconProps={{iconName: "ChevronRight"}}
                 />
             );
         } else {
@@ -558,7 +565,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
 
     private renderImageMap = () => {
         return (
-            <div style={{ width: "100%", height: "100%" }}>
+            <div style={{width: "100%", height: "100%"}}>
                 <ImageMap
                     parentPage={ImageMapParent.Predict}
                     ref={(ref) => this.imageMap = ref}
@@ -575,7 +582,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
 
     private handleFileChange = () => {
         if (this.fileInput.current.value !== "") {
-            this.setState({ invalidFileFormat: false });
+            this.setState({invalidFileFormat: false});
             const fileName = this.fileInput.current.value.split("\\").pop();
             if (fileName !== "") {
                 this.setState({
@@ -596,7 +603,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
     }
 
     private handleClick = () => {
-        this.setState({ predictionLoaded: false, isPredicting: true });
+        this.setState({predictionLoaded: false, isPredicting: true});
         this.getPrediction()
             .then((result) => {
                 const tags = this.getTagsForPredictResults(
@@ -620,7 +627,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                 } else if (error.errorCode === ErrorCode.ModelNotFound) {
                     alertMessage = error.message;
                 } else {
-                    alertMessage = interpolate(strings.errors.endpointConnectionError.message, { endpoint: "form recognizer backend URL" });
+                    alertMessage = interpolate(strings.errors.endpointConnectionError.message, {endpoint: "form recognizer backend URL"});
                 }
                 this.setState({
                     shouldShowAlert: true,
@@ -630,7 +637,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                 });
             });
         if (this.appInsights) {
-            this.appInsights.trackEvent({ name: "ANALYZE_EVENT" });
+            this.appInsights.trackEvent({name: "ANALYZE_EVENT"});
         }
     }
 
@@ -666,24 +673,24 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
         let apiKey;
 
         endpointURL = url.resolve(
-            this.state.inputedServiceURI,
+            this.props.prebuiltSettings.serviceURI,
             `${"/formrecognizer/v2.0-preview/prebuilt"}/receipt/analyze?includeTextDetails=true`,
         );
-        apiKey = this.state.inputedAPIKey;
+        apiKey = this.props.prebuiltSettings.apiKey;
 
         let headers;
         let body;
         if (this.state.sourceOption === "localFile") {
-            headers = { "Content-Type": this.state.file.type, "cache-control": "no-cache" };
+            headers = {"Content-Type": this.state.file.type, "cache-control": "no-cache"};
             body = this.state.file;
         } else {
-            headers = { "Content-Type": "application/json", "cache-control": "no-cache" };
-            body = { source: this.state.fetchedFileURL };
+            headers = {"Content-Type": "application/json", "cache-control": "no-cache"};
+            body = {source: this.state.fetchedFileURL};
         }
         let response;
         try {
             response = await ServiceHelper.postWithAutoRetry(
-                endpointURL, body, { headers }, apiKey as string);
+                endpointURL, body, {headers}, apiKey as string);
         } catch (err) {
             ServiceHelper.handleServiceError(err);
         }
@@ -693,7 +700,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
         // Make the second REST API call and get the response.
         return this.poll(() =>
             ServiceHelper.getWithAutoRetry(
-                operationLocation, { headers }, apiKey as string), 120000, 500);
+                operationLocation, {headers}, apiKey as string), 120000, 500);
     }
 
     private loadFile = (file: File) => {
@@ -764,7 +771,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
 
         fileReader.onload = (e: any) => {
             const typedArray = new Uint8Array(e.target.result);
-            const loadingTask = pdfjsLib.getDocument({ data: typedArray, cMapUrl, cMapPacked: true });
+            const loadingTask = pdfjsLib.getDocument({data: typedArray, cMapUrl, cMapPacked: true});
             loadingTask.promise.then((pdf) => {
                 this.currPdf = pdf;
                 this.loadPdfPage(pdf, this.state.currPage);
@@ -783,7 +790,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
     private loadPdfPage = async (pdf, pageNumber) => {
         const page = await pdf.getPage(pageNumber);
         const defaultScale = 2;
-        const viewport = page.getViewport({ scale: defaultScale });
+        const viewport = page.getViewport({scale: defaultScale});
 
         // Prepare canvas using PDF page dimensions
         const canvas = document.createElement("canvas");
