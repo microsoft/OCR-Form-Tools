@@ -102,6 +102,7 @@ export interface IEditorPageState {
     selectedTableTagBody: ITableRegion[][][];
     rightSplitPaneWidth?: number;
     reconfigureTableConfirm?: boolean;
+    basicInputRightPaneWidth?: number;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -142,6 +143,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         selectedTableTagToLabel: null,
         selectedTableTagBody: [[]],
         rightSplitPaneWidth: 650,
+        basicInputRightPaneWidth: null,
     };
 
     private tagInputRef: RefObject<TagInput>;
@@ -206,7 +208,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             return (<div>Loading...</div>);
         }
 
-        const size = this.state.tagInputMode !== TagInputMode.Basic ? 650 : 290;
+        const isBasicInputMode = this.state.tagInputMode === TagInputMode.Basic;
+
+        const size = isBasicInputMode ? 290 : 650;
         return (
             <div className="editor-page skipToMainContent" id="pageEditor">
                 {this.state.tableToView !== null &&
@@ -225,7 +229,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                             icon={"fa-tag"}
                             handler={this.handleTagHotKey} />))
                 }
-                <SplitPane split="vertical"
+                <SplitPane
+                    split="vertical"
                     defaultSize={this.state.thumbnailSize.width}
                     minSize={150}
                     maxSize={325}
@@ -265,10 +270,12 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                     <div className="editor-page-content" onClick={this.onPageClick}>
                         <SplitPane split = "vertical"
                             primary = "second"
-                            maxSize = {900}
+                            maxSize={isBasicInputMode ?
+                                this.state.basicInputRightPaneWidth ? 400 : 290
+                                : 900}
                             minSize={size}
                             className={"right-vertical_splitPane"}
-                            defaultSize={size}
+                            defaultSize={this.state.basicInputRightPaneWidth ? this.state.basicInputRightPaneWidth : size}
                             pane1Style = {{height: "100%"}}
                             pane2Style = {{height: "auto"}}
                             resizerStyle={{
@@ -279,7 +286,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                             }}
                             onChange={(width) => {
                                 this.resizeCanvas();
-                                this.setState({rightSplitPaneWidth: width})
+                                if (isBasicInputMode) {
+                                    this.setState({basicInputRightPaneWidth: width})
+                                } else {
+                                    this.setState({ rightSplitPaneWidth: width });
+                                }
                             }}>
                             <div className="editor-page-content-main" >
                                 <div className="editor-page-content-main-body" onClick={this.onPageContainerClick}>
@@ -444,9 +455,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 selectedTableTagBody[rowInex][colInex].push(region)
             } else {
                 selectedTableTagBody[rowInex][colInex] = [region]
-            }
-        }))
-        console.log("EditorPage -> privatehandleLabelTable -> selectedTableTagBody", selectedTableTagBody)
+            }        }))
         this.setState({
             selectedTableTagToLabel,
             selectedTableTagBody,
@@ -484,12 +493,12 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     //         selectedTableTagBody[i] = new Array(selectedTableTagToLabel.columnKeys.length);
     //     }
     //     tagAssets.forEach((region => {
-    //         const rowInex = selectedTableTagToLabel.rowKeys.findIndex(rowKey => rowKey.fieldKey === region.rowKey)
-    //         const colInex = selectedTableTagToLabel.columnKeys.findIndex(colKey => colKey.fieldKey === region.columnKey)
-    //         if (selectedTableTagBody[rowInex][colInex]) {
-    //             selectedTableTagBody[rowInex][colInex] += " " + region.value
+    //         const rowIndex = selectedTableTagToLabel.rowKeys.findIndex(rowKey => rowKey.fieldKey === region.rowKey)
+    //         const colIndex = selectedTableTagToLabel.columnKeys.findIndex(colKey => colKey.fieldKey === region.columnKey)
+    //         if (selectedTableTagBody[rowIndex][colIndex]) {
+    //             selectedTableTagBody[rowIndex][colIndex] += " " + region.value
     //         } else {
-    //             selectedTableTagBody[rowInex][colInex] = region.value
+    //             selectedTableTagBody[rowIndex][colIndex] = region.value
 
     //         }
     //     }))
@@ -511,6 +520,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             },
         });
         this.resizeCanvas()
+        if (this.state.tagInputMode === TagInputMode.Basic) {
+            this.setState({basicInputRightPaneWidth: newWidth})
+        }
     }
 
     /**
@@ -537,6 +549,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private onTableTagClicked = (tag: ITag, rowIndex: number, columnIndex: number): void => {
+        if (tag.format === FieldFormat.RowDynamic) {
+
+        }
         this.setState({
             selectedTag: tag.name,
             lockedTags: [],
