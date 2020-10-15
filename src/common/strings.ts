@@ -582,6 +582,7 @@ export interface IAppStrings {
         modelNotFound: IErrorMetadata,
         connectionNotExistError: IErrorMetadata,
         getOcrError: IErrorMetadata,
+        onPremiseConnectionError: IErrorMetadata,
     };
     shareProject: {
         name: string,

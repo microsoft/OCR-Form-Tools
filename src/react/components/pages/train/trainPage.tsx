@@ -53,6 +53,7 @@ export interface ITrainPageState {
     modelName: string;
     modelUrl: string;
     currModelId: string;
+    isOnPrem: boolean;
 }
 
 interface ITrainApiResponse {
@@ -99,6 +100,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             modelName: "",
             modelUrl: "",
             currModelId: "",
+            isOnPrem: false,
         };
     }
 
@@ -120,6 +122,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         this.checkAndUpdateInputsInLocalStorage(this.props.project.id);
         this.appInsights = getAppInsights();
         document.title = strings.train.title + " - " + strings.appName;
+        if (isElectron && this.props.project.sourceConnection.providerType === "localFileSystemProxy") {
+            this.setState({ isOnPrem: true });
+        }
     }
 
     public render() {
@@ -338,7 +343,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         }).catch((err) => {
             this.setState({
                 isTraining: false,
-                trainMessage: err.message,
+                trainMessage: this.state.isOnPrem ? strings.errors.onPremiseConnectionError : err.message,
             });
         });
         if (this.appInsights) {
@@ -365,7 +370,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             const isOnPrem = isElectron && this.props.project.sourceConnection.providerType === "localFileSystemProxy";
             this.setState({
                 showTrainingFailedWarning: true,
-                trainingFailedMessage: isOnPrem ? interpolate(strings.train.errors.electron.cantAccessFiles, { folderUri: this.state.inputtedLabelFolderURL }) :
+                trainingFailedMessage: this.state.isOnPrem ? interpolate(strings.train.errors.electron.cantAccessFiles, { folderUri: this.state.inputtedLabelFolderURL }) :
                     error?.message !== undefined
                     ? error.message : error,
             });
