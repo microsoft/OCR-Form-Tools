@@ -453,10 +453,13 @@ export const spanish: IAppStrings = {
                             runOcrOnCurrentDocument: "Ejecutar OCR en el documento actual",
                             runOcrOnAllDocuments: "Ejecute OCR en todos los documentos",
                             runAutoLabelingCurrentDocument: "Etiquetar automáticamente el documento actual",
-                            runAutoLabelingOnNotLabelingDocuments: "Etiquetar documentos nuevos automáticamente",
+                            runAutoLabelingOnNotLabelingDocuments: "Etiquetar automáticamente los siguientes ${batchSize} documentos sin etiquetar",
                             noPredictModelOnProject: "Predecir modelo no disponible, entrene el modelo primero.",
                         }
                     }
+                },
+                warings: {
+                    drawRegionUnsupportedAPIVersion: "Las regiones de dibujo no son compatibles con la versión de API ${apiVersion}. Será compatible con el lanzamiento de v2.1-preview.3",
                 }
             }
         },

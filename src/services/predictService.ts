@@ -24,7 +24,7 @@ export class PredictService {
         }
         const endpointURL = url.resolve(
             this.project.apiUriBase,
-            `${constants.apiModelsPath}/${modelID}/analyze?includeTextDetails=true`,
+            `${interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) })}/${modelID}/analyze?includeTextDetails=true`,
         );
 
         const headers = { "Content-Type": "application/json", "cache-control": "no-cache" };
