@@ -191,7 +191,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         theme={getGreenWithWhiteBackgroundTheme()}
                         onChange={(event) => setColumnName(index, event.target["value"])}
                         value={row.name}
-                        placeholder={`header name ${index + 1}`}
                         errorMessage={getTextInputError(notUniqueNames.columns, row.name.trim(), index)}
                     />
                 )
@@ -255,7 +254,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         theme={getGreenWithWhiteBackgroundTheme()}
                         onChange={(event) => setRowName(index, event.target["value"])}
                         value={row.name}
-                        placeholder={`header name ${index + 1}`}
                         errorMessage={getTextInputError(notUniqueNames.rows, row.name, index)}
                     />
                 )
@@ -495,13 +493,16 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     }
 
     function save(rows: ITableConfigItem[], columns: ITableConfigItem[]) {
-        addTableTag({
+        const tableTagToAdd = {
             name: tableTagName.trim(),
-            rows: format === FieldFormat.RowDynamic ? null : trimFieldNames(rows),
             columns: trimFieldNames(columns),
             format,
             headersFormatAndType
-        });
+        }
+        if (FieldFormat.Fixed) {
+            tableTagToAdd["rows"] = trimFieldNames(rows);
+        }
+        addTableTag(tableTagToAdd);
         setTagInputMode(TagInputMode.Basic);
     }
 
@@ -600,16 +601,11 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     if (i === 0 && j !== 0) {
                         tableRow.push(<th key={`col-h-${j}`} className="column_header">{columns[j - 1].name}</th>);
                     } else if (j === 0 && i !== 0) {
-                        if (isRowDynamic) {
-                            tableRow.push(<th key={`row-h-${j}`} className="hidden">{i}</th>);
-                        } else {
+                        if (!isRowDynamic) {
                             tableRow.push(<th key={`row-h-${j}`} className="row_header">{rows[i - 1].name}</th>);
                         }
-
                     } else if (j === 0 && i === 0) {
-                        if (isRowDynamic) {
-                            tableRow.push(<th key={"ignore"} className="hidden" >Row #</th>);
-                        } else {
+                        if (!isRowDynamic) {
                             tableRow.push(<th key={"ignore"} className="empty_header" ></th>);
                         }
                     } else {
@@ -745,6 +741,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     (tableChanged || props.tableTag) &&
                     <div className="preview_container  ml-12px">
                         <h5 className="mt-3 ">Preview:</h5>
+                        {
+                            format === FieldFormat.RowDynamic && <div className="rowDynamic_message">The number of rows is specified when labeling each document.</div>
+                        }
                         <div className="table_container">
                             <table className="table">
                                 <tbody>
@@ -752,9 +751,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                                 </tbody>
                             </table>
                         </div>
-                        {
-                            format === FieldFormat.RowDynamic && <div className="rowDynamic_message">The number of rows is specified when labeling each document.</div>
-                        }
                     </div>
                 }
                 <div className="control-buttons_container">

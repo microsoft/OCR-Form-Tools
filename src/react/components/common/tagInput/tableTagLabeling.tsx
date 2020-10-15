@@ -44,8 +44,8 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
 
     public componentDidMount = async () => {
         console.log(this.props)
-        if (this.props.selectedTag.format === FieldFormat.RowDynamic && !this.props.selectedTag.rowKeys) {
-            this.setState({rows: [{fieldKey: "1", fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified}]})
+        if (this.props.selectedTag.format === FieldFormat.RowDynamic) {
+            this.setState({rows: [{fieldKey: "#1", fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified}]})
         }
     }
 
@@ -81,7 +81,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                     <div className="table-view-container">
                         <table className="viewed-table">
                             <tbody>
-                                {this.state.rows && this.getTableBody(this.state.rows, this.state.columns)}
+                                {this.getTableBody(this.state.rows, this.state.columns)}
                             </tbody>
                         </table>
                     </div>
@@ -124,13 +124,6 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
         console.log("#: TableTagLabeling -> getTableBody -> columns", columns);
         const isRowDynamic = this.props.selectedTag.format === FieldFormat.RowDynamic;
 
-        if (isRowDynamic) {
-            selectedTableTagBody = new Array(rows.length);
-            for (let i = 0; i < selectedTableTagBody.length; i++) {
-                selectedTableTagBody[i] = new Array(columns.length);
-            }
-        }
-
         let tableBody = null;
         if (table.rows.length !== 0 && table.columns.length !== 0) {
             tableBody = [];
@@ -144,7 +137,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                     } else if (j === 0 && i !== 0) {
                         tableRow.push(<th key={j} className={`row_header ${isRowDynamic ? "hidden" : ""}`}>{rows[i - 1].fieldKey}</th>);
                     } else if (j === 0 && i === 0) {
-                        tableRow.push(<th key={j} className={`empty_header  ${isRowDynamic ? "hidden" : ""}`} >{isRowDynamic ? "Row #" : null}</th>);
+                        tableRow.push(<th key={j} className={`empty_header  ${isRowDynamic ? "hidden" : ""}`} />);
                     } else {
                         tableRow.push(<td className={"table-cell"} onClick={() => this.handleCellClick(i - 1, j - 1)} key={j}>{selectedTableTagBody[i - 1][j - 1]?.map((tableRegion) => tableRegion.value).join(" ")}</td>);
                     }
