@@ -764,7 +764,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         if (this.state.assets) {
             this.setState({ isRunningAutoLabelings: true });
             const firstTenUnLabeledAssets = [];
-            for (let i = 0; i < this.state.assets.length && firstTenUnLabeledAssets.length < 10; i++) {
+            for (let i = 0; i < this.state.assets.length && firstTenUnLabeledAssets.length < constants.autoLabelBatchSize; i++) {
                 const asset = this.state.assets[i];
                 if (asset.state === AssetState.NotVisited || asset.state === AssetState.Visited) {
                     firstTenUnLabeledAssets.push(asset);
