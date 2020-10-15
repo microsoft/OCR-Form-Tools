@@ -618,6 +618,17 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         return tableBody
     };
 
+    function getTableTagNameErrorMessage() {
+        if (props.tableTag && tableTagName.trim() === props.tableTag.name) {
+            return "";
+        } else if (!tableTagName.trim().length) {
+            return strings.tags.regionTableTags.configureTag.errors.assignTagName
+        } else if (notUniqueNames.tags) {
+            return strings.tags.regionTableTags.configureTag.errors.notUniqueTagName;
+        }
+        return "";
+    }
+
     const [tableChanged, setTableChanged] = useState(false);
 
     useEffect(() => {
@@ -636,12 +647,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     theme={getGreenWithWhiteBackgroundTheme()}
                     onChange={(event) => setTableName(event.target["value"])}
                     value={tableTagName}
-                    errorMessage={
-                        tableTagName?
-                            (notUniqueNames.tags && tableTagName !== props.tableTag.name) ?
-                                strings.tags.regionTableTags.configureTag.errors.notUniqueTagName : ""
-                            : strings.tags.regionTableTags.configureTag.errors.assignTagName
-                    }
+                    errorMessage={getTableTagNameErrorMessage()}
                 />
                 {!props.tableTag &&
                     <>
