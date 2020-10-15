@@ -112,11 +112,11 @@ export class AssetService {
             const fileName = decodeURIComponent(asset.name).split('/').pop();
             const labelData: ILabelData = {
                 document: fileName,
-                labelingState: AssetLabelingState.AutoLabeling,
+                labelingState: AssetLabelingState.AutoLabeled,
                 labels
             };
             const metadata: IAssetMetadata = {
-                asset: { ...asset, labelingState: AssetLabelingState.AutoLabeling },
+                asset: { ...asset, labelingState: AssetLabelingState.AutoLabeled },
                 regions: [],
                 version: appInfo.version,
                 labelData,
@@ -392,7 +392,7 @@ export class AssetService {
             const json = await this.storageProvider.readText(labelFileName, true);
             const labelData = JSON.parse(json) as ILabelData;
             if (labelData) {
-                labelData.labelingState = labelData.labelingState || AssetLabelingState.ManualLabeling;
+                labelData.labelingState = labelData.labelingState || AssetLabelingState.ManuallyLabeled;
                 asset.labelingState = labelData.labelingState;
             }
             if (!labelData.document || !labelData.labels) {

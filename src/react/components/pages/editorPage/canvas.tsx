@@ -9,7 +9,7 @@ import {
     EditorMode, IAssetMetadata,
     IProject, IRegion, RegionType,
     AssetType, ILabelData, ILabel,
-    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, ImageMapParent, LabelType, AssetLabelingState,
+    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, ImageMapParent, LabelType, AssetLabelingState, APIVersionPatches
 } from "../../../../models/applicationState";
 import CanvasHelpers from "./canvasHelpers";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
@@ -37,7 +37,8 @@ import { TooltipHost, ITooltipHostStyles } from "@fluentui/react";
 import { IAppSettings } from '../../../../models/applicationState';
 import { AutoLabelingStatus, PredictService } from "../../../../services/predictService";
 import { AssetService } from "../../../../services/assetService";
-import { strings } from "../../../../common/strings";
+import { interpolate, strings } from "../../../../common/strings";
+import { toast } from "react-toastify";
 
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
@@ -61,7 +62,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onRunningAutoLabelingStatusChanged?: (isRunning: boolean) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
     runOcrForAllDocs?: (runForAllDocs: boolean) => void;
-    runAutoLabelingOnAllDocs?: (runForAll: boolean) => Promise<void>;
+    runAutoLabelingOnNextBatch?: () => Promise<void>;
     onAssetDeleted?: () => void;
     onPageLoaded?: (pageNumber: number) => void;
 }
@@ -387,7 +388,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
     private runAutoLabelingForRestDocuments = async () => {
         this.setState({ autoLableingStatus: AutoLabelingStatus.running });
-        await this.props.runAutoLabelingOnAllDocs(false);
+        await this.props.runAutoLabelingOnNextBatch();
         this.setState({ autoLableingStatus: AutoLabelingStatus.done });
     }
 
@@ -623,21 +624,21 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 const labelingState = _.get(this.state, "currentAsset.labelData.labelingState", null);
                 if (labelingState) {
                     switch (labelingState) {
-                        case AssetLabelingState.AutoLabeling:
-                        case AssetLabelingState.AutoLabelingAndAdusted:
-                            currentAsset.labelData.labelingState = AssetLabelingState.AutoLabelingAndAdusted;
+                        case AssetLabelingState.AutoLabeled:
+                        case AssetLabelingState.AutoLabeledAndAdjusted:
+                            currentAsset.labelData.labelingState = AssetLabelingState.AutoLabeledAndAdjusted;
                             break;
-                        case AssetLabelingState.ManualLabeling:
-                        case AssetLabelingState.Training:
-                            currentAsset.labelData.labelingState = AssetLabelingState.ManualLabeling;
+                        case AssetLabelingState.ManuallyLabeled:
+                        case AssetLabelingState.Trained:
+                            currentAsset.labelData.labelingState = AssetLabelingState.ManuallyLabeled;
                             break;
                         default:
-                            currentAsset.labelData.labelingState = AssetLabelingState.ManualLabeling;
+                            currentAsset.labelData.labelingState = AssetLabelingState.ManuallyLabeled;
                             break;
                     }
                 }
                 else {
-                    currentAsset.labelData.labelingState = AssetLabelingState.ManualLabeling;
+                    currentAsset.labelData.labelingState = AssetLabelingState.ManuallyLabeled;
                 }
             }
         }
@@ -2154,6 +2155,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private handleToggleDrawRegionMode = () => {
+        if (!this.state.drawRegionMode && this.props.project.apiVersion !== APIVersionPatches.patch3) {
+            toast.warn(interpolate(strings.editorPage.canvas.canvasCommandBar.warings.drawRegionUnsupportedAPIVersion, { apiVersion: (this.props.project.apiVersion || constants.appVersion ) }), {autoClose: 7000});
+        }
         this.setState({
             drawRegionMode: !this.state.drawRegionMode
         });
