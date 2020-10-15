@@ -46,9 +46,9 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
     public componentDidMount = async () => {
         console.log(this.props)
         if (this.props.selectedTag.format === FieldFormat.RowDynamic) {
-            const rows = [{fieldKey: "1#", fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified}]
+            const rows = [{fieldKey: "#1", fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified}]
             for (let i = 1; i < this.props.selectedTableTagBody.length; i++) {
-                rows.push({fieldKey: (i + 1) + "#", fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified});
+                rows.push({fieldKey: "#" + (i + 1), fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified});
             }
             this.setState({rows});
         }
@@ -56,9 +56,9 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
 
     public componentDidUpdate = async (prevProps: Readonly<ITableTagLabelingProps>, prevState: Readonly<ITableTagLabelingState>) => {
         if (this.props.selectedTableTagBody.length !== prevProps.selectedTableTagBody.length) {
-            const rows = [{fieldKey: "1#", fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified}]
+            const rows = [{fieldKey: "#1", fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified}]
             for (let i = 1; i < this.props.selectedTableTagBody.length; i++) {
-                rows.push({fieldKey: (i + 1) + "#", fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified});
+                rows.push({fieldKey: "#" + (i + 1), fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified});
             }
             this.setState({rows});
         }
@@ -135,7 +135,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
         const isRowDynamic = this.props.selectedTag.format === FieldFormat.RowDynamic;
 
         let tableBody = null;
-        if (table.rows.length !== 0 && table.columns.length !== 0) {
+        if (table.rows && table.rows?.length !== 0 && table.columns.length !== 0) {
             tableBody = [];
             const rows = table["rows"];
             const columns = table["columns"];

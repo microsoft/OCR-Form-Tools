@@ -428,10 +428,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private onPageClick = () => {
     }
 
-    private setTagInputMode = (tagInputMode: TagInputMode) => {
+    private setTagInputMode = (tagInputMode: TagInputMode, selectedTableTagToLabel: ITableTag = this.state.selectedTableTagToLabel) => {
         this.resizeCanvas();
 
             this.setState({
+                selectedTableTagToLabel,
                 tagInputMode,
             }, () => {
                 this.resizeCanvas();
@@ -447,6 +448,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             return;
         }
         const selectedTableTagBody = new Array(selectedTableTagToLabel.rowKeys?.length || 1);
+        if (this.state.selectedTableTagToLabel?.name === selectedTableTagToLabel?.name && selectedTableTagToLabel.format === FieldFormat.RowDynamic) {
+            for (let i = 1; i < this.state.selectedTableTagBody.length; i++) {
+                selectedTableTagBody.push(undefined)
+            }
+        }
         for (let i = 0; i < selectedTableTagBody.length; i++) {
             selectedTableTagBody[i] = new Array(selectedTableTagToLabel.columnKeys.length);
         }
@@ -454,7 +460,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         tagAssets.forEach((region => {
             let rowInex;
             if (selectedTableTagToLabel.format === FieldFormat.RowDynamic) {
-                rowInex = Number(region.rowKey.slice(0, -1)) - 1;
+                rowInex = Number(region.rowKey.slice(1)) - 1;
             } else {
                 rowInex = selectedTableTagToLabel.rowKeys.findIndex(rowKey => rowKey.fieldKey === region.rowKey)
             }

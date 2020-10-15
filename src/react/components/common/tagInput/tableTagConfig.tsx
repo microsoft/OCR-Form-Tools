@@ -499,7 +499,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             format,
             headersFormatAndType
         }
-        if (FieldFormat.Fixed) {
+        if (format === FieldFormat.Fixed) {
             tableTagToAdd["rows"] = trimFieldNames(rows);
         }
         addTableTag(tableTagToAdd);

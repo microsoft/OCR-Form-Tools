@@ -82,7 +82,7 @@ export interface ITagInputProps {
     /** Function to handle tag change */
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
 
-    setTagInputMode?: (tagInputMode: TagInputMode) => void;
+    setTagInputMode?: (tagInputMode: TagInputMode, selectedTableTagToLabel?: ITableTag) => void;
     tagInputMode: TagInputMode;
     selectedTableTagToLabel: ITableTag;
     handleLabelTable: (tagInputMode: TagInputMode, selectedTableTagToLabel) => void;
@@ -636,7 +636,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     fieldFormat: column.format,
                 } as IField)
             }),
-            rowKeys: tableConfig.rows.map((row) => {
+            rowKeys: tableConfig.rows?.map((row) => {
                 return ({
                     fieldKey: row.name,
                     fieldType: row.type,
