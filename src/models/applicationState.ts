@@ -385,13 +385,13 @@ export enum AssetState {
  * @member ManualLabeling - Specifies as an asset that has manual labeling the tags
  * @member Training - Specifies as an asset tagged data has been used for training model
  * @member AutoLabeling - Specifies as an asset that has run auto-labeling
- * @member AutoLabelingAndAdusted -specifies as an asset that has run auto-labeling and tags manual adjusted
+ * @member AutoLabeledAndAdjusted -specifies as an asset that has run auto-labeling and tags manual adjusted
  */
 export enum AssetLabelingState {
-    ManualLabeling = 1,
-    Training = 2,
-    AutoLabeling = 3,
-    AutoLabelingAndAdusted = 4,
+    ManuallyLabeled = 1,
+    Trained = 2,
+    AutoLabeled = 3,
+    AutoLabeledAndAdjusted = 4,
 }
 
 /**

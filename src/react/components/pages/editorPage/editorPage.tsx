@@ -278,7 +278,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             setTableToView={this.setTableToView}
                                             closeTableView={this.closeTableView}
                                             runOcrForAllDocs={this.loadOcrForNotVisited}
-                                            runAutoLabelingOnAllDocs={this.runAutoLabelingOnAllDocs}
+                                            runAutoLabelingOnNextBatch={this.runAutoLabelingOnNextBatch}
                                             appSettings={this.props.appSettings}
                                         >
                                             <AssetPreview
@@ -753,7 +753,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             }
         }
     }
-    private runAutoLabelingOnAllDocs = async (runForAll: boolean) => {
+    private runAutoLabelingOnNextBatch = async () => {
         if (this.isBusy()) {
             return;
         }
@@ -763,10 +763,16 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         if (this.state.assets) {
             this.setState({ isRunningAutoLabelings: true });
+            const unlabeledAssetsBatch = [];
+            for (let i = 0; i < this.state.assets.length && unlabeledAssetsBatch.length < constants.autoLabelBatchSize; i++) {
+                const asset = this.state.assets[i];
+                if (asset.state === AssetState.NotVisited || asset.state === AssetState.Visited) {
+                    unlabeledAssetsBatch.push(asset);
+                }
+            }
             try {
                 await throttle(constants.maxConcurrentServiceRequests,
-                    this.state.assets
-                        .filter((asset) => runForAll ? true : (asset.state === AssetState.NotVisited || asset.state === AssetState.Visited)),
+                    unlabeledAssetsBatch,
                     async (asset) => {
                         try {
                             this.updateAssetState({ id: asset.id, isRunningAutoLabeling: true });
@@ -777,7 +783,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                             this.updateAssetState({
                                 id: asset.id, isRunningAutoLabeling: false,
                                 assetState: AssetState.Tagged,
-                                labelingState: AssetLabelingState.AutoLabeling,
+                                labelingState: AssetLabelingState.AutoLabeled,
                             });
                             this.props.actions.updatedAssetMetadata(this.props.project, assetMetadata);
                         } catch (err) {
