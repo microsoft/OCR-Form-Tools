@@ -595,7 +595,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         const isRowDynamic = format === FieldFormat.RowDynamic;
         if (table.rows.length !== 0 && table.columns.length !== 0) {
             tableBody = [];
-            for (let i = 0; i < rows.length + 1; i++) {
+            for (let i = 0; i < (isRowDynamic ? 2 : rows.length + 1); i++) {
                 const tableRow = [];
                 for (let j = 0; j < columns.length + 1; j++) {
                     if (i === 0 && j !== 0) {
