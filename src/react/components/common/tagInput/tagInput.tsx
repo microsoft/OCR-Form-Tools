@@ -86,6 +86,7 @@ export interface ITagInputProps {
     tagInputMode: TagInputMode;
     selectedTableTagToLabel: ITableTag;
     handleLabelTable: (tagInputMode: TagInputMode, selectedTableTagToLabel) => void;
+    addRowToDynamicTable: () => void;
     reconfigureTableConfirm: () => void;
     handleTableCellClick: (iTableCellIndex, jTableCellIndex) => void;
     selectedTableTagBody: ITableRegion[][][];
@@ -189,6 +190,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                         handleTableCellClick={this.props.handleTableCellClick}
                         selectedTableTagBody={this.props.selectedTableTagBody}
                         splitPaneWidth={this.props.splitPaneWidth}
+                        addRowToDynamicTable={this.props.addRowToDynamicTable}
                     />
                 </div>
             )

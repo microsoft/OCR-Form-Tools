@@ -42,6 +42,7 @@ export interface ITagInputItemProps {
     onLabelLeave: (label: ILabel) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
     handleLabelTable: (tagInputMode: TagInputMode, selectedTableTagToLabel) => void;
+    addRowToDynamicTable: () => void;
 }
 
 export interface ITagInputItemState {

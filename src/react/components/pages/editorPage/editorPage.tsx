@@ -348,6 +348,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     selectedTableTagBody={this.state.selectedTableTagBody}
                                     splitPaneWidth={this.state.rightSplitPaneWidth}
                                     reconfigureTableConfirm={this.reconfigureTableConfirm}
+                                    addRowToDynamicTable={this.addRowToDynamicTable}
                                 />
                                 <Confirm
                                     title={strings.editorPage.tags.rename.title}
@@ -473,6 +474,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             this.setTagInputMode(tagInputMode);
         });
 
+    }
+    private addRowToDynamicTable = () => {
+        const selectedTableTagBody = clone()(this.state.selectedTableTagBody)
+        selectedTableTagBody.push(Array(this.state.selectedTableTagToLabel.columnKeys.length));
+        this.setState({selectedTableTagBody});
     }
 
     private handleTableCellClick = (rowIndex, columnIndex) => {
