@@ -768,7 +768,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                         case "<model_id>":
                             return modelID;
                         case "<API_version>":
-                            return constants.apiVersion;
+                            return (this.props.project?.apiVersion || constants.apiVersion);
                     }
                 });
             const fileURL = window.URL.createObjectURL(
@@ -812,7 +812,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         }
         const endpointURL = url.resolve(
             this.props.project.apiUriBase,
-            `${constants.apiModelsPath}/${modelID}/analyze?includeTextDetails=true`,
+            `${interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) })}/${modelID}/analyze?includeTextDetails=true`,
         );
         let headers;
         let body;
@@ -1167,7 +1167,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const modelID = this.props.project.predictModelId;
         const endpointURL = url.resolve(
             this.props.project.apiUriBase,
-            `${constants.apiModelsPath}/${modelID}`,
+            `${interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) })}/${modelID}`,
         );
         let response;
         try {

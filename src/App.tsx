@@ -95,7 +95,7 @@ export default class App extends React.Component<IAppProps> {
                                         <Sidebar project={this.props.currentProject} />
                                         <MainContentRouter />
                                     </div>
-                                    <StatusBar>
+                                    <StatusBar project={this.props.currentProject} >
                                         <StatusBarMetrics project={this.props.currentProject} />
                                     </StatusBar>
                                     <ToastContainer className="frtt-toast-container" role="alert" />
