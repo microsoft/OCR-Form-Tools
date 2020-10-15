@@ -218,7 +218,7 @@ export class AzureBlobStorage implements IStorageProvider {
                     const json = await this.readText(labelFileName, true);
                     const labelData = JSON.parse(json) as ILabelData;
                     if (labelData) {
-                        asset.labelingState = labelData.labelingState || AssetLabelingState.ManualLabeling;
+                        asset.labelingState = labelData.labelingState || AssetLabelingState.ManuallyLabeled;
                     }
                 } else if (files.find((str) => str === ocrFileName)) {
                     asset.state = AssetState.Visited;

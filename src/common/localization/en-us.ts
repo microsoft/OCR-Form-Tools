@@ -452,7 +452,7 @@ export const english: IAppStrings = {
                             runOcrOnCurrentDocument: "Run OCR on current document",
                             runOcrOnAllDocuments: "Run OCR on all documents",
                             runAutoLabelingCurrentDocument: "Auto-label the current document",
-                            runAutoLabelingOnNotLabelingDocuments: "Auto-label new documents",
+                            runAutoLabelingOnNotLabelingDocuments: "Auto-label next ${batchSize} unlabeled documents",
                             noPredictModelOnProject: "Predict model not avaliable, please train the model first.",
                         }
                     }
