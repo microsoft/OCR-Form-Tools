@@ -440,16 +440,26 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private handleLabelTable = (tagInputMode: TagInputMode = this.state.tagInputMode, selectedTableTagToLabel: ITableTag = this.state.selectedTableTagToLabel) => {
+        console.log(tagInputMode);
+        console.log(selectedTableTagToLabel)
         if (selectedTableTagToLabel == null) {
             return;
         }
-        const selectedTableTagBody = new Array(selectedTableTagToLabel.rowKeys.length);
+        const selectedTableTagBody = new Array(selectedTableTagToLabel.rowKeys?.length || 1);
         for (let i = 0; i < selectedTableTagBody.length; i++) {
             selectedTableTagBody[i] = new Array(selectedTableTagToLabel.columnKeys.length);
         }
         const tagAssets = clone()(this.state.selectedAsset.regions).filter((region) => region.tags[0] === selectedTableTagToLabel.name) as ITableRegion[];
         tagAssets.forEach((region => {
-            const rowInex = selectedTableTagToLabel.rowKeys.findIndex(rowKey => rowKey.fieldKey === region.rowKey)
+            let rowInex;
+            if (selectedTableTagToLabel.format === FieldFormat.RowDynamic) {
+                rowInex = Number(region.rowKey.slice(0, -1)) - 1;
+            } else {
+                rowInex = selectedTableTagToLabel.rowKeys.findIndex(rowKey => rowKey.fieldKey === region.rowKey)
+            }
+            for (let i = selectedTableTagBody.length; i <= rowInex; i++){
+                selectedTableTagBody.push(new Array(selectedTableTagToLabel.columnKeys.length));
+            }
             const colInex = selectedTableTagToLabel.columnKeys.findIndex(colKey => colKey.fieldKey === region.columnKey)
             if (selectedTableTagBody[rowInex][colInex] != null) {
                 selectedTableTagBody[rowInex][colInex].push(region)
