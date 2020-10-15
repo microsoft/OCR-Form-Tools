@@ -451,7 +451,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         } else if (array.length && array.findIndex((item) => (item === index)) !== -1) {
             return strings.tags.regionTableTags.configureTag.errors.notUniqueName;
         } else {
-            return undefined
+            return undefined;
         }
     };
 
@@ -532,15 +532,19 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     }
 
     function validateInputAndSave() {
-        if (notUniqueNames.columns.length > 0
-            || notUniqueNames.rows.length > 0
-            || notUniqueNames.tags
-            || !tableTagName.length
-            || hasEmptyNames(columns)
-            || (format === FieldFormat.Fixed && hasEmptyNames(rows))) {
-            toast.error(strings.tags.regionTableTags.configureTag.errors.checkFields, { autoClose: 8000 });
-        } else {
-            resetTypAndFormatAndSave(headersFormatAndType);
+        switch (true) {
+            case notUniqueNames.rows.length > 0:
+            case notUniqueNames.columns.length > 0:
+            case notUniqueNames.tags:
+            case !tableTagName.length:
+            case hasEmptyNames(columns):
+            case (format === FieldFormat.Fixed && hasEmptyNames(rows)):
+                toast.error(strings.tags.regionTableTags.configureTag.errors.checkFields, { autoClose: 8000 });
+                break;
+            default:
+                toast.success(`Successfully ${props.tableTag ? "reconfigure" : "saved"} "${tableTagName}" table tag.`, { autoClose: 8000 });
+                resetTypAndFormatAndSave(headersFormatAndType);
+                break;
         }
     }
 
@@ -618,7 +622,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         return tableBody
     };
 
-    function getTableTagNameErrorMessage() {
+    function getTableTagNameErrorMessage(): string {
         if (props.tableTag && tableTagName.trim() === props.tableTag.name) {
             return "";
         } else if (!tableTagName.trim().length) {
@@ -629,7 +633,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         return "";
     }
 
-    const [tableChanged, setTableChanged] = useState(false);
+    const [tableChanged, setTableChanged] = useState<boolean>(false);
 
     useEffect(() => {
         setTableChanged(
