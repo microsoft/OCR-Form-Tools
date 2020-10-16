@@ -367,7 +367,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
             return trainStatusRes;
         } catch (error) {
-            const isOnPrem = isElectron && this.props.project.sourceConnection.providerType === "localFileSystemProxy";
             this.setState({
                 showTrainingFailedWarning: true,
                 trainingFailedMessage: this.state.isOnPrem ? interpolate(strings.train.errors.electron.cantAccessFiles, { folderUri: this.state.inputtedLabelFolderURL }) :
