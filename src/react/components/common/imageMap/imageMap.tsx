@@ -43,6 +43,7 @@ interface IImageMapProps {
 
     enableFeatureSelection?: boolean;
     handleFeatureSelect?: (feature: any, isTaggle: boolean, category: FeatureCategory) => void;
+    handleFeatureDoubleClick?: (feature: any, isTaggle: boolean, category: FeatureCategory) => void;
     groupSelectMode?: boolean;
     handleIsPointerOnImage?: (isPointerOnImage: boolean) => void;
     isPointerOnImage?: boolean;
@@ -58,7 +59,7 @@ interface IImageMapProps {
     hoveringFeature?: string;
     onMapReady: () => void;
     handleTableToolTipChange?: (display: string, width: number, height: number, top: number,
-                                left: number, rows: number, columns: number, featureID: string) => void;
+        left: number, rows: number, columns: number, featureID: string) => void;
     addDrawnRegionFeatureProps?: (feature) => void;
     updateFeatureAfterModify?: (features) => any;
 
@@ -84,7 +85,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
     private modify: Modify;
     private snap: Snap;
 
-    private drawnFeatures: Collection = new Collection([], {unique: true});
+    private drawnFeatures: Collection = new Collection([], { unique: true });
     public modifyStartFeatureCoordinates: any = {};
 
     private imageExtent: number[];
@@ -198,7 +199,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
                 onMouseEnter={this.handlePointerEnterImageMap}
                 className="map-wrapper"
             >
-                <div style={{cursor: this.getCursor()}} id="map" className="map" ref={(el) => this.mapElement = el}/>
+                <div style={{ cursor: this.getCursor() }} id="map" className="map" ref={(el) => this.mapElement = el} />
             </div>
         );
     }
@@ -361,7 +362,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
      */
     public addInteraction = (interaction: Interaction) => {
         if (undefined === this.map.getInteractions().array_.find((existingInteraction) => {
-            return interaction.constructor.name === existingInteraction.constructor.name
+            return interaction.constructor === existingInteraction.constructor;
         })) {
             this.map.addInteraction(interaction);
         }
@@ -477,7 +478,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.drawRegionVectorLayer?.getSource().clear();
         this.drawnLabelVectorLayer?.getSource().clear();
 
-        this.drawnFeatures = new Collection([], {unique: true});
+        this.drawnFeatures = new Collection([], { unique: true });
 
         this.drawRegionVectorLayer.getSource().on("addfeature", (evt) => {
             this.pushToDrawnFeatures(evt.feature, this.drawnFeatures);
@@ -516,7 +517,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
      */
     public removeInteraction = (interaction: Interaction) => {
         const existingInteraction = this.map.getInteractions().array_.find((existingInteraction) => {
-            return interaction.constructor.name === existingInteraction.constructor.name
+            return interaction.constructor === existingInteraction.constructor;
         });
 
         if (existingInteraction !== undefined) {
@@ -577,6 +578,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.map.on("pointermove", this.handlePointerMove);
         this.map.on("pointermove", this.handlePointerMoveOnTableIcon);
         this.map.on("pointerup", this.handlePointerUp);
+        this.map.on("dblclick", this.handleDoubleClick);
 
         this.initializeDefaultSelectionMode();
         this.initializeDragPan();
@@ -647,12 +649,12 @@ export class ImageMap extends React.Component<IImageMapProps> {
             return;
         }
 
-        const eventPixel =  this.map.getEventPixel(event.originalEvent);
+        const eventPixel = this.map.getEventPixel(event.originalEvent);
 
         const filter = this.getLayerFilterAtPixel(eventPixel);
 
         const isPixelOnFeature = !!filter;
-        if (isPixelOnFeature) {
+        if (isPixelOnFeature && !this.props.isSnapped) {
             this.setDragPanInteraction(false);
         }
 
@@ -661,6 +663,20 @@ export class ImageMap extends React.Component<IImageMapProps> {
                 eventPixel,
                 (feature) => {
                     this.props.handleFeatureSelect(feature, true, filter.category);
+                },
+                filter.layerfilter,
+            );
+        }
+    }
+    private handleDoubleClick = (event: MapBrowserEvent) => {
+        const eventPixel = this.map.getEventPixel(event.originalEvent);
+
+        const filter = this.getLayerFilterAtPixel(eventPixel);
+        if (filter && this.props.handleFeatureDoubleClick) {
+            this.map.forEachFeatureAtPixel(
+                eventPixel,
+                (feature) => {
+                    this.props.handleFeatureDoubleClick(feature, true, filter.category);
                 },
                 filter.layerfilter,
             );
@@ -691,7 +707,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
             this.textVectorLayerFilter);
         if (isPointerOnTextFeature) {
             return {
-                layerfilter : this.textVectorLayerFilter,
+                layerfilter: this.textVectorLayerFilter,
                 category: FeatureCategory.Text,
             };
         }
@@ -719,9 +735,9 @@ export class ImageMap extends React.Component<IImageMapProps> {
     private handlePointerMoveOnTableIcon = (event: MapBrowserEvent) => {
         if (this.props.handleTableToolTipChange) {
             const eventPixel = this.map.getEventPixel(event.originalEvent);
-            const isPointerOnTableIconFeature = this.map.hasFeatureAtPixel(eventPixel,this.tableIconBorderVectorLayerFilter);
+            const isPointerOnTableIconFeature = this.map.hasFeatureAtPixel(eventPixel, this.tableIconBorderVectorLayerFilter);
             if (isPointerOnTableIconFeature) {
-                const features = this.map.getFeaturesAtPixel( eventPixel, this.tableIconBorderVectorLayerFilter);
+                const features = this.map.getFeaturesAtPixel(eventPixel, this.tableIconBorderVectorLayerFilter);
                 if (features.length > 0) {
                     const feature = features[0];
                     if (feature && this.props.hoveringFeature !== feature.get("id")) {
@@ -789,6 +805,9 @@ export class ImageMap extends React.Component<IImageMapProps> {
         }
 
         this.setDragPanInteraction(true);
+        this.removeInteraction(this.modify);
+        this.initializeModify();
+        this.addInteraction(this.modify)
     }
 
     private setDragPanInteraction = (dragPanEnabled: boolean) => {
@@ -855,6 +874,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.initializeModify();
         this.initializeSnap();
         this.initializeDraw();
+        this.addInteraction(this.dragBox);
         this.addInteraction(this.modify);
         this.addInteraction(this.snap);
     }
@@ -891,7 +911,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
             source: this.drawRegionVectorLayer.getSource(),
             style: this.props.drawRegionStyler,
             geometryFunction: (coordinates, optGeometry) => {
-                const extent = boundingExtent(/** @type {LineCoordType} */ (coordinates));
+                const extent = boundingExtent(/** @type {LineCoordType} */(coordinates));
                 const boxCoordinates = [[
                     [extent[0], extent[3]],
                     [extent[2], extent[3]],
@@ -1078,8 +1098,8 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.initializeDrawnRegionLabelLayer();
         this.initializeDrawnRegionLayer();
         return [this.imageLayer, this.textVectorLayer, this.tableBorderVectorLayer, this.tableIconBorderVectorLayer,
-            this.tableIconVectorLayer, this.checkboxVectorLayer, this.drawRegionVectorLayer, this.labelVectorLayer,
-            this.drawnLabelVectorLayer];
+        this.tableIconVectorLayer, this.checkboxVectorLayer, this.drawRegionVectorLayer, this.labelVectorLayer,
+        this.drawnLabelVectorLayer];
     }
 
     private initializePredictLayers = (projection: Projection) => {
@@ -1181,7 +1201,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
     private initializeMap = (projection, layers) => {
         this.map = new Map({
-            controls: [] ,
+            controls: [],
             interactions: defaultInteractions({
                 shiftDragZoom: false,
                 doubleClickZoom: false,

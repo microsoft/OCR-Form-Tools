@@ -81,7 +81,6 @@ export interface ITagInputProps {
     onLabelLeave: (label: ILabel) => void;
     /** Function to handle tag change */
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
-
     setTagInputMode?: (tagInputMode: TagInputMode, selectedTableTagToLabel?: ITableTag) => void;
     tagInputMode: TagInputMode;
     selectedTableTagToLabel: ITableTag;
@@ -91,6 +90,7 @@ export interface ITagInputProps {
     handleTableCellClick: (iTableCellIndex, jTableCellIndex) => void;
     selectedTableTagBody: ITableRegion[][][];
     splitPaneWidth: number;
+    onTagDoubleClick?: (label: ILabel) => void;
 }
 
 export interface ITagInputState {
@@ -149,7 +149,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     public render() {
         const dark: ICustomizations = {
             settings: {
-              theme: getDarkTheme(),
+                theme: getDarkTheme(),
             },
             scopedSettings: {},
         };
@@ -207,6 +207,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                                 searchTags: !this.state.searchTags,
                                 searchQuery: "",
                             })}
+                            searchingTags={this.state.searchQuery.length > 0}
                             onRenameTag={this.onRenameTag}
                             onLockTag={this.onLockTag}
                             onDelete={this.onDeleteTag}
@@ -226,7 +227,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                                             onKeyDown={this.onSearchKeyDown}
                                             onChange={(e) => this.setState({ searchQuery: e.target.value })}
                                             placeholder="Search tags"
-                                            autoFocus={true}
+                                                autoFocus={true}
+                                                onFocus={() => this.setState({ selectedTag: null, tagOperation: TagOperationMode.Rename })}
                                         />
                                         <FontIcon iconName="Search" />
                                     </div>
@@ -245,6 +247,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                                         }
                                     </Customizer>
                                     {this.getColorPickerPortal()}
+
                                 </div>
                                 {
                                     this.state.addTags &&
@@ -394,7 +397,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         const { selectedTag } = this.state;
         const showColorPicker = this.state.tagOperation === TagOperationMode.ColorPicker;
         return (
-            <AlignPortal align={{points: [ "tr", "tl" ]}} target={() => this.headerRef.current}>
+            <AlignPortal align={{ points: ["tr", "tl"] }} target={() => this.headerRef.current}>
                 <div className="tag-input-colorpicker-container">
                     {
                         showColorPicker &&
@@ -429,6 +432,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 onLabelLeave={this.props.onLabelLeave}
                 onTagChanged={this.props.onTagChanged}
                 handleLabelTable={this.props.handleLabelTable}
+                onTagDoubleClick={this.props.onTagDoubleClick}
             />);
     }
 
@@ -519,11 +523,11 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     deselect = false;
                 } else if (labelAssigned && ((category === FeatureCategory.DrawnRegion) !== isTagLabelTypeDrawnRegion)) {
                     if (isTagLabelTypeDrawnRegion) {
-                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, {otherCategory: category}));
+                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, { otherCatagory: category}));
                     } else if (tagCategory === FeatureCategory.Checkbox) {
-                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, {otherCategory:  FeatureCategory.Checkbox}));
+                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, { otherCatagory:  FeatureCategory.Checkbox}));
                     } else {
-                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, {otherCategory: FeatureCategory.Text}));
+                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, { otherCatagory: FeatureCategory.Text}));
                     }
                     return;
                 } else if (tagCategory === category || category === FeatureCategory.DrawnRegion ||
@@ -535,7 +539,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     onTagClick(tag);
                     deselect = false;
                 } else {
-                    toast.warn(strings.tags.warnings.notCompatibleTagType, {autoClose: 7000});
+                    toast.warn(strings.tags.warnings.notCompatibleTagType, { autoClose: 7000 });
                 }
             }
             this.setState({
@@ -544,14 +548,23 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             });
         }
     }
-
+    focusTag(tag: string) {
+        const tagItemRef = this.tagItemRefs.get(tag)?.getTagNameRef();
+        if (tagItemRef) {
+            tagItemRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            tagItemRef.current.classList.add("tag-item-highlight");
+            setTimeout(() => {
+                tagItemRef.current.classList.remove("tag-item-highlight");
+            }, 2000);
+        }
+    }
     public labelAssigned = (labels: ILabel[], name): boolean => {
-         const label = labels.find((label) => label.label === name ? true : false);
-         if (!label) {
-             return false;
-         } else {
-             return true;
-         }
+        const label = labels.find((label) => label.label === name ? true : false);
+        if (!label) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     public labelAssignedDrawnRegion = (labels: ILabel[], name): boolean => {
@@ -606,11 +619,11 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
     private creatTagInput = (value: any) => {
         const newTag: ITag = {
-                name: value,
-                color: getNextColor(this.state.tags),
-                type: FieldType.String,
-                format: FieldFormat.NotSpecified,
-                documentCount: 0,
+            name: value,
+            color: getNextColor(this.state.tags),
+            type: FieldType.String,
+            format: FieldFormat.NotSpecified,
+            documentCount: 0,
         };
         if (newTag.name.length && ![...this.state.tags, newTag].containsDuplicates((t) => t.name)) {
             this.addTag(newTag);
@@ -664,7 +677,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     private onHideContextualMenu = () => {
-        this.setState({tagOperation: TagOperationMode.None});
+        this.setState({ tagOperation: TagOperationMode.None });
     }
 
     private getContextualMenuItems = (): IContextualMenuItem[] => {
@@ -728,6 +741,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 },
                 text: strings.tags.toolbar.moveUp,
                 onClick: this.onMenuItemClick,
+                disabled: this.state.searchQuery.length > 0,
             },
             {
                 key: TagMenuItem.MoveDown,
@@ -736,6 +750,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 },
                 text: strings.tags.toolbar.moveDown,
                 onClick: this.onMenuItemClick,
+                disabled: this.state.searchQuery.length > 0,
             },
             {
                 key: TagMenuItem.Delete,

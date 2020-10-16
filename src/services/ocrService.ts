@@ -33,6 +33,7 @@ export class OCRService {
     public async getRecognizedText(
         filePath: string,
         fileName: string,
+        mimeType: string,
         onStatusChanged?: (ocrStatus: OcrStatus) => void,
         rewrite?: boolean
     ): Promise<any> {
@@ -47,11 +48,11 @@ export class OCRService {
             notifyStatusChanged(OcrStatus.loadingFromAzureBlob);
             ocrJson = await this.readOcrFile(ocrFileName);
             if (!this.isValidOcrFormat(ocrJson) || rewrite) {
-                ocrJson = await this.fetchOcrUriResult(filePath, fileName, ocrFileName);
+                ocrJson = await this.fetchOcrUriResult(filePath, fileName, ocrFileName, mimeType);
             }
         } catch (e) {
             notifyStatusChanged(OcrStatus.runningOCR);
-            ocrJson = await this.fetchOcrUriResult(filePath, fileName, ocrFileName);
+            ocrJson = await this.fetchOcrUriResult(filePath, fileName, ocrFileName, mimeType);
         } finally {
             notifyStatusChanged(OcrStatus.done);
         }
@@ -81,7 +82,7 @@ export class OCRService {
         }
     }
 
-    private fetchOcrUriResult = async (filePath: string, fileName: string, ocrFileName: string) => {
+    private fetchOcrUriResult = async (filePath: string, fileName: string, ocrFileName: string, mimeType: string) => {
         try {
             let body;
             let headers;
@@ -93,15 +94,13 @@ export class OCRService {
                     ]
                 );
                 body = bodyAndType[0];
-                const fileType = bodyAndType[1].mime;
-                headers = { "Content-Type": fileType, "cache-control": "no-cache" };
-            }
-            else {
+                headers = { "Content-Type": mimeType, "cache-control": "no-cache" };
+            } else {
                 body = { url: filePath };
                 headers = { "Content-Type": "application/json" };
             }
             const response = await ServiceHelper.postWithAutoRetry(
-                this.project.apiUriBase + `/formrecognizer/${constants.apiVersion}/layout/analyze`,
+                this.project.apiUriBase + `/formrecognizer/${ (this.project.apiVersion || constants.apiVersion) }/layout/analyze`,
                 body,
                 { headers },
                 this.project.apiKey as string,

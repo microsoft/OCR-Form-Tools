@@ -1,8 +1,44 @@
 # FoTT Changelog 
+## What's new in Form Recognizer?
+Click [here](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/whats-new) to see what's new in Form Recognizer.
+
 ## Released conatiner's currently referenced commit
-2.1-Preview's released container image (mcr.microsoft.com/azure-cognitive-services/custom-form/labeltool:2.1.012970002-amd64-preview) currently references **2.1-preview.1-0633507 (09-14-2020)**
+2.1-Preview's released container image, tracked by the `latest-preview` image tag in our [docker hub repository](https://hub.docker.com/_/microsoft-azure-cognitive-services-custom-form-labeltool), currently references **2.1-preview.1-1f33130 (10-09-2020)**
 
 ## Commit history
+### 2.1-preview.1-1f33130 (10-09-2020)
+* fix: support image map interactions for container releases([#639](https://github.com/microsoft/OCR-Form-Tools/commit/1f33130e3b6ad8a876f18fc1c05f82c4a14d36fa))
+
+### 2.1-preview.1-6d4e93b (10-07-2020)
+* Fix: use file type library for mime type validation ([#636](https://github.com/microsoft/OCR-Form-Tools/commit/6d4e93bca8a4e3d677c765ed5596bde502766e2e))
+
+### 2.1-preview.1-355ca0b (09-30-2020)
+* feat: add spinner in saving project, can avoid multiple commit  ([#617](https://github.com/microsoft/OCR-Form-Tools/commit/355ca0b156b2d44aafd2eaaccf2fc52385c7f5f8))
+
+### 2.1-preview.1-53044f7 (09-29-2020)
+* fix: refresh currentProjects when load project ([#615](https://github.com/microsoft/OCR-Form-Tools/commit/53044f72dd9c9c72557c74c00605ba05ee50205d))
+* sync related region color when tag color changed ([#598](https://github.com/microsoft/OCR-Form-Tools/commit/3044cc51a9166877bb4f01f28753171b82c04ccd))
+* feat: add current list item style ([#601](https://github.com/microsoft/OCR-Form-Tools/commit/3e503e75513e44e6a90bd013d8dd15c3096cd7e9))
+* fix: remove project from app if security token does not exist ([#468](https://github.com/microsoft/OCR-Form-Tools/commit/730e1963a06f038a4efa9750fcef4be6f15a8460))
+
+### 2.1-preview.1-d859d38 (09-27-2020)
+* fix ,update document state when preview (#317) ([#471](https://github.com/microsoft/OCR-Form-Tools/commit/d859d38ecc1f96b194ffa130a1840f5a7d9b1a9b))
+* refactor: change the confidence value format to percentage ([#461](https://github.com/microsoft/OCR-Form-Tools/commit/e806b4e0dfcc68e6408e2130a46a318637a482a8))
+
+### 2.1-preview.1-7a3f7a7 (09-25-2020)
+* security: upgrade node-forge ([#622](https://github.com/microsoft/OCR-Form-Tools/commit/7a3f7a773c8b01f443afaad89d7974a5bbb0b869))
+* fix: disable move tag and support renaming when searching ([#618](https://github.com/microsoft/OCR-Form-Tools/commit/cac1e8e6cfb2805a6540f9e80d564a0ff8be81c7))
+
+### 2.1-preview.1-4163edc (09-23-2020)
+* docs: add latest tag reference to changelog ([#608](https://github.com/microsoft/OCR-Form-Tools/commit/4163edc18bc65234e263703fc829d2f297953385))
+* fix: use region instead of drawnRegion for labelType in label file ([#582](https://github.com/microsoft/OCR-Form-Tools/commit/ffafc200249a1c47698fedb279b4b55cef0190ba))
+* docs: update readme with docker hub info ([#604](https://github.com/microsoft/OCR-Form-Tools/commit/63bbea076d598d0286095fa0eca48d8c9d0ed706))
+* fix: remove opening browser for yarn start ([#605](https://github.com/microsoft/OCR-Form-Tools/commit/f6c4dc3585df71d09252a28f65e835a594389118))
+* fix: update changelog updater script ([#607](https://github.com/microsoft/OCR-Form-Tools/commit/7c4848c3a72259562c0461f0e2eadfb4a660fa64))
+
+### 2.1-preview.1-f2db74e (09-17-2020)
+* docs: udpate changlog with docker image reference ([#590](https://github.com/microsoft/OCR-Form-Tools/commit/f2db74e322c32338eba3b2df06c01a51cfb7ebc1))
+
 ### 2.1-preview.1-1a6b78e (09-16-2020)
 * fix: normalize folder path starting with a period ([#592](https://github.com/microsoft/OCR-Form-Tools/commit/1a6b78e054235da3188aafbe65636a8c18b439bf))
 * fix: change label folder uri title ([#588](https://github.com/microsoft/OCR-Form-Tools/commit/7e4233e568d94817e23dda5ef5513b9ee7475d11))

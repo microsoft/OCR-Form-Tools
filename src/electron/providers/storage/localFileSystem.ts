@@ -123,6 +123,10 @@ export default class LocalFileSystem implements IStorageProvider {
         return this.listItems(path.normalize(folderPath), (stats) => !stats.isDirectory());
     }
 
+    public isFileExists(filePath: string): Promise<boolean> {
+        return Promise.resolve(fs.existsSync(path.normalize(filePath)));
+    }
+
     public listContainers(folderPath: string): Promise<string[]> {
         return this.listItems(path.normalize(folderPath), (stats) => stats.isDirectory());
     }
