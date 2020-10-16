@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 
 import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, SelectionMode, DetailsListLayoutMode, FontIcon, CheckboxVisibility, IContextualMenuItem, CommandBar, Selection, Separator, IObjectWithKey } from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme, getDefaultTheme } from '../../../../common/themes';
-import { FieldFormat, FieldType, IApplicationState, ITableTag, ITag, TagInputMode } from '../../../../models/applicationState';
+import { FieldFormat, FieldType, IApplicationState, ITableRegion, ITableTag, ITag, TagInputMode } from '../../../../models/applicationState';
 import { filterFormat } from "../../../../common/utils";
 import { toast } from "react-toastify";
 import "./tableTagConfig.scss";
@@ -27,7 +27,7 @@ interface IShareState {
 }
 
 interface ITableTagConfigProps {
-    setTagInputMode: (addTableMode: TagInputMode) => void;
+    setTagInputMode: (addTableMode: TagInputMode, selectedTableTagToLabel?: ITableTag, selectedTableTagBody?: ITableRegion[][][]) => void;
     addTableTag: (table: any) => void;
     splitPaneWidth: number;
     tableTag?: ITableTag;
@@ -503,7 +503,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             tableTagToAdd["rows"] = trimFieldNames(rows);
         }
         addTableTag(tableTagToAdd);
-        setTagInputMode(TagInputMode.Basic);
+        setTagInputMode(TagInputMode.Basic, null, null);
     }
 
     function hasEmptyNames(array: ITableConfigItem[]) {
@@ -767,7 +767,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     <PrimaryButton
                         className="cancel"
                         theme={getPrimaryGreyTheme()}
-                        onClick={() => setTagInputMode(TagInputMode.Basic)}
+                        onClick={() => setTagInputMode(TagInputMode.Basic, null, null)}
                     >Cancel</PrimaryButton>
                     <PrimaryButton
                         className="save"

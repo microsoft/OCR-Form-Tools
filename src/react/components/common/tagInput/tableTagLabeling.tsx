@@ -11,7 +11,7 @@ import { strings } from "../../../../common/strings";
 
 
 interface ITableTagLabelingProps {
-    setTagInputMode: (addTableMode: TagInputMode) => void;
+    setTagInputMode: (addTableMode: TagInputMode, selectedTableTagToLabel?: ITableTag, selectedTableTagBody?: ITableRegion[][][]) => void;
     selectedTag: ITableTag,
     selectedRegions?: IRegion[];
     onTagClick?: (tag: ITableTag) => void;
@@ -111,7 +111,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                             className="button-done"
                             theme={getPrimaryGreenTheme()}
                             onClick={() => {
-                                this.props.setTagInputMode(TagInputMode.Basic)
+                                this.props.setTagInputMode(TagInputMode.Basic, null, null)
                             }}
                         >{strings.tags.regionTableTags.tableLabeling.buttons.done}
                         </PrimaryButton>
@@ -159,7 +159,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
     }
 
     private addRow = () => {
-this.props.addRowToDynamicTable()
+        this.props.addRowToDynamicTable()
     };
 
     private handleCellClick = (iToChange, jToChange) => {

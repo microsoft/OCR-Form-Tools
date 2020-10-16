@@ -4,7 +4,7 @@
 import React from "react";
 import { IconButton } from "@fluentui/react";
 import { strings } from "../../../../common/strings";
-import { ITableTag, ITag, TagInputMode } from "../../../../models/applicationState";
+import { ITableRegion, ITableTag, ITag, TagInputMode } from "../../../../models/applicationState";
 
 enum Categories {
     General,
@@ -19,7 +19,7 @@ export interface ITagInputToolbarProps {
     /** Function to call when add tags button is clicked */
     onAddTags: () => void;
 
-    setTagInputMode?: (tagInputMode: TagInputMode, selectedTableTagToLabel?: ITableTag) => void;
+    setTagInputMode?: (tagInputMode: TagInputMode, selectedTableTagToLabel?: ITableTag, selectedTableTagBody?: ITableRegion[][][]) => void;
     /** Function to call when search tags button is clicked */
     onSearchTags: () => void;
     /** Function to call when lock tags button is clicked */
@@ -152,7 +152,7 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
     }
 
     private handleAddTable = () => {
-        this.props.setTagInputMode(TagInputMode.ConfigureTable, null);
+        this.props.setTagInputMode(TagInputMode.ConfigureTable, null, null);
     }
 
     private handleSearch = () => {

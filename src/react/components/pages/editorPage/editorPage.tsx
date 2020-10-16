@@ -428,10 +428,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private onPageClick = () => {
     }
 
-    private setTagInputMode = (tagInputMode: TagInputMode, selectedTableTagToLabel: ITableTag = this.state.selectedTableTagToLabel) => {
-        this.resizeCanvas();
+    private setTagInputMode = (tagInputMode: TagInputMode, selectedTableTagToLabel: ITableTag = this.state.selectedTableTagToLabel, selectedTableTagBody: ITableRegion[][][] = this.state.selectedTableTagBody) => {
+        // this.resizeCanvas();
 
             this.setState({
+                selectedTableTagBody,
                 selectedTableTagToLabel,
                 tagInputMode,
             }, () => {
