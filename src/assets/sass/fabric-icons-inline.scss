@@ -17,67 +17,69 @@
 }
 
 // Mixins
-@mixin ms-Icon--Table { content: "\ED86"; }
-@mixin ms-Icon--TextField { content: "\EDC3"; }
-@mixin ms-Icon--OpenFolderHorizontal { content: "\ED25"; }
-@mixin ms-Icon--Documentation { content: "\EC17"; }
-@mixin ms-Icon--AddTo { content: "\ECC8"; }
-@mixin ms-Icon--SortUp { content: "\EE68"; }
-@mixin ms-Icon--SortDown { content: "\EE69"; }
-@mixin ms-Icon--Info { content: "\E946"; }
-@mixin ms-Icon--ChromeMinimize { content: "\E921"; }
-@mixin ms-Icon--ChromeRestore { content: "\E923"; }
-@mixin ms-Icon--Label { content: "\E932"; }
-@mixin ms-Icon--Copy { content: "\E8C8"; }
-@mixin ms-Icon--Rename { content: "\E8AC"; }
-@mixin ms-Icon--Download { content: "\E896"; }
-@mixin ms-Icon--Help { content: "\E897"; }
-@mixin ms-Icon--ZoomIn { content: "\E8A3"; }
-@mixin ms-Icon--Tag { content: "\E8EC"; }
-@mixin ms-Icon--CircleRing { content: "\EA3A"; }
-@mixin ms-Icon--SquareShape { content: "\F1A6"; }
-@mixin ms-Icon--RectangleShape { content: "\F1A9"; }
-@mixin ms-Icon--DocumentManagement { content: "\EFFC"; }
-@mixin ms-Icon--Relationship { content: "\F003"; }
-@mixin ms-Icon--TextDocument { content: "\F029"; }
-@mixin ms-Icon--StatusCircleCheckmark { content: "\F13E"; }
-@mixin ms-Icon--PlugConnected { content: "\F302"; }
-@mixin ms-Icon--Plug { content: "\F300"; }
-@mixin ms-Icon--AlertSolid { content: "\F331"; }
-@mixin ms-Icon--BranchMerge { content: "\F295"; }
-@mixin ms-Icon--View { content: "\E890"; }
-@mixin ms-Icon--ReceiptProcessing { content: "\E496"; }
-@mixin ms-Icon--AddField { content: "\E4C7"; }
-@mixin ms-Icon--TagGroup { content: "\E3F6"; }
-@mixin ms-Icon--Insights { content: "\E3AF"; }
-@mixin ms-Icon--MachineLearning { content: "\E3B8"; }
-@mixin ms-Icon--Merge { content: "\E7D5"; }
-@mixin ms-Icon--MapLayers { content: "\E81E"; }
-@mixin ms-Icon--Home { content: "\E80F"; }
-@mixin ms-Icon--ZoomOut { content: "\E71F"; }
-@mixin ms-Icon--Search { content: "\E721"; }
-@mixin ms-Icon--Refresh { content: "\E72C"; }
-@mixin ms-Icon--Share { content: "\E72D"; }
-@mixin ms-Icon--Link { content: "\E71B"; }
-@mixin ms-Icon--ChevronDown { content: "\E70D"; }
-@mixin ms-Icon--ChevronUp { content: "\E70E"; }
-@mixin ms-Icon--Edit { content: "\E70F"; }
 @mixin ms-Icon--Add { content: "\E710"; }
+@mixin ms-Icon--AddField { content: "\E4C7"; }
+@mixin ms-Icon--AddTo { content: "\ECC8"; }
+@mixin ms-Icon--AlertSolid { content: "\F331"; }
+@mixin ms-Icon--AzureAPIManagement { content: "\F37F"; }
+@mixin ms-Icon--BookAnswers { content: "\F8A4"; }
+@mixin ms-Icon--BranchMerge { content: "\F295"; }
 @mixin ms-Icon--Cancel { content: "\E711"; }
-@mixin ms-Icon--More { content: "\E712"; }
-@mixin ms-Icon--Settings { content: "\E713"; }
-@mixin ms-Icon--Filter { content: "\E71C"; }
-@mixin ms-Icon--ChevronLeft { content: "\E76B"; }
-@mixin ms-Icon--ChevronRight { content: "\E76C"; }
-@mixin ms-Icon--System { content: "\E770"; }
 @mixin ms-Icon--CheckboxComposite { content: "\E73A"; }
 @mixin ms-Icon--CheckMark { content: "\E73E"; }
-@mixin ms-Icon--Down { content: "\E74B"; }
-@mixin ms-Icon--Delete { content: "\E74D"; }
+@mixin ms-Icon--ChevronDown { content: "\E70D"; }
+@mixin ms-Icon--ChevronLeft { content: "\E76B"; }
+@mixin ms-Icon--ChevronRight { content: "\E76C"; }
+@mixin ms-Icon--ChevronUp { content: "\E70E"; }
+@mixin ms-Icon--ChromeMinimize { content: "\E921"; }
+@mixin ms-Icon--ChromeRestore { content: "\E923"; }
+@mixin ms-Icon--CircleRing { content: "\EA3A"; }
 @mixin ms-Icon--Cloud { content: "\E753"; }
-@mixin ms-Icon--Up { content: "\E74A"; }
-@mixin ms-Icon--KeyPhraseExtraction { content: "\E395"; }
+@mixin ms-Icon--Copy { content: "\E8C8"; }
+@mixin ms-Icon--Delete { content: "\E74D"; }
+@mixin ms-Icon--Documentation { content: "\EC17"; }
+@mixin ms-Icon--DocumentManagement { content: "\EFFC"; }
+@mixin ms-Icon--Down { content: "\E74B"; }
+@mixin ms-Icon--Download { content: "\E896"; }
+@mixin ms-Icon--Edit { content: "\E70F"; }
+@mixin ms-Icon--Filter { content: "\E71C"; }
+@mixin ms-Icon--Help { content: "\E897"; }
 @mixin ms-Icon--Hide3 { content: "\F6AC"; }
+@mixin ms-Icon--Home { content: "\E80F"; }
+@mixin ms-Icon--Info { content: "\E946"; }
+@mixin ms-Icon--Insights { content: "\E3AF"; }
+@mixin ms-Icon--KeyPhraseExtraction { content: "\E395"; }
+@mixin ms-Icon--Label { content: "\E932"; }
+@mixin ms-Icon--Link { content: "\E71B"; }
+@mixin ms-Icon--MachineLearning { content: "\E3B8"; }
+@mixin ms-Icon--MapLayers { content: "\E81E"; }
+@mixin ms-Icon--Merge { content: "\E7D5"; }
+@mixin ms-Icon--More { content: "\E712"; }
+@mixin ms-Icon--OpenFolderHorizontal { content: "\ED25"; }
+@mixin ms-Icon--Plug { content: "\F300"; }
+@mixin ms-Icon--PlugConnected { content: "\F302"; }
+@mixin ms-Icon--ReceiptProcessing { content: "\E496"; }
+@mixin ms-Icon--RectangleShape { content: "\F1A9"; }
+@mixin ms-Icon--Refresh { content: "\E72C"; }
+@mixin ms-Icon--Relationship { content: "\F003"; }
+@mixin ms-Icon--Rename { content: "\E8AC"; }
+@mixin ms-Icon--Rotate90Clockwise { content: "\F80D"; }
+@mixin ms-Icon--Rotate90CounterClockwise { content: "\F80E"; }
+@mixin ms-Icon--Search { content: "\E721"; }
+@mixin ms-Icon--Settings { content: "\E713"; }
+@mixin ms-Icon--Share { content: "\E72D"; }
+@mixin ms-Icon--SortDown { content: "\EE69"; }
+@mixin ms-Icon--SortUp { content: "\EE68"; }
+@mixin ms-Icon--SquareShape { content: "\F1A6"; }
+@mixin ms-Icon--StatusCircleCheckmark { content: "\F13E"; }
+@mixin ms-Icon--System { content: "\E770"; }
+@mixin ms-Icon--Table { content: "\ED86"; }
+@mixin ms-Icon--Tag { content: "\E8EC"; }
+@mixin ms-Icon--TagGroup { content: "\E3F6"; }
+@mixin ms-Icon--TextDocument { content: "\F029"; }
+@mixin ms-Icon--TextField { content: "\EDC3"; }
+@mixin ms-Icon--Up { content: "\E74A"; }
+@mixin ms-Icon--View { content: "\E890"; }
 @mixin ms-Icon--WarningSolid { content: "\F736"; }
 @mixin ms-Icon--BookAnswers { content: "\F8A4"; }
 @mixin ms-Icon--ChromeRestore { content: "\E923"; }
@@ -93,67 +95,72 @@
 @mixin ms-Icon--FixedColumnWidth { content: "\E3EA"; }
 @mixin ms-Icon--Rotate90Clockwise { content: "\F80D"; }
 @mixin ms-Icon--Rotate90CounterClockwise { content: "\F80E"; }
+@mixin ms-Icon--ZoomIn { content: "\E8A3"; }
+@mixin ms-Icon--ZoomOut { content: "\E71F"; }
 
 
 // Classes
-.ms-Icon--Table:before { @include ms-Icon--Table }
-.ms-Icon--TextField:before { @include ms-Icon--TextField }
-.ms-Icon--OpenFolderHorizontal:before { @include ms-Icon--OpenFolderHorizontal }
-.ms-Icon--Documentation:before { @include ms-Icon--Documentation }
-.ms-Icon--AddTo:before { @include ms-Icon--AddTo }
-.ms-Icon--SortUp:before { @include ms-Icon--SortUp }
-.ms-Icon--SortDown:before { @include ms-Icon--SortDown }
-.ms-Icon--Info:before { @include ms-Icon--Info }
-.ms-Icon--ChromeMinimize:before { @include ms-Icon--ChromeMinimize }
-.ms-Icon--ChromeRestore:before { @include ms-Icon--ChromeRestore }
-.ms-Icon--Label:before { @include ms-Icon--Label }
-.ms-Icon--Copy:before { @include ms-Icon--Copy }
-.ms-Icon--Rename:before { @include ms-Icon--Rename }
-.ms-Icon--Download:before { @include ms-Icon--Download }
-.ms-Icon--Help:before { @include ms-Icon--Help }
-.ms-Icon--ZoomIn:before { @include ms-Icon--ZoomIn }
-.ms-Icon--Tag:before { @include ms-Icon--Tag }
-.ms-Icon--CircleRing:before { @include ms-Icon--CircleRing }
-.ms-Icon--SquareShape:before { @include ms-Icon--SquareShape }
-.ms-Icon--RectangleShape:before { @include ms-Icon--RectangleShape }
-.ms-Icon--DocumentManagement:before { @include ms-Icon--DocumentManagement }
-.ms-Icon--Relationship:before { @include ms-Icon--Relationship }
-.ms-Icon--TextDocument:before { @include ms-Icon--TextDocument }
-.ms-Icon--StatusCircleCheckmark:before { @include ms-Icon--StatusCircleCheckmark }
-.ms-Icon--PlugConnected:before { @include ms-Icon--PlugConnected }
-.ms-Icon--Plug:before { @include ms-Icon--Plug }
-.ms-Icon--AlertSolid:before { @include ms-Icon--AlertSolid }
-.ms-Icon--BranchMerge:before { @include ms-Icon--BranchMerge }
-.ms-Icon--View:before { @include ms-Icon--View }
-.ms-Icon--ReceiptProcessing:before { @include ms-Icon--ReceiptProcessing }
-.ms-Icon--AddField:before { @include ms-Icon--AddField }
-.ms-Icon--TagGroup:before { @include ms-Icon--TagGroup }
-.ms-Icon--Insights:before { @include ms-Icon--Insights }
-.ms-Icon--MachineLearning:before { @include ms-Icon--MachineLearning }
-.ms-Icon--Merge:before { @include ms-Icon--Merge }
-.ms-Icon--MapLayers:before { @include ms-Icon--MapLayers }
-.ms-Icon--Home:before { @include ms-Icon--Home }
-.ms-Icon--ZoomOut:before { @include ms-Icon--ZoomOut }
-.ms-Icon--Search:before { @include ms-Icon--Search }
-.ms-Icon--Refresh:before { @include ms-Icon--Refresh }
-.ms-Icon--Share:before { @include ms-Icon--Share }
-.ms-Icon--Link:before { @include ms-Icon--Link }
-.ms-Icon--ChevronDown:before { @include ms-Icon--ChevronDown }
-.ms-Icon--ChevronUp:before { @include ms-Icon--ChevronUp }
-.ms-Icon--Edit:before { @include ms-Icon--Edit }
 .ms-Icon--Add:before { @include ms-Icon--Add }
+.ms-Icon--AddField:before { @include ms-Icon--AddField }
+.ms-Icon--AddTo:before { @include ms-Icon--AddTo }
+.ms-Icon--AlertSolid:before { @include ms-Icon--AlertSolid }
+.ms-Icon--AzureAPIManagement:before { @include ms-Icon--AzureAPIManagement }
+.ms-Icon--BookAnswers:before { @include ms-Icon--BookAnswers }
+.ms-Icon--BranchMerge:before { @include ms-Icon--BranchMerge }
 .ms-Icon--Cancel:before { @include ms-Icon--Cancel }
-.ms-Icon--More:before { @include ms-Icon--More }
-.ms-Icon--Settings:before { @include ms-Icon--Settings }
-.ms-Icon--Filter:before { @include ms-Icon--Filter }
-.ms-Icon--ChevronLeft:before { @include ms-Icon--ChevronLeft }
-.ms-Icon--ChevronRight:before { @include ms-Icon--ChevronRight }
-.ms-Icon--System:before { @include ms-Icon--System }
 .ms-Icon--CheckboxComposite:before { @include ms-Icon--CheckboxComposite }
 .ms-Icon--CheckMark:before { @include ms-Icon--CheckMark }
-.ms-Icon--Down:before { @include ms-Icon--Down }
-.ms-Icon--Delete:before { @include ms-Icon--Delete }
+.ms-Icon--ChevronDown:before { @include ms-Icon--ChevronDown }
+.ms-Icon--ChevronLeft:before { @include ms-Icon--ChevronLeft }
+.ms-Icon--ChevronRight:before { @include ms-Icon--ChevronRight }
+.ms-Icon--ChevronUp:before { @include ms-Icon--ChevronUp }
+.ms-Icon--ChromeMinimize:before { @include ms-Icon--ChromeMinimize }
+.ms-Icon--ChromeRestore:before { @include ms-Icon--ChromeRestore }
+.ms-Icon--CircleRing:before { @include ms-Icon--CircleRing }
 .ms-Icon--Cloud:before { @include ms-Icon--Cloud }
+.ms-Icon--Copy:before { @include ms-Icon--Copy }
+.ms-Icon--Delete:before { @include ms-Icon--Delete }
+.ms-Icon--Documentation:before { @include ms-Icon--Documentation }
+.ms-Icon--DocumentManagement:before { @include ms-Icon--DocumentManagement }
+.ms-Icon--Down:before { @include ms-Icon--Down }
+.ms-Icon--Download:before { @include ms-Icon--Download }
+.ms-Icon--Edit:before { @include ms-Icon--Edit }
+.ms-Icon--Filter:before { @include ms-Icon--Filter }
+.ms-Icon--Help:before { @include ms-Icon--Help }
+.ms-Icon--Hide3:before { @include ms-Icon--Hide3 }
+.ms-Icon--Home:before { @include ms-Icon--Home }
+.ms-Icon--Info:before { @include ms-Icon--Info }
+.ms-Icon--Insights:before { @include ms-Icon--Insights }
+.ms-Icon--KeyPhraseExtraction:before { @include ms-Icon--KeyPhraseExtraction }
+.ms-Icon--Label:before { @include ms-Icon--Label }
+.ms-Icon--Link:before { @include ms-Icon--Link }
+.ms-Icon--MachineLearning:before { @include ms-Icon--MachineLearning }
+.ms-Icon--MapLayers:before { @include ms-Icon--MapLayers }
+.ms-Icon--Merge:before { @include ms-Icon--Merge }
+.ms-Icon--More:before { @include ms-Icon--More }
+.ms-Icon--OpenFolderHorizontal:before { @include ms-Icon--OpenFolderHorizontal }
+.ms-Icon--Plug:before { @include ms-Icon--Plug }
+.ms-Icon--PlugConnected:before { @include ms-Icon--PlugConnected }
+.ms-Icon--ReceiptProcessing:before { @include ms-Icon--ReceiptProcessing }
+.ms-Icon--RectangleShape:before { @include ms-Icon--RectangleShape }
+.ms-Icon--Refresh:before { @include ms-Icon--Refresh }
+.ms-Icon--Relationship:before { @include ms-Icon--Relationship }
+.ms-Icon--Rename:before { @include ms-Icon--Rename }
+.ms-Icon--Rotate90Clockwise:before { @include ms-Icon--Rotate90Clockwise }
+.ms-Icon--Rotate90CounterClockwise:before { @include ms-Icon--Rotate90CounterClockwise }
+.ms-Icon--Search:before { @include ms-Icon--Search }
+.ms-Icon--Settings:before { @include ms-Icon--Settings }
+.ms-Icon--Share:before { @include ms-Icon--Share }
+.ms-Icon--SortDown:before { @include ms-Icon--SortDown }
+.ms-Icon--SortUp:before { @include ms-Icon--SortUp }
+.ms-Icon--SquareShape:before { @include ms-Icon--SquareShape }
+.ms-Icon--StatusCircleCheckmark:before { @include ms-Icon--StatusCircleCheckmark }
+.ms-Icon--System:before { @include ms-Icon--System }
+.ms-Icon--Table:before { @include ms-Icon--Table }
+.ms-Icon--Tag:before { @include ms-Icon--Tag }
+.ms-Icon--TagGroup:before { @include ms-Icon--TagGroup }
+.ms-Icon--TextDocument:before { @include ms-Icon--TextDocument }
+.ms-Icon--TextField:before { @include ms-Icon--TextField }
 .ms-Icon--Up:before { @include ms-Icon--Up }
 .ms-Icon--KeyPhraseExtraction:before { @include ms-Icon--KeyPhraseExtraction }
 .ms-Icon--Hide3:before { @include ms-Icon--Hide3 }
@@ -172,8 +179,8 @@
 .ms-Icon--FixedColumnWidth:before { @include ms-Icon--FixedColumnWidth }
 .ms-Icon--KeyPhraseExtraction:before { @include ms-Icon--KeyPhraseExtraction }
 .ms-Icon--Hide3:before { @include ms-Icon--Hide3 }
+.ms-Icon--View:before { @include ms-Icon--View }
 .ms-Icon--WarningSolid:before { @include ms-Icon--WarningSolid }
-.ms-Icon--BookAnswers:before { @include ms-Icon--BookAnswers }
-.ms-Icon--Rotate90Clockwise:before { @include ms-Icon--Rotate90Clockwise }
-.ms-Icon--Rotate90CounterClockwise:before { @include ms-Icon--Rotate90CounterClockwise }
+.ms-Icon--ZoomIn:before { @include ms-Icon--ZoomIn }
+.ms-Icon--ZoomOut:before { @include ms-Icon--ZoomOut }
 

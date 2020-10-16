@@ -232,6 +232,18 @@ canvas {
 .badge-tagged {
   background-color: rgba(green, 0.9);
   border: 1px solid $lighter-2;
+  &-ManuallyLabeled{
+    background-color: rgba(rgb(128, 41, 0), 0.9);
+  }
+  &-Trained {
+    background-color: rgba(green, 0.9);
+  }
+  &-AutoLabeled {
+    background-color: rgba(rgb(136, 0, 91), 0.9);
+  }
+  &-AutoLabeledAndAdjusted{
+    background-color: rgba(rgb(0, 92, 128), 0.9);
+  }
 }
 
 .badge-visited {

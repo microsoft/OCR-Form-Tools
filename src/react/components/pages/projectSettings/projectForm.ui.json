@@ -16,5 +16,8 @@
     },
     "apiKey": {
         "ui:widget": "protectedInput"
+    },
+    "apiVersion": {
+        "ui:widget": "apiVersion"
     }
 }

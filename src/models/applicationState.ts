@@ -93,6 +93,7 @@ export interface IProject {
     lastVisitedAssetId?: string,
     apiUriBase: string,
     apiKey?: string | ISecureString,
+    apiVersion?: string;
     folderPath: string,
     trainRecord: ITrainRecordProps,
     recentModelRecords: IRecentModel[],
@@ -166,6 +167,7 @@ export interface IAsset {
     id: string,
     type: AssetType,
     state: AssetState,
+    labelingState?: AssetLabelingState,
     name: string,
     path: string,
     size: ISize,
@@ -174,7 +176,9 @@ export interface IAsset {
     predicted?: boolean,
     ocr?: any,
     isRunningOCR?: boolean,
+    isRunningAutoLabeling?: boolean,
     cachedImage?: string,
+    mimeType?: string,
 }
 
 /**
@@ -219,6 +223,8 @@ export interface IRegion {
     value?: string,
     pageNumber: number,
     isTableRegion?: boolean,
+    changed?: boolean,
+
 }
 
 export interface ITableRegion extends IRegion {
@@ -232,6 +238,7 @@ export interface ITableRegion extends IRegion {
  */
 export interface ILabelData {
     document: string,
+    labelingState?: AssetLabelingState;
     labels: ILabel[],
     tableLabels?: ITableLabel[],
 }
@@ -245,6 +252,7 @@ export interface ILabel {
     key?: IFormRegion[],
     value: IFormRegion[],
     labelType?: string,
+    confidence?: number,
 }
 
 export interface ITableLabel {
@@ -356,6 +364,12 @@ export enum ErrorCode {
     ProjectUploadError = "ProjectUploadError",
 }
 
+export enum APIVersionPatches {
+    patch1 = "v2.1-preview.1",
+    patch2 = "v2.1-preview.2",
+    patch3 = "v2.1-preview.3",
+}
+
 /**
  * @enum LOCAL - Local storage type
  * @enum CLOUD - Cloud storage type
@@ -381,6 +395,14 @@ export enum AssetType {
     TIFF = 6,
 }
 
+export enum AssetMimeType {
+    PDF = "application/pdf",
+    TIFF = "image/tiff",
+    JPG = "image/jpg",
+    PNG = "image/png",
+    BMP = "image/bmp",
+}
+
 /**
  * @name - Asset State
  * @description - Defines the state of the asset with regard to the tagging process
@@ -392,6 +414,20 @@ export enum AssetState {
     NotVisited = 0,
     Visited = 1,
     Tagged = 2,
+}
+/**
+ * @name - Asset Labeling State
+ * @description - Defines the labeling state for the asset
+ * @member ManualLabeling - Specifies as an asset that has manual labeling the tags
+ * @member Training - Specifies as an asset tagged data has been used for training model
+ * @member AutoLabeling - Specifies as an asset that has run auto-labeling
+ * @member AutoLabeledAndAdjusted -specifies as an asset that has run auto-labeling and tags manual adjusted
+ */
+export enum AssetLabelingState {
+    ManuallyLabeled = 1,
+    Trained = 2,
+    AutoLabeled = 3,
+    AutoLabeledAndAdjusted = 4,
 }
 
 /**
@@ -430,7 +466,7 @@ export enum FieldType {
 }
 
 export enum LabelType {
-    DrawnRegion = "drawnRegion"
+    DrawnRegion = "region"
 }
 
 export enum FieldFormat {
@@ -451,7 +487,7 @@ export enum FeatureCategory {
     Text = "text",
     Checkbox = "checkbox",
     Label = "label",
-    DrawnRegion = "drawnRegion"
+    DrawnRegion = "region"
 }
 
 export enum ImageMapParent {

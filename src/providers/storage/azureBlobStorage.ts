@@ -3,7 +3,7 @@
 import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
 import { constants } from "../../common/constants";
 import { strings } from "../../common/strings";
-import { AppError, AssetState, AssetType, ErrorCode, IAsset, StorageType } from "../../models/applicationState";
+import { AppError, AssetState, AssetType, ErrorCode, IAsset, StorageType, ILabelData, AssetLabelingState } from "../../models/applicationState";
 import { throwUnhandledRejectionForEdge } from "../../react/components/common/errorHandler/errorHandler";
 import { AssetService } from "../../services/assetService";
 import { IStorageProvider } from "./storageProviderFactory";
@@ -151,6 +151,14 @@ export class AzureBlobStorage implements IStorageProvider {
     }
 
     /**
+     * check file is exists
+     * @param filePath
+     */
+    public async isFileExists(filePath: string) :Promise<boolean> {
+        const client = this.containerClient.getBlobClient(filePath);
+        return await client.exists();
+    }
+    /**
      * Lists the containers with in the Azure Blob Storage account
      * @param path - NOT USED IN CURRENT IMPLEMENTATION. Lists containers in storage account.
      * Path does not really make sense in this scenario. Included to satisfy interface
@@ -206,12 +214,17 @@ export class AzureBlobStorage implements IStorageProvider {
 
                 if (files.find((str) => str === labelFileName)) {
                     asset.state = AssetState.Tagged;
+                    const labelFileName = decodeURIComponent(`${asset.name}${constants.labelFileExtension}`);
+                    const json = await this.readText(labelFileName, true);
+                    const labelData = JSON.parse(json) as ILabelData;
+                    if (labelData) {
+                        asset.labelingState = labelData.labelingState || AssetLabelingState.ManuallyLabeled;
+                    }
                 } else if (files.find((str) => str === ocrFileName)) {
                     asset.state = AssetState.Visited;
                 } else {
                     asset.state = AssetState.NotVisited;
                 }
-
                 result.push(asset);
             }
         }

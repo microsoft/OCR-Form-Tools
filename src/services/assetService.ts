@@ -5,7 +5,7 @@ import _ from "lodash";
 import Guard from "../common/guard";
 import {
     IAsset, AssetType, IProject, IAssetMetadata, AssetState,
-    ILabelData, ILabel,
+    ILabelData, ILabel, AssetLabelingState
 } from "../models/applicationState";
 import { AssetProviderFactory, IAssetProvider } from "../providers/storage/assetProviderFactory";
 import { StorageProviderFactory, IStorageProvider } from "../providers/storage/storageProviderFactory";
@@ -16,6 +16,9 @@ import { strings, interpolate } from "../common/strings";
 import { sha256Hash } from "../common/crypto";
 import { toast } from "react-toastify";
 import allSettled from "promise.allsettled"
+import mime from 'mime';
+import FileType from 'file-type';
+import BrowserFileType from 'file-type/browser';
 
 const supportedImageFormats = {
     jpg: null, jpeg: null, null: null, png: null, bmp: null, tif: null, tiff: null, pdf: null,
@@ -65,9 +68,10 @@ export class AssetService {
     private getOcrFromAnalyzeResult(analyzeResult: any) {
         return _.get(analyzeResult, "analyzeResult.readResults", []);
     }
-    async uploadAssetPredictResult(asset: IAsset, readResults: any): Promise<void> {
+    getAssetPredictMetadata(asset: IAsset, predictResults: any) {
+        asset = JSON.parse(JSON.stringify(asset));
         const getBoundingBox = (pageIndex, arr: number[]) => {
-            const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(readResults)[pageIndex - 1];
+            const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(predictResults)[pageIndex - 1];
             const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
             const ocrWidth = ocrExtent[2] - ocrExtent[0];
             const ocrHeight = ocrExtent[3] - ocrExtent[1];
@@ -83,7 +87,7 @@ export class AssetService {
         const getLabelValues = (field: any) => {
             return field.elements.map((path: string) => {
                 const pathArr = path.split('/').slice(1);
-                const word = pathArr.reduce((obj: any, key: string) => obj[key], { ...readResults.analyzeResult });
+                const word = pathArr.reduce((obj: any, key: string) => obj[key], { ...predictResults.analyzeResult });
                 return {
                     page: field.page,
                     text: word.text || word.state,
@@ -92,59 +96,76 @@ export class AssetService {
                 };
             });
         };
-        const labels = [];
-        readResults.analyzeResult.documentResults
-            .map(result => Object.keys(result.fields)
-                .filter(key => result.fields[key])
-                .map<ILabel>(key => (
-                    {
-                        label: key,
-                        key: null,
-                        value: getLabelValues(result.fields[key])
-                    }))).forEach(items => {
-                        labels.push(...items);
-                    });
+        const labels =
+            predictResults.analyzeResult.documentResults
+                .map(result => Object.keys(result.fields)
+                    .filter(key => result.fields[key])
+                    .map<ILabel>(key => (
+                        {
+                            label: key,
+                            key: null,
+                            confidence: result.fields[key].confidence,
+                            value: getLabelValues(result.fields[key])
+                        }))).flat(2);
 
         if (labels.length > 0) {
             const fileName = decodeURIComponent(asset.name).split('/').pop();
             const labelData: ILabelData = {
                 document: fileName,
+                labelingState: AssetLabelingState.AutoLabeled,
                 labels
             };
-            const metadata = {
-                ...await this.getAssetMetadata(asset),
-                labelData
+            const metadata: IAssetMetadata = {
+                asset: { ...asset, labelingState: AssetLabelingState.AutoLabeled },
+                regions: [],
+                version: appInfo.version,
+                labelData,
             };
             metadata.asset.state = AssetState.Tagged;
-
-            const ocrData = JSON.parse(JSON.stringify(readResults));
-            delete ocrData.analyzeResult.documentResults;
-            if (ocrData.analyzeResult.errors) {
-                delete ocrData.analyzeResult.errors;
-            }
-            const ocrFileName = `${asset.name}${constants.ocrFileExtension}`;
-            await Promise.all([
-                this.save(metadata),
-                this.storageProvider.writeText(ocrFileName, JSON.stringify(ocrData, null, 2))
-            ]);
+            return metadata;
         }
         else {
-            const ocrData = { ...readResults };
-            delete ocrData.analyzeResult.documentResults;
-            if (ocrData.analyzeResult.errors) {
-                delete ocrData.analyzeResult.errors;
-            }
+            return null;
+        }
+    }
+    async uploadPredictResultAsOrcResult(asset: IAsset, predictResults: any): Promise<void> {
+        const ocrData = JSON.parse(JSON.stringify(predictResults));
+        delete ocrData.analyzeResult.documentResults;
+        if (ocrData.analyzeResult.errors) {
+            delete ocrData.analyzeResult.errors;
+        }
+        const ocrFileName = `${asset.name}${constants.ocrFileExtension}`;
+        await this.storageProvider.writeText(ocrFileName, JSON.stringify(ocrData, null, 2));
+    }
+
+    async syncAssetPredictResult(asset: IAsset, predictResults: any): Promise<IAssetMetadata> {
+        const assetMeatadata = this.getAssetPredictMetadata(asset, predictResults);
+        const ocrData = JSON.parse(JSON.stringify(predictResults));
+        delete ocrData.analyzeResult.documentResults;
+        if (ocrData.analyzeResult.errors) {
+            delete ocrData.analyzeResult.errors;
+        }
+        const ocrFileName = `${asset.name}${constants.ocrFileExtension}`;
+        if (assetMeatadata) {
+
+
+            await Promise.all([
+                this.save(assetMeatadata),
+                this.storageProvider.writeText(ocrFileName, JSON.stringify(ocrData, null, 2))
+            ]);
+            return assetMeatadata;
+        }
+        else {
             const labelFileName = decodeURIComponent(`${asset.name}${constants.labelFileExtension}`);
-            const ocrFileName = decodeURIComponent(`${asset.name}${constants.ocrFileExtension}`);
             try {
                 await Promise.all([
                     this.storageProvider.deleteFile(labelFileName, true, true),
                     this.storageProvider.writeText(ocrFileName, JSON.stringify(ocrData, null, 2))
                 ]);
+            } catch (err) {
+                // The label file may not exist - that's OK.
             }
-            catch{
-                return;
-            }
+            return null;
         }
     }
     /**
@@ -175,26 +196,42 @@ export class AssetService {
         // eslint-disable-next-line
         const extensionParts = fileNameParts[fileNameParts.length - 1].split(/[\?#]/);
         let assetFormat = extensionParts[0].toLowerCase();
-
+        let assetMimeType = mime.getType(assetFormat);
         if (supportedImageFormats.hasOwnProperty(assetFormat)) {
-            let types;
+            let checkFileType;
             let corruptFileName;
             if (nodejsMode) {
-                const FileType = require('file-type');
-                const fileType = await FileType.fromFile(normalizedPath);
-                types = [fileType.ext];
+                try {
+                    checkFileType = await FileType.fromFile(normalizedPath);
+                } catch {
+                    // do nothing
+                }
                 corruptFileName = fileName.split(/[\\\/]/).pop().replace(/%20/g, " ");
 
             } else {
-                types = await this.getMimeType(filePath);
+                try {
+                    const getFetchSteam = (): Promise<Response> => this.pollForFetchAPI(() => fetch(filePath), 1000, 200);
+                    const response = await getFetchSteam();
+                    checkFileType = await BrowserFileType.fromStream(response.body);
+                } catch {
+                    // do nothing
+                }
                 corruptFileName = fileName.split("%2F").pop().replace(/%20/g, " ");
             }
-            if (!types) {
+            let fileType;
+            let mimeType;
+            if (checkFileType) {
+                fileType = checkFileType.ext;
+                mimeType = checkFileType.mime;
+            }
+
+            if (!fileType) {
                 console.error(interpolate(strings.editorPage.assetWarning.incorrectFileExtension.failedToFetch, { fileName: corruptFileName.toLocaleUpperCase() }));
             }
-            // If file was renamed/spoofed - fix file extension to true MIME type and show message
-            else if (!types.includes(assetFormat)) {
-                assetFormat = types[0];
+            // If file was renamed/spoofed - fix file extension to true MIME if it's type is in supported file types and show message
+            else if (fileType !== assetFormat) {
+                assetFormat = fileType;
+                assetMimeType = mimeType;
                 console.error(`${strings.editorPage.assetWarning.incorrectFileExtension.attention} ${corruptFileName.toLocaleUpperCase()} ${strings.editorPage.assetWarning.incorrectFileExtension.text} ${corruptFileName.toLocaleUpperCase()}`);
             }
         }
@@ -209,6 +246,7 @@ export class AssetService {
             name: fileName,
             path: filePath,
             size: null,
+            mimeType: assetMimeType,
         };
     }
 
@@ -233,36 +271,6 @@ export class AssetService {
         }
     }
 
-    // If extension of a file was spoofed, we fetch only first 4 or needed amount of bytes of the file and read MIME type
-    public static async getMimeType(uri: string): Promise<string[]> {
-        const getFirst4bytes = (): Promise<Response> => this.pollForFetchAPI(() => fetch(uri, { headers: { range: `bytes=0-${mimeBytesNeeded}` } }), 1000, 200);
-        let first4bytes: Response;
-        try {
-            first4bytes = await getFirst4bytes()
-        } catch {
-            return new Promise<string[]>((resolve) => {
-                resolve(null);
-            });
-        }
-        const arrayBuffer: ArrayBuffer = await first4bytes.arrayBuffer();
-        const blob: Blob = new Blob([new Uint8Array(arrayBuffer).buffer]);
-        const isMime = (bytes: Uint8Array, mime: IMime): boolean => {
-            return mime.pattern.every((p, i) => !p || bytes[i] === p);
-        };
-        const fileReader: FileReader = new FileReader();
-
-        return new Promise<string[]>((resolve, reject) => {
-            fileReader.onloadend = (e) => {
-                if (!e || !fileReader.result) {
-                    return [];
-                }
-                const bytes: Uint8Array = new Uint8Array(fileReader.result as ArrayBuffer);
-                const type: string[] = imageMimes.filter((mime) => isMime(bytes, mime))?.[0]?.types;
-                resolve(type || []);
-            };
-            fileReader.readAsArrayBuffer(blob);
-        });
-    }
 
     private assetProviderInstance: IAssetProvider;
     private storageProviderInstance: IStorageProvider;
@@ -369,7 +377,7 @@ export class AssetService {
                 // The file may not exist - that's OK.
             }
         }
-        return metadata;
+        return JSON.parse(JSON.stringify(metadata));
     }
 
     /**
@@ -383,6 +391,11 @@ export class AssetService {
         try {
             const json = await this.storageProvider.readText(labelFileName, true);
             const labelData = JSON.parse(json) as ILabelData;
+
+            if (labelData) {
+                labelData.labelingState = labelData.labelingState || AssetLabelingState.ManuallyLabeled;
+                asset.labelingState = labelData.labelingState;
+            }
             // if (!labelData.document || !labelData.labels && !labelData.tableLabels) {
             //     const reason = interpolate(strings.errors.missingRequiredFieldInLabelFile.message, { labelFileName });
             //     toast.error(reason, { autoClose: false });
@@ -427,7 +440,7 @@ export class AssetService {
             // }
             // toast.dismiss();
             return {
-                asset: { ...asset },
+                asset: { ...asset, labelingState: labelData.labelingState },
                 regions: [],
                 version: appInfo.version,
                 labelData,

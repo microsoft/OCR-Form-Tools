@@ -111,6 +111,15 @@ export class LocalFileSystemProxy implements IStorageProvider, IAssetProvider {
     }
 
     /**
+     * check file is exists
+     * @param fileName Name of target file
+     */
+    public isFileExists(fileName: string): Promise<boolean> {
+        const filePath = [this.options.folderPath, fileName].join("/");
+        return IpcRendererProxy.send(`${PROXY_NAME}:isFileExists`, [filePath]);
+    }
+
+    /**
      * List directories inside another directory
      * @param folderName - Directory from which to list directories
      */

@@ -7,6 +7,7 @@ import { ITag, ILabel, FieldType, FieldFormat, TagInputMode } from "../../../../
 import { strings } from "../../../../common/strings";
 import TagInputItemLabel from "./tagInputItemLabel";
 import { tagIndexKeys } from "./tagIndexKeys";
+import _ from "lodash";
 
 export interface ITagClickProps {
     ctrlKey?: boolean;
@@ -43,6 +44,7 @@ export interface ITagInputItemProps {
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
     handleLabelTable: (tagInputMode: TagInputMode, selectedTableTagToLabel) => void;
     addRowToDynamicTable: () => void;
+    onTagDoubleClick?: (label:ILabel) => void;
 }
 
 export interface ITagInputItemState {
@@ -81,9 +83,14 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         const style: any = {
             background: this.props.tag.color,
         };
-
+        const confidence = _.get(this.props, "labels[0].confidence", null);
         return (
             <div className={"tag-item-block"}>
+                {confidence &&
+                    <div className="tag-item-confidence">
+                        {confidence}
+                    </div>
+                }
                 <div
                     className={"tag-color"}
                     style={style}
@@ -98,6 +105,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                             style={style}>
                             <div
                                 className={"tag-content pr-2"}
+                                onDoubleClick={this.onNameDoubleClick}
                                 onClick={this.onNameClick}>
                                 {this.getTagContent()}
                             </div>
@@ -141,6 +149,14 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         this.props.onClick(this.props.tag, { ctrlKey, altKey });
     }
 
+    private onNameDoubleClick = (e:MouseEvent) => {
+        e.stopPropagation();
+        const { labels } = this.props;
+        if (labels.length > 0) {
+            this.props.onTagDoubleClick(labels[0]);
+        }
+    }
+
     private getItemClassName = () => {
         const classNames = ["tag-item"];
         if (this.props.isSelected) {
@@ -165,20 +181,20 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                 <div className="tag-name-body">
                     {
                         this.state.isRenaming
-                        ?
-                        <input
-                            ref={this.onInputRef}
-                            className={`tag-name-editor ${this.getContentClassName()}`}
-                            type="text"
-                            defaultValue={this.props.tag.name}
-                            onKeyDown={(e) => this.onInputKeyDown(e)}
-                            onBlur={this.onInputBlur}
-                            autoFocus={true}
-                        />
-                        :
-                        <span title={this.props.tag.name} className={this.getContentClassName()}>
-                            {this.props.tag.name}
-                        </span>
+                            ?
+                            <input
+                                ref={this.onInputRef}
+                                className={`tag-name-editor ${this.getContentClassName()}`}
+                                type="text"
+                                defaultValue={this.props.tag.name}
+                                onKeyDown={(e) => this.onInputKeyDown(e)}
+                                onBlur={this.onInputBlur}
+                                autoFocus={true}
+                            />
+                            :
+                            <span title={this.props.tag.name} className={this.getContentClassName()}>
+                                {this.props.tag.name}
+                            </span>
                     }
                 </div>
                 <div className={"tag-icons-container"}>
@@ -192,7 +208,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                         title={strings.tags.toolbar.contextualMenu}
                         ariaLabel={strings.tags.toolbar.contextualMenu}
                         className="tag-input-toolbar-iconbutton ml-2"
-                        iconProps={{iconName: "ChevronDown"}}
+                        iconProps={{ iconName: "ChevronDown" }}
                         onClick={this.onDropdownClick} />
                 </div>
             </div>
@@ -276,7 +292,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
     }
 
     private isTypeOrFormatSpecified = () => {
-        const {tag} = this.props;
+        const { tag } = this.props;
         return (tag.type && tag.type !== FieldType.String) ||
             (tag.format && tag.format !== FieldFormat.NotSpecified);
     }
