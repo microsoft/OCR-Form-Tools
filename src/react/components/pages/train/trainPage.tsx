@@ -297,7 +297,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
     private handleTrainClick = () => {
         const assets = Object.values(this.props.project.assets)
-            .filter(asset => asset.labelingState === AssetLabelingState.AutoLabeling);
+            .filter(asset => asset.labelingState === AssetLabelingState.AutoLabeled);
         if (assets.length > 0) {
             this.notAdjustedLabelsConfirm.current.open();
         } else {
@@ -326,10 +326,10 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             const assetService = new AssetService(this.props.project);
             for (const asset of assets) {
                 const newAsset = JSON.parse(JSON.stringify(asset));
-                newAsset.labelingState = AssetLabelingState.Training;
+                newAsset.labelingState = AssetLabelingState.Trained;
                 const metadata = await assetService.getAssetMetadata(newAsset);
-                if (metadata.labelData && metadata.labelData.labelingState !== AssetLabelingState.Training) {
-                    metadata.labelData.labelingState = AssetLabelingState.Training;
+                if (metadata.labelData && metadata.labelData.labelingState !== AssetLabelingState.Trained) {
+                    metadata.labelData.labelingState = AssetLabelingState.Trained;
                     await assetService.save({ ...metadata });
                 }
             }
@@ -375,7 +375,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     private async train(): Promise<any> {
         const baseURL = url.resolve(
             this.props.project.apiUriBase,
-            constants.apiModelsPath,
+            interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) }),
         );
         const provider = this.props.project.sourceConnection.providerOptions as any;
         let trainSourceURL;
@@ -524,7 +524,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private async triggerJsonDownload(): Promise<any> {
-        const currModelUrl = this.props.project.apiUriBase + constants.apiModelsPath + "/" + this.state.currTrainRecord.modelInfo.modelId;
+        const currModelUrl = this.props.project.apiUriBase + interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) }) + "/" + this.state.currTrainRecord.modelInfo.modelId;
         const modelUrl = this.state.modelUrl.length ? this.state.modelUrl : currModelUrl;
         const modelJSON = await this.getModelsJson(this.props.project, modelUrl);
 

@@ -31,6 +31,11 @@
             "description": "API key",
             "type": "string"
         },
+        "apiVersion" : {
+            "title": "API version",
+            "description": "API version",
+            "type": "string"      
+        },
         "description": {
             "title": "${strings.common.description}",
             "type": "string"
