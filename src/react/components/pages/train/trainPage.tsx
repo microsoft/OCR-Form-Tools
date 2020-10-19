@@ -84,6 +84,8 @@ function mapDispatchToProps(dispatch) {
 export default class TrainPage extends React.Component<ITrainPageProps, ITrainPageState> {
     private appInsights: any = null;
     private notAdjustedLabelsConfirm: React.RefObject<Confirm> = React.createRef();
+    private isOnPrem: boolean = isElectron && this.props.project.sourceConnection.providerType === "localFileSystemProxy";
+
 
     constructor(props) {
         super(props);
@@ -122,9 +124,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         this.checkAndUpdateInputsInLocalStorage(this.props.project.id);
         this.appInsights = getAppInsights();
         document.title = strings.train.title + " - " + strings.appName;
-        if (isElectron && this.props.project.sourceConnection.providerType === "localFileSystemProxy") {
-            this.setState({ isOnPrem: true });
-        }
     }
 
     public render() {
@@ -343,7 +342,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         }).catch((err) => {
             this.setState({
                 isTraining: false,
-                trainMessage: this.state.isOnPrem ? strings.errors.onPremiseConnectionError : err.message,
+                trainMessage: this.isOnPrem ? strings.errors.onPremiseConnectionError : err.message,
             });
         });
         if (this.appInsights) {
@@ -369,7 +368,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         } catch (error) {
             this.setState({
                 showTrainingFailedWarning: true,
-                trainingFailedMessage: this.state.isOnPrem ? interpolate(strings.train.errors.electron.cantAccessFiles, { folderUri: this.state.inputtedLabelFolderURL }) :
+                trainingFailedMessage: this.isOnPrem ? interpolate(strings.train.errors.electron.cantAccessFiles, { folderUri: this.state.inputtedLabelFolderURL }) :
                     error?.message !== undefined
                     ? error.message : error,
             });
