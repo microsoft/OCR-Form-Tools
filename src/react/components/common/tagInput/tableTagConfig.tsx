@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 
 import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, SelectionMode, DetailsListLayoutMode, FontIcon, CheckboxVisibility, IContextualMenuItem, CommandBar, Selection, Separator, IObjectWithKey } from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme, getDefaultTheme } from '../../../../common/themes';
-import { FieldFormat, FieldType, IApplicationState, ITableRegion, ITableTag, ITag, TagInputMode } from '../../../../models/applicationState';
+import { FieldFormat, FieldType, IApplicationState, ITableRegion, ITableTag, ITag, TableElements, TagInputMode } from '../../../../models/applicationState';
 import { filterFormat } from "../../../../common/utils";
 import { toast } from "react-toastify";
 import "./tableTagConfig.scss";
@@ -49,23 +49,23 @@ interface ITableConfigItem {
 
 const tableFormatOptions: IChoiceGroupOption[] = [
     {
-        key: 'fixed',
+        key: FieldFormat.Fixed,
         text: 'fixed',
         iconProps: { iconName: 'Table' }
     },
     {
-        key: 'rowDynamic',
+        key: FieldFormat.RowDynamic,
         text: 'row-dynamic',
         iconProps: { iconName: 'InsertRowsBelow' }
     },
 ];
 const headersFormatAndTypeOptions: IChoiceGroupOption[] = [
     {
-        key: 'columns',
+        key: TableElements.columns,
         text: 'Column headers',
     },
     {
-        key: 'rows',
+        key: TableElements.rows,
         text: 'Row headers',
     },
 ];
@@ -84,7 +84,7 @@ const defaultTheme: ICustomizations = {
     scopedSettings: {},
 };
 
-const formatOptions = (type = "string") => {
+const formatOptions = (type = FieldType.String) => {
     const options = [];
     const formats = filterFormat(type)
     Object.entries(formats).forEach(([key, value]) => {
@@ -97,7 +97,7 @@ const formatOptions = (type = "string") => {
 const typeOptions = () => {
     const options = [];
     Object.entries(FieldType).forEach(([key, value]) => {
-        if (value !== "table") {
+        if (value !== FieldType.Table) {
             options.push({ key, text: value });
         }
     });
@@ -121,7 +121,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 format: FieldFormat.Fixed,
                 rows: props.tableTag.rowKeys?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat })),
                 columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat })),
-                headerTypeAndFormat: "columns",
+                headerTypeAndFormat: TableElements.columns,
             }
         } else {
             table = {
@@ -129,17 +129,17 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 format: FieldFormat.RowDynamic,
                 rows: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
                 columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat })),
-                headerTypeAndFormat: "columns",
+                headerTypeAndFormat: TableElements.columns,
             }
         }
 
     } else {
         table = {
             name: "",
-            format: "fixed",
+            format: FieldFormat.Fixed,
             rows: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
             columns: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
-            headerTypeAndFormat: "columns",
+            headerTypeAndFormat: TableElements.columns,
         };
     }
 
@@ -149,7 +149,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     const [columns, setColumns] = useState<ITableConfigItem[]>(table.columns);
     const [rows, setRows] = useState<ITableConfigItem[]>(table.rows);
     const [notUniqueNames, setNotUniqueNames] = useState<{ columns: [], rows: [], tags: boolean }>({ columns: [], rows: [], tags: false });
-    const [headersFormatAndType, setHeadersFormatAndType] = useState<string>("columns");
+    const [headersFormatAndType, setHeadersFormatAndType] = useState<string>(TableElements.columns);
     const [selectedColumn, setSelectedColumn] = useState<IObjectWithKey>(undefined);
     const [selectedRow, setSelectedRow] = useState<IObjectWithKey>(undefined);
     const [headerTypeAndFormat, setHeaderTypeAndFormat] = useState<string>(table.headerTypeAndFormat);
@@ -223,7 +223,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             fieldName: "format",
             minWidth: formatInputWidth,
             isResizable: false,
-            onRender: (row, index) => headersFormatAndType === "columns" ?
+            onRender: (row, index) => headersFormatAndType === TableElements.columns ?
                 <Customizer {...defaultTheme}>
                     <Dropdown
                         className="format_dropdown"
@@ -265,7 +265,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             fieldName: "type",
             minWidth: typeInputWidth,
             isResizable: false,
-            onRender: (row, index) => headersFormatAndType === "rows" ?
+            onRender: (row, index) => headersFormatAndType === TableElements.rows ?
                 <Customizer {...defaultTheme}>
                     <Dropdown
                         className="type_dropdown"
@@ -286,7 +286,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             fieldName: "format",
             minWidth: formatInputWidth,
             isResizable: false,
-            onRender: (row, index) => headersFormatAndType === "rows" ?
+            onRender: (row, index) => headersFormatAndType === TableElements.rows ?
                 <Customizer {...defaultTheme}>
                     <Dropdown
                         className="format_dropdown"
@@ -350,7 +350,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 iconOnly: true,
                 iconProps: { iconName: 'Up' },
                 onClick: (e) => {
-                    onReOrder(-1, "rows")
+                    onReOrder(-1, TableElements.rows)
                 },
                 disabled: !selectedRow || currSelectionIndex === 0,
             },
@@ -360,7 +360,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 iconOnly: true,
                 iconProps: { iconName: 'Down' },
                 onClick: (e) => {
-                    onReOrder(1, "rows")
+                    onReOrder(1, TableElements.rows)
                 },
                 disabled: !selectedRow! || currSelectionIndex === rows.length -1,
             },
@@ -405,7 +405,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 iconOnly: true,
                 iconProps: { iconName: 'Up' },
                 onClick: (e) => {
-                    onReOrder(-1, "columns")
+                    onReOrder(-1, TableElements.columns)
 
                 },
                 disabled: !selectedColumn || currSelectionIndex === 0,
@@ -416,7 +416,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 iconOnly: true,
                 iconProps: { iconName: 'Down' },
                 onClick: (e) => {
-                    onReOrder(1, "columns")
+                    onReOrder(1, TableElements.columns)
                 },
                 disabled: !selectedColumn || currSelectionIndex === columns.length -1,
             },
@@ -477,10 +477,10 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
     // check input names as you type[]
     useEffect(() => {
-        checkNameUniqueness(columns, "columns");
+        checkNameUniqueness(columns, TableElements.columns);
     }, [columns]);
     useEffect(() => {
-        checkNameUniqueness(rows, "rows");
+        checkNameUniqueness(rows, TableElements.rows);
     }, [rows]);
 
     useEffect(() => {
@@ -500,7 +500,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             headersFormatAndType
         }
         if (format === FieldFormat.Fixed) {
-            tableTagToAdd["rows"] = trimFieldNames(rows);
+            tableTagToAdd[TableElements.row] = trimFieldNames(rows);
         }
         addTableTag(tableTagToAdd);
         setTagInputMode(TagInputMode.Basic, null, null);
@@ -513,7 +513,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     function resetTypAndFormatAndSave(headersFormatAndType) {
         let newRows = rows;
         let newColumns = columns;
-        if (headersFormatAndType === "columns") {
+        if (headersFormatAndType === TableElements.columns) {
             newRows = rows.map((row) => {
                 return {
                     ...row,
@@ -521,7 +521,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     format: FieldFormat.NotSpecified,
                 }
             });
-        } else if (headersFormatAndType === "rows") {
+        } else if (headersFormatAndType === TableElements.rows) {
             newColumns = columns.map((col) => ({
                 ...col,
                 type: FieldType.String,
@@ -568,8 +568,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
     // reorder items
     function onReOrder(displacement: number, role: string) {
-        const items = role === "rows" ? [...rows] : [...columns];
-        const selection = role === "rows" ? rowSelection : columnSelection;
+        const items = role === TableElements.rows ? [...rows] : [...columns];
+        const selection = role === TableElements.rows ? rowSelection : columnSelection;
         const selectedIndex = selection.getSelectedIndices()[0];
         const itemToBeMoved = items[selectedIndex];
         const newIndex = selectedIndex + displacement;
@@ -580,7 +580,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         items.splice(selectedIndex, 1);
         items.splice(newIndex, 0, itemToBeMoved);
 
-        if (role === "rows") {
+        if (role === TableElements.rows) {
             rowSelection.setIndexSelected(newIndex, true, false);
             setRows(items);
         } else {
@@ -621,6 +621,19 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         }
         return tableBody
     };
+
+    const [scrolling, setScrolling] = useState(false);
+    const [scrollTop, setScrollTop] = useState(0);
+    useEffect(() => {
+        const onScroll = e => {
+          setScrollTop(e.target.documentElement.scrollTop);
+          setScrolling(e.target.documentElement.scrollTop > scrollTop);
+        };
+        window.addEventListener("scroll", onScroll);
+
+        return () => window.removeEventListener("scroll", onScroll);
+      }, [scrollTop]);
+
 
     function getTableTagNameErrorMessage(): string {
         if (props.tableTag && tableTagName.trim() === props.tableTag.name) {
@@ -664,7 +677,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                                     setHeadersFormatAndType("columns");
                                 }
                             }}
-                            defaultSelectedKey="fixed"
+                            defaultSelectedKey={FieldFormat.Fixed}
                             options={tableFormatOptions}
                             theme={getRightPaneDefaultButtonTheme()}
                         />
@@ -672,7 +685,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                             <h5 className="mt-4" >Configure type and format for:</h5>
                             <ChoiceGroup
                                 className="ml-12px type-format"
-                                defaultSelectedKey={"columns"}
+                                defaultSelectedKey={TableElements.columns}
                                 options={headersFormatAndTypeOptions}
                                 onChange={(e, option) => setHeadersFormatAndType(option.key)}
                                 required={false} />
@@ -724,7 +737,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                                 theme={getRightPaneDefaultButtonTheme()}
                                 compact={true}
                                 setKey="none"
-                                // selectionMode={SelectionMode.single}
                                 selection={rowSelection}
                                 layoutMode={DetailsListLayoutMode.justified}
                                 checkboxVisibility={CheckboxVisibility.always}

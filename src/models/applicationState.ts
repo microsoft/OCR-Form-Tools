@@ -469,6 +469,13 @@ export enum LabelType {
     DrawnRegion = "region"
 }
 
+export enum TableElements {
+    rows = "rows",
+    row = "row",
+    columns = "columns",
+    column = "columns",
+}
+
 export enum FieldFormat {
     NotSpecified = "not-specified",
     Currency = "currency",
