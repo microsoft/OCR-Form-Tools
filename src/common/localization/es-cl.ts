@@ -418,6 +418,7 @@ export const spanish: IAppStrings = {
                 confirmation: "¿Está seguro que quiere borrar esta etiqueta? Será borrada en todos \
                 los activos y en las regiones donde esta etiqueta sea la única, la region también será borrada",
             },
+            autoLabelingLevelToolTip: "Nivel de confianza de etiquetado automático"
         },
         canvas: {
             removeAllRegions: {

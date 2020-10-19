@@ -412,6 +412,7 @@ export interface IAppStrings {
                 title: string,
                 confirmation: string,
             },
+            autoLabelingLevelToolTip: string;
         }
         canvas: {
             removeAllRegions: {

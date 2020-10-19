@@ -2,12 +2,13 @@
 // Licensed under the MIT license.
 
 import React, { MouseEvent } from "react";
-import { FontIcon, IconButton } from "@fluentui/react";
+import { Customizer, FontIcon, IconButton, ICustomizations, TooltipHost } from "@fluentui/react";
 import { ITag, ILabel, FieldType, FieldFormat } from "../../../../models/applicationState";
 import { strings } from "../../../../common/strings";
 import TagInputItemLabel from "./tagInputItemLabel";
 import { tagIndexKeys } from "./tagIndexKeys";
 import _ from "lodash";
+import { getDarkGreyTheme, getDarkTheme } from "../../../../common/themes";
 
 export interface ITagClickProps {
     ctrlKey?: boolean;
@@ -16,6 +17,13 @@ export interface ITagClickProps {
     clickedColor?: boolean;
     clickedDropDown?: boolean;
 }
+
+const dark: ICustomizations = {
+    settings: {
+        theme: getDarkTheme(),
+    },
+    scopedSettings: {},
+};
 
 /**
  * Properties for tag input item
@@ -86,7 +94,14 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
             <div className={"tag-item-block"}>
                 {confidence &&
                     <div className="tag-item-confidence">
-                        {confidence}
+                        <Customizer {...dark}>
+                            <TooltipHost
+                                content={strings.editorPage.tags.autoLabelingLevelToolTip}
+                                id={`${this.props.tag.color}-${confidence}`}
+                            >
+                                {confidence}
+                            </TooltipHost>
+                        </Customizer>
                     </div>
                 }
                 <div

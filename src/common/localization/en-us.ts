@@ -417,6 +417,8 @@ export const english: IAppStrings = {
                 confirmation: "Are you sure you want to delete this tag? It will be deleted throughout all assets \
                 and any regions where this is the only tag will also be deleted",
             },
+            autoLabelingLevelToolTip: "Auto labeling confidence level",
+
         },
         canvas: {
             removeAllRegions: {
