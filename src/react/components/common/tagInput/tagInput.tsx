@@ -544,7 +544,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     focusTag(tag: string) {
         const tagItemRef = this.tagItemRefs.get(tag)?.getTagNameRef();
         if (tagItemRef) {
-            tagItemRef.current.scrollIntoView({behavior: "smooth"});
+            tagItemRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
             tagItemRef.current.classList.add("tag-item-highlight");
             setTimeout(() => {
                 tagItemRef.current.classList.remove("tag-item-highlight");
