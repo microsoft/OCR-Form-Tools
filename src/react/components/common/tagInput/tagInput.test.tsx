@@ -19,6 +19,7 @@ describe("Tag Input Component", () => {
     function createProps(tags?: ITag[], onChange?): ITagInputProps {
         return {
             tagsLoaded: true,
+            pageNumber: 1,
             tags: tags || MockFactory.createTestTags(),
             lockedTags: [],
             selectedRegions: [MockFactory.createTestRegion()],
