@@ -129,6 +129,10 @@ export interface IAppStrings {
         backEndNotAvailable: string,
         addName: string,
         downloadJson: string;
+        trainConfirm: {
+            title: string;
+            message: string;
+        },
         errors: {
             electron: {
                 cantAccessFiles: string;
@@ -242,6 +246,8 @@ export interface IAppStrings {
         }
         toolbar: {
             add: string,
+            onlyShowCurrentPageTags:string,
+            showAllTags:string,
             contextualMenu: string,
             delete: string,
             edit: string,
@@ -443,9 +449,13 @@ export interface IAppStrings {
                             runOcrOnCurrentDocument: string,
                             runOcrOnAllDocuments: string,
                             runAutoLabelingCurrentDocument: string,
+                            runAutoLabelingOnNotLabelingDocuments: string,
                             noPredictModelOnProject: string,
                         }
                     }
+                },
+                warings: {
+                    drawRegionUnsupportedAPIVersion: string,
                 }
             },
         },
@@ -547,6 +557,7 @@ export interface IAppStrings {
         projectInvalidSecurityToken: IErrorMetadata,
         projectUploadError: IErrorMetadata,
         projectDeleteError: IErrorMetadata,
+        projectDeleteErrorSecurityTokenNotFound: IErrorMetadata,
         projectNotFound: IErrorMetadata,
         genericRenderError: IErrorMetadata,
         securityTokenNotFound: IErrorMetadata,
@@ -571,6 +582,7 @@ export interface IAppStrings {
         modelCountLimitExceeded: IErrorMetadata,
         requestSendError: IErrorMetadata,
         modelNotFound: IErrorMetadata,
+        connectionNotExistError: IErrorMetadata,
         getOcrError: IErrorMetadata,
     };
     shareProject: {

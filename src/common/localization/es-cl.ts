@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { IAppStrings } from "../strings";
+import {IAppStrings} from "../strings";
 
 /*eslint-disable no-template-curly-in-string, no-multi-str*/
 
@@ -130,6 +130,10 @@ export const spanish: IAppStrings = {
         backEndNotAvailable: "La función de casilla de verificación funcionará en la versión futura del servicio de reconocimiento de formularios, manténgase atento.",
         addName: "Agregar nombre de modelo ...",
         downloadJson: "Descargar archivo JSON",
+        trainConfirm: {
+            title: "Etiquetas no revisadas todavía",
+            message: "Tiene archivos de etiquetas que aún no han sido revisados, ¿desea entrenar con esos archivos?"
+        },
         errors: {
             electron: {
                 cantAccessFiles: "No se puede acceder a los archivos en '${folderUri}' para entrenamiento. Compruebe si el URI de la carpeta especificada es correcto."
@@ -267,6 +271,8 @@ export const spanish: IAppStrings = {
         },
         toolbar: {
             add: "Agregar nueva etiqueta",
+            onlyShowCurrentPageTags: "Mostrar solo las etiquetas utilizadas en la página actual",
+            showAllTags: "Mostrar todas las etiquetas",
             contextualMenu: "Menú contextual",
             delete: "Borrar etiqueta",
             edit: "Editar etiqueta",
@@ -422,7 +428,7 @@ export const spanish: IAppStrings = {
             },
             canvasCommandBar: {
                 items: {
-                    layers:{
+                    layers: {
                         text: "Capas",
                         subMenuItems: {
                             text: "Texto",
@@ -448,10 +454,14 @@ export const spanish: IAppStrings = {
                         subIMenuItems: {
                             runOcrOnCurrentDocument: "Ejecutar OCR en el documento actual",
                             runOcrOnAllDocuments: "Ejecute OCR en todos los documentos",
-                            runAutoLabelingCurrentDocument: "Ejecutar AutoLabeling en el documento actual",
+                            runAutoLabelingCurrentDocument: "Etiquetar automáticamente el documento actual",
+                            runAutoLabelingOnNotLabelingDocuments: "Etiquetar automáticamente los siguientes ${batchSize} documentos sin etiquetar",
                             noPredictModelOnProject: "Predecir modelo no disponible, entrene el modelo primero.",
                         }
                     }
+                },
+                warings: {
+                    drawRegionUnsupportedAPIVersion: "Las regiones de dibujo no son compatibles con la versión de API ${apiVersion}. Será compatible con el lanzamiento de v2.1-preview.3",
                 }
             }
         },
@@ -481,7 +491,7 @@ export const spanish: IAppStrings = {
             keys: {
                 lessThan: "<",
                 greaterThan: ">",
-                },
+            },
             description: {
                 prevPage: "Ir a la página anterior en documentos de varias páginas",
                 nextPage: "Ir a la página siguiente en documentos de varias páginas",
@@ -492,7 +502,7 @@ export const spanish: IAppStrings = {
                 minus: "-",
                 plus: "=",
                 slash: "/",
-                },
+            },
             description: {
                 in: "Acercarse",
                 out: "Disminuir el zoom",
@@ -503,11 +513,11 @@ export const spanish: IAppStrings = {
             keys: {
                 delete: "Delete",
                 backSpace: "Backspace",
-                },
+            },
             description: {
                 delete: "Eliminar selección del mapa del documento o clave de selección de una etiqueta",
                 backSpace: "Eliminar selección del mapa del documento o clave de selección de una etiqueta",
-                },
+            },
         },
         drawnRegions: {
             keys: {
@@ -523,7 +533,7 @@ export const spanish: IAppStrings = {
         tips: {
             quickLabeling: {
                 name: "Etiquetado rápido",
-            description: "Las teclas de acceso rápido de 1 a 0 y todas las letras se asignan a las primeras 36 etiquetas, después de seleccionar una o varias palabras de los elementos de texto resaltados, al presionar estas teclas de acceso rápido, puede etiquetar las palabras seleccionadas.",
+                description: "Las teclas de acceso rápido de 1 a 0 y todas las letras se asignan a las primeras 36 etiquetas, después de seleccionar una o varias palabras de los elementos de texto resaltados, al presionar estas teclas de acceso rápido, puede etiquetar las palabras seleccionadas.",
             },
             renameTag: {
                 name: "Rename Tag",
@@ -574,6 +584,10 @@ export const spanish: IAppStrings = {
             title: "Error al eliminar el proyecto",
             message: `Se ha producido un error al eliminar el proyecto.
                 Validar el archivo de proyecto y el token de seguridad existen e inténtelo de nuevo`,
+        },
+        projectDeleteErrorSecurityTokenNotFound: {
+            title: 'No se encontró el token de seguridad al eliminar el proyecto',
+            message: "Token de seguridad no encontrado. El proyecto [$ {project.name}] se ha eliminado de la herramienta FoTT."
         },
         projectNotFound: {
             title: "",
@@ -671,6 +685,10 @@ export const spanish: IAppStrings = {
         modelNotFound: {
             title: "Modelo no encontrado",
             message: "Modelo \"${modelID}\" no encontrado. Por favor use otro modelo.",
+        },
+        connectionNotExistError: {
+            title: "La conexión no existe",
+            message: "La conexión no existe."
         },
         getOcrError: {
             title: "No se puede cargar el archivo OCR",

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { IAppStrings } from "../strings";
+import {IAppStrings} from "../strings";
 
 /*eslint-disable no-template-curly-in-string, no-multi-str*/
 
@@ -129,6 +129,10 @@ export const english: IAppStrings = {
         backEndNotAvailable: "Checkbox feature will work in future version of Form Recognizer service, please stay tuned.",
         addName: "Add a model name...",
         downloadJson: "Download JSON file",
+        trainConfirm: {
+            title: "Labels not revised yet",
+            message: "You have label files not yet revised, do you want to train with those files?"
+        },
         errors: {
             electron: {
                 cantAccessFiles: "Cannot access files in '${folderUri}' for training. Please check if specified folder URI is correct."
@@ -145,7 +149,7 @@ export const english: IAppStrings = {
         composing: "Model is composing, please wait...",
         column: {
             icon: {
-                name:"Composed Icon",
+                name: "Composed Icon",
             },
             id: {
                 headerName: "Model Id",
@@ -209,7 +213,7 @@ export const english: IAppStrings = {
         defaultURLInput: "Paste or type URL...",
         editAndUploadToTrainingSet: "Edit & upload to training set",
         editAndUploadToTrainingSetNotify: "by clicking on this button, this form will be added to this project, where you can edit these labels.",
-        editAndUploadToTrainingSetNotify2: "We are adding this file to your training set, where you could edit the labels and re-train the model.",
+        editAndUploadToTrainingSetNotify2: "We are adding this file to your training set, where you can edit the labels and re-train the model.",
         uploadInPrgoress: "Upload in progress...",
         confirmDuplicatedAssetName: {
             title: "Asset name exists",
@@ -268,6 +272,8 @@ export const english: IAppStrings = {
         },
         toolbar: {
             add: "Add new tag",
+            onlyShowCurrentPageTags: "Only show tags used in current page",
+            showAllTags: "Show all tags",
             contextualMenu: "Contextual Menu",
             delete: "Delete tag",
             edit: "Edit tag",
@@ -447,10 +453,14 @@ export const english: IAppStrings = {
                         subIMenuItems: {
                             runOcrOnCurrentDocument: "Run OCR on current document",
                             runOcrOnAllDocuments: "Run OCR on all documents",
-                            runAutoLabelingCurrentDocument: "Run AutoLabeling on current document",
+                            runAutoLabelingCurrentDocument: "Auto-label the current document",
+                            runAutoLabelingOnNotLabelingDocuments: "Auto-label next ${batchSize} unlabeled documents",
                             noPredictModelOnProject: "Predict model not avaliable, please train the model first.",
                         }
                     }
+                },
+                warings: {
+                    drawRegionUnsupportedAPIVersion: "Region labeling is not supported with API ${apiVersion}. It will be supported with the release of v2.1-preview.3",
                 }
             }
         },
@@ -480,7 +490,7 @@ export const english: IAppStrings = {
             keys: {
                 lessThan: "<",
                 greaterThan: ">",
-                },
+            },
             description: {
                 prevPage: "Go to previous page",
                 nextPage: "Go to next page",
@@ -491,7 +501,7 @@ export const english: IAppStrings = {
                 minus: "-",
                 plus: "=",
                 slash: "/",
-                },
+            },
             description: {
                 in: "Zoom in",
                 out: "Zoom out",
@@ -502,11 +512,11 @@ export const english: IAppStrings = {
             keys: {
                 delete: "Delete",
                 backSpace: "Backspace",
-                },
+            },
             description: {
                 delete: "Remove selection and delete labels of selected words",
                 backSpace: "Remove selection and delete labels of selected words",
-                },
+            },
         },
         drawnRegions: {
             keys: {
@@ -522,7 +532,7 @@ export const english: IAppStrings = {
         tips: {
             quickLabeling: {
                 name: "Lable with hot keys",
-            description: "Hotkeys 1 through 0 and all letters are assigned to first 36 tags. After selecting one or multiple words, press tag's assigned hotkey.",
+                description: "Hotkeys 1 through 0 and all letters are assigned to first 36 tags. After selecting one or multiple words, press tag's assigned hotkey.",
             },
             renameTag: {
                 name: "Rename tag",
@@ -574,6 +584,10 @@ export const english: IAppStrings = {
             title: "Error deleting project",
             message: `An error occured while deleting the project.
                 Validate the project file and security token exist and try again`,
+        },
+        projectDeleteErrorSecurityTokenNotFound: {
+            title: "Security token not found when delete project",
+            message: "Security Token Not Found. Project [${project.name}] has been removed from FoTT tool."
         },
         projectNotFound: {
             title: "Error loading project",
@@ -671,6 +685,10 @@ export const english: IAppStrings = {
         modelNotFound: {
             title: "Model not found",
             message: "Model \"${modelID}\" not found. Please use another model.",
+        },
+        connectionNotExistError: {
+            title: "Connection doesn't exist",
+            message: "Connection doesn't exist."
         },
         getOcrError: {
             title: "Cannot load OCR file",

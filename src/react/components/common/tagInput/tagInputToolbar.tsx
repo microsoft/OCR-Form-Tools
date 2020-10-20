@@ -2,14 +2,15 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { IconButton } from "@fluentui/react";
-import { strings } from "../../../../common/strings";
-import { ITag } from "../../../../models/applicationState";
+import {IconButton} from "@fluentui/react";
+import {strings} from "../../../../common/strings";
+import {ITag} from "../../../../models/applicationState";
 
 enum Categories {
     General,
     Separator,
-    Modifier,
+    RenameModifier,
+    MoveModifier,
 }
 
 /** Properties for tag input toolbar */
@@ -28,6 +29,8 @@ export interface ITagInputToolbarProps {
     onDelete: (tag: ITag) => void;
     /** Function to call when one of the re-order buttons is clicked */
     onReorder: (tag: ITag, displacement: number) => void;
+    onOnlyCurrentPageTags: (onlyCurrentPageTags: boolean) => void;
+    searchingTags: boolean;
 }
 
 interface ITagInputToolbarItemProps {
@@ -38,7 +41,15 @@ interface ITagInputToolbarItemProps {
     accelerators?: string[];
 }
 
-export default class TagInputToolbar extends React.Component<ITagInputToolbarProps> {
+interface ITagInputToolbarItemState {
+    tagFilterToggled: boolean;
+}
+
+export default class TagInputToolbar extends React.Component<ITagInputToolbarProps, ITagInputToolbarItemState> {
+    state = {
+        tagFilterToggled: false,
+    };
+
     public render() {
         return (
             <div className="tag-input-toolbar">
@@ -56,6 +67,12 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
                 handler: this.handleAdd,
             },
             {
+                displayName: this.state.tagFilterToggled ? strings.tags.toolbar.showAllTags : strings.tags.toolbar.onlyShowCurrentPageTags,
+                icon: this.state.tagFilterToggled ? "ClearFilter" : "Filter",
+                category: Categories.General,
+                handler: this.handleOnlyCurrentPageTags,
+            },
+            {
                 displayName: strings.tags.toolbar.search,
                 icon: "Search",
                 category: Categories.General,
@@ -68,40 +85,46 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
             {
                 displayName: strings.tags.toolbar.rename,
                 icon: "Rename",
-                category: Categories.Modifier,
+                category: Categories.RenameModifier,
                 handler: this.handleRename,
             },
             {
                 displayName: strings.tags.toolbar.moveUp,
                 icon: "Up",
-                category: Categories.Modifier,
+                category: Categories.MoveModifier,
                 handler: this.handleMoveUp,
             },
             {
                 displayName: strings.tags.toolbar.moveDown,
                 icon: "Down",
-                category: Categories.Modifier,
+                category: Categories.MoveModifier,
                 handler: this.handleMoveDown,
             },
             {
                 displayName: strings.tags.toolbar.delete,
                 icon: "Delete",
-                category: Categories.Modifier,
+                category: Categories.MoveModifier,
                 handler: this.handleDelete,
             },
         ];
     }
 
     private renderItems = () => {
-        const modifierDisabled = !this.props.selectedTag;
-        const modifierClassNames = ["tag-input-toolbar-iconbutton"];
-        if (modifierDisabled) {
-            modifierClassNames.push("tag-input-toolbar-iconbutton-disabled");
+        const moveModifierDisabled = !this.props.selectedTag || this.props.searchingTags;
+        const renameModifierDisabled = !this.props.selectedTag;
+        const moveModifierClassNames = [ "tag-input-toolbar-iconbutton" ];
+        const renameModifierClassNames = [ "tag-input-toolbar-iconbutton" ];
+        if (moveModifierDisabled) {
+            moveModifierClassNames.push("tag-input-toolbar-iconbutton-disabled");
+        }
+        if (renameModifierDisabled) {
+            renameModifierClassNames.push("tag-input-toolbar-iconbutton-disabled");
         }
 
-        const modifierClassName = modifierClassNames.join(" ");
+        const moveModifierClassName = moveModifierClassNames.join(" ");
+        const renameModifierClassName = renameModifierClassNames.join(" ");
 
-        return(
+        return (
             this.getToolbarItems().map((itemConfig, index) => {
                 if (itemConfig.category === Categories.General) {
                     return (
@@ -116,14 +139,25 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
                     );
                 } else if (itemConfig.category === Categories.Separator) {
                     return (<div className="tag-input-toolbar-separator" key={itemConfig.displayName}></div>);
-                } else if (itemConfig.category === Categories.Modifier) {
+                } else if (itemConfig.category === Categories.RenameModifier) {
                     return (
                         <IconButton
                             key={itemConfig.displayName}
-                            disabled={modifierDisabled}
+                            disabled={renameModifierDisabled}
                             title={itemConfig.displayName}
                             ariaLabel={itemConfig.displayName}
-                            className={modifierClassName}
+                            className={renameModifierClassName}
+                            iconProps={{iconName: itemConfig.icon}}
+                            onClick={(e) => this.onToolbarItemClick(e, itemConfig)} />
+                    );
+                } else if (itemConfig.category === Categories.MoveModifier) {
+                    return (
+                        <IconButton
+                            key={itemConfig.displayName}
+                            disabled={moveModifierDisabled}
+                            title={itemConfig.displayName}
+                            ariaLabel={itemConfig.displayName}
+                            className={moveModifierClassName}
                             iconProps={{iconName: itemConfig.icon}}
                             onClick={(e) => this.onToolbarItemClick(e, itemConfig)} />
                     );
@@ -141,6 +175,12 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
 
     private handleAdd = () => {
         this.props.onAddTags();
+    }
+    private handleOnlyCurrentPageTags = () => {
+        this.setState({tagFilterToggled: !this.state.tagFilterToggled}, () => {
+            this.props.onOnlyCurrentPageTags(this.state.tagFilterToggled);
+        });
+
     }
 
     private handleSearch = () => {

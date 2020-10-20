@@ -22,6 +22,7 @@ export const reducer = (state: IProject[] = [], action: AnyAction): IProject[] =
     let newState: IProject[] = null;
 
     switch (action.type) {
+        case ActionTypes.LOAD_PROJECT_SUCCESS:
         case ActionTypes.SAVE_PROJECT_SUCCESS:
             return [
                 { ...action.payload },
@@ -38,6 +39,9 @@ export const reducer = (state: IProject[] = [], action: AnyAction): IProject[] =
                 return updatedProject;
             });
             return newState;
+        case ActionTypes.UPDATE_TAG_LABEL_COUNTS_SUCCESS:
+            return [{ ...action.payload },
+            ...state.filter(project => project.id !== action.payload.id)];
         default:
             return state;
     }

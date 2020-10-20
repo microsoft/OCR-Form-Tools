@@ -13,7 +13,7 @@ import { strings, interpolate } from "../../../../common/strings";
 import {
     AssetState, AssetType, EditorMode, FieldType,
     IApplicationState, IAppSettings, IAsset, IAssetMetadata,
-    ILabel, IProject, IRegion, ISize, ITag, FeatureCategory, FieldFormat,
+    ILabel, IProject, IRegion, ISize, ITag, FeatureCategory, FieldFormat, AssetLabelingState,
 } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -87,6 +87,7 @@ export interface IEditorPageState {
     hoveredLabel: ILabel;
     /** Whether the task for loading all OCRs is running */
     isRunningOCRs?: boolean;
+    isRunningAutoLabelings?: boolean;
     /** Whether OCR is running in the main canvas */
     isCanvasRunningOCR?: boolean;
     isCanvasRunningAutoLabeling?: boolean;
@@ -95,6 +96,7 @@ export interface IEditorPageState {
     errorMessage?: string;
     tableToView: object;
     tableToViewId: string;
+    pageNumber: number;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -131,6 +133,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         hoveredLabel: null,
         tableToView: null,
         tableToViewId: null,
+        pageNumber: 1
     };
 
     private tagInputRef: RefObject<TagInput>;
@@ -265,6 +268,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             onAssetMetadataChanged={this.onAssetMetadataChanged}
                                             onCanvasRendered={this.onCanvasRendered}
                                             onSelectedRegionsChanged={this.onSelectedRegionsChanged}
+                                            onRegionDoubleClick={this.onRegionDoubleClick}
                                             onRunningOCRStatusChanged={this.onCanvasRunningOCRStatusChanged}
                                             onRunningAutoLabelingStatusChanged={this.onCanvasRunningAutoLabelingStatusChanged}
                                             onTagChanged={this.onTagChanged}
@@ -276,6 +280,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             setTableToView={this.setTableToView}
                                             closeTableView={this.closeTableView}
                                             runOcrForAllDocs={this.loadOcrForNotVisited}
+                                            onPageLoaded={this.onPageLoaded}
+                                            runAutoLabelingOnNextBatch={this.runAutoLabelingOnNextBatch}
                                             appSettings={this.props.appSettings}
                                         >
                                             <AssetPreview
@@ -293,6 +299,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     lockedTags={this.state.lockedTags}
                                     selectedRegions={this.state.selectedRegions}
                                     labels={labels}
+                                    pageNumber={this.state.pageNumber}
                                     onChange={this.onTagsChanged}
                                     onLockedTagsChange={this.onLockedTagsChanged}
                                     onTagClick={this.onTagClicked}
@@ -302,6 +309,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     onLabelEnter={this.onLabelEnter}
                                     onLabelLeave={this.onLabelLeave}
                                     onTagChanged={this.onTagChanged}
+                                    onTagDoubleClick={this.onLabelDoubleClicked}
                                     ref={this.tagInputRef}
                                 />
                                 <Confirm
@@ -539,28 +547,29 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      */
     private onAssetMetadataChanged = async (assetMetadata: IAssetMetadata): Promise<void> => {
         // Comment out below code as we allow regions without tags, it would make labeler's work easier.
-
+        assetMetadata = JSON.parse(JSON.stringify(assetMetadata));
         const initialState = assetMetadata.asset.state;
 
         const asset = { ...assetMetadata.asset };
 
-        if (this.isTaggableAssetType(assetMetadata.asset)) {
-            assetMetadata.asset.state = _.get(assetMetadata, "labelData.labels.length", 0) > 0 ?
+        if (this.isTaggableAssetType(asset)) {
+            asset.state = _.get(assetMetadata, "labelData.labels.length", 0) > 0 ?
                 AssetState.Tagged :
                 AssetState.Visited;
-        } else if (assetMetadata.asset.state === AssetState.NotVisited) {
-            assetMetadata.asset.state = AssetState.Visited;
+        } else if (asset.state === AssetState.NotVisited) {
+            asset.state = AssetState.Visited;
         }
 
         // Only update asset metadata if state changes or is different
-        if (initialState !== assetMetadata.asset.state || this.state.selectedAsset !== assetMetadata) {
+        if (initialState !== asset.state || this.state.selectedAsset !== assetMetadata) {
             if (this.state.selectedAsset.labelData && this.state.selectedAsset.labelData.labels &&
                 assetMetadata.labelData && assetMetadata.labelData.labels &&
                 assetMetadata.labelData.labels.toString() !== this.state.selectedAsset.labelData.labels.toString()) {
                 await this.updatedAssetMetadata(assetMetadata);
             }
+            assetMetadata.asset = asset;
             await this.props.actions.saveAssetMetadata(this.props.project, assetMetadata);
-            if (this.props.project.lastVisitedAssetId === assetMetadata.asset.id) {
+            if (this.props.project.lastVisitedAssetId === asset.id) {
                 this.setState({ selectedAsset: assetMetadata });
             }
         }
@@ -569,6 +578,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         // This forces the root assets that are displayed in the sidebar to
         // accurately show their correct state (not-visited, visited or tagged)
         const assets = [...this.state.assets];
+        // const asset = { ...assetMetadata.asset };
         const assetIndex = assets.findIndex((a) => a.id === asset.id);
         if (assetIndex > -1) {
             assets[assetIndex] = {
@@ -607,6 +617,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private onSelectedRegionsChanged = (selectedRegions: IRegion[]) => {
         this.setState({ selectedRegions });
     }
+    private onRegionDoubleClick = (region: IRegion) => {
+        if (region.tags?.length > 0) {
+            this.tagInputRef.current.focusTag(region.tags[0]);
+        }
+    }
 
     private onTagsChanged = async (tags) => {
         const project = {
@@ -614,6 +629,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             tags,
         };
         await this.props.actions.saveProject(project, true, false);
+    }
+
+    private onPageLoaded = async (pageNumber: number) => {
+        this.setState({ pageNumber });
     }
 
     private onLockedTagsChanged = (lockedTags: string[]) => {
@@ -639,6 +658,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             return;
         }
         if (this.state.isCanvasRunningAutoLabeling) {
+            return;
+        }
+        if (this.state.isRunningAutoLabelings) {
             return;
         }
 
@@ -720,11 +742,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                         const asset = this.state.assets.find((asset) => asset.id === assetId);
                         if (asset && (asset.state === AssetState.NotVisited || runForAll)) {
                             try {
-                                this.updateAssetState(asset.id, true);
-                                await ocrService.getRecognizedText(asset.path, asset.name, undefined, runForAll);
-                                this.updateAssetState(asset.id, false, AssetState.Visited);
+                                this.updateAssetState({ id: asset.id, isRunningOCR: true });
+                                await ocrService.getRecognizedText(asset.path, asset.name, asset.mimeType, undefined, runForAll);
+                                this.updateAssetState({ id: asset.id, isRunningOCR: false, assetState: AssetState.Visited });
                             } catch (err) {
-                                this.updateAssetState(asset.id, false);
+                                this.updateAssetState({ id: asset.id, isRunningOCR: false });
                                 this.setState({
                                     isError: true,
                                     errorTitle: err.title,
@@ -739,23 +761,84 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             }
         }
     }
+    private runAutoLabelingOnNextBatch = async () => {
+        if (this.isBusy()) {
+            return;
+        }
+        const { project } = this.props;
+        const predictService = new PredictService(project);
+        const assetService = new AssetService(project);
 
-    private updateAssetState = (id: string, isRunningOCR: boolean, assetState?: AssetState) => {
+        if (this.state.assets) {
+            this.setState({ isRunningAutoLabelings: true });
+            const unlabeledAssetsBatch = [];
+            for (let i = 0; i < this.state.assets.length && unlabeledAssetsBatch.length < constants.autoLabelBatchSize; i++) {
+                const asset = this.state.assets[i];
+                if (asset.state === AssetState.NotVisited || asset.state === AssetState.Visited) {
+                    unlabeledAssetsBatch.push(asset);
+                }
+            }
+            try {
+                await throttle(constants.maxConcurrentServiceRequests,
+                    unlabeledAssetsBatch,
+                    async (asset) => {
+                        try {
+                            this.updateAssetState({ id: asset.id, isRunningAutoLabeling: true });
+                            const predictResult = await predictService.getPrediction(asset.path);
+                            const assetMetadata = await assetService.getAssetPredictMetadata(asset, predictResult);
+                            await assetService.uploadPredictResultAsOrcResult(asset, predictResult);
+                            this.onAssetMetadataChanged(assetMetadata);
+                            this.updateAssetState({
+                                id: asset.id, isRunningAutoLabeling: false,
+                                assetState: AssetState.Tagged,
+                                labelingState: AssetLabelingState.AutoLabeled,
+                            });
+                            this.props.actions.updatedAssetMetadata(this.props.project, assetMetadata);
+                        } catch (err) {
+                            this.updateAssetState({ id: asset.id, isRunningOCR: false, isRunningAutoLabeling: false });
+                            this.setState({
+                                isError: true,
+                                errorTitle: err.title,
+                                errorMessage: err.message
+                            })
+                        }
+                    }
+                );
+
+            } finally {
+                this.setState({ isRunningAutoLabelings: false });
+            }
+        }
+    }
+
+    private updateAssetState = (newState: {
+        id: string,
+        isRunningOCR?: boolean,
+        isRunningAutoLabeling?: boolean,
+        assetState?: AssetState,
+        labelingState?: AssetLabelingState
+    }) => {
         this.setState((state) => ({
             assets: state.assets.map((asset) => {
-                if (asset.id === id) {
-                    const updatedAsset = { ...asset, isRunningOCR };
-                    if (assetState !== undefined && asset.state === AssetState.NotVisited) {
-                        updatedAsset.state = assetState;
+                if (asset.id === newState.id) {
+                    const updatedAsset = { ...asset, isRunningOCR: newState.isRunningOCR || false };
+                    if (newState.assetState !== undefined && asset.state === AssetState.NotVisited) {
+                        updatedAsset.state = newState.assetState;
+                    }
+                    if (newState.labelingState) {
+                        updatedAsset.labelingState = newState.labelingState;
+                    }
+                    if (newState.isRunningAutoLabeling !== undefined) {
+                        updatedAsset.isRunningAutoLabeling = newState.isRunningAutoLabeling;
                     }
                     return updatedAsset;
                 } else {
                     return asset;
                 }
-            }),
+            })
         }), () => {
-            if (this.state.selectedAsset && id === this.state.selectedAsset.asset.id) {
-                const asset = this.state.assets.find((asset) => asset.id === id);
+            const asset = this.state.assets.find((asset) => asset.id === newState.id);
+            if (this.state.selectedAsset && newState.id === this.state.selectedAsset.asset.id) {
                 if (asset) {
                     this.setState({
                         selectedAsset: { ...this.state.selectedAsset, asset: { ...asset } },
@@ -772,22 +855,54 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const updatedAssets = [...this.state.assets];
         let needUpdate = false;
         updatedAssets.forEach((asset) => {
-            const projectAsset = _.get(this.props, "project.assets[asset.id]", null);
+            const projectAsset = _.get(this.props, `project.assets[${asset.id}]`, null);
             if (projectAsset) {
-                if (asset.state !== projectAsset.state) {
+                if (asset.state !== projectAsset.state || asset.labelingState !== projectAsset.labelingState) {
                     needUpdate = true;
                     asset.state = projectAsset.state;
+                    asset.labelingState = projectAsset.labelingState;
                 }
             }
         });
 
         if (needUpdate) {
             this.setState({ assets: updatedAssets });
+            if (this.state.selectedAsset) {
+                const asset = this.state.selectedAsset.asset;
+                const currentAsset = _.get(this.props, `project.assets[${this.state.selectedAsset.asset.id}]`, null);
+                if (asset.state !== currentAsset.state || asset.labelingState !== currentAsset.labelingState) {
+                    this.updateSelectAsset(asset);
+                }
+            }
         }
     }
 
+    private updateSelectAsset = async (asset: IAsset) => {
+        const assetMetadata = await this.props.actions.loadAssetMetadata(this.props.project, asset);
+
+        try {
+            if (!assetMetadata.asset.size) {
+                const assetProps = await HtmlFileReader.readAssetAttributes(asset);
+                assetMetadata.asset.size = { width: assetProps.width, height: assetProps.height };
+            }
+        } catch (err) {
+            console.warn("Error computing asset size");
+        }
+        this.setState({
+            tableToView: null,
+            tableToViewId: null,
+            selectedAsset: assetMetadata,
+        }, async () => {
+            await this.onAssetMetadataChanged(assetMetadata);
+            await this.props.actions.saveProject(this.props.project, false, false);
+        });
+    }
     private onLabelEnter = (label: ILabel) => {
         this.setState({ hoveredLabel: label });
+    }
+
+    private onLabelDoubleClicked = (label:ILabel) =>{
+        this.canvas.current.focusOnLabel(label);
     }
 
     private onLabelLeave = (label: ILabel) => {

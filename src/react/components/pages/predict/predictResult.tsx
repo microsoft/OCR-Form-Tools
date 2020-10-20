@@ -127,7 +127,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                     }
                 </div>
                 <div className={"predictiontag-confidence"}>
-                    <span>{item.confidence}</span>
+                    <span>{(item.confidence * 100).toFixed(2)+"%" }</span>
                 </div>
             </div>
         );

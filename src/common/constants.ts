@@ -3,7 +3,8 @@
 
 import { appInfo } from "./appInfo"
 
-const appVersionArr = appInfo.version.split(".");
+const appVersionRaw = appInfo.version
+const appVersionArr = appVersionRaw.split(".");
 appVersionArr[1] = appVersionArr[1] + "-preview";
 const appVersion = appVersionArr.join(".");
 
@@ -14,6 +15,7 @@ const apiVersion = "v2.1-preview.1";
  */
 export const constants = {
     version: "pubpreview_1.0",
+    appVersionRaw,
     appVersion,
     apiVersion,
     projectFormTempKey: "projectForm",
@@ -35,6 +37,7 @@ export const constants = {
     convertedThumbnailQuality: 0.2,
     recentModelRecordsCount: 5,
     apiModelsPath: `/formrecognizer/${apiVersion}/custom/models`,
+    autoLabelBatchSize: 10,
 
     pdfjsWorkerSrc(version: string) {
         return `https://fotts.azureedge.net/npm/pdfjs-dist/${version}/pdf.worker.js`;
