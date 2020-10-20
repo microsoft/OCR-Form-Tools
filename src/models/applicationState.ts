@@ -486,8 +486,8 @@ export enum FieldFormat {
     DMY = "dmy",
     MDY = "mdy",
     YMD = "ymd",
-    Fixed = "fixed",
-    RowDynamic = "rowDynamic",
+    Fixed = "fixed-sized",
+    RowDynamic = "row-dynamic",
 }
 
 export enum FeatureCategory {
