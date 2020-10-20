@@ -284,10 +284,16 @@ export const spanish: IAppStrings = {
             },
             tableLabeling: {
                 title: "Tabla de etiquetas",
-                description: "Para comenzar a etiquetar su tabla, primero haga clic en el contenido del documento que le gustaría capturar y luego en la celda en la que le gustaría almacenar ese contenido.",
+                tableName: "Nombre de la tabla",
+                description: {
+                    title: "Para comenzar a etiquetar su mesa:",
+                    stepOne: "Seleccione las palabras del documento que desea etiquetar",
+                    stepTwo: "Haga clic en la celda de la tabla a la que desea etiquetar las palabras seleccionadas",
+                },
                 buttons: {
                     done: "Hecho",
                     reconfigureTable: "Reconfigurar la tabla",
+                    addRow: "Añadir fila"
                 }
             },
             confirm: {
