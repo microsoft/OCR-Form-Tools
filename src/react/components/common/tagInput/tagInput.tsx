@@ -720,7 +720,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     iconName: "EditTable",
                 },
                 text: strings.tags.regionTableTags.tableLabeling.buttons.reconfigureTable,
-                onClick: () => this.props.setTagInputMode(TagInputMode.ConfigureTable)
+                onClick: () => this.props.setTagInputMode(TagInputMode.ConfigureTable, tag as ITableTag),
             },
             {
                 key: "divider_1",
