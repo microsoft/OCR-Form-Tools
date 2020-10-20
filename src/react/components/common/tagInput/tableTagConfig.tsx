@@ -2,11 +2,10 @@
 // Licensed under the MIT license.
 import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-
 import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, SelectionMode, DetailsListLayoutMode, FontIcon, CheckboxVisibility, IContextualMenuItem, CommandBar, Selection, Separator, IObjectWithKey } from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme, getDefaultTheme } from '../../../../common/themes';
 import { FieldFormat, FieldType, IApplicationState, ITableRegion, ITableTag, ITag, TableElements, TagInputMode } from '../../../../models/applicationState';
-import { filterFormat } from "../../../../common/utils";
+import { filterFormat, useDebounce } from "../../../../common/utils";
 import { toast } from "react-toastify";
 import "./tableTagConfig.scss";
 import { strings } from "../../../../common/strings";
@@ -152,7 +151,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     const [headersFormatAndType, setHeadersFormatAndType] = useState<string>(TableElements.columns);
     const [selectedColumn, setSelectedColumn] = useState<IObjectWithKey>(undefined);
     const [selectedRow, setSelectedRow] = useState<IObjectWithKey>(undefined);
-    const [headerTypeAndFormat, setHeaderTypeAndFormat] = useState<string>(table.headerTypeAndFormat);
+    // const [headerTypeAndFormat, setHeaderTypeAndFormat] = useState<string>(table.headerTypeAndFormat);
 
     function selectColumnType(idx: number, type: string) {
         setColumns(columns.map((col, currIdx) => idx === currIdx ? { ...col, type, format: FieldFormat.NotSpecified } : col
@@ -189,7 +188,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     <TextField
                         className="column-name_input"
                         theme={getGreenWithWhiteBackgroundTheme()}
-                        onChange={(event) => setColumnName(index, event.target["value"])}
+                        onChange={(e) => handleTextInput(e.target["value"], TableElements.column, index)}
                         value={row.name}
                         errorMessage={getTextInputError(notUniqueNames.columns, row.name.trim(), index)}
                     />
@@ -202,7 +201,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             fieldName: "type",
             minWidth: typeInputWidth,
             isResizable: false,
-            onRender: (row, index) => headersFormatAndType === "columns" ?
+            onRender: (row, index) => headersFormatAndType === TableElements.columns ?
                 <Customizer {...defaultTheme}>
                     <Dropdown
                         className="type_dropdown"
@@ -252,7 +251,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     <TextField
                         className="row-name_input"
                         theme={getGreenWithWhiteBackgroundTheme()}
-                        onChange={(event) => setRowName(index, event.target["value"])}
+                        onChange={(e) => handleTextInput(e.target["value"], TableElements.row, index)}
                         value={row.name}
                         errorMessage={getTextInputError(notUniqueNames.rows, row.name, index)}
                     />
@@ -313,20 +312,21 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         return setRows([...rows, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified }]);
     }
 
-    function setRowName(rowIndex: number, name: string) {
-        setRows(
-            rows.map((row, currIndex) => (rowIndex === currIndex) ?
-                { ...row, name }
-                : row)
-        );
-    }
 
-    function setColumnName(colIndex: number, name: string) {
-        setColumns(
-            columns.map((column, currIndex) => (colIndex === currIndex)
-                ? { ...column, name }
-                : column)
-        );
+    function handleTextInput(name: string, role: string, index: number) {
+        if (role === TableElements.column) {
+            setColumns(
+                columns.map((column, currIndex) => (index === currIndex)
+                    ? { ...column, name }
+                    : column)
+            );
+        } else {
+            setRows(
+                rows.map((row, currIndex) => (index === currIndex) ?
+                    { ...row, name }
+                    : row)
+            );
+        };
     }
 
     function setTableName(name: string) {
@@ -475,18 +475,32 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         setNotUniqueNames({ ...notUniqueNames, [arrayName]: notUniques })
     }
 
-    // check input names as you type[]
-    useEffect(() => {
-        checkNameUniqueness(columns, TableElements.columns);
-    }, [columns]);
-    useEffect(() => {
-        checkNameUniqueness(rows, TableElements.rows);
-    }, [rows]);
+    // check names uniqueness for rows and columns as you type , with a delay
+    const delay = 400;
+    const debouncedColumns = useDebounce(columns, delay);
+    const debouncedRows = useDebounce(rows, delay);
 
     useEffect(() => {
-        const existingTagName = currentProjectTags.find((item: ITag) => item.name === tableTagName.trim());
-        setNotUniqueNames({ ...notUniqueNames, tags: existingTagName !== undefined ? true : false })
-    }, [tableTagName, currentProjectTags]);
+        if (columns) {
+            checkNameUniqueness(debouncedColumns, TableElements.columns)
+        }
+    },[debouncedColumns]);
+
+    useEffect(() => {
+        if (rows) {
+            checkNameUniqueness(debouncedRows, TableElements.rows);
+        }
+    }, [debouncedRows]);
+
+    // check tableName uniqueness as type
+    const debouncedTableTagName = useDebounce(tableTagName, delay);
+
+    useEffect(() => {
+        if (tableTagName) {
+            const existingTagName = currentProjectTags.find((item: ITag) => item.name === tableTagName.trim());
+            setNotUniqueNames({ ...notUniqueNames, tags: existingTagName !== undefined ? true : false })
+        }
+    }, [debouncedTableTagName, currentProjectTags]);
 
     function trimFieldNames(array: ITableConfigItem[]) {
         return array.map(i => ({...i, name: i.name.trim()}));
@@ -622,17 +636,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         return tableBody
     };
 
-    const [scrolling, setScrolling] = useState(false);
-    const [scrollTop, setScrollTop] = useState(0);
-    useEffect(() => {
-        const onScroll = e => {
-          setScrollTop(e.target.documentElement.scrollTop);
-          setScrolling(e.target.documentElement.scrollTop > scrollTop);
-        };
-        window.addEventListener("scroll", onScroll);
 
-        return () => window.removeEventListener("scroll", onScroll);
-      }, [scrollTop]);
 
 
     function getTableTagNameErrorMessage(): string {
@@ -647,7 +651,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     }
 
     const [tableChanged, setTableChanged] = useState<boolean>(false);
-
     useEffect(() => {
         setTableChanged(
             (_.isEqual(columns, table.columns) && _.isEqual(rows, table.rows)) ? false : true)

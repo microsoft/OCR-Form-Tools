@@ -5,6 +5,8 @@ import Guard from "./guard";
 import { IProject, ISecurityToken, IProviderOptions, ISecureString, ITag, FieldType, FieldFormat } from "../models/applicationState";
 import { encryptObject, decryptObject, encrypt, decrypt } from "./crypto";
 import UTIF from "utif";
+import { useState } from 'react';
+import { useEffect } from 'react';
 
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../react/components/common/tagColors.json");
@@ -393,3 +395,26 @@ export function filterFormat(type: FieldType | string): any[] {
             return [ FieldFormat.NotSpecified ];
     }
 }
+
+/**
+ * UseDebounce - custom React hook for handling fast changing values, the hook re-call only if value or delay changes
+ * @param value The value to be changed
+ * @param delay - delay after which the change will be registered in milliseconds
+ */
+export function useDebounce(value: any, delay: number) {
+        const [debouncedValue, setDebouncedValue] = useState(value);
+        useEffect(
+          () => {
+            // Update debounced value after delay
+            const delayHandler = setTimeout(() => {
+              setDebouncedValue(value);
+            }, delay);
+            // cleanup
+            return () => {
+              clearTimeout(delayHandler);
+            };
+          },
+          [value, delay]
+        );
+        return debouncedValue;
+      }
