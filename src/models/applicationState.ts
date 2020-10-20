@@ -473,7 +473,7 @@ export enum TableElements {
     rows = "rows",
     row = "row",
     columns = "columns",
-    column = "columns",
+    column = "column",
 }
 
 export enum FieldFormat {
