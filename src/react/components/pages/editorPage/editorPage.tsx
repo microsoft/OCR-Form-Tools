@@ -89,7 +89,7 @@ export interface IEditorPageState {
     hoveredLabel: ILabel;
     /** Whether the task for loading all OCRs is running */
     isRunningOCRs?: boolean;
-    isRunningAutoLabelings?: boolean;
+    isRunningAutoLabeling?: boolean;
     /** Whether OCR is running in the main canvas */
     isCanvasRunningOCR?: boolean;
     isCanvasRunningAutoLabeling?: boolean;
@@ -463,20 +463,20 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
         const tagAssets = clone()(this.state.selectedAsset.regions).filter((region) => region.tags[0] === selectedTableTagToLabel.name) as ITableRegion[];
         tagAssets.forEach((region => {
-            let rowInex;
+            let rowIndex: number;
             if (selectedTableTagToLabel.format === FieldFormat.RowDynamic) {
-                rowInex = Number(region.rowKey.slice(1)) - 1;
+                rowIndex = Number(region.rowKey.slice(1)) - 1;
             } else {
-                rowInex = selectedTableTagToLabel.rowKeys.findIndex(rowKey => rowKey.fieldKey === region.rowKey)
+                rowIndex = selectedTableTagToLabel.rowKeys.findIndex(rowKey => rowKey.fieldKey === region.rowKey)
             }
-            for (let i = selectedTableTagBody.length; i <= rowInex; i++){
+            for (let i = selectedTableTagBody.length; i <= rowIndex; i++){
                 selectedTableTagBody.push(new Array(selectedTableTagToLabel.columnKeys.length));
             }
-            const colInex = selectedTableTagToLabel.columnKeys.findIndex(colKey => colKey.fieldKey === region.columnKey)
-            if (selectedTableTagBody[rowInex][colInex] != null) {
-                selectedTableTagBody[rowInex][colInex].push(region)
+            const colIndex = selectedTableTagToLabel.columnKeys.findIndex(colKey => colKey.fieldKey === region.columnKey)
+            if (selectedTableTagBody[rowIndex][colIndex] != null) {
+                selectedTableTagBody[rowIndex][colIndex].push(region)
             } else {
-                selectedTableTagBody[rowInex][colInex] = [region]
+                selectedTableTagBody[rowIndex][colIndex] = [region]
             }        }))
         this.setState({
             selectedTableTagToLabel,
@@ -827,7 +827,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         if (this.state.isCanvasRunningAutoLabeling) {
             return;
         }
-        if (this.state.isRunningAutoLabelings) {
+        if (this.state.isRunningAutoLabeling) {
             return;
         }
 
@@ -943,7 +943,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const assetService = new AssetService(project);
 
         if (this.state.assets) {
-            this.setState({ isRunningAutoLabelings: true });
+            this.setState({ isRunningAutoLabeling: true });
             const unlabeledAssetsBatch = [];
             for (let i = 0; i < this.state.assets.length && unlabeledAssetsBatch.length < constants.autoLabelBatchSize; i++) {
                 const asset = this.state.assets[i];
@@ -979,7 +979,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 );
 
             } finally {
-                this.setState({ isRunningAutoLabelings: false });
+                this.setState({ isRunningAutoLabeling: false });
             }
         }
     }
