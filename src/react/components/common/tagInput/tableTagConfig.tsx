@@ -500,7 +500,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             headersFormatAndType
         }
         if (format === FieldFormat.Fixed) {
-            tableTagToAdd[TableElements.row] = trimFieldNames(rows);
+            tableTagToAdd[TableElements.rows] = trimFieldNames(rows);
         }
         addTableTag(tableTagToAdd);
         setTagInputMode(TagInputMode.Basic, null, null);
