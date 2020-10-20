@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { IAppStrings } from "../strings";
+import {IAppStrings} from "../strings";
 
 /*eslint-disable no-template-curly-in-string, no-multi-str*/
 
@@ -272,6 +272,8 @@ export const english: IAppStrings = {
         },
         toolbar: {
             add: "Add new tag",
+            onlyShowCurrentPageTags: "Only show tags used in current page",
+            showAllTags: "Show all tags",
             contextualMenu: "Contextual Menu",
             delete: "Delete tag",
             edit: "Edit tag",
