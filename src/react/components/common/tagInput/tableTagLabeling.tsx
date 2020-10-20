@@ -1,7 +1,7 @@
 import React from 'react';
 import "./tableTagConfig.scss";
-import { Customizer, ICustomizations, PrimaryButton, FontIcon, DefaultButton } from "@fluentui/react";
-import { getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getPrimaryBlueTheme } from '../../../../common/themes';
+import { PrimaryButton, FontIcon, DefaultButton } from "@fluentui/react";
+import { getPrimaryGreenTheme, getPrimaryBlueTheme } from '../../../../common/themes';
 import { FieldFormat, FieldType, TagInputMode, IRegion, ITableTag, ITableRegion, IField, TableElements } from '../../../../models/applicationState';
 import "./tableTagLabeling.scss";
 
@@ -63,16 +63,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
     }
 
     public render() {
-        const dark: ICustomizations = {
-            settings: {
-                theme: getRightPaneDefaultButtonTheme(),
-            },
-            scopedSettings: {},
-        };
-
-
         return (
-            <Customizer {...dark}>
                 <div className="table-labeling_container"
                     style={{ width: this.props.splitPaneWidth < 650 ? 650 : this.props.splitPaneWidth }}>
                     <h4 className="mt-2  ml-4">{strings.tags.regionTableTags.tableLabeling.title}</h4>
@@ -122,7 +113,6 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                     </div>
 
                 </div>
-            </Customizer>
         )
     }
 
