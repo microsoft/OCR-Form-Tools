@@ -3,13 +3,14 @@
 
 import React from "react";
 import { toast } from "react-toastify";
-import { Button, Modal, ModalBody, ModalFooter, ModalHeader, InputGroup, Input } from "reactstrap";
+import { Modal, ModalBody, ModalFooter, ModalHeader, InputGroup, Input } from "reactstrap";
 import { strings, interpolate } from "../../../../common/strings";
 import { IConnection, StorageType, ErrorCode, AppError, ISecurityToken } from "../../../../models/applicationState";
 import { StorageProviderFactory } from "../../../../providers/storage/storageProviderFactory";
 import CondensedList, { ListItem } from "../condensedList/condensedList";
 import "./cloudFilePicker.scss"
-import { Separator } from "@fluentui/react";
+import { PrimaryButton, Separator } from "@fluentui/react";
+import { getPrimaryGreenTheme, getPrimaryGreyTheme } from "../../../../common/themes";
 
 /**
  * Properties for Cloud File Picker
@@ -92,9 +93,6 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
                     <>
                         <div className={"shared-string-input-container"}>
                             <div className="condensed-list-header bg-darker-2 shared-uri-header">Shared Project String</div>
-                            {!this.state.haveCloudConnections &&
-                                <div className="p-3 text-center">{strings.shareProject.errors.noConnections}</div>
-                            }
                             <InputGroup className="input-uri">
                                 <Input placeholder={strings.homePage.openCloudProject.pasteSharedUri}
                                     id="sharedURI"
@@ -105,6 +103,9 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
                                     disabled={!this.state.haveCloudConnections}
                                 />
                             </InputGroup>
+                            {!this.state.haveCloudConnections &&
+                                <div className="error-message">{strings.shareProject.errors.noConnections}</div>
+                            }
                         </div>
                     </>
                 }
@@ -115,13 +116,24 @@ export class CloudFilePicker extends React.Component<ICloudFilePickerProps, IClo
                 }
                 <ModalFooter>
                     {this.state.selectedFile || ""}
-                    <Button
+                    <PrimaryButton
+                        theme={getPrimaryGreenTheme()}
                         className="btn btn-success mr-1"
                         onClick={this.ok}
-                        disabled={this.state.okDisabled}>Ok</Button>
+                        disabled={this.state.okDisabled}>Open</PrimaryButton>
                     {this.state.backDisabled && !this.state.pastedUri ?
-                        <Button onClick={this.close}>Close</Button> :
-                        <Button onClick={this.back}>Go Back</Button>
+                        <PrimaryButton
+                            onClick={this.close}
+                            theme={getPrimaryGreyTheme()}
+                        >
+                            Cancel
+                        </PrimaryButton> :
+                        <PrimaryButton
+                            onClick={this.back}
+                            theme={getPrimaryGreyTheme()}
+                        >
+                            Go Back
+                        </PrimaryButton>
                     }
                 </ModalFooter>
             </Modal>
