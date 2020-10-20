@@ -132,7 +132,7 @@ export const spanish: IAppStrings = {
         downloadJson: "Descargar archivo JSON",
         trainConfirm: {
             title: "Etiquetas no revisadas todavía",
-            message: "Tiene archivos de etiquetas que aún no han sido revisados, ¿desea entrenar con esos archivos?"
+            message: "Hay archivos recientemente etiquetados automáticamente que aún no ha revisado, ¿desea entrenar con esos archivos?"
         },
         errors: {
             electron: {
