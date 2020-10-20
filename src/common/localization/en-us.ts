@@ -285,11 +285,17 @@ export const english: IAppStrings = {
             },
             tableLabeling: {
                 title: "Label table",
-                description: "To start labeling your table first click the content on the document ypu would like to capture and then cell you would like to store that content in.",
+                tableName: "Table name:",
+                description: {
+                    title: "To start labeling your table:",
+                    stepOne: "Select the words on the document you want to label",
+                    stepTwo: "Click the table cell you want to label selected words to",
+                },
                 buttons: {
                     done: "Done",
                     reconfigureTable: "Reconfigure table",
-                }
+                    addRow: "Add row"
+                },
             },
             confirm: {
                 reconfigure: {

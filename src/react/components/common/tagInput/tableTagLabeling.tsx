@@ -1,12 +1,10 @@
 import React from 'react';
-import { toast } from "react-toastify";
 import "./tableTagConfig.scss";
-import { IconButton, Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, IDropdownOption, SelectionMode, DetailsListLayoutMode, FontIcon, ThemeSettingName, DefaultButton, DetailsRowBase } from "@fluentui/react";
-import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme } from '../../../../common/themes';
-import { FieldFormat, FieldType, TagInputMode, ITag, IRegion, ITableTag, ITableRegion, IField } from '../../../../models/applicationState';
+import { Customizer, ICustomizations, PrimaryButton, FontIcon, DefaultButton } from "@fluentui/react";
+import { getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getPrimaryBlueTheme } from '../../../../common/themes';
+import { FieldFormat, FieldType, TagInputMode, IRegion, ITableTag, ITableRegion, IField, TableElements } from '../../../../models/applicationState';
 import "./tableTagLabeling.scss";
 
-import clone from "rfdc";
 import { strings } from "../../../../common/strings";
 
 
@@ -16,7 +14,7 @@ interface ITableTagLabelingProps {
     selectedRegions?: IRegion[];
     onTagClick?: (tag: ITableTag) => void;
     selectedTableTagBody: ITableRegion[][][];
-    handleTableCellClick: (iTableCellIndex, jTableCellIndex) => void;
+    handleTableCellClick: (iTableCellIndex: number, jTableCellIndex: number) => void;
     addRowToDynamicTable: () => void;
     splitPaneWidth: number;
 }
@@ -46,31 +44,31 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
     public componentDidMount = async () => {
         console.log(this.props)
         if (this.props.selectedTag.format === FieldFormat.RowDynamic) {
-            const rows = [{fieldKey: "#1", fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified}]
+            const rows = [{ fieldKey: "#1", fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified }]
             for (let i = 1; i < this.props.selectedTableTagBody.length; i++) {
-                rows.push({fieldKey: "#" + (i + 1), fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified});
+                rows.push({ fieldKey: "#" + (i + 1), fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified });
             }
-            this.setState({rows});
+            this.setState({ rows });
         }
     }
 
     public componentDidUpdate = async (prevProps: Readonly<ITableTagLabelingProps>, prevState: Readonly<ITableTagLabelingState>) => {
         if (this.props.selectedTableTagBody.length !== prevProps.selectedTableTagBody.length) {
-            const rows = [{fieldKey: "#1", fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified}]
+            const rows = [{ fieldKey: "#1", fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified }]
             for (let i = 1; i < this.props.selectedTableTagBody.length; i++) {
-                rows.push({fieldKey: "#" + (i + 1), fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified});
+                rows.push({ fieldKey: "#" + (i + 1), fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified });
             }
-            this.setState({rows});
+            this.setState({ rows });
         }
     }
 
     public render() {
-          const dark: ICustomizations = {
+        const dark: ICustomizations = {
             settings: {
-              theme: getRightPaneDefaultButtonTheme(),
+                theme: getRightPaneDefaultButtonTheme(),
             },
-              scopedSettings: {},
-          };
+            scopedSettings: {},
+        };
 
 
         return (
@@ -79,14 +77,14 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                     style={{ width: this.props.splitPaneWidth < 650 ? 650 : this.props.splitPaneWidth }}>
                     <h4 className="mt-2  ml-4">{strings.tags.regionTableTags.tableLabeling.title}</h4>
                     <div className="labeling-guideline">
-                        To start labeling your table:
+                        {strings.tags.regionTableTags.tableLabeling.description.title}
                         <ol>
-                            <li>Select the words on the document you want to label</li>
-                            <li>Click the table cell you want to label selected words to</li>
+                            <li>{strings.tags.regionTableTags.tableLabeling.description.stepOne}</li>
+                            <li>{strings.tags.regionTableTags.tableLabeling.description.stepTwo}</li>
                         </ol>
                     </div>
                     <h5 className="mb-4 ml-1 table-name">
-                        <span style={{ borderBottom: `4px solid ${this.props.selectedTag.color}` }}>Table name: {this.props.selectedTag.name}</span>
+                        <span style={{ borderBottom: `4px solid ${this.props.selectedTag.color}` }}>{`${strings.tags.regionTableTags.tableLabeling.tableName}: ${this.props.selectedTag.name}`}</span>
                     </h5>
                     <div className="table-view-container">
                         <table className="viewed-table">
@@ -95,7 +93,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                             </tbody>
                         </table>
                     </div>
-                    {this.props.selectedTag.format === FieldFormat.RowDynamic &&  <div className="add-row-button_container">
+                    {this.props.selectedTag.format === FieldFormat.RowDynamic && <div className="add-row-button_container">
                         <PrimaryButton
                             theme={getPrimaryBlueTheme()}
                             className="add_button ml-6"
@@ -103,8 +101,8 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                             onClick={this.addRow}
                         >
                             <FontIcon iconName="Add" className="mr-2" />
-                                Add row
-                            </PrimaryButton>
+                            {strings.tags.regionTableTags.tableLabeling.buttons.addRow}
+                        </PrimaryButton>
                     </div>}
                     <div className="buttons-container">
                         <PrimaryButton
@@ -130,15 +128,15 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
 
     public getTableBody = () => {
         const table = { rows: this.state.rows, columns: this.state.columns };
-        let selectedTableTagBody = this.props.selectedTableTagBody;
+        const selectedTableTagBody = this.props.selectedTableTagBody;
         console.log("TableTagLabeling -> publicgetTableBody -> table", table)
         const isRowDynamic = this.props.selectedTag.format === FieldFormat.RowDynamic;
 
         let tableBody = null;
         if (table.rows && table.rows?.length !== 0 && table.columns.length !== 0) {
             tableBody = [];
-            const rows = table["rows"];
-            const columns = table["columns"];
+            const rows = table[TableElements.rows];
+            const columns = table[TableElements.columns];
             for (let i = 0; i < rows.length + 1; i++) {
                 const tableRow = [];
                 for (let j = 0; j < columns.length + 1; j++) {
@@ -162,9 +160,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
         this.props.addRowToDynamicTable()
     };
 
-    private handleCellClick = (iToChange, jToChange) => {
-        // const tableBody = clone()(this.props.tableBody);
-        // tableBody[iToChange].props.children[jToChange] = this.props.selectedRegions.map((region) => region.value).join(" ")};
+    private handleCellClick = (iToChange: number, jToChange: number) => {
         this.props.handleTableCellClick(iToChange, jToChange)
     }
 }

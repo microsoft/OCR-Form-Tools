@@ -298,10 +298,16 @@ export interface IAppStrings {
             },
             tableLabeling: {
                 title: string,
-                description: string,
+                description: {
+                    title: string,
+                    stepOne: string,
+                    stepTwo: string,
+                },
+                tableName: string,
                 buttons: {
                     done: string,
                     reconfigureTable: string,
+                    addRow: string,
                 }
             },
             confirm: {

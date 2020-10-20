@@ -492,7 +492,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         this.setState({selectedTableTagBody});
     }
 
-    private handleTableCellClick = (rowIndex, columnIndex) => {
+    private handleTableCellClick = (rowIndex: number, columnIndex: number) => {
         // const inputTag = this.state.selectedTableTagToLabel as ITableTag;
         // console.log("EditorPage -> privatehandleTableCellClick -> this.props.project.tags", this.props.project.tags)
         // console.log("EditorPage -> privatehandleTableCellClick -> this.state.selectedTag", this.state.selectedTag)
