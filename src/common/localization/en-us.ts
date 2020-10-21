@@ -700,7 +700,7 @@ export const english: IAppStrings = {
         errors: {
             cannotDecodeString: "Cannot decode shared token. Check if shared token has been modified.",
             connectionNotFound: "Connection not found. Add shared project's connection to your connections.",
-            connectionRequirement: "Shared project's connection must be added before opening it.",
+            connectionRequirement: "Shared project's connection must be added before opening it",
             tokenNameExist: "Warning! You already have token with same name as in shared project. Please create a new token, and update the existing project which uses ''${sharedTokenName}'' with new token name."
         },
         copy: {

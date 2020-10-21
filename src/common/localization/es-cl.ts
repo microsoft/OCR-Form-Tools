@@ -701,7 +701,7 @@ export const spanish: IAppStrings = {
         errors: {
             cannotDecodeString: "No se puede decodificar el token compartido. Compruebe si se ha modificado el token compartido.",
             connectionNotFound: "Conexión no encontrada. Agregue la conexión del proyecto compartido a sus conexiones.",
-            connectionRequirement: "La conexión del proyecto compartido debe agregarse antes de abrirlo.",
+            connectionRequirement: "La conexión del proyecto compartido debe agregarse antes de abrirlo",
             tokenNameExist: "¡Advertencia! Ya tiene token con el mismo nombre que en el proyecto compartido. Cree un nuevo token y actualice el proyecto existente que usa ''${sharedTokenName}'' con el nuevo nombre del token.",
         },
         copy: {
