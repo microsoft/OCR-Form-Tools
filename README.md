@@ -180,7 +180,7 @@ Click the Compose icon on the left pane to open the Compose page. FoTT will disp
 
 To load more of your models, click the **Load next page** button at the bottom of the list. This will load the next page of your models by decending order of model ID.
 
-You can sort the currently loaded models by clicking the column headers at the top of the list. Only the currently loaded models will be sorted. You will need to load all pages of your models to view the complete sorted list of your models. 
+You can sort the currently loaded models by clicking the column headers at the top of the list. Only the currently loaded models will be sorted. You will need to load all pages of your models first and then sort to view the complete sorted list of your models.  
 
 #### Save a project and resume later ####
 
