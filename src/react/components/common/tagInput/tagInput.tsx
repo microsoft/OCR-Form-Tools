@@ -406,7 +406,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     private setTagLabels = (key: string): ILabel[] => {
-        return this.props.labels.filter((label) => label.label === key);
+        return this.props?.labels.filter((label) => label.label === key);
     }
 
     private createTagItemProps = (): ITagInputItemProps[] => {

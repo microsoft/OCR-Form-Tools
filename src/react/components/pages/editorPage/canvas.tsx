@@ -1088,7 +1088,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private convertLabelDataToRegions = (labelData: ILabelData): IRegion[] => {
         const regions = [];
 
-        if (labelData.labels) {
+        if (labelData?.labels) {
             labelData.labels.forEach((label) => {
                 if (label.value) {
                     label.value.forEach((formRegion) => {
