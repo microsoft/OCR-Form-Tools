@@ -66,14 +66,14 @@ export function Sidebar({ project }) {
                         <FontIcon iconName="Plug" />
                     </NavLink>
                 </li>
-            </ul>
-            <div className="app-sidebar-fill"></div>
-            <ul>
-            <li className="prebuilt-demo-sidebar-item">
+                <li className="prebuilt-demo-sidebar-item">
                     <NavLink title={"Prebuilt predict"} to={`/prebuilts-predict`} role="button">
                         <FontIcon iconName="KeyPhraseExtraction" />
                     </NavLink>
                 </li>
+            </ul>
+            <div className="app-sidebar-fill"></div>
+            <ul>       
                 <li>
                     <NavLink title={strings.appSettings.title} to={`/settings`} role="button">
                         <FontIcon iconName="Settings" />
