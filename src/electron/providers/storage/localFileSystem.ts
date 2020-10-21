@@ -6,7 +6,7 @@ import path from "path";
 import rimraf from "rimraf";
 import { BrowserWindow, dialog } from "electron";
 import { IStorageProvider } from "../../../providers/storage/storageProviderFactory";
-import { IAsset, AssetState, AssetType, StorageType } from "../../../models/applicationState";
+import { IAsset, AssetState, AssetType, StorageType, ILabelData, AssetLabelingState } from "../../../models/applicationState";
 import { AssetService } from "../../../services/assetService";
 import { constants } from "../../../common/constants";
 import { strings } from "../../../common/strings";
@@ -180,6 +180,11 @@ export default class LocalFileSystem implements IStorageProvider {
                 const ocrFileName = decodeURIComponent(`${file}${constants.ocrFileExtension}`);
                 if (files.find((str) => str === labelFileName)) {
                     asset.state = AssetState.Tagged;
+                    const json = await this.readText(labelFileName);
+                    const labelData = JSON.parse(json) as ILabelData;
+                    if (labelData) {
+                        asset.labelingState = labelData.labelingState || AssetLabelingState.ManuallyLabeled;
+                    }
                 } else if (files.find((str) => str === ocrFileName)) {
                     asset.state = AssetState.Visited;
                 } else {
