@@ -41,7 +41,7 @@ export const english: IAppStrings = {
         },
         openCloudProject: {
             title: "Open Cloud Project",
-            selectConnection: "Select a Connection",
+            selectConnection: "Open cloud project",
             pasteSharedUri: "Paste shared project token here",
         },
         recentProjects: "Recent Projects",
@@ -700,7 +700,7 @@ export const english: IAppStrings = {
         errors: {
             cannotDecodeString: "Cannot decode shared token. Check if shared token has been modified.",
             connectionNotFound: "Connection not found. Add shared project's connection to your connections.",
-            noConnections: "The project's connection is required for opening a shared project. Add it's connection to your connections.",
+            connectionRequirement: "Shared project's connection must be added before opening it.",
             tokenNameExist: "Warning! You already have token with same name as in shared project. Please create a new token, and update the existing project which uses ''${sharedTokenName}'' with new token name."
         },
         copy: {

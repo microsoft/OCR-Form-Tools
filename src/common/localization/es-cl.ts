@@ -42,7 +42,7 @@ export const spanish: IAppStrings = {
         },
         openCloudProject: {
             title: "Abrir Proyecto de la Nube",
-            selectConnection: "Select a Connection",
+            selectConnection: "Proyecto de nube abierta",
             pasteSharedUri: "Pegue la cadena de proyecto compartida aquí",
         },
         deleteProject: {
@@ -701,7 +701,7 @@ export const spanish: IAppStrings = {
         errors: {
             cannotDecodeString: "No se puede decodificar el token compartido. Compruebe si se ha modificado el token compartido.",
             connectionNotFound: "Conexión no encontrada. Agregue la conexión del proyecto compartido a sus conexiones.",
-            noConnections: "La conexión del proyecto es necesaria para abrir un proyecto compartido. Agregue su conexión a sus conexiones.",
+            connectionRequirement: "La conexión del proyecto compartido debe agregarse antes de abrirlo.",
             tokenNameExist: "¡Advertencia! Ya tiene token con el mismo nombre que en el proyecto compartido. Cree un nuevo token y actualice el proyecto existente que usa ''${sharedTokenName}'' con el nuevo nombre del token.",
         },
         copy: {
