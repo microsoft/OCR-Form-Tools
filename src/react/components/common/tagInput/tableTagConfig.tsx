@@ -676,15 +676,15 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                             className="ml-12px"
                             onChange={(event, option) => {
                                 setFormat(option.key)
-                                if (option.key === "rowDynamic") {
-                                    setHeadersFormatAndType("columns");
+                                if (option.key === FieldFormat.RowDynamic) {
+                                    setHeadersFormatAndType(TableElements.columns);
                                 }
                             }}
                             defaultSelectedKey={FieldFormat.Fixed}
                             options={tableFormatOptions}
                             theme={getRightPaneDefaultButtonTheme()}
                         />
-                        {format === "fixed" && <>
+                        {format === FieldFormat.Fixed && <>
                             <h5 className="mt-4" >Configure type and format for:</h5>
                             <ChoiceGroup
                                 className="ml-12px type-format"
