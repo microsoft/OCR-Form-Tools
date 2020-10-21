@@ -73,7 +73,7 @@ export function Sidebar({ project }) {
                 </li>
             </ul>
             <div className="app-sidebar-fill"></div>
-            <ul>       
+            <ul>
                 <li>
                     <NavLink title={strings.appSettings.title} to={`/settings`} role="button">
                         <FontIcon iconName="Settings" />

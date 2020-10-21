@@ -39,6 +39,11 @@ import PrebuiltPredictResult from "./prebuiltPredictResult";
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
 
+interface IPrebuiltTypes {
+    name: string;
+    servicePath: string;
+}
+
 export interface IPrebuiltPredictPageProps extends RouteComponentProps {
     prebuiltSettings: IPrebuiltSettings;
     appTitleActions: IAppTitleActions;
@@ -73,6 +78,7 @@ export interface IPrebuiltPredictPageState {
     file?: File;
     highlightedField: string;
     imageAngle: number;
+    currentPrebuiltType: IPrebuiltTypes;
 }
 function mapStateToProps(state: IApplicationState) {
     return {
@@ -90,6 +96,20 @@ function mapDispatchToProps(dispatch) {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPageProps, IPrebuiltPredictPageState> {
     private appInsights: any = null;
+    prebuiltTypes: IPrebuiltTypes[] = [
+        {
+            name: "receipt",
+            servicePath: "/prebuilt/receipt/analyze"
+        },
+        {
+            name: "invoice",
+            servicePath: "/prebuilt/invoice/analyze"
+        },
+        {
+            name: "businessCard",
+            servicePath: "/prebuilt/businessCard/analyze"
+        },
+    ];
 
     public state: IPrebuiltPredictPageState = {
         showInputedAPIKey: false,
@@ -115,6 +135,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
         isPredicting: false,
         highlightedField: "",
         imageAngle: 0,
+        currentPrebuiltType: this.prebuiltTypes[0],
     };
 
     private fileInput: React.RefObject<HTMLInputElement> = React.createRef();
@@ -233,6 +254,12 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                                                 <FontIcon iconName="Copy" />
                                             </DefaultButton>
                                         </div>
+                                        <div style={{marginBottom: "3px"}}>Pre-built</div>
+                                        <Dropdown
+                                            className="prebuilt-type-dropdown"
+                                            options={this.prebuiltTypes.map(type => ({key: type.name, text: type.name}))}
+                                            defaultSelectedKey={this.state.currentPrebuiltType.name}
+                                            onChange={this.selectPrebuiltType}></Dropdown>
                                     </div>
                                     <div className="p-3" style={{marginTop: "8px"}}>
                                         <h5>
@@ -508,7 +535,12 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
             });
         }
     }
-
+    private selectPrebuiltType = (e, option: IDropdownOption) => {
+        const currentPrebuiltType = this.prebuiltTypes.find(type => type.name === option.key);
+        if (currentPrebuiltType) {
+            this.setState({currentPrebuiltType});
+        }
+    }
     private renderPrevPageButton = () => {
         if (!_.get(this, "fileInput.current.files[0]", null)) {
             return <div></div>;
@@ -674,7 +706,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
 
         endpointURL = url.resolve(
             this.props.prebuiltSettings.serviceURI,
-            `${"/formrecognizer/v2.0-preview/prebuilt"}/receipt/analyze?includeTextDetails=true`,
+            `/formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}`,
         );
         apiKey = this.props.prebuiltSettings.apiKey;
 
