@@ -173,6 +173,15 @@ Click on the Analyze icon on the left pane to open the Analyze page. Upload a fo
 
 Tip: You can also run the Analyze API with a REST call. To learn how to do this, see [Train with labels using Python](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/quickstarts/python-labeled-data).
 
+#### Compose a model ####
+Click the Compose icon on the left pane to open the Compose page. FoTT will display the first page of your models—by decending order of Model ID—in a list. Select multiple models you want to compose into one model and click the **Compose** button. Once the new model has been composed, it's ready to analyze with.
+
+![alt text](docs/images/compose.png "Compose")
+
+To load more of your models, click the **Load next page** button at the bottom of the list. This will load the next page of your models by decending order of model ID.
+
+You can sort the currently loaded models by clicking the column headers at the top of the list. Only the currently loaded models will be sorted. You will need to load all pages of your models to view the complete sorted list of your models. 
+
 #### Save a project and resume later ####
 
 To resume your project at another time or in another browser, you need to save your project's security token and reenter it later.
