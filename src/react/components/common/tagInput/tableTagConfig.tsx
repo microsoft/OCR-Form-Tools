@@ -306,12 +306,16 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
     function addColumn() {
         setColumns([...columns, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified }]);
-        setReconfigureColumnMap([...reconfigureColumnMap, null]);
+        if (props.tableTag) {
+            setReconfigureColumnMap([...reconfigureColumnMap, null]);
+        }
     }
 
     function addRow() {
-        return setRows([...rows, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified }]);
-        setReconfigureRowMap([...reconfigureRowMap, null]);
+        setRows([...rows, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified }]);
+        if (props.tableTag) {
+            setReconfigureRowMap([...reconfigureRowMap, null]);
+        }
 
     }
 
@@ -633,7 +637,13 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 const tableRow = [];
                 for (let j = 0; j < columns.length + 1; j++) {
                     if (i === 0 && j !== 0) {
-                        tableRow.push(<th key={`col-h-${j}`} className="column_header">{columns[j - 1].name + "//" + reconfigureColumnMap[j-1]?.name}</th>);
+                        tableRow.push(
+                            <th key={`col-h-${j}`} className="column_header">
+                                {props.tableTag && reconfigureColumnMap[j-1]?.name && columns[j - 1].name !== reconfigureColumnMap[j-1].name &&
+                                    <div className="renamed-header">{reconfigureColumnMap[j-1].name}</div>
+                                }
+                                <div>{columns[j - 1].name}</div>
+                            </th>);
                     } else if (j === 0 && i !== 0) {
                         if (!isRowDynamic) {
                             tableRow.push(<th key={`row-h-${j}`} className="row_header">{rows[i - 1].name}</th>);
