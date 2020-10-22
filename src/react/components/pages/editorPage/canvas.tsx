@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { ReactElement } from "react";
+import React, { ReactElement, RefObject } from "react";
 import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
 import { Label } from "@fluentui/react/lib/Label";
 import { IconButton } from "@fluentui/react/lib/Button";
@@ -39,6 +39,7 @@ import { AutoLabelingStatus, PredictService } from "../../../../services/predict
 import { AssetService } from "../../../../services/assetService";
 import { interpolate, strings } from "../../../../common/strings";
 import { toast } from "react-toastify";
+import {BatchSizeModal} from "./batchSizeModal";
 
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
@@ -62,7 +63,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onRunningAutoLabelingStatusChanged?: (isRunning: boolean) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
     runOcrForAllDocs?: (runForAllDocs: boolean) => void;
-    runAutoLabelingOnNextBatch?: () => Promise<void>;
+    runAutoLabelingOnNextBatch?: (batchSize: number) => Promise<void>;
     onAssetDeleted?: () => void;
     onPageLoaded?: (pageNumber: number) => void;
 }
@@ -173,6 +174,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private tableIDToIndexMap: object;
 
+    autoLabelingBatchSizeModal: RefObject<BatchSizeModal> = React.createRef();
+
     public componentDidMount = async () => {
         this.ocrService = new OCRService(this.props.project);
         const asset = this.state.currentAsset.asset;
@@ -258,7 +261,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleAssetDeleted={this.props.onAssetDeleted}
                     handleRunOcrForAllDocuments={this.runOcrForAllDocuments}
                     handleRunAutoLabelingOnCurrentDocument={this.runAutoLabelingOnCurrentDocument}
-                    handleRunAutoLabelingForRestDocuments={this.runAutoLabelingForRestDocuments}
+                    handleRunAutoLabelingOnMultipleUnlabledDocuments={this.runAutoLabelingOnMultipleUnlabledDocuments}
                     handleToggleDrawRegionMode={this.handleToggleDrawRegionMode}
                     connectionType={this.props.project.sourceConnection.providerType}
                     drawRegionMode={this.state.drawRegionMode}
@@ -362,6 +365,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         errorMessage: undefined,
                     })}
                 />
+                <BatchSizeModal
+                    ref={this.autoLabelingBatchSizeModal}
+                    onConfirm={this.confirmRunAutoLabelingOnMultipleUnlabledDocuments}
+                 />
             </div>
         );
     }
@@ -386,9 +393,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.setAutoLabelingStatus(AutoLabelingStatus.done);
         }
     }
-    private runAutoLabelingForRestDocuments = async () => {
+    private runAutoLabelingOnMultipleUnlabledDocuments = async () => {
+        this.autoLabelingBatchSizeModal.current.openModal();
+    }
+    private confirmRunAutoLabelingOnMultipleUnlabledDocuments = async (batchSize: number) => {
         this.setState({ autoLableingStatus: AutoLabelingStatus.running });
-        await this.props.runAutoLabelingOnNextBatch();
+        await this.props.runAutoLabelingOnNextBatch(batchSize);
         this.setState({ autoLableingStatus: AutoLabelingStatus.done });
     }
 
@@ -1388,6 +1398,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 if (label) {
                     if (label.confidence && region.changed) {
                         delete label.confidence;
+                        label.revised = true;
                     }
                     label.value.push(formRegion);
                 } else {

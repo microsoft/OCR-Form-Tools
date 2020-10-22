@@ -449,7 +449,7 @@ export interface IAppStrings {
                             runOcrOnCurrentDocument: string,
                             runOcrOnAllDocuments: string,
                             runAutoLabelingCurrentDocument: string,
-                            runAutoLabelingOnNotLabelingDocuments: string,
+                            runAutoLabelingOnMultipleUnlabledDocuments: string,
                             noPredictModelOnProject: string,
                         }
                     }

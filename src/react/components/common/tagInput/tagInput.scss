@@ -33,23 +33,6 @@
             display: flex;
             flex-direction: column;
             position: relative;
-
-            &-container {
-                overflow-x: visible;
-                overflow-y: auto;
-                padding: 0 0 0 100px;
-                margin: 0 0 0 -100px;
-                &::before{
-                    content: " ";
-                    display: inline-block;
-                    position: absolute;
-                    width: 80px;
-                    height: 100%;
-                    left: -80px;
-                    background: linear-gradient(to right, #00000000 0%,#000000 100%);
-                }
-
-            };
         }
 
         &-text-input-row {
@@ -94,12 +77,11 @@
             width: 100%;
         }
         .tag-item-confidence{
-            position: absolute;
             line-height: 2em;
-            left: -70PX;
             z-index: 900;
             text-align: right;
-            width:50px;
+            width:40px;
+            padding: auto 5;
             text-shadow: 1px 1px 1px #333;
         }
     }

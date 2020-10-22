@@ -234,6 +234,7 @@ export interface ILabel {
     value: IFormRegion[],
     labelType?: string,
     confidence?: number,
+    revised?: boolean;
 }
 
 /**
