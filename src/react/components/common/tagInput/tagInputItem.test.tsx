@@ -22,7 +22,7 @@ describe("Tag Input Item", () => {
             onLabelEnter: jest.fn(),
             onLabelLeave: jest.fn(),
             handleLabelTable: null,
-
+            addRowToDynamicTable: null,
         };
     }
 
