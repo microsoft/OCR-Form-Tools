@@ -694,7 +694,7 @@ export const english: IAppStrings = {
         },
         onPremiseConnectionError: {
             title: "Cannot access files or service",
-            message: "Failed access files or service. Please check your connection or network settings.",
+            message: "Failed to access files or service. Please check if your container is configured correctly and is running.",
         }
     },
     shareProject: {

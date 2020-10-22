@@ -694,7 +694,7 @@ export const spanish: IAppStrings = {
         },
         onPremiseConnectionError: {
             title: "No se puede acceder a los archivos o al servicio",
-            message: "Servicios o archivos de acceso fallidos. Verifique su conexión o configuración de red.",
+            message: "No se pudo acceder a los archivos o al servicio. Compruebe si el contenedor está configurado correctamente y se está ejecutando.",
         }
 
     },
