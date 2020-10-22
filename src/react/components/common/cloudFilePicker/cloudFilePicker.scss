@@ -1,10 +1,14 @@
 .shared-string-input-container {
     padding: 1rem;
     .input-uri {
-        padding: 1rem;
+        padding: 1rem 1rem 0 1rem;
         .form-control{
             font-size: 90%;
         }
+    }
+    .error-message {
+        color: #db7272;
+        padding: 4px 1rem 1rem 1rem;
     }
 }
 
