@@ -42,7 +42,7 @@ export const spanish: IAppStrings = {
         },
         openCloudProject: {
             title: "Abrir Proyecto de la Nube",
-            selectConnection: "Select a Connection",
+            selectConnection: "Proyecto de nube abierta",
             pasteSharedUri: "Pegue la cadena de proyecto compartida aquí",
         },
         deleteProject: {
@@ -699,13 +699,13 @@ export const spanish: IAppStrings = {
     shareProject: {
         name: "Compartir proyecto",
         errors: {
-            cannotDecodeString: "¡No se puede decodificar la cadena compartida! Por favor, verifique si su cadena ha sido modificada.",
+            cannotDecodeString: "No se puede decodificar el token compartido. Compruebe si se ha modificado el token compartido.",
             connectionNotFound: "Conexión no encontrada. Agregue la conexión del proyecto compartido a sus conexiones.",
-            noConnections: "Se requiere conexión para compartir proyectos",
+            connectionRequirement: "La conexión del proyecto compartido debe agregarse antes de abrirlo",
             tokenNameExist: "¡Advertencia! Ya tiene token con el mismo nombre que en el proyecto compartido. Cree un nuevo token y actualice el proyecto existente que usa ''${sharedTokenName}'' con el nuevo nombre del token.",
         },
         copy: {
-            success: "La cadena para compartir su proyecto se ha guardado en el portapapeles. Para usarlo, péguelo en la sección correspondiente de la ventana emergente 'Open Cloud Project'.",
+            success: "Token de proyecto copiado al portapapeles y listo para compartir. El receptor del token del proyecto puede hacer clic en 'Abrir proyecto en la nube' desde la página de inicio para usar el token compartido.",
         }
     }
 };
