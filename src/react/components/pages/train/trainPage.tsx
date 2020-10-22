@@ -53,7 +53,6 @@ export interface ITrainPageState {
     modelName: string;
     modelUrl: string;
     currModelId: string;
-    isOnPrem: boolean;
 }
 
 interface ITrainApiResponse {
@@ -102,7 +101,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             modelName: "",
             modelUrl: "",
             currModelId: "",
-            isOnPrem: false,
         };
     }
 
@@ -366,11 +364,20 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
             return trainStatusRes;
         } catch (error) {
+            function getErrorMessage() {
+                if (this.isOnPrem) {
+                    return interpolate(strings.train.errors.electron.cantAccessFiles, { folderUri: this.state.inputtedLabelFolderURL });
+                } else {
+                    if (error?.message !== undefined) {
+                        return error.message;
+                    }
+                    return error;
+                }
+            };
+
             this.setState({
                 showTrainingFailedWarning: true,
-                trainingFailedMessage: this.isOnPrem ? interpolate(strings.train.errors.electron.cantAccessFiles, { folderUri: this.state.inputtedLabelFolderURL }) :
-                    error?.message !== undefined
-                    ? error.message : error,
+                trainingFailedMessage: getErrorMessage(),
             });
         }
     }
