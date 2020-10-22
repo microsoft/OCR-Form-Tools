@@ -10,20 +10,6 @@ import { toast } from "react-toastify";
 import "./tableTagConfig.scss";
 import { strings } from "../../../../common/strings";
 import _ from "lodash";
-interface IShareProps {
-    // appSettings?: IAppSettings,
-    // currentProject?: IProject;
-}
-
-interface ItableCell {
-    fieldKey: string,
-    fieldType: string,
-    fieldFormat: string,
-}
-interface IShareState {
-    // appSettings: IAppSettings,
-    // currentProject: IProject;
-}
 
 interface ITableTagConfigProps {
     setTagInputMode: (addTableMode: TagInputMode, selectedTableTagToLabel?: ITableTag, selectedTableTagBody?: ITableRegion[][][]) => void;
@@ -172,16 +158,18 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         ));
     }
 
-    const nameInputWidth = containerWidth * 0.50;
-    const typeInputWidth = containerWidth * 0.17;
-    const formatInputWidth = containerWidth * 0.172;
+    const detailListWidth = {
+        nameInput: containerWidth *0.5,
+        typeInput: containerWidth * 0.165,
+        formatInput: containerWidth * 0.165,
+    }
 
     const columnListColumns: IColumn[] = [
         {
             key: "name",
             name: "name",
             fieldName: "name",
-            minWidth: nameInputWidth,
+            minWidth: detailListWidth.nameInput,
             isResizable: false,
             onRender: (row, index) => {
                 return (
@@ -199,7 +187,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             key: "type",
             name: "type",
             fieldName: "type",
-            minWidth: typeInputWidth,
+            minWidth: detailListWidth.typeInput,
             isResizable: false,
             onRender: (row, index) => headersFormatAndType === TableElements.columns ?
                 <Customizer {...defaultTheme}>
@@ -220,7 +208,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             key: "format",
             name: "format",
             fieldName: "format",
-            minWidth: formatInputWidth,
+            minWidth: detailListWidth.formatInput,
             isResizable: false,
             onRender: (row, index) => headersFormatAndType === TableElements.columns ?
                 <Customizer {...defaultTheme}>
@@ -244,7 +232,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             key: "name",
             name: "name",
             fieldName: "name",
-            minWidth: nameInputWidth,
+            minWidth: detailListWidth.nameInput,
             isResizable: false,
             onRender: (row, index) => {
                 return (
@@ -262,7 +250,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             key: "type",
             name: "type",
             fieldName: "type",
-            minWidth: typeInputWidth,
+            minWidth: detailListWidth.typeInput,
             isResizable: false,
             onRender: (row, index) => headersFormatAndType === TableElements.rows ?
                 <Customizer {...defaultTheme}>
@@ -283,7 +271,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             key: "format",
             name: "format",
             fieldName: "format",
-            minWidth: formatInputWidth,
+            minWidth: detailListWidth.formatInput,
             isResizable: false,
             onRender: (row, index) => headersFormatAndType === TableElements.rows ?
                 <Customizer {...defaultTheme}>
@@ -341,7 +329,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 key: 'Name',
                 text: 'Name',
                 className: "list-headers_name",
-                style: {width: nameInputWidth - 105},
+                style: {width: detailListWidth.nameInput - 122},
                 disabled: true,
             },
             {
@@ -376,14 +364,14 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 key: 'type',
                 text: 'Type',
                 className: "list-headers_type",
-                style: {width: typeInputWidth}
+                style: { width: detailListWidth.typeInput },
+                disabled: true,
             },
             {
                 key: 'format',
                 text: 'Format',
                 className: "list-headers_format",
-                style: { width: formatInputWidth },
-
+                disabled: true,
             },
         ];
     };
@@ -395,7 +383,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 key: 'Name',
                 text: 'Name',
                 className: "list-headers_name",
-                style: {width: nameInputWidth - 105},
+                style: {width: detailListWidth.nameInput - 120},
                 disabled: true,
                 resizable: true,
             },
@@ -432,14 +420,14 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 key: 'type',
                 text: 'Type',
                 className: "list-headers_type",
-                style: {width: typeInputWidth}
+                style: { width: detailListWidth.typeInput },
+                disabled: true,
             },
             {
                 key: 'format',
                 text: 'Format',
                 className: "list-headers_format",
-                style: { width: formatInputWidth },
-
+                disabled: true,
             },
         ];
     };
@@ -659,7 +647,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     // render
     return (
         <Customizer {...dark}>
-            <div className="config-view_container" style={{width: containerWidth}}>
+            <div className="config-view_container" style={{width: containerWidth - 8}}>
                 <h4 className="mt-2">{props.tableTag ? "Reconfigure table tag" : "Configure table tag"}</h4>
                 <h5 className="mt-3 ">Name:</h5>
                 <TextField

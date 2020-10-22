@@ -3,15 +3,14 @@
 
 
 .config-view_container {
-    padding: 0 2rem 0 0rem;
-    margin-left: .5rem;
+    padding: 0 16px;
     h5, h4 {
         margin-left: 12px;
     }
 
     .table-name_input {
         width: 100%;
-        padding-right: 18px;
+        padding-right: 10px;
     }
 
     .columns-list_container, .rows-list_container  {
@@ -34,15 +33,19 @@
     }
 
     .list_header {
+        width: 100%;
+        .ms-Button-label {
+            margin: 0 -4px;
+        }
         .list-headers {
+            text-align: left;
+
         &_name {
             text-align: left;
-            margin-left: -8px;
         }
         &_type {
             text-align: left;
-            margin-right: 20px;
-            margin-left: 4px;
+            margin: 0 20px;
         }
         &_format {
             text-align: left;
@@ -60,7 +63,6 @@
         display: flex;
         margin-top: 2rem;
         margin-bottom: 1rem;
-        padding-right: .5rem;
         justify-content: flex-end;
         .save {
             margin-left: 1rem;

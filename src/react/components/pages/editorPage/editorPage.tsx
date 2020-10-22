@@ -211,7 +211,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         const isBasicInputMode = this.state.tagInputMode === TagInputMode.Basic;
 
-        const size = isBasicInputMode ? 290 : 650;
+        const size = isBasicInputMode ? 290 : 652;
         return (
             <div className="editor-page skipToMainContent" id="pageEditor">
                 {this.state.tableToView !== null &&
