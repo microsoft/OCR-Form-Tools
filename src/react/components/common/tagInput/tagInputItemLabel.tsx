@@ -2,13 +2,15 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { ILabel, IFormRegion } from "../../../../models/applicationState";
-import { FontIcon } from "@fluentui/react";
+import {ILabel, IFormRegion} from "../../../../models/applicationState";
+import {FontIcon} from "@fluentui/react";
 
 export interface ITagInputItemLabelProps {
     label: ILabel;
-    onLabelEnter: (label: ILabel) => void;
-    onLabelLeave: (label: ILabel) => void;
+    value: IFormRegion[];
+    isOrigin: boolean;
+    onLabelEnter?: (label: ILabel) => void;
+    onLabelLeave?: (label: ILabel) => void;
 }
 
 export interface ITagInputItemLabelState {}
@@ -17,7 +19,7 @@ export default class TagInputItemLabel extends React.Component<ITagInputItemLabe
     public render() {
         const texts = [];
         let hasEmptyTextValue = false;
-        this.props.label.value.forEach((formRegion: IFormRegion, idx) => {
+        this.props.value.forEach((formRegion: IFormRegion, idx) => {
             if (formRegion.text === "") {
                 hasEmptyTextValue = true;
             } else {
@@ -27,14 +29,14 @@ export default class TagInputItemLabel extends React.Component<ITagInputItemLabe
         const text = texts.join(" ");
         return (
             <div
-                className={"tag-item-label flex-center px-2"}
+                className={[this.props.isOrigin ? "tag-item-label-origin" : "tag-item-label", "flex-center", "px-2"].join(" ")}
                 onMouseEnter={this.handleMouseEnter}
                 onMouseLeave={this.handleMouseLeave}
             >
                 <div className="flex-center">
                     {text}
                     {hasEmptyTextValue &&
-                        <FontIcon className="pr-1 pl-1" iconName="RectangleShape"/>
+                        <FontIcon className="pr-1 pl-1" iconName="RectangleShape" />
                     }
                 </div>
             </div>
@@ -42,10 +44,14 @@ export default class TagInputItemLabel extends React.Component<ITagInputItemLabe
     }
 
     private handleMouseEnter = () => {
-        this.props.onLabelEnter(this.props.label);
+        if (this.props.onLabelEnter) {
+            this.props.onLabelEnter(this.props.label);
+        }
     }
 
     private handleMouseLeave = () => {
-        this.props.onLabelLeave(this.props.label);
+        if (this.props.onLabelLeave) {
+            this.props.onLabelLeave(this.props.label);
+        }
     }
 }

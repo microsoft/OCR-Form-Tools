@@ -3,7 +3,7 @@
 
 import {FontIcon, IconButton} from "@fluentui/react";
 import _ from "lodash";
-import React, {MouseEvent} from "react";
+import React, {Fragment, MouseEvent} from "react";
 import {strings} from "../../../../common/strings";
 import {FieldFormat, FieldType, ILabel, ITag} from "../../../../models/applicationState";
 import {tagIndexKeys} from "./tagIndexKeys";
@@ -27,6 +27,8 @@ export interface ITagInputItemProps {
     index: number;
     /** Labels owned by the tag */
     labels: ILabel[];
+    /** show Origin Labels or not */
+    showOriginLabels: boolean;
     /** Tag is currently renaming */
     isRenaming: boolean;
     /** Tag is currently locked for application */
@@ -222,12 +224,22 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
 
     private renderTagDetail = () => {
         return this.props.labels.map((label, idx) =>
-            <TagInputItemLabel
-                key={idx}
-                label={label}
-                onLabelEnter={this.props.onLabelEnter}
-                onLabelLeave={this.props.onLabelLeave}
-            />);
+            <Fragment key={idx}>
+                { this.props.showOriginLabels && label.originValue &&
+                    <TagInputItemLabel
+                        label={label}
+                        isOrigin={true}
+                        value={label.originValue}
+                    />
+                }
+                <TagInputItemLabel
+                    label={label}
+                    value={label.value}
+                    isOrigin={false}
+                    onLabelEnter={this.props.onLabelEnter}
+                    onLabelLeave={this.props.onLabelLeave}
+                />
+            </Fragment>);
     }
 
     private onInputRef = (element: HTMLInputElement) => {

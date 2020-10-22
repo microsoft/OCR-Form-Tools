@@ -248,6 +248,8 @@ export interface IAppStrings {
             add: string,
             onlyShowCurrentPageTags:string,
             showAllTags:string,
+            showOriginLabels: string
+            hideOriginLabels: string,
             contextualMenu: string,
             delete: string,
             edit: string,

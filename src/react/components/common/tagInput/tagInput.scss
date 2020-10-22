@@ -76,11 +76,11 @@
         &-2 {
             width: 100%;
         }
-        .tag-item-confidence{
+        .tag-item-confidence {
             line-height: 2em;
             z-index: 900;
             text-align: right;
-            width:40px;
+            width: 40px;
             padding: auto 5;
             text-shadow: 1px 1px 1px #333;
         }
@@ -110,7 +110,7 @@
         &-highlight {
             .tag-content {
                 background-color: $lighter-5 !important;
-                box-shadow:4px 4px 5px $lighter-5;
+                box-shadow: 4px 4px 5px $lighter-5;
             }
         }
         &-label {
@@ -185,12 +185,16 @@
 
     &-item-label {
         color: #a0a0a0;
-    }
-
-    &-item-label:hover {
-        color: #fff;
-        background: $lighter-4;
-        cursor: pointer;
+        &:hover {
+            color: #fff;
+            background: $lighter-4;
+            cursor: pointer;
+        }
+        &-origin {
+            color: #a0a0a0;
+            background-color: $darker-4;
+            border-bottom: 2px dotted $lighter-1;
+        }
     }
 
     &-color {

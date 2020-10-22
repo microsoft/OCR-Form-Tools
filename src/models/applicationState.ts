@@ -232,6 +232,7 @@ export interface ILabel {
     label: string,
     key?: IFormRegion[],
     value: IFormRegion[],
+    originValue?: IFormRegion[],
     labelType?: string,
     confidence?: number,
     revised?: boolean;

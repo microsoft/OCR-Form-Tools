@@ -273,6 +273,8 @@ export const spanish: IAppStrings = {
             add: "Agregar nueva etiqueta",
             onlyShowCurrentPageTags: "Mostrar solo las etiquetas utilizadas en la página actual",
             showAllTags: "Mostrar todas las etiquetas",
+            showOriginLabels: "Mostrar etiquetas de origen",
+            hideOriginLabels: "Ocultar etiquetas de origen",
             contextualMenu: "Menú contextual",
             delete: "Borrar etiqueta",
             edit: "Editar etiqueta",

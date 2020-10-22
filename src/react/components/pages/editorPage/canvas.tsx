@@ -83,7 +83,7 @@ export interface ICanvasState {
     errorTitle?: string;
     errorMessage: string;
     ocrStatus: OcrStatus;
-    autoLableingStatus: AutoLabelingStatus;
+    autoLabelingStatus: AutoLabelingStatus;
     layers: any;
     tableIconTooltip: any;
     hoveringFeature: string;
@@ -143,7 +143,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         isError: false,
         errorMessage: undefined,
         ocrStatus: OcrStatus.done,
-        autoLableingStatus: AutoLabelingStatus.none,
+        autoLabelingStatus: AutoLabelingStatus.none,
         layers: { text: true, tables: true, checkboxes: true, label: true, drawnRegions: true },
         tableIconTooltip: { display: "none", width: 0, height: 0, top: 0, left: 0 },
         hoveringFeature: null,
@@ -347,7 +347,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         </div>
                     </div>
                 }
-                {this.state.autoLableingStatus === AutoLabelingStatus.running &&
+                {this.state.autoLabelingStatus === AutoLabelingStatus.running &&
                     <div className="canvas-ocr-loading">
                         <div className="canvas-ocr-loading-spinner">
                             <Label className="p-0" ></Label>
@@ -397,9 +397,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.autoLabelingBatchSizeModal.current.openModal();
     }
     private confirmRunAutoLabelingOnMultipleUnlabledDocuments = async (batchSize: number) => {
-        this.setState({ autoLableingStatus: AutoLabelingStatus.running });
+        this.setState({ autoLabelingStatus: AutoLabelingStatus.running });
         await this.props.runAutoLabelingOnNextBatch(batchSize);
-        this.setState({ autoLableingStatus: AutoLabelingStatus.done });
+        this.setState({ autoLabelingStatus: AutoLabelingStatus.done });
     }
 
     public updateSize() {
@@ -1207,10 +1207,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             }
         });
     }
-    private setAutoLabelingStatus = (autoLableingStatus: AutoLabelingStatus) => {
-        this.setState({ autoLableingStatus }, () => {
+    private setAutoLabelingStatus = (autoLabelingStatus: AutoLabelingStatus) => {
+        this.setState({ autoLabelingStatus: autoLabelingStatus }, () => {
             if (this.props.onRunningAutoLabelingStatusChanged) {
-                this.props.onRunningAutoLabelingStatusChanged(autoLableingStatus === AutoLabelingStatus.running);
+                this.props.onRunningAutoLabelingStatusChanged(autoLabelingStatus === AutoLabelingStatus.running);
             }
         })
     }
@@ -1396,9 +1396,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             region.tags.forEach((tag) => {
                 const label = labels.find(label => label.label === tag);
                 if (label) {
+                    const originLabel = this.props.selectedAsset!.labelData!.labels.find(a=>a.label === tag);
                     if (label.confidence && region.changed) {
                         delete label.confidence;
                         label.revised = true;
+                        label.originValue = [...originLabel.value];
                     }
                     label.value.push(formRegion);
                 } else {
