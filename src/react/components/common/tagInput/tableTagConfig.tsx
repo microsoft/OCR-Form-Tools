@@ -25,6 +25,8 @@ interface ITableTagConfigState {
     name: string,
     format: string,
     headerTypeAndFormat: string;
+    reconfigureRowMap?: any;
+    reconfigureColumnMap?: any;
 }
 interface ITableConfigItem {
     name: string,
@@ -107,7 +109,10 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 rows: props.tableTag.rowKeys?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat })),
                 columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat })),
                 headerTypeAndFormat: TableElements.columns,
+                reconfigureColumnMap: null,
             }
+            table.reconfigureColumnMap = table.columns;
+            table.reconfigureRowMap = table.rows;
         } else {
             table = {
                 name: props.tableTag.name,
@@ -115,7 +120,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 rows: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
                 columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat })),
                 headerTypeAndFormat: TableElements.columns,
+                reconfigureColumnMap: null,
             }
+            table.reconfigureColumnMap = table.columns;
         }
 
     } else {
@@ -132,6 +139,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     const [tableTagName, setTableTagName] = useState<string>(table.name);
     const [format, setFormat] = useState<string>(table.format);
     const [columns, setColumns] = useState<ITableConfigItem[]>(table.columns);
+    const [reconfigureColumnMap, setReconfigureColumnMap] = useState<ITableConfigItem[]>(table.reconfigureColumnMap);
+    const [reconfigureRowMap, setReconfigureRowMap] = useState<ITableConfigItem[]>(table.reconfigureRowMap);
     const [rows, setRows] = useState<ITableConfigItem[]>(table.rows);
     const [notUniqueNames, setNotUniqueNames] = useState<{ columns: [], rows: [], tags: boolean }>({ columns: [], rows: [], tags: false });
     const [headersFormatAndType, setHeadersFormatAndType] = useState<string>(TableElements.columns);
@@ -293,11 +302,18 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
 
     function addColumn() {
-        return setColumns([...columns, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified }]);
+        setColumns([...columns, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified }]);
+        if (props.tableTag) {
+            setReconfigureColumnMap([...reconfigureColumnMap, null]);
+        }
     }
 
     function addRow() {
-        return setRows([...rows, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified }]);
+        setRows([...rows, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified }]);
+        if (props.tableTag) {
+            setReconfigureRowMap([...reconfigureRowMap, null]);
+        }
+
     }
 
 
@@ -544,7 +560,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 toast.error(strings.tags.regionTableTags.configureTag.errors.checkFields, { autoClose: 8000 });
                 break;
             default:
-                toast.success(`Successfully ${props.tableTag ? "reconfigure" : "saved"} "${tableTagName}" table tag.`, { autoClose: 8000 });
+                toast.success(`Successfully ${props.tableTag ? "reconfigured" : "saved"} "${tableTagName}" table tag.`, { autoClose: 8000 });
                 resetTypAndFormatAndSave(headersFormatAndType);
                 break;
         }
@@ -581,13 +597,26 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
         items.splice(selectedIndex, 1);
         items.splice(newIndex, 0, itemToBeMoved);
+        let mapItems;
+        if (props.tableTag) {
+            mapItems = role === TableElements.rows ? [...reconfigureRowMap] : [...reconfigureColumnMap];
+            const mapItemToBeMoved = mapItems[selectedIndex];
+            mapItems.splice(selectedIndex, 1);
+            mapItems.splice(newIndex, 0, mapItemToBeMoved);
+        }
 
         if (role === TableElements.rows) {
             rowSelection.setIndexSelected(newIndex, true, false);
             setRows(items);
+            if (props.tableTag) {
+                setReconfigureRowMap(mapItems);
+            }
         } else {
             columnSelection.setIndexSelected(newIndex, true, true);
             setColumns(items);
+            if (props.tableTag) {
+                setReconfigureColumnMap(mapItems)
+            }
         }
     }
 
@@ -605,7 +634,13 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 const tableRow = [];
                 for (let j = 0; j < columns.length + 1; j++) {
                     if (i === 0 && j !== 0) {
-                        tableRow.push(<th key={`col-h-${j}`} className="column_header">{columns[j - 1].name}</th>);
+                        tableRow.push(
+                            <th key={`col-h-${j}`} className="column_header">
+                                {props.tableTag && reconfigureColumnMap[j-1]?.name && columns[j - 1].name !== reconfigureColumnMap[j-1].name &&
+                                    <div className="renamed-header">{reconfigureColumnMap[j-1].name}</div>
+                                }
+                                <div>{columns[j - 1].name}</div>
+                            </th>);
                     } else if (j === 0 && i !== 0) {
                         if (!isRowDynamic) {
                             tableRow.push(<th key={`row-h-${j}`} className="row_header">{rows[i - 1].name}</th>);
