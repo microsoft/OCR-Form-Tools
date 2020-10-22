@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, SelectionMode, DetailsListLayoutMode, FontIcon, CheckboxVisibility, IContextualMenuItem, CommandBar, Selection, Separator, IObjectWithKey } from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme, getDefaultTheme } from '../../../../common/themes';
@@ -99,6 +99,7 @@ const typeOptions = () => {
 export default function TableTagConfig(props: ITableTagConfigProps) {
     const { setTagInputMode = null, addTableTag = null, splitPaneWidth = null } = props;
     const containerWidth = splitPaneWidth > 650 ? splitPaneWidth : 650;
+    const inputTableName = useRef(null);
 
     let table: ITableTagConfigState;
     if (props.tableTag) {
@@ -679,6 +680,11 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             (_.isEqual(columns, table.columns) && _.isEqual(rows, table.rows)) ? false : true)
     }, [columns, rows, table.columns, table.rows]);
 
+    // focus on table name input on component load
+    useEffect(() => {
+        inputTableName.current.focus();
+    }, []);
+
     // render
     return (
         <Customizer {...dark}>
@@ -686,6 +692,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 <h4 className="mt-2">{props.tableTag ? "Reconfigure table tag" : "Configure table tag"}</h4>
                 <h5 className="mt-3 ">Name:</h5>
                 <TextField
+                    componentRef={inputTableName}
                     className="table-name_input ml-12px"
                     theme={getGreenWithWhiteBackgroundTheme()}
                     onChange={(event) => setTableName(event.target["value"])}
