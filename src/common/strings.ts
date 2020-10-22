@@ -590,7 +590,7 @@ export interface IAppStrings {
         errors: {
             cannotDecodeString: string,
             connectionNotFound: string,
-            noConnections: string,
+            connectionRequirement: string,
             tokenNameExist: string,
         },
         copy: {

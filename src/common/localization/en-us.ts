@@ -41,8 +41,8 @@ export const english: IAppStrings = {
         },
         openCloudProject: {
             title: "Open Cloud Project",
-            selectConnection: "Select a Connection",
-            pasteSharedUri: "Please paste shared project string here",
+            selectConnection: "Open cloud project",
+            pasteSharedUri: "Paste shared project token here",
         },
         recentProjects: "Recent Projects",
         deleteProject: {
@@ -698,13 +698,13 @@ export const english: IAppStrings = {
     shareProject: {
         name: "Share Project",
         errors: {
-            cannotDecodeString: "Cannot decode shared string! Please, check if your string has been modified.",
+            cannotDecodeString: "Cannot decode shared token. Check if shared token has been modified.",
             connectionNotFound: "Connection not found. Add shared project's connection to your connections.",
-            noConnections: "Connection is required for project sharing",
+            connectionRequirement: "Shared project's connection must be added before opening it",
             tokenNameExist: "Warning! You already have token with same name as in shared project. Please create a new token, and update the existing project which uses ''${sharedTokenName}'' with new token name."
         },
         copy: {
-            success: "String for sharing your project has been saved to clipboard. In order to use it, paste it in appropriate section of the 'Open Cloud Project' popup.",
+            success: "Project token copied to clipboard and ready to share. Reciever of project token can click 'Open Cloud Project' from the Home page to use shared token.",
         }
     },
 };
