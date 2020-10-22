@@ -1207,8 +1207,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             }
         });
     }
+
     private setAutoLabelingStatus = (autoLabelingStatus: AutoLabelingStatus) => {
-        this.setState({ autoLabelingStatus: autoLabelingStatus }, () => {
+        this.setState({ autoLabelingStatus }, () => {
             if (this.props.onRunningAutoLabelingStatusChanged) {
                 this.props.onRunningAutoLabelingStatusChanged(autoLabelingStatus === AutoLabelingStatus.running);
             }
