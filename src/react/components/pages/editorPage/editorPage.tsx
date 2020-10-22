@@ -501,7 +501,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      */
     private handleTagHotKey = (event: KeyboardEvent): void => {
         const tag = this.getTagFromKeyboardEvent(event);
-        const selection = this.canvas.current.getSelectedRegions();
+        const selection = this.canvas?.current?.getSelectedRegions();
 
         if (tag && selection.length) {
             const { format, type, documentCount, name } = tag;
