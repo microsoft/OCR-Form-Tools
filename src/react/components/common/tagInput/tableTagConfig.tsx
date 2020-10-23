@@ -668,11 +668,11 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 const tableRow = [];
                 for (let j = 0; j < columns.length + 1; j++) {
                     if (i === 0 && j !== 0) {
-                        const columnHeaderWasRenamed = props.tableTag && reconfigureColumnMap[j-1]?.name && columns[j - 1].name !== reconfigureColumnMap[j-1].name;
+                        const columnHeaderWasRenamed = props.tableTag && reconfigureColumnMap[j - 1]?.name && columns[j - 1].name !== reconfigureColumnMap[j - 1].name;
                         tableRow.push(
                             <th key={`col-h-${j}`} className="column_header">
-                                {props.tableTag && reconfigureColumnMap[j - 1]?.name && columns[j - 1].name !== reconfigureColumnMap[j - 1].name &&
-                                    <div className="renamed-header">{reconfigureColumnMap[j - 1].name}</div>
+                                {columnHeaderWasRenamed &&
+                                    <div className="renamed-header-value">{reconfigureColumnMap[j - 1].name}</div>
                                 }
                                 <div className="column-header-value">
                                     {columns[j - 1].name}
@@ -680,12 +680,12 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                             </th>);
                     } else if (j === 0 && i !== 0) {
                         if (!isRowDynamic) {
-                            const rowHeaderWasRenamed = props.tableTag && reconfigureRowMap[i-1]?.name && rows[i - 1].name !== reconfigureRowMap[i-1].name;
+                            const rowHeaderWasRenamed = props.tableTag && reconfigureRowMap[i - 1]?.name && rows[i - 1].name !== reconfigureRowMap[i - 1].name;
                             tableRow.push(
                                 <th key={`row-h-${j}`} className="row_header">
                                     {rowHeaderWasRenamed &&
                                         <div className="renamed-header-value">
-                                            {reconfigureRowMap[i-1].name}
+                                            {reconfigureRowMap[i - 1].name}
                                         </div>
                                     }
                                     <div>
@@ -699,7 +699,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                             tableRow.push(<th key={"ignore"} className="empty_header" ></th>);
                         }
                     } else {
-                        tableRow.push(<td key={`cell-${i}-${j}`} className="table-cell"/>);
+                        tableRow.push(<td key={`cell-${i}-${j}`} className="table-cell" />);
                     }
                 }
                 tableBody.push(<tr key={`row-${i}`}>{tableRow}</tr>);
