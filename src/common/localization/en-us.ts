@@ -285,7 +285,7 @@ export const english: IAppStrings = {
             },
             tableLabeling: {
                 title: "Label table",
-                tableName: "Table name:",
+                tableName: "Table name",
                 description: {
                     title: "To start labeling your table:",
                     stepOne: "Select the words on the document you want to label",
