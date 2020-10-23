@@ -171,6 +171,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                                 splitPaneWidth={this.props.splitPaneWidth}
                                 tableTag={this.props.selectedTableTagToLabel}
                                 reconfigureTableConfirm={this.props.reconfigureTableConfirm}
+                                selectedTableBody={this.props.selectedTableTagBody}
                             />
                         </div>
                     </div>

@@ -40,7 +40,6 @@ import { toast } from "react-toastify";
 import { PredictService } from "../../../../services/predictService";
 import { AssetService } from "../../../../services/assetService";
 import clone from "rfdc";
-import { Tag } from "reactstrap";
 
 /**
  * Properties for Editor Page
@@ -853,9 +852,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private reconfigureTableConfirm = () => {
-        this.setState({reconfigureTableConfirm: true})
+        this.setState({ reconfigureTableConfirm: true });
         this.reconfigTableConfirm.current.open();
-
     }
 
     private loadProjectAssets = async (): Promise<void> => {

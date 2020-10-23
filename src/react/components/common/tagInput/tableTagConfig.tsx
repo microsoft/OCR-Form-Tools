@@ -17,6 +17,7 @@ interface ITableTagConfigProps {
     splitPaneWidth: number;
     tableTag?: ITableTag;
     reconfigureTableConfirm?: () => void;
+    selectedTableBody: ITableRegion[][][];
 }
 
 interface ITableTagConfigState {
@@ -868,8 +869,20 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     <PrimaryButton
                         className="cancel"
                         theme={getPrimaryGreyTheme()}
-                        onClick={() => setTagInputMode(TagInputMode.Basic, null, null)}
-                    >Cancel</PrimaryButton>
+                        onClick={() => {
+                            if (props.tableTag) {
+                                if (props.selectedTableBody) {
+                                    if (!props.selectedTableBody[0].length || props.selectedTableBody.length !== 0)
+                                        setTagInputMode(TagInputMode.LabelTable,
+                                            props.tableTag,
+                                            props.selectedTableBody);
+                                } else {
+                                    setTagInputMode(TagInputMode.Basic, null, null);
+                                }
+                            } else {
+                                setTagInputMode(TagInputMode.Basic, null, null);
+                            }
+                        }}>Cancel</PrimaryButton>
                     <PrimaryButton
                         className="save"
                         theme={getPrimaryGreenTheme()}
