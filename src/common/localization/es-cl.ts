@@ -452,8 +452,8 @@ export const spanish: IAppStrings = {
                     additionalActions: {
                         text: "Acciones adicionales",
                         subIMenuItems: {
-                            runOcrOnCurrentDocument: "Ejecutar OCR en el documento actual",
-                            runOcrOnAllDocuments: "Ejecute OCR en todos los documentos",
+                            runOcrOnCurrentDocument: "Ejecutar Layout en el documento actual",
+                            runOcrOnAllDocuments: "Ejecute Layout en todos los documentos",
                             runAutoLabelingCurrentDocument: "Etiquetar automáticamente el documento actual",
                             runAutoLabelingOnNotLabelingDocuments: "Etiquetar automáticamente los siguientes ${batchSize} documentos sin etiquetar",
                             noPredictModelOnProject: "Predecir modelo no disponible, entrene el modelo primero.",
