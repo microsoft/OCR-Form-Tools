@@ -91,6 +91,7 @@
                     text-align: center;
                     padding: .125rem .25rem;
                     height: 1.5rem;
+                    vertical-align: middle;
                 }
                 .row_header {
                     min-width: 130px;
@@ -151,7 +152,7 @@
     margin-top: 6px;
  }
 
- .renamed-header {
+ .renamed-header-value {
     text-decoration: line-through;
     color: rgb(177, 177, 177);
  }

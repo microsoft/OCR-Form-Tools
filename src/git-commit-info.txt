@@ -1,0 +1,5 @@
+commit 8785f08f8fd966a474665d4e4d236e0d4426e621
+Author: Alex Chen <v-yongbc@microsoft.com>
+Date:   Thu Oct 22 21:19:39 2020 +0800
+
+    tslint check

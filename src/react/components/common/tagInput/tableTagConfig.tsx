@@ -374,7 +374,11 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 text: 'Delete row',
                 iconOnly: true,
                 iconProps: { iconName: 'Delete' },
-                onClick: () => setRows(rows.filter((i, idx) => idx !== rowSelection.getSelectedIndices()[0])),
+                onClick: () => {
+                    const selectedRowIndex = rowSelection.getSelectedIndices()[0];
+                    setReconfigureRowMap(reconfigureRowMap.filter((i, idx) => idx !== selectedRowIndex))
+                    setRows(rows.filter((i, idx) => idx !== selectedRowIndex))
+                },
                 disabled: !selectedRow!  || rows.length === 1,
             },
             {
@@ -430,7 +434,11 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 text: 'Delete column',
                 iconOnly: true,
                 iconProps: { iconName: 'Delete', },
-                onClick: () => setColumns(columns.filter((i, idx) => idx !== columnSelection.getSelectedIndices()[0])),
+                onClick: () => {
+                    const selectedColumnIndex = columnSelection.getSelectedIndices()[0];
+                    setReconfigureColumnMap(reconfigureColumnMap.filter((i, idx) => idx !== selectedColumnIndex));
+                    setColumns(columns.filter((i, idx) => idx !== selectedColumnIndex));
+                },
                 disabled: !selectedColumn || columns.length === 1,
             },
             {
@@ -523,10 +531,51 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         }
         addTableTag(tableTagToAdd);
         setTagInputMode(TagInputMode.Basic, null, null);
+        toast.success(`Successfully ${props.tableTag ? "reconfigured" : "saved"} "${tableTagName}" table tag.`, { autoClose: 8000 });
     }
 
     function hasEmptyNames(array: ITableConfigItem[]) {
         return array.find((i) => !i.name.length) !== undefined ? true : false
+    }
+
+    function getDeletedColumnHeaders() {
+        return props.tableTag.columnKeys.map((columnKey) => {
+            if (!reconfigureColumnMap.find((reconfiguredColumnKey) => reconfiguredColumnKey?.name === columnKey.fieldKey)) {
+                return columnKey.fieldKey;
+            }
+        })
+    }
+
+    function getDeletedRowHeaders() {
+        return props.tableTag.rowKeys.map((rowKey) => {
+            if (!reconfigureRowMap.find((reconfiguredRowKey) => reconfiguredRowKey?.name === rowKey.fieldKey)) {
+                return rowKey.fieldKey;
+            }
+        })
+    }
+
+    function getRenamedColumnHeaders() {
+        const renamedColumns = {};
+        for (let i = 0; i < columns.length; i++) {
+            const columnName =  reconfigureColumnMap[i]?.name;
+            const renamedColumnName = columns[i]?.name;
+            if (renamedColumnName !== columnName) {
+                renamedColumns[columnName] = renamedColumnName
+            }
+        }
+        return renamedColumns;
+    }
+
+    function getRenamedRowHeaders() {
+        const renamedRows = {};
+        for (let i = 0; i < rows.length; i++) {
+            const rowName =  reconfigureRowMap[i]?.name;
+            const renamedRowName = rows[i]?.name;
+            if (renamedRowName !== rowName) {
+                renamedRows[rowName] = renamedRowName
+            }
+        }
+        return renamedRows;
     }
 
     function resetTypAndFormatAndSave(headersFormatAndType) {
@@ -550,21 +599,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         save(newRows, newColumns);
     }
 
-    function validateInputAndSave() {
-        switch (true) {
-            case notUniqueNames.rows.length > 0:
-            case notUniqueNames.columns.length > 0:
-            case notUniqueNames.tags:
-            case !tableTagName.length:
-            case hasEmptyNames(columns):
-            case (format === FieldFormat.Fixed && hasEmptyNames(rows)):
-                toast.error(strings.tags.regionTableTags.configureTag.errors.checkFields, { autoClose: 8000 });
-                break;
-            default:
-                toast.success(`Successfully ${props.tableTag ? "reconfigured" : "saved"} "${tableTagName}" table tag.`, { autoClose: 8000 });
-                resetTypAndFormatAndSave(headersFormatAndType);
-                break;
-        }
+    function validateInput() {
+        return !(notUniqueNames.rows.length > 0 || notUniqueNames.columns.length > 0 || notUniqueNames.tags ||
+            !tableTagName.length || hasEmptyNames(columns) || (format === FieldFormat.Fixed && hasEmptyNames(rows)));
     }
 
     // row selection
@@ -635,16 +672,33 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 const tableRow = [];
                 for (let j = 0; j < columns.length + 1; j++) {
                     if (i === 0 && j !== 0) {
+                        const columnHeaderWasRenamed = props.tableTag && reconfigureColumnMap[j-1]?.name && columns[j - 1].name !== reconfigureColumnMap[j-1].name;
                         tableRow.push(
                             <th key={`col-h-${j}`} className="column_header">
-                                {props.tableTag && reconfigureColumnMap[j-1]?.name && columns[j - 1].name !== reconfigureColumnMap[j-1].name &&
-                                    <div className="renamed-header">{reconfigureColumnMap[j-1].name}</div>
+                                {columnHeaderWasRenamed &&
+                                    <div className="renamed-header-value">
+                                        {reconfigureColumnMap[j-1].name}
+                                    </div>
                                 }
-                                <div>{columns[j - 1].name}</div>
+                                <div className="column-header-value">
+                                    {columns[j - 1].name}
+                                </div>
                             </th>);
                     } else if (j === 0 && i !== 0) {
                         if (!isRowDynamic) {
-                            tableRow.push(<th key={`row-h-${j}`} className="row_header">{rows[i - 1].name}</th>);
+                            const rowHeaderWasRenamed = props.tableTag && reconfigureRowMap[i-1]?.name && rows[i - 1].name !== reconfigureRowMap[i-1].name;
+                            tableRow.push(
+                                <th key={`row-h-${j}`} className="row_header">
+                                    {rowHeaderWasRenamed &&
+                                        <div className="renamed-header-value">
+                                            {reconfigureRowMap[i-1].name}
+                                        </div>
+                                    }
+                                    <div>
+                                        {rows[i - 1].name}
+                                    </div>
+                                </th>
+                            );
                         }
                     } else if (j === 0 && i === 0) {
                         if (!isRowDynamic) {
@@ -818,10 +872,23 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         className="save"
                         theme={getPrimaryGreenTheme()}
                         onClick={() => {
-                            if (props.tableTag) {
-                                props.reconfigureTableConfirm();
+                            if (!validateInput()) {
+                                toast.error(strings.tags.regionTableTags.configureTag.errors.checkFields, { autoClose: 8000 });
+                                return;
                             } else {
-                                validateInputAndSave()
+                                if (props.tableTag) {
+                                    const deletedColumnHeaders = getDeletedColumnHeaders();
+                                    const renamedColumnHeaders = getRenamedColumnHeaders();
+                                    const deletedRowHeaders = getDeletedRowHeaders();
+                                    const renamedRowHeaders = getRenamedRowHeaders();
+                                    console.log(deletedColumnHeaders);
+                                    console.log(renamedColumnHeaders);
+                                    console.log(deletedRowHeaders);
+                                    console.log(renamedRowHeaders);
+                                    props.reconfigureTableConfirm();
+                                } else {
+                                    resetTypAndFormatAndSave(headersFormatAndType);
+                                }
                             }
                         }
                         }>Save</PrimaryButton>
