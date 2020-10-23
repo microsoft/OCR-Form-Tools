@@ -100,6 +100,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     const { setTagInputMode = null, addTableTag = null, splitPaneWidth = null } = props;
     const containerWidth = splitPaneWidth > 650 ? splitPaneWidth : 650;
     const inputTableName = useRef(null);
+    const lastColumnInputRef = useRef(null);
+    const lastRowInputRef = useRef(null);
 
     let table: ITableTagConfigState;
     if (props.tableTag) {
@@ -148,6 +150,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     const [selectedColumn, setSelectedColumn] = useState<IObjectWithKey>(undefined);
     const [selectedRow, setSelectedRow] = useState<IObjectWithKey>(undefined);
     // const [headerTypeAndFormat, setHeaderTypeAndFormat] = useState<string>(table.headerTypeAndFormat);
+    const [shouldAutoFocus, setShouldAutoFocus] = useState(null);
 
     function selectColumnType(idx: number, type: string) {
         setColumns(columns.map((col, currIdx) => idx === currIdx ? { ...col, type, format: FieldFormat.NotSpecified } : col
@@ -169,7 +172,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     }
 
     const detailListWidth = {
-        nameInput: containerWidth *0.5,
+        nameInput: containerWidth * 0.5,
         typeInput: containerWidth * 0.165,
         formatInput: containerWidth * 0.165,
     }
@@ -184,7 +187,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             onRender: (row, index) => {
                 return (
                     <TextField
-                        className="column-name_input"
+                        componentRef={(index === columns.length - 1 && index !== 0) ? lastColumnInputRef: null}
+                        className={"column-name_input"}
                         theme={getGreenWithWhiteBackgroundTheme()}
                         onChange={(e) => handleTextInput(e.target["value"], TableElements.column, index)}
                         value={row.name}
@@ -247,6 +251,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             onRender: (row, index) => {
                 return (
                     <TextField
+                    componentRef={(index === rows.length - 1 && index !== 0) ? lastRowInputRef: null}
                         className="row-name_input"
                         theme={getGreenWithWhiteBackgroundTheme()}
                         onChange={(e) => handleTextInput(e.target["value"], TableElements.row, index)}
@@ -307,6 +312,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         if (props.tableTag) {
             setReconfigureColumnMap([...reconfigureColumnMap, null]);
         }
+        setShouldAutoFocus(TableElements.column);
     }
 
     function addRow() {
@@ -314,9 +320,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         if (props.tableTag) {
             setReconfigureRowMap([...reconfigureRowMap, null]);
         }
-
+        setShouldAutoFocus(TableElements.row);
     }
-
 
     function handleTextInput(name: string, role: string, index: number) {
         if (role === TableElements.column) {
@@ -338,7 +343,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         setTableTagName(name);
     }
 
-    // CommandBar
+    // Row/Column headers command bar (reorder, delete)
     function getRowsHeaderItems(): IContextualMenuItem[] {
         const currSelectionIndex = rowSelection.getSelectedIndices()[0];
         return [
@@ -346,7 +351,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 key: 'Name',
                 text: 'Name',
                 className: "list-headers_name",
-                style: {width: detailListWidth.nameInput - 122},
+                style: { width: detailListWidth.nameInput - 122 },
                 disabled: true,
             },
             {
@@ -367,19 +372,15 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 onClick: (e) => {
                     onReOrder(1, TableElements.rows)
                 },
-                disabled: !selectedRow! || currSelectionIndex === rows.length -1,
+                disabled: !selectedRow! || currSelectionIndex === rows.length - 1,
             },
             {
                 key: 'deleteRow',
                 text: 'Delete row',
                 iconOnly: true,
                 iconProps: { iconName: 'Delete' },
-                onClick: () => {
-                    const selectedRowIndex = rowSelection.getSelectedIndices()[0];
-                    setReconfigureRowMap(reconfigureRowMap.filter((i, idx) => idx !== selectedRowIndex))
-                    setRows(rows.filter((i, idx) => idx !== selectedRowIndex))
-                },
-                disabled: !selectedRow!  || rows.length === 1,
+                onClick: () => setRows(rows.filter((i, idx) => idx !== rowSelection.getSelectedIndices()[0])),
+                disabled: !selectedRow! || rows.length === 1,
             },
             {
                 key: 'type',
@@ -404,7 +405,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 key: 'Name',
                 text: 'Name',
                 className: "list-headers_name",
-                style: {width: detailListWidth.nameInput - 120},
+                style: { width: detailListWidth.nameInput - 120 },
                 disabled: true,
                 resizable: true,
             },
@@ -427,7 +428,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 onClick: (e) => {
                     onReOrder(1, TableElements.columns)
                 },
-                disabled: !selectedColumn || currSelectionIndex === columns.length -1,
+                disabled: !selectedColumn || currSelectionIndex === columns.length - 1,
             },
             {
                 key: 'deleteColumn',
@@ -488,7 +489,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         setNotUniqueNames({ ...notUniqueNames, [arrayName]: notUniques })
     }
 
-    // check names uniqueness for rows and columns as you type , with a delay
+    // Check names uniqueness for rows and columns as you type , with a delay
     const delay = 400;
     const debouncedColumns = useDebounce(columns, delay);
     const debouncedRows = useDebounce(rows, delay);
@@ -497,7 +498,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         if (columns) {
             checkNameUniqueness(debouncedColumns, TableElements.columns)
         }
-    },[debouncedColumns]);
+    }, [debouncedColumns]);
 
     useEffect(() => {
         if (rows) {
@@ -505,7 +506,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         }
     }, [debouncedRows]);
 
-    // check tableName uniqueness as type
+    // Check tableName uniqueness as type
     const debouncedTableTagName = useDebounce(tableTagName, delay);
 
     useEffect(() => {
@@ -516,7 +517,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     }, [debouncedTableTagName, currentProjectTags]);
 
     function trimFieldNames(array: ITableConfigItem[]) {
-        return array.map(i => ({...i, name: i.name.trim()}));
+        return array.map(i => ({ ...i, name: i.name.trim() }));
     }
 
     function save(rows: ITableConfigItem[], columns: ITableConfigItem[]) {
@@ -604,7 +605,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             !tableTagName.length || hasEmptyNames(columns) || (format === FieldFormat.Fixed && hasEmptyNames(rows)));
     }
 
-    // row selection
+    // Row selection
     const rowSelection = useMemo(() =>
         new Selection({
             onSelectionChanged: () => {
@@ -621,8 +622,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         }), []
     );
 
-
-    // reorder items
+    // Reorder items
     function onReOrder(displacement: number, role: string) {
         const items = role === TableElements.rows ? [...rows] : [...columns];
         const selection = role === TableElements.rows ? rowSelection : columnSelection;
@@ -658,10 +658,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         }
     }
 
-    // useEffect(() => {
-    //     console.log("# rows:", rows, ", cols:", columns)
-    // }, [columns, rows]);
-
     // Table preview
     function getTableBody() {
         let tableBody = null;
@@ -675,10 +671,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         const columnHeaderWasRenamed = props.tableTag && reconfigureColumnMap[j-1]?.name && columns[j - 1].name !== reconfigureColumnMap[j-1].name;
                         tableRow.push(
                             <th key={`col-h-${j}`} className="column_header">
-                                {columnHeaderWasRenamed &&
-                                    <div className="renamed-header-value">
-                                        {reconfigureColumnMap[j-1].name}
-                                    </div>
+                                {props.tableTag && reconfigureColumnMap[j - 1]?.name && columns[j - 1].name !== reconfigureColumnMap[j - 1].name &&
+                                    <div className="renamed-header">{reconfigureColumnMap[j - 1].name}</div>
                                 }
                                 <div className="column-header-value">
                                     {columns[j - 1].name}
@@ -715,8 +709,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     };
 
 
-
-
     function getTableTagNameErrorMessage(): string {
         if (props.tableTag && tableTagName.trim() === props.tableTag.name) {
             return "";
@@ -734,15 +726,25 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             (_.isEqual(columns, table.columns) && _.isEqual(rows, table.rows)) ? false : true)
     }, [columns, rows, table.columns, table.rows]);
 
-    // focus on table name input on component load
+    // Focus once on table name input when the component loads
     useEffect(() => {
         inputTableName.current.focus();
     }, []);
+        // Sets focus on last added input
+        useEffect(() => {
+            if (shouldAutoFocus === TableElements.column && lastColumnInputRef.current) {
+                lastColumnInputRef.current.focus();
+            }
+            else if (shouldAutoFocus === TableElements.row && lastRowInputRef.current) {
+                lastRowInputRef.current.focus();
+            }
+            setShouldAutoFocus(null);
+        }, [shouldAutoFocus]);
 
-    // render
+    // Render
     return (
         <Customizer {...dark}>
-            <div className="config-view_container" style={{width: containerWidth - 8}}>
+            <div className="config-view_container" style={{ width: containerWidth - 8 }}>
                 <h4 className="mt-2">{props.tableTag ? "Reconfigure table tag" : "Configure table tag"}</h4>
                 <h5 className="mt-3 ">Name:</h5>
                 <TextField
@@ -803,12 +805,12 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
                         />
                     </div>
-                        <PrimaryButton
-                            theme={getPrimaryBlueTheme()}
-                            className="add_button ml-12px"
-                            autoFocus={true}
-                            onClick={addColumn}>
-                            <FontIcon iconName="Add" className="mr-2" />
+                    <PrimaryButton
+                        theme={getPrimaryBlueTheme()}
+                        className="add_button ml-12px"
+                        autoFocus={true}
+                        onClick={addColumn}>
+                        <FontIcon iconName="Add" className="mr-2"/>
                     Add column
                 </PrimaryButton>
                 </div>
