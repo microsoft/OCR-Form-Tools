@@ -1,31 +1,33 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { SyntheticEvent } from "react";
-import { connect } from "react-redux";
-import { RouteComponentProps } from "react-router-dom";
-import { bindActionCreators } from "redux";
-import { FontIcon } from "@fluentui/react";
-import { strings, interpolate } from "../../../../common/strings";
-import { getPrimaryRedTheme } from "../../../../common/themes";
+/* eslint-disable jsx-a11y/anchor-is-valid */
+
+import React, {SyntheticEvent} from "react";
+import {connect} from "react-redux";
+import {RouteComponentProps} from "react-router-dom";
+import {bindActionCreators} from "redux";
+import {FontIcon} from "@fluentui/react";
+import {strings, interpolate} from "../../../../common/strings";
+import {getPrimaryRedTheme} from "../../../../common/themes";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
-import { CloudFilePicker } from "../../common/cloudFilePicker/cloudFilePicker";
+import {CloudFilePicker} from "../../common/cloudFilePicker/cloudFilePicker";
 import FilePicker from "../../common/filePicker/filePicker";
 import CondensedList from "../../common/condensedList/condensedList";
 import Confirm from "../../common/confirm/confirm";
 import "./homePage.scss";
 import RecentProjectItem from "./recentProjectItem";
-import { constants } from "../../../../common/constants";
+import {constants} from "../../../../common/constants";
 import {
     IApplicationState, IConnection, IProject,
     ErrorCode, AppError, IAppSettings,
 } from "../../../../models/applicationState";
-import { StorageProviderFactory } from "../../../../providers/storage/storageProviderFactory";
-import { decryptProject } from "../../../../common/utils";
-import { toast } from "react-toastify";
-import { isElectron } from "../../../../common/hostProcess";
+import {StorageProviderFactory} from "../../../../providers/storage/storageProviderFactory";
+import {decryptProject} from "../../../../common/utils";
+import {toast} from "react-toastify";
+import {isElectron} from "../../../../common/hostProcess";
 import ProjectService from "../../../../services/projectService";
 
 export interface IHomePageProps extends RouteComponentProps, React.Props<HomePage> {
@@ -67,19 +69,19 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
     };
 
     private filePicker: React.RefObject<FilePicker> = React.createRef();
-    private newProjectRef = React.createRef<HTMLAnchorElement>();
+    // private newProjectRef = React.createRef<HTMLAnchorElement>();
     private deleteConfirmRef = React.createRef<Confirm>();
     private cloudFilePickerRef = React.createRef<CloudFilePicker>();
     private importConfirmRef: React.RefObject<Confirm> = React.createRef();
 
     public async componentDidMount() {
         this.props.appTitleActions.setTitle("Welcome");
-        this.newProjectRef.current.focus();
+        // this.newProjectRef.current.focus();
         document.title = strings.homePage.title + " - " + strings.appName;
     }
 
     public async componentDidUpdate() {
-        this.newProjectRef.current.focus();
+        // this.newProjectRef.current.focus();
     }
 
     public render() {
@@ -88,19 +90,43 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                 <div className="app-homepage-main">
                     <ul>
                         <li>
-                            {/* eslint-disable-next-line */}
+                            <a id="home_prebuilt"
+                                onClick={this.onPrebuiltClicked}
+                                className="p-5"
+                                role="button">
+                                <FontIcon iconName="ContactCard" className="icon-7x" />
+                                <div className="title">Use prebuilt model to get data</div>
+                            </a>
+                        </li>
+                        <li>
+                            <a onClick={this.onUseLayoutToGetTextAndTAblesClicked}
+                                role="button"
+                                className="p-5">
+                                <FontIcon iconName="Table" className="icon-7x" />
+                                <div className="title">Use Layout to get text and tables</div>
+                            </a>
+                        </li>
+                        <li>
+                            <a onClick={this.onTrainAndUseAModelWithoutLables}
+                                role="button"
+                                className="p-5">
+                                <FontIcon iconName="MachineLearning" className="icon-7x" />
+                                <div className="title">Train and use a model without labels</div>
+                            </a>
+                        </li>
+                        {/* <li>
                             <a ref={this.newProjectRef}
                                 id="home_newProject"
                                 href="#" onClick={this.createNewProject} className="p-5 new-project skipToMainContent" role="button">
-                                <FontIcon iconName="AddTo" className="icon-9x"  />
+                                <FontIcon iconName="AddTo" className="icon-7x" />
                                 <div>{strings.homePage.newProject}</div>
                             </a>
-                        </li>
+                        </li> */}
                         {isElectron() &&
                             <li>
                                 <a href="#" className="p-5 file-upload"
                                     onClick={() => this.filePicker.current.upload()} >
-                                    <FontIcon iconName="System" className="icon-9x" />
+                                    <FontIcon iconName="System" className="icon-7x" />
                                     <h6>{strings.homePage.openLocalProject.title}</h6>
                                 </a>
                                 <FilePicker ref={this.filePicker}
@@ -110,25 +136,34 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                                 />
                             </li>
                         }
-                        <li>
-                            {/*Open Cloud Project*/}
-                            {/* eslint-disable-next-line */}
+                        {/* <li>
                             <a href="#" onClick={this.handleOpenCloudProjectClick}
                                 className="p-5 cloud-open-project" role="button">
-                                <FontIcon iconName="Cloud" className="icon-9x" />
+                                <FontIcon iconName="Cloud" className="icon-7x" />
                                 <div>{strings.homePage.openCloudProject.title}</div>
                             </a>
-                            <CloudFilePicker
-                                ref={this.cloudFilePickerRef}
-                                connections={this.props.connections}
-                                onSubmit={(content, sharedToken?) => this.loadSelectedProject(JSON.parse(content), sharedToken)}
-                                fileExtension={constants.projectFileExtension}
-                            />
-                        </li>
+
+                        </li> */}
+                        <CloudFilePicker
+                            ref={this.cloudFilePickerRef}
+                            connections={this.props.connections}
+                            onSubmit={(content, sharedToken?) => this.loadSelectedProject(JSON.parse(content), sharedToken)}
+                            fileExtension={constants.projectFileExtension}
+                        />
                     </ul>
                 </div>
                 {(this.props.recentProjects && this.props.recentProjects.length > 0) &&
                     <div className="app-homepage-recent bg-lighter-1">
+                        <div className="app-homepage-open-cloud-project" role="button"
+                            onClick={this.createNewProject}>
+                            <FontIcon iconName="AddTo" className="icon" />
+                            <span className="title">{strings.homePage.newProject}</span>
+                        </div>
+                        <div className="app-homepage-open-cloud-project" role="button"
+                            onClick={this.onOpenCloudProjectClicked}>
+                            <FontIcon iconName="Cloud" className="icon" />
+                            <span className="title">Open Cloud Project</span>
+                        </div>
                         <CondensedList
                             title={strings.homePage.recentProjects}
                             Component={RecentProjectItem}
@@ -153,7 +188,18 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
         e.preventDefault();
     }
 
-    private handleOpenCloudProjectClick = () => {
+    private onPrebuiltClicked = () => {
+        this.props.history.push("/prebuilts-predict");
+    }
+
+    private onUseLayoutToGetTextAndTAblesClicked = () => {
+        this.props.history.push("/text-and-tables");
+    }
+
+    private onTrainAndUseAModelWithoutLables = () => {
+
+    }
+    private onOpenCloudProjectClicked = () => {
         this.cloudFilePickerRef.current.open();
     }
 
@@ -165,10 +211,10 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
             }
         } catch (error) {
             if (error instanceof AppError && error.errorCode === ErrorCode.SecurityTokenNotFound) {
-                toast.error(strings.errors.securityTokenNotFound.message, { autoClose: 5000 });
+                toast.error(strings.errors.securityTokenNotFound.message, {autoClose: 5000});
             }
-            if(error instanceof AppError && error.errorCode === ErrorCode.ProjectInvalidSecurityToken) {
-                toast.error(strings.errors.projectInvalidSecurityToken.message, { autoClose: 5000 });
+            if (error instanceof AppError && error.errorCode === ErrorCode.ProjectInvalidSecurityToken) {
+                toast.error(strings.errors.projectInvalidSecurityToken.message, {autoClose: 5000});
             }
         }
     }
@@ -179,7 +225,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
             .find((securityToken) => securityToken.name === project.securityToken);
 
         if (!projectToken) {
-            toast.error(strings.errors.securityTokenNotFound.message, { autoClose: 3000 });
+            toast.error(strings.errors.securityTokenNotFound.message, {autoClose: 3000});
             return;
         }
 
@@ -204,12 +250,12 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                     throw err;
                 }
             }
-            const selectedProject = { ...JSON.parse(projectStr), sourceConnection: project.sourceConnection };
+            const selectedProject = {...JSON.parse(projectStr), sourceConnection: project.sourceConnection};
             await this.loadSelectedProject(selectedProject);
         } catch (err) {
             if (err instanceof AppError && err.errorCode === ErrorCode.BlobContainerIONotFound) {
-                const reason = interpolate(strings.errors.projectNotFound.message, { file: `${project.name}${constants.projectFileExtension}`, container: project.sourceConnection.name });
-                toast.error(reason, { autoClose: false });
+                const reason = interpolate(strings.errors.projectNotFound.message, {file: `${project.name}${constants.projectFileExtension}`, container: project.sourceConnection.name});
+                toast.error(reason, {autoClose: false});
                 return;
             }
             throw err;
@@ -220,10 +266,10 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
         try {
             await this.props.actions.deleteProject(project);
         } catch (error) {
-            if(error instanceof AppError && error.errorCode === ErrorCode.SecurityTokenNotFound){
-                toast.error(error.message, {autoClose:false});
+            if (error instanceof AppError && error.errorCode === ErrorCode.SecurityTokenNotFound) {
+                toast.error(error.message, {autoClose: false});
             }
-            else{
+            else {
                 throw error;
             }
         }

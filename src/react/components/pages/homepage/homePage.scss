@@ -1,4 +1,4 @@
-@import '../../../../assets/sass/theme.scss';
+@import "../../../../assets/sass/theme.scss";
 
 .app-homepage {
     flex-grow: 1;
@@ -13,24 +13,29 @@
         ul {
             display: flex;
             flex-direction: row;
-            align-items: center;
-            justify-content: center;
+            align-items: stretch;
+            justify-content: space-around;
             margin: auto;
-            flex-wrap: wrap;
+            // flex-wrap: wrap;
 
             padding: 0;
 
             li {
                 list-style-type: none;
                 text-align: center;
-
+                min-width: 24%;
                 a {
                     display: inline-block;
+                    .title {
+                        max-width: 12em;
+                    }
 
-                    &.active, &:hover {
+                    &.active,
+                    &:hover {
                         color: #fff;
                         background-color: $lighter-2;
                         text-decoration: none;
+                        flex-wrap: wrap;
                     }
                 }
             }
@@ -41,5 +46,22 @@
         flex-basis: 20vw;
         min-width: 250px;
         max-width: 300px;
+    }
+    &-open-cloud-project {
+        display: flex;
+        align-items: center;
+        &:hover {
+            color: #fff;
+            background-color: $lighter-2;
+            text-decoration: none;
+        }
+        .icon {
+            margin: 10px;
+            font-size: 2.5em;
+        }
+        .title {
+            font-size: 1.2em;
+            margin: 10px;
+        }
     }
 }

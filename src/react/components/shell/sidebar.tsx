@@ -71,6 +71,11 @@ export function Sidebar({ project }) {
                         <FontIcon iconName="KeyPhraseExtraction" />
                     </NavLink>
                 </li>
+                <li className="prebuilt-demo-sidebar-item">
+                    <NavLink title={"text and table"} to={`/text-and-tables`} role="button">
+                        <FontIcon iconName="Table" />
+                    </NavLink>
+                </li>
             </ul>
             <div className="app-sidebar-fill"></div>
             <ul>

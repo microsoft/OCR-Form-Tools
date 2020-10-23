@@ -75,8 +75,16 @@
       "unicode": "EA3A"
     },
     {
+      "name": "ClearFilter",
+      "unicode": "EF8F"
+    },
+    {
       "name": "Cloud",
       "unicode": "E753"
+    },
+    {
+      "name": "ContactCard",
+      "unicode": "EEBD"
     },
     {
       "name": "Copy",
@@ -109,6 +117,14 @@
     {
       "name": "Filter",
       "unicode": "E71C"
+    },
+    {
+      "name": "GroupedList",
+      "unicode": "EF74"
+    },
+    {
+      "name": "GroupList",
+      "unicode": "F168"
     },
     {
       "name": "Help",

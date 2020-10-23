@@ -263,7 +263,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     drawRegionMode={this.state.drawRegionMode}
                     project={this.props.project}
                     selectedAsset={this.props.selectedAsset}
-                    parentPage={strings.editorPage.title}
+                    // parentPage={strings.editorPage.title}
+                    showLayerMenu={true}
+                    showActionMenu={true}
                 />
                 <ImageMap
                     parentPage={ImageMapParent.Editor}
