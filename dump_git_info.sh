@@ -1,3 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
-git log -1 > src/git-commit-info.txt || echo 'Not a Git repo. Continue...'
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+git log -1 > $DIR/src/git-commit-info.txt || echo 'Not a Git repo. Continue...'
