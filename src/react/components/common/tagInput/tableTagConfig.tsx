@@ -830,7 +830,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     <PrimaryButton
                         theme={getPrimaryBlueTheme()}
                         className="add_button ml-12px"
-                        autoFocus={true}
                         onClick={addColumn}>
                         <FontIcon iconName="Add" className="mr-2"/>
                     Add column
@@ -863,7 +862,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         <PrimaryButton
                             theme={getPrimaryBlueTheme()}
                             className="add_button ml-12px"
-                            autoFocus={true}
                             onClick={addRow}>
                             <FontIcon iconName="Add" className="mr-2" />
                                 Add row
