@@ -31,10 +31,7 @@
             margin-left: 0;
         }
         .ms-DetailsRow-cellCheck {
-            display: flex;
-            height: 2rem;
-            min-height: 100%;
-            margin-right: -11px;
+            margin-right: -12px;
             margin-top: 23px;
         }
 
@@ -104,9 +101,23 @@
         h5 {
             margin-left: 0;
         }
+        .tableName {
+            &-current {
+                color: rgba(255, 255, 255, 0.85);
+                padding-left: 4px;
+            }
+            &-original {
+                font-size: 14px;
+                font-weight: 300;
+                margin-left: 10px;
+                color: rgb(177, 177, 177);
+            }
+        }
+
         .table_container {
             overflow: auto;
             .table {
+                margin-top: 1rem;
                 td, th {
                     border: 2px solid #8D8D8D;
                     color: white;
