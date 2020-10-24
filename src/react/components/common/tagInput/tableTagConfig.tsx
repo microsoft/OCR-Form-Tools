@@ -28,6 +28,7 @@ interface ITableTagConfigState {
     headerTypeAndFormat: string;
     reconfigureRowMap?: any;
     reconfigureColumnMap?: any;
+    originalName?: string;
 }
 interface ITableConfigItem {
     name: string,
@@ -110,8 +111,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             table = {
                 name: props.tableTag.name,
                 format: FieldFormat.Fixed,
-                rows: props.tableTag.rowKeys?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat })),
-                columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat })),
+                rows: props.tableTag.rowKeys?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat, originalName: row.fieldKey })),
+                columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey })),
                 headerTypeAndFormat: TableElements.columns,
                 reconfigureColumnMap: null,
             }
@@ -122,7 +123,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 name: props.tableTag.name,
                 format: FieldFormat.RowDynamic,
                 rows: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
-                columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat })),
+                columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat,  originalName: col.fieldKey })),
                 headerTypeAndFormat: TableElements.columns,
                 reconfigureColumnMap: null,
             }
@@ -194,6 +195,14 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         onChange={(e) => handleTextInput(e.target["value"], TableElements.column, index)}
                         value={row.name}
                         errorMessage={getTextInputError(notUniqueNames.columns, row.name.trim(), index)}
+                        onRenderLabel={() => {
+                            return row.originalName ?
+                                <div className={"input-label-original-name"}>
+                                    <span className={"input-label-original-name-title"}>Original name: </span>
+                                    <span className={"input-label-original-name-text"}>{row.originalName}</span>
+                                </div>
+                                : null;
+                        }}
                     />
                 )
             },
@@ -207,6 +216,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             onRender: (row, index) => headersFormatAndType === TableElements.columns ?
                 <Customizer {...defaultTheme}>
                     <Dropdown
+                        style={{marginTop: 16}}
                         className="type_dropdown"
                         placeholder={row.type}
                         defaultSelectedKey={FieldType.String}
@@ -228,6 +238,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             onRender: (row, index) => headersFormatAndType === TableElements.columns ?
                 <Customizer {...defaultTheme}>
                     <Dropdown
+                        style={{marginTop: 16}}
                         className="format_dropdown"
                         placeholder={row.format}
                         selectedKey={row.format}
@@ -252,12 +263,20 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             onRender: (row, index) => {
                 return (
                     <TextField
-                    componentRef={(index === rows.length - 1 && index !== 0) ? lastRowInputRef: null}
+                        // style={{ borderBottom: "1px solid gray" }}
                         className="row-name_input"
                         theme={getGreenWithWhiteBackgroundTheme()}
                         onChange={(e) => handleTextInput(e.target["value"], TableElements.row, index)}
                         value={row.name}
                         errorMessage={getTextInputError(notUniqueNames.rows, row.name, index)}
+                        onRenderLabel={() => {
+                            return row.originalName ?
+                                <div className={"input-label-original-name"}>
+                                    <span className={"input-label-original-name-title"}>Original name: </span>
+                                    <span className={"input-label-original-name-text"}>{row.originalName}</span>
+                                </div>
+                                : null;
+                        }}
                     />
                 )
             },
@@ -272,6 +291,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 <Customizer {...defaultTheme}>
                     <Dropdown
                         className="type_dropdown"
+                        style={{marginTop: 16}}
                         placeholder={row.type}
                         defaultSelectedKey={FieldType.String}
                         options={typeOptions()}
@@ -293,6 +313,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 <Customizer {...defaultTheme}>
                     <Dropdown
                         className="format_dropdown"
+                        style={{marginTop: 16}}
                         placeholder={row.format}
                         selectedKey={row.format}
                         options={formatOptions(row.type)}
@@ -792,7 +813,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                             columns={columnListColumns}
                             isHeaderVisible={true}
                             theme={getRightPaneDefaultButtonTheme()}
-                            compact={true}
+                            compact={false}
                             setKey="none"
                             selection={columnSelection}
                             layoutMode={DetailsListLayoutMode.justified}
@@ -825,7 +846,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                                 columns={rowListColumns}
                                 isHeaderVisible={true}
                                 theme={getRightPaneDefaultButtonTheme()}
-                                compact={true}
+                                compact={false}
                                 setKey="none"
                                 selection={rowSelection}
                                 layoutMode={DetailsListLayoutMode.justified}

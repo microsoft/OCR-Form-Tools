@@ -30,6 +30,35 @@
         h5 {
             margin-left: 0;
         }
+        .ms-DetailsRow-cellCheck {
+            display: flex;
+            height: 2rem;
+            min-height: 100%;
+            margin-right: -11px;
+            margin-top: 23px;
+        }
+
+        .ms-List-cell:not(:last-child){
+            border-bottom: 1px solid $lighter-4;
+        }
+
+        .column-name_input, .row-name_input {
+            margin-top: 16px;
+        }
+        .input-label-original-name {
+            margin-bottom: 2px;
+            font-size: 14px;
+            margin-right: 2px;
+            color: #ffffffad;
+            text-align: left;
+            margin-top: -24px;
+            &-title {
+                font-weight: 400;
+            }
+            &-text {
+                font-weight: 600;
+            }
+        }
     }
 
     .list_header {
