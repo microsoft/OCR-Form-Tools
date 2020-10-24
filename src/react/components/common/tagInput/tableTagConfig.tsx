@@ -123,7 +123,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 name: props.tableTag.name,
                 format: FieldFormat.RowDynamic,
                 rows: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
-                columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat,  originalName: col.fieldKey })),
+                columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey })),
                 headerTypeAndFormat: TableElements.columns,
                 reconfigureColumnMap: null,
             }
@@ -189,7 +189,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             onRender: (row, index) => {
                 return (
                     <TextField
-                        componentRef={(index === columns.length - 1 && index !== 0) ? lastColumnInputRef: null}
+                        componentRef={(index === columns.length - 1 && index !== 0) ? lastColumnInputRef : null}
                         className={"column-name_input"}
                         theme={getGreenWithWhiteBackgroundTheme()}
                         onChange={(e) => handleTextInput(e.target["value"], TableElements.column, index)}
@@ -216,7 +216,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             onRender: (row, index) => headersFormatAndType === TableElements.columns ?
                 <Customizer {...defaultTheme}>
                     <Dropdown
-                        style={{marginTop: 16}}
+                        style={{ marginTop: 16 }}
                         className="type_dropdown"
                         placeholder={row.type}
                         defaultSelectedKey={FieldType.String}
@@ -238,7 +238,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             onRender: (row, index) => headersFormatAndType === TableElements.columns ?
                 <Customizer {...defaultTheme}>
                     <Dropdown
-                        style={{marginTop: 16}}
+                        style={{ marginTop: 16 }}
                         className="format_dropdown"
                         placeholder={row.format}
                         selectedKey={row.format}
@@ -263,7 +263,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             onRender: (row, index) => {
                 return (
                     <TextField
-                        // style={{ borderBottom: "1px solid gray" }}
+                        componentRef={(index === rows.length - 1 && index !== 0) ? lastRowInputRef : null}
                         className="row-name_input"
                         theme={getGreenWithWhiteBackgroundTheme()}
                         onChange={(e) => handleTextInput(e.target["value"], TableElements.row, index)}
@@ -291,7 +291,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 <Customizer {...defaultTheme}>
                     <Dropdown
                         className="type_dropdown"
-                        style={{marginTop: 16}}
+                        style={{ marginTop: 16 }}
                         placeholder={row.type}
                         defaultSelectedKey={FieldType.String}
                         options={typeOptions()}
@@ -313,7 +313,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 <Customizer {...defaultTheme}>
                     <Dropdown
                         className="format_dropdown"
-                        style={{marginTop: 16}}
+                        style={{ marginTop: 16 }}
                         placeholder={row.format}
                         selectedKey={row.format}
                         options={formatOptions(row.type)}
@@ -580,7 +580,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     function getRenamedColumnHeaders() {
         const renamedColumns = {};
         for (let i = 0; i < columns.length; i++) {
-            const columnName =  reconfigureColumnMap[i]?.name;
+            const columnName = reconfigureColumnMap[i]?.name;
             const renamedColumnName = columns[i]?.name;
             if (renamedColumnName !== columnName) {
                 renamedColumns[columnName] = renamedColumnName
@@ -592,7 +592,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     function getRenamedRowHeaders() {
         const renamedRows = {};
         for (let i = 0; i < rows.length; i++) {
-            const rowName =  reconfigureRowMap[i]?.name;
+            const rowName = reconfigureRowMap[i]?.name;
             const renamedRowName = rows[i]?.name;
             if (renamedRowName !== rowName) {
                 renamedRows[rowName] = renamedRowName
@@ -752,16 +752,16 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     useEffect(() => {
         inputTableName.current.focus();
     }, []);
-        // Sets focus on last added input
-        useEffect(() => {
-            if (shouldAutoFocus === TableElements.column && lastColumnInputRef.current) {
-                lastColumnInputRef.current.focus();
-            }
-            else if (shouldAutoFocus === TableElements.row && lastRowInputRef.current) {
-                lastRowInputRef.current.focus();
-            }
-            setShouldAutoFocus(null);
-        }, [shouldAutoFocus]);
+    // Sets focus on last added input
+    useEffect(() => {
+        if (shouldAutoFocus === TableElements.column && lastColumnInputRef.current) {
+            lastColumnInputRef.current.focus();
+        }
+        else if (shouldAutoFocus === TableElements.row && lastRowInputRef.current) {
+            lastRowInputRef.current.focus();
+        }
+        setShouldAutoFocus(null);
+    }, [shouldAutoFocus]);
 
     // Render
     return (
@@ -831,7 +831,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         theme={getPrimaryBlueTheme()}
                         className="add_button ml-12px"
                         onClick={addColumn}>
-                        <FontIcon iconName="Add" className="mr-2"/>
+                        <FontIcon iconName="Add" className="mr-2" />
                     Add column
                 </PrimaryButton>
                 </div>
@@ -853,7 +853,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                                 selectionPreservedOnEmptyClick={true}
                                 onRenderDetailsHeader={() => (
                                     <div className="list_header">
-                                        <CommandBar items={getRowsHeaderItems()}/>
+                                        <CommandBar items={getRowsHeaderItems()} />
                                         <Separator styles={{ root: { height: 2, padding: 0 } }} />
                                     </div>
                                 )}
