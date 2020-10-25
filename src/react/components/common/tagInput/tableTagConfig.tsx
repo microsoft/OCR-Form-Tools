@@ -29,20 +29,21 @@ interface ITableTagConfigState {
     },
     format: string,
     headerTypeAndFormat: string;
-    reconfigureRowMap?: any;
-    reconfigureColumnMap?: any;
     originalName?: string;
+    deletedRows?: ITableConfigItem[],
+    deletedColumns?: ITableConfigItem[],
 }
 interface ITableConfigItem {
     name: string,
     format: string,
     type: string;
+    originalName?: string;
 }
 
 const tableFormatOptions: IChoiceGroupOption[] = [
     {
         key: FieldFormat.Fixed,
-        text: 'fixed',
+        text: 'fixed-sized',
         iconProps: { iconName: 'Table' }
     },
     {
@@ -55,10 +56,12 @@ const headersFormatAndTypeOptions: IChoiceGroupOption[] = [
     {
         key: TableElements.columns,
         text: 'Column headers',
+        iconProps: { iconName: 'TableHeaderRow' }
     },
     {
         key: TableElements.rows,
         text: 'Row headers',
+        iconProps: { iconName: 'TableFirstColumn' }
     },
 ];
 
@@ -118,10 +121,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 rows: props.tableTag.rowKeys?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat, originalName: row.fieldKey })),
                 columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey })),
                 headerTypeAndFormat: TableElements.columns,
-                reconfigureColumnMap: null,
+                deletedColumns: [],
+                deletedRows: [],
             }
-            table.reconfigureColumnMap = table.columns;
-            table.reconfigureRowMap = table.rows;
         } else {
             table = {
                 name: { tableName: props.tableTag.name, originalTableName: props.tableTag.name },
@@ -129,9 +131,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 rows: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
                 columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey })),
                 headerTypeAndFormat: TableElements.columns,
-                reconfigureColumnMap: null,
+                deletedColumns: [],
             }
-            table.reconfigureColumnMap = table.columns;
         }
 
     } else {
@@ -148,13 +149,13 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     const [tableTagName, setTableTagName] = useState(table.name);
     const [format, setFormat] = useState<string>(table.format);
     const [columns, setColumns] = useState(table.columns);
-    const [reconfigureColumnMap, setReconfigureColumnMap] = useState<ITableConfigItem[]>(table.reconfigureColumnMap);
-    const [reconfigureRowMap, setReconfigureRowMap] = useState<ITableConfigItem[]>(table.reconfigureRowMap);
     const [rows, setRows] = useState<ITableConfigItem[]>(table.rows);
     const [notUniqueNames, setNotUniqueNames] = useState<{ columns: [], rows: [], tags: boolean }>({ columns: [], rows: [], tags: false });
     const [headersFormatAndType, setHeadersFormatAndType] = useState<string>(TableElements.columns);
     const [selectedColumn, setSelectedColumn] = useState<IObjectWithKey>(undefined);
     const [selectedRow, setSelectedRow] = useState<IObjectWithKey>(undefined);
+    const [deletedColumns, setDeletedColumns] = useState(table.deletedColumns);
+    const [deletedRows, setDeletedRows] = useState<ITableConfigItem[]>(table.deletedRows);
     // const [headerTypeAndFormat, setHeaderTypeAndFormat] = useState<string>(table.headerTypeAndFormat);
     const [shouldAutoFocus, setShouldAutoFocus] = useState(null);
 
@@ -202,8 +203,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         onRenderLabel={() => {
                             return row.originalName ?
                                 <div className={"input-label-original-name"}>
-                                    <span className={"input-label-original-name-title"}>Original name: </span>
-                                    <span className={"input-label-original-name-text"}>{row.originalName}</span>
+                                    Original name: {row.originalName}
                                 </div>
                                 : null;
                         }}
@@ -276,8 +276,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         onRenderLabel={() => {
                             return row.originalName ?
                                 <div className={"input-label-original-name"}>
-                                    <span className={"input-label-original-name-title"}>Original name: </span>
-                                    <span className={"input-label-original-name-text"}>{row.originalName}</span>
+                                    Original name: {row.originalName}
                                 </div>
                                 : null;
                         }}
@@ -335,17 +334,11 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
     function addColumn() {
         setColumns([...columns, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified }]);
-        if (props.tableTag) {
-            setReconfigureColumnMap([...reconfigureColumnMap, null]);
-        }
         setShouldAutoFocus(TableElements.column);
     }
 
     function addRow() {
         setRows([...rows, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified }]);
-        if (props.tableTag) {
-            setReconfigureRowMap([...reconfigureRowMap, null]);
-        }
         setShouldAutoFocus(TableElements.row);
     }
 
@@ -405,7 +398,13 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 text: 'Delete row',
                 iconOnly: true,
                 iconProps: { iconName: 'Delete' },
-                onClick: () => setRows(rows.filter((i, idx) => idx !== rowSelection.getSelectedIndices()[0])),
+                onClick: () => {
+                    const selectedRowIndex =  rowSelection.getSelectedIndices()[0];
+                    if (rows[selectedRowIndex].originalName) {
+                        setDeletedRows([...deletedRows, rows[selectedRowIndex]]);
+                    }
+                    setRows(rows.filter((i, idx) => idx !== rowSelection.getSelectedIndices()[0]))
+                },
                 disabled: !selectedRow! || rows.length === 1,
             },
             {
@@ -463,7 +462,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 iconProps: { iconName: 'Delete', },
                 onClick: () => {
                     const selectedColumnIndex = columnSelection.getSelectedIndices()[0];
-                    setReconfigureColumnMap(reconfigureColumnMap.filter((i, idx) => idx !== selectedColumnIndex));
+                    if (columns[selectedColumnIndex].originalName) {
+                        setDeletedColumns([...deletedColumns, columns[selectedColumnIndex]])
+                    }
                     setColumns(columns.filter((i, idx) => idx !== selectedColumnIndex));
                 },
                 disabled: !selectedColumn || columns.length === 1,
@@ -565,45 +566,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         return array.find((i) => !i.name.length) !== undefined ? true : false
     }
 
-    function getDeletedColumnHeaders() {
-        return props.tableTag.columnKeys.map((columnKey) => {
-            if (!reconfigureColumnMap.find((reconfiguredColumnKey) => reconfiguredColumnKey?.name === columnKey.fieldKey)) {
-                return columnKey.fieldKey;
-            }
-        })
-    }
 
-    function getDeletedRowHeaders() {
-        return props.tableTag.rowKeys.map((rowKey) => {
-            if (!reconfigureRowMap.find((reconfiguredRowKey) => reconfiguredRowKey?.name === rowKey.fieldKey)) {
-                return rowKey.fieldKey;
-            }
-        })
-    }
-
-    function getRenamedColumnHeaders() {
-        const renamedColumns = {};
-        for (let i = 0; i < columns.length; i++) {
-            const columnName = reconfigureColumnMap[i]?.name;
-            const renamedColumnName = columns[i]?.name;
-            if (renamedColumnName !== columnName) {
-                renamedColumns[columnName] = renamedColumnName
-            }
-        }
-        return renamedColumns;
-    }
-
-    function getRenamedRowHeaders() {
-        const renamedRows = {};
-        for (let i = 0; i < rows.length; i++) {
-            const rowName = reconfigureRowMap[i]?.name;
-            const renamedRowName = rows[i]?.name;
-            if (renamedRowName !== rowName) {
-                renamedRows[rowName] = renamedRowName
-            }
-        }
-        return renamedRows;
-    }
 
     function resetTypAndFormatAndSave(headersFormatAndType) {
         let newRows = rows;
@@ -661,26 +624,13 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
         items.splice(selectedIndex, 1);
         items.splice(newIndex, 0, itemToBeMoved);
-        let mapItems;
-        if (props.tableTag) {
-            mapItems = role === TableElements.rows ? [...reconfigureRowMap] : [...reconfigureColumnMap];
-            const mapItemToBeMoved = mapItems[selectedIndex];
-            mapItems.splice(selectedIndex, 1);
-            mapItems.splice(newIndex, 0, mapItemToBeMoved);
-        }
 
         if (role === TableElements.rows) {
             rowSelection.setIndexSelected(newIndex, true, false);
             setRows(items);
-            if (props.tableTag) {
-                setReconfigureRowMap(mapItems);
-            }
         } else {
             columnSelection.setIndexSelected(newIndex, true, true);
             setColumns(items);
-            if (props.tableTag) {
-                setReconfigureColumnMap(mapItems)
-            }
         }
     }
 
@@ -694,11 +644,11 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 const tableRow = [];
                 for (let j = 0; j < columns.length + 1; j++) {
                     if (i === 0 && j !== 0) {
-                        const columnHeaderWasRenamed = props.tableTag && reconfigureColumnMap[j - 1]?.name && columns[j - 1].name !== reconfigureColumnMap[j - 1].name;
+                        const columnHeaderWasRenamed = props.tableTag && columns[j - 1].name !== columns[j - 1].originalName;
                         tableRow.push(
                             <th key={`col-h-${j}`} className="column_header">
                                 {columnHeaderWasRenamed &&
-                                    <div className="renamed-header-value">{reconfigureColumnMap[j - 1].name}</div>
+                                    <div className="renamed-header-value">{columns[j - 1].originalName}</div>
                                 }
                                 <div className="column-header-value">
                                     {columns[j - 1].name}
@@ -706,12 +656,12 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                             </th>);
                     } else if (j === 0 && i !== 0) {
                         if (!isRowDynamic) {
-                            const rowHeaderWasRenamed = props.tableTag && reconfigureRowMap[i - 1]?.name && rows[i - 1].name !== reconfigureRowMap[i - 1].name;
+                            const rowHeaderWasRenamed = props.tableTag && rows[i - 1].name !== rows[i - 1].originalName;
                             tableRow.push(
                                 <th key={`row-h-${j}`} className="row_header">
                                     {rowHeaderWasRenamed &&
                                         <div className="renamed-header-value">
-                                            {reconfigureRowMap[i - 1].name}
+                                            {rows[i - 1].originalName}
                                         </div>
                                     }
                                     <div>
@@ -772,7 +722,12 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         <Customizer {...dark}>
             <div className="config-view_container" style={{ width: containerWidth - 8 }}>
                 <h4 className="mt-2">{props.tableTag ? "Reconfigure table tag" : "Configure table tag"}</h4>
-                <h5 className="mt-3 ">Name:</h5>
+                <h5 className="mt-3 mb-1">Name</h5>
+                {tableTagName.originalTableName &&
+                    <div className={"original-table-name"}>
+                        Original name: {tableTagName.originalTableName}
+                    </div>
+                }
                 <TextField
                     componentRef={inputTableName}
                     className="table-name_input ml-12px"
@@ -783,7 +738,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 />
                 {!props.tableTag &&
                     <>
-                        <h5 className="mt-4">Format:</h5>
+                        <h5 className="mt-4">Format</h5>
                         <ChoiceGroup
                             className="ml-12px"
                             onChange={(event, option) => {
@@ -809,7 +764,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     </>
                 }
                 <div className="columns_container ml-12px">
-                    <h5 className="mt-3">Column headers:</h5>
+                    <h5 className="mt-3">Column headers</h5>
                     <div className="columns-list_container">
                         <DetailsList
                             className="columns"
@@ -841,7 +796,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 </div>
                 {(format === FieldFormat.Fixed || (props.tableTag && format === FieldFormat.Fixed)) &&
                     <div className="rows_container ml-12px">
-                        <h5 className="">Row headers:</h5>
+                        <h5 className="">Row headers</h5>
                         <div className="rows-list_container">
                             <DetailsList
                                 className="rows"
@@ -865,7 +820,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         </div>
                         <PrimaryButton
                             theme={getPrimaryBlueTheme()}
-                            className="add_button ml-12px"
+                            className="add_button"
                             onClick={addRow}>
                             <FontIcon iconName="Add" className="mr-2" />
                                 Add row
@@ -875,10 +830,19 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 {
                     (tableChanged || props.tableTag) &&
                     <div className="preview_container  ml-12px">
-                        <h5 className="mt-3">Preview:</h5>
-                        <div className="tableName-current"  style={{borderLeft: `6px solid ${props.tableTag.color}`}}>Table name: {tableTagName.tableName}</div>
-                        {tableTagName.originalTableName !== tableTagName.tableName &&
-                            <div className="tableName-original">Original name: {tableTagName.originalTableName}</div>}
+                        <h5 className="mt-3 mb-1">Preview</h5>
+                        {tableTagName.tableName &&
+                            <>
+                                {tableTagName.originalTableName !== tableTagName.tableName &&
+                                    <div className="tableName-original">
+                                        Table name: {tableTagName.originalTableName}
+                                    </div>
+                                }
+                                <div className="tableName-current">
+                                    Table name: {tableTagName.tableName}
+                                </div>
+                            </>
+                        }
                         {
                             format === FieldFormat.RowDynamic && <div className="rowDynamic_message">The number of rows is specified when labeling each document.</div>
                         }
@@ -918,15 +882,18 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                                 return;
                             } else {
                                 if (props.tableTag) {
-                                    const deletedColumnHeaders = getDeletedColumnHeaders();
-                                    const renamedColumnHeaders = getRenamedColumnHeaders();
-                                    const deletedRowHeaders = getDeletedRowHeaders();
-                                    const renamedRowHeaders = getRenamedRowHeaders();
-                                    console.log(deletedColumnHeaders);
-                                    console.log(renamedColumnHeaders);
-                                    console.log(deletedRowHeaders);
-                                    console.log(renamedRowHeaders);
+
+                                    // const deletedColumnHeaders = getDeletedColumnHeaders();
+                                    // const renamedColumnHeaders = getRenamedColumnHeaders();
+                                    // const deletedRowHeaders = getDeletedRowHeaders();
+                                    // const renamedRowHeaders = getRenamedRowHeaders();
+                                    // console.log(deletedColumnHeaders);
+                                    // console.log(renamedColumnHeaders);
+                                    // console.log(deletedRowHeaders);
+                                    // console.log(renamedRowHeaders);
                                     props.reconfigureTableConfirm();
+                                    console.log(deletedRows)
+                                    console.log(deletedColumns)
                                 } else {
                                     resetTypAndFormatAndSave(headersFormatAndType);
                                 }

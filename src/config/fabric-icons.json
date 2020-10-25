@@ -15,6 +15,10 @@
       "unicode": "E4C7"
     },
     {
+      "name": "AddTable",
+      "unicode": "E4C6"
+    },
+    {
       "name": "AddTo",
       "unicode": "ECC8"
     },
@@ -107,8 +111,16 @@
       "unicode": "E70F"
     },
     {
+      "name": "EditTable",
+      "unicode": "E4C4"
+    },
+    {
       "name": "Filter",
       "unicode": "E71C"
+    },
+    {
+      "name": "FixedColumnWidth",
+      "unicode": "E3EA"
     },
     {
       "name": "Help",
@@ -125,6 +137,14 @@
     {
       "name": "Info",
       "unicode": "E946"
+    },
+    {
+      "name": "InsertColumnsRight",
+      "unicode": "F64B"
+    },
+    {
+      "name": "InsertRowsBelow",
+      "unicode": "F64D"
     },
     {
       "name": "Insights",
@@ -233,6 +253,18 @@
     {
       "name": "Table",
       "unicode": "ED86"
+    },
+    {
+      "name": "TableFirstColumn",
+      "unicode": "E3EF"
+    },
+    {
+      "name": "TableGroup",
+      "unicode": "F6D9"
+    },
+    {
+      "name": "TableHeaderRow",
+      "unicode": "E3EC"
     },
     {
       "name": "Tag",

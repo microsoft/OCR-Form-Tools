@@ -43,18 +43,11 @@
             margin-top: 16px;
         }
         .input-label-original-name {
+            color: rgb(177, 177, 177);            
             margin-bottom: 2px;
-            font-size: 14px;
             margin-right: 2px;
-            color: #ffffffad;
             text-align: left;
             margin-top: -24px;
-            &-title {
-                font-weight: 400;
-            }
-            &-text {
-                font-weight: 600;
-            }
         }
     }
 
@@ -80,7 +73,7 @@
 }
 
     .add_button {
-        margin-top: 1rem;
+        margin-top: 8px;
         margin-left: 0px;
         width: 140px
     }
@@ -103,21 +96,19 @@
         }
         .tableName {
             &-current {
-                color: rgba(255, 255, 255, 0.85);
-                padding-left: 4px;
+                margin-bottom: 6px;
             }
             &-original {
-                font-size: 14px;
-                font-weight: 300;
-                margin-left: 10px;
+                margin-bottom: 0px;
+                text-decoration: line-through;
                 color: rgb(177, 177, 177);
+                
             }
         }
 
         .table_container {
             overflow: auto;
             .table {
-                margin-top: 1rem;
                 td, th {
                     border: 2px solid #8D8D8D;
                     color: white;
@@ -164,8 +155,9 @@
             }
         }
         .rowDynamic_message {
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             color: rgba(255, 255, 255, 0.8);
+            
         }
     }
 }
@@ -196,5 +188,13 @@
     text-decoration: line-through;
     color: rgb(177, 177, 177);
     font-size: small;
-    font-weight: lighter;
+    
+ }
+
+ .original-table-name {
+    margin-left: 12px;
+    color: rgb(177, 177, 177);
+    margin-bottom: 2px;
+    font-size: small;
+
  }
