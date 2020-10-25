@@ -1,31 +1,27 @@
 import {
-    DefaultButton,
-    Dropdown,
     FontIcon,
     IconButton,
-    IDropdownOption,
     PrimaryButton,
-    TextField
+    Spinner,
+    SpinnerSize
 } from "@fluentui/react";
 import _ from "lodash";
-import Fill from "ol/style/Fill";
-import Stroke from "ol/style/Stroke";
-import Style from "ol/style/Style";
+import {Feature} from "ol";
+import Point from "ol/geom/Point";
+import Polygon from "ol/geom/Polygon";
 import React, {RefObject} from "react";
 import {connect} from "react-redux";
+import {RouteComponentProps} from "react-router-dom";
 import {bindActionCreators} from "redux";
 import url from "url";
 import {constants} from "../../../../common/constants";
-import {strings} from "../../../../common/strings";
+import {interpolate, strings} from "../../../../common/strings";
 import {
-    getGreenWithWhiteBackgroundTheme,
-    getPrimaryGreenTheme,
-    getPrimaryGreyTheme,
     getPrimaryWhiteTheme
 } from "../../../../common/themes";
 import {
+    ErrorCode,
     IApplicationState,
-    ImageMapParent,
     IPrebuiltSettings
 } from "../../../../models/applicationState";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
@@ -33,41 +29,42 @@ import IAppPrebuiltSettingsActions, * as appPrebuiltSettingsActions from "../../
 import ServiceHelper from "../../../../services/serviceHelper";
 import {ImageMap} from "../../common/imageMap/imageMap";
 import {CanvasCommandBar} from "../editorPage/canvasCommandBar";
+import {FilePicker} from "./filePicker";
 import {ILoadFileHelper, LoadFileHelper} from "./LoadFileHelper";
+import {PrebuiltSetting} from "./prebuiltSetting";
 
-interface ITextTablePageProps {
+interface ITextTablePageProps extends RouteComponentProps {
     prebuiltSettings: IPrebuiltSettings;
     appTitleActions: IAppTitleActions;
     actions: IAppPrebuiltSettingsActions;
 }
 interface ITextTablePageState {
-    file?: File;
-    currPage: number;
-    fileLoaded: boolean;
-    sourceOption: string;
-    inputedFileURL: string;
-    inputedLocalFile: string;
-    fileLabel: string;
-    analyzeResult: object;
-    fileChanged: boolean;
-    analyzeRun: boolean;
-    isAnalyzing: boolean;
-    fetchedFileURL: string;
-    analyzationLoaded: boolean;
-    shouldShowAlert: boolean;
-    alertTitle: string;
-    alertMessage: string;
-    highlightedField: string;
-    invalidFileFormat: boolean;
+    layers: any;
 
     imageUri: string;
     imageWidth: number;
     imageHeight: number;
+    currentPage: number;
+    pageCount: number;
+
+    shouldShowAlert: boolean;
+    alertTitle: string;
+    alertMessage: string;
+    invalidFileFormat?: boolean;
+
+    fileLabel: string;
+    fileChanged: boolean;
+    file?: File;
+    isFetching?: boolean;
+    fileLoaded?: boolean;
+
+    isAnalyzing: boolean;
+    analyzationLoaded: boolean;
+    fetchedFileURL: string;
+    ocr: any;
+    ocrForCurrentPage: any;
+
     imageAngle: number;
-
-    showInputedAPIKey: boolean;
-
-    isFetching: boolean;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -85,104 +82,172 @@ function mapDispatchToProps(dispatch) {
 
 @connect(mapStateToProps, mapDispatchToProps)
 export class TextTablePage extends React.Component<Partial<ITextTablePageProps>, ITextTablePageState>{
+    private regionOrders: Record<string, number>[] = [];
+
+    private regionOrderById: string[][] = [];
+    private tableIDToIndexMap: object;
+
     state: ITextTablePageState = {
-        showInputedAPIKey: false,
-        sourceOption: "localFile",
-        fileLoaded: false,
-        isFetching: false,
-        fetchedFileURL: "",
-        inputedFileURL: strings.prebuiltPredict.defaultURLInput,
-        inputedLocalFile: strings.prebuiltPredict.defaultLocalFileInput,
-        analyzeResult: null,
-        fileLabel: "",
-        analyzationLoaded: true,
-        currPage: undefined,
+
         imageUri: null,
         imageWidth: 0,
         imageHeight: 0,
+        currentPage: 1,
+        pageCount: 1,
+
         shouldShowAlert: false,
-        invalidFileFormat: false,
         alertTitle: "",
         alertMessage: "",
+
+        fileLabel: "",
         fileChanged: false,
-        analyzeRun: false,
+
         isAnalyzing: false,
-        highlightedField: "",
+        analyzationLoaded: false,
+        fetchedFileURL: "",
+        ocr: null,
+        ocrForCurrentPage: {},
         imageAngle: 0,
+
+        layers: {text: true, tables: true, checkboxes: true, label: true, drawnRegions: true},
     };
     private imageMap: ImageMap;
-    // private currPdf: any;
-    private tiffImages: any[];
     private fileInput: RefObject<HTMLInputElement> = React.createRef();
     private fileHelper: ILoadFileHelper = new LoadFileHelper();
 
     componentDidMount() {
         document.title = strings.prebuiltPredict.title + " - " + strings.appName;
-        this.props.appTitleActions.setTitle(`${strings.prebuiltPredict.title}`);
+        this.props.appTitleActions.setTitle(`OCR`);
     }
-    async componentDidUpdate(prevProps, prevState) {
+    componentDidUpdate(_prevProps: ITextTablePageProps, prevState: ITextTablePageState) {
         if (this.state.file) {
-            if (this.state.fileChanged) {
-                this.fileHelper.reset();
-                this.loadFile(this.state.file).then(() => {
-                    this.setState({
-                        fileChanged: false,
-                        fileLoaded: true
-                    });
+            if (this.state.fileChanged && !this.state.isFetching) {
+                this.loadFile(this.state.file);
+            } else if (prevState.currentPage !== this.state.currentPage) {
+                this.fileHelper.loadPage(this.state.currentPage).then((res: any) => {
+                    if (res) {
+                        this.setState({...res});
+                    }
                 });
-
-            }
-            else if (prevState.currPage !== this.state.currPage) {
-                if (this.fileHelper.currPdf) {
-                    this.fileHelper.loadPdfPage(this.state.currPage)
-                        .then((res: any) => {
-                            this.setState({
-                                ...res
-                            });
-                        });
-                }
-                else if (this.tiffImages.length > 0) {
-                    this.fileHelper.loadTiffPage(this.state.currPage)
-                        .then((res: any) => {
-                            this.setState({...res});
-                        });
-                }
             }
         }
     }
 
+    private loadFile = (file: File) => {
+        this.setState({isFetching: true});
+        this.fileHelper.loadFile(file).then((res: any) => {
+            if (res) {
+                this.setState({
+                    ...res,
+                    isFetching: false,
+                    fileChanged: false
+                });
+            }
+        });
+    }
+
+    private getOcrResultForPage = (ocr: any, targetPage: number): any => {
+        if (!ocr || !this.state.imageUri) {
+            return {};
+        }
+        if (ocr.analyzeResult && ocr.analyzeResult.readResults) {
+            // OCR schema with analyzeResult/readResults property
+            const ocrResultsForCurrentPage = {};
+            if (ocr.analyzeResult.pageResults) {
+                ocrResultsForCurrentPage["pageResults"] = ocr.analyzeResult.pageResults[targetPage - 1];
+            }
+            ocrResultsForCurrentPage["readResults"] = ocr.analyzeResult.readResults[targetPage - 1];
+            return ocrResultsForCurrentPage;
+        }
+        return {};
+    }
+
+    private getPredictionsFromAnalyzeResult(analyzeResult: any) {
+        if (analyzeResult) {
+            const predictions = _.get(analyzeResult, "analyzeResult.documentResults[0].fields", {});
+            const predictionsCopy = Object.assign({}, predictions);
+            delete predictionsCopy.ReceiptType;
+            if (!predictionsCopy.Items) {
+                return predictionsCopy;
+            }
+            if (!predictionsCopy.Items.valueArray || Object.keys(predictionsCopy.Items).length === 0) {
+                delete predictionsCopy.Items;
+                return predictionsCopy;
+            }
+            predictionsCopy.Items.valueArray.forEach((item, index) => {
+                const itemName = "Item " + (index + 1);
+                predictionsCopy[itemName] = item.valueObject.Name;
+                if (item.valueObject.TotalPrice) {
+                    predictionsCopy[itemName + " price"] = item.valueObject.TotalPrice;
+                }
+            });
+            delete predictionsCopy.Items;
+            return predictionsCopy;
+
+        } else {
+            return _.get(analyzeResult, "analyzeResult.documentResults[0].fields", {});
+        }
+    }
+
+    private createBoundingBoxVectorFeature = (text, boundingBox, imageExtent, ocrExtent, page) => {
+        const coordinates: any[] = [];
+        const polygonPoints: number[] = [];
+        const imageWidth = imageExtent[2] - imageExtent[0];
+        const imageHeight = imageExtent[3] - imageExtent[1];
+        const ocrWidth = ocrExtent[2] - ocrExtent[0];
+        const ocrHeight = ocrExtent[3] - ocrExtent[1];
+
+        for (let i = 0; i < boundingBox.length; i += 2) {
+            // An array of numbers representing an extent: [minx, miny, maxx, maxy]
+            coordinates.push([
+                Math.round((boundingBox[i] / ocrWidth) * imageWidth),
+                Math.round((1 - (boundingBox[i + 1] / ocrHeight)) * imageHeight),
+            ]);
+            polygonPoints.push(boundingBox[i] / ocrWidth);
+            polygonPoints.push(boundingBox[i + 1] / ocrHeight);
+        }
+
+        const featureId = this.createRegionIdFromBoundingBox(polygonPoints, page);
+        const feature = new Feature({
+            geometry: new Polygon([coordinates]),
+        });
+        feature.setProperties({
+            id: featureId,
+            text,
+            boundingbox: boundingBox,
+            highlighted: false,
+            isOcrProposal: true,
+        });
+        feature.setId(featureId);
+
+        return feature;
+    }
+    private createRegionIdFromBoundingBox = (boundingBox: number[], page: number): string => {
+        return boundingBox.join(",") + ":" + page;
+    }
+
     render() {
-        const browseFileDisabled: boolean = !this.state.analyzationLoaded;
-        const urlInputDisabled: boolean = !this.state.analyzationLoaded ||
-            this.state.isFetching;
-
-        const analyzeDisabled: boolean = !this.state.analyzationLoaded ||
-            !this.state.file ||
-            this.state.invalidFileFormat ||
+        const analyzeDisabled: boolean = this.state.isFetching || !this.state.file
+            || this.state.invalidFileFormat ||
+            !this.state.fileLoaded ||
+            this.state.isAnalyzing ||
             !this.props.prebuiltSettings.apiKey ||
-            !this.props.prebuiltSettings.serviceURI ||
-            !this.state.fileLoaded;
+            !this.props.prebuiltSettings.serviceURI;
 
-        const fetchDisabled: boolean = !this.state.analyzationLoaded ||
-            this.state.isFetching ||
-            this.state.inputedFileURL.length === 0 ||
-            this.state.inputedFileURL === strings.prebuiltPredict.defaultURLInput;
-
-        const sourceOptions: IDropdownOption[] = [
-            {key: "localFile", text: "Local file"},
-            {key: "url", text: "URL"},
-        ];
+        // const predictions = this.getPredictionsFromAnalyzeResult(this.state.ocr);
+        const showPage: boolean = this.props.match.path.includes("text-and-tables");
 
         return (
             <>
                 <div
-                    className={`predict skipToMainContent`}
+                    className={`predict skipToMainContent ${showPage ? "" : "hidden"} `}
                     id="pagePredict"
-                    style={{display: "flex"}} >
+                    style={{display: `${showPage ? "flex" : "none"}`}} >
                     <div className="predict-main">
                         {this.state.file && this.state.imageUri && this.renderImageMap()}
                         {this.renderPrevPageButton()}
                         {this.renderNextPageButton()}
+                        {this.renderPageIndicator()}
                     </div>
                     <div className="predict-sidebar bg-lighter-1">
                         <div className="condensed-list">
@@ -190,114 +255,17 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
                                 <FontIcon className="mr-1" iconName="Insights" />
                                 <span>Analyze</span>
                             </h6>
+                            <PrebuiltSetting prebuiltSettings={this.props.prebuiltSettings}
+                                disabled={this.state.isFetching || this.state.isAnalyzing}
+                                actions={this.props.actions}
+                            />
                             <div className="p-3" style={{marginTop: "8px"}}>
-                                <h5>Service configuration</h5>
-                                <div style={{marginBottom: "3px"}}>Form recognizer service endpoint</div>
-                                <TextField
-                                    className="mb-1"
-                                    theme={getGreenWithWhiteBackgroundTheme()}
-                                    value={this.props.prebuiltSettings?.serviceURI}
-                                    onChange={this.setInputedServiceURI}
-                                    disabled={this.state.isAnalyzing}
-                                />
-                                <div style={{marginBottom: "3px"}}>API key</div>
-                                <div className="apikeyContainer">
-                                    <TextField
-                                        className="apikey"
-                                        theme={getGreenWithWhiteBackgroundTheme()}
-                                        type={this.state.showInputedAPIKey ? "text" : "password"}
-                                        value={this.props.prebuiltSettings?.apiKey}
-                                        onChange={this.setInputedAPIKey}
-                                        disabled={this.state.isAnalyzing}
-                                    />
-                                    <DefaultButton
-                                        className="portected-input-margin"
-                                        theme={getPrimaryGreyTheme()}
-                                        title={this.state.showInputedAPIKey ? "Hide" : "Show"}
-                                        onClick={this.toggleAPIKeyVisibility}
-                                    >
-                                        <FontIcon iconName={this.state.showInputedAPIKey ? "Hide3" : "View"} />
-                                    </DefaultButton>
-                                    <DefaultButton
-                                        theme={getPrimaryGreyTheme()}
-                                        type="button"
-                                        title="Copy"
-                                        onClick={() => this.copyKey()}
-                                    >
-                                        <FontIcon iconName="Copy" />
-                                    </DefaultButton>
-                                </div>
-                            </div>
-                            <div className="p-3" style={{marginTop: "8px"}}>
-                                <h5>
-                                    Upload file and run analysis
-                                        </h5>
-                                <div style={{marginBottom: "3px"}}>Image source</div>
-                                <div className="container-space-between">
-                                    <Dropdown
-                                        className="sourceDropdown"
-                                        selectedKey={this.state.sourceOption}
-                                        options={sourceOptions}
-                                        disabled={this.state.isAnalyzing || this.state.isFetching}
-                                        onChange={this.onSelectSourceChanged}
-                                    />
-                                    {this.state.sourceOption === "localFile" &&
-                                        <input
-                                            aria-hidden="true"
-                                            type="file"
-                                            accept="application/pdf, image/jpeg, image/png, image/tiff"
-                                            id="hiddenInputFile"
-                                            ref={this.fileInput}
-                                            onChange={this.handleFileChange}
-                                            disabled={browseFileDisabled}
-                                        />
-                                    }
-                                    {this.state.sourceOption === "localFile" &&
-                                        <TextField
-                                            className="mr-2 ml-2"
-                                            theme={getGreenWithWhiteBackgroundTheme()}
-                                            style={{cursor: (browseFileDisabled ? "default" : "pointer")}}
-                                            onClick={this.handleDummyInputClick}
-                                            readOnly={true}
-                                            aria-label={strings.prebuiltPredict.uploadFile}
-                                            value={this.state.inputedLocalFile}
-                                            disabled={browseFileDisabled}
-                                        />
-                                    }
-                                    {this.state.sourceOption === "localFile" &&
-                                        <PrimaryButton
-                                            className="keep-button-80px"
-                                            theme={getPrimaryGreenTheme()}
-                                            text="Browse"
-                                            allowDisabledFocus
-                                            disabled={browseFileDisabled}
-                                            autoFocus={true}
-                                            onClick={this.handleDummyInputClick}
-                                        />
-                                    }
-                                    {this.state.sourceOption === "url" &&
-                                        <>
-                                            <TextField
-                                                className="mr-2 ml-2"
-                                                theme={getGreenWithWhiteBackgroundTheme()}
-                                                onFocus={this.removeDefaultInputedFileURL}
-                                                onChange={this.setInputedFileURL}
-                                                aria-label={strings.prebuiltPredict.uploadFile}
-                                                value={this.state.inputedFileURL}
-                                                disabled={urlInputDisabled}
-                                            />
-                                            <PrimaryButton
-                                                theme={getPrimaryGreenTheme()}
-                                                className="keep-button-80px"
-                                                text="Fetch"
-                                                allowDisabledFocus
-                                                disabled={fetchDisabled}
-                                                autoFocus={true}
-                                                onClick={this.getFileFromURL}
-                                            />
-                                        </>
-                                    }
-                                </div>
+                                <h5>Upload file and run analysis</h5>
+                                <FilePicker
+                                    disabled={this.state.isFetching || this.state.isAnalyzing}
+                                    onFileChange={(data) => this.onFileChange(data)}
+                                    onSelectSourceChange={() => this.onSelectSourceChange()}
+                                    onError={(err) => this.onFileLoadError(err)} />
                                 <div className="container-items-end predict-button">
                                     <PrimaryButton
                                         theme={getPrimaryWhiteTheme()}
@@ -309,6 +277,26 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
                                         onClick={this.handleClick}
                                     />
                                 </div>
+                                {this.state.isFetching &&
+                                    <div className="loading-container">
+                                        <Spinner
+                                            label="Fetching..."
+                                            ariaLive="assertive"
+                                            labelPosition="right"
+                                            size={SpinnerSize.large}
+                                        />
+                                    </div>
+                                }
+                                {this.state.isAnalyzing &&
+                                    <div className="loading-container">
+                                        <Spinner
+                                            label={strings.prebuiltPredict.inProgress}
+                                            ariaLive="assertive"
+                                            labelPosition="right"
+                                            size={SpinnerSize.large}
+                                        />
+                                    </div>
+                                }
                             </div>
                         </div>
                     </div>
@@ -317,14 +305,42 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
             </>
         )
     }
-
-    private setInputedServiceURI = (e: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
-        this.props.actions.update({...this.props.prebuiltSettings, serviceURI: newValue});
-
+    onFileChange(data: {
+        file: File,
+        fileLabel: string,
+        fetchedFileURL: string
+    }): void {
+        this.setState({
+            currentPage: 1,
+            ocr: null,
+            fileChanged: true,
+            ...data,
+            analyzationLoaded: false,
+            fileLoaded: false,
+        }, () => {
+            if (this.imageMap) {
+                this.imageMap.removeAllFeatures();
+            }
+        });
     }
 
-    private setInputedAPIKey = (e: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
-        this.props.actions.update({...this.props.prebuiltSettings, apiKey: newValue});
+    onSelectSourceChange(): void {
+        this.setState({
+            file: undefined,
+            ocr: {},
+            analyzationLoaded: false,
+        });
+        if (this.imageMap) {
+            this.imageMap.removeAllFeatures();
+        }
+    }
+
+    onFileLoadError(err: {alertTitle: string; alertMessage: string;}): void {
+        this.setState({
+            ...err,
+            shouldShowAlert: true,
+            analyzationLoaded: false,
+        });
     }
 
     private renderImageMap = () => {
@@ -334,18 +350,19 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
                     handleZoomIn={this.handleCanvasZoomIn}
                     handleZoomOut={this.handleCanvasZoomOut}
                     handleRotateImage={this.handleRotateCanvas}
-                    // parentPage={"predict"}
+                    handleLayerChange={this.handleLayerChange}
                     showLayerMenu={true}
-                    layers={{}}
+                    layers={this.state.layers}
                 />
                 <ImageMap
-                    parentPage={ImageMapParent.Predict}
                     ref={(ref) => this.imageMap = ref}
                     imageUri={this.state.imageUri || ""}
                     imageWidth={this.state.imageWidth}
                     imageHeight={this.state.imageHeight}
                     imageAngle={this.state.imageAngle}
-                    featureStyler={this.featureStyler}
+                    initOcrMap={true}
+                    handleIsSnapped={this.handleIsSnapped}
+                    handleIsPointerOnImage={this.handleIsPointerOnImage}
                     onMapReady={this.noOp}
                 />
             </div>
@@ -361,37 +378,56 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
     }
 
     private handleRotateCanvas = (degrees: number) => {
-        this.setState({ imageAngle: this.state.imageAngle + degrees });
+        this.setState({imageAngle: this.state.imageAngle + degrees});
     }
-
+    private handleLayerChange = (layer: string) => {
+        switch (layer) {
+            case "text":
+                this.imageMap.toggleTextFeatureVisibility();
+                break;
+            case "tables":
+                this.imageMap.toggleTableFeatureVisibility();
+                break;
+            case "checkboxes":
+                this.imageMap.toggleCheckboxFeatureVisibility();
+                break;
+            case "label":
+                this.imageMap.toggleLabelFeatureVisibility();
+                break;
+            case "drawnRegions":
+                this.imageMap.toggleDrawnRegionsFeatureVisibility();
+                break;
+        }
+        const newLayers = Object.assign({}, this.state.layers);
+        newLayers[layer] = !newLayers[layer];
+        this.setState({
+            layers: newLayers,
+        });
+    }
+    private handleIsSnapped = (snapped: boolean) => {
+        // if (this.state.isSnapped !== snapped) {
+        //     this.setState({
+        //         isSnapped: snapped,
+        //     })
+        // }
+    }
+    private handleIsPointerOnImage = (isPointerOnImage: boolean) => {
+        // if (this.state.isPointerOnImage !== isPointerOnImage) {
+        //     this.setState({
+        //         isPointerOnImage,
+        //     });
+        // }
+    }
     private noOp = () => {
         // no operation
     }
-    private featureStyler = (feature) => {
-        return new Style({
-            stroke: new Stroke({
-                color: feature.get("color"),
-                width: feature.get("isHighlighted") ? 4 : 2,
-            }),
-            fill: new Fill({
-                color: "rgba(255, 255, 255, 0)",
-            }),
-        });
-    }
 
     private renderPrevPageButton = () => {
-        if (!_.get(this, "fileInput.current.files[0]", null)) {
-            return <div></div>;
-        }
         const prevPage = () => {
-            this.setState((prevState) => ({
-                currPage: Math.max(1, prevState.currPage - 1),
-            }), () => {
-                this.imageMap.removeAllFeatures();
-            });
+            this.goToPage(Math.max(1, this.state.currentPage - 1));
         };
 
-        if (this.state.currPage > 1) {
+        if (this.state.currentPage > 1) {
             return (
                 <IconButton
                     className="toolbar-btn prev"
@@ -406,20 +442,12 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
     }
 
     private renderNextPageButton = () => {
-        if (!_.get(this, "fileInput.current.files[0]", null)) {
-            return <div></div>;
-        }
-
         const numPages = this.getPageCount();
         const nextPage = () => {
-            this.setState((prevState) => ({
-                currPage: Math.min(prevState.currPage + 1, numPages),
-            }), () => {
-                this.imageMap.removeAllFeatures();
-            });
+            this.goToPage(Math.min(this.state.currentPage + 1, numPages));
         };
 
-        if (this.state.currPage < numPages) {
+        if (this.state.currentPage < numPages) {
             return (
                 <IconButton
                     className="toolbar-btn next"
@@ -433,203 +461,260 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
         }
     }
 
-    private getPageCount() {
+    private renderPageIndicator = () => {
+        const pageCount = this.getPageCount();
+        return pageCount > 1 ?
+            <p className="page-number">
+                Page {this.state.currentPage} of {pageCount}
+            </p> : <div></div>;
+    }
+
+    private getPageCount = () => {
         return this.fileHelper.getPageCount();
     }
 
-    private toggleAPIKeyVisibility = () => {
+    private goToPage = async (targetPage: number) => {
+        if (targetPage <= 0 || targetPage > this.getPageCount()) {
+            return;
+        }
         this.setState({
-            showInputedAPIKey: !this.state.showInputedAPIKey,
+            currentPage: targetPage,
+            ocrForCurrentPage: this.getOcrResultForPage(this.state.ocr, targetPage),
+        }, () => {
+            this.imageMap.removeAllFeatures();
+            this.drawOcr();
         });
     }
 
-    private async copyKey() {
-        const clipboard = (navigator as any).clipboard;
-        if (clipboard && clipboard.writeText && typeof clipboard.writeText === "function") {
-            await clipboard.writeText(this.props.prebuiltSettings.apiKey);
-        }
-    }
-
-    onSelectSourceChanged = (e: React.FormEvent<HTMLDivElement>, option) => {
-        e.preventDefault();
-        if (option.key !== this.state.sourceOption) {
-            this.setState({
-                sourceOption: option.key,
-                inputedFileURL: strings.prebuiltPredict.defaultURLInput,
-                inputedLocalFile: strings.prebuiltPredict.defaultLocalFileInput,
-                fileLabel: "",
-                currPage: undefined,
-                analyzeResult: null,
-                fileChanged: true,
-                file: undefined,
-                analyzeRun: false,
-                isFetching: false,
-                fetchedFileURL: "",
-                analyzationLoaded: true,
-                imageUri: null,
-                imageWidth: 0,
-                imageHeight: 0,
-                shouldShowAlert: false,
-                alertTitle: "",
-                alertMessage: "",
-                isAnalyzing: false,
-                highlightedField: "",
-            });
-        }
-    }
-
-    private handleFileChange = () => {
-        if (this.fileInput.current.value !== "") {
-            this.setState({invalidFileFormat: false});
-            const fileName = this.fileInput.current.value.split("\\").pop();
-            if (fileName !== "") {
-                this.setState({
-                    inputedLocalFile: fileName,
-                    fileLabel: fileName,
-                    currPage: 1,
-                    analyzeResult: null,
-                    fileChanged: true,
-                    file: this.fileInput.current.files[0],
-                    analyzeRun: false,
-                    fileLoaded: false,
-                }, () => {
-                    if (this.imageMap) {
-                        this.imageMap.removeAllFeatures();
-                    }
-                });
-            }
-        }
-    }
-
-    private handleDummyInputClick = () => {
-        document.getElementById("hiddenInputFile").click();
-    }
-
-    private removeDefaultInputedFileURL = () => {
-        if (this.state.inputedFileURL === strings.prebuiltPredict.defaultURLInput) {
-            this.setState({inputedFileURL: ""});
-        }
-    }
-
-    private setInputedFileURL = (event) => {
-        this.setState({inputedFileURL: event.target.value});
-    }
-
-    private getFileFromURL = () => {
-        this.setState({isFetching: true});
-        fetch(this.state.inputedFileURL, {headers: {Accept: "application/pdf, image/jpeg, image/png, image/tiff"}})
-            .then(async (response) => {
-                if (!response.ok) {
-                    this.setState({
-                        isFetching: false,
-                        shouldShowAlert: true,
-                        alertTitle: "Failed to fetch",
-                        alertMessage: response.status.toString() + " " + response.statusText,
-                        isAnalyzing: false,
-                    });
-                    return;
-                }
-                const contentType = response.headers.get("Content-Type");
-                if (!["application/pdf", "image/jpeg", "image/png", "image/tiff"].includes(contentType)) {
-                    this.setState({
-                        isFetching: false,
-                        shouldShowAlert: true,
-                        alertTitle: "Content-Type not supported",
-                        alertMessage: "Content-Type " + contentType + " not supported",
-                        isAnalyzing: false,
-                    });
-                    return;
-                }
-                response.blob().then((blob) => {
-                    const fileAsURL = new URL(this.state.inputedFileURL);
-                    const fileName = fileAsURL.pathname.split("/").pop();
-                    const file = new File([blob], fileName, {type: contentType});
-                    this.setState({
-                        fetchedFileURL: this.state.inputedFileURL,
-                        isFetching: false,
-                        fileLabel: fileName,
-                        currPage: 1,
-                        analyzeResult: {},
-                        fileChanged: true,
-                        file,
-                        analyzeRun: false,
-                    }, () => {
-                        if (this.imageMap) {
-                            this.imageMap.removeAllFeatures();
-                        }
-                    });
-                }).catch((error) => {
-                    this.setState({
-                        isFetching: false,
-                        shouldShowAlert: true,
-                        alertTitle: "Invalid data",
-                        alertMessage: error,
-                        isAnalyzing: false,
-                    });
-                    return;
-                });
-            }).catch(() => {
-                this.setState({
-                    isFetching: false,
-                    shouldShowAlert: true,
-                    alertTitle: "Fetch failed",
-                    alertMessage: "Network error or Cross-Origin Resource Sharing (CORS) is not configured server-side",
-                });
-                return;
-            });
-    }
     private handleClick = () => {
         this.setState({analyzationLoaded: false, isAnalyzing: true});
         this.getAnalzation()
-            .then((result) => {
-                // const tags = this.getTagsForPredictResults(
-                //     this.getPredictionsFromAnalyzeResult(result),
-                // );
-                // this.setState({
-                //     tags,
-                //     analyzeResult: result,
-                //     predictionLoaded: true,
-                //     predictRun: true,
-                //     isPredicting: false,
-                // }, () => {
-                //     this.drawPredictionResult();
-                // });
+            .then((ocr) => {
+                this.setState({
+                    isAnalyzing: false,
+                    ocr,
+                    ocrForCurrentPage: this.getOcrResultForPage(ocr, this.state.currentPage),
+                    analyzationLoaded: true,
+                }, () => {
+                    this.buildRegionOrders();
+                    this.drawOcr();
+                })
             }).catch((error) => {
-                // let alertMessage = "";
-                // if (error.response) {
-                //     alertMessage = error.response.data;
-                // } else if (error.errorCode === ErrorCode.PredictWithoutTrainForbidden) {
-                //     alertMessage = strings.errors.predictWithoutTrainForbidden.message;
-                // } else if (error.errorCode === ErrorCode.ModelNotFound) {
-                //     alertMessage = error.message;
-                // } else {
-                //     alertMessage = interpolate(strings.errors.endpointConnectionError.message, {endpoint: "form recognizer backend URL"});
-                // }
-                // this.setState({
-                //     shouldShowAlert: true,
-                //     alertTitle: "Prediction Failed",
-                //     alertMessage,
-                //     isPredicting: false,
-                // });
+                let alertMessage = "";
+                if (error.response) {
+                    alertMessage = error.response.data;
+                } else if (error.errorCode === ErrorCode.PredictWithoutTrainForbidden) {
+                    alertMessage = strings.errors.predictWithoutTrainForbidden.message;
+                } else if (error.errorCode === ErrorCode.ModelNotFound) {
+                    alertMessage = error.message;
+                } else {
+                    alertMessage = interpolate(strings.errors.endpointConnectionError.message, {endpoint: "form recognizer backend URL"});
+                }
+                this.setState({
+                    shouldShowAlert: true,
+                    alertTitle: "Prediction Failed",
+                    alertMessage,
+                    isAnalyzing: false,
+                });
             });
-        // if (this.appInsights) {
-        //     this.appInsights.trackEvent({name: "ANALYZE_EVENT"});
-        // }
+    }
+    private buildRegionOrders = () => {
+        // Build order index here instead of building it during 'drawOcr' for two reasons.
+        // 1. Build order index for all pages at once. This allow us to support cross page
+        //    tagging if it's supported by FR service.
+        // 2. Avoid rebuilding order index when users switch back and forth between pages.
+        const ocrs = this.state.ocr;
+        const ocrReadResults = (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.readResults));
+        const ocrPageResults = (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.pageResults));
+        const imageExtent = this.imageMap.getImageExtent();
+        ocrReadResults.forEach((ocr) => {
+            const ocrExtent = [0, 0, ocr.width, ocr.height];
+            const pageIndex = ocr.page - 1;
+            this.regionOrders[pageIndex] = {};
+            this.regionOrderById[pageIndex] = [];
+            let order = 0;
+            if (ocr.lines) {
+                ocr.lines.forEach((line) => {
+                    if (line.words) {
+                        line.words.forEach((word) => {
+                            if (this.shouldDisplayOcrWord(word.text)) {
+                                const feature = this.createBoundingBoxVectorFeature(
+                                    word.text, word.boundingBox, imageExtent, ocrExtent, ocr.page);
+                                this.regionOrders[pageIndex][feature.getId()] = order++;
+                                this.regionOrderById[pageIndex].push(feature.getId());
+                            }
+                        });
+                    }
+                });
+            }
+            const checkboxes = ocr.selectionMarks
+                || (ocrPageResults && ocrPageResults[pageIndex] && ocrPageResults[pageIndex].checkboxes);
+            if (checkboxes) {
+                this.addCheckboxToRegionOrder(checkboxes, pageIndex, order, imageExtent, ocrExtent);
+            }
+        });
+    }
+
+    private shouldDisplayOcrWord = (text: string) => {
+        const regex = new RegExp(/^[_]+$/);
+        return !text.match(regex);
+    }
+
+    private addCheckboxToRegionOrder = (
+        checkboxes: any[],
+        pageIndex: number,
+        order: number,
+        imageExtent: number[],
+        ocrExtent: any[]) => {
+        checkboxes.forEach((checkbox) => {
+            const checkboxFeature = this.createBoundingBoxVectorFeature(
+                checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, this.state.currentPage);
+            this.regionOrders[pageIndex][checkboxFeature.getId()] = order++;
+            this.regionOrderById[pageIndex].push(checkboxFeature.getId());
+        });
+    }
+
+    private drawOcr = () => {
+        const textFeatures = [];
+        const tableBorderFeatures = [];
+        const tableIconFeatures = [];
+        const tableIconBorderFeatures = [];
+        const checkboxFeatures = [];
+        const ocrReadResults = this.state.ocrForCurrentPage["readResults"];
+        const ocrPageResults = this.state.ocrForCurrentPage["pageResults"];
+        const imageExtent = this.imageMap.getImageExtent();
+        if (ocrReadResults) {
+            const ocrExtent = [0, 0, ocrReadResults.width, ocrReadResults.height];
+            if (ocrReadResults.lines) {
+                ocrReadResults.lines.forEach((line) => {
+                    if (line.words) {
+                        line.words.forEach((word) => {
+                            if (this.shouldDisplayOcrWord(word.text)) {
+                                textFeatures.push(this.createBoundingBoxVectorFeature(
+                                    word.text, word.boundingBox, imageExtent, ocrExtent, ocrReadResults.page));
+                            }
+                        });
+                    }
+                });
+            }
+            this.tableIDToIndexMap = {};
+            if (ocrPageResults && ocrPageResults.tables) {
+                ocrPageResults.tables.forEach((table, index) => {
+                    if (table.cells && table.columns && table.rows) {
+                        const tableBoundingBox = this.getTableBoundingBox(table.cells.map((cell) => cell.boundingBox));
+                        const createdTableFeatures = this.createBoundingBoxVectorTable(
+                            tableBoundingBox,
+                            imageExtent,
+                            ocrExtent,
+                            ocrPageResults.page,
+                            table.rows,
+                            table.columns,
+                            index);
+                        tableBorderFeatures.push(createdTableFeatures["border"]);
+                        tableIconFeatures.push(createdTableFeatures["icon"]);
+                        tableIconBorderFeatures.push(createdTableFeatures["iconBorder"]);
+                    }
+                });
+            }
+
+            if (ocrReadResults && ocrReadResults.selectionMarks) {
+                ocrReadResults.selectionMarks.forEach((checkbox) => {
+                    checkboxFeatures.push(this.createBoundingBoxVectorFeature(
+                        checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, ocrReadResults.page));
+                });
+            } else if (ocrPageResults && ocrPageResults.checkboxes) {
+                ocrPageResults.checkboxes.forEach((checkbox) => {
+                    checkboxFeatures.push(this.createBoundingBoxVectorFeature(
+                        checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, ocrPageResults.page));
+                });
+            }
+
+            if (tableBorderFeatures.length > 0 && tableBorderFeatures.length === tableIconFeatures.length
+                && tableBorderFeatures.length === tableIconBorderFeatures.length) {
+                this.imageMap.addTableBorderFeatures(tableBorderFeatures);
+                this.imageMap.addTableIconFeatures(tableIconFeatures);
+                this.imageMap.addTableIconBorderFeatures(tableIconBorderFeatures);
+            }
+            if (textFeatures.length > 0) {
+                this.imageMap.addFeatures(textFeatures);
+            }
+            if (checkboxFeatures.length > 0) {
+                this.imageMap.addCheckboxFeatures(checkboxFeatures);
+            }
+        }
+    }
+    private getTableBoundingBox = (lines: []) => {
+        const flattenedLines = [].concat(...lines);
+        const xAxisValues = flattenedLines.filter((value, index) => index % 2 === 0);
+        const yAxisValues = flattenedLines.filter((value, index) => index % 2 === 1);
+        const left = Math.min(...xAxisValues);
+        const top = Math.min(...yAxisValues);
+        const right = Math.max(...xAxisValues);
+        const bottom = Math.max(...yAxisValues);
+        return ([left, top, right, top, right, bottom, left, bottom]);
+    }
+
+    private createBoundingBoxVectorTable = (boundingBox, imageExtent, ocrExtent, page, rows, columns, index) => {
+        const coordinates: any[] = [];
+        const polygonPoints: number[] = [];
+        const imageWidth = imageExtent[2] - imageExtent[0];
+        const imageHeight = imageExtent[3] - imageExtent[1];
+        const ocrWidth = ocrExtent[2] - ocrExtent[0];
+        const ocrHeight = ocrExtent[3] - ocrExtent[1];
+
+        for (let i = 0; i < boundingBox.length; i += 2) {
+            // An array of numbers representing an extent: [minx, miny, maxx, maxy]
+            coordinates.push([
+                Math.round((boundingBox[i] / ocrWidth) * imageWidth),
+                Math.round((1 - (boundingBox[i + 1] / ocrHeight)) * imageHeight),
+            ]);
+
+            polygonPoints.push(boundingBox[i] / ocrWidth);
+            polygonPoints.push(boundingBox[i + 1] / ocrHeight);
+        }
+        const tableID = this.createRegionIdFromBoundingBox(polygonPoints, page);
+        this.tableIDToIndexMap[tableID] = index;
+        const tableFeatures = {};
+        tableFeatures["border"] = new Feature({
+            geometry: new Polygon([coordinates]),
+            id: tableID,
+            state: "rest",
+            boundingbox: boundingBox,
+        });
+        tableFeatures["icon"] = new Feature({
+            geometry: new Point([coordinates[0][0] - 6.5, coordinates[0][1] - 4.5]),
+            id: tableID,
+            state: "rest",
+        });
+
+        const iconTR = [coordinates[0][0] - 5, coordinates[0][1]];
+        const iconTL = [iconTR[0] - 31.5, iconTR[1]];
+        const iconBL = [iconTR[0], iconTR[1] - 29.5];
+        const iconBR = [iconTR[0] - 31.5, iconTR[1] - 29.5];
+
+        tableFeatures["iconBorder"] = new Feature({
+            geometry: new Polygon([[iconTR, iconTL, iconBR, iconBL]]),
+            id: tableID,
+            rows,
+            columns,
+        });
+
+        tableFeatures["border"].setId(tableID);
+        tableFeatures["icon"].setId(tableID);
+        tableFeatures["iconBorder"].setId(tableID);
+        return tableFeatures;
     }
 
     private async getAnalzation(): Promise<any> {
-        let endpointURL;
-        let apiKey;
-
-        endpointURL = url.resolve(
+        const endpointURL = url.resolve(
             this.props.prebuiltSettings.serviceURI,
-            `/formrecognizer/${constants.prebuiltServiceVersion}`,
+            `/formrecognizer/${constants.prebuiltServiceVersion}/layout/analyze`,
         );
-        apiKey = this.props.prebuiltSettings.apiKey;
+        const apiKey = this.props.prebuiltSettings.apiKey;
 
         let headers;
         let body;
-        if (this.state.sourceOption === "localFile") {
+        if (this.state.file) {
             headers = {"Content-Type": this.state.file.type, "cache-control": "no-cache"};
             body = this.state.file;
         } else {
@@ -652,13 +737,8 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
                 operationLocation, {headers}, apiKey as string), 120000, 500);
     }
 
-    private loadFile = async (file: File) => {
 
-        const result: any = Object.assign({}, await this.fileHelper.loadFile(file));
-        if (result) {
-            this.setState({...result});
-        }
-    }
+
 
     private poll = (func, timeout, interval): Promise<any> => {
         const endTime = Number(new Date()) + (timeout || 10000);

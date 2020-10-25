@@ -268,7 +268,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     showActionMenu={true}
                 />
                 <ImageMap
-                    parentPage={ImageMapParent.Editor}
+                    initEditorMap={true}
                     ref={(ref) => this.imageMap = ref}
                     imageUri={this.state.imageUri}
                     imageWidth={this.state.imageWidth}

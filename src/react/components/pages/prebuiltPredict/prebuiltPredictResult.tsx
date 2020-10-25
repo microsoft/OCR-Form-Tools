@@ -1,16 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { PrimaryButton } from "@fluentui/react";
+import {PrimaryButton} from "@fluentui/react";
 import React from "react";
-import { getPrimaryGreenTheme } from "../../../../common/themes";
-import { ITag } from "../../../../models/applicationState";
+import {getPrimaryGreenTheme} from "../../../../common/themes";
+import {ITag} from "../../../../models/applicationState";
 import "./prebuiltPredictResult.scss";
+import _ from "lodash";
 
 
 export interface IPrebuiltPredictResultProps {
-    predictions: { [key: string]: any };
-    analyzeResult: {};
+    predictions: {[key: string]: any};
+    analyzeResult: object;
     page: number;
     tags?: ITag[];
     downloadResultLabel: string;
@@ -20,11 +21,11 @@ export interface IPrebuiltPredictResultProps {
     onPredictionMouseLeave?: (item: any) => void;
 }
 
-export interface IPrebuiltPredictResultState { }
+export interface IPrebuiltPredictResultState {}
 
 export default class PrebuiltPredictResult extends React.Component<IPrebuiltPredictResultProps, IPrebuiltPredictResultState> {
     public render() {
-        const { tags, predictions } = this.props;
+        const {tags, predictions} = this.props;
         const tagsDisplayOrder = tags.map((tag) => tag.name);
         for (const name of Object.keys(predictions)) {
             const prediction = predictions[name];
@@ -119,16 +120,14 @@ export default class PrebuiltPredictResult extends React.Component<IPrebuiltPred
 
     // Helper: Sanitizes the results of prediction in order to align it with API from the service
     private sanitizeData = (data: any): void => {
-        if (data.hasOwnProperty("analyzeResult")) {
-            const fields: {} = data.analyzeResult.documentResults[0].fields;
-            for (const key in fields) {
-                if (fields[key] !== null) {
-                    if (fields[key].hasOwnProperty("displayOrder")) {
-                        delete fields[key].displayOrder;
-                    }
-                    if (fields[key].hasOwnProperty("fieldName")) {
-                        delete fields[key].fieldName;
-                    }
+        const fields = _.get(data, "analyzeResult.documentResults[0].fields", {});
+        for (const key in fields) {
+            if (fields[key] !== null) {
+                if (fields[key].hasOwnProperty("displayOrder")) {
+                    delete fields[key].displayOrder;
+                }
+                if (fields[key].hasOwnProperty("fieldName")) {
+                    delete fields[key].fieldName;
                 }
             }
         }
@@ -141,7 +140,7 @@ export default class PrebuiltPredictResult extends React.Component<IPrebuiltPred
         }
     }
     private triggerDownload = (): void => {
-        const { analyzeResult } = this.props;
+        const {analyzeResult} = this.props;
         const predictionData = JSON.stringify(this.sanitizeData(analyzeResult));
         const fileURL = window.URL.createObjectURL(new Blob([predictionData]));
         const fileLink = document.createElement("a");

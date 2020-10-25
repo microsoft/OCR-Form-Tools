@@ -197,7 +197,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
     }
 
     private onTrainAndUseAModelWithoutLables = () => {
-
+        this.props.history.push("/use-model-without-labels");
     }
     private onOpenCloudProjectClicked = () => {
         this.cloudFilePickerRef.current.open();

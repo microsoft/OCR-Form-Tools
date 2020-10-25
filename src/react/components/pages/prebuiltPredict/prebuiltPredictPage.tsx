@@ -2,9 +2,9 @@
 // Licensed under the MIT license.
 
 import {
-    DefaultButton, Dropdown, FontIcon, IconButton, IDropdownOption,
+    Dropdown, FontIcon, IconButton, IDropdownOption,
     PrimaryButton,
-    Spinner, SpinnerSize, TextField
+    Spinner, SpinnerSize
 } from "@fluentui/react";
 import _ from "lodash";
 import {Feature} from "ol";
@@ -12,20 +12,15 @@ import Polygon from "ol/geom/Polygon";
 import Fill from "ol/style/Fill";
 import Stroke from "ol/style/Stroke";
 import Style from "ol/style/Style";
-import pdfjsLib from "pdfjs-dist";
 import React from "react";
 import {connect} from "react-redux";
 import {RouteComponentProps} from "react-router-dom";
 import {bindActionCreators} from "redux";
 import url from "url";
 import {constants} from "../../../../common/constants";
-import HtmlFileReader from "../../../../common/htmlFileReader";
 import {interpolate, strings} from "../../../../common/strings";
-import {
-    getGreenWithWhiteBackgroundTheme, getPrimaryGreenTheme, getPrimaryGreyTheme, getPrimaryWhiteTheme
-} from "../../../../common/themes";
-import {loadImageToCanvas, parseTiffData, renderTiffToCanvas} from "../../../../common/utils";
-import {ErrorCode, FieldFormat, FieldType, IApplicationState, ImageMapParent, IPrebuiltSettings, ITag} from "../../../../models/applicationState";
+import {getPrimaryWhiteTheme} from "../../../../common/themes";
+import {ErrorCode, FieldFormat, FieldType, IApplicationState, IPrebuiltSettings, ITag} from "../../../../models/applicationState";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import IAppPrebuiltSettingsActions, * as appPrebuiltSettingsActions from "../../../../redux/actions/prebuiltSettingsActions";
 import ServiceHelper from "../../../../services/serviceHelper";
@@ -33,11 +28,12 @@ import {getAppInsights} from "../../../../services/telemetryService";
 import Alert from "../../common/alert/alert";
 import {ImageMap} from "../../common/imageMap/imageMap";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
+import {CanvasCommandBar} from "../editorPage/canvasCommandBar";
+import {FilePicker} from "./filePicker";
+import {ILoadFileHelper, LoadFileHelper} from "./LoadFileHelper";
 import "./prebuiltPredictPage.scss";
 import PrebuiltPredictResult from "./prebuiltPredictResult";
-
-pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
-const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
+import {PrebuiltSetting} from "./prebuiltSetting";
 
 interface IPrebuiltTypes {
     name: string;
@@ -51,35 +47,33 @@ export interface IPrebuiltPredictPageProps extends RouteComponentProps {
 }
 
 export interface IPrebuiltPredictPageState {
-    tags?: ITag[];
-    // inputedAPIKey?: string;
-    // inputedServiceURI?: string;
-    showInputedAPIKey: boolean;
-
-    inputedLocalFile: string;
-    sourceOption: string;
-    isFetching: boolean;
-    fetchedFileURL: string;
-    inputedFileURL: string;
-    analyzeResult: object;
-    fileLabel: string;
-    predictionLoaded: boolean;
-    currPage: number;
     imageUri: string;
     imageWidth: number;
     imageHeight: number;
+    currentPage: number;
+
     shouldShowAlert: boolean;
-    invalidFileFormat: boolean;
     alertTitle: string;
     alertMessage: string;
+    invalidFileFormat?: boolean;
+
+    fileLabel: string;
     fileChanged: boolean;
-    predictRun: boolean;
-    isPredicting: boolean;
     file?: File;
-    highlightedField: string;
+    isFetching?: boolean;
+    fileLoaded?: boolean;
+
+    isPredicting: boolean;
+    predictionLoaded: boolean;
+    fetchedFileURL: string;
+    analyzeResult: object;
+
+    tags?: ITag[];
+    highlightedField?: string;
     imageAngle: number;
     currentPrebuiltType: IPrebuiltTypes;
 }
+
 function mapStateToProps(state: IApplicationState) {
     return {
         prebuiltSettings: state.prebuiltSettings
@@ -111,36 +105,29 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
         },
     ];
 
-    public state: IPrebuiltPredictPageState = {
-        showInputedAPIKey: false,
-
-        sourceOption: "localFile",
-        isFetching: false,
-        fetchedFileURL: "",
-        inputedFileURL: strings.prebuiltPredict.defaultURLInput,
-        inputedLocalFile: strings.prebuiltPredict.defaultLocalFileInput,
-        analyzeResult: null,
-        fileLabel: "",
-        predictionLoaded: true,
-        currPage: undefined,
+    state: IPrebuiltPredictPageState = {
         imageUri: null,
         imageWidth: 0,
         imageHeight: 0,
+        currentPage: 1,
+
         shouldShowAlert: false,
-        invalidFileFormat: false,
         alertTitle: "",
         alertMessage: "",
+
+        fileLabel: "",
         fileChanged: false,
-        predictRun: false,
+
         isPredicting: false,
-        highlightedField: "",
+        predictionLoaded: false,
+        fetchedFileURL: "",
+        analyzeResult: null,
+
         imageAngle: 0,
         currentPrebuiltType: this.prebuiltTypes[0],
     };
 
-    private fileInput: React.RefObject<HTMLInputElement> = React.createRef();
-    private currPdf: any;
-    private tiffImages: any[];
+    private fileHelper: ILoadFileHelper = new LoadFileHelper();
     private imageMap: ImageMap;
     private tagColors = require("../../common/tagColors.json");
 
@@ -150,20 +137,19 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
         this.props.appTitleActions.setTitle(`${strings.prebuiltPredict.title}`);
     }
 
-    componentDidUpdate(prevProps, prevState) {
+    componentDidUpdate(_prevProps: IPrebuiltPredictPageProps, prevState: IPrebuiltPredictPageState) {
         if (this.state.file) {
-            if (this.state.fileChanged) {
-                this.currPdf = null;
-                this.tiffImages = [];
+            if (this.state.fileChanged && !this.state.isFetching) {
                 this.loadFile(this.state.file);
-                this.setState({fileChanged: false});
-            } else if (prevState.currPage !== this.state.currPage) {
-                if (this.currPdf !== null) {
-                    this.loadPdfPage(this.currPdf, this.state.currPage);
-                } else if (this.tiffImages.length !== 0) {
-                    this.loadTiffPage(this.tiffImages, this.state.currPage);
-                }
-            } else if (this.getOcrFromAnalyzeResult(this.state.analyzeResult).length > 0 &&
+            } else if (prevState.currentPage !== this.state.currentPage) {
+                this.fileHelper.loadPage(this.state.currentPage).then((res: any) => {
+                    if (res) {
+                        this.setState({...res});
+                    }
+                });
+            }
+
+            if (this.getOcrFromAnalyzeResult(this.state.analyzeResult).length > 0 &&
                 prevState.imageUri !== this.state.imageUri) {
                 this.imageMap.removeAllFeatures();
                 this.drawPredictionResult();
@@ -175,25 +161,27 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
         }
     }
 
+    private loadFile = (file: File) => {
+        this.setState({isFetching: true});
+        this.fileHelper.loadFile(file).then((res: any) => {
+            if (res) {
+                this.setState({
+                    ...res,
+                    isFetching: false,
+                    fileChanged: false
+                });
+            }
+        });
+    }
+
     public render() {
-        const browseFileDisabled: boolean = !this.state.predictionLoaded;
-        const urlInputDisabled: boolean = !this.state.predictionLoaded || this.state.isFetching;
-        const predictDisabled: boolean = !this.state.predictionLoaded || !this.state.file
+        const predictDisabled: boolean = this.state.isPredicting || !this.state.file
             || this.state.invalidFileFormat ||
-            !this.props.prebuiltSettings.apiKey || !this.props.prebuiltSettings.serviceURI;
+            !this.props.prebuiltSettings.apiKey ||
+            !this.state.fileLoaded ||
+            !this.props.prebuiltSettings.serviceURI;
 
         const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
-        // const modelInfo: IAnalyzeModelInfo = this.getAnalyzeModelInfo(this.state.analyzeResult);
-        const fetchDisabled: boolean =
-            !this.state.predictionLoaded ||
-            this.state.isFetching ||
-            this.state.inputedFileURL.length === 0 ||
-            this.state.inputedFileURL === strings.prebuiltPredict.defaultURLInput;
-
-        const sourceOptions: IDropdownOption[] = [
-            {key: "localFile", text: "Local file"},
-            {key: "url", text: "URL"},
-        ];
 
         const onPrebuiltsPath: boolean = this.props.match.path.includes("prebuilts");
 
@@ -206,6 +194,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                     {this.state.file && this.state.imageUri && this.renderImageMap()}
                     {this.renderPrevPageButton()}
                     {this.renderNextPageButton()}
+                    {this.renderPageIndicator()}
                 </div>
                 <div className="predict-sidebar bg-lighter-1">
                     <div className="condensed-list">
@@ -214,177 +203,78 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                             <span>Analyze</span>
                         </h6>
 
-                        <>
-                            {
-                                <>
-                                    <div className="p-3" style={{marginTop: "8px"}}>
-                                        <h5>Service configuration</h5>
-                                        <div style={{marginBottom: "3px"}}>Form recognizer service endpoint</div>
-                                        <TextField
-                                            className="mb-1"
-                                            theme={getGreenWithWhiteBackgroundTheme()}
-                                            value={this.props.prebuiltSettings?.serviceURI}
-                                            onChange={this.setInputedServiceURI}
-                                            disabled={this.state.isPredicting}
-                                        />
-                                        <div style={{marginBottom: "3px"}}>API key</div>
-                                        <div className="apikeyContainer">
-                                            <TextField
-                                                className="apikey"
-                                                theme={getGreenWithWhiteBackgroundTheme()}
-                                                type={this.state.showInputedAPIKey ? "text" : "password"}
-                                                value={this.props.prebuiltSettings?.apiKey}
-                                                onChange={this.setInputedAPIKey}
-                                                disabled={this.state.isPredicting}
-                                            />
-                                            <DefaultButton
-                                                className="portected-input-margin"
-                                                theme={getPrimaryGreyTheme()}
-                                                title={this.state.showInputedAPIKey ? "Hide" : "Show"}
-                                                onClick={this.toggleAPIKeyVisibility}
-                                            >
-                                                <FontIcon iconName={this.state.showInputedAPIKey ? "Hide3" : "View"} />
-                                            </DefaultButton>
-                                            <DefaultButton
-                                                theme={getPrimaryGreyTheme()}
-                                                type="button"
-                                                title="Copy"
-                                                onClick={() => this.copyKey()}
-                                            >
-                                                <FontIcon iconName="Copy" />
-                                            </DefaultButton>
-                                        </div>
-                                        <div style={{marginBottom: "3px"}}>Pre-built</div>
-                                        <Dropdown
-                                            className="prebuilt-type-dropdown"
-                                            options={this.prebuiltTypes.map(type => ({key: type.name, text: type.name}))}
-                                            defaultSelectedKey={this.state.currentPrebuiltType.name}
-                                            onChange={this.selectPrebuiltType}></Dropdown>
-                                    </div>
-                                    <div className="p-3" style={{marginTop: "8px"}}>
-                                        <h5>
-                                            Upload file and run analysis
-                                        </h5>
-                                        <div style={{marginBottom: "3px"}}>Image source</div>
-                                        <div className="container-space-between">
-                                            <Dropdown
-                                                className="sourceDropdown"
-                                                selectedKey={this.state.sourceOption}
-                                                options={sourceOptions}
-                                                disabled={this.state.isPredicting || this.state.isFetching}
-                                                onChange={this.selectSource}
-                                            />
-                                            {this.state.sourceOption === "localFile" &&
-                                                <input
-                                                    aria-hidden="true"
-                                                    type="file"
-                                                    accept="application/pdf, image/jpeg, image/png, image/tiff"
-                                                    id="hiddenInputFile"
-                                                    ref={this.fileInput}
-                                                    onChange={this.handleFileChange}
-                                                    disabled={browseFileDisabled}
-                                                />
-                                            }
-                                            {this.state.sourceOption === "localFile" &&
-                                                <TextField
-                                                    className="mr-2 ml-2"
-                                                    theme={getGreenWithWhiteBackgroundTheme()}
-                                                    style={{cursor: (browseFileDisabled ? "default" : "pointer")}}
-                                                    onClick={this.handleDummyInputClick}
-                                                    readOnly={true}
-                                                    aria-label={strings.prebuiltPredict.uploadFile}
-                                                    value={this.state.inputedLocalFile}
-                                                    disabled={browseFileDisabled}
-                                                />
-                                            }
-                                            {this.state.sourceOption === "localFile" &&
-                                                <PrimaryButton
-                                                    className="keep-button-80px"
-                                                    theme={getPrimaryGreenTheme()}
-                                                    text="Browse"
-                                                    allowDisabledFocus
-                                                    disabled={browseFileDisabled}
-                                                    autoFocus={true}
-                                                    onClick={this.handleDummyInputClick}
-                                                />
-                                            }
-                                            {this.state.sourceOption === "url" &&
-                                                <>
-                                                    <TextField
-                                                        className="mr-2 ml-2"
-                                                        theme={getGreenWithWhiteBackgroundTheme()}
-                                                        onFocus={this.removeDefaultInputedFileURL}
-                                                        onChange={this.setInputedFileURL}
-                                                        aria-label={strings.prebuiltPredict.uploadFile}
-                                                        value={this.state.inputedFileURL}
-                                                        disabled={urlInputDisabled}
-                                                    />
-                                                    <PrimaryButton
-                                                        theme={getPrimaryGreenTheme()}
-                                                        className="keep-button-80px"
-                                                        text="Fetch"
-                                                        allowDisabledFocus
-                                                        disabled={fetchDisabled}
-                                                        autoFocus={true}
-                                                        onClick={this.getFileFromURL}
-                                                    />
-                                                </>
-                                            }
-                                        </div>
-                                        <div className="container-items-end predict-button">
-                                            <PrimaryButton
-                                                theme={getPrimaryWhiteTheme()}
-                                                iconProps={{iconName: "Insights"}}
-                                                text="Run analysis"
-                                                aria-label={!this.state.predictionLoaded ? strings.prebuiltPredict.inProgress : ""}
-                                                allowDisabledFocus
-                                                disabled={predictDisabled}
-                                                onClick={this.handleClick}
-                                            />
-                                        </div>
-                                        {this.state.isFetching &&
-                                            <div className="loading-container">
-                                                <Spinner
-                                                    label="Fetching..."
-                                                    ariaLive="assertive"
-                                                    labelPosition="right"
-                                                    size={SpinnerSize.large}
-                                                />
-                                            </div>
-                                        }
-                                        {!this.state.predictionLoaded &&
-                                            <div className="loading-container">
-                                                <Spinner
-                                                    label={strings.prebuiltPredict.inProgress}
-                                                    ariaLive="assertive"
-                                                    labelPosition="right"
-                                                    size={SpinnerSize.large}
-                                                />
-                                            </div>
-                                        }
-                                        {Object.keys(predictions).length > 0 &&
-                                            <PrebuiltPredictResult
-                                                predictions={predictions}
-                                                analyzeResult={this.state.analyzeResult}
-                                                // analyzeModelInfo={modelInfo}
-                                                page={this.state.currPage}
-                                                tags={this.state.tags}
-                                                downloadResultLabel={this.state.fileLabel}
-                                                onPredictionClick={this.onPredictionClick}
-                                                onPredictionMouseEnter={this.onPredictionMouseEnter}
-                                                onPredictionMouseLeave={this.onPredictionMouseLeave}
-                                            />
-                                        }
-                                        {
-                                            (Object.keys(predictions).length === 0 && this.state.predictRun) &&
-                                            <div>
-                                                No field can be extracted.
-                                                </div>
-                                        }
-                                    </div>
-                                </>
+                        <PrebuiltSetting prebuiltSettings={this.props.prebuiltSettings}
+                            disabled={this.state.isPredicting}
+                            actions={this.props.actions}
+                        />
+                        <div className="p-3" style={{marginTop: "-3rem"}}>
+                            <div style={{marginBottom: "3px"}}>Pre-built</div>
+                            <Dropdown
+                                disabled={this.state.isPredicting}
+                                className="prebuilt-type-dropdown"
+                                options={this.prebuiltTypes.map(type => ({key: type.name, text: type.name}))}
+                                defaultSelectedKey={this.state.currentPrebuiltType.name}
+                                onChange={this.onPrebuiltTypeChange}></Dropdown>
+                        </div>
+                        <div className="p-3" style={{marginTop: "8px"}}>
+                            <h5>Upload file and run analysis</h5>
+                            <FilePicker
+                                disabled={this.state.isPredicting || this.state.isFetching}
+                                onFileChange={(data) => this.onFileChange(data)}
+                                onSelectSourceChange={() => this.onSelectSourceChange()}
+                                onError={(err) => this.onFileLoadError(err)} />
+                            <div className="container-items-end predict-button">
+                                <PrimaryButton
+                                    theme={getPrimaryWhiteTheme()}
+                                    iconProps={{iconName: "Insights"}}
+                                    text="Run analysis"
+                                    aria-label={!this.state.isPredicting ? strings.prebuiltPredict.inProgress : ""}
+                                    allowDisabledFocus
+                                    disabled={predictDisabled}
+                                    onClick={this.handleClick}
+                                />
+                            </div>
+                            {this.state.isFetching &&
+                                <div className="loading-container">
+                                    <Spinner
+                                        label="Fetching..."
+                                        ariaLive="assertive"
+                                        labelPosition="right"
+                                        size={SpinnerSize.large}
+                                    />
+                                </div>
                             }
-                        </>
+                            {this.state.isPredicting &&
+                                <div className="loading-container">
+                                    <Spinner
+                                        label={strings.prebuiltPredict.inProgress}
+                                        ariaLive="assertive"
+                                        labelPosition="right"
+                                        size={SpinnerSize.large}
+                                    />
+                                </div>
+                            }
+                            {Object.keys(predictions).length > 0 &&
+                                <PrebuiltPredictResult
+                                    predictions={predictions}
+                                    analyzeResult={this.state.analyzeResult}
+                                    // analyzeModelInfo={modelInfo}
+                                    page={this.state.currentPage}
+                                    tags={this.state.tags}
+                                    downloadResultLabel={this.state.fileLabel}
+                                    onPredictionClick={this.onPredictionClick}
+                                    onPredictionMouseEnter={this.onPredictionMouseEnter}
+                                    onPredictionMouseLeave={this.onPredictionMouseLeave}
+                                />
+                            }
+                            {
+                                (Object.keys(predictions).length === 0 && this.state.predictionLoaded) &&
+                                <div>
+                                    No field can be extracted.
+                                                </div>
+                            }
+                        </div>
+
 
                     </div>
                 </div>
@@ -406,160 +296,84 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
             </div>
         );
     }
-
-    private setInputedServiceURI = (e: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
-        // this.setState({inputedServiceURI: event.target.value});
-        this.props.actions.update({...this.props.prebuiltSettings, serviceURI: newValue});
-
-    }
-
-    private setInputedAPIKey = (e: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
-        this.props.actions.update({...this.props.prebuiltSettings, apiKey: newValue});
-    }
-    private toggleAPIKeyVisibility = () => {
+    onSelectSourceChange(): void {
         this.setState({
-            showInputedAPIKey: !this.state.showInputedAPIKey,
+            file: undefined,
+            analyzeResult: {},
+            predictionLoaded: false,
+        });
+        if (this.imageMap) {
+            this.imageMap.removeAllFeatures();
+        }
+    }
+
+    onFileLoadError(err: {alertTitle: string; alertMessage: string;}): void {
+        this.setState({
+            ...err,
+            shouldShowAlert: true,
+            isPredicting: false,
         });
     }
-    private async copyKey() {
-        const clipboard = (navigator as any).clipboard;
-        if (clipboard && clipboard.writeText && typeof clipboard.writeText === "function") {
-            await clipboard.writeText(this.props.prebuiltSettings.apiKey);
-        }
-    }
-    private handleDummyInputClick = () => {
-        document.getElementById("hiddenInputFile").click();
-    }
-
-    private removeDefaultInputedFileURL = () => {
-        if (this.state.inputedFileURL === strings.prebuiltPredict.defaultURLInput) {
-            this.setState({inputedFileURL: ""});
-        }
-    }
-
-    private setInputedFileURL = (event) => {
-        this.setState({inputedFileURL: event.target.value});
-    }
-
-    private getFileFromURL = () => {
-        this.setState({isFetching: true});
-        fetch(this.state.inputedFileURL, {headers: {Accept: "application/pdf, image/jpeg, image/png, image/tiff"}})
-            .then(async (response) => {
-                if (!response.ok) {
-                    this.setState({
-                        isFetching: false,
-                        shouldShowAlert: true,
-                        alertTitle: "Failed to fetch",
-                        alertMessage: response.status.toString() + " " + response.statusText,
-                        isPredicting: false,
-                    });
-                    return;
-                }
-                const contentType = response.headers.get("Content-Type");
-                if (![ "application/pdf", "image/jpeg", "image/png", "image/tiff" ].includes(contentType)) {
-                    this.setState({
-                        isFetching: false,
-                        shouldShowAlert: true,
-                        alertTitle: "Content-Type not supported",
-                        alertMessage: "Content-Type " + contentType + " not supported",
-                        isPredicting: false,
-                    });
-                    return;
-                }
-                response.blob().then((blob) => {
-                    const fileAsURL = new URL(this.state.inputedFileURL);
-                    const fileName = fileAsURL.pathname.split("/").pop();
-                    const file = new File([ blob ], fileName, {type: contentType});
-                    this.setState({
-                        fetchedFileURL: this.state.inputedFileURL,
-                        isFetching: false,
-                        fileLabel: fileName,
-                        currPage: 1,
-                        analyzeResult: {},
-                        fileChanged: true,
-                        file,
-                        predictRun: false,
-                    }, () => {
-                        if (this.imageMap) {
-                            this.imageMap.removeAllFeatures();
-                        }
-                    });
-                }).catch((error) => {
-                    this.setState({
-                        isFetching: false,
-                        shouldShowAlert: true,
-                        alertTitle: "Invalid data",
-                        alertMessage: error,
-                        isPredicting: false,
-                    });
-                    return;
-                });
-            }).catch(() => {
-                this.setState({
-                    isFetching: false,
-                    shouldShowAlert: true,
-                    alertTitle: "Fetch failed",
-                    alertMessage: "Network error or Cross-Origin Resource Sharing (CORS) is not configured server-side",
-                });
-                return;
-            });
-    }
-
-    private selectSource = (event, option) => {
-        if (option.key !== this.state.sourceOption) {
-            this.setState({
-                sourceOption: option.key,
-                inputedFileURL: strings.prebuiltPredict.defaultURLInput,
-                inputedLocalFile: strings.prebuiltPredict.defaultLocalFileInput,
-                fileLabel: "",
-                currPage: undefined,
-                analyzeResult: null,
-                fileChanged: true,
-                file: undefined,
-                predictRun: false,
-                isFetching: false,
-                fetchedFileURL: "",
-                predictionLoaded: true,
-                imageUri: null,
-                imageWidth: 0,
-                imageHeight: 0,
-                shouldShowAlert: false,
-                alertTitle: "",
-                alertMessage: "",
-                isPredicting: false,
-                highlightedField: "",
-            }, () => {
-                if (this.imageMap) {
-                    this.imageMap.removeAllFeatures();
-                }
-            });
-        }
-    }
-    private selectPrebuiltType = (e, option: IDropdownOption) => {
-        const currentPrebuiltType = this.prebuiltTypes.find(type => type.name === option.key);
-        if (currentPrebuiltType) {
-            this.setState({currentPrebuiltType});
-        }
-    }
-    private renderPrevPageButton = () => {
-        if (!_.get(this, "fileInput.current.files[0]", null)) {
-            return <div></div>;
-        }
-        const prevPage = () => {
-            this.setState((prevState) => ({
-                currPage: Math.max(1, prevState.currPage - 1),
-            }), () => {
+    onFileChange(data: {
+        file: File,
+        fileLabel: string,
+        fetchedFileURL: string
+    }): void {
+        this.setState({
+            currentPage: 1,
+            analyzeResult: null,
+            fileChanged: true,
+            ...data,
+            predictionLoaded: false,
+            fileLoaded: false,
+        }, () => {
+            if (this.imageMap) {
                 this.imageMap.removeAllFeatures();
-            });
-        };
+            }
+        });
+    }
 
-        if (this.state.currPage > 1) {
+    private onPrebuiltTypeChange = (e, option: IDropdownOption) => {
+        const currentPrebuiltType = this.prebuiltTypes.find(type => type.name === option.key);
+        if (currentPrebuiltType && this.state.currentPrebuiltType.name !== currentPrebuiltType.name) {
+            this.setState({
+                currentPrebuiltType,
+                // predictRun: false,
+                predictionLoaded: false,
+                analyzeResult: {}
+            }, () => {
+                this.imageMap?.removeAllFeatures();
+            });
+        }
+    }
+    private prevPage = () => {
+        this.setState((prevState) => ({
+            currentPage: Math.max(1, prevState.currentPage - 1),
+        }), () => {
+            this.imageMap?.removeAllFeatures();
+        });
+    };
+    private nextPage = () => {
+        const numPages = this.getPageCount();
+        this.setState((prevState) => ({
+            currentPage: Math.min(prevState.currentPage + 1, numPages),
+        }), () => {
+            this.imageMap?.removeAllFeatures();
+        });
+    };
+    private renderPrevPageButton = () => {
+        // if (!_.get(this, "fileInput.current.files[0]", null)) {
+        //     return <div></div>;
+        // }
+
+
+        if (this.state.currentPage > 1) {
             return (
                 <IconButton
                     className="toolbar-btn prev"
                     title="Previous"
                     iconProps={{iconName: "ChevronLeft"}}
-                    onClick={prevPage}
+                    onClick={this.prevPage}
                 />
             );
         } else {
@@ -568,25 +382,19 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
     }
 
     private renderNextPageButton = () => {
-        if (!_.get(this, "fileInput.current.files[0]", null)) {
-            return <div></div>;
-        }
+        // if (!_.get(this, "fileInput.current.files[0]", null)) {
+        //     return <div></div>;
+        // }
 
         const numPages = this.getPageCount();
-        const nextPage = () => {
-            this.setState((prevState) => ({
-                currPage: Math.min(prevState.currPage + 1, numPages),
-            }), () => {
-                this.imageMap.removeAllFeatures();
-            });
-        };
 
-        if (this.state.currPage < numPages) {
+
+        if (this.state.currentPage < numPages) {
             return (
                 <IconButton
                     className="toolbar-btn next"
                     title="Next"
-                    onClick={nextPage}
+                    onClick={this.nextPage}
                     iconProps={{iconName: "ChevronRight"}}
                 />
             );
@@ -594,12 +402,26 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
             return <div></div>;
         }
     }
+    private renderPageIndicator = () => {
+        const pageCount = this.getPageCount();
+        return pageCount > 1 ?
+            <p className="page-number">
+                Page {this.state.currentPage} of {pageCount}
+            </p> : <div></div>;
+    }
 
     private renderImageMap = () => {
         return (
             <div style={{width: "100%", height: "100%"}}>
+                <CanvasCommandBar
+                    handleZoomIn={this.handleCanvasZoomIn}
+                    handleZoomOut={this.handleCanvasZoomOut}
+                    handleRotateImage={this.handleRotateCanvas}
+                    layers={{}}
+                />
                 <ImageMap
-                    parentPage={ImageMapParent.Predict}
+                    // parentPage={ImageMapParent.Predict}
+                    initPredictMap={true}
                     ref={(ref) => this.imageMap = ref}
                     imageUri={this.state.imageUri || ""}
                     imageWidth={this.state.imageWidth}
@@ -611,28 +433,21 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
             </div>
         );
     }
-
-    private handleFileChange = () => {
-        if (this.fileInput.current.value !== "") {
-            this.setState({invalidFileFormat: false});
-            const fileName = this.fileInput.current.value.split("\\").pop();
-            if (fileName !== "") {
-                this.setState({
-                    inputedLocalFile: fileName,
-                    fileLabel: fileName,
-                    currPage: 1,
-                    analyzeResult: null,
-                    fileChanged: true,
-                    file: this.fileInput.current.files[ 0 ],
-                    predictRun: false,
-                }, () => {
-                    if (this.imageMap) {
-                        this.imageMap.removeAllFeatures();
-                    }
-                });
-            }
-        }
+    private handleCanvasZoomIn = () => {
+        this.imageMap.zoomIn();
     }
+
+    private handleCanvasZoomOut = () => {
+        this.imageMap.zoomOut();
+    }
+    private handleZoomReset = () => {
+        this.imageMap.resetZoom();
+    }
+
+    private handleRotateCanvas = (degrees: number) => {
+        this.setState({imageAngle: this.state.imageAngle + degrees});
+    }
+
 
     private handleClick = () => {
         this.setState({predictionLoaded: false, isPredicting: true});
@@ -645,7 +460,6 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                     tags,
                     analyzeResult: result,
                     predictionLoaded: true,
-                    predictRun: true,
                     isPredicting: false,
                 }, () => {
                     this.drawPredictionResult();
@@ -674,13 +488,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
     }
 
     private getPageCount() {
-        if (this.currPdf !== null) {
-            return _.get(this.currPdf, "numPages", 1);
-        } else if (this.tiffImages.length !== 0) {
-            return this.tiffImages.length;
-        }
-
-        return 1;
+        return this.fileHelper.getPageCount();
     }
 
     private getTagsForPredictResults(predictions) {
@@ -688,7 +496,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
         Object.keys(predictions).forEach((key, index) => {
             tags.push({
                 name: key,
-                color: this.tagColors[ index ],
+                color: this.tagColors[index],
                 // use default type
                 type: FieldType.String,
                 format: FieldFormat.NotSpecified,
@@ -712,7 +520,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
 
         let headers;
         let body;
-        if (this.state.sourceOption === "localFile") {
+        if (this.state.file) {
             headers = {"Content-Type": this.state.file.type, "cache-control": "no-cache"};
             body = this.state.file;
         } else {
@@ -727,7 +535,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
             ServiceHelper.handleServiceError(err);
         }
 
-        const operationLocation = response.headers[ "operation-location" ];
+        const operationLocation = response.headers["operation-location"];
 
         // Make the second REST API call and get the response.
         return this.poll(() =>
@@ -735,144 +543,34 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                 operationLocation, {headers}, apiKey as string), 120000, 500);
     }
 
-    private loadFile = (file: File) => {
-        if (!file) {
-            // no file
-            return;
-        }
 
-        // determine how to load file based on MIME type of the file
-        // https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types
-        switch (file.type) {
-            case "image/jpeg":
-            case "image/png":
-                this.loadImageFile(file);
-                break;
-
-            case "image/tiff":
-                this.loadTiffFile(file);
-                break;
-
-            case "application/pdf":
-                this.loadPdfFile(file);
-                break;
-
-            default:
-                // un-supported file type
-                this.setState({
-                    imageUri: "",
-                    shouldShowAlert: true,
-                    invalidFileFormat: true,
-                    alertTitle: "Not supported file type",
-                    alertMessage: "Sorry, we currently only support JPG/PNG/PDF files.",
-                });
-                break;
-        }
-    }
-
-    private loadImageFile = async (file: File) => {
-        const imageUri = this.createObjectURL(file);
-        const canvas = await loadImageToCanvas(imageUri);
-        this.setState({
-            currPage: 1,
-            imageUri: canvas.toDataURL(constants.convertedImageFormat, constants.convertedImageQuality),
-            imageWidth: canvas.width,
-            imageHeight: canvas.height,
-        });
-    }
-
-    private loadTiffFile = async (file) => {
-        const fileArrayBuffer = await HtmlFileReader.readFileAsArrayBuffer(file);
-        this.tiffImages = parseTiffData(fileArrayBuffer);
-        this.loadTiffPage(this.tiffImages, this.state.currPage);
-    }
-
-    private loadTiffPage = (tiffImages: any[], pageNumber: number) => {
-        const tiffImage = tiffImages[ pageNumber - 1 ];
-        const canvas = renderTiffToCanvas(tiffImage);
-        this.setState({
-            currPage: pageNumber,
-            imageUri: canvas.toDataURL(constants.convertedImageFormat, constants.convertedImageQuality),
-            imageWidth: tiffImage.width,
-            imageHeight: tiffImage.height,
-        });
-    }
-
-    private loadPdfFile = (file) => {
-        const fileReader: FileReader = new FileReader();
-
-        fileReader.onload = (e: any) => {
-            const typedArray = new Uint8Array(e.target.result);
-            const loadingTask = pdfjsLib.getDocument({data: typedArray, cMapUrl, cMapPacked: true});
-            loadingTask.promise.then((pdf) => {
-                this.currPdf = pdf;
-                this.loadPdfPage(pdf, this.state.currPage);
-            }, (reason) => {
-                this.setState({
-                    shouldShowAlert: true,
-                    alertTitle: "Failed loading PDF",
-                    alertMessage: reason.toString(),
-                });
-            });
-        };
-
-        fileReader.readAsArrayBuffer(file);
-    }
-
-    private loadPdfPage = async (pdf, pageNumber) => {
-        const page = await pdf.getPage(pageNumber);
-        const defaultScale = 2;
-        const viewport = page.getViewport({scale: defaultScale});
-
-        // Prepare canvas using PDF page dimensions
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-
-        // Render PDF page into canvas context
-        const renderContext = {
-            canvasContext: context,
-            viewport,
-        };
-
-        const renderTask = page.render(renderContext);
-        await renderTask.promise;
-        this.setState({
-            currPage: pageNumber,
-            imageUri: canvas.toDataURL(constants.convertedImageFormat, constants.convertedImageQuality),
-            imageWidth: canvas.width,
-            imageHeight: canvas.height,
-        });
-    }
 
     private createBoundingBoxVectorFeature = (text, boundingBox, imageExtent, ocrExtent) => {
         const coordinates: number[][] = [];
 
         // extent is int[4] to represent image dimentions: [left, bottom, right, top]
-        const imageWidth = imageExtent[ 2 ] - imageExtent[ 0 ];
-        const imageHeight = imageExtent[ 3 ] - imageExtent[ 1 ];
-        const ocrWidth = ocrExtent[ 2 ] - ocrExtent[ 0 ];
-        const ocrHeight = ocrExtent[ 3 ] - ocrExtent[ 1 ];
+        const imageWidth = imageExtent[2] - imageExtent[0];
+        const imageHeight = imageExtent[3] - imageExtent[1];
+        const ocrWidth = ocrExtent[2] - ocrExtent[0];
+        const ocrHeight = ocrExtent[3] - ocrExtent[1];
 
         for (let i = 0; i < boundingBox.length; i += 2) {
             coordinates.push([
-                Math.round((boundingBox[ i ] / ocrWidth) * imageWidth),
-                Math.round((1 - (boundingBox[ i + 1 ] / ocrHeight)) * imageHeight),
+                Math.round((boundingBox[i] / ocrWidth) * imageWidth),
+                Math.round((1 - (boundingBox[i + 1] / ocrHeight)) * imageHeight),
             ]);
         }
 
         const feature = new Feature({
-            geometry: new Polygon([ coordinates ]),
+            geometry: new Polygon([coordinates]),
         });
         const tag = this.state.tags.find((tag) => tag.name.toLocaleLowerCase() === text.toLocaleLowerCase());
-        const isHighlighted = (text.toLocaleLowerCase() === this.state.highlightedField.toLocaleLowerCase());
+        const isHighlighted = (text.toLocaleLowerCase() === this.state.highlightedField?.toLocaleLowerCase());
         feature.setProperties({
             color: _.get(tag, "color", "#333333"),
             fieldName: text,
             isHighlighted,
         });
-
         return feature;
     }
 
@@ -891,14 +589,14 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
     private drawPredictionResult = (): void => {
         this.imageMap.removeAllFeatures();
         const features = [];
-        const imageExtent = [ 0, 0, this.state.imageWidth, this.state.imageHeight ];
-        const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[ this.state.currPage - 1 ];
-        const ocrExtent = [ 0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height ];
+        const imageExtent = [0, 0, this.state.imageWidth, this.state.imageHeight];
+        const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[this.state.currentPage - 1];
+        const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
         const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
 
         for (const fieldName of Object.keys(predictions)) {
-            const field = predictions[ fieldName ];
-            if (_.get(field, "page", null) === this.state.currPage) {
+            const field = predictions[fieldName];
+            if (_.get(field, "page", null) === this.state.currentPage) {
                 const text = fieldName;
                 const boundingbox = _.get(field, "boundingBox", []);
                 const feature = this.createBoundingBoxVectorFeature(text, boundingbox, imageExtent, ocrExtent);
@@ -957,9 +655,9 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
             }
             predictionsCopy.Items.valueArray.forEach((item, index) => {
                 const itemName = "Item " + (index + 1);
-                predictionsCopy[ itemName ] = item.valueObject.Name;
+                predictionsCopy[itemName] = item.valueObject.Name;
                 if (item.valueObject.TotalPrice) {
-                    predictionsCopy[ itemName + " price" ] = item.valueObject.TotalPrice;
+                    predictionsCopy[itemName + " price"] = item.valueObject.TotalPrice;
                 }
             });
             delete predictionsCopy.Items;
@@ -969,10 +667,6 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
             return _.get(analyzeResult, "analyzeResult.documentResults[0].fields", {});
         }
     }
-    // private getAnalyzeModelInfo(analyzeResult) {
-    //     const { modelId, docType, docTypeConfidence } = _.get(analyzeResult, "analyzeResult.documentResults[0]", {})
-    //     return { modelId, docType, docTypeConfidence };
-    // }
 
     private getOcrFromAnalyzeResult(analyzeResult: any) {
         return _.get(analyzeResult, "analyzeResult.readResults", []);
@@ -988,9 +682,9 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
     }
     private onPredictionClick = (predictedItem: any) => {
         const targetPage = predictedItem.page;
-        if (Number.isInteger(targetPage) && targetPage !== this.state.currPage) {
+        if (Number.isInteger(targetPage) && targetPage !== this.state.currentPage) {
             this.setState({
-                currPage: targetPage,
+                currentPage: targetPage,
                 highlightedField: predictedItem.fieldName ?? "",
             });
         }

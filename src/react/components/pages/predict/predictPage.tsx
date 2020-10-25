@@ -653,7 +653,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     layers={{}}
                 />
                 <ImageMap
-                    parentPage={ImageMapParent.Predict}
+                    // parentPage={ImageMapParent.Predict}
+                    initPredictMap={true}
                     ref={(ref) => this.imageMap = ref}
                     imageUri={this.state.imageUri || ""}
                     imageWidth={this.state.imageWidth}

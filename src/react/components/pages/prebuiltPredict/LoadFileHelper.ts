@@ -4,6 +4,7 @@ import {constants} from "../../../../common/constants";
 import HtmlFileReader from "../../../../common/htmlFileReader";
 import {loadImageToCanvas, parseTiffData, renderTiffToCanvas} from "../../../../common/utils";
 
+pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
 
 export interface ILoadFileResult {
@@ -21,9 +22,8 @@ export interface ILoadFileHelper {
     currPdf: any;
     tiffImages: any[];
     loadFile(file: File): Promise<Partial<ILoadFileResult>>;
-    loadTiffPage(pageNumber: number): Promise<Partial<ILoadFileResult>>;
     getPageCount(): number;
-    loadPdfPage(pageNumber: number): Promise<Partial<ILoadFileResult>>;
+    loadPage(pageNumber: number) : Promise<Partial<ILoadFileResult>>;
     reset(): void;
 }
 
@@ -36,6 +36,7 @@ export class LoadFileHelper implements ILoadFileHelper {
             // no file
             return;
         }
+        this.reset();
 
         // determine how to load file based on MIME type of the file
         // https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types
@@ -71,6 +72,7 @@ export class LoadFileHelper implements ILoadFileHelper {
             imageUri: canvas.toDataURL(constants.convertedImageFormat, constants.convertedImageQuality),
             imageWidth: canvas.width,
             imageHeight: canvas.height,
+            fileLoaded: true,
         });
     }
 
@@ -85,7 +87,15 @@ export class LoadFileHelper implements ILoadFileHelper {
         this.tiffImages = [];
     }
 
-    public loadTiffPage = async (pageNumber: number) => {
+    public loadPage = async(pageNumber:number) =>{
+        if(this.currPdf){
+            return this.loadPdfPage(pageNumber);
+        }else if(this.tiffImages?.length>0){
+            return this.loadTiffPage(pageNumber);
+        }
+    }
+
+    private loadTiffPage = async (pageNumber: number) => {
         const tiffImage = this.tiffImages[pageNumber - 1];
         const canvas = renderTiffToCanvas(tiffImage);
         return ({
@@ -93,6 +103,7 @@ export class LoadFileHelper implements ILoadFileHelper {
             imageUri: canvas.toDataURL(constants.convertedImageFormat, constants.convertedImageQuality),
             imageWidth: tiffImage.width,
             imageHeight: tiffImage.height,
+            fileLoaded: true,
         });
     }
 
@@ -128,7 +139,7 @@ export class LoadFileHelper implements ILoadFileHelper {
 
         return 1;
     }
-    public loadPdfPage = async (pageNumber): Promise<Partial<ILoadFileResult>> => {
+    private loadPdfPage = async (pageNumber) => {
         const page = await this.currPdf.getPage(pageNumber);
         const defaultScale = 2;
         const viewport = page.getViewport({scale: defaultScale});
@@ -152,6 +163,7 @@ export class LoadFileHelper implements ILoadFileHelper {
             imageUri: canvas.toDataURL(constants.convertedImageFormat, constants.convertedImageQuality),
             imageWidth: canvas.width,
             imageHeight: canvas.height,
+            fileLoaded: true,
         });
     }
 }
