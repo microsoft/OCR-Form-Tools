@@ -147,8 +147,9 @@ export class FilePicker extends React.Component<IFilePickerProps, IFilePickerSta
                     if (this.props.onFileChange) {
                         this.props.onFileChange({
                             file: this.fileInput.current.files[0],
-                            fileLabel:fileName,
-                             fetchedFileURL: ''});
+                            fileLabel: fileName,
+                            fetchedFileURL: ''
+                        });
                     }
                 });
             }

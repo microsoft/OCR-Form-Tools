@@ -5,11 +5,10 @@ import {
     Spinner,
     SpinnerSize
 } from "@fluentui/react";
-import _ from "lodash";
 import {Feature} from "ol";
 import Point from "ol/geom/Point";
 import Polygon from "ol/geom/Polygon";
-import React, {RefObject} from "react";
+import React from "react";
 import {connect} from "react-redux";
 import {RouteComponentProps} from "react-router-dom";
 import {bindActionCreators} from "redux";
@@ -31,13 +30,16 @@ import {ImageMap} from "../../common/imageMap/imageMap";
 import {CanvasCommandBar} from "../editorPage/canvasCommandBar";
 import {FilePicker} from "./filePicker";
 import {ILoadFileHelper, LoadFileHelper} from "./LoadFileHelper";
+import {IOcrHelper, OcrHelper} from "./ocrHelper";
 import {PrebuiltSetting} from "./prebuiltSetting";
+import {poll} from "./utils";
 
 interface ITextTablePageProps extends RouteComponentProps {
     prebuiltSettings: IPrebuiltSettings;
     appTitleActions: IAppTitleActions;
     actions: IAppPrebuiltSettingsActions;
 }
+
 interface ITextTablePageState {
     layers: any;
 
@@ -61,8 +63,6 @@ interface ITextTablePageState {
     isAnalyzing: boolean;
     analyzationLoaded: boolean;
     fetchedFileURL: string;
-    ocr: any;
-    ocrForCurrentPage: any;
 
     imageAngle: number;
 }
@@ -82,13 +82,9 @@ function mapDispatchToProps(dispatch) {
 
 @connect(mapStateToProps, mapDispatchToProps)
 export class TextTablePage extends React.Component<Partial<ITextTablePageProps>, ITextTablePageState>{
-    private regionOrders: Record<string, number>[] = [];
-
-    private regionOrderById: string[][] = [];
-    private tableIDToIndexMap: object;
+    private ocrHelper: IOcrHelper;
 
     state: ITextTablePageState = {
-
         imageUri: null,
         imageWidth: 0,
         imageHeight: 0,
@@ -105,14 +101,12 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
         isAnalyzing: false,
         analyzationLoaded: false,
         fetchedFileURL: "",
-        ocr: null,
-        ocrForCurrentPage: {},
         imageAngle: 0,
 
         layers: {text: true, tables: true, checkboxes: true, label: true, drawnRegions: true},
     };
+
     private imageMap: ImageMap;
-    private fileInput: RefObject<HTMLInputElement> = React.createRef();
     private fileHelper: ILoadFileHelper = new LoadFileHelper();
 
     componentDidMount() {
@@ -135,95 +129,16 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
 
     private loadFile = (file: File) => {
         this.setState({isFetching: true});
-        this.fileHelper.loadFile(file).then((res: any) => {
-            if (res) {
-                this.setState({
-                    ...res,
-                    isFetching: false,
-                    fileChanged: false
-                });
-            }
-        });
-    }
-
-    private getOcrResultForPage = (ocr: any, targetPage: number): any => {
-        if (!ocr || !this.state.imageUri) {
-            return {};
-        }
-        if (ocr.analyzeResult && ocr.analyzeResult.readResults) {
-            // OCR schema with analyzeResult/readResults property
-            const ocrResultsForCurrentPage = {};
-            if (ocr.analyzeResult.pageResults) {
-                ocrResultsForCurrentPage["pageResults"] = ocr.analyzeResult.pageResults[targetPage - 1];
-            }
-            ocrResultsForCurrentPage["readResults"] = ocr.analyzeResult.readResults[targetPage - 1];
-            return ocrResultsForCurrentPage;
-        }
-        return {};
-    }
-
-    private getPredictionsFromAnalyzeResult(analyzeResult: any) {
-        if (analyzeResult) {
-            const predictions = _.get(analyzeResult, "analyzeResult.documentResults[0].fields", {});
-            const predictionsCopy = Object.assign({}, predictions);
-            delete predictionsCopy.ReceiptType;
-            if (!predictionsCopy.Items) {
-                return predictionsCopy;
-            }
-            if (!predictionsCopy.Items.valueArray || Object.keys(predictionsCopy.Items).length === 0) {
-                delete predictionsCopy.Items;
-                return predictionsCopy;
-            }
-            predictionsCopy.Items.valueArray.forEach((item, index) => {
-                const itemName = "Item " + (index + 1);
-                predictionsCopy[itemName] = item.valueObject.Name;
-                if (item.valueObject.TotalPrice) {
-                    predictionsCopy[itemName + " price"] = item.valueObject.TotalPrice;
+        this.fileHelper.loadFile(file)
+            .then((res: any) => {
+                if (res) {
+                    this.setState({
+                        ...res,
+                        isFetching: false,
+                        fileChanged: false
+                    });
                 }
             });
-            delete predictionsCopy.Items;
-            return predictionsCopy;
-
-        } else {
-            return _.get(analyzeResult, "analyzeResult.documentResults[0].fields", {});
-        }
-    }
-
-    private createBoundingBoxVectorFeature = (text, boundingBox, imageExtent, ocrExtent, page) => {
-        const coordinates: any[] = [];
-        const polygonPoints: number[] = [];
-        const imageWidth = imageExtent[2] - imageExtent[0];
-        const imageHeight = imageExtent[3] - imageExtent[1];
-        const ocrWidth = ocrExtent[2] - ocrExtent[0];
-        const ocrHeight = ocrExtent[3] - ocrExtent[1];
-
-        for (let i = 0; i < boundingBox.length; i += 2) {
-            // An array of numbers representing an extent: [minx, miny, maxx, maxy]
-            coordinates.push([
-                Math.round((boundingBox[i] / ocrWidth) * imageWidth),
-                Math.round((1 - (boundingBox[i + 1] / ocrHeight)) * imageHeight),
-            ]);
-            polygonPoints.push(boundingBox[i] / ocrWidth);
-            polygonPoints.push(boundingBox[i + 1] / ocrHeight);
-        }
-
-        const featureId = this.createRegionIdFromBoundingBox(polygonPoints, page);
-        const feature = new Feature({
-            geometry: new Polygon([coordinates]),
-        });
-        feature.setProperties({
-            id: featureId,
-            text,
-            boundingbox: boundingBox,
-            highlighted: false,
-            isOcrProposal: true,
-        });
-        feature.setId(featureId);
-
-        return feature;
-    }
-    private createRegionIdFromBoundingBox = (boundingBox: number[], page: number): string => {
-        return boundingBox.join(",") + ":" + page;
     }
 
     render() {
@@ -234,7 +149,6 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
             !this.props.prebuiltSettings.apiKey ||
             !this.props.prebuiltSettings.serviceURI;
 
-        // const predictions = this.getPredictionsFromAnalyzeResult(this.state.ocr);
         const showPage: boolean = this.props.match.path.includes("text-and-tables");
 
         return (
@@ -312,27 +226,25 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
     }): void {
         this.setState({
             currentPage: 1,
-            ocr: null,
+            // ocr: null,
             fileChanged: true,
             ...data,
             analyzationLoaded: false,
             fileLoaded: false,
         }, () => {
-            if (this.imageMap) {
-                this.imageMap.removeAllFeatures();
-            }
+            this.ocrHelper?.reset();
         });
     }
 
     onSelectSourceChange(): void {
         this.setState({
             file: undefined,
-            ocr: {},
+            // ocr: {},
             analyzationLoaded: false,
         });
-        if (this.imageMap) {
-            this.imageMap.removeAllFeatures();
-        }
+        // if (this.imageMap) {
+        //     this.imageMap.removeAllFeatures();
+        // }
     }
 
     onFileLoadError(err: {alertTitle: string; alertMessage: string;}): void {
@@ -479,10 +391,9 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
         }
         this.setState({
             currentPage: targetPage,
-            ocrForCurrentPage: this.getOcrResultForPage(this.state.ocr, targetPage),
+            // ocrForCurrentPage: this.getOcrResultForPage(this.state.ocr, targetPage),
         }, () => {
-            this.imageMap.removeAllFeatures();
-            this.drawOcr();
+            this.ocrHelper?.drawOcr(targetPage);
         });
     }
 
@@ -492,12 +403,11 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
             .then((ocr) => {
                 this.setState({
                     isAnalyzing: false,
-                    ocr,
-                    ocrForCurrentPage: this.getOcrResultForPage(ocr, this.state.currentPage),
                     analyzationLoaded: true,
                 }, () => {
-                    this.buildRegionOrders();
-                    this.drawOcr();
+                    this.ocrHelper = new OcrHelper(ocr, this.imageMap);
+                    this.ocrHelper.buildRegionOrders();
+                    this.ocrHelper.drawOcr(this.state.currentPage);
                 })
             }).catch((error) => {
                 let alertMessage = "";
@@ -518,192 +428,7 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
                 });
             });
     }
-    private buildRegionOrders = () => {
-        // Build order index here instead of building it during 'drawOcr' for two reasons.
-        // 1. Build order index for all pages at once. This allow us to support cross page
-        //    tagging if it's supported by FR service.
-        // 2. Avoid rebuilding order index when users switch back and forth between pages.
-        const ocrs = this.state.ocr;
-        const ocrReadResults = (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.readResults));
-        const ocrPageResults = (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.pageResults));
-        const imageExtent = this.imageMap.getImageExtent();
-        ocrReadResults.forEach((ocr) => {
-            const ocrExtent = [0, 0, ocr.width, ocr.height];
-            const pageIndex = ocr.page - 1;
-            this.regionOrders[pageIndex] = {};
-            this.regionOrderById[pageIndex] = [];
-            let order = 0;
-            if (ocr.lines) {
-                ocr.lines.forEach((line) => {
-                    if (line.words) {
-                        line.words.forEach((word) => {
-                            if (this.shouldDisplayOcrWord(word.text)) {
-                                const feature = this.createBoundingBoxVectorFeature(
-                                    word.text, word.boundingBox, imageExtent, ocrExtent, ocr.page);
-                                this.regionOrders[pageIndex][feature.getId()] = order++;
-                                this.regionOrderById[pageIndex].push(feature.getId());
-                            }
-                        });
-                    }
-                });
-            }
-            const checkboxes = ocr.selectionMarks
-                || (ocrPageResults && ocrPageResults[pageIndex] && ocrPageResults[pageIndex].checkboxes);
-            if (checkboxes) {
-                this.addCheckboxToRegionOrder(checkboxes, pageIndex, order, imageExtent, ocrExtent);
-            }
-        });
-    }
 
-    private shouldDisplayOcrWord = (text: string) => {
-        const regex = new RegExp(/^[_]+$/);
-        return !text.match(regex);
-    }
-
-    private addCheckboxToRegionOrder = (
-        checkboxes: any[],
-        pageIndex: number,
-        order: number,
-        imageExtent: number[],
-        ocrExtent: any[]) => {
-        checkboxes.forEach((checkbox) => {
-            const checkboxFeature = this.createBoundingBoxVectorFeature(
-                checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, this.state.currentPage);
-            this.regionOrders[pageIndex][checkboxFeature.getId()] = order++;
-            this.regionOrderById[pageIndex].push(checkboxFeature.getId());
-        });
-    }
-
-    private drawOcr = () => {
-        const textFeatures = [];
-        const tableBorderFeatures = [];
-        const tableIconFeatures = [];
-        const tableIconBorderFeatures = [];
-        const checkboxFeatures = [];
-        const ocrReadResults = this.state.ocrForCurrentPage["readResults"];
-        const ocrPageResults = this.state.ocrForCurrentPage["pageResults"];
-        const imageExtent = this.imageMap.getImageExtent();
-        if (ocrReadResults) {
-            const ocrExtent = [0, 0, ocrReadResults.width, ocrReadResults.height];
-            if (ocrReadResults.lines) {
-                ocrReadResults.lines.forEach((line) => {
-                    if (line.words) {
-                        line.words.forEach((word) => {
-                            if (this.shouldDisplayOcrWord(word.text)) {
-                                textFeatures.push(this.createBoundingBoxVectorFeature(
-                                    word.text, word.boundingBox, imageExtent, ocrExtent, ocrReadResults.page));
-                            }
-                        });
-                    }
-                });
-            }
-            this.tableIDToIndexMap = {};
-            if (ocrPageResults && ocrPageResults.tables) {
-                ocrPageResults.tables.forEach((table, index) => {
-                    if (table.cells && table.columns && table.rows) {
-                        const tableBoundingBox = this.getTableBoundingBox(table.cells.map((cell) => cell.boundingBox));
-                        const createdTableFeatures = this.createBoundingBoxVectorTable(
-                            tableBoundingBox,
-                            imageExtent,
-                            ocrExtent,
-                            ocrPageResults.page,
-                            table.rows,
-                            table.columns,
-                            index);
-                        tableBorderFeatures.push(createdTableFeatures["border"]);
-                        tableIconFeatures.push(createdTableFeatures["icon"]);
-                        tableIconBorderFeatures.push(createdTableFeatures["iconBorder"]);
-                    }
-                });
-            }
-
-            if (ocrReadResults && ocrReadResults.selectionMarks) {
-                ocrReadResults.selectionMarks.forEach((checkbox) => {
-                    checkboxFeatures.push(this.createBoundingBoxVectorFeature(
-                        checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, ocrReadResults.page));
-                });
-            } else if (ocrPageResults && ocrPageResults.checkboxes) {
-                ocrPageResults.checkboxes.forEach((checkbox) => {
-                    checkboxFeatures.push(this.createBoundingBoxVectorFeature(
-                        checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, ocrPageResults.page));
-                });
-            }
-
-            if (tableBorderFeatures.length > 0 && tableBorderFeatures.length === tableIconFeatures.length
-                && tableBorderFeatures.length === tableIconBorderFeatures.length) {
-                this.imageMap.addTableBorderFeatures(tableBorderFeatures);
-                this.imageMap.addTableIconFeatures(tableIconFeatures);
-                this.imageMap.addTableIconBorderFeatures(tableIconBorderFeatures);
-            }
-            if (textFeatures.length > 0) {
-                this.imageMap.addFeatures(textFeatures);
-            }
-            if (checkboxFeatures.length > 0) {
-                this.imageMap.addCheckboxFeatures(checkboxFeatures);
-            }
-        }
-    }
-    private getTableBoundingBox = (lines: []) => {
-        const flattenedLines = [].concat(...lines);
-        const xAxisValues = flattenedLines.filter((value, index) => index % 2 === 0);
-        const yAxisValues = flattenedLines.filter((value, index) => index % 2 === 1);
-        const left = Math.min(...xAxisValues);
-        const top = Math.min(...yAxisValues);
-        const right = Math.max(...xAxisValues);
-        const bottom = Math.max(...yAxisValues);
-        return ([left, top, right, top, right, bottom, left, bottom]);
-    }
-
-    private createBoundingBoxVectorTable = (boundingBox, imageExtent, ocrExtent, page, rows, columns, index) => {
-        const coordinates: any[] = [];
-        const polygonPoints: number[] = [];
-        const imageWidth = imageExtent[2] - imageExtent[0];
-        const imageHeight = imageExtent[3] - imageExtent[1];
-        const ocrWidth = ocrExtent[2] - ocrExtent[0];
-        const ocrHeight = ocrExtent[3] - ocrExtent[1];
-
-        for (let i = 0; i < boundingBox.length; i += 2) {
-            // An array of numbers representing an extent: [minx, miny, maxx, maxy]
-            coordinates.push([
-                Math.round((boundingBox[i] / ocrWidth) * imageWidth),
-                Math.round((1 - (boundingBox[i + 1] / ocrHeight)) * imageHeight),
-            ]);
-
-            polygonPoints.push(boundingBox[i] / ocrWidth);
-            polygonPoints.push(boundingBox[i + 1] / ocrHeight);
-        }
-        const tableID = this.createRegionIdFromBoundingBox(polygonPoints, page);
-        this.tableIDToIndexMap[tableID] = index;
-        const tableFeatures = {};
-        tableFeatures["border"] = new Feature({
-            geometry: new Polygon([coordinates]),
-            id: tableID,
-            state: "rest",
-            boundingbox: boundingBox,
-        });
-        tableFeatures["icon"] = new Feature({
-            geometry: new Point([coordinates[0][0] - 6.5, coordinates[0][1] - 4.5]),
-            id: tableID,
-            state: "rest",
-        });
-
-        const iconTR = [coordinates[0][0] - 5, coordinates[0][1]];
-        const iconTL = [iconTR[0] - 31.5, iconTR[1]];
-        const iconBL = [iconTR[0], iconTR[1] - 29.5];
-        const iconBR = [iconTR[0] - 31.5, iconTR[1] - 29.5];
-
-        tableFeatures["iconBorder"] = new Feature({
-            geometry: new Polygon([[iconTR, iconTL, iconBR, iconBL]]),
-            id: tableID,
-            rows,
-            columns,
-        });
-
-        tableFeatures["border"].setId(tableID);
-        tableFeatures["icon"].setId(tableID);
-        tableFeatures["iconBorder"].setId(tableID);
-        return tableFeatures;
-    }
 
     private async getAnalzation(): Promise<any> {
         const endpointURL = url.resolve(
@@ -712,15 +437,12 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
         );
         const apiKey = this.props.prebuiltSettings.apiKey;
 
-        let headers;
-        let body;
-        if (this.state.file) {
-            headers = {"Content-Type": this.state.file.type, "cache-control": "no-cache"};
-            body = this.state.file;
-        } else {
-            headers = {"Content-Type": "application/json", "cache-control": "no-cache"};
-            body = {source: this.state.fetchedFileURL};
-        }
+        const headers = {
+            "Content-Type": this.state.file ? this.state.file.type : "application/json",
+            "cache-control": "no-cache"
+        };
+        const body = this.state.file ?? ({source: this.state.fetchedFileURL});
+
         let response;
         try {
             response = await ServiceHelper.postWithAutoRetry(
@@ -732,40 +454,6 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
         const operationLocation = response.headers["operation-location"];
 
         // Make the second REST API call and get the response.
-        return this.poll(() =>
-            ServiceHelper.getWithAutoRetry(
-                operationLocation, {headers}, apiKey as string), 120000, 500);
-    }
-
-
-
-
-    private poll = (func, timeout, interval): Promise<any> => {
-        const endTime = Number(new Date()) + (timeout || 10000);
-        interval = interval || 100;
-
-        const checkSucceeded = (resolve, reject) => {
-            const ajax = func();
-            ajax.then((response) => {
-                if (response.data.status.toLowerCase() === constants.statusCodeSucceeded) {
-                    resolve(response.data);
-                    // prediction response from API
-                    console.log("raw data", JSON.parse(response.request.response));
-                } else if (response.data.status.toLowerCase() === constants.statusCodeFailed) {
-                    reject(_.get(
-                        response,
-                        "data.analyzeResult.errors[0].errorMessage",
-                        "Generic error during prediction"));
-                } else if (Number(new Date()) < endTime) {
-                    // If the request isn't succeeded and the timeout hasn't elapsed, go again
-                    setTimeout(checkSucceeded, interval, resolve, reject);
-                } else {
-                    // Didn't succeeded after too much time, reject
-                    reject("Timed out, please try other file.");
-                }
-            });
-        };
-
-        return new Promise(checkSucceeded);
+        return poll(() => ServiceHelper.getWithAutoRetry(operationLocation, {headers}, apiKey as string), 120000, 500);
     }
 }
