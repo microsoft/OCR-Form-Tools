@@ -108,8 +108,8 @@ export class AssetService {
                             value: getLabelValues(result.fields[key])
                         }))).flat(2);
 
+        const fileName = decodeURIComponent(asset.name).split('/').pop();                      
         if (labels.length > 0) {
-            const fileName = decodeURIComponent(asset.name).split('/').pop();
             const labelData: ILabelData = {
                 document: fileName,
                 labelingState: AssetLabelingState.AutoLabeled,
@@ -125,7 +125,17 @@ export class AssetService {
             return metadata;
         }
         else {
-            return null;
+            const labelData: ILabelData = {
+                document: fileName,
+                labels: []
+            };
+            const metadata: IAssetMetadata = {
+                asset: {...asset},
+                regions: [],
+                version: appInfo.version,
+                labelData,
+            }
+            return metadata;
         }
     }
     async uploadPredictResultAsOrcResult(asset: IAsset, predictResults: any): Promise<void> {
