@@ -14,6 +14,8 @@ import {
     IProject,
     ITag,
     ISecurityToken,
+    FieldType,
+    FieldFormat
 } from "../../models/applicationState";
 import { createAction, createPayloadAction, IPayloadAction } from "./actionCreators";
 import { appInfo } from "../../common/appInfo";
@@ -35,7 +37,7 @@ export default interface IProjectActions {
     loadAssetMetadata(project: IProject, asset: IAsset): Promise<IAssetMetadata>;
     saveAssetMetadata(project: IProject, assetMetadata: IAssetMetadata): Promise<IAssetMetadata>;
     updateProjectTag(project: IProject, oldTag: ITag, newTag: ITag): Promise<IAssetMetadata[]>;
-    deleteProjectTag(project: IProject, tagName): Promise<IAssetMetadata[]>;
+    deleteProjectTag(project: IProject, tagName: string, tagType: FieldType, tagFormat: FieldFormat): Promise<IAssetMetadata[]>;
     updateProjectTagsFromFiles(project: IProject, asset?: string): Promise<void>;
     updatedAssetMetadata(project: IProject, assetDocumentCountDifference: any): Promise<void>;
 }
@@ -305,12 +307,12 @@ export function updateProjectTag(project: IProject, oldTag: ITag, newTag: ITag)
  * @param project The project to delete tags
  * @param tagName The tag to delete
  */
-export function deleteProjectTag(project: IProject, tagName)
+export function deleteProjectTag(project: IProject, tagName: string, tagType: FieldType, tagFormat: FieldFormat)
     : (dispatch: Dispatch, getState: () => IApplicationState) => Promise<IAssetMetadata[]> {
     return async (dispatch: Dispatch, getState: () => IApplicationState) => {
         // Find tags to rename
         const assetService = new AssetService(project);
-        const assetUpdates = await assetService.deleteTag(tagName);
+        const assetUpdates = await assetService.deleteTag(tagName, tagType, tagFormat);
 
         // Save updated assets
         await assetUpdates.forEachAsync(async (assetMetadata) => {

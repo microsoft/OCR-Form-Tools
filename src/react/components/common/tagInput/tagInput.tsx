@@ -70,7 +70,7 @@ export interface ITagInputProps {
     /** Function to call when tag is renamed */
     onTagRename?: (oldTag: ITag, newTag: ITag, cancelCallback: () => void) => void;
     /** Function to call when tag is deleted */
-    onTagDeleted?: (tagName: string) => void;
+    onTagDeleted?: (tagName: string, tagType: FieldType, tagFormat: FieldFormat) => void;
     /** Always show tag input box */
     showTagInputBox?: boolean;
     /** Always show tag search box */
@@ -391,7 +391,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         if (!tag) {
             return;
         }
-        this.props.onTagDeleted(tag.name);
+        this.props.onTagDeleted(tag.name, tag.type, tag.format);
     }
 
     private getColorPickerPortal = () => {

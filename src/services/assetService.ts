@@ -5,7 +5,7 @@ import _ from "lodash";
 import Guard from "../common/guard";
 import {
     IAsset, AssetType, IProject, IAssetMetadata, AssetState,
-    ILabelData, ILabel, AssetLabelingState
+    ILabelData, ILabel, AssetLabelingState, FieldType, FieldFormat
 } from "../models/applicationState";
 import { AssetProviderFactory, IAssetProvider } from "../providers/storage/assetProviderFactory";
 import { StorageProviderFactory, IStorageProvider } from "../providers/storage/storageProviderFactory";
@@ -463,13 +463,17 @@ export class AssetService {
      * Delete a tag from asset metadata files
      * @param tagName Name of tag to delete
      */
-    public async deleteTag(tagName: string): Promise<IAssetMetadata[]> {
+    public async deleteTag(tagName: string, tagType: FieldType, tagFormat: FieldFormat): Promise<IAssetMetadata[]> {
         const transformer = (tagNames) => tagNames.filter((t) => t !== tagName);
         const labelTransformer = (labelData: ILabelData) => {
-            labelData.labels = labelData.labels.filter((label) => label.label !== tagName);
+            if (tagType === FieldType.Table) {
+                labelData.tableLabels = labelData.tableLabels.filter((tableLabel) => tableLabel.tableKey !== tagName)
+            } else {
+                labelData.labels = labelData.labels.filter((label) => label.label !== tagName);
+            }
             return labelData;
         };
-        return await this.getUpdatedAssets(tagName, transformer, labelTransformer);
+        return await this.getUpdatedAssets(tagName, tagType, tagFormat, transformer, labelTransformer);
     }
 
     /**
@@ -485,7 +489,7 @@ export class AssetService {
             }
             return labelData;
         };
-        return await this.getUpdatedAssets(tagName, transformer, labelTransformer);
+        return await this.getUpdatedAssets(tagName, null, null, transformer, labelTransformer);
     }
 
     /**
@@ -495,13 +499,15 @@ export class AssetService {
      */
     private async getUpdatedAssets(
         tagName: string,
+        tagType: FieldType,
+        tagFormat: FieldFormat,
         transformer: (tags: string[]) => string[],
         labelTransformer: (label: ILabelData) => ILabelData)
         : Promise<IAssetMetadata[]> {
         // Loop over assets and update if necessary
         const updates = await _.values(this.project.assets).mapAsync(async (asset) => {
             const assetMetadata = await this.getAssetMetadata(asset);
-            const isUpdated = this.updateTagInAssetMetadata(assetMetadata, tagName, transformer, labelTransformer);
+            const isUpdated = this.updateTagInAssetMetadata(assetMetadata, tagName, tagType, tagFormat, transformer, labelTransformer);
 
             return isUpdated ? assetMetadata : null;
         });
@@ -519,6 +525,8 @@ export class AssetService {
     private updateTagInAssetMetadata(
         assetMetadata: IAssetMetadata,
         tagName: string,
+        tagType: FieldType,
+        tagFormat: FieldFormat,
         transformer: (tags: string[]) => string[],
         labelTransformer: (labelData: ILabelData) => ILabelData): boolean {
         let foundTag = false;
@@ -529,18 +537,28 @@ export class AssetService {
                 region.tags = transformer(region.tags);
             }
         }
-
-        if (assetMetadata.labelData && assetMetadata.labelData.labels) {
-            const field = assetMetadata.labelData.labels.find((field) => field.label === tagName);
-            if (field) {
-                foundTag = true;
-                assetMetadata.labelData = labelTransformer(assetMetadata.labelData);
+        console.log("update tag in asset metadata",assetMetadata, tagType );
+        if (tagType === FieldType.Table) {
+            if (assetMetadata.labelData && assetMetadata.labelData.tableLabels) {
+                const field = assetMetadata.labelData.tableLabels.find((field) => field.tableKey === tagName);
+                if (field) {
+                    foundTag = true;
+                    assetMetadata.labelData = labelTransformer(assetMetadata.labelData);
+                }
+            }
+        } else {
+            if (assetMetadata.labelData && assetMetadata.labelData.labels) {
+                const field = assetMetadata.labelData.labels.find((field) => field.label === tagName);
+                if (field) {
+                    foundTag = true;
+                    assetMetadata.labelData = labelTransformer(assetMetadata.labelData);
+                }
             }
         }
 
         if (foundTag) {
             assetMetadata.regions = assetMetadata.regions.filter((region) => region.tags.length > 0);
-            assetMetadata.asset.state = _.get(assetMetadata, "labelData.labels.length")
+            assetMetadata.asset.state = _.get(assetMetadata, "labelData.labels.length") ||  _.get(assetMetadata, "labelData.tableLabels.length")
                 ? AssetState.Tagged : AssetState.Visited;
             return true;
         }

@@ -619,8 +619,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     /**
      * Open Confirm dialog for tag deletion
      */
-    private confirmTagDeleted = (tagName: string): void => {
-        this.deleteTagConfirm.current.open(tagName);
+    private confirmTagDeleted = (tagName: string, tagType: FieldType, tagFormat: FieldFormat): void => {
+        this.deleteTagConfirm.current.open(tagName, tagType, tagFormat);
     }
 
     /**
@@ -634,8 +634,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      * Removes tag from assets and projects and saves files
      * @param tagName Name of tag to be deleted
      */
-    private onTagDeleted = async (tagName: string): Promise<void> => {
-        const assetUpdates = await this.props.actions.deleteProjectTag(this.props.project, tagName);
+    private onTagDeleted = async (tagName: string, tagType: FieldType, tagFormat: FieldFormat): Promise<void> => {
+        const assetUpdates = await this.props.actions.deleteProjectTag(this.props.project, tagName, tagType, tagFormat);
 
         const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
         if (selectedAsset) {
