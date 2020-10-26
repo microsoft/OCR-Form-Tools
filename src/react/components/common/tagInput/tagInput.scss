@@ -108,18 +108,6 @@
                 flex: 1;
             }
         }
-        .tag-item-confidence {
-            position: absolute;
-            min-height: 1.8em;
-            left: -58px;
-            font-size: small;
-            vertical-align: middle;
-            padding-top: 3px;
-            z-index: 900;
-            text-align: right;
-            width: 50px;
-            text-shadow: 1px 1px 1px rgba(51, 51, 51, 0.653);
-        }
     }
 
     &-item {
