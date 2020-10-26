@@ -697,7 +697,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         </div>
                     </td>
                     <td key={`cell-${i}-1`} className="">
-                    <Customizer {...defaultTheme}>
                         <Link
                             className="lighter-link flex-center"
                             onClick={() => {
@@ -707,7 +706,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                             <FontIcon className="restore-icon mr-1" iconName="UpdateRestore"/>
                             Restore
                         </Link>
-                    </Customizer>
                     </td>
                 </tr>
             ])
@@ -853,7 +851,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                             columns={columnListColumns}
                             isHeaderVisible={true}
                             theme={getRightPaneDefaultButtonTheme()}
-                            compact={true}
+                            compact={false}
                             setKey="none"
                             selection={columnSelection}
                             layoutMode={DetailsListLayoutMode.justified}

@@ -43,7 +43,7 @@
             margin-top: 16px;
         }
         .input-label-original-name {
-            color: rgb(177, 177, 177);            
+            color: rgb(177, 177, 177);
             margin-bottom: 2px;
             margin-right: 2px;
             text-align: left;
@@ -103,7 +103,6 @@
                 text-decoration: line-through;
                 color: rgb(177, 177, 177);
                 font-size: small;
-                
             }
         }
 
@@ -158,7 +157,6 @@
         .rowDynamic_message {
             margin-bottom: 4px;
             color: rgba(255, 255, 255, 0.8);
-            
         }
     }
 }
@@ -189,7 +187,7 @@
     text-decoration: line-through;
     color: rgb(177, 177, 177);
     font-size: small;
-    
+
  }
 
  .original-table-name {
@@ -198,15 +196,15 @@
     margin-bottom: 2px;
  }
 
- .lighter-link {
-     color: #6ac5e1;
-     &:hover {
-         color: #2d8eac;
-     }
+.lighter-link {
+    color: #2d8eac;
+    &:hover {
+        color: #6ac5e1;
+        text-decoration: none;
+    }
+}
 
- }
-
- .compact-row {
+.compact-row {
     border-bottom: 0.5px solid $lighter-4;
  }
 
