@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, SelectionMode, DetailsListLayoutMode, FontIcon, CheckboxVisibility, IContextualMenuItem, CommandBar, Selection, Separator, IObjectWithKey, Link } from "@fluentui/react";
+import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, SelectionMode, DetailsListLayoutMode, FontIcon, CheckboxVisibility, IContextualMenuItem, CommandBar, Selection, Separator, IObjectWithKey, ActionButton } from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme, getDefaultTheme } from '../../../../common/themes';
 import { FieldFormat, FieldType, IApplicationState, ITableRegion, ITableTag, ITag, TableElements, TagInputMode } from '../../../../models/applicationState';
 import { filterFormat, useDebounce } from "../../../../common/utils";
@@ -697,15 +697,13 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         </div>
                     </td>
                     <td key={`cell-${i}-1`} className="">
-                        <Link
-                            className="lighter-link flex-center"
+                        <ActionButton className="restore-button flex-center"
                             onClick={() => {
                                 restoreDeletedField(fieldType, i)
-                            }}
-                        >
+                            }}>
                             <FontIcon className="restore-icon mr-1" iconName="UpdateRestore"/>
                             Restore
-                        </Link>
+                        </ActionButton>
                     </td>
                 </tr>
             ])

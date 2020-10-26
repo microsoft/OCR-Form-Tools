@@ -196,11 +196,13 @@
     margin-bottom: 2px;
  }
 
-.lighter-link {
+.restore-button {
     color: #2d8eac;
     &:hover {
         color: #6ac5e1;
-        text-decoration: none;
+    }
+    &:active {
+        color: #91cee0;
     }
 }
 
