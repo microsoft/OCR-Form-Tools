@@ -15,7 +15,7 @@ interface ICanvasCommandBarProps {
     handleRunOcr?: () => void;
     handleRunOcrForAllDocuments?: () => void;
     handleRunAutoLabelingOnCurrentDocument?: () => void;
-    handleRunAutoLabelingOnMultipleUnlabledDocuments?: () => void;
+    handleRunAutoLabelingOnMultipleUnlabeledDocuments?: () => void;
     handleLayerChange?: (layer: string) => void;
     handleToggleDrawRegionMode?: () => void;
     handleAssetDeleted?: () => void;
@@ -186,14 +186,14 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         },
                     },
                     {
-                        key: "runAutoLabelingOnMultipleUnlabledDocuments",
-                        text: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runAutoLabelingOnMultipleUnlabledDocuments,
+                        key: "runAutoLabelingOnMultipleUnlabeledDocuments",
+                        text: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runAutoLabelingOnMultipleUnlabeledDocuments,
                         iconProps: { iconName: "Tag" },
                         disabled: disableAutoLabeling,
                         title: props.project.predictModelId ? "" :
                             strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.noPredictModelOnProject,
                         onClick: () => {
-                            if (props.handleRunAutoLabelingOnMultipleUnlabledDocuments) props.handleRunAutoLabelingOnMultipleUnlabledDocuments();
+                            if (props.handleRunAutoLabelingOnMultipleUnlabeledDocuments) props.handleRunAutoLabelingOnMultipleUnlabeledDocuments();
                         },
                     },
                     {

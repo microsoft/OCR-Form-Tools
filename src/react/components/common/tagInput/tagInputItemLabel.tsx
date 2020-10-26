@@ -11,6 +11,7 @@ export interface ITagInputItemLabelProps {
     isOrigin: boolean;
     onLabelEnter?: (label: ILabel) => void;
     onLabelLeave?: (label: ILabel) => void;
+    prefixText?:string
 }
 
 export interface ITagInputItemLabelState {}
@@ -34,7 +35,7 @@ export default class TagInputItemLabel extends React.Component<ITagInputItemLabe
                 onMouseLeave={this.handleMouseLeave}
             >
                 <div className="flex-center">
-                    {text}
+                    {this.props.prefixText} {text}
                     {hasEmptyTextValue &&
                         <FontIcon className="pr-1 pl-1" iconName="RectangleShape" />
                     }

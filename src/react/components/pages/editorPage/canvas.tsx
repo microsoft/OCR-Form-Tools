@@ -261,7 +261,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleAssetDeleted={this.props.onAssetDeleted}
                     handleRunOcrForAllDocuments={this.runOcrForAllDocuments}
                     handleRunAutoLabelingOnCurrentDocument={this.runAutoLabelingOnCurrentDocument}
-                    handleRunAutoLabelingOnMultipleUnlabledDocuments={this.runAutoLabelingOnMultipleUnlabledDocuments}
+                    handleRunAutoLabelingOnMultipleUnlabeledDocuments={this.runAutoLabelingOnMultipleUnlabeledDocuments}
                     handleToggleDrawRegionMode={this.handleToggleDrawRegionMode}
                     connectionType={this.props.project.sourceConnection.providerType}
                     drawRegionMode={this.state.drawRegionMode}
@@ -367,7 +367,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 />
                 <BatchSizeModal
                     ref={this.autoLabelingBatchSizeModal}
-                    onConfirm={this.confirmRunAutoLabelingOnMultipleUnlabledDocuments}
+                    onConfirm={this.confirmRunAutoLabelingOnMultipleUnlabeledDocuments}
                  />
             </div>
         );
@@ -393,10 +393,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.setAutoLabelingStatus(AutoLabelingStatus.done);
         }
     }
-    private runAutoLabelingOnMultipleUnlabledDocuments = async () => {
+    private runAutoLabelingOnMultipleUnlabeledDocuments = async () => {
         this.autoLabelingBatchSizeModal.current.openModal();
     }
-    private confirmRunAutoLabelingOnMultipleUnlabledDocuments = async (batchSize: number) => {
+    private confirmRunAutoLabelingOnMultipleUnlabeledDocuments = async (batchSize: number) => {
         this.setState({ autoLabelingStatus: AutoLabelingStatus.running });
         await this.props.runAutoLabelingOnNextBatch(batchSize);
         this.setState({ autoLabelingStatus: AutoLabelingStatus.done });

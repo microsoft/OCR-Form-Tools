@@ -163,7 +163,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             });
         }
     }
-
     public render() {
         const dark: ICustomizations = {
             settings: {
@@ -252,13 +251,11 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             </div>
         );
     }
-
     public triggerNewTagBlur() {
         if (this.inputRef.current) {
             this.inputRef.current.blur();
         }
     }
-
     private onRenameTag = (tag: ITag) => {
         const tagOperation = this.state.tagOperation === TagOperationMode.Rename
             ? TagOperationMode.None : TagOperationMode.Rename;

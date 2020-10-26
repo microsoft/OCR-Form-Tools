@@ -164,11 +164,6 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
 
     private getTagContent = () => {
         const displayIndex = this.getDisplayIndex();
-        let confidence = _.get(this.props, "labels[0].confidence", null);
-        if (confidence > .995) {
-            confidence = 0.995;
-        }
-        const revised = _.get(this.props, "labels[0].revised", false);
         return (
             <div className={"tag-name-container"}
                 onMouseEnter={this.handleMouseEnter}
@@ -196,14 +191,6 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                             </span>
                     }
                 </div>
-                {confidence &&
-                    <div className="tag-item-confidence">
-                        {confidence}
-                    </div>
-                }
-                {revised &&
-                    <FontIcon iconName="StatusCircleCheckmark" />
-                }
                 <div className={"tag-icons-container"}>
                     {(displayIndex !== null)
                         ?
@@ -223,25 +210,47 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
     }
 
     private renderTagDetail = () => {
+        let confidence = _.get(this.props, "labels[0].confidence", null);
+        if (confidence > .995) {
+            confidence = 0.995;
+        }
+        const revised = _.get(this.props, "labels[0].revised", false);
         return this.props.labels.map((label, idx) =>
             <Fragment key={idx}>
-                { this.props.showOriginLabels && label.originValue &&
-                    <TagInputItemLabel
-                        label={label}
-                        isOrigin={true}
-                        value={label.originValue}
-                    />
-                }
-                <TagInputItemLabel
-                    label={label}
-                    value={label.value}
-                    isOrigin={false}
-                    onLabelEnter={this.props.onLabelEnter}
-                    onLabelLeave={this.props.onLabelLeave}
-                />
+                <div className="tag-item-label-container">
+                    {(confidence||revised)&&
+                        <div className="tag-item-label-container-item1">
+                            {confidence &&
+                                <div className="tag-item-confidence">
+                                    {confidence}
+                                </div>
+                            }
+                            {revised &&
+                                <FontIcon iconName="StatusCircleCheckmark" className="ms-Icon-25px" />
+                            }
+                        </div>
+                    }
+                    <div className="tag-item-label-container-item2">
+                        { this.props.showOriginLabels && label.originValue &&
+                            <TagInputItemLabel
+                                label={label}
+                                isOrigin={true}
+                                value={label.originValue}
+                                prefixText="Auto-labeled: "
+                            />
+                        }
+                        <TagInputItemLabel
+                            label={label}
+                            value={label.value}
+                            isOrigin={false}
+                            onLabelEnter={this.props.onLabelEnter}
+                            onLabelLeave={this.props.onLabelLeave}
+                            prefixText={revised?"Revised: ":undefined}
+                        />
+                    </div>
+                </div>
             </Fragment>);
     }
-
     private onInputRef = (element: HTMLInputElement) => {
         this.inputElement = element;
         if (element) {
