@@ -7,6 +7,7 @@ import {getPrimaryGreenTheme} from "../../../../common/themes";
 import {ITag} from "../../../../models/applicationState";
 import "./prebuiltPredictResult.scss";
 import _ from "lodash";
+import {downloadAsJsonFile} from "../../../../common/utils";
 
 
 export interface IPrebuiltPredictResultProps {
@@ -15,15 +16,13 @@ export interface IPrebuiltPredictResultProps {
     page: number;
     tags?: ITag[];
     downloadResultLabel: string;
-    onAddAssetToProject?: () => void;
+    resultType: string;
     onPredictionClick?: (item: any) => void;
     onPredictionMouseEnter?: (item: any) => void;
     onPredictionMouseLeave?: (item: any) => void;
 }
 
-export interface IPrebuiltPredictResultState {}
-
-export default class PrebuiltPredictResult extends React.Component<IPrebuiltPredictResultProps, IPrebuiltPredictResultState> {
+export default class PrebuiltPredictResult extends React.Component<IPrebuiltPredictResultProps> {
     public render() {
         const {tags, predictions} = this.props;
         const tagsDisplayOrder = tags.map((tag) => tag.name);
@@ -47,7 +46,7 @@ export default class PrebuiltPredictResult extends React.Component<IPrebuiltPred
                         text="Download"
                         allowDisabledFocus
                         autoFocus={true}
-                        onClick={this.triggerDownload}
+                        onClick={this.onDownloadClick}
                     />
                 </div>
                 <div className="prediction-field-header">
@@ -62,7 +61,7 @@ export default class PrebuiltPredictResult extends React.Component<IPrebuiltPred
     }
 
     private renderItem = (item: any, key: any) => {
-        const postProcessedValue = this.getPostProcessedValue(item);
+        const postProcessedValue = getPostProcessedValue(item);
         const style: any = {
             marginLeft: "0px",
             marginRight: "0px",
@@ -118,43 +117,10 @@ export default class PrebuiltPredictResult extends React.Component<IPrebuiltPred
         );
     }
 
-    // Helper: Sanitizes the results of prediction in order to align it with API from the service
-    private sanitizeData = (data: any): void => {
-        const fields = _.get(data, "analyzeResult.documentResults[0].fields", {});
-        for (const key in fields) {
-            if (fields[key] !== null) {
-                if (fields[key].hasOwnProperty("displayOrder")) {
-                    delete fields[key].displayOrder;
-                }
-                if (fields[key].hasOwnProperty("fieldName")) {
-                    delete fields[key].fieldName;
-                }
-            }
-        }
-        return data;
-    }
-
-    private onAddAssetToProject = async () => {
-        if (this.props.onAddAssetToProject) {
-            this.props.onAddAssetToProject();
-        }
-    }
-    private triggerDownload = (): void => {
+    private onDownloadClick = (): void => {
         const {analyzeResult} = this.props;
-        const predictionData = JSON.stringify(this.sanitizeData(analyzeResult));
-        const fileURL = window.URL.createObjectURL(new Blob([predictionData]));
-        const fileLink = document.createElement("a");
-        const fileBaseName = this.props.downloadResultLabel.split(".")[0];
-        const downloadFileName = "Result-" + fileBaseName + ".json";
-
-        fileLink.href = fileURL;
-        fileLink.setAttribute("download", downloadFileName);
-        document.body.appendChild(fileLink);
-        fileLink.click();
-    }
-
-    private toPercentage = (x: number): string => {
-        return (100 * x).toFixed(1) + "%";
+        const predictionData = JSON.stringify(sanitizeData(analyzeResult));
+        downloadAsJsonFile(predictionData, this.props.downloadResultLabel, `${this.props.resultType}-`);
     }
 
     private onPredictionClick = (prediction: any) => {
@@ -174,43 +140,59 @@ export default class PrebuiltPredictResult extends React.Component<IPrebuiltPred
             this.props.onPredictionMouseLeave(prediction);
         }
     }
+}
 
-    private getPostProcessedValue = (prediction: any) => {
-        if (!prediction.type || !prediction.text) {
+// Helper: Sanitizes the results of prediction in order to align it with API from the service
+const sanitizeData = (data: any): void => {
+    const fields = _.get(data, "analyzeResult.documentResults[0].fields", {});
+    for (const key in fields) {
+        if (fields[key] !== null) {
+            if (fields[key].hasOwnProperty("displayOrder")) {
+                delete fields[key].displayOrder;
+            }
+            if (fields[key].hasOwnProperty("fieldName")) {
+                delete fields[key].fieldName;
+            }
+        }
+    }
+    return data;
+}
+
+const getPostProcessedValue = (prediction: any) => {
+    if (!prediction.type || !prediction.text) {
+        return null;
+    }
+    const predictionType = prediction.type;
+    const predictionText = prediction.text;
+    let postProcessedValue;
+    let valueType;
+    switch (predictionType) {
+        case "string":
+            valueType = "valueString";
+            postProcessedValue = prediction.valueString;
+            break;
+        case "date":
+            valueType = "valueDate";
+            postProcessedValue = prediction.valueDate;
+            break;
+        case "number":
+            valueType = "valueNumber";
+            postProcessedValue = prediction.valueNumber?.toString();
+            break;
+        case "integer":
+            valueType = "valueInteger";
+            postProcessedValue = prediction.valueInteger?.toString();
+            break;
+        case "time":
+            valueType = "valueTime";
+            postProcessedValue = prediction.valueTime;
+            break;
+        default:
             return null;
-        }
-        const predictionType = prediction.type;
-        const predictionText = prediction.text;
-        let postProcessedValue;
-        let valueType;
-        switch (predictionType) {
-            case "string":
-                valueType = "valueString";
-                postProcessedValue = prediction.valueString;
-                break;
-            case "date":
-                valueType = "valueDate";
-                postProcessedValue = prediction.valueDate;
-                break;
-            case "number":
-                valueType = "valueNumber";
-                postProcessedValue = prediction.valueNumber?.toString();
-                break;
-            case "integer":
-                valueType = "valueInteger";
-                postProcessedValue = prediction.valueInteger?.toString();
-                break;
-            case "time":
-                valueType = "valueTime";
-                postProcessedValue = prediction.valueTime;
-                break;
-            default:
-                return null;
-        }
-        if (typeof postProcessedValue === "string" && predictionText !== postProcessedValue) {
-            return valueType + ": " + postProcessedValue;
-        } else {
-            return null;
-        }
+    }
+    if (typeof postProcessedValue === "string" && predictionText !== postProcessedValue) {
+        return valueType + ": " + postProcessedValue;
+    } else {
+        return null;
     }
 }

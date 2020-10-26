@@ -266,6 +266,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     // parentPage={strings.editorPage.title}
                     showLayerMenu={true}
                     showActionMenu={true}
+                    enableDrawRegion={true}
                 />
                 <ImageMap
                     initEditorMap={true}

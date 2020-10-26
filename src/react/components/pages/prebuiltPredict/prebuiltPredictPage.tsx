@@ -20,6 +20,7 @@ import url from "url";
 import {constants} from "../../../../common/constants";
 import {interpolate, strings} from "../../../../common/strings";
 import {getPrimaryWhiteTheme} from "../../../../common/themes";
+import {poll} from "../../../../common/utils";
 import {ErrorCode, FieldFormat, FieldType, IApplicationState, IPrebuiltSettings, ITag} from "../../../../models/applicationState";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import IAppPrebuiltSettingsActions, * as appPrebuiltSettingsActions from "../../../../redux/actions/prebuiltSettingsActions";
@@ -34,7 +35,6 @@ import {ILoadFileHelper, LoadFileHelper} from "./LoadFileHelper";
 import "./prebuiltPredictPage.scss";
 import PrebuiltPredictResult from "./prebuiltPredictResult";
 import {PrebuiltSetting} from "./prebuiltSetting";
-import {poll} from "./utils";
 
 interface IPrebuiltTypes {
     name: string;
@@ -93,15 +93,15 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
     private appInsights: any = null;
     prebuiltTypes: IPrebuiltTypes[] = [
         {
-            name: "receipt",
+            name: "Peceipt",
             servicePath: "/prebuilt/receipt/analyze"
         },
         {
-            name: "invoice",
+            name: "Invoice",
             servicePath: "/prebuilt/invoice/analyze"
         },
         {
-            name: "businessCard",
+            name: "BusinessCard",
             servicePath: "/prebuilt/businessCard/analyze"
         },
     ];
@@ -262,6 +262,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                                     // analyzeModelInfo={modelInfo}
                                     page={this.state.currentPage}
                                     tags={this.state.tags}
+                                    resultType={this.state.currentPrebuiltType.name}
                                     downloadResultLabel={this.state.fileLabel}
                                     onPredictionClick={this.onPredictionClick}
                                     onPredictionMouseEnter={this.onPredictionMouseEnter}
@@ -363,46 +364,25 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
         });
     };
     private renderPrevPageButton = () => {
-        // if (!_.get(this, "fileInput.current.files[0]", null)) {
-        //     return <div></div>;
-        // }
-
-
-        if (this.state.currentPage > 1) {
-            return (
-                <IconButton
-                    className="toolbar-btn prev"
-                    title="Previous"
-                    iconProps={{iconName: "ChevronLeft"}}
-                    onClick={this.prevPage}
-                />
-            );
-        } else {
-            return <div></div>;
-        }
+        return this.state.currentPage > 1 ?
+            <IconButton
+                className="toolbar-btn prev"
+                title="Previous"
+                iconProps={{iconName: "ChevronLeft"}}
+                onClick={this.prevPage}
+            /> : <div></div>;
     }
 
     private renderNextPageButton = () => {
-        // if (!_.get(this, "fileInput.current.files[0]", null)) {
-        //     return <div></div>;
-        // }
-
-        const numPages = this.getPageCount();
-
-
-        if (this.state.currentPage < numPages) {
-            return (
-                <IconButton
-                    className="toolbar-btn next"
-                    title="Next"
-                    onClick={this.nextPage}
-                    iconProps={{iconName: "ChevronRight"}}
-                />
-            );
-        } else {
-            return <div></div>;
-        }
+        return this.state.currentPage < this.getPageCount() ?
+            <IconButton
+                className="toolbar-btn next"
+                title="Next"
+                onClick={this.nextPage}
+                iconProps={{iconName: "ChevronRight"}}
+            /> : <div></div>;
     }
+
     private renderPageIndicator = () => {
         const pageCount = this.getPageCount();
         return pageCount > 1 ?
@@ -454,9 +434,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
         this.setState({predictionLoaded: false, isPredicting: true});
         this.getPrediction()
             .then((result) => {
-                const tags = this.getTagsForPredictResults(
-                    this.getPredictionsFromAnalyzeResult(result),
-                );
+                const tags = this.getTagsForPredictResults(this.getPredictionsFromAnalyzeResult(result));
                 this.setState({
                     tags,
                     analyzeResult: result,
@@ -541,8 +519,6 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
         // Make the second REST API call and get the response.
         return poll(() => ServiceHelper.getWithAutoRetry(operationLocation, {headers}, apiKey as string), 120000, 500);
     }
-
-
 
     private createBoundingBoxVectorFeature = (text, boundingBox, imageExtent, ocrExtent) => {
         const coordinates: number[][] = [];

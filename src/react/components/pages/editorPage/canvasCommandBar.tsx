@@ -29,6 +29,7 @@ interface ICanvasCommandBarProps {
     // parentPage?: string;
     showLayerMenu?: boolean;
     showActionMenu?: boolean;
+    enableDrawRegion?: boolean;
 }
 
 export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> = (props: ICanvasCommandBarProps) => {
@@ -50,7 +51,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
     let commandBarItems: ICommandBarItemProps[] = [];
     // if (props.parentPage === strings.editorPage.title) {
     if (props.showLayerMenu) {
-        commandBarItems = [{
+        const layerItem: ICommandBarItemProps = {
             key: "layers",
             text: strings.editorPage.canvas.canvasCommandBar.items.layers.text,
             iconProps: {iconName: "MapLayers"},
@@ -100,18 +101,24 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                     },
                 ],
             },
-        },
-        {
-            key: "drawRegion",
-            text: strings.editorPage.canvas.canvasCommandBar.items.drawRegion,
-            iconProps: {iconName: "AddField"},
-            toggle: true,
-            checked: props.drawRegionMode,
-            className: !props.layers["drawnRegions"] ? "disabled" : "",
-            onClick: () => props.handleToggleDrawRegionMode(),
-            disabled: !props.layers["drawnRegions"],
-        }
+        };
+        commandBarItems = [
+            layerItem,
+            {
+                key: "drawRegion",
+                text: strings.editorPage.canvas.canvasCommandBar.items.drawRegion,
+                iconProps: {iconName: "AddField"},
+                toggle: true,
+                checked: props.drawRegionMode,
+                className: !props.layers["drawnRegions"] ? "disabled" : "",
+                onClick: () => props.handleToggleDrawRegionMode(),
+                disabled: !props.layers["drawnRegions"],
+            }
         ];
+        if (!props.enableDrawRegion) {
+            layerItem.subMenuProps.items = layerItem.subMenuProps.items.filter(item => item.key !== "DrawnRegions");
+            commandBarItems = [...commandBarItems.filter(item => item.key !== "drawRegion")];
+        }
     }
 
     const commandBarFarItems: ICommandBarItemProps[] = [

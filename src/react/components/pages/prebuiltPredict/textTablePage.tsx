@@ -1,13 +1,16 @@
 import {
     FontIcon,
     IconButton,
+    ITooltipHostStyles,
     PrimaryButton,
     Spinner,
-    SpinnerSize
+    SpinnerSize,
+    TooltipHost
 } from "@fluentui/react";
-import {Feature} from "ol";
-import Point from "ol/geom/Point";
-import Polygon from "ol/geom/Polygon";
+import Fill from "ol/style/Fill";
+import Icon from "ol/style/Icon";
+import Stroke from "ol/style/Stroke";
+import Style from "ol/style/Style";
 import React from "react";
 import {connect} from "react-redux";
 import {RouteComponentProps} from "react-router-dom";
@@ -15,9 +18,8 @@ import {bindActionCreators} from "redux";
 import url from "url";
 import {constants} from "../../../../common/constants";
 import {interpolate, strings} from "../../../../common/strings";
-import {
-    getPrimaryWhiteTheme
-} from "../../../../common/themes";
+import {getPrimaryGreenTheme, getPrimaryWhiteTheme} from "../../../../common/themes";
+import {downloadAsJsonFile, poll} from "../../../../common/utils";
 import {
     ErrorCode,
     IApplicationState,
@@ -28,11 +30,11 @@ import IAppPrebuiltSettingsActions, * as appPrebuiltSettingsActions from "../../
 import ServiceHelper from "../../../../services/serviceHelper";
 import {ImageMap} from "../../common/imageMap/imageMap";
 import {CanvasCommandBar} from "../editorPage/canvasCommandBar";
+import {TableView} from "../editorPage/tableView";
 import {FilePicker} from "./filePicker";
 import {ILoadFileHelper, LoadFileHelper} from "./LoadFileHelper";
 import {IOcrHelper, OcrHelper} from "./ocrHelper";
 import {PrebuiltSetting} from "./prebuiltSetting";
-import {poll} from "./utils";
 
 interface ITextTablePageProps extends RouteComponentProps {
     prebuiltSettings: IPrebuiltSettings;
@@ -55,7 +57,6 @@ interface ITextTablePageState {
     invalidFileFormat?: boolean;
 
     fileLabel: string;
-    fileChanged: boolean;
     file?: File;
     isFetching?: boolean;
     fileLoaded?: boolean;
@@ -63,8 +64,13 @@ interface ITextTablePageState {
     isAnalyzing: boolean;
     analyzationLoaded: boolean;
     fetchedFileURL: string;
-
+    ocr: any;
     imageAngle: number;
+
+    tableIconTooltip: any;
+    hoveringFeature: string;
+    tableToView: object;
+    tableToViewId: string;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -82,7 +88,7 @@ function mapDispatchToProps(dispatch) {
 
 @connect(mapStateToProps, mapDispatchToProps)
 export class TextTablePage extends React.Component<Partial<ITextTablePageProps>, ITextTablePageState>{
-    private ocrHelper: IOcrHelper;
+    private ocrHelper: IOcrHelper = new OcrHelper();
 
     state: ITextTablePageState = {
         imageUri: null,
@@ -96,14 +102,20 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
         alertMessage: "",
 
         fileLabel: "",
-        fileChanged: false,
 
         isAnalyzing: false,
         analyzationLoaded: false,
         fetchedFileURL: "",
+        ocr: null,
         imageAngle: 0,
 
         layers: {text: true, tables: true, checkboxes: true, label: true, drawnRegions: true},
+
+        tableIconTooltip: {display: "none", width: 0, height: 0, top: 0, left: 0},
+        hoveringFeature: null,
+
+        tableToView: null,
+        tableToViewId: null,
     };
 
     private imageMap: ImageMap;
@@ -115,9 +127,9 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
     }
     componentDidUpdate(_prevProps: ITextTablePageProps, prevState: ITextTablePageState) {
         if (this.state.file) {
-            if (this.state.fileChanged && !this.state.isFetching) {
+            if (!this.state.fileLoaded && !this.state.isFetching) {
                 this.loadFile(this.state.file);
-            } else if (prevState.currentPage !== this.state.currentPage) {
+            } else if (this.state.fileLoaded && prevState.currentPage !== this.state.currentPage) {
                 this.fileHelper.loadPage(this.state.currentPage).then((res: any) => {
                     if (res) {
                         this.setState({...res});
@@ -135,13 +147,14 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
                     this.setState({
                         ...res,
                         isFetching: false,
-                        fileChanged: false
+                        fileLoaded: true
                     });
                 }
             });
     }
 
     render() {
+
         const analyzeDisabled: boolean = this.state.isFetching || !this.state.file
             || this.state.invalidFileFormat ||
             !this.state.fileLoaded ||
@@ -211,14 +224,42 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
                                         />
                                     </div>
                                 }
+                                {this.state.ocr && !this.state.isAnalyzing &&
+                                    // <PrimaryButton
+                                    //     className="align-self-end"
+                                    //     theme={getPrimaryGreenTheme()}
+                                    //     text="Download Result"
+                                    //     allowDisabledFocus
+                                    //     autoFocus={true}
+                                    //     onClick={this.triggerDownload}
+                                    // />
+                                    <div className="container-items-center container-space-between results-container">
+                                        <h5 className="results-header">OCR results</h5>
+                                        <PrimaryButton
+                                            className="align-self-end keep-button-80px"
+                                            theme={getPrimaryGreenTheme()}
+                                            text="Download"
+                                            allowDisabledFocus
+                                            autoFocus={true}
+                                            onClick={this.onDownloadClick}
+                                        />
+                                    </div>
+                                }
                             </div>
                         </div>
                     </div>
-
                 </div>
             </>
         )
     }
+
+    onDownloadClick = () => {
+        const {ocr} = this.state;
+        if (ocr) {
+            downloadAsJsonFile(ocr, this.state.fileLabel, "OCR-");
+        }
+    }
+
     onFileChange(data: {
         file: File,
         fileLabel: string,
@@ -226,8 +267,7 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
     }): void {
         this.setState({
             currentPage: 1,
-            // ocr: null,
-            fileChanged: true,
+            ocr: null,
             ...data,
             analyzationLoaded: false,
             fileLoaded: false,
@@ -239,12 +279,11 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
     onSelectSourceChange(): void {
         this.setState({
             file: undefined,
-            // ocr: {},
+            ocr: null,
             analyzationLoaded: false,
+        }, () => {
+            this.ocrHelper.reset();
         });
-        // if (this.imageMap) {
-        //     this.imageMap.removeAllFeatures();
-        // }
     }
 
     onFileLoadError(err: {alertTitle: string; alertMessage: string;}): void {
@@ -256,6 +295,16 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
     }
 
     private renderImageMap = () => {
+        const hostStyles: Partial<ITooltipHostStyles> = {
+            root: {
+                position: "absolute",
+                top: this.state.tableIconTooltip.top,
+                left: this.state.tableIconTooltip.left,
+                width: this.state.tableIconTooltip.width,
+                height: this.state.tableIconTooltip.height,
+                display: this.state.tableIconTooltip.display,
+            },
+        };
         return (
             <div style={{width: "100%", height: "100%"}}>
                 <CanvasCommandBar
@@ -267,16 +316,41 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
                     layers={this.state.layers}
                 />
                 <ImageMap
-                    ref={(ref) => this.imageMap = ref}
+                    ref={(ref) => {
+                        this.imageMap = ref;
+                        this.ocrHelper.setImageMap(ref);
+                    }}
                     imageUri={this.state.imageUri || ""}
                     imageWidth={this.state.imageWidth}
                     imageHeight={this.state.imageHeight}
                     imageAngle={this.state.imageAngle}
                     initOcrMap={true}
-                    handleIsSnapped={this.handleIsSnapped}
-                    handleIsPointerOnImage={this.handleIsPointerOnImage}
+                    hoveringFeature={this.state.hoveringFeature}
                     onMapReady={this.noOp}
+                    featureStyler={this.featureStyler}
+                    tableBorderFeatureStyler={this.tableBorderFeatureStyler}
+                    tableIconFeatureStyler={this.tableIconFeatureStyler}
+                    tableIconBorderFeatureStyler={this.tableIconBorderFeatureStyler}
+                    handleTableToolTipChange={this.handleTableToolTipChange}
                 />
+                <TooltipHost
+                    content={"rows: " + this.state.tableIconTooltip.rows +
+                        " columns: " + this.state.tableIconTooltip.columns}
+                    id="tableInfo"
+                    styles={hostStyles}
+                >
+                    <div
+                        aria-describedby="tableInfo"
+                        className="tooltip-container"
+                        onClick={this.handleTableIconFeatureSelect}
+                    />
+                </TooltipHost>
+                {this.state.tableToView !== null &&
+                    <TableView
+                        handleTableViewClose={this.handleTableViewClose}
+                        tableToView={this.state.tableToView}
+                    />
+                }
             </div>
         );
     }
@@ -292,6 +366,7 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
     private handleRotateCanvas = (degrees: number) => {
         this.setState({imageAngle: this.state.imageAngle + degrees});
     }
+
     private handleLayerChange = (layer: string) => {
         switch (layer) {
             case "text":
@@ -316,22 +391,167 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
             layers: newLayers,
         });
     }
-    private handleIsSnapped = (snapped: boolean) => {
-        // if (this.state.isSnapped !== snapped) {
-        //     this.setState({
-        //         isSnapped: snapped,
-        //     })
-        // }
+
+    private handleTableIconFeatureSelect = () => {
+        if (this.state.hoveringFeature != null) {
+            const tableState = this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).get("state");
+            if (tableState === "hovering" || tableState === "rest") {
+                this.setTableToView(this.ocrHelper.getTable(this.state.currentPage, this.state.hoveringFeature),
+                    this.state.hoveringFeature);
+            } else {
+                this.closeTableView("hovering");
+            }
+        }
     }
-    private handleIsPointerOnImage = (isPointerOnImage: boolean) => {
-        // if (this.state.isPointerOnImage !== isPointerOnImage) {
-        //     this.setState({
-        //         isPointerOnImage,
-        //     });
-        // }
+    public setTableState(viewedTableId, state) {
+        this.imageMap.getTableBorderFeatureByID(viewedTableId).set("state", state);
+        this.imageMap.getTableIconFeatureByID(viewedTableId).set("state", state);
     }
+    private setTableToView = async (tableToView, tableToViewId) => {
+        if (this.state.tableToViewId) {
+            this.setTableState(this.state.tableToViewId, "rest");
+        }
+        this.setTableState(tableToViewId, "selected");
+        this.setState({
+            tableToView,
+            tableToViewId,
+        });
+    }
+
+    private handleTableViewClose = () => {
+        this.closeTableView("rest");
+    }
+
+    private closeTableView = (state: string) => {
+        if (this.state.tableToView) {
+            this.setTableState(this.state.tableToViewId, state);
+            this.setState({
+                tableToView: null,
+                tableToViewId: null,
+            });
+        }
+    }
+
     private noOp = () => {
         // no operation
+    }
+
+    private tableBorderFeatureStyler = (feature) => {
+        if (feature.get("state") === "rest") {
+            return new Style({
+                stroke: new Stroke({
+                    color: "transparent",
+                }),
+                fill: new Fill({
+                    color: "transparent",
+                }),
+            });
+        } else if (feature.get("state") === "hovering") {
+            return new Style({
+                stroke: new Stroke({
+                    opacity: 0.75,
+                    color: "black",
+                    lineDash: [2, 6],
+                    width: 0.75,
+                }),
+                fill: new Fill({
+                    color: "rgba(217, 217, 217, 0.1)",
+                }),
+            });
+        } else {
+            return new Style({
+                stroke: new Stroke({
+                    color: "black",
+                    lineDash: [2, 6],
+                    width: 2,
+                }),
+                fill: new Fill({
+                    color: "rgba(217, 217, 217, 0.1)",
+                }),
+            });
+        }
+    }
+    private tableIconFeatureStyler = (feature, resolution) => {
+        if (feature.get("state") === "rest") {
+            return new Style({
+                image: new Icon({
+                    opacity: 0.3,
+                    scale: this.imageMap && this.imageMap.getResolutionForZoom(3) ?
+                        this.imageMap.getResolutionForZoom(3) / resolution : 1,
+                    anchor: [.95, 0.15],
+                    anchorXUnits: "fraction",
+                    anchorYUnits: "fraction",
+                    src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAAmCAYAAABZNrIjAAABhUlEQVRYR+1YQaqCUBQ9BYZOWkHQyEELSAJbQM7cQiMxmjTXkQtwEomjttAsF6AguoAGjQRX0CRRsI/yg/hlqV8w4b3xfe8ezn3nHN7rKYpy8zwP37o4jkNPkqSbaZrfihGSJHUQ5G63w2QyaZ3V0+mE1WqV43hi0rZt8DzfOkjHcTCfzzsMcr1eYzQatc5kGIbYbrevmWwd3QsA3VR3mXE/jiIT2WKxAEVRhUNIkgSWZSETQ7aq9qil7r/K03UdDMMUgrxer9hsNrgHRhkH+be6CcjfeRAmX13Mxu/k8XjEdDp9a5e+70MQhLxmuVxC0zTQNF24J4oiqKqK/X6f11Tt0U2fJIlTkwFi5nfiGld3ncgisVj3+UCyu0x2z2YzDIfDt2ZxuVzgum5eMx6PwbIs+v1+4Z40TXE+nxEEQV5TtQdJnJre/bTtickynwOPD3dRFCHLMgaDQSGmOI5hGAYOh0NeU7UHSRySOJ/+goiZlzHzqsprRd1NeVuT53Qncbrwsf8D9suXe5WWs/YAAAAASUVORK5CYII=",
+                }),
+            });
+        } else {
+            return new Style({
+                image: new Icon({
+                    opacity: 1,
+                    scale: this.imageMap && this.imageMap.getResolutionForZoom(3) ?
+                        this.imageMap.getResolutionForZoom(3) / resolution : 1,
+                    anchor: [.95, 0.15],
+                    anchorXUnits: "fraction",
+                    anchorYUnits: "fraction",
+                    src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAAmCAYAAABZNrIjAAABhUlEQVRYR+1YQaqCUBQ9BYZOWkHQyEELSAJbQM7cQiMxmjTXkQtwEomjttAsF6AguoAGjQRX0CRRsI/yg/hlqV8w4b3xfe8ezn3nHN7rKYpy8zwP37o4jkNPkqSbaZrfihGSJHUQ5G63w2QyaZ3V0+mE1WqV43hi0rZt8DzfOkjHcTCfzzsMcr1eYzQatc5kGIbYbrevmWwd3QsA3VR3mXE/jiIT2WKxAEVRhUNIkgSWZSETQ7aq9qil7r/K03UdDMMUgrxer9hsNrgHRhkH+be6CcjfeRAmX13Mxu/k8XjEdDp9a5e+70MQhLxmuVxC0zTQNF24J4oiqKqK/X6f11Tt0U2fJIlTkwFi5nfiGld3ncgisVj3+UCyu0x2z2YzDIfDt2ZxuVzgum5eMx6PwbIs+v1+4Z40TXE+nxEEQV5TtQdJnJre/bTtickynwOPD3dRFCHLMgaDQSGmOI5hGAYOh0NeU7UHSRySOJ/+goiZlzHzqsprRd1NeVuT53Qncbrwsf8D9suXe5WWs/YAAAAASUVORK5CYII=",
+                }),
+            });
+        }
+    }
+
+    private tableIconBorderFeatureStyler = (_feature) => {
+        return new Style({
+            stroke: new Stroke({
+                width: 0,
+                color: "transparent",
+            }),
+            fill: new Fill({
+                color: "rgba(217, 217, 217, 0)",
+            }),
+        });
+    }
+
+    private featureStyler = (feature) => {
+
+        // Unselected
+        return new Style({
+            stroke: new Stroke({
+                color: "#fffc7f",
+                width: 1,
+            }),
+            fill: new Fill({
+                color: "rgba(255, 252, 127, 0.2)",
+            }),
+        });
+    }
+
+    private handleTableToolTipChange = async (display: string, width: number, height: number, top: number,
+        left: number, rows: number, columns: number, featureID: string) => {
+        if (!this.imageMap) {
+            return;
+        }
+
+        if (featureID !== null && this.imageMap.getTableBorderFeatureByID(featureID).get("state") !== "selected") {
+            this.imageMap.getTableBorderFeatureByID(featureID).set("state", "hovering");
+            this.imageMap.getTableIconFeatureByID(featureID).set("state", "hovering");
+        } else if (featureID === null && this.state.hoveringFeature &&
+            this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).get("state") !== "selected") {
+            this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).set("state", "rest");
+            this.imageMap.getTableIconFeatureByID(this.state.hoveringFeature).set("state", "rest");
+        }
+        const newTableIconTooltip = {
+            display,
+            width,
+            height,
+            top,
+            left,
+            rows,
+            columns,
+        };
+        this.setState({
+            tableIconTooltip: newTableIconTooltip,
+            hoveringFeature: featureID,
+        });
     }
 
     private renderPrevPageButton = () => {
@@ -339,18 +559,14 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
             this.goToPage(Math.max(1, this.state.currentPage - 1));
         };
 
-        if (this.state.currentPage > 1) {
-            return (
-                <IconButton
-                    className="toolbar-btn prev"
-                    title="Previous"
-                    iconProps={{iconName: "ChevronLeft"}}
-                    onClick={prevPage}
-                />
-            );
-        } else {
-            return <div></div>;
-        }
+        return this.state.currentPage > 1 ?
+            <IconButton
+                className="toolbar-btn prev"
+                title="Previous"
+                iconProps={{iconName: "ChevronLeft"}}
+                onClick={prevPage}
+            />
+            : <div></div>;
     }
 
     private renderNextPageButton = () => {
@@ -359,18 +575,14 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
             this.goToPage(Math.min(this.state.currentPage + 1, numPages));
         };
 
-        if (this.state.currentPage < numPages) {
-            return (
-                <IconButton
-                    className="toolbar-btn next"
-                    title="Next"
-                    onClick={nextPage}
-                    iconProps={{iconName: "ChevronRight"}}
-                />
-            );
-        } else {
-            return <div></div>;
-        }
+        return this.state.currentPage < numPages ?
+            <IconButton
+                className="toolbar-btn next"
+                title="Next"
+                onClick={nextPage}
+                iconProps={{iconName: "ChevronRight"}}
+            />
+            : <div></div>;
     }
 
     private renderPageIndicator = () => {
@@ -391,7 +603,6 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
         }
         this.setState({
             currentPage: targetPage,
-            // ocrForCurrentPage: this.getOcrResultForPage(this.state.ocr, targetPage),
         }, () => {
             this.ocrHelper?.drawOcr(targetPage);
         });
@@ -404,9 +615,10 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
                 this.setState({
                     isAnalyzing: false,
                     analyzationLoaded: true,
+                    ocr,
                 }, () => {
-                    this.ocrHelper = new OcrHelper(ocr, this.imageMap);
-                    this.ocrHelper.buildRegionOrders();
+                    this.ocrHelper.setOcr(ocr);
+                    // this.ocrHelper.buildRegionOrders();
                     this.ocrHelper.drawOcr(this.state.currentPage);
                 })
             }).catch((error) => {
@@ -429,7 +641,6 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
             });
     }
 
-
     private async getAnalzation(): Promise<any> {
         const endpointURL = url.resolve(
             this.props.prebuiltSettings.serviceURI,
@@ -443,17 +654,16 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
         };
         const body = this.state.file ?? ({source: this.state.fetchedFileURL});
 
-        let response;
+        // let response;
         try {
-            response = await ServiceHelper.postWithAutoRetry(
+            const response = await ServiceHelper.postWithAutoRetry(
                 endpointURL, body, {headers}, apiKey as string);
+            const operationLocation = response.headers["operation-location"];
+
+            // Make the second REST API call and get the response.
+            return poll(() => ServiceHelper.getWithAutoRetry(operationLocation, {headers}, apiKey as string), 120000, 500);
         } catch (err) {
             ServiceHelper.handleServiceError(err);
         }
-
-        const operationLocation = response.headers["operation-location"];
-
-        // Make the second REST API call and get the response.
-        return poll(() => ServiceHelper.getWithAutoRetry(operationLocation, {headers}, apiKey as string), 120000, 500);
     }
 }

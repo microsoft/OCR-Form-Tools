@@ -4,28 +4,153 @@ import Polygon from "ol/geom/Polygon";
 import {ImageMap} from "../../common/imageMap/imageMap";
 
 export interface IOcrHelper {
-    buildRegionOrders(): void;
+    setImageMap(imageMap: ImageMap): void;
+    setOcr(ocr: any): void;
     drawOcr(targetPage: number): void;
-    reset():void;
+    reset(): void;
+    getOcrResultForPage(targetPage: number): any;
+    getTable(targetPage: number, hoveringFeature: string): any;
 }
 
 export class OcrHelper implements IOcrHelper {
+    private imageMap: ImageMap;
+    private ocr: any;
     private regionOrders: Record<string, number>[] = [];
-
     private regionOrderById: string[][] = [];
+
     private tableIDToIndexMap: object;
 
-    constructor(private ocr: any, private imageMap: ImageMap) {
-
+    setImageMap(imageMap: ImageMap) {
+        this.imageMap = imageMap;
     }
 
-    reset(){
+    setOcr(ocr: any) {
+        this.ocr = ocr;
+        this.buildRegionOrders();
+    }
+
+    reset() {
         this.ocr = null;
         this.regionOrderById = [];
-        this.regionOrders=[];
-        this.imageMap.removeAllFeatures();
+        this.regionOrders = [];
+        this.imageMap?.removeAllFeatures();
     }
-    private getOcrResultForPage = (targetPage: number): any => {
+
+    private buildRegionOrders() {
+        // Build order index here instead of building it during 'drawOcr' for two reasons.
+        // 1. Build order index for all pages at once. This allow us to support cross page
+        //    tagging if it's supported by FR service.
+        // 2. Avoid rebuilding order index when users switch back and forth between pages.
+        const ocrs = this.ocr;
+        const ocrReadResults = (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.readResults));
+        const ocrPageResults = (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.pageResults));
+        const imageExtent = this.imageMap.getImageExtent();
+        ocrReadResults.forEach((ocr) => {
+            const ocrExtent = [0, 0, ocr.width, ocr.height];
+            const pageIndex = ocr.page - 1;
+            this.regionOrders[pageIndex] = {};
+            this.regionOrderById[pageIndex] = [];
+            let order = 0;
+            if (ocr.lines) {
+                ocr.lines.forEach((line) => {
+                    if (line.words) {
+                        line.words.forEach((word) => {
+                            if (this.shouldDisplayOcrWord(word.text)) {
+                                const feature = this.createBoundingBoxVectorFeature(
+                                    word.text, word.boundingBox, imageExtent, ocrExtent, ocr.page);
+                                this.regionOrders[pageIndex][feature.getId()] = order++;
+                                this.regionOrderById[pageIndex].push(feature.getId());
+                            }
+                        });
+                    }
+                });
+            }
+            const checkboxes = ocr.selectionMarks
+                || (ocrPageResults && ocrPageResults[pageIndex] && ocrPageResults[pageIndex].checkboxes);
+            if (checkboxes) {
+                this.addCheckboxToRegionOrder(checkboxes, pageIndex, order, imageExtent, ocrExtent);
+            }
+        });
+    }
+
+    public drawOcr(targetPage: number) {
+        this.imageMap.removeAllFeatures();
+
+        const ocrForCurrentPage = this.getOcrResultForPage(targetPage);
+        const textFeatures = [];
+
+        const tableBorderFeatures = [];
+        const tableIconFeatures = [];
+        const tableIconBorderFeatures = [];
+
+        const checkboxFeatures = [];
+        const ocrReadResults = ocrForCurrentPage["readResults"];
+        const ocrPageResults = ocrForCurrentPage["pageResults"];
+        const imageExtent = this.imageMap.getImageExtent();
+        if (ocrReadResults) {
+            const ocrExtent = [0, 0, ocrReadResults.width, ocrReadResults.height];
+            if (ocrReadResults.lines) {
+                ocrReadResults.lines.forEach((line) => {
+                    if (line.words) {
+                        line.words.forEach((word) => {
+                            if (this.shouldDisplayOcrWord(word.text)) {
+                                textFeatures.push(this.createBoundingBoxVectorFeature(
+                                    word.text, word.boundingBox, imageExtent, ocrExtent, ocrReadResults.page));
+                            }
+                        });
+                    }
+                });
+            }
+
+            this.tableIDToIndexMap = {};
+            if (ocrPageResults && ocrPageResults.tables) {
+                ocrPageResults.tables.forEach((table, index) => {
+                    if (table.cells && table.columns && table.rows) {
+                        const tableBoundingBox = this.getTableBoundingBox(table.cells.map((cell) => cell.boundingBox));
+                        const createdTableFeatures = this.createBoundingBoxVectorTable(
+                            tableBoundingBox,
+                            imageExtent,
+                            ocrExtent,
+                            ocrPageResults.page,
+                            table.rows,
+                            table.columns,
+                            index);
+                        tableBorderFeatures.push(createdTableFeatures["border"]);
+                        tableIconFeatures.push(createdTableFeatures["icon"]);
+                        tableIconBorderFeatures.push(createdTableFeatures["iconBorder"]);
+                    }
+                });
+            }
+
+            if (ocrReadResults && ocrReadResults.selectionMarks) {
+                ocrReadResults.selectionMarks.forEach((checkbox) => {
+                    checkboxFeatures.push(this.createBoundingBoxVectorFeature(
+                        checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, ocrReadResults.page));
+                });
+            } else if (ocrPageResults && ocrPageResults.checkboxes) {
+                ocrPageResults.checkboxes.forEach((checkbox) => {
+                    checkboxFeatures.push(this.createBoundingBoxVectorFeature(
+                        checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, ocrPageResults.page));
+                });
+            }
+
+            if (tableBorderFeatures.length > 0 && tableBorderFeatures.length === tableIconFeatures.length
+                && tableBorderFeatures.length === tableIconBorderFeatures.length) {
+                this.imageMap.addTableBorderFeatures(tableBorderFeatures);
+                this.imageMap.addTableIconFeatures(tableIconFeatures);
+                this.imageMap.addTableIconBorderFeatures(tableIconBorderFeatures);
+            }
+
+            if (textFeatures.length > 0) {
+                this.imageMap.addFeatures(textFeatures);
+            }
+            if (checkboxFeatures.length > 0) {
+                this.imageMap.addCheckboxFeatures(checkboxFeatures);
+            }
+        }
+    }
+
+    public getOcrResultForPage = (targetPage: number): any => {
         if (!this.ocr) {
             return {};
         }
@@ -39,6 +164,11 @@ export class OcrHelper implements IOcrHelper {
             return ocrResultsForCurrentPage;
         }
         return {};
+    }
+
+    getTable(targetPage: number, hoveringFeature: string) {
+        const pageOcrData = this.getOcrResultForPage(targetPage);
+        return pageOcrData?.pageResults.tables[this.tableIDToIndexMap[hoveringFeature]];
     }
 
     private createBoundingBoxVectorFeature = (text, boundingBox, imageExtent, ocrExtent, page) => {
@@ -79,42 +209,7 @@ export class OcrHelper implements IOcrHelper {
         return boundingBox.join(",") + ":" + page;
     }
 
-    buildRegionOrders = () => {
-        // Build order index here instead of building it during 'drawOcr' for two reasons.
-        // 1. Build order index for all pages at once. This allow us to support cross page
-        //    tagging if it's supported by FR service.
-        // 2. Avoid rebuilding order index when users switch back and forth between pages.
-        const ocrs = this.ocr;
-        const ocrReadResults = (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.readResults));
-        const ocrPageResults = (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.pageResults));
-        const imageExtent = this.imageMap.getImageExtent();
-        ocrReadResults.forEach((ocr) => {
-            const ocrExtent = [0, 0, ocr.width, ocr.height];
-            const pageIndex = ocr.page - 1;
-            this.regionOrders[pageIndex] = {};
-            this.regionOrderById[pageIndex] = [];
-            let order = 0;
-            if (ocr.lines) {
-                ocr.lines.forEach((line) => {
-                    if (line.words) {
-                        line.words.forEach((word) => {
-                            if (this.shouldDisplayOcrWord(word.text)) {
-                                const feature = this.createBoundingBoxVectorFeature(
-                                    word.text, word.boundingBox, imageExtent, ocrExtent, ocr.page);
-                                this.regionOrders[pageIndex][feature.getId()] = order++;
-                                this.regionOrderById[pageIndex].push(feature.getId());
-                            }
-                        });
-                    }
-                });
-            }
-            const checkboxes = ocr.selectionMarks
-                || (ocrPageResults && ocrPageResults[pageIndex] && ocrPageResults[pageIndex].checkboxes);
-            if (checkboxes) {
-                this.addCheckboxToRegionOrder(checkboxes, pageIndex, order, imageExtent, ocrExtent);
-            }
-        });
-    }
+
     private shouldDisplayOcrWord = (text: string): boolean => {
         const regex = new RegExp(/^[_]+$/);
         return !text.match(regex);
@@ -134,81 +229,10 @@ export class OcrHelper implements IOcrHelper {
         });
     }
 
-    public drawOcr = (targetPage: number) => {
-        this.imageMap.removeAllFeatures();
-        const ocrForCurrentPage = this.getOcrResultForPage(targetPage);
-        const textFeatures = [];
-        const tableBorderFeatures = [];
-        const tableIconFeatures = [];
-        const tableIconBorderFeatures = [];
-        const checkboxFeatures = [];
-        const ocrReadResults = ocrForCurrentPage["readResults"];
-        const ocrPageResults = ocrForCurrentPage["pageResults"];
-        const imageExtent = this.imageMap.getImageExtent();
-        if (ocrReadResults) {
-            const ocrExtent = [0, 0, ocrReadResults.width, ocrReadResults.height];
-            if (ocrReadResults.lines) {
-                ocrReadResults.lines.forEach((line) => {
-                    if (line.words) {
-                        line.words.forEach((word) => {
-                            if (this.shouldDisplayOcrWord(word.text)) {
-                                textFeatures.push(this.createBoundingBoxVectorFeature(
-                                    word.text, word.boundingBox, imageExtent, ocrExtent, ocrReadResults.page));
-                            }
-                        });
-                    }
-                });
-            }
-            this.tableIDToIndexMap = {};
-            if (ocrPageResults && ocrPageResults.tables) {
-                ocrPageResults.tables.forEach((table, index) => {
-                    if (table.cells && table.columns && table.rows) {
-                        const tableBoundingBox = this.getTableBoundingBox(table.cells.map((cell) => cell.boundingBox));
-                        const createdTableFeatures = this.createBoundingBoxVectorTable(
-                            tableBoundingBox,
-                            imageExtent,
-                            ocrExtent,
-                            ocrPageResults.page,
-                            table.rows,
-                            table.columns,
-                            index);
-                        tableBorderFeatures.push(createdTableFeatures["border"]);
-                        tableIconFeatures.push(createdTableFeatures["icon"]);
-                        tableIconBorderFeatures.push(createdTableFeatures["iconBorder"]);
-                    }
-                });
-            }
-
-            if (ocrReadResults && ocrReadResults.selectionMarks) {
-                ocrReadResults.selectionMarks.forEach((checkbox) => {
-                    checkboxFeatures.push(this.createBoundingBoxVectorFeature(
-                        checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, ocrReadResults.page));
-                });
-            } else if (ocrPageResults && ocrPageResults.checkboxes) {
-                ocrPageResults.checkboxes.forEach((checkbox) => {
-                    checkboxFeatures.push(this.createBoundingBoxVectorFeature(
-                        checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, ocrPageResults.page));
-                });
-            }
-
-            if (tableBorderFeatures.length > 0 && tableBorderFeatures.length === tableIconFeatures.length
-                && tableBorderFeatures.length === tableIconBorderFeatures.length) {
-                this.imageMap.addTableBorderFeatures(tableBorderFeatures);
-                this.imageMap.addTableIconFeatures(tableIconFeatures);
-                this.imageMap.addTableIconBorderFeatures(tableIconBorderFeatures);
-            }
-            if (textFeatures.length > 0) {
-                this.imageMap.addFeatures(textFeatures);
-            }
-            if (checkboxFeatures.length > 0) {
-                this.imageMap.addCheckboxFeatures(checkboxFeatures);
-            }
-        }
-    }
     private getTableBoundingBox = (lines: []) => {
         const flattenedLines = [].concat(...lines);
-        const xAxisValues = flattenedLines.filter((_value, index) => index % 2 === 0);
-        const yAxisValues = flattenedLines.filter((_value, index) => index % 2 === 1);
+        const xAxisValues = flattenedLines.filter((value, index) => index % 2 === 0);
+        const yAxisValues = flattenedLines.filter((value, index) => index % 2 === 1);
         const left = Math.min(...xAxisValues);
         const top = Math.min(...yAxisValues);
         const right = Math.max(...xAxisValues);
@@ -266,5 +290,4 @@ export class OcrHelper implements IOcrHelper {
         tableFeatures["iconBorder"].setId(tableID);
         return tableFeatures;
     }
-
 }

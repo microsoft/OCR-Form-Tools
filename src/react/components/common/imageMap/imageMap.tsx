@@ -1047,7 +1047,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
     private initializeSnapCheck = () => {
         const snapCheck = new Interaction({
             handleEvent: (evt: MapBrowserEvent) => {
-                if (!this.props.isVertexDragging) {
+                if (!this.props.isVertexDragging && this.props.handleIsSnapped) {
                     this.props.handleIsSnapped(this.snap.snapTo(evt.pixel, evt.coordinate, evt.map).snapped && this.props.isPointerOnImage)
                 }
                 return true;
@@ -1066,10 +1066,13 @@ export class ImageMap extends React.Component<IImageMapProps> {
                         return true
                     },
                     this.imageLayerFilter);
-                if (!Boolean(test) && this.props.isPointerOnImage) {
-                    this.props.handleIsPointerOnImage(false);
-                } else if (!this.props.isPointerOnImage && Boolean(test)) {
-                    this.props.handleIsPointerOnImage(true);
+
+                if (this.props.handleIsPointerOnImage) {
+                    if (!Boolean(test) && this.props.isPointerOnImage) {
+                        this.props.handleIsPointerOnImage(false);
+                    } else if (!this.props.isPointerOnImage && Boolean(test)) {
+                        this.props.handleIsPointerOnImage(true);
+                    }
                 }
                 return true
             }
