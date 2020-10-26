@@ -102,6 +102,7 @@
                 margin-bottom: 0px;
                 text-decoration: line-through;
                 color: rgb(177, 177, 177);
+                font-size: small;
                 
             }
         }
@@ -195,6 +196,20 @@
     margin-left: 12px;
     color: rgb(177, 177, 177);
     margin-bottom: 2px;
-    font-size: small;
+ }
+
+ .lighter-link {
+     color: #6ac5e1;
+     &:hover {
+         color: #2d8eac;
+     }
 
  }
+
+ .compact-row {
+    border-bottom: 0.5px solid $lighter-4;
+ }
+
+.table-name-preview {
+    font-weight: bold;
+}

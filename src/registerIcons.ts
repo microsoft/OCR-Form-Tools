@@ -81,8 +81,9 @@ export function registerIcons() {
             Rotate90CounterClockwise: "\uF80E",
             Rotate90Clockwise: "\uF80D",
             AzureAPIManagement: "\uF37F",
-            TableHeaderRow: "\uE3EC",
-            TableFirstColumn: "\uE3EF",
+            TableBrandedColumn: "\uE3F1",
+            TableBrandedRow: "\uE3EE",
+            UpdateRestore: "\uE777",
         },
     });
 }

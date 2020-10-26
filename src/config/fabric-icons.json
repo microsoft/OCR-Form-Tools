@@ -255,16 +255,16 @@
       "unicode": "ED86"
     },
     {
-      "name": "TableFirstColumn",
-      "unicode": "E3EF"
+      "name": "TableBrandedColumn",
+      "unicode": "E3F1"
+    },
+    {
+      "name": "TableBrandedRow",
+      "unicode": "E3EE"
     },
     {
       "name": "TableGroup",
       "unicode": "F6D9"
-    },
-    {
-      "name": "TableHeaderRow",
-      "unicode": "E3EC"
     },
     {
       "name": "Tag",
@@ -285,6 +285,10 @@
     {
       "name": "Up",
       "unicode": "E74A"
+    },
+    {
+      "name": "UpdateRestore",
+      "unicode": "E777"
     },
     {
       "name": "View",

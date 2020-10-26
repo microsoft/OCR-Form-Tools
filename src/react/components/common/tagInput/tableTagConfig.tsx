@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, SelectionMode, DetailsListLayoutMode, FontIcon, CheckboxVisibility, IContextualMenuItem, CommandBar, Selection, Separator, IObjectWithKey } from "@fluentui/react";
+import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, SelectionMode, DetailsListLayoutMode, FontIcon, CheckboxVisibility, IContextualMenuItem, CommandBar, Selection, Separator, IObjectWithKey, Link } from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme, getDefaultTheme } from '../../../../common/themes';
 import { FieldFormat, FieldType, IApplicationState, ITableRegion, ITableTag, ITag, TableElements, TagInputMode } from '../../../../models/applicationState';
 import { filterFormat, useDebounce } from "../../../../common/utils";
@@ -38,6 +38,8 @@ interface ITableConfigItem {
     format: string,
     type: string;
     originalName?: string;
+    originalFormat?: string,
+    originalType?: string;
 }
 
 const tableFormatOptions: IChoiceGroupOption[] = [
@@ -55,13 +57,13 @@ const tableFormatOptions: IChoiceGroupOption[] = [
 const headersFormatAndTypeOptions: IChoiceGroupOption[] = [
     {
         key: TableElements.columns,
-        text: 'Column headers',
-        iconProps: { iconName: 'TableHeaderRow' }
+        text: 'Column fields',
+        iconProps: { iconName: 'TableBrandedColumn' }
     },
     {
         key: TableElements.rows,
-        text: 'Row headers',
-        iconProps: { iconName: 'TableFirstColumn' }
+        text: 'Row\n fields',
+        iconProps: { iconName: 'TableBrandedRow' }
     },
 ];
 
@@ -118,8 +120,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             table = {
                 name: {tableName: props.tableTag.name, originalTableName: props.tableTag.name},
                 format: FieldFormat.Fixed,
-                rows: props.tableTag.rowKeys?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat, originalName: row.fieldKey })),
-                columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey })),
+                rows: props.tableTag.rowKeys?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat, originalName: row.fieldKey, originalFormat: row.fieldFormat, originalType: row.fieldType })),
+                columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType })),
                 headerTypeAndFormat: TableElements.columns,
                 deletedColumns: [],
                 deletedRows: [],
@@ -129,7 +131,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 name: { tableName: props.tableTag.name, originalTableName: props.tableTag.name },
                 format: FieldFormat.RowDynamic,
                 rows: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
-                columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey })),
+                columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType })),
                 headerTypeAndFormat: TableElements.columns,
                 deletedColumns: [],
             }
@@ -331,7 +333,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     ];
 
 
-
     function addColumn() {
         setColumns([...columns, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified }]);
         setShouldAutoFocus(TableElements.column);
@@ -400,8 +401,12 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 iconProps: { iconName: 'Delete' },
                 onClick: () => {
                     const selectedRowIndex =  rowSelection.getSelectedIndices()[0];
-                    if (rows[selectedRowIndex].originalName) {
-                        setDeletedRows([...deletedRows, rows[selectedRowIndex]]);
+                    if (props.tableTag && rows[selectedRowIndex].originalName) {
+                        const deletedRow = Object.assign({}, rows[selectedRowIndex]);
+                        deletedRow.name = deletedRow.originalName;
+                        deletedRow.format = deletedRow.originalFormat;
+                        deletedRow.type = deletedRow.originalType;
+                        setDeletedRows([...deletedRows, deletedRow]);
                     }
                     setRows(rows.filter((i, idx) => idx !== rowSelection.getSelectedIndices()[0]))
                 },
@@ -462,8 +467,12 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 iconProps: { iconName: 'Delete', },
                 onClick: () => {
                     const selectedColumnIndex = columnSelection.getSelectedIndices()[0];
-                    if (columns[selectedColumnIndex].originalName) {
-                        setDeletedColumns([...deletedColumns, columns[selectedColumnIndex]])
+                    if (props.tableTag && columns[selectedColumnIndex].originalName) {
+                        const deletedColumn = Object.assign({}, columns[selectedColumnIndex]);
+                        deletedColumn.name = deletedColumn.originalName
+                        deletedColumn.format = deletedColumn.originalFormat;
+                        deletedColumn.type = deletedColumn.originalType;
+                        setDeletedColumns([...deletedColumns, deletedColumn])
                     }
                     setColumns(columns.filter((i, idx) => idx !== selectedColumnIndex));
                 },
@@ -634,6 +643,78 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         }
     }
 
+    function restoreDeletedField(fieldType: TableElements, index: number) {
+        let fields;
+        let deletedFields;
+        let setFields;
+        let setDeletedFields;
+        switch (fieldType) {
+            case TableElements.row:
+                fields = rows;
+                deletedFields = [...deletedRows];
+                setFields = setRows;
+                setDeletedFields = setDeletedRows;
+                break;
+            case TableElements.column:
+                fields = columns;
+                deletedFields = [...deletedColumns];
+                setFields = setColumns;
+                setDeletedFields = setDeletedColumns;
+                break;
+        }
+        setFields([...fields, deletedFields[index]]);
+        setDeletedFields([...deletedFields].slice(0, index).concat([...deletedFields].slice(index+1, deletedFields.length)));
+    }
+
+    function getDeletedFieldsTable(fieldType: TableElements) {
+        let deletedFields;
+        switch (fieldType) {
+            case TableElements.row:
+                console.log("deleted rows");
+                deletedFields = deletedRows;
+                break;
+            case TableElements.column:
+                console.log("deleted columns");
+                deletedFields = deletedColumns;
+                break;
+        }
+        const tableBody = [[
+            <tr className="compact-row" key={"row-h"}>
+                <th key={"row-h-0"} className="">
+                    <div className="mr-4">
+                        {fieldType.charAt(0).toUpperCase() + fieldType.slice(1) + " fields that'll be deleted"}
+                    </div>
+                </th>
+                <th key={"row-h-1"} className=""></th>
+            </tr>
+        ]];
+        for (let i = 0; i < deletedFields.length; i++) {
+            tableBody.push([
+                <tr className="compact-row" key={`row-${i}`}>
+                    <td key={`cell-${i}-0`} className="">
+                        <div className="flex-center">
+                            {deletedFields[i].originalName}
+                        </div>
+                    </td>
+                    <td key={`cell-${i}-1`} className="">
+                    <Customizer {...defaultTheme}>
+                        <Link
+                            className="lighter-link flex-center"
+                            onClick={() => {
+                                restoreDeletedField(fieldType, i)
+                            }}
+                        >
+                            <FontIcon className="restore-icon mr-1" iconName="UpdateRestore"/>
+                            Restore
+                        </Link>
+                    </Customizer>
+                    </td>
+                </tr>
+            ])
+        }
+        return tableBody;
+    }
+
     // Table preview
     function getTableBody() {
         let tableBody = null;
@@ -764,7 +845,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     </>
                 }
                 <div className="columns_container ml-12px">
-                    <h5 className="mt-3">Column headers</h5>
+                    <h5 className="mt-3">Column fields</h5>
                     <div className="columns-list_container">
                         <DetailsList
                             className="columns"
@@ -793,10 +874,19 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         <FontIcon iconName="Add" className="mr-2" />
                     Add column
                 </PrimaryButton>
+                {deletedColumns?.length > 0 &&
+                <div className="mt-3">
+                    <table className="">
+                            <tbody>
+                                {getDeletedFieldsTable(TableElements.column)}
+                            </tbody>
+                        </table>
+                    </div>
+                }
                 </div>
                 {(format === FieldFormat.Fixed || (props.tableTag && format === FieldFormat.Fixed)) &&
                     <div className="rows_container ml-12px">
-                        <h5 className="">Row headers</h5>
+                        <h5 className="">Row fields</h5>
                         <div className="rows-list_container">
                             <DetailsList
                                 className="rows"
@@ -825,6 +915,15 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                             <FontIcon iconName="Add" className="mr-2" />
                                 Add row
                             </PrimaryButton>
+                            {deletedRows?.length > 0 &&
+                                <div className="mt-3">
+                                    <table className="">
+                                        <tbody>
+                                            {getDeletedFieldsTable(TableElements.row)}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
                     </div>
                 }
                 {
@@ -833,13 +932,14 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         <h5 className="mt-3 mb-1">Preview</h5>
                         {tableTagName.tableName &&
                             <>
-                                {tableTagName.originalTableName !== tableTagName.tableName &&
+                                {props.tableTag && tableTagName.originalTableName !== tableTagName.tableName &&
                                     <div className="tableName-original">
                                         Table name: {tableTagName.originalTableName}
                                     </div>
                                 }
                                 <div className="tableName-current">
-                                    Table name: {tableTagName.tableName}
+                                    <span>Table name: </span>
+                                    <span className="table-name-preview">{tableTagName.tableName}</span>
                                 </div>
                             </>
                         }
