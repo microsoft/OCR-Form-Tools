@@ -107,8 +107,7 @@ export class AssetService {
                             confidence: result.fields[key].confidence,
                             value: getLabelValues(result.fields[key])
                         }))).flat(2);
-
-        const fileName = decodeURIComponent(asset.name).split('/').pop();                      
+        const fileName = decodeURIComponent(asset.name).split('/').pop();
         if (labels.length > 0) {
             const labelData: ILabelData = {
                 document: fileName,
