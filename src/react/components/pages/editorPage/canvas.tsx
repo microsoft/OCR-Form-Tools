@@ -548,8 +548,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private deleteRegions = (regions: IRegion[]) => {
-        this.deleteRegionsFromSelectedRegionIds(regions);
         this.deleteRegionsFromAsset(regions);
+        this.deleteRegionsFromSelectedRegionIds(regions);
         this.deleteRegionsFromImageMap(regions);
     }
 
@@ -1385,7 +1385,19 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             && this.props.selectedAsset.labelData.labels.map(label => ({
                 ...label, value: []
             }))) || [];
-
+        const selectedRegions = this.getSelectedRegions();
+        if (selectedRegions.length > 0) {
+            const intersectionResult = _.intersection(selectedRegions, regions);
+            if (intersectionResult.length === 0) {
+                const relatedLabels = labels.find(label => selectedRegions.find(sr => sr.tags.find(t => t === label.label)));
+                const originLabel = this.props.selectedAsset!.labelData!.labels.find(a => a.label === relatedLabels.label);
+                if (relatedLabels&&originLabel&&relatedLabels.confidence) {
+                    delete relatedLabels.confidence;
+                    relatedLabels.revised = true;
+                    relatedLabels.originValue = [...originLabel.value];
+                    }
+                }
+        }
         regions.forEach((region) => {
             const labelType = this.getLabelType(region.category);
             const boundingBox = region.id.split(",").map(parseFloat);
