@@ -33,8 +33,7 @@
             display: flex;
             flex-direction: column;
             position: relative;
-
-            &-container {
+            &-container{
                 overflow-x: visible;
                 overflow-y: auto;
                 padding: 0 0 0 100px;
@@ -50,7 +49,6 @@
                     margin-right: 4px;
                     background: linear-gradient(to right, #00000000 10%,#00000080 80%);
                 }
-
             };
         }
 
@@ -95,17 +93,20 @@
         &-2 {
             width: 100%;
         }
-        .tag-item-confidence {
-            position: absolute;
-            min-height: 1.8em;
-            left: -58px;
-            font-size: small;
-            vertical-align: middle;
-            padding-top: 3px;
-            z-index: 900;
-            text-align: right;
-            width: 50px;
-            text-shadow: 1px 1px 1px rgba(51, 51, 51, 0.653);
+        .tag-item-label-container {
+            display: flex;
+            flex-direction: row;
+            border: 1px solid $lighter-5;
+            &-item1 {
+                justify-content: center;
+                align-self: center;
+                width: 50px;
+                text-align: center;
+            }
+            &-item2 {
+                border-left: 1px solid $lighter-5;
+                flex: 1;
+            }
         }
     }
 
@@ -133,14 +134,13 @@
         &-highlight {
             .tag-content {
                 background-color: $lighter-5 !important;
-                box-shadow:4px 4px 5px $lighter-5;
+                box-shadow: 4px 4px 5px $lighter-5;
             }
         }
         &-label {
             min-height: 1em;
             display: flex;
             flex-direction: row;
-            margin-bottom: 5px;
             padding-left: 3px;
             font-size: 0.95em;
         }
@@ -208,12 +208,17 @@
 
     &-item-label {
         color: #a0a0a0;
-    }
-
-    &-item-label:hover {
-        color: #fff;
-        background: $lighter-4;
-        cursor: pointer;
+        &:hover {
+            color: #fff;
+            background: $lighter-4;
+            cursor: pointer;
+        }
+        &-origin {
+            color: #a0a0a0;
+            background-color: $darker-4;
+            border-bottom: 1px solid $lighter-5;
+            width: 100%;
+        }
     }
 
     &-color {
