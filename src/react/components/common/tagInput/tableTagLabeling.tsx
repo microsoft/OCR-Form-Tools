@@ -16,14 +16,13 @@ interface ITableTagLabelingProps {
     selectedTableTagBody: ITableRegion[][][];
     handleTableCellClick: (iTableCellIndex: number, jTableCellIndex: number) => void;
     addRowToDynamicTable: () => void;
-    splitPaneWidth: number;
+    splitPaneWidth?: number;
 }
 
 
 interface ITableTagLabelingState {
     selectedRowIndex: number;
     selectedColumnIndex: number;
-    containerWidth: number;
     rows: IField[],
     columns: IField[],
     selectedTableTagBody: any,
@@ -34,15 +33,12 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
     public state: ITableTagLabelingState = {
         selectedRowIndex: null,
         selectedColumnIndex: null,
-        containerWidth: this.props.splitPaneWidth,
         rows: this.props.selectedTag.rowKeys,
         columns: this.props.selectedTag.columnKeys,
         selectedTableTagBody: this.props.selectedTableTagBody,
-
     };
 
     public componentDidMount = async () => {
-        console.log(this.props)
         if (this.props.selectedTag.format === FieldFormat.RowDynamic) {
             const rows = [{ fieldKey: "#1", fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified }]
             for (let i = 1; i < this.props.selectedTableTagBody.length; i++) {
@@ -64,9 +60,8 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
 
     public render() {
         return (
-                <div className="table-labeling_container"
-                    style={{ width: this.props.splitPaneWidth < 650 ? 650 : this.props.splitPaneWidth }}>
-                    <h4 className="mt-2  ml-4">{strings.tags.regionTableTags.tableLabeling.title}</h4>
+                <div className="table-labeling_container">
+                    <h4 className="mt-2">{strings.tags.regionTableTags.tableLabeling.title}</h4>
                     <div className="labeling-guideline">
                         {strings.tags.regionTableTags.tableLabeling.description.title}
                         <ol>
@@ -74,7 +69,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                             <li>{strings.tags.regionTableTags.tableLabeling.description.stepTwo}</li>
                         </ol>
                     </div>
-                    <h5 className="mb-4 ml-1 table-name">
+                    <h5 className="mb-4 table-name">
                         <span style={{ borderBottom: `4px solid ${this.props.selectedTag.color}` }}>{`${strings.tags.regionTableTags.tableLabeling.tableName}: ${this.props.selectedTag.name}`}</span>
                     </h5>
                     <div className="table-view-container">
@@ -111,7 +106,6 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                         >{strings.tags.regionTableTags.tableLabeling.buttons.reconfigureTable}
                         </DefaultButton>
                     </div>
-
                 </div>
         )
     }
@@ -119,7 +113,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
     public getTableBody = () => {
         const table = { rows: this.state.rows, columns: this.state.columns };
         const selectedTableTagBody = this.props.selectedTableTagBody;
-        console.log("TableTagLabeling -> publicgetTableBody -> table", table)
+        console.log("TableTagLabeling -> public getTableBody -> table", table)
         const isRowDynamic = this.props.selectedTag.format === FieldFormat.RowDynamic;
 
         let tableBody = null;
@@ -143,6 +137,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                 tableBody.push(<tr key={i}>{tableRow}</tr>);
             }
         }
+
         return tableBody
     }
 

@@ -102,7 +102,6 @@ export interface IEditorPageState {
     selectedTableTagBody: ITableRegion[][][];
     rightSplitPaneWidth?: number;
     reconfigureTableConfirm?: boolean;
-    basicInputRightPaneWidth?: number;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -142,8 +141,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         tagInputMode: TagInputMode.Basic,
         selectedTableTagToLabel: null,
         selectedTableTagBody: [[]],
-        rightSplitPaneWidth: 650,
-        basicInputRightPaneWidth: null,
     };
 
     private tagInputRef: RefObject<TagInput>;
@@ -157,6 +154,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private reconfigTableConfirm: React.RefObject<Confirm> = React.createRef();
 
     private isUnmount: boolean = false;
+    public initialRightSplitPaneWidth: number;
 
     constructor(props) {
         super(props);
@@ -209,8 +207,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
 
         const isBasicInputMode = this.state.tagInputMode === TagInputMode.Basic;
+        this.initialRightSplitPaneWidth = isBasicInputMode ? 290 : 520;
 
-        const size = isBasicInputMode ? 290 : 652;
         return (
             <div className="editor-page skipToMainContent" id="pageEditor">
                 {this.state.tableToView !== null &&
@@ -269,27 +267,23 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                     </div>
                     <div className="editor-page-content" onClick={this.onPageClick}>
                         <SplitPane split = "vertical"
-                            primary = "second"
-                            maxSize={isBasicInputMode ?
-                                this.state.basicInputRightPaneWidth ? 400 : 290
-                                : 900}
-                            minSize={size}
+                            primary="second"
+                            maxSize={isBasicInputMode ? 400 : 700}
+                            minSize={this.initialRightSplitPaneWidth}
                             className={"right-vertical_splitPane"}
-                            defaultSize={this.state.basicInputRightPaneWidth ? this.state.basicInputRightPaneWidth : size}
-                            pane1Style = {{height: "100%"}}
+                            pane1Style={{ height: "100%" }}
                             pane2Style = {{height: "auto"}}
                             resizerStyle={{
                                 width: "5px",
                                 margin: "0px",
                                 border: "2px",
-                                background: "transparent"
                             }}
                             onChange={(width) => {
-                                this.resizeCanvas();
-                                if (isBasicInputMode) {
-                                    this.setState({basicInputRightPaneWidth: width})
-                                } else {
-                                    this.setState({ rightSplitPaneWidth: width });
+                                if (!isBasicInputMode) {
+                                    this.setState({ rightSplitPaneWidth: width > 700 ? 700 : width }, () => {
+                                        this.resizeCanvas();
+                                    });
+                                    this.resizeCanvas();
                                 }
                             }}>
                             <div className="editor-page-content-main" >
@@ -431,7 +425,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private onPageClick = () => {
     }
 
-    private setTagInputMode = (tagInputMode: TagInputMode, selectedTableTagToLabel: ITableTag = this.state.selectedTableTagToLabel, selectedTableTagBody: ITableRegion[][][] = this.state.selectedTableTagBody) => {
+    private setTagInputMode = (tagInputMode: TagInputMode, selectedTableTagToLabel: ITableTag = this.state.selectedTableTagToLabel, selectedTableTagBody: ITableRegion[][][] = this.state.selectedTableTagBody) => {        // this.resizeCanvas();
         // this.resizeCanvas();
 
             this.setState({
@@ -545,10 +539,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 height: newWidth / (4 / 3),
             },
         });
-        this.resizeCanvas()
-        if (this.state.tagInputMode === TagInputMode.Basic) {
-            this.setState({basicInputRightPaneWidth: newWidth})
-        }
+        this.resizeCanvas();
     }
 
     /**
@@ -575,9 +566,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private onTableTagClicked = (tag: ITag, rowIndex: number, columnIndex: number): void => {
-        if (tag.format === FieldFormat.RowDynamic) {
-
-        }
         this.setState({
             selectedTag: tag.name,
             lockedTags: [],

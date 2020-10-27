@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, SelectionMode, DetailsListLayoutMode, FontIcon, CheckboxVisibility, IContextualMenuItem, CommandBar, Selection, Separator, IObjectWithKey, ActionButton } from "@fluentui/react";
+import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, SelectionMode, DetailsListLayoutMode, FontIcon, CheckboxVisibility, IContextualMenuItem, CommandBar, Selection, Separator, IObjectWithKey, Link, ActionButton } from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme, getDefaultTheme } from '../../../../common/themes';
 import { FieldFormat, FieldType, IApplicationState, ITableRegion, ITableTag, ITag, TableElements, TagInputMode } from '../../../../models/applicationState';
 import { filterFormat, useDebounce } from "../../../../common/utils";
@@ -108,11 +108,10 @@ const typeOptions = () => {
 
 export default function TableTagConfig(props: ITableTagConfigProps) {
     const { setTagInputMode = null, addTableTag = null, splitPaneWidth = null } = props;
-    const containerWidth = splitPaneWidth > 650 ? splitPaneWidth : 650;
+    const containerWidth = splitPaneWidth > 520 ? splitPaneWidth - 10: 510;
     const inputTableName = useRef(null);
     const lastColumnInputRef = useRef(null);
     const lastRowInputRef = useRef(null);
-
     // Initial state
     let table: ITableTagConfigState;
     if (props.tableTag) {
@@ -181,9 +180,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     }
 
     const detailListWidth = {
-        nameInput: containerWidth * 0.5,
-        typeInput: containerWidth * 0.165,
-        formatInput: containerWidth * 0.165,
+        nameInput: containerWidth * 0.45,
+        typeInput: containerWidth * 0.176,
+        formatInput: containerWidth * 0.176,
     }
 
     const columnListColumns: IColumn[] = [
@@ -701,7 +700,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                             onClick={() => {
                                 restoreDeletedField(fieldType, i)
                             }}>
-                            <FontIcon className="restore-icon mr-1" iconName="UpdateRestore"/>
+                            <FontIcon className="restore-icon mr-1" iconName="UpdateRestore" />
                             Restore
                         </ActionButton>
                     </td>
@@ -797,7 +796,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     // Render
     return (
         <Customizer {...dark}>
-            <div className="config-view_container" style={{ width: containerWidth - 8 }}>
+            <div className="config-view_container">
                 <h4 className="mt-2">{props.tableTag ? "Reconfigure table tag" : "Configure table tag"}</h4>
                 <h5 className="mt-3 mb-1">Name</h5>
                 {tableTagName.originalTableName &&
