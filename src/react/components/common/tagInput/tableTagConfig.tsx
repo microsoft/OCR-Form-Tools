@@ -933,7 +933,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                                     </div>
                                 }
                             <span className="tableName-current"
-                                style={{ borderBottom: `4px solid ${props.tableTag.color}` }}>
+                                style={{ borderBottom: props.tableTag ? `4px solid ${props.tableTag.color}` : null }}>
                                     <span>Table name: </span>
                                     <span className="table-name-preview">{tableTagName.tableName}</span>
                                 </span>
