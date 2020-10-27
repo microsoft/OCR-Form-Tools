@@ -96,7 +96,7 @@
         }
         .tableName {
             &-current {
-                margin-bottom: 6px;
+                padding: 0 1px 2px 1px;
             }
             &-original {
                 margin-bottom: 0px;
@@ -108,6 +108,7 @@
 
         .table_container {
             overflow: auto;
+            margin-top: 1rem;
             .table {
                 td, th {
                     border: 2px solid #8D8D8D;
