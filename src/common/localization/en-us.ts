@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { IAppStrings } from "../strings";
+import {IAppStrings} from "../strings";
 
 /*eslint-disable no-template-curly-in-string, no-multi-str*/
 
@@ -57,6 +57,22 @@ export const english: IAppStrings = {
         messages: {
             deleteSuccess: "Successfully deleted ${project.name}",
         },
+        homeProjectView: {
+            title: "Train and use a model with labels"
+        },
+        prebuiltPredict: {
+            title: "Use prebuilt model to get data",
+            description: "Start with a pre-built model for forms link receipts or business cards. Submit your data and get result right away."
+        },
+        layoutPredict:{
+            title:"Use Layout to get text and tables",
+            description:"Form recognizer can extract text and table structure using high-definition optical character recognition(OCR)."
+        },
+        trainWithLabels:{
+            title:"Train and use a model with labels",
+            description:"You provide your own training data and do the learning. The model you create can train to your industry-specific forms."
+        },
+        quickStartGuide:"Quick start guide",
     },
     appSettings: {
         title: "Application Settings",

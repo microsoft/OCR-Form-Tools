@@ -29,6 +29,7 @@ import {decryptProject} from "../../../../common/utils";
 import {toast} from "react-toastify";
 import {isElectron} from "../../../../common/hostProcess";
 import ProjectService from "../../../../services/projectService";
+import {HomeProjectView} from "./homeProjectView";
 
 export interface IHomePageProps extends RouteComponentProps, React.Props<HomePage> {
     recentProjects: IProject[];
@@ -68,21 +69,15 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
     public state: IHomePageState = {
         cloudPickerOpen: false
     };
-
+    private homeProjectViewRef: React.RefObject<HomeProjectView> = React.createRef();
     private filePicker: React.RefObject<FilePicker> = React.createRef();
-    // private newProjectRef = React.createRef<HTMLAnchorElement>();
     private deleteConfirmRef = React.createRef<Confirm>();
     private cloudFilePickerRef = React.createRef<CloudFilePicker>();
     private importConfirmRef: React.RefObject<Confirm> = React.createRef();
 
     public async componentDidMount() {
         this.props.appTitleActions.setTitle("Welcome");
-        // this.newProjectRef.current.focus();
         document.title = strings.homePage.title + " - " + strings.appName;
-    }
-
-    public async componentDidUpdate() {
-        // this.newProjectRef.current.focus();
     }
 
     public render() {
@@ -96,9 +91,9 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                                 className="p-5"
                                 role="button">
                                 <FontIcon iconName="ContactCard" className="icon-7x" />
-                                <div className="title">Use prebuilt model to get data</div>
-                                <div className="description">Start with a pre-build model for forms link receipts or business cards. Submit your data and get result right away.</div>
-                                <div className="quickstart"><FontIcon iconName="Rocket" />Quick start guide</div>
+                                <div className="title">{strings.homePage.prebuiltPredict.title}</div>
+                                <div className="description">{strings.homePage.prebuiltPredict.description}</div>
+                                <div className="quickstart"><FontIcon iconName="Rocket" />{strings.homePage.quickStartGuide}</div>
                             </a>
                         </li>
                         <li>
@@ -106,11 +101,11 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                                 role="button"
                                 className="p-5">
                                 <FontIcon iconName="Table" className="icon-7x" />
-                                <div className="title">Use Layout to get text and tables</div>
+                                <div className="title">{strings.homePage.layoutPredict.title}</div>
                                 <div className="description">
-                                    Form recognizer can extract text and table structure using high-definition optical character recgnition(OCR).
+                                    {strings.homePage.layoutPredict.description}
                                 </div>
-                                <div className="quickstart"><FontIcon iconName="Rocket" />Quick start guide</div>
+                                <div className="quickstart"><FontIcon iconName="Rocket" />{strings.homePage.quickStartGuide}</div>
                             </a>
                         </li>
                         <li>
@@ -118,21 +113,13 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                                 role="button"
                                 className="p-5">
                                 <FontIcon iconName="AddTo" className="icon-7x" />
-                                <div className="title">Train and use a model with labels</div>
+                                <div className="title">{strings.homePage.trainWithLabels.title}</div>
                                 <div className="description">
-                                    You provide your own training data and do the learning. The model you create can train to your industry-specific forms.
+                                    {strings.homePage.trainWithLabels.description}
                                 </div>
-                                <div className="quickstart"><FontIcon iconName="Rocket" />Quick start guide</div>
+                                <div className="quickstart"><FontIcon iconName="Rocket" />{strings.homePage.quickStartGuide}</div>
                             </a>
                         </li>
-                        {/* <li>
-                            <a ref={this.newProjectRef}
-                                id="home_newProject"
-                                href="#" onClick={this.createNewProject} className="p-5 new-project skipToMainContent" role="button">
-                                <FontIcon iconName="AddTo" className="icon-7x" />
-                                <div>{strings.homePage.newProject}</div>
-                            </a>
-                        </li> */}
                         {isElectron() &&
                             <li>
                                 <a href="#" className="p-5 file-upload"
@@ -147,14 +134,6 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                                 />
                             </li>
                         }
-                        {/* <li>
-                            <a href="#" onClick={this.handleOpenCloudProjectClick}
-                                className="p-5 cloud-open-project" role="button">
-                                <FontIcon iconName="Cloud" className="icon-7x" />
-                                <div>{strings.homePage.openCloudProject.title}</div>
-                            </a>
-
-                        </li> */}
                         <CloudFilePicker
                             ref={this.cloudFilePickerRef}
                             connections={this.props.connections}
@@ -171,9 +150,9 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                             <span className="title">{strings.homePage.newProject}</span>
                         </div>
                         <div className="app-homepage-open-cloud-project" role="button"
-                            onClick={this.onOpenCloudProjectClicked}>
+                            onClick={this.onOpenCloudProjectClick}>
                             <FontIcon iconName="Cloud" className="icon" />
-                            <span className="title">Open Cloud Project</span>
+                            <span className="title">{strings.homePage.openCloudProject.title}</span>
                         </div>
                         <CondensedList
                             title={strings.homePage.recentProjects}
@@ -189,6 +168,18 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                     confirmButtonTheme={getPrimaryRedTheme()}
                     onConfirm={this.deleteProject} />
 
+                <HomeProjectView
+                    ref={this.homeProjectViewRef}
+                    recentProjects={this.props.recentProjects}
+                    connections={this.props.connections}
+                    createNewProject={this.createNewProject}
+                    onProjectFileUpload={this.onProjectFileUploadError}
+                    onProjectFileUploadError={this.onProjectFileUploadError}
+                    onOpenCloudProjectClick={this.onOpenCloudProjectClick}
+                    loadSelectedProject={this.loadSelectedProject}
+                    freshLoadSelectedProject={this.freshLoadSelectedProject}
+                    deleteProject={this.deleteProject}
+                />
             </div>
         );
     }
@@ -209,11 +200,11 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
     }
 
     private onTrainAndUseAModelWithLables = () => {
-        // this.modelWithLabelsViewRef.current.open();
-        // todo:
+        this.homeProjectViewRef.current.open();
     }
 
-    private onOpenCloudProjectClicked = () => {
+    private onOpenCloudProjectClick = () => {
+        this.homeProjectViewRef.current.close();
         this.cloudFilePickerRef.current.open();
     }
 

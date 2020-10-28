@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import LocalizedStrings, { LocalizedStringsMethods } from "react-localization";
-import { english } from "./localization/en-us";
-import { spanish } from "./localization/es-cl";
+import LocalizedStrings, {LocalizedStringsMethods} from "react-localization";
+import {english} from "./localization/en-us";
+import {spanish} from "./localization/es-cl";
 
 /**
  * Interface for all required strings in application
@@ -57,6 +57,22 @@ export interface IAppStrings {
         messages: {
             deleteSuccess: string,
         },
+        homeProjectView: {
+            title: string,
+        },
+        prebuiltPredict: {
+            title: string;
+            description: string;
+        }
+        layoutPredict: {
+            title: string;
+            description: string;
+        }
+        trainWithLabels: {
+            title: string;
+            description: string;
+        }
+        quickStartGuide: string;
     };
     appSettings: {
         title: string,
@@ -218,12 +234,12 @@ export interface IAppStrings {
             message: string
         },
     };
-    prebuiltPredict:{
-        title:string;
+    prebuiltPredict: {
+        title: string;
         defaultLocalFileInput: string,
         defaultURLInput: string,
-        uploadFile:string,
-        inProgress:string,
+        uploadFile: string,
+        inProgress: string,
     }
     recentModelsView: {
         header: string;
@@ -609,7 +625,7 @@ interface IErrorMetadata {
     message: string,
 }
 
-interface IStrings extends LocalizedStringsMethods, IAppStrings { }
+interface IStrings extends LocalizedStringsMethods, IAppStrings {}
 
 export const strings: IStrings = new LocalizedStrings({
     en: english,
@@ -623,7 +639,7 @@ export const strings: IStrings = new LocalizedStrings({
  * @param json JSON object containing variable placeholders
  */
 export function addLocValues(json: any) {
-    return interpolateJson(json, { strings });
+    return interpolateJson(json, {strings});
 }
 
 /**

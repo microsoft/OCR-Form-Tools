@@ -76,3 +76,81 @@
     }
 }
 
+
+.homepage-modal {
+    z-index: 10!important;
+    .modal-container {
+        height: 90vh !important;
+        width: calc(100% - 32px) !important;
+        max-width: calc(100% - 32px) !important;
+        display: flex;
+        padding: 0 !important;
+
+        .modal-content {
+            flex: 1;
+            display: flex;
+            .header {
+                display: flex;
+                .title {
+                    margin-left: 1em;
+                    flex: 1;
+                }
+
+                .close-button {
+                    color: "white";
+                }
+            }
+            .body {
+                flex: 1;
+                overflow-y: hidden;
+                display: flex;
+                .modal-left {
+                    flex: 1;
+                    display: flex;
+                    ul {
+                        display: flex;
+                        flex-direction: row;
+                        align-items: stretch;
+                        justify-content: space-around;
+                        margin: auto;
+                        padding: 0;
+                        li {
+                            list-style-type: none;
+                            text-align: center;
+                            min-width: 24%;
+                            a {
+                                display: inline-block;
+                                .title {
+                                    max-width: 12em;
+                                    margin: auto;
+                                    font-size: 1.3em;
+                                    font-weight: bold;
+                                    color: white;
+                                    text-align: center;
+                                    margin-bottom: 1em;
+                                }
+                                &.active,
+                                &:hover {
+                                    color: #fff;
+                                    background-color: $lighter-2;
+                                    text-decoration: none;
+                                    flex-wrap: wrap;
+                                }
+                            }
+                            .description {
+                                font-size: 1em;
+                                color: $lighter-5;
+                            }
+                        }
+                    }
+                }
+                .modal-right {
+                    flex-basis: 20vw;
+                    min-width: 250px;
+                    max-width: 300px;
+                    overflow-y: auto;
+                }
+            }
+        }
+    }
+}
