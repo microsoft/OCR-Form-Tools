@@ -23,6 +23,14 @@
       "unicode": "F331"
     },
     {
+      "name": "AutoEnhanceOff",
+      "unicode": "E78E"
+    },
+    {
+      "name": "AutoEnhanceOn",
+      "unicode": "E78D"
+    },
+    {
       "name": "AzureAPIManagement",
       "unicode": "F37F"
     },
