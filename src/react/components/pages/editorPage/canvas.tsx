@@ -1390,7 +1390,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const intersectionResult = _.intersection(selectedRegions, regions);
             if (intersectionResult.length === 0) {
                 const relatedLabels = labels.find(label => selectedRegions.find(sr => sr.tags.find(t => t === label.label)));
-                const originLabel = this.props.selectedAsset!.labelData!.labels.find(a => a.label === relatedLabels.label);
+                const originLabel = this.props.selectedAsset!.labelData?.labels?.find(a => a.label === relatedLabels.label);
                 if (relatedLabels&&originLabel&&relatedLabels.confidence) {
                     delete relatedLabels.confidence;
                     relatedLabels.revised = true;
@@ -1409,8 +1409,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             region.tags.forEach((tag) => {
                 const label = labels.find(label => label.label === tag);
                 if (label) {
-                    const originLabel = this.props.selectedAsset!.labelData!.labels.find(a=>a.label === tag);
-                    if (label.confidence && region.changed) {
+                    const originLabel = this.props.selectedAsset!.labelData?.labels?.find(a=>a.label === tag);
+                    if (originLabel&&label.confidence && region.changed) {
                         delete label.confidence;
                         label.revised = true;
                         label.originValue = [...originLabel.value];
