@@ -31,18 +31,18 @@ import ServiceHelper from "../../../../services/serviceHelper";
 import {ImageMap} from "../../common/imageMap/imageMap";
 import {CanvasCommandBar} from "../editorPage/canvasCommandBar";
 import {TableView} from "../editorPage/tableView";
-import {FilePicker} from "./filePicker";
+import {DocumentFilePicker} from "../../common/documentFilePicker/documentFilePicker";
 import {ILoadFileHelper, LoadFileHelper} from "./LoadFileHelper";
-import {IOcrHelper, OcrHelper} from "./ocrHelper";
-import {PrebuiltSetting} from "./prebuiltSetting";
+import {ILayoutHelper, LayoutHelper} from "./layoutHelper";
+import {PrebuiltSetting} from "../../common/prebuiltSetting/prebuiltSetting";
 
-interface ITextTablePageProps extends RouteComponentProps {
+interface ILayoutPredictPageProps extends RouteComponentProps {
     prebuiltSettings: IPrebuiltSettings;
     appTitleActions: IAppTitleActions;
     actions: IAppPrebuiltSettingsActions;
 }
 
-interface ITextTablePageState {
+interface ILayoutPredictPageState {
     layers: any;
 
     imageUri: string;
@@ -64,7 +64,7 @@ interface ITextTablePageState {
     isAnalyzing: boolean;
     analyzationLoaded: boolean;
     fetchedFileURL: string;
-    ocr: any;
+    layoutData: any;
     imageAngle: number;
 
     tableIconTooltip: any;
@@ -87,10 +87,10 @@ function mapDispatchToProps(dispatch) {
 }
 
 @connect(mapStateToProps, mapDispatchToProps)
-export class TextTablePage extends React.Component<Partial<ITextTablePageProps>, ITextTablePageState>{
-    private ocrHelper: IOcrHelper = new OcrHelper();
+export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPageProps>, ILayoutPredictPageState>{
+    private layoutHelper: ILayoutHelper = new LayoutHelper();
 
-    state: ITextTablePageState = {
+    state: ILayoutPredictPageState = {
         imageUri: null,
         imageWidth: 0,
         imageHeight: 0,
@@ -106,7 +106,7 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
         isAnalyzing: false,
         analyzationLoaded: false,
         fetchedFileURL: "",
-        ocr: null,
+        layoutData: null,
         imageAngle: 0,
 
         layers: {text: true, tables: true, checkboxes: true, label: true, drawnRegions: true},
@@ -123,9 +123,9 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
 
     componentDidMount() {
         document.title = strings.prebuiltPredict.title + " - " + strings.appName;
-        this.props.appTitleActions.setTitle(`OCR`);
+        this.props.appTitleActions.setTitle(`Analyze Layout`);
     }
-    componentDidUpdate(_prevProps: ITextTablePageProps, prevState: ITextTablePageState) {
+    componentDidUpdate(_prevProps: ILayoutPredictPageProps, prevState: ILayoutPredictPageState) {
         if (this.state.file) {
             if (!this.state.fileLoaded && !this.state.isFetching) {
                 this.loadFile(this.state.file);
@@ -180,7 +180,7 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
                         <div className="condensed-list">
                             <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
                                 <FontIcon className="mr-1" iconName="Insights" />
-                                <span>Analyze</span>
+                                <span>Analyze Layuot</span>
                             </h6>
                             <PrebuiltSetting prebuiltSettings={this.props.prebuiltSettings}
                                 disabled={this.state.isFetching || this.state.isAnalyzing}
@@ -188,7 +188,7 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
                             />
                             <div className="p-3" style={{marginTop: "8px"}}>
                                 <h5>Upload file and run analysis</h5>
-                                <FilePicker
+                                <DocumentFilePicker
                                     disabled={this.state.isFetching || this.state.isAnalyzing}
                                     onFileChange={(data) => this.onFileChange(data)}
                                     onSelectSourceChange={() => this.onSelectSourceChange()}
@@ -197,7 +197,7 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
                                     <PrimaryButton
                                         theme={getPrimaryWhiteTheme()}
                                         iconProps={{iconName: "Insights"}}
-                                        text="Run analysis"
+                                        text="Run Layout"
                                         aria-label={!this.state.analyzationLoaded ? strings.prebuiltPredict.inProgress : ""}
                                         allowDisabledFocus
                                         disabled={analyzeDisabled}
@@ -224,17 +224,9 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
                                         />
                                     </div>
                                 }
-                                {this.state.ocr && !this.state.isAnalyzing &&
-                                    // <PrimaryButton
-                                    //     className="align-self-end"
-                                    //     theme={getPrimaryGreenTheme()}
-                                    //     text="Download Result"
-                                    //     allowDisabledFocus
-                                    //     autoFocus={true}
-                                    //     onClick={this.triggerDownload}
-                                    // />
+                                {this.state.layoutData && !this.state.isAnalyzing &&
                                     <div className="container-items-center container-space-between results-container">
-                                        <h5 className="results-header">OCR results</h5>
+                                        <h5 className="results-header">Layout results</h5>
                                         <PrimaryButton
                                             className="align-self-end keep-button-80px"
                                             theme={getPrimaryGreenTheme()}
@@ -254,9 +246,9 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
     }
 
     onDownloadClick = () => {
-        const {ocr} = this.state;
-        if (ocr) {
-            downloadAsJsonFile(ocr, this.state.fileLabel, "OCR-");
+        const {layoutData} = this.state;
+        if (layoutData) {
+            downloadAsJsonFile(layoutData, this.state.fileLabel, "Layout-");
         }
     }
 
@@ -267,22 +259,22 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
     }): void {
         this.setState({
             currentPage: 1,
-            ocr: null,
+            layoutData: null,
             ...data,
             analyzationLoaded: false,
             fileLoaded: false,
         }, () => {
-            this.ocrHelper?.reset();
+            this.layoutHelper?.reset();
         });
     }
 
     onSelectSourceChange(): void {
         this.setState({
             file: undefined,
-            ocr: null,
+            layoutData: null,
             analyzationLoaded: false,
         }, () => {
-            this.ocrHelper.reset();
+            this.layoutHelper.reset();
         });
     }
 
@@ -318,13 +310,13 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
                 <ImageMap
                     ref={(ref) => {
                         this.imageMap = ref;
-                        this.ocrHelper.setImageMap(ref);
+                        this.layoutHelper.setImageMap(ref);
                     }}
                     imageUri={this.state.imageUri || ""}
                     imageWidth={this.state.imageWidth}
                     imageHeight={this.state.imageHeight}
                     imageAngle={this.state.imageAngle}
-                    initOcrMap={true}
+                    initLayoutMap={true}
                     hoveringFeature={this.state.hoveringFeature}
                     onMapReady={this.noOp}
                     featureStyler={this.featureStyler}
@@ -396,7 +388,7 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
         if (this.state.hoveringFeature != null) {
             const tableState = this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).get("state");
             if (tableState === "hovering" || tableState === "rest") {
-                this.setTableToView(this.ocrHelper.getTable(this.state.currentPage, this.state.hoveringFeature),
+                this.setTableToView(this.layoutHelper.getTable(this.state.currentPage, this.state.hoveringFeature),
                     this.state.hoveringFeature);
             } else {
                 this.closeTableView("hovering");
@@ -604,22 +596,21 @@ export class TextTablePage extends React.Component<Partial<ITextTablePageProps>,
         this.setState({
             currentPage: targetPage,
         }, () => {
-            this.ocrHelper?.drawOcr(targetPage);
+            this.layoutHelper?.drawLayout(targetPage);
         });
     }
 
     private handleClick = () => {
         this.setState({analyzationLoaded: false, isAnalyzing: true});
         this.getAnalzation()
-            .then((ocr) => {
+            .then((layoutData) => {
                 this.setState({
                     isAnalyzing: false,
                     analyzationLoaded: true,
-                    ocr,
+                    layoutData,
                 }, () => {
-                    this.ocrHelper.setOcr(ocr);
-                    // this.ocrHelper.buildRegionOrders();
-                    this.ocrHelper.drawOcr(this.state.currentPage);
+                    this.layoutHelper.setLayoutData(layoutData);
+                    this.layoutHelper.drawLayout(this.state.currentPage);
                 })
             }).catch((error) => {
                 let alertMessage = "";

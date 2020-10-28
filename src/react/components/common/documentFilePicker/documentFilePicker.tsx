@@ -3,7 +3,7 @@ import React from 'react';
 import {strings} from '../../../../common/strings';
 import {getGreenWithWhiteBackgroundTheme, getPrimaryGreenTheme} from '../../../../common/themes';
 
-interface IFilePickerProps {
+interface IDocumentFilePickerProps {
     disabled: boolean;
     onFileChange?: (data: {
         file: File;
@@ -14,20 +14,18 @@ interface IFilePickerProps {
     onSelectSourceChange?: () => void;
 }
 
-interface IFilePickerState {
+interface IDocumentFilePickerState {
     sourceOption: string;
     invalidFileFormat: boolean;
     inputedLocalFile: string;
-    // fileLabel: string;
     inputedFileURL: string;
     isFetching: boolean;
 }
 
-export class FilePicker extends React.Component<IFilePickerProps, IFilePickerState>{
+export class DocumentFilePicker extends React.Component<IDocumentFilePickerProps, IDocumentFilePickerState>{
     state = {
         sourceOption: "localFile",
         invalidFileFormat: false,
-        // fileLabel: "",
         isFetching: false,
         inputedFileURL: "",
         inputedLocalFile: strings.predict.defaultLocalFileInput,
@@ -167,9 +165,6 @@ export class FilePicker extends React.Component<IFilePickerProps, IFilePickerSta
 
     private setInputedFileURL = (event) => {
         this.setState({inputedFileURL: event.target.value});
-        // if (this.props.onFileUrlChange) {
-        //     this.props.onFileUrlChange(event.target.value);
-        // }
         if (this.props.onFileChange) {
             this.props.onFileChange({
                 file: null,
@@ -213,13 +208,7 @@ export class FilePicker extends React.Component<IFilePickerProps, IFilePickerSta
                     const fileName = fileAsURL.pathname.split("/").pop();
                     const file = new File([blob], fileName, {type: contentType});
                     this.setState({
-                        // fetchedFileURL: this.state.inputedFileURL,
                         isFetching: false,
-                        // currPage: 1,
-                        // analyzeResult: {},
-                        // fileChanged: true,
-                        // file,
-                        // predictRun: false,
                     }, () => {
                         if (this.props.onFileChange) {
                             this.props.onFileChange({
@@ -228,9 +217,6 @@ export class FilePicker extends React.Component<IFilePickerProps, IFilePickerSta
                                 fetchedFileURL: ""
                             });
                         }
-                        // if (this.imageMap) {
-                        //     this.imageMap.removeAllFeatures();
-                        // }
                     });
                 }).catch((error) => {
                     this.setState({

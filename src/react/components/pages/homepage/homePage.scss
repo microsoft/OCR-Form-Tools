@@ -28,6 +28,12 @@
                     display: inline-block;
                     .title {
                         max-width: 12em;
+                        margin: auto;
+                        font-size: 1.3em;
+                        font-weight: bold;
+                        color: white;
+                        text-align: center;
+                        margin-bottom: 1em;
                     }
 
                     &.active,
@@ -37,6 +43,10 @@
                         text-decoration: none;
                         flex-wrap: wrap;
                     }
+                }
+                .description {
+                    font-size: 1em;
+                    color: $lighter-5;
                 }
             }
         }
@@ -65,3 +75,4 @@
         }
     }
 }
+

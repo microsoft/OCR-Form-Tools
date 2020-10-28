@@ -8,7 +8,8 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.versi
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
 
 export interface ILoadFileResult {
-    currPage: number;
+    currentPage: number;
+    numPages: number;
     imageUri: string,
     imageWidth: number,
     imageHeight: number,
@@ -68,7 +69,8 @@ export class LoadFileHelper implements ILoadFileHelper {
         const imageUri = this.createObjectURL(file);
         const canvas = await loadImageToCanvas(imageUri);
         return ({
-            currPage: 1,
+            currentPage: 1,
+            numPages:1,
             imageUri: canvas.toDataURL(constants.convertedImageFormat, constants.convertedImageQuality),
             imageWidth: canvas.width,
             imageHeight: canvas.height,
@@ -99,7 +101,8 @@ export class LoadFileHelper implements ILoadFileHelper {
         const tiffImage = this.tiffImages[pageNumber - 1];
         const canvas = renderTiffToCanvas(tiffImage);
         return ({
-            currPage: pageNumber,
+            currentPage: pageNumber,
+            numPages: this.getPageCount(),
             imageUri: canvas.toDataURL(constants.convertedImageFormat, constants.convertedImageQuality),
             imageWidth: tiffImage.width,
             imageHeight: tiffImage.height,
@@ -159,7 +162,8 @@ export class LoadFileHelper implements ILoadFileHelper {
         const renderTask = page.render(renderContext);
         await renderTask.promise;
         return ({
-            currPage: pageNumber,
+            currentPage: pageNumber,
+            numPages: this.getPageCount(),
             imageUri: canvas.toDataURL(constants.convertedImageFormat, constants.convertedImageQuality),
             imageWidth: canvas.width,
             imageHeight: canvas.height,

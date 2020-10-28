@@ -30,11 +30,11 @@ import Alert from "../../common/alert/alert";
 import {ImageMap} from "../../common/imageMap/imageMap";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import {CanvasCommandBar} from "../editorPage/canvasCommandBar";
-import {FilePicker} from "./filePicker";
+import {DocumentFilePicker} from "../../common/documentFilePicker/documentFilePicker";
 import {ILoadFileHelper, LoadFileHelper} from "./LoadFileHelper";
 import "./prebuiltPredictPage.scss";
 import PrebuiltPredictResult from "./prebuiltPredictResult";
-import {PrebuiltSetting} from "./prebuiltSetting";
+import {PrebuiltSetting} from "../../common/prebuiltSetting/prebuiltSetting";
 
 interface IPrebuiltTypes {
     name: string;
@@ -93,7 +93,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
     private appInsights: any = null;
     prebuiltTypes: IPrebuiltTypes[] = [
         {
-            name: "Peceipt",
+            name: "Receipt",
             servicePath: "/prebuilt/receipt/analyze"
         },
         {
@@ -201,7 +201,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                     <div className="condensed-list">
                         <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
                             <FontIcon className="mr-1" iconName="Insights" />
-                            <span>Analyze</span>
+                            <span>Analyze with pribuilt models</span>
                         </h6>
 
                         <PrebuiltSetting prebuiltSettings={this.props.prebuiltSettings}
@@ -219,7 +219,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                         </div>
                         <div className="p-3" style={{marginTop: "8px"}}>
                             <h5>Upload file and run analysis</h5>
-                            <FilePicker
+                            <DocumentFilePicker
                                 disabled={this.state.isPredicting || this.state.isFetching}
                                 onFileChange={(data) => this.onFileChange(data)}
                                 onSelectSourceChange={() => this.onSelectSourceChange()}

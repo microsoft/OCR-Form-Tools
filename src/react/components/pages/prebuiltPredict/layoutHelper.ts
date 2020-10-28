@@ -3,18 +3,18 @@ import Point from "ol/geom/Point";
 import Polygon from "ol/geom/Polygon";
 import {ImageMap} from "../../common/imageMap/imageMap";
 
-export interface IOcrHelper {
+export interface ILayoutHelper {
     setImageMap(imageMap: ImageMap): void;
-    setOcr(ocr: any): void;
-    drawOcr(targetPage: number): void;
+    setLayoutData(ocr: any): void;
+    drawLayout(targetPage: number): void;
     reset(): void;
     getOcrResultForPage(targetPage: number): any;
     getTable(targetPage: number, hoveringFeature: string): any;
 }
 
-export class OcrHelper implements IOcrHelper {
+export class LayoutHelper implements ILayoutHelper {
     private imageMap: ImageMap;
-    private ocr: any;
+    private layoutData: any;
     private regionOrders: Record<string, number>[] = [];
     private regionOrderById: string[][] = [];
 
@@ -24,13 +24,13 @@ export class OcrHelper implements IOcrHelper {
         this.imageMap = imageMap;
     }
 
-    setOcr(ocr: any) {
-        this.ocr = ocr;
+    setLayoutData(data: any) {
+        this.layoutData = data;
         this.buildRegionOrders();
     }
 
     reset() {
-        this.ocr = null;
+        this.layoutData = null;
         this.regionOrderById = [];
         this.regionOrders = [];
         this.imageMap?.removeAllFeatures();
@@ -41,7 +41,7 @@ export class OcrHelper implements IOcrHelper {
         // 1. Build order index for all pages at once. This allow us to support cross page
         //    tagging if it's supported by FR service.
         // 2. Avoid rebuilding order index when users switch back and forth between pages.
-        const ocrs = this.ocr;
+        const ocrs = this.layoutData;
         const ocrReadResults = (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.readResults));
         const ocrPageResults = (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.pageResults));
         const imageExtent = this.imageMap.getImageExtent();
@@ -73,7 +73,7 @@ export class OcrHelper implements IOcrHelper {
         });
     }
 
-    public drawOcr(targetPage: number) {
+    public drawLayout(targetPage: number) {
         this.imageMap.removeAllFeatures();
 
         const ocrForCurrentPage = this.getOcrResultForPage(targetPage);
@@ -151,16 +151,16 @@ export class OcrHelper implements IOcrHelper {
     }
 
     public getOcrResultForPage = (targetPage: number): any => {
-        if (!this.ocr) {
+        if (!this.layoutData) {
             return {};
         }
-        if (this.ocr.analyzeResult && this.ocr.analyzeResult.readResults) {
+        if (this.layoutData.analyzeResult && this.layoutData.analyzeResult.readResults) {
             // OCR schema with analyzeResult/readResults property
             const ocrResultsForCurrentPage = {};
-            if (this.ocr.analyzeResult.pageResults) {
-                ocrResultsForCurrentPage["pageResults"] = this.ocr.analyzeResult.pageResults[targetPage - 1];
+            if (this.layoutData.analyzeResult.pageResults) {
+                ocrResultsForCurrentPage["pageResults"] = this.layoutData.analyzeResult.pageResults[targetPage - 1];
             }
-            ocrResultsForCurrentPage["readResults"] = this.ocr.analyzeResult.readResults[targetPage - 1];
+            ocrResultsForCurrentPage["readResults"] = this.layoutData.analyzeResult.readResults[targetPage - 1];
             return ocrResultsForCurrentPage;
         }
         return {};

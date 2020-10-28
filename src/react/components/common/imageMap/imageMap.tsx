@@ -41,7 +41,7 @@ interface IImageMapProps {
 
     initEditorMap?: boolean;
     initPredictMap?: boolean;
-    initOcrMap?: boolean;
+    initLayoutMap?: boolean;
 
     enableFeatureSelection?: boolean;
     handleFeatureSelect?: (feature: any, isTaggle: boolean, category: FeatureCategory) => void;
@@ -148,13 +148,13 @@ export class ImageMap extends React.Component<IImageMapProps> {
         } else if (this.props.initPredictMap) {
             this.initPredictMap();
         }
-        else if (this.props.initOcrMap) {
-            this.initOcrMap();
+        else if (this.props.initLayoutMap) {
+            this.initLayoutMap();
         }
     }
 
     public componentDidUpdate(prevProps: IImageMapProps) {
-        if (this.props.initEditorMap || this.props.initOcrMap) {
+        if (this.props.initEditorMap || this.props.initLayoutMap) {
             if (this.props?.drawRegionMode) {
                 this.removeInteraction(this.dragBox);
                 this.initializeDraw();
@@ -589,7 +589,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.initializeDragPan();
     }
 
-    private initOcrMap = () => {
+    private initLayoutMap = () => {
         const projection = this.createProjection(this.imageExtent);
         const layers = this.initializeEditorLayers(projection);
         this.initializeMap(projection, layers);

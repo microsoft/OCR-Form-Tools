@@ -42,6 +42,7 @@ export interface IHomePageProps extends RouteComponentProps, React.Props<HomePag
 
 export interface IHomePageState {
     cloudPickerOpen: boolean;
+    // showModelWithLablesView: boolean;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -65,7 +66,7 @@ function mapDispatchToProps(dispatch) {
 export default class HomePage extends React.Component<IHomePageProps, IHomePageState> {
 
     public state: IHomePageState = {
-        cloudPickerOpen: false,
+        cloudPickerOpen: false
     };
 
     private filePicker: React.RefObject<FilePicker> = React.createRef();
@@ -96,6 +97,8 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                                 role="button">
                                 <FontIcon iconName="ContactCard" className="icon-7x" />
                                 <div className="title">Use prebuilt model to get data</div>
+                                <div className="description">Start with a pre-build model for forms link receipts or business cards. Submit your data and get result right away.</div>
+                                <div className="quickstart"><FontIcon iconName="Rocket" />Quick start guide</div>
                             </a>
                         </li>
                         <li>
@@ -104,14 +107,22 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                                 className="p-5">
                                 <FontIcon iconName="Table" className="icon-7x" />
                                 <div className="title">Use Layout to get text and tables</div>
+                                <div className="description">
+                                    Form recognizer can extract text and table structure using high-definition optical character recgnition(OCR).
+                                </div>
+                                <div className="quickstart"><FontIcon iconName="Rocket" />Quick start guide</div>
                             </a>
                         </li>
                         <li>
-                            <a onClick={this.onTrainAndUseAModelWithoutLables}
+                            <a onClick={this.onTrainAndUseAModelWithLables}
                                 role="button"
                                 className="p-5">
-                                <FontIcon iconName="MachineLearning" className="icon-7x" />
-                                <div className="title">Train and use a model without labels</div>
+                                <FontIcon iconName="AddTo" className="icon-7x" />
+                                <div className="title">Train and use a model with labels</div>
+                                <div className="description">
+                                    You provide your own training data and do the learning. The model you create can train to your industry-specific forms.
+                                </div>
+                                <div className="quickstart"><FontIcon iconName="Rocket" />Quick start guide</div>
                             </a>
                         </li>
                         {/* <li>
@@ -177,6 +188,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                     message={(project: IProject) => `${strings.homePage.deleteProject.confirmation} ${project.name}?`}
                     confirmButtonTheme={getPrimaryRedTheme()}
                     onConfirm={this.deleteProject} />
+
             </div>
         );
     }
@@ -196,9 +208,11 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
         this.props.history.push("/text-and-tables");
     }
 
-    private onTrainAndUseAModelWithoutLables = () => {
-        this.props.history.push("/use-model-without-labels");
+    private onTrainAndUseAModelWithLables = () => {
+        // this.modelWithLabelsViewRef.current.open();
+        // todo:
     }
+
     private onOpenCloudProjectClicked = () => {
         this.cloudFilePickerRef.current.open();
     }

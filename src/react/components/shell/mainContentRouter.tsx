@@ -12,7 +12,7 @@ import ProjectSettingsPage from "../pages/projectSettings/projectSettingsPage";
 import ModelComposePage from "../pages/modelCompose/modelCompose";
 import { PredictPageRoute } from './preditcPageRoute';
 import PrebuiltPredictPage from "../pages/prebuiltPredict/prebuiltPredictPage";
-import {TextTablePage} from "../pages/prebuiltPredict/textTablePage";
+import {LayoutPredictPage} from "../pages/prebuiltPredict/layoutPredictPage";
 
 
 /**
@@ -35,7 +35,7 @@ export function MainContentRouter() {
                 <Route path="/projects/:projectId/predict" />
                 <Route path="/projects/:projectId/settings" component={ProjectSettingsPage} />
                 <Route path="/prebuilts-predict" component={PrebuiltPredictPage}/>
-                <Route path="/text-and-tables" component={TextTablePage}/>
+                <Route path="/text-and-tables" component={LayoutPredictPage}/>
                 <Route component={HomePage} />
             </Switch>
             <PredictPageRoute />
