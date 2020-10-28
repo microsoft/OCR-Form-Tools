@@ -425,7 +425,6 @@ describe("Editor Page Component", () => {
             await waitForSelectedAsset(wrapper);
 
             const tagToDelete = project.tags[project.tags.length - 1];
-            wrapper.find(TagInput).props().onTagDeleted(tagToDelete.name);
 
             // Accept the modal delete warning
             wrapper.update();

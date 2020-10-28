@@ -323,6 +323,15 @@ export interface ITableField extends IField {
     tableTypeAndFormatFor: TableHeaderTypeAndFormat;
 }
 
+export interface ITableConfigItem {
+    name: string,
+    format: string,
+    type: string;
+    originalName?: string;
+    originalFormat?: string,
+    originalType?: string;
+}
+
 export interface IFieldInfo {
     fields: IField[],
 }

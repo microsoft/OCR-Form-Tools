@@ -13,7 +13,7 @@ import { strings, interpolate } from "../../../../common/strings";
 import {
     AssetState, AssetType, EditorMode, FieldType,
     IApplicationState, IAppSettings, IAsset, IAssetMetadata,
-    ILabel, IProject, IRegion, ISize, ITag, FeatureCategory, TagInputMode, FieldFormat, ITableTag, ITableRegion, AssetLabelingState
+    ILabel, IProject, IRegion, ISize, ITag, FeatureCategory, TagInputMode, FieldFormat, ITableTag, ITableRegion, AssetLabelingState, ITableConfigItem
 } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -379,7 +379,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                         ref={this.reconfigTableConfirm}
                                         message={strings.tags.regionTableTags.confirm.reconfigure.message}
                                         confirmButtonTheme={getPrimaryBlueTheme()}
-                                        onConfirm={()=> {this.setState({tagInputMode: TagInputMode.LabelTable}, () => this.resizeCanvas()); this.resizeCanvas(); }}
+                                        onConfirm={this.reconfigureTable}
                                     />
 
                             </div>
@@ -838,10 +838,21 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             await this.props.actions.saveProject(this.props.project, false, false);
         });
     }
-
-    private reconfigureTableConfirm = () => {
+    private reconfigureTableConfirm = (tagName: string, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => {
+        console.log(tagName, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
         this.setState({ reconfigureTableConfirm: true });
-        this.reconfigTableConfirm.current.open();
+        this.reconfigTableConfirm.current.open(tagName, FieldType.Table, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
+    }
+
+    private reconfigureTable = async (tagName: string, tagType: FieldType, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => {
+        console.log(tagName, tagType, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
+        const assetUpdates = await this.props.actions.reconfigureTableTag(this.props.project, tagName, tagType, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
+        const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
+        if (selectedAsset) {
+            this.setState({ selectedAsset });
+        }
+        this.setState({tagInputMode: TagInputMode.LabelTable}, () => this.resizeCanvas());
+        this.resizeCanvas();
     }
 
     private loadProjectAssets = async (): Promise<void> => {

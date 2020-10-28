@@ -223,8 +223,7 @@ describe("Asset Service", () => {
 
             const project = populateProjectAssets();
             const assetService = new AssetService(project);
-            const assetUpdates = await assetService.deleteTag(tag1);
-
+            const assetUpdates = null;
             expect(assetUpdates).toHaveLength(1);
             expect(assetUpdates[0]).toEqual(expectedAssetMetadata);
         });
@@ -242,7 +241,7 @@ describe("Asset Service", () => {
             const expectedAssetMetadata: IAssetMetadata = MockFactory.createTestAssetMetadata(asset, []);
             const project = populateProjectAssets();
             const assetService = new AssetService(project);
-            const assetUpdates = await assetService.deleteTag(tag1);
+            const assetUpdates = null;
 
             expect(assetUpdates).toHaveLength(1);
             expect(assetUpdates[0]).toEqual(expectedAssetMetadata);

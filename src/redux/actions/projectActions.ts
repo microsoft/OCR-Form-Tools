@@ -15,13 +15,15 @@ import {
     ITag,
     ISecurityToken,
     FieldType,
-    FieldFormat
+    FieldFormat, ITableConfigItem, ITableTag, IField
 } from "../../models/applicationState";
 import { createAction, createPayloadAction, IPayloadAction } from "./actionCreators";
 import { appInfo } from "../../common/appInfo";
 import { saveAppSettingsAction } from "./applicationActions";
 import { toast } from 'react-toastify';
 import { strings, interpolate } from "../../common/strings";
+import clone from "rfdc";
+
 
 /**
  * Actions to be performed in relation to projects
@@ -40,6 +42,7 @@ export default interface IProjectActions {
     deleteProjectTag(project: IProject, tagName: string, tagType: FieldType, tagFormat: FieldFormat): Promise<IAssetMetadata[]>;
     updateProjectTagsFromFiles(project: IProject, asset?: string): Promise<void>;
     updatedAssetMetadata(project: IProject, assetDocumentCountDifference: any): Promise<void>;
+    reconfigureTableTag?(project: IProject, tagName: string, tagType: FieldType, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]): Promise<IAssetMetadata[]>;
 }
 
 /**
@@ -332,6 +335,57 @@ export function deleteProjectTag(project: IProject, tagName: string, tagType: Fi
         return assetUpdates;
     };
 }
+
+export function reconfigureTableTag(project: IProject, tagName: string, tagType: FieldType, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[])
+    : (dispatch: Dispatch, getState: () => IApplicationState) => Promise<IAssetMetadata[]> {
+        return async (dispatch: Dispatch, getState: () => IApplicationState) => {
+            console.log(project, tagName, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
+            // Find tags to rename
+            const assetService = new AssetService(project);
+            const assetUpdates = await assetService.refactorTableTag(tagName, tagType, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
+
+            // Save updated assets
+            await assetUpdates.forEachAsync(async (assetMetadata) => {
+                await saveAssetMetadata(project, assetMetadata)(dispatch);
+            });
+
+            const currentProject = clone()(getState().currentProject);
+            const updatedProject = {
+                ...currentProject,
+                tags: currentProject.tags.reduce((result, tag) => {
+                    if (tag.name === tagName) {
+                        (tag as ITableTag).rowKeys = newRows.map((newRow) => {
+                            return {
+                                fieldKey: newRow.name,
+                                fieldType: newRow.type,
+                                fieldFormat: newRow.format
+                            } as IField
+                        });
+                        (tag as ITableTag).columnKeys = newColumns.map((newColumn) => {
+                            return {
+                                fieldKey: newColumn.name,
+                                fieldType: newColumn.type,
+                                fieldFormat: newColumn.format
+                            } as IField
+                        });
+                        result.push(tag);
+                        return result;
+                    } else {
+                        return result;
+                    }
+                }, [])
+            };
+
+            console.log(updatedProject);
+
+            // Save updated project tags
+            await saveProject(updatedProject, true, false)(dispatch, getState);
+            dispatch(deleteProjectTagAction(updatedProject));
+
+            return assetUpdates;
+        };
+    }
+
 
 /**
  * Load project action type

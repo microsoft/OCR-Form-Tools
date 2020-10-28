@@ -5,7 +5,7 @@ import _ from "lodash";
 import Guard from "../common/guard";
 import {
     IAsset, AssetType, IProject, IAssetMetadata, AssetState,
-    ILabelData, ILabel, AssetLabelingState, FieldType, FieldFormat
+    ILabelData, ILabel, AssetLabelingState, FieldType, FieldFormat, ITableConfigItem, ITableRegion, ITableCellLabel
 } from "../models/applicationState";
 import { AssetProviderFactory, IAssetProvider } from "../providers/storage/assetProviderFactory";
 import { StorageProviderFactory, IStorageProvider } from "../providers/storage/storageProviderFactory";
@@ -476,6 +476,68 @@ export class AssetService {
         return await this.getUpdatedAssets(tagName, tagType, tagFormat, transformer, labelTransformer);
     }
 
+    public async refactorTableTag(tagName: string, tagType: FieldType, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]): Promise<IAssetMetadata[]> {
+        console.log(tagName, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
+        const transformer = (tagNames, columnKey, rowKey) => {
+            console.log("transformer", tagNames, columnKey, rowKey)
+            let newTags = tagNames;
+            let newColumnKey = columnKey;
+            let newRowKey = rowKey;
+            if (tagNames[0] === tagName) {
+                const hasDeletedRowOrKey = deletedColumns.find((deletedColumn) => deletedColumn.originalName === columnKey) || deletedRows.find((deletedRow) => deletedRow.originalName === rowKey);
+                if (hasDeletedRowOrKey) {
+                    newTags = [];
+                    newColumnKey = undefined;
+                    newRowKey = undefined
+                    return {newTags, newColumnKey, newRowKey}
+                }
+                const columnRenamed = newColumns.find((newColumn) => newColumn.originalName === columnKey && newColumn.originalName !== newColumn.name)
+                const rowRenamed = newRows.find((newRow) => newRow.originalName === rowKey && newRow.originalName !== newRow.name)
+                if (columnRenamed) {
+                    console.log("transformer column renamed", columnRenamed)
+                    newColumnKey = columnRenamed.name;
+                }
+                if (rowRenamed) {
+                    newRowKey = rowRenamed.name
+                }
+            }
+            return {newTags, newColumnKey, newRowKey}
+        }
+        const labelTransformer = (labelData: ILabelData) => {
+            labelData.tableLabels = labelData.tableLabels.map((tableLabel) => {
+                if (tableLabel.tableKey === tagName) {
+                    const zz = {
+                        tableKey: tableLabel.tableKey,
+                        labels: tableLabel.labels.reduce((result, label) => {
+                            console.log("transformer", result, label)
+                            console.log("transformer", newColumns)
+                            const hasDeletedRowOrKey = deletedColumns.find((deletedColumn) => deletedColumn.originalName === label.columnKey) || deletedRows.find((deletedRow) => deletedRow.originalName === label.rowKey);
+                            if (hasDeletedRowOrKey) {
+                                return result
+                            }
+                            const columnRenamed = newColumns.find((newColumn) => newColumn.originalName === label.columnKey && newColumn.originalName !== newColumn.name)
+                            const rowRenamed = newRows.find((newRow) => newRow.originalName === label.rowKey && newRow.originalName !== newRow.name)
+                            console.log("transformer column renamed", columnRenamed)
+                            const newLabel = {
+                                value: label.value,
+                                columnKey: columnRenamed?.name || label.columnKey,
+                                rowKey: rowRenamed?.name|| label.rowKey
+                            } as ITableCellLabel;
+                            result.push(newLabel);
+                            return result;
+                        }, [])
+                    }
+                    console.log(zz)
+                    return zz
+                } else {
+                    return tableLabel;
+                }
+            });
+            return labelData;
+        };
+        return await this.getUpdatedAssetsAfterReconfigure(tagName, tagType, tagFormat, transformer, labelTransformer);
+    }
+
     /**
      * Rename a tag within asset metadata files
      * @param tagName Name of tag to rename
@@ -511,6 +573,25 @@ export class AssetService {
 
             return isUpdated ? assetMetadata : null;
         });
+
+        return updates.filter((assetMetadata) => !!assetMetadata);
+    }
+
+    private async getUpdatedAssetsAfterReconfigure(
+        tagName: string,
+        tagType: FieldType,
+        tagFormat: FieldFormat,
+        transformer: (tags: string[], columnKey: string, rowKey: string) => any,
+        labelTransformer: (label: ILabelData) => ILabelData)
+        : Promise<IAssetMetadata[]> {
+        // Loop over assets and update if necessary
+        const updates = await _.values(this.project.assets).mapAsync(async (asset) => {
+            const assetMetadata = await this.getAssetMetadata(asset);
+            const isUpdated = this.reconfigureTableTagInAssetMetadata(assetMetadata, tagName, tagType, tagFormat, transformer, labelTransformer);
+
+            return isUpdated ? assetMetadata : null;
+        });
+        console.log(updates);
 
         return updates.filter((assetMetadata) => !!assetMetadata);
     }
@@ -555,6 +636,50 @@ export class AssetService {
                 }
             }
         }
+
+        if (foundTag) {
+            assetMetadata.regions = assetMetadata.regions.filter((region) => region.tags.length > 0);
+            assetMetadata.asset.state = _.get(assetMetadata, "labelData.labels.length") ||  _.get(assetMetadata, "labelData.tableLabels.length")
+                ? AssetState.Tagged : AssetState.Visited;
+            return true;
+        }
+
+        return false;
+    }
+
+    private reconfigureTableTagInAssetMetadata (
+        assetMetadata: IAssetMetadata,
+        tagName: string,
+        tagType: FieldType,
+        tagFormat: FieldFormat,
+        transformer: any,
+        labelTransformer: (labelData: ILabelData) => ILabelData): boolean {
+        let foundTag = false;
+        console.log("start of asset service refactor")
+        console.log(assetMetadata);
+        console.log("before regions", assetMetadata.regions)
+        for (const region of assetMetadata.regions) {
+            if (region.tags.find((t) => t === tagName)) {
+                foundTag = true;
+                const {newTags, newColumnKey, newRowKey} = transformer((region as ITableRegion).tags, (region as ITableRegion).columnKey, (region as ITableRegion).rowKey);
+                region.tags = newTags;
+                (region as ITableRegion).columnKey = newColumnKey;
+                (region as ITableRegion).rowKey = newRowKey;
+            }
+        }
+        console.log("after regions", assetMetadata.regions)
+        console.log("assetMetaData before label transformer", assetMetadata.labelData);
+
+            if (assetMetadata.labelData && assetMetadata.labelData.tableLabels) {
+                const field = assetMetadata.labelData.tableLabels.find((field) => field.tableKey === tagName);
+                if (field) {
+                    foundTag = true;
+                    assetMetadata.labelData = labelTransformer(assetMetadata.labelData);
+                    console.log("assetMetaData after label transformer", assetMetadata.labelData);
+                }
+            }
+
+        console.log("final asset metadata", assetMetadata)
 
         if (foundTag) {
             assetMetadata.regions = assetMetadata.regions.filter((region) => region.tags.length > 0);

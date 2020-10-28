@@ -16,7 +16,7 @@ interface ITableTagConfigProps {
     addTableTag: (table: any) => void;
     splitPaneWidth: number;
     tableTag?: ITableTag;
-    reconfigureTableConfirm?: () => void;
+    reconfigureTableConfirm?: (tagName: string, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => void;
     selectedTableBody: ITableRegion[][][];
 }
 
@@ -555,15 +555,15 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         return array.map(i => ({ ...i, name: i.name.trim() }));
     }
 
-    function save(rows: ITableConfigItem[], columns: ITableConfigItem[]) {
+    function save(cleanTableName: string, cleanRows: ITableConfigItem[], cleanColumns: ITableConfigItem[]) {
         const tableTagToAdd = {
-            name: tableTagName.tableName.trim(),
-            columns: trimFieldNames(columns),
+            name: cleanTableName,
+            columns: cleanColumns,
             format,
             headersFormatAndType
         }
         if (format === FieldFormat.Fixed) {
-            tableTagToAdd[TableElements.rows] = trimFieldNames(rows);
+            tableTagToAdd[TableElements.rows] = cleanRows;
         }
         addTableTag(tableTagToAdd);
         setTagInputMode(TagInputMode.Basic, null, null);
@@ -576,11 +576,11 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
 
 
-    function resetTypAndFormatAndSave(headersFormatAndType) {
-        let newRows = rows;
-        let newColumns = columns;
+    function getCleanTable() {
+        let cleanRows = rows;
+        let cleanColumns = columns;
         if (headersFormatAndType === TableElements.columns) {
-            newRows = rows.map((row) => {
+            cleanRows = rows.map((row) => {
                 return {
                     ...row,
                     type: FieldType.String,
@@ -588,13 +588,19 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 }
             });
         } else if (headersFormatAndType === TableElements.rows) {
-            newColumns = columns.map((col) => ({
+            cleanColumns = columns.map((col) => ({
                 ...col,
                 type: FieldType.String,
                 format: FieldFormat.NotSpecified
             }));
         }
-        save(newRows, newColumns);
+        cleanColumns = trimFieldNames(columns);
+        if (format === FieldFormat.Fixed) {
+            cleanRows = trimFieldNames(rows);
+        }
+        const cleanTableName = tableTagName.tableName.trim();
+        // const cleanOriginalTableName = tableTagName?.originalTableName?.trim();
+        return { cleanTableName, cleanRows, cleanColumns };
     }
 
     function validateInput() {
@@ -977,21 +983,26 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                                 toast.error(strings.tags.regionTableTags.configureTag.errors.checkFields, { autoClose: 8000 });
                                 return;
                             } else {
+                                const { cleanTableName, cleanRows, cleanColumns} = getCleanTable();
                                 if (props.tableTag) {
-
-                                    // const deletedColumnHeaders = getDeletedColumnHeaders();
-                                    // const renamedColumnHeaders = getRenamedColumnHeaders();
-                                    // const deletedRowHeaders = getDeletedRowHeaders();
-                                    // const renamedRowHeaders = getRenamedRowHeaders();
-                                    // console.log(deletedColumnHeaders);
-                                    // console.log(renamedColumnHeaders);
-                                    // console.log(deletedRowHeaders);
-                                    // console.log(renamedRowHeaders);
-                                    props.reconfigureTableConfirm();
-                                    console.log(deletedRows)
-                                    console.log(deletedColumns)
+                                    const tableTagToReconfigure = {
+                                        name: cleanTableName,
+                                        columns: cleanColumns,
+                                        deletedColumns,
+                                        headersFormatAndType
+                                    }
+                                    if (format === FieldFormat.Fixed) {
+                                        tableTagToReconfigure[TableElements.rows] = cleanRows;
+                                        tableTagToReconfigure["deletedRows"] = deletedRows;
+                                        tableTagToReconfigure["format"] = FieldFormat.Fixed
+                                    } else {
+                                        tableTagToReconfigure[TableElements.rows] = null;
+                                        tableTagToReconfigure["deletedRows"] = null;
+                                        tableTagToReconfigure["format"] = FieldFormat.RowDynamic
+                                    }
+                                    props.reconfigureTableConfirm(tableTagName?.originalTableName?.trim(), tableTagToReconfigure["format"], deletedColumns, deletedRows, tableTagToReconfigure["rows"], tableTagToReconfigure.columns);
                                 } else {
-                                    resetTypAndFormatAndSave(headersFormatAndType);
+                                    save(cleanTableName, cleanRows, cleanColumns);
                                 }
                             }
                         }

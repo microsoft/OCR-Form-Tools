@@ -18,7 +18,7 @@ import { strings, interpolate } from "../../../../common/strings";
 import { getDarkTheme } from "../../../../common/themes";
 import { AlignPortal } from "../align/alignPortal";
 import { filterFormat, getNextColor } from "../../../../common/utils";
-import { IRegion, ITag, ILabel, FieldType, FieldFormat, IField, TagInputMode, FeatureCategory, ITableTag, TableHeaderTypeAndFormat, ITableRegion } from "../../../../models/applicationState";
+import { IRegion, ITag, ILabel, FieldType, FieldFormat, IField, TagInputMode, FeatureCategory, ITableTag, ITableRegion, ITableConfigItem } from "../../../../models/applicationState";
 import { ColorPicker } from "../colorPicker";
 import "./tagInput.scss";
 import "../condensedList/condensedList.scss";
@@ -86,7 +86,7 @@ export interface ITagInputProps {
     selectedTableTagToLabel: ITableTag;
     handleLabelTable: (tagInputMode: TagInputMode, selectedTableTagToLabel) => void;
     addRowToDynamicTable: () => void;
-    reconfigureTableConfirm: () => void;
+    reconfigureTableConfirm: (tagName: string, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => void;
     handleTableCellClick: (iTableCellIndex, jTableCellIndex) => void;
     selectedTableTagBody: ITableRegion[][][];
     splitPaneWidth: number;
