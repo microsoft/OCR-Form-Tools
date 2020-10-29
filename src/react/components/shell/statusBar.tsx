@@ -2,16 +2,29 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { FontIcon } from "@fluentui/react";
-import { constants } from "../../../common/constants";
+import {FontIcon} from "@fluentui/react";
+import {constants} from "../../../common/constants";
+import axios from 'axios';
 import "./statusBar.scss";
 import { IProject } from "../../../models/applicationState";
-
 export interface IStatusBarProps {
     project: IProject;
 }
+interface IStatusBarState {
+    commitHash?: string;
+}
+export class StatusBar extends React.Component<IStatusBarProps, IStatusBarState> {
+    componentDidMount() {
+        const commitInfoUrl = require("../../../git-commit-info.txt");
+        axios.get(commitInfoUrl).then(res => {
+            // match the git commit hash
+            const commitHash = /commit ([0-9a-fA-F]{8})/.exec(res.data)[1];
+            this.setState({commitHash});
+        });
+    }
 
-export class StatusBar extends React.Component<IStatusBarProps> {
+
+// export class StatusBar extends React.Component<IStatusBarProps> {
     public render() {
         return (
             <div className="status-bar">
@@ -29,7 +42,7 @@ export class StatusBar extends React.Component<IStatusBarProps> {
                         <li>
                             <a href="https://github.com/microsoft/OCR-Form-Tools/blob/master/CHANGELOG.md" target="blank" rel="noopener noreferrer">
                                 <FontIcon iconName="BranchMerge" />
-                                <span>{constants.appVersionRaw}-1f33130</span>
+                                <span>{constants.appVersion}-{this.state?.commitHash}</span>
                             </a>
                         </li>
                     </ul>

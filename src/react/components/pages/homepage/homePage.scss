@@ -43,6 +43,12 @@
                         text-decoration: none;
                         flex-wrap: wrap;
                     }
+                    .quickstart{
+                        line-height: 2em;
+                        .ms-Icon{
+                            margin: 5px;
+                        }
+                    }
                 }
                 .description {
                     font-size: 1em;

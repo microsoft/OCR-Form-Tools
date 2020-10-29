@@ -96,6 +96,7 @@ export interface IEditorPageState {
     errorMessage?: string;
     tableToView: object;
     tableToViewId: string;
+    pageNumber: number;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -132,6 +133,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         hoveredLabel: null,
         tableToView: null,
         tableToViewId: null,
+        pageNumber: 1
     };
 
     private tagInputRef: RefObject<TagInput>;
@@ -278,6 +280,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             setTableToView={this.setTableToView}
                                             closeTableView={this.closeTableView}
                                             runOcrForAllDocs={this.loadOcrForNotVisited}
+                                            onPageLoaded={this.onPageLoaded}
                                             runAutoLabelingOnNextBatch={this.runAutoLabelingOnNextBatch}
                                             appSettings={this.props.appSettings}
                                         >
@@ -296,6 +299,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     lockedTags={this.state.lockedTags}
                                     selectedRegions={this.state.selectedRegions}
                                     labels={labels}
+                                    pageNumber={this.state.pageNumber}
                                     onChange={this.onTagsChanged}
                                     onLockedTagsChange={this.onLockedTagsChanged}
                                     onTagClick={this.onTagClicked}
@@ -627,6 +631,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         await this.props.actions.saveProject(project, true, false);
     }
 
+    private onPageLoaded = async (pageNumber: number) => {
+        this.setState({ pageNumber });
+    }
+
     private onLockedTagsChanged = (lockedTags: string[]) => {
         this.setState({ lockedTags });
     }
@@ -753,7 +761,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             }
         }
     }
-    private runAutoLabelingOnNextBatch = async () => {
+    private runAutoLabelingOnNextBatch = async (batchSize: number) => {
         if (this.isBusy()) {
             return;
         }
@@ -764,7 +772,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         if (this.state.assets) {
             this.setState({ isRunningAutoLabelings: true });
             const unlabeledAssetsBatch = [];
-            for (let i = 0; i < this.state.assets.length && unlabeledAssetsBatch.length < constants.autoLabelBatchSize; i++) {
+            for (let i = 0; i < this.state.assets.length && unlabeledAssetsBatch.length < batchSize; i++) {
                 const asset = this.state.assets[i];
                 if (asset.state === AssetState.NotVisited || asset.state === AssetState.Visited) {
                     unlabeledAssetsBatch.push(asset);

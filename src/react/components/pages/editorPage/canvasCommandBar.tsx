@@ -15,7 +15,7 @@ interface ICanvasCommandBarProps {
     handleRunOcr?: () => void;
     handleRunOcrForAllDocuments?: () => void;
     handleRunAutoLabelingOnCurrentDocument?: () => void;
-    handleRunAutoLabelingForRestDocuments?: () => void;
+    handleRunAutoLabelingOnMultipleUnlabeledDocuments?: () => void;
     handleLayerChange?: (layer: string) => void;
     handleToggleDrawRegionMode?: () => void;
     handleAssetDeleted?: () => void;
@@ -164,11 +164,9 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
     if (props.showActionMenu) {
         commandBarFarItems.push({
             key: "additionalActions",
+            text: "Actions",
             title: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.text,
-            // This needs an ariaLabel since it's icon-only
-            ariaLabel: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.text,
             className: "additional-action-dropdown",
-            iconProps: {iconName: "More"},
             subMenuProps: {
                 items: [
                     {
@@ -199,14 +197,14 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         },
                     },
                     {
-                        key: "runAutoLabelingForRestDocuments",
-                        text: interpolate(strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runAutoLabelingOnNotLabelingDocuments, {batchSize: constants.autoLabelBatchSize}),
-                        iconProps: {iconName: "Tag"},
+                        key: "runAutoLabelingOnMultipleUnlabeledDocuments",
+                        text: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runAutoLabelingOnMultipleUnlabeledDocuments,
+                        iconProps: { iconName: "Tag" },
                         disabled: disableAutoLabeling,
                         title: props.project?.predictModelId ? "" :
                             strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.noPredictModelOnProject,
                         onClick: () => {
-                            if (props.handleRunAutoLabelingForRestDocuments) props.handleRunAutoLabelingForRestDocuments();
+                            if (props.handleRunAutoLabelingOnMultipleUnlabeledDocuments) props.handleRunAutoLabelingOnMultipleUnlabeledDocuments();
                         },
                     },
                     {

@@ -2,9 +2,10 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { IconButton } from "@fluentui/react";
-import { strings } from "../../../../common/strings";
-import { ITag } from "../../../../models/applicationState";
+import {IconButton} from "@fluentui/react";
+import {strings} from "../../../../common/strings";
+import {ITag} from "../../../../models/applicationState";
+import {constants} from "../../../../common/constants";
 
 enum Categories {
     General,
@@ -29,6 +30,8 @@ export interface ITagInputToolbarProps {
     onDelete: (tag: ITag) => void;
     /** Function to call when one of the re-order buttons is clicked */
     onReorder: (tag: ITag, displacement: number) => void;
+    onOnlyCurrentPageTags: (onlyCurrentPageTags: boolean) => void;
+    onShowOriginLabels?: (showOrigin: boolean) => void;
     searchingTags: boolean;
 }
 
@@ -40,7 +43,17 @@ interface ITagInputToolbarItemProps {
     accelerators?: string[];
 }
 
-export default class TagInputToolbar extends React.Component<ITagInputToolbarProps> {
+interface ITagInputToolbarItemState {
+    tagFilterToggled: boolean;
+    showOriginLabels: boolean;
+}
+
+export default class TagInputToolbar extends React.Component<ITagInputToolbarProps, ITagInputToolbarItemState> {
+    state = {
+        tagFilterToggled: false,
+        showOriginLabels: constants.showOriginLabelsByDefault,
+    };
+
     public render() {
         return (
             <div className="tag-input-toolbar">
@@ -56,6 +69,18 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
                 icon: "Add",
                 category: Categories.General,
                 handler: this.handleAdd,
+            },
+            {
+                displayName: this.state.tagFilterToggled ? strings.tags.toolbar.showAllTags : strings.tags.toolbar.onlyShowCurrentPageTags,
+                icon: this.state.tagFilterToggled ? "ClearFilter" : "Filter",
+                category: Categories.General,
+                handler: this.handleOnlyCurrentPageTags,
+            },
+            {
+                displayName: this.state.showOriginLabels ? strings.tags.toolbar.hideOriginLabels : strings.tags.toolbar.showOriginLabels,
+                icon: this.state.showOriginLabels ? "GroupList" : "GroupedList",
+                category: Categories.General,
+                handler: this.handleShowOriginLabels,
             },
             {
                 displayName: strings.tags.toolbar.search,
@@ -109,7 +134,7 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
         const moveModifierClassName = moveModifierClassNames.join(" ");
         const renameModifierClassName = renameModifierClassNames.join(" ");
 
-        return(
+        return (
             this.getToolbarItems().map((itemConfig, index) => {
                 if (itemConfig.category === Categories.General) {
                     return (
@@ -160,6 +185,19 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
 
     private handleAdd = () => {
         this.props.onAddTags();
+    }
+    private handleOnlyCurrentPageTags = () => {
+        this.setState({tagFilterToggled: !this.state.tagFilterToggled}, () => {
+            this.props.onOnlyCurrentPageTags(this.state.tagFilterToggled);
+        });
+    }
+
+    private handleShowOriginLabels = () => {
+        this.setState({showOriginLabels: !this.state.showOriginLabels}, () => {
+            if (this.props.onShowOriginLabels) {
+                this.props.onShowOriginLabels(this.state.showOriginLabels);
+            }
+        });
     }
 
     private handleSearch = () => {
