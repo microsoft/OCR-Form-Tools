@@ -428,18 +428,20 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         let regions: IRegion[] = [];
         if (selectedRegions.length > 0) {
             const labelsData = this.state.currentAsset.labelData;
-            const relatedLabel = labelsData.labels.find((label) => label.label === tag);
-            if (relatedLabel &&
-                (((relatedLabel.labelType === null || relatedLabel.labelType === undefined) && (selectedRegions[0].category === FeatureCategory.DrawnRegion))
-                    || (relatedLabel.labelType !== null && relatedLabel.labelType !== undefined && relatedLabel.labelType !== selectedRegions[0].category))) {
-                regions = this.convertLabelToRegion(relatedLabel)
-                regions.forEach((region) => {
-                    region.tags = [];
-                    const regionIndex = this.state.currentAsset.regions.findIndex(r => r.id === region.id);
-                    if (regionIndex !== -1) {
-                        this.state.currentAsset.regions.splice(regionIndex, 1, region);
-                    }
-                });
+            if(labelsData){
+                const relatedLabel = labelsData.labels.find((label) => label.label === tag);
+                if (relatedLabel &&
+                    (((relatedLabel.labelType === null || relatedLabel.labelType === undefined) && (selectedRegions[0].category === FeatureCategory.DrawnRegion))
+                        || (relatedLabel.labelType !== null && relatedLabel.labelType !== undefined && relatedLabel.labelType !== selectedRegions[0].category))) {
+                    regions = this.convertLabelToRegion(relatedLabel)
+                    regions.forEach((region) => {
+                        region.tags = [];
+                        const regionIndex = this.state.currentAsset.regions.findIndex(r => r.id === region.id);
+                        if (regionIndex !== -1) {
+                            this.state.currentAsset.regions.splice(regionIndex, 1, region);
+                        }
+                    });
+                }
             }
         }
 
