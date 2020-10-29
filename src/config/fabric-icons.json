@@ -75,6 +75,10 @@
       "unicode": "EA3A"
     },
     {
+      "name": "ClearFilter",
+      "unicode": "EF8F"
+    },
+    {
       "name": "Cloud",
       "unicode": "E753"
     },
@@ -91,8 +95,8 @@
       "unicode": "EC17"
     },
     {
-      "name": "Copy",
-      "unicode": "E8C8"
+      "name": "DocumentManagement",
+      "unicode": "EFFC"
     },
     {
       "name": "Down",
@@ -109,6 +113,14 @@
     {
       "name": "Filter",
       "unicode": "E71C"
+    },
+    {
+      "name": "GroupedList",
+      "unicode": "EF74"
+    },
+    {
+      "name": "GroupList",
+      "unicode": "F168"
     },
     {
       "name": "Help",
@@ -143,8 +155,8 @@
       "unicode": "E71B"
     },
     {
-      "name": "KeyPhraseExtraction",
-      "unicode": "E395"
+      "name": "MachineLearning",
+      "unicode": "E3B8"
     },
     {
       "name": "MapLayers",

@@ -132,7 +132,7 @@ export const spanish: IAppStrings = {
         downloadJson: "Descargar archivo JSON",
         trainConfirm: {
             title: "Etiquetas no revisadas todavía",
-            message: "Tiene archivos de etiquetas que aún no han sido revisados, ¿desea entrenar con esos archivos?"
+            message: "Hay archivos recientemente etiquetados automáticamente que aún no ha revisado, ¿desea entrenar con esos archivos?"
         },
         errors: {
             electron: {
@@ -273,6 +273,8 @@ export const spanish: IAppStrings = {
             add: "Agregar nueva etiqueta",
             onlyShowCurrentPageTags: "Mostrar solo las etiquetas utilizadas en la página actual",
             showAllTags: "Mostrar todas las etiquetas",
+            showOriginLabels: "Mostrar etiquetas de origen",
+            hideOriginLabels: "Ocultar etiquetas de origen",
             contextualMenu: "Menú contextual",
             delete: "Borrar etiqueta",
             edit: "Editar etiqueta",
@@ -455,7 +457,7 @@ export const spanish: IAppStrings = {
                             runOcrOnCurrentDocument: "Ejecutar OCR en el documento actual",
                             runOcrOnAllDocuments: "Ejecute OCR en todos los documentos",
                             runAutoLabelingCurrentDocument: "Etiquetar automáticamente el documento actual",
-                            runAutoLabelingOnNotLabelingDocuments: "Etiquetar automáticamente los siguientes ${batchSize} documentos sin etiquetar",
+                            runAutoLabelingOnMultipleUnlabeledDocuments: "Etiquetar automáticamente varios documentos sin etiquetar",
                             noPredictModelOnProject: "Predecir modelo no disponible, entrene el modelo primero.",
                         }
                     }

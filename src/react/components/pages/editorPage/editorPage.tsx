@@ -761,7 +761,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             }
         }
     }
-    private runAutoLabelingOnNextBatch = async () => {
+    private runAutoLabelingOnNextBatch = async (batchSize: number) => {
         if (this.isBusy()) {
             return;
         }
@@ -772,7 +772,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         if (this.state.assets) {
             this.setState({ isRunningAutoLabelings: true });
             const unlabeledAssetsBatch = [];
-            for (let i = 0; i < this.state.assets.length && unlabeledAssetsBatch.length < constants.autoLabelBatchSize; i++) {
+            for (let i = 0; i < this.state.assets.length && unlabeledAssetsBatch.length < batchSize; i++) {
                 const asset = this.state.assets[i];
                 if (asset.state === AssetState.NotVisited || asset.state === AssetState.Visited) {
                     unlabeledAssetsBatch.push(asset);

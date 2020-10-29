@@ -142,7 +142,7 @@ export default class EditorSideBar extends React.Component<IEditorSideBarProps, 
         switch (asset.state) {
             case AssetState.Tagged:
                 return (
-                    <span title={_.startCase(AssetLabelingState[asset.labelingState])}
+                    <span title={_.capitalize(_.lowerCase(AssetLabelingState[asset.labelingState]))}
                         className={["badge", "badge-tagged", getBadgeTaggedClass(asset.labelingState)].join(" ")}>
                         <FontIcon iconName="Tag" />
                     </span>
