@@ -371,6 +371,7 @@ export function reconfigureTableTag(project: IProject, tagName: string, tagType:
                         result.push(tag);
                         return result;
                     } else {
+                        result.push(tag);
                         return result;
                     }
                 }, [])
