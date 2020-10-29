@@ -23,11 +23,11 @@ import { constants } from "../../../../common/constants";
 import HtmlFileReader from "../../../../common/htmlFileReader";
 import { interpolate, strings } from "../../../../common/strings";
 import {
-    getGreenWithWhiteBackgroundTheme, getPrimaryGreenTheme, getPrimaryWhiteTheme,
+    getGreenWithWhiteBackgroundTheme, getPrimaryGreenTheme, getPrimaryGreyTheme, getPrimaryWhiteTheme,
     getRightPaneDefaultButtonTheme
 } from "../../../../common/themes";
 import { loadImageToCanvas, parseTiffData, renderTiffToCanvas } from "../../../../common/utils";
-import { AppError, ErrorCode, IApplicationState, IAppSettings, IConnection, ImageMapParent, IProject, IRecentModel } from "../../../../models/applicationState";
+import { AppError, ErrorCode, FieldFormat, IApplicationState, IAppSettings, IConnection, ImageMapParent, IProject, IRecentModel } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -38,10 +38,12 @@ import Confirm from "../../common/confirm/confirm";
 import { ImageMap } from "../../common/imageMap/imageMap";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import "./predictPage.scss";
-import PredictResult, { IAnalyzeModelInfo } from "./predictResult";
+import PredictResult, { IAnalyzeModelInfo, ITableResultItem } from "./predictResult";
 import RecentModelsView from "./recentModelsView";
 import { UploadToTrainingSetView } from "./uploadToTrainingSetView";
 import { CanvasCommandBar } from "../editorPage/canvasCommandBar";
+// import table_output from "./table_output.json"
+// import table_output2 from "./table_output_2 (1).json"
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -86,6 +88,9 @@ export interface IPredictPageState {
     modelOption: string;
     confirmDuplicatedAssetNameMessage?: string;
     imageAngle: number;
+    viewTable?: boolean;
+    tableToView?: any;
+    tableTagColor?: string;
 }
 
 export interface IModel {
@@ -144,6 +149,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         modelList: [],
         modelOption: "",
         imageAngle: 0,
+        viewTable: false,
+        tableToView: null,
     };
 
     private selectionHandler: ISelection;
@@ -230,6 +237,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         ];
 
         const onPredictionPath: boolean = this.props.match.path.includes("predict");
+        const sidebarWidth = this.state.viewTable ? 650 : 400;
 
         return (
             <div
@@ -241,16 +249,16 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     {this.renderPrevPageButton()}
                     {this.renderNextPageButton()}
                 </div>
-                <div className="predict-sidebar bg-lighter-1">
+                <div className={`predict-sidebar bg-lighter-1`}  style={{width: sidebarWidth, minWidth: sidebarWidth }}>
                     <div className="condensed-list">
                         <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
                             <FontIcon className="mr-1" iconName="Insights" />
                             <span>Analyze</span>
                         </h6>
-                        {!this.state.loadingRecentModel ?
+                        {!this.state.viewTable && !this.state.loadingRecentModel ?
                             <>
                                 {!mostRecentModel ?
-                                    <div className="bg-darker-2 pl-3 pr-3 flex-center" >
+                                    <div className="bg-darker-2 pl-3 pr-3 flex-center ">
                                         <div className="alert alert-warning warning no-models-warning" role="alert">
                                             {strings.predict.noRecentModels}
                                         </div>
@@ -423,6 +431,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                     onPredictionClick={this.onPredictionClick}
                                                     onPredictionMouseEnter={this.onPredictionMouseEnter}
                                                     onPredictionMouseLeave={this.onPredictionMouseLeave}
+                                                    onTablePredictionClick={this.onTablePredictionClick}
                                                 />
                                             }
                                             <UploadToTrainingSetView
@@ -445,7 +454,21 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                         </div>
                                     </>
                                 }
-                            </> : <Spinner className="loading-tag" size={SpinnerSize.large} />
+                            </> :
+                            // comment out for testing
+                            // <></>
+                            <Spinner className="loading-tag" size={SpinnerSize.large} />
+                        }
+                        {
+                            this.state.viewTable &&
+                            <div className="m-2">
+                                <h4 className="ml-1 mb-4">View analyzed Table</h4>
+                                {this.displayTable(this.state.tableToView)}
+                                <PrimaryButton
+                                    className="mt-4 ml-2"
+                                    theme={getPrimaryGreyTheme()}
+                                    onClick={() => this.setState({ viewTable: false })}>Cancel</PrimaryButton>
+                            </div>
                         }
                     </div>
                 </div>
@@ -710,7 +733,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 }, () => {
                     this.drawPredictionResult();
                 });
-            }).catch((error) => {
+            })
+            .catch((error) => {
                 let alertMessage = "";
                 if (error.response) {
                     alertMessage = error.response.data;
@@ -728,6 +752,17 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     isPredicting: false,
                 });
             });
+
+             // uncomment this and comment all above for testing analyze results
+            // this.setState({
+            //     analyzeResult: table_output2,
+            //     predictionLoaded: true,
+            //     predictRun: true,
+            //     isPredicting: false,
+            // }, () => {
+            //     this.drawPredictionResult();
+            // });
+            //
         if (this.appInsights) {
             this.appInsights.trackEvent({ name: "ANALYZE_EVENT" });
         }
@@ -1034,7 +1069,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 if (response.data.status.toLowerCase() === constants.statusCodeSucceeded) {
                     resolve(response.data);
                     // prediction response from API
-                    console.log("raw data", JSON.parse(response.request.response));
                 } else if (response.data.status.toLowerCase() === constants.statusCodeFailed) {
                     reject(_.get(
                         response,
@@ -1054,7 +1088,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private getPredictionsFromAnalyzeResult(analyzeResult: any) {
-        return _.get(analyzeResult, "analyzeResult.documentResults[0].fields", {});
+        const fields = _.get(analyzeResult, "analyzeResult.documentResults[0].fields", {});
+        const tables = _.get(analyzeResult, "analyzeResult.documentResults[0].tables", {});
+        return _.merge({}, fields, tables);
     }
 
     private getAnalyzeModelInfo(analyzeResult) {
@@ -1117,6 +1153,59 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             });
         }
     }
+    private onTablePredictionClick = (predictedItem: ITableResultItem, tagColor: string) => {
+        this.setState({ viewTable: true, tableToView: predictedItem, tableTagColor: tagColor });
+    }
+
+    private displayTable = (tableToView: ITableResultItem) => {
+        const rows = [];
+        const columns= [];
+        const Table = tableToView.values;
+        Object.keys(Table).forEach(key => {
+            rows.push({ name: key, value: Table[key] });
+        });
+
+        Object.keys(rows[0].value).forEach(key => columns.push({ name: key }));
+
+        let tableBody = null;
+        if (rows && rows?.length !== 0 && columns.length !== 0) {
+            tableBody = [];
+
+            for (let i = 0; i < rows.length + 1; i++) {
+                const rowName = rows[i-1];
+                const tableRow = [];
+                for (let j = 0; j < columns.length + 1; j++) {
+                    const key = columns[j-1];
+
+                    if (i === 0 && j !== 0) {
+                        tableRow.push(<th key={j} className={"column_header"}>{
+                        columns[j - 1].name}</th>);
+                    } else if (j === 0 && i !== 0) {
+                        tableRow.push(<th key={j} className={`row_header ${ tableToView.type === FieldFormat.RowDynamic ? "hidden" : ""}`}>{rows[i - 1].name}</th>);
+                    } else if (j === 0 && i === 0) {
+                        tableRow.push(<th key={j} className={`empty_header  ${tableToView.type === FieldFormat.RowDynamic ? "hidden" : ""}`} />);
+                    } else {
+                        const tableCell = rowName?.value[key?.name]?.text;
+                            tableRow.push(<td
+                                className={"table-cell"} key={j}>{tableCell ?tableCell : null }
+                            </td>);
+                    }
+                }
+                tableBody.push(<tr key={i}>{tableRow}</tr>);
+            }
+        }
+
+        return (
+            <div>
+                <h5 className="mb-4 ml-2 mt-2 pb-1">
+                    <span style={{ borderBottom: `4px solid ${this.state.tableTagColor}`}}>Table name: {tableToView.fieldName}</span>
+                </h5>
+                <div className="table-view-container">
+                    {tableBody}
+                </div>
+            </div>
+        );
+}
 
     private onPredictionMouseEnter = (predictedItem: any) => {
         this.setState({
