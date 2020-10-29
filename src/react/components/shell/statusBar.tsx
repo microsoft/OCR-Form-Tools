@@ -17,9 +17,7 @@ export class StatusBar extends React.Component<IStatusBarProps, IStatusBarState>
     componentDidMount() {
         const commitInfoUrl = require("../../../git-commit-info.txt");
         axios.get(commitInfoUrl).then(res => {
-            // match the git commit hash
-            const commitHash = /commit ([0-9a-fA-F]{8})/.exec(res.data)[1];
-            this.setState({commitHash});
+            this.setState({commitHash: res.data});
         });
     }
 
