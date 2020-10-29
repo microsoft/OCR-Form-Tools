@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { ReactElement, RefObject } from "react";
-import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
-import { Label } from "@fluentui/react/lib/Label";
-import { IconButton } from "@fluentui/react/lib/Button";
+import React, {ReactElement, RefObject} from "react";
+import {Spinner, SpinnerSize} from "@fluentui/react/lib/Spinner";
+import {Label} from "@fluentui/react/lib/Label";
+import {IconButton} from "@fluentui/react/lib/Button";
 import {
     EditorMode, IAssetMetadata,
     IProject, IRegion, RegionType,
@@ -12,33 +12,33 @@ import {
     ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, ImageMapParent, LabelType, AssetLabelingState, APIVersionPatches
 } from "../../../../models/applicationState";
 import CanvasHelpers from "./canvasHelpers";
-import { AssetPreview } from "../../common/assetPreview/assetPreview";
-import { ImageMap } from "../../common/imageMap/imageMap";
+import {AssetPreview} from "../../common/assetPreview/assetPreview";
+import {ImageMap} from "../../common/imageMap/imageMap";
 import "./canvas.scss";
 import Style from "ol/style/Style";
 import Icon from "ol/style/Icon";
 import Point from "ol/geom/Point";
 import Stroke from "ol/style/Stroke";
 import Fill from "ol/style/Fill";
-import { OCRService, OcrStatus } from "../../../../services/ocrService";
-import { Feature } from "ol";
-import { Extent } from "ol/extent";
-import { KeyboardBinding } from "../../common/keyboardBinding/keyboardBinding";
-import { KeyEventType } from "../../common/keyboardManager/keyboardManager";
+import {OCRService, OcrStatus} from "../../../../services/ocrService";
+import {Feature} from "ol";
+import {Extent} from "ol/extent";
+import {KeyboardBinding} from "../../common/keyboardBinding/keyboardBinding";
+import {KeyEventType} from "../../common/keyboardManager/keyboardManager";
 import _ from "lodash";
 import Alert from "../../common/alert/alert";
 import * as pdfjsLib from "pdfjs-dist";
 import Polygon from "ol/geom/Polygon";
 import HtmlFileReader from "../../../../common/htmlFileReader";
-import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
-import { constants } from "../../../../common/constants";
-import { CanvasCommandBar } from "./canvasCommandBar";
-import { TooltipHost, ITooltipHostStyles } from "@fluentui/react";
-import { IAppSettings } from '../../../../models/applicationState';
-import { AutoLabelingStatus, PredictService } from "../../../../services/predictService";
-import { AssetService } from "../../../../services/assetService";
-import { interpolate, strings } from "../../../../common/strings";
-import { toast } from "react-toastify";
+import {parseTiffData, renderTiffToCanvas, loadImageToCanvas} from "../../../../common/utils";
+import {constants} from "../../../../common/constants";
+import {CanvasCommandBar} from "./canvasCommandBar";
+import {TooltipHost, ITooltipHostStyles} from "@fluentui/react";
+import {IAppSettings} from '../../../../models/applicationState';
+import {AutoLabelingStatus, PredictService} from "../../../../services/predictService";
+import {AssetService} from "../../../../services/assetService";
+import {interpolate, strings} from "../../../../common/strings";
+import {toast} from "react-toastify";
 import {BatchSizeModal} from "./batchSizeModal";
 
 
@@ -144,8 +144,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         errorMessage: undefined,
         ocrStatus: OcrStatus.done,
         autoLabelingStatus: AutoLabelingStatus.none,
-        layers: { text: true, tables: true, checkboxes: true, label: true, drawnRegions: true },
-        tableIconTooltip: { display: "none", width: 0, height: 0, top: 0, left: 0 },
+        layers: {text: true, tables: true, checkboxes: true, label: true, drawnRegions: true},
+        tableIconTooltip: {display: "none", width: 0, height: 0, top: 0, left: 0},
         hoveringFeature: null,
         groupSelectMode: false,
         drawRegionMode: false,
@@ -202,7 +202,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 pdfFile: null,
                 imageUri: null,
                 tiffImages: [],
-                layers: { text: true, tables: true, checkboxes: true, label: true, drawnRegions: true },
+                layers: {text: true, tables: true, checkboxes: true, label: true, drawnRegions: true},
             }, async () => {
                 const asset = this.state.currentAsset.asset;
                 await this.loadImage();
@@ -235,7 +235,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             },
         };
         return (
-            <div style={{ width: "100%", height: "100%" }}>
+            <div style={{width: "100%", height: "100%"}}>
                 <KeyboardBinding
                     displayName={"Delete region"}
                     key={"Delete"}
@@ -322,7 +322,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     <IconButton
                         className="toolbar-btn prev"
                         title="Previous"
-                        iconProps={{ iconName: "ChevronLeft" }}
+                        iconProps={{iconName: "ChevronLeft"}}
                         onClick={this.prevPage}
                     />
                 }
@@ -331,7 +331,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         className="toolbar-btn next"
                         title="Next"
                         onClick={this.nextPage}
-                        iconProps={{ iconName: "ChevronRight" }}
+                        iconProps={{iconName: "ChevronRight"}}
                     />
                 }
                 {this.shouldShowMultiPageIndicator() &&
@@ -368,13 +368,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 <BatchSizeModal
                     ref={this.autoLabelingBatchSizeModal}
                     onConfirm={this.confirmRunAutoLabelingOnMultipleUnlabeledDocuments}
-                 />
+                />
             </div>
         );
     }
 
     private runOcrForAllDocuments = () => {
-        this.setState({ ocrStatus: OcrStatus.runningOCR })
+        this.setState({ocrStatus: OcrStatus.runningOCR})
         this.props.runOcrForAllDocs(true);
     }
 
@@ -397,9 +397,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.autoLabelingBatchSizeModal.current.openModal();
     }
     private confirmRunAutoLabelingOnMultipleUnlabeledDocuments = async (batchSize: number) => {
-        this.setState({ autoLabelingStatus: AutoLabelingStatus.running });
+        this.setState({autoLabelingStatus: AutoLabelingStatus.running});
         await this.props.runAutoLabelingOnNextBatch(batchSize);
-        this.setState({ autoLabelingStatus: AutoLabelingStatus.done });
+        this.setState({autoLabelingStatus: AutoLabelingStatus.done});
     }
 
     public updateSize() {
@@ -425,6 +425,23 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (this.showMultiPageFieldWarningIfNecessary(tag, selectedRegions)) {
             return;
         }
+        let regions: IRegion[] = [];
+        if (selectedRegions.length > 0) {
+            const labelsData = this.state.currentAsset.labelData;
+            const relatedLabel = labelsData.labels.find((label) => label.label === tag);
+            if (relatedLabel &&
+                (((relatedLabel.labelType === null || relatedLabel.labelType === undefined) && (selectedRegions[0].category === FeatureCategory.DrawnRegion))
+                    || (relatedLabel.labelType !== null && relatedLabel.labelType !== undefined && relatedLabel.labelType !== selectedRegions[0].category))) {
+                regions = this.convertLabelToRegion(relatedLabel)
+                regions.forEach((region) => {
+                    region.tags = [];
+                    const regionIndex = this.state.currentAsset.regions.findIndex(r => r.id === region.id);
+                    if (regionIndex !== -1) {
+                        this.state.currentAsset.regions.splice(regionIndex, 1, region);
+                    }
+                });
+            }
+        }
 
         const transformer: (tags: string[], tag: string) => string[] = CanvasHelpers.setSingleTag;
         const inputTag = this.props.project.tags.filter((t) => t.name === tag);
@@ -432,8 +449,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         for (const selectedRegion of selectedRegions) {
             selectedRegion.tags = transformer(selectedRegion.tags, tag);
         }
-
-        this.updateRegions(selectedRegions);
+        this.updateRegions([...selectedRegions, ...regions]);
 
         this.selectedRegionIds = [];
         if (this.props.onSelectedRegionsChanged) {
@@ -699,7 +715,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
     private onRegionDoubleClick = (id: string) => {
         if (this.props.onRegionDoubleClick) {
-            const region = this.state.currentAsset.regions.find(region=>region.id === id);
+            const region = this.state.currentAsset.regions.find(region => region.id === id);
             this.props.onRegionDoubleClick(region);
         }
     }
@@ -1201,7 +1217,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private setOCRStatus = (ocrStatus: OcrStatus) => {
-        this.setState({ ocrStatus }, () => {
+        this.setState({ocrStatus}, () => {
             if (this.props.onRunningOCRStatusChanged) {
                 this.props.onRunningOCRStatusChanged(ocrStatus === OcrStatus.runningOCR);
             }
@@ -1209,7 +1225,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private setAutoLabelingStatus = (autoLabelingStatus: AutoLabelingStatus) => {
-        this.setState({ autoLabelingStatus }, () => {
+        this.setState({autoLabelingStatus}, () => {
             if (this.props.onRunningAutoLabelingStatusChanged) {
                 this.props.onRunningAutoLabelingStatusChanged(autoLabelingStatus === AutoLabelingStatus.running);
             }
@@ -1271,7 +1287,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private loadPdfFile = async (assetId, url) => {
         try {
-            const pdf = await pdfjsLib.getDocument({ url, cMapUrl, cMapPacked: true }).promise;
+            const pdf = await pdfjsLib.getDocument({url, cMapUrl, cMapPacked: true}).promise;
             // Fetch current page
             if (assetId === this.state.currentAsset.asset.id) {
                 await this.loadPdfPage(assetId, pdf, this.state.currentPage);
@@ -1285,7 +1301,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private loadPdfPage = async (assetId, pdf, pageNumber) => {
         const page = await pdf.getPage(pageNumber);
         const defaultScale = 2;
-        const viewport = page.getViewport({ scale: defaultScale });
+        const viewport = page.getViewport({scale: defaultScale});
 
         // Prepare canvas using PDF page dimensions
         const canvas = document.createElement("canvas");
@@ -1377,6 +1393,20 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
         return regions;
     }
+    private convertLabelToRegion = (label: ILabel): IRegion[] => {
+        const regions = [];
+        if (label.value) {
+            label.value.forEach((formRegion) => {
+                if (formRegion.boundingBoxes) {
+                    formRegion.boundingBoxes.forEach((boundingBox, boundingBoxIndex) => {
+                        const text = this.getBoundingBoxTextFromRegion(formRegion, boundingBoxIndex);
+                        regions.push(this.createRegion(boundingBox, text, label.label, formRegion.page, label?.labelType));
+                    });
+                }
+            });
+        }
+        return regions;
+    }
 
     private convertRegionsToLabelData = (regions: IRegion[], assetName: string) => {
         const labels = (this.props.selectedAsset
@@ -1390,13 +1420,15 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const intersectionResult = _.intersection(selectedRegions, regions);
             if (intersectionResult.length === 0) {
                 const relatedLabels = labels.find(label => selectedRegions.find(sr => sr.tags.find(t => t === label.label)));
-                const originLabel = this.props.selectedAsset!.labelData?.labels?.find(a => a.label === relatedLabels.label);
-                if (relatedLabels&&originLabel&&relatedLabels.confidence) {
-                    delete relatedLabels.confidence;
-                    relatedLabels.revised = true;
-                    relatedLabels.originValue = [...originLabel.value];
+                if (relatedLabels && relatedLabels.confidence) {
+                    const originLabel = this.props.selectedAsset!.labelData?.labels?.find(a => a.label === relatedLabels.label);
+                    if (originLabel) {
+                        delete relatedLabels.confidence;
+                        relatedLabels.revised = true;
+                        relatedLabels.originValue = [...originLabel.value];
                     }
                 }
+            }
         }
         regions.forEach((region) => {
             const labelType = this.getLabelType(region.category);
@@ -1409,11 +1441,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             region.tags.forEach((tag) => {
                 const label = labels.find(label => label.label === tag);
                 if (label) {
-                    const originLabel = this.props.selectedAsset!.labelData?.labels?.find(a=>a.label === tag);
-                    if (originLabel&&label.confidence && region.changed) {
+                    const originLabel = this.props.selectedAsset!.labelData?.labels?.find(a => a.label === tag);
+                    if (originLabel && label.confidence && region.changed) {
                         delete label.confidence;
                         label.revised = true;
                         label.originValue = [...originLabel.value];
+                    }
+                    if (originLabel && region.changed && label.labelType !== labelType) {
+                        label.labelType = labelType;
                     }
                     label.value.push(formRegion);
                 } else {
@@ -1484,7 +1519,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private convertToRegionPoints = (polygon: number[]) => {
         const points = [];
         for (let i = 0; i < polygon.length; i += 2) {
-            points.push({ x: polygon[i], y: polygon[i + 1] });
+            points.push({x: polygon[i], y: polygon[i + 1]});
         }
         return points;
     }
@@ -1606,7 +1641,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.imageMap.resetZoom();
     }
     private handleRotateCanvas = (degrees: number) => {
-        this.setState({ imageAngle: this.state.imageAngle + degrees });
+        this.setState({imageAngle: this.state.imageAngle + degrees});
     }
 
     private getRegionWithKey = (keyFlag: boolean) => {
@@ -1767,11 +1802,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private getRegionOrder = (regionId): IRegionOrder => {
-        let orderInfo: IRegionOrder = { page: 1, order: 0 };
+        let orderInfo: IRegionOrder = {page: 1, order: 0};
         this.regionOrders.some((regions, pageNumber) => {
             const order = regions[regionId];
             if (order !== undefined) {
-                orderInfo = { page: pageNumber + 1, order };
+                orderInfo = {page: pageNumber + 1, order};
                 return true;
             }
             return false;
@@ -2182,7 +2217,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private handleToggleDrawRegionMode = () => {
         if (!this.state.drawRegionMode && this.props.project.apiVersion !== APIVersionPatches.patch3) {
-            toast.warn(interpolate(strings.editorPage.canvas.canvasCommandBar.warings.drawRegionUnsupportedAPIVersion, { apiVersion: (this.props.project.apiVersion || constants.appVersion ) }), {autoClose: 7000});
+            toast.warn(interpolate(strings.editorPage.canvas.canvasCommandBar.warings.drawRegionUnsupportedAPIVersion, {apiVersion: (this.props.project.apiVersion || constants.appVersion)}), {autoClose: 7000});
         }
         this.setState({
             drawRegionMode: !this.state.drawRegionMode
@@ -2191,7 +2226,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private addDrawnRegionFeatureProps = (feature) => {
         const featureCoordinates = feature.getGeometry().getCoordinates()[0];
-        const { featureId, boundingBox } = this.getFeatureIDAndBoundingBox(featureCoordinates);
+        const {featureId, boundingBox} = this.getFeatureIDAndBoundingBox(featureCoordinates);
         feature.setProperties({
             id: featureId,
             text: "",
@@ -2256,7 +2291,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             polygonPoints.push(boundingBox[i + 1] / ocrHeight);
         }
         const featureId = this.createRegionIdFromBoundingBox(polygonPoints, ocrPage);
-        return { featureId, boundingBox }
+        return {featureId, boundingBox}
     }
 
     private modifySelectedRegion = (existingRegionId, newRegionId) => {
@@ -2287,7 +2322,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const originalFeatureId = feature.getId();
             const featureCoordinates = feature.getGeometry().getCoordinates()[0];
             if (this.imageMap.modifyStartFeatureCoordinates[originalFeatureId] !== featureCoordinates.join(",")) {
-                const { featureId, boundingBox } = this.getFeatureIDAndBoundingBox(featureCoordinates);
+                const {featureId, boundingBox} = this.getFeatureIDAndBoundingBox(featureCoordinates);
                 feature.setProperties({
                     id: featureId,
                     boundingbox: boundingBox,
@@ -2301,7 +2336,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     async focusOnLabel(label: ILabel) {
-        const { page } = label.value[ 0 ];
+        const {page} = label.value[0];
         if (this.state.currentPage !== page) {
             await this.goToPage(page);
         }

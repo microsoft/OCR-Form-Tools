@@ -268,6 +268,12 @@ export const spanish: IAppStrings = {
             notCompatibleTagType: "El tipo de etiqueta no es compatible con esta función. Si desea cambiar el tipo de esta etiqueta, elimine o reasigne todas las etiquetas que utilizan esta etiqueta en su proyecto.",
             checkboxPerTagLimit: "No se puede asignar más de una casilla de verificación por etiqueta",
             notCompatibleWithDrawnRegionTag: "Los valores de drawnRegion y $ {otherCatagory} no pueden asignarse a la misma etiqueta del documento",
+            replaceAllExitingLabels:"¿Desea reemplazar todas las etiquetas que salen de la etiqueta actual?",
+            replaceAllExitingLabelsTitle:"Reemplazar etiqueta(s)",
+        },
+        preText:{
+            autoLabel:"Auto-etiquetado: ",
+            revised:"Revisado: ",
         },
         toolbar: {
             add: "Agregar nueva etiqueta",

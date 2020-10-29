@@ -16,9 +16,10 @@ import React, {KeyboardEvent} from "react";
 import {toast} from "react-toastify";
 import {constants} from "../../../../common/constants";
 import {interpolate, strings} from "../../../../common/strings";
-import {getDarkTheme} from "../../../../common/themes";
+import {getDarkTheme, getPrimaryRedTheme} from "../../../../common/themes";
 import {getNextColor} from "../../../../common/utils";
 import {FeatureCategory, FieldFormat, FieldType, ILabel, IRegion, ITag} from "../../../../models/applicationState";
+import Confirm from "../../common/confirm/confirm";
 import {AlignPortal} from "../align/alignPortal";
 import {ColorPicker} from "../colorPicker";
 import "../condensedList/condensedList.scss";
@@ -114,7 +115,7 @@ function filterFormat(type: FieldType): FieldFormat[] {
                 FieldFormat.YMD,
             ];
         default:
-            return [ FieldFormat.NotSpecified ];
+            return [FieldFormat.NotSpecified];
     }
 }
 
@@ -143,7 +144,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     private tagItemRefs: Map<string, TagInputItem> = new Map<string, TagInputItem>();
     private headerRef = React.createRef<HTMLDivElement>();
     private inputRef = React.createRef<HTMLInputElement>();
-
+    private replaceConfirmRef = React.createRef<Confirm>();
     public componentDidUpdate(prevProps: ITagInputProps) {
         if (prevProps.tags !== this.props.tags) {
             let selectedTag = this.state.selectedTag;
@@ -182,7 +183,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                         selectedTag={this.state.selectedTag}
                         onAddTags={() => this.setState({addTags: !this.state.addTags})}
                         onOnlyCurrentPageTags={() => this.setState({onlyCurrentPageTags: !this.state.onlyCurrentPageTags})}
-                        onShowOriginLabels = {(showOriginLabels: boolean) => this.setState({showOriginLabels})}
+                        onShowOriginLabels={(showOriginLabels: boolean) => this.setState({showOriginLabels})}
                         onSearchTags={() => this.setState({
                             searchTags: !this.state.searchTags,
                             searchQuery: "",
@@ -248,6 +249,13 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     :
                     <Spinner className="loading-tag" size={SpinnerSize.large} />
                 }
+                <Confirm
+                    title={strings.tags.warnings.replaceAllExitingLabelsTitle}
+                    ref={this.replaceConfirmRef}
+                    message={strings.tags.warnings.replaceAllExitingLabels}
+                    confirmButtonTheme={getPrimaryRedTheme()}
+                    onConfirm={this.onReplaceConfirm}
+                />
             </div>
         );
     }
@@ -268,7 +276,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         if (!tag) {
             return;
         }
-        let lockedTags = [ ...this.props.lockedTags ];
+        let lockedTags = [...this.props.lockedTags];
         if (lockedTags.find((str) => isNameEqual(tag.name, str))) {
             lockedTags = lockedTags.filter((str) => !isNameEqual(tag.name, str));
         } else {
@@ -285,7 +293,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         if (!tag) {
             return;
         }
-        const tags = [ ...this.state.tags ];
+        const tags = [...this.state.tags];
         const currentIndex = tags.indexOf(tag);
         const newIndex = currentIndex + displacement;
         if (newIndex < 0 || newIndex >= tags.length) {
@@ -321,7 +329,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             return;
         }
 
-        const tags = [ ...this.state.tags, tag ];
+        const tags = [...this.state.tags, tag];
         this.setState({
             tags,
         }, () => this.props.onChange(tags));
@@ -371,7 +379,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         const {selectedTag} = this.state;
         const showColorPicker = this.state.tagOperation === TagOperationMode.ColorPicker;
         return (
-            <AlignPortal align={{points: [ "tr", "tl" ]}} target={() => this.headerRef.current}>
+            <AlignPortal align={{points: ["tr", "tl"]}} target={() => this.headerRef.current}>
                 <div className="tag-input-colorpicker-container">
                     {
                         showColorPicker &&
@@ -425,7 +433,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
         if (onlyCurrentPageTags) {
 
-            const labels = this.props.labels.filter(item => item.value[ 0 ].page === this.props.pageNumber)
+            const labels = this.props.labels.filter(item => item.value[0].page === this.props.pageNumber)
                 .map(item => item.label);
             if (labels.length) {
 
@@ -510,7 +518,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             // Only fire click event if a region is selected
             const {selectedRegions, onTagClick, labels} = this.props;
             if (selectedRegions && selectedRegions.length && onTagClick) {
-                const {category} = selectedRegions[ 0 ];
+                const {category} = selectedRegions[0];
                 const {format, type, documentCount, name} = tag;
                 const tagCategory = this.getTagCategory(type);
                 const isTagLabelTypeDrawnRegion = this.labelAssignedDrawnRegion(labels, tag.name);
@@ -518,11 +526,11 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
                 if (labelAssigned && ((category === FeatureCategory.DrawnRegion) !== isTagLabelTypeDrawnRegion)) {
                     if (isTagLabelTypeDrawnRegion) {
-                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, {otherCatagory: category}));
+                        this.replaceConfirmRef.current.open(tag, props);
                     } else if (tagCategory === FeatureCategory.Checkbox) {
                         toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, {otherCatagory: FeatureCategory.Checkbox}));
                     } else {
-                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, {otherCatagory: FeatureCategory.Text}));
+                        this.replaceConfirmRef.current.open(tag, props);
                     }
                     return;
                 } else if (tagCategory === category || category === FeatureCategory.DrawnRegion ||
@@ -543,10 +551,22 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             });
         }
     }
+    private onReplaceConfirm = (tag: ITag, props: ITagClickProps) => {
+        const {onTagClick} = this.props;
+        const {selectedTag, tagOperation: oldTagOperation} = this.state;
+        const selected = selectedTag && isNameEqual(selectedTag.name, tag.name);
+        const tagOperation = selected ? oldTagOperation : TagOperationMode.None;
+        const deselect = selected && oldTagOperation === TagOperationMode.None;
+        onTagClick(tag);
+        this.setState({
+            selectedTag: deselect ? null : tag,
+            tagOperation,
+        });
+    }
     focusTag(tag: string) {
         const tagItemRef = this.tagItemRefs.get(tag)?.getTagNameRef();
         if (tagItemRef) {
-            tagItemRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            tagItemRef.current.scrollIntoView({behavior: "smooth", block: "nearest"});
             tagItemRef.current.classList.add("tag-item-highlight");
             setTimeout(() => {
                 tagItemRef.current.classList.remove("tag-item-highlight");
@@ -618,7 +638,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             format: FieldFormat.NotSpecified,
             documentCount: 0,
         };
-        if (newTag.name.length && ![ ...this.state.tags, newTag ].containsDuplicates((t) => t.name)) {
+        if (newTag.name.length && ![...this.state.tags, newTag].containsDuplicates((t) => t.name)) {
             this.addTag(newTag);
         } else if (!newTag.name.length) {
             toast.warn(strings.tags.warnings.emptyName);

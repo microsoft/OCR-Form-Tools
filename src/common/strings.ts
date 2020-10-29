@@ -285,6 +285,12 @@ export interface IAppStrings {
             notCompatibleTagType: string,
             checkboxPerTagLimit: string,
             notCompatibleWithDrawnRegionTag: string,
+            replaceAllExitingLabels:string,
+            replaceAllExitingLabelsTitle:string,
+        },
+        preText:{
+            autoLabel:string,
+            revised:string,
         }
     };
     connections: {

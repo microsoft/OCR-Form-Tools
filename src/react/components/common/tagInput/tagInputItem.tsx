@@ -218,7 +218,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         return this.props.labels.map((label, idx) =>
             <Fragment key={idx}>
                 <div className="tag-item-label-container">
-                    {(confidence||revised)&&
+                    {(confidence || revised) &&
                         <div className="tag-item-label-container-item1">
                             {confidence &&
                                 <div className="tag-item-confidence">
@@ -231,12 +231,12 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                         </div>
                     }
                     <div className="tag-item-label-container-item2">
-                        { this.props.showOriginLabels && label.originValue &&
+                        {this.props.showOriginLabels && label.originValue &&
                             <TagInputItemLabel
                                 label={label}
                                 isOrigin={true}
                                 value={label.originValue}
-                                prefixText="Auto-labeled: "
+                                prefixText={strings.tags.preText.autoLabel}
                             />
                         }
                         <TagInputItemLabel
@@ -245,7 +245,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                             isOrigin={false}
                             onLabelEnter={this.props.onLabelEnter}
                             onLabelLeave={this.props.onLabelLeave}
-                            prefixText={revised?"Revised: ":undefined}
+                            prefixText={revised ? strings.tags.preText.revised : undefined}
                         />
                     </div>
                 </div>
