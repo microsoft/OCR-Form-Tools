@@ -131,7 +131,7 @@ export const english: IAppStrings = {
         downloadJson: "Download JSON file",
         trainConfirm: {
             title: "Labels not revised yet",
-            message: "You have label files not yet revised, do you want to train with those files?"
+            message: "There are newly auto-labeled files not yet revised by you, do you want to train with those files?"
         },
         errors: {
             electron: {
