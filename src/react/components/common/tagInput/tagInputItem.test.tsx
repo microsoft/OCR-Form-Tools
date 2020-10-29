@@ -21,6 +21,7 @@ describe("Tag Input Item", () => {
             onRename: jest.fn(),
             onLabelEnter: jest.fn(),
             onLabelLeave: jest.fn(),
+            showOriginLabels:false,
         };
     }
 

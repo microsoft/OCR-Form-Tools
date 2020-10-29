@@ -274,6 +274,8 @@ export const english: IAppStrings = {
             add: "Add new tag",
             onlyShowCurrentPageTags: "Only show tags used in current page",
             showAllTags: "Show all tags",
+            showOriginLabels:"Show origin labels",
+            hideOriginLabels:"Hide origin labels",
             contextualMenu: "Contextual Menu",
             delete: "Delete tag",
             edit: "Edit tag",
@@ -454,7 +456,7 @@ export const english: IAppStrings = {
                             runOcrOnCurrentDocument: "Run OCR on current document",
                             runOcrOnAllDocuments: "Run OCR on all documents",
                             runAutoLabelingCurrentDocument: "Auto-label the current document",
-                            runAutoLabelingOnNotLabelingDocuments: "Auto-label next ${batchSize} unlabeled documents",
+                            runAutoLabelingOnMultipleUnlabeledDocuments: "Auto-label multiple unlabeled documents",
                             noPredictModelOnProject: "Predict model not avaliable, please train the model first.",
                         }
                     }
@@ -531,7 +533,7 @@ export const english: IAppStrings = {
         },
         tips: {
             quickLabeling: {
-                name: "Lable with hot keys",
+                name: "Label with hot keys",
                 description: "Hotkeys 1 through 0 and all letters are assigned to first 36 tags. After selecting one or multiple words, press tag's assigned hotkey.",
             },
             renameTag: {

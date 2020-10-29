@@ -14,6 +14,7 @@ import {
 import debounce from 'lodash/debounce';
 import React, {KeyboardEvent} from "react";
 import {toast} from "react-toastify";
+import {constants} from "../../../../common/constants";
 import {interpolate, strings} from "../../../../common/strings";
 import {getDarkTheme} from "../../../../common/themes";
 import {getNextColor} from "../../../../common/utils";
@@ -86,6 +87,7 @@ export interface ITagInputState {
     tagOperation: TagOperationMode;
     addTags: boolean;
     onlyCurrentPageTags: boolean;
+    showOriginLabels: boolean;
     searchTags: boolean;
     searchQuery: string;
     selectedTag: ITag;
@@ -135,6 +137,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         searchQuery: "",
         selectedTag: null,
         onlyCurrentPageTags: false,
+        showOriginLabels: constants.showOriginLabelsByDefault,
     };
 
     private tagItemRefs: Map<string, TagInputItem> = new Map<string, TagInputItem>();
@@ -160,7 +163,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             });
         }
     }
-
     public render() {
         const dark: ICustomizations = {
             settings: {
@@ -180,6 +182,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                         selectedTag={this.state.selectedTag}
                         onAddTags={() => this.setState({addTags: !this.state.addTags})}
                         onOnlyCurrentPageTags={() => this.setState({onlyCurrentPageTags: !this.state.onlyCurrentPageTags})}
+                        onShowOriginLabels = {(showOriginLabels: boolean) => this.setState({showOriginLabels})}
                         onSearchTags={() => this.setState({
                             searchTags: !this.state.searchTags,
                             searchQuery: "",
@@ -248,13 +251,11 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             </div>
         );
     }
-
     public triggerNewTagBlur() {
         if (this.inputRef.current) {
             this.inputRef.current.blur();
         }
     }
-
     private onRenameTag = (tag: ITag) => {
         const tagOperation = this.state.tagOperation === TagOperationMode.Rename
             ? TagOperationMode.None : TagOperationMode.Rename;
@@ -400,6 +401,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 {...prop}
                 key={prop.tag.name}
                 labels={this.setTagLabels(prop.tag.name)}
+                showOriginLabels={this.state.showOriginLabels}
                 ref={(item) => this.setTagItemRef(item, prop.tag)}
                 onLabelEnter={this.props.onLabelEnter}
                 onLabelLeave={this.props.onLabelLeave}
