@@ -567,7 +567,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         }
         addTableTag(tableTagToAdd);
         setTagInputMode(TagInputMode.Basic, null, null);
-        toast.success(`Successfully ${props.tableTag ? "reconfigured" : "saved"} "${tableTagName}" table tag.`, { autoClose: 8000 });
+        toast.success(`Successfully ${props.tableTag ? "reconfigured" : "saved"} "${tableTagName.tableName}" table tag.`, { autoClose: 8000 });
     }
 
     function hasEmptyNames(array: ITableConfigItem[]) {
@@ -604,8 +604,15 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     }
 
     function validateInput() {
-        return !(notUniqueNames.rows.length > 0 || notUniqueNames.columns.length > 0 || notUniqueNames.tags ||
-            !tableTagName.tableName.length || hasEmptyNames(columns) || (format === FieldFormat.Fixed && hasEmptyNames(rows)));
+        return !(
+            notUniqueNames.rows.length > 0
+            || notUniqueNames.columns.length > 0
+            || (props.tableTag && notUniqueNames.tags && (tableTagName.tableName !== tableTagName.originalTableName))
+            || (notUniqueNames.tags && !props.tableTag)
+            || !tableTagName.tableName.length
+            || hasEmptyNames(columns)
+            || (format === FieldFormat.Fixed && hasEmptyNames(rows))
+        );
     }
 
     // Row selection
