@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { ReactElement } from "react";
+import React, { ReactElement, RefObject } from "react";
 import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
 import { Label } from "@fluentui/react/lib/Label";
 import { IconButton } from "@fluentui/react/lib/Button";
@@ -39,6 +39,7 @@ import { AutoLabelingStatus, PredictService } from "../../../../services/predict
 import { AssetService } from "../../../../services/assetService";
 import { interpolate, strings } from "../../../../common/strings";
 import { toast } from "react-toastify";
+import {BatchSizeModal} from "./batchSizeModal";
 
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
@@ -62,7 +63,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onRunningAutoLabelingStatusChanged?: (isRunning: boolean) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
     runOcrForAllDocs?: (runForAllDocs: boolean) => void;
-    runAutoLabelingOnNextBatch?: () => Promise<void>;
+    runAutoLabelingOnNextBatch?: (batchSize: number) => Promise<void>;
     onAssetDeleted?: () => void;
     onPageLoaded?: (pageNumber: number) => void;
 }
@@ -82,7 +83,7 @@ export interface ICanvasState {
     errorTitle?: string;
     errorMessage: string;
     ocrStatus: OcrStatus;
-    autoLableingStatus: AutoLabelingStatus;
+    autoLabelingStatus: AutoLabelingStatus;
     layers: any;
     tableIconTooltip: any;
     hoveringFeature: string;
@@ -142,7 +143,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         isError: false,
         errorMessage: undefined,
         ocrStatus: OcrStatus.done,
-        autoLableingStatus: AutoLabelingStatus.none,
+        autoLabelingStatus: AutoLabelingStatus.none,
         layers: { text: true, tables: true, checkboxes: true, label: true, drawnRegions: true },
         tableIconTooltip: { display: "none", width: 0, height: 0, top: 0, left: 0 },
         hoveringFeature: null,
@@ -172,6 +173,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private pendingFlag: boolean = false;
 
     private tableIDToIndexMap: object;
+
+    autoLabelingBatchSizeModal: RefObject<BatchSizeModal> = React.createRef();
 
     public componentDidMount = async () => {
         this.ocrService = new OCRService(this.props.project);
@@ -258,7 +261,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleAssetDeleted={this.props.onAssetDeleted}
                     handleRunOcrForAllDocuments={this.runOcrForAllDocuments}
                     handleRunAutoLabelingOnCurrentDocument={this.runAutoLabelingOnCurrentDocument}
-                    handleRunAutoLabelingForRestDocuments={this.runAutoLabelingForRestDocuments}
+                    handleRunAutoLabelingOnMultipleUnlabeledDocuments={this.runAutoLabelingOnMultipleUnlabeledDocuments}
                     handleToggleDrawRegionMode={this.handleToggleDrawRegionMode}
                     connectionType={this.props.project.sourceConnection.providerType}
                     drawRegionMode={this.state.drawRegionMode}
@@ -344,7 +347,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         </div>
                     </div>
                 }
-                {this.state.autoLableingStatus === AutoLabelingStatus.running &&
+                {this.state.autoLabelingStatus === AutoLabelingStatus.running &&
                     <div className="canvas-ocr-loading">
                         <div className="canvas-ocr-loading-spinner">
                             <Label className="p-0" ></Label>
@@ -362,6 +365,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         errorMessage: undefined,
                     })}
                 />
+                <BatchSizeModal
+                    ref={this.autoLabelingBatchSizeModal}
+                    onConfirm={this.confirmRunAutoLabelingOnMultipleUnlabeledDocuments}
+                 />
             </div>
         );
     }
@@ -386,10 +393,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.setAutoLabelingStatus(AutoLabelingStatus.done);
         }
     }
-    private runAutoLabelingForRestDocuments = async () => {
-        this.setState({ autoLableingStatus: AutoLabelingStatus.running });
-        await this.props.runAutoLabelingOnNextBatch();
-        this.setState({ autoLableingStatus: AutoLabelingStatus.done });
+    private runAutoLabelingOnMultipleUnlabeledDocuments = async () => {
+        this.autoLabelingBatchSizeModal.current.openModal();
+    }
+    private confirmRunAutoLabelingOnMultipleUnlabeledDocuments = async (batchSize: number) => {
+        this.setState({ autoLabelingStatus: AutoLabelingStatus.running });
+        await this.props.runAutoLabelingOnNextBatch(batchSize);
+        this.setState({ autoLabelingStatus: AutoLabelingStatus.done });
     }
 
     public updateSize() {
@@ -538,8 +548,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private deleteRegions = (regions: IRegion[]) => {
-        this.deleteRegionsFromSelectedRegionIds(regions);
         this.deleteRegionsFromAsset(regions);
+        this.deleteRegionsFromSelectedRegionIds(regions);
         this.deleteRegionsFromImageMap(regions);
     }
 
@@ -1197,10 +1207,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             }
         });
     }
-    private setAutoLabelingStatus = (autoLableingStatus: AutoLabelingStatus) => {
-        this.setState({ autoLableingStatus }, () => {
+
+    private setAutoLabelingStatus = (autoLabelingStatus: AutoLabelingStatus) => {
+        this.setState({ autoLabelingStatus }, () => {
             if (this.props.onRunningAutoLabelingStatusChanged) {
-                this.props.onRunningAutoLabelingStatusChanged(autoLableingStatus === AutoLabelingStatus.running);
+                this.props.onRunningAutoLabelingStatusChanged(autoLabelingStatus === AutoLabelingStatus.running);
             }
         })
     }
@@ -1374,7 +1385,19 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             && this.props.selectedAsset.labelData.labels.map(label => ({
                 ...label, value: []
             }))) || [];
-
+        const selectedRegions = this.getSelectedRegions();
+        if (selectedRegions.length > 0) {
+            const intersectionResult = _.intersection(selectedRegions, regions);
+            if (intersectionResult.length === 0) {
+                const relatedLabels = labels.find(label => selectedRegions.find(sr => sr.tags.find(t => t === label.label)));
+                const originLabel = this.props.selectedAsset!.labelData!.labels.find(a => a.label === relatedLabels.label);
+                if (relatedLabels&&originLabel&&relatedLabels.confidence) {
+                    delete relatedLabels.confidence;
+                    relatedLabels.revised = true;
+                    relatedLabels.originValue = [...originLabel.value];
+                    }
+                }
+        }
         regions.forEach((region) => {
             const labelType = this.getLabelType(region.category);
             const boundingBox = region.id.split(",").map(parseFloat);
@@ -1386,8 +1409,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             region.tags.forEach((tag) => {
                 const label = labels.find(label => label.label === tag);
                 if (label) {
+                    const originLabel = this.props.selectedAsset!.labelData!.labels.find(a=>a.label === tag);
                     if (label.confidence && region.changed) {
                         delete label.confidence;
+                        label.revised = true;
+                        label.originValue = [...originLabel.value];
                     }
                     label.value.push(formRegion);
                 } else {
