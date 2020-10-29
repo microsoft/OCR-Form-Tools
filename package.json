@@ -52,7 +52,7 @@
     "scripts": {
         "start": "env-cmd -f .env.electron nf start -p 3000",
         "compile": "tsc",
-        "build": "./scripts/dump_git_info.js && react-scripts build",
+        "build": "node ./scripts/dump_git_info.js && react-scripts build",
         "react-start": "node ./scripts/dump_git_info.js && react-scripts start",
         "test": "react-scripts test --env=jsdom --silent",
         "eject": "react-scripts eject",
