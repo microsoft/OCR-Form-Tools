@@ -1,7 +1,7 @@
 spawn = require('child_process').spawn,
 fs = require('fs');
 
-git = spawn('git', ['rev-parse', '--short', 'HEAD']),
+git = spawn('git', ['log', '-1']),
 buf = Buffer.alloc(0);
 
 git.stdout.on('data', (data) => {
