@@ -110,7 +110,7 @@ export class AssetPreview extends React.Component<IAssetPreviewProps, IAssetPrev
                         <div className="asset-loading">
                             <div className="asset-loading-ocr-spinner">
                                 <Label className="p-0" ></Label>
-                                <Spinner size={SpinnerSize.small} label="Running OCR..." ariaLive="off" labelPosition="right" />
+                                <Spinner size={SpinnerSize.small} label="Running Layout..." ariaLive="off" labelPosition="right" />
                             </div>
                         </div>
                     }

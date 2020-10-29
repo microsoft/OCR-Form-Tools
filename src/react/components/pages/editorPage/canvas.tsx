@@ -343,7 +343,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     <div className="canvas-ocr-loading">
                         <div className="canvas-ocr-loading-spinner">
                             <Label className="p-0" ></Label>
-                            <Spinner size={SpinnerSize.large} label="Running OCR..." ariaLive="assertive" labelPosition="right" />
+                            <Spinner size={SpinnerSize.large} label="Running Layout..." ariaLive="assertive" labelPosition="right" />
                         </div>
                     </div>
                 }
