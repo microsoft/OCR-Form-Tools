@@ -525,7 +525,9 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 const labelAssigned = this.labelAssigned(labels, name);
 
                 if (labelAssigned && ((category === FeatureCategory.DrawnRegion) !== isTagLabelTypeDrawnRegion)) {
-                    if (isTagLabelTypeDrawnRegion) {
+                    if(category===FeatureCategory.Checkbox&&isTagLabelTypeDrawnRegion){
+                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, {otherCatagory: FeatureCategory.Checkbox}));
+                    }else if (isTagLabelTypeDrawnRegion) {
                         this.replaceConfirmRef.current.open(tag, props);
                     } else if (tagCategory === FeatureCategory.Checkbox) {
                         toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, {otherCatagory: FeatureCategory.Checkbox}));
