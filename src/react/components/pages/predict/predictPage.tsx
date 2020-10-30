@@ -247,16 +247,17 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             <FontIcon className="mr-1" iconName="Insights" />
                             <span>Analyze</span>
                         </h6>
+                        <div className="sidebar-content">
                         {!this.state.loadingRecentModel ?
                             <>
                                 {!mostRecentModel ?
-                                    <div className="bg-darker-2 pl-3 pr-3 flex-center" >
+                                    <div className="bg-darker-1 pl-3 pr-3 flex-center" >
                                         <div className="alert alert-warning warning no-models-warning" role="alert">
                                             {strings.predict.noRecentModels}
                                         </div>
                                     </div> :
                                     <>
-                                        <div className="bg-darker-2 pl-3 pr-3 flex-center model-selection-container">
+                                        <div className="bg-darker-1 pl-3 pr-3 flex-center model-selection-container">
                                             <div>
                                                 <h5 className="model-selection-header">
                                                     {strings.predict.selectModelHeader}
@@ -447,6 +448,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                 }
                             </> : <Spinner className="loading-tag" size={SpinnerSize.large} />
                         }
+                        </div>
                     </div>
                 </div>
                 <Alert

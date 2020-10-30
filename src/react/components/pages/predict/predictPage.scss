@@ -5,10 +5,7 @@
 }
 
 .predict {
-  display: flex;
-  flex-grow: 1;
-  flex-direction: row;
-  height: 10px; // Not sure why it helps
+  overflow: hidden;
 }
 
 .predict-main {
@@ -24,7 +21,6 @@
 
 .predict-sidebar {
   height: 100%;
-  display: flex;
   width: 400px;
   min-width: 400px;
 }
@@ -34,35 +30,14 @@
   background-color: white;
 }
 
-.dummyInputFile {
-  color: #757575;
-  border: 1px;
-  padding: 4px;
-  padding-left: 8px;
-  padding-right: 8px;
-  border-radius: 2px;
-  width: 100%;
-  flex: 1;
+.sidebar-content {
+  height: calc(100vh - 89px);
+  overflow-y: auto;
 }
 
-.seperator {
-  margin: 20px 10px;
-  position: relative;
-  background-color: inherit;
-  width: 45%;
-  display: inline-block;
-}
 
-.seperator:before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  border-top: 1px solid white;
-  background: white;
-  width: 100%;
-  transform: translateY(-50%);
-}
+
+
 
 .sourceDropdown {
   width: 95px;
@@ -78,7 +53,7 @@
 }
 
 .model-selection-container {
-  padding-top: 8px; 
+  padding-top: 8px;
   padding-bottom: 16px;
   display: flex;
   justify-content: space-between;
