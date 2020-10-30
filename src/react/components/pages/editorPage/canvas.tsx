@@ -206,7 +206,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 await this.loadOcr();
                 this.loadLabelData(asset);
             });
-        } else if (this.isLabelDataChanged(this.props, prevProps)
+        } else if (this.isLabelDataChanged(this.props, prevProps) || this.isTableLabelDataChanged(this.props, prevProps)
             || (prevProps.project
                 && this.needUpdateAssetRegionsFromTags(prevProps.project.tags, this.props.project.tags))) {
             const newRegions = this.convertLabelDataToRegions(this.props.selectedAsset.labelData);
@@ -1730,6 +1730,31 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     const newValue = newLabels.find(label => label.label === name).value.map(region => region.boundingBoxes).join(",");
                     const prevValue = prevLabels.find(label => label.label === name).value.map(region => region.boundingBoxes).join(",");
                     if (newValue !== prevValue) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+    }
+
+    private isTableLabelDataChanged = (newProps: ICanvasProps, prevProps: ICanvasProps): boolean => {
+        const newLabels = _.get(newProps, "selectedAsset.labelData.tableLabels", []) as ITableLabel[];
+        const prevLabels = _.get(prevProps, "selectedAsset.labelData.tableLabels", []) as ITableLabel[];
+
+        if (newLabels.length !== prevLabels.length) {
+            return true;
+        } else if (newLabels.length > 0) {
+            const newFieldNames = newLabels.map((label) => label.tableKey);
+            const prevFieldNames = prevLabels.map((label) => label.tableKey);
+            if (_.isEqual(newFieldNames.sort(), prevFieldNames.sort())) {
+                for (const name of newFieldNames) {
+                    const newValue = newLabels.find(label => label.tableKey === name);
+                    const prevValue = prevLabels.find(label => label.tableKey === name);
+                    if (!_.isEqual(newValue,  prevValue)) {
                         return true;
                     }
                 }
