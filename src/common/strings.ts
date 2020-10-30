@@ -246,6 +246,10 @@ export interface IAppStrings {
         }
         toolbar: {
             add: string,
+            onlyShowCurrentPageTags:string,
+            showAllTags:string,
+            showOriginLabels: string
+            hideOriginLabels: string,
             contextualMenu: string,
             delete: string,
             edit: string,
@@ -447,7 +451,7 @@ export interface IAppStrings {
                             runOcrOnCurrentDocument: string,
                             runOcrOnAllDocuments: string,
                             runAutoLabelingCurrentDocument: string,
-                            runAutoLabelingOnNotLabelingDocuments: string,
+                            runAutoLabelingOnMultipleUnlabeledDocuments: string,
                             noPredictModelOnProject: string,
                         }
                     }
@@ -589,7 +593,7 @@ export interface IAppStrings {
         errors: {
             cannotDecodeString: string,
             connectionNotFound: string,
-            noConnections: string,
+            connectionRequirement: string,
             tokenNameExist: string,
         },
         copy: {

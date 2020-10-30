@@ -489,18 +489,13 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
                     let nextPageList = nextPage.nextList;
                     nextPageList = nextPageList.filter((model) => recentModelIds.indexOf(model.modelId) === -1);
-                    const newList = currentList.concat(nextPageList);
-
-                    this.allModels = newList;
-                    const newCols = this.state.columns;
-                    newCols.forEach((ncol) => {
-                        ncol.isSorted = false;
-                        ncol.isSortedDescending = true;
-                    });
+                    const appendedList = currentList.concat(nextPageList);
+                    const currerntlySortedColumn: IColumn = this.state.columns.find((column) => column.isSorted);
+                    const appendedAndSortedList = this.copyAndSort(appendedList, currerntlySortedColumn.fieldName!, currerntlySortedColumn.isSortedDescending);
+                    this.allModels = appendedAndSortedList;
                     this.setState({
-                        modelList: newList,
+                        modelList: appendedAndSortedList,
                         nextLink: nextPage.nextLink,
-                        columns: newCols,
                     }, () => {
                         this.setState({
                             isLoading: false,
@@ -557,7 +552,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     private handleColumnClick = (event: React.MouseEvent<HTMLElement>, column: IColumn): void => {
         const {columns, modelList} = this.state;
         const newColumns: IColumn[] = columns.slice();
-        const currColumn: IColumn = newColumns.filter((col) => column.key === col.key)[0];
+        const currColumn: IColumn = newColumns.find((col) => column.key === col.key);
         newColumns.forEach((newCol: IColumn) => {
             if (newCol === currColumn) {
                 currColumn.isSortedDescending = !currColumn.isSortedDescending;

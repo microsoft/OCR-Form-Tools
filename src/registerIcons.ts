@@ -55,6 +55,7 @@ export function registerIcons() {
             StatusCircleCheckmark: "\uF13E",
             CircleRing: "\uEA3A",
             Filter: "\uE71C",
+            ClearFilter: "\uEF8F",
             Table: "\uED86",
             MapLayers: "\uE81E",
             BookAnswers: "\uF8A4",
@@ -74,6 +75,9 @@ export function registerIcons() {
             RectangleShape: "\uF1A9",
             Rotate90CounterClockwise: "\uF80E",
             Rotate90Clockwise: "\uF80D",
-            AzureAPIManagement: "\uF37F",        },
+            AzureAPIManagement: "\uF37F",
+            GroupedList: "\uEF74",
+            GroupList: "\uF168",
+        },
     });
 }

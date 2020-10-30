@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { IAppStrings } from "../strings";
+import {IAppStrings} from "../strings";
 
 /*eslint-disable no-template-curly-in-string, no-multi-str*/
 
@@ -41,8 +41,8 @@ export const english: IAppStrings = {
         },
         openCloudProject: {
             title: "Open Cloud Project",
-            selectConnection: "Select a Connection",
-            pasteSharedUri: "Please paste shared project string here",
+            selectConnection: "Open cloud project",
+            pasteSharedUri: "Paste shared project token here",
         },
         recentProjects: "Recent Projects",
         deleteProject: {
@@ -131,7 +131,7 @@ export const english: IAppStrings = {
         downloadJson: "Download JSON file",
         trainConfirm: {
             title: "Labels not revised yet",
-            message: "You have label files not yet revised, do you want to train with those files?"
+            message: "There are newly auto-labeled files not yet revised by you, do you want to train with those files?"
         },
         errors: {
             electron: {
@@ -272,6 +272,10 @@ export const english: IAppStrings = {
         },
         toolbar: {
             add: "Add new tag",
+            onlyShowCurrentPageTags: "Only show tags used in current page",
+            showAllTags: "Show all tags",
+            showOriginLabels:"Show origin labels",
+            hideOriginLabels:"Hide origin labels",
             contextualMenu: "Contextual Menu",
             delete: "Delete tag",
             edit: "Edit tag",
@@ -449,10 +453,10 @@ export const english: IAppStrings = {
                     additionalActions: {
                         text: "Additional actions",
                         subIMenuItems: {
-                            runOcrOnCurrentDocument: "Run OCR on current document",
-                            runOcrOnAllDocuments: "Run OCR on all documents",
+                            runOcrOnCurrentDocument: "Run Layout on current document",
+                            runOcrOnAllDocuments: "Run Layout on all documents",
                             runAutoLabelingCurrentDocument: "Auto-label the current document",
-                            runAutoLabelingOnNotLabelingDocuments: "Auto-label next ${batchSize} unlabeled documents",
+                            runAutoLabelingOnMultipleUnlabeledDocuments: "Auto-label multiple unlabeled documents",
                             noPredictModelOnProject: "Predict model not avaliable, please train the model first.",
                         }
                     }
@@ -529,7 +533,7 @@ export const english: IAppStrings = {
         },
         tips: {
             quickLabeling: {
-                name: "Lable with hot keys",
+                name: "Label with hot keys",
                 description: "Hotkeys 1 through 0 and all letters are assigned to first 36 tags. After selecting one or multiple words, press tag's assigned hotkey.",
             },
             renameTag: {
@@ -700,13 +704,13 @@ export const english: IAppStrings = {
     shareProject: {
         name: "Share Project",
         errors: {
-            cannotDecodeString: "Cannot decode shared string! Please, check if your string has been modified.",
+            cannotDecodeString: "Cannot decode shared token. Check if shared token has been modified.",
             connectionNotFound: "Connection not found. Add shared project's connection to your connections.",
-            noConnections: "Connection is required for project sharing",
+            connectionRequirement: "Shared project's connection must be added before opening it",
             tokenNameExist: "Warning! You already have token with same name as in shared project. Please create a new token, and update the existing project which uses ''${sharedTokenName}'' with new token name."
         },
         copy: {
-            success: "String for sharing your project has been saved to clipboard. In order to use it, paste it in appropriate section of the 'Open Cloud Project' popup.",
+            success: "Project token copied to clipboard and ready to share. Reciever of project token can click 'Open Cloud Project' from the Home page to use shared token.",
         }
     },
 };

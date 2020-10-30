@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { IAppStrings } from "../strings";
+import {IAppStrings} from "../strings";
 
 /*eslint-disable no-template-curly-in-string, no-multi-str*/
 
@@ -42,7 +42,7 @@ export const spanish: IAppStrings = {
         },
         openCloudProject: {
             title: "Abrir Proyecto de la Nube",
-            selectConnection: "Select a Connection",
+            selectConnection: "Proyecto de nube abierta",
             pasteSharedUri: "Pegue la cadena de proyecto compartida aquí",
         },
         deleteProject: {
@@ -132,7 +132,7 @@ export const spanish: IAppStrings = {
         downloadJson: "Descargar archivo JSON",
         trainConfirm: {
             title: "Etiquetas no revisadas todavía",
-            message: "Tiene archivos de etiquetas que aún no han sido revisados, ¿desea entrenar con esos archivos?"
+            message: "Hay archivos recientemente etiquetados automáticamente que aún no ha revisado, ¿desea entrenar con esos archivos?"
         },
         errors: {
             electron: {
@@ -271,6 +271,10 @@ export const spanish: IAppStrings = {
         },
         toolbar: {
             add: "Agregar nueva etiqueta",
+            onlyShowCurrentPageTags: "Mostrar solo las etiquetas utilizadas en la página actual",
+            showAllTags: "Mostrar todas las etiquetas",
+            showOriginLabels: "Mostrar etiquetas de origen",
+            hideOriginLabels: "Ocultar etiquetas de origen",
             contextualMenu: "Menú contextual",
             delete: "Borrar etiqueta",
             edit: "Editar etiqueta",
@@ -450,10 +454,10 @@ export const spanish: IAppStrings = {
                     additionalActions: {
                         text: "Acciones adicionales",
                         subIMenuItems: {
-                            runOcrOnCurrentDocument: "Ejecutar OCR en el documento actual",
-                            runOcrOnAllDocuments: "Ejecute OCR en todos los documentos",
+                            runOcrOnCurrentDocument: "Ejecutar Layout en el documento actual",
+                            runOcrOnAllDocuments: "Ejecute Layout en todos los documentos",
                             runAutoLabelingCurrentDocument: "Etiquetar automáticamente el documento actual",
-                            runAutoLabelingOnNotLabelingDocuments: "Etiquetar automáticamente los siguientes ${batchSize} documentos sin etiquetar",
+                            runAutoLabelingOnMultipleUnlabeledDocuments: "Etiquetar automáticamente varios documentos sin etiquetar",
                             noPredictModelOnProject: "Predecir modelo no disponible, entrene el modelo primero.",
                         }
                     }
@@ -701,13 +705,13 @@ export const spanish: IAppStrings = {
     shareProject: {
         name: "Compartir proyecto",
         errors: {
-            cannotDecodeString: "¡No se puede decodificar la cadena compartida! Por favor, verifique si su cadena ha sido modificada.",
+            cannotDecodeString: "No se puede decodificar el token compartido. Compruebe si se ha modificado el token compartido.",
             connectionNotFound: "Conexión no encontrada. Agregue la conexión del proyecto compartido a sus conexiones.",
-            noConnections: "Se requiere conexión para compartir proyectos",
+            connectionRequirement: "La conexión del proyecto compartido debe agregarse antes de abrirlo",
             tokenNameExist: "¡Advertencia! Ya tiene token con el mismo nombre que en el proyecto compartido. Cree un nuevo token y actualice el proyecto existente que usa ''${sharedTokenName}'' con el nuevo nombre del token.",
         },
         copy: {
-            success: "La cadena para compartir su proyecto se ha guardado en el portapapeles. Para usarlo, péguelo en la sección correspondiente de la ventana emergente 'Open Cloud Project'.",
+            success: "Token de proyecto copiado al portapapeles y listo para compartir. El receptor del token del proyecto puede hacer clic en 'Abrir proyecto en la nube' desde la página de inicio para usar el token compartido.",
         }
     }
 };
