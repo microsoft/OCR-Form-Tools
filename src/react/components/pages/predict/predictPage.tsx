@@ -27,7 +27,7 @@ import {
     getRightPaneDefaultButtonTheme
 } from "../../../../common/themes";
 import { loadImageToCanvas, parseTiffData, renderTiffToCanvas } from "../../../../common/utils";
-import { AppError, ErrorCode, FieldFormat, IApplicationState, IAppSettings, IConnection, ImageMapParent, IProject, IRecentModel } from "../../../../models/applicationState";
+import { AppError, ErrorCode, FieldFormat, IApplicationState, IAppSettings, IConnection, ImageMapParent, IProject, IRecentModel, IField } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -43,7 +43,7 @@ import RecentModelsView from "./recentModelsView";
 import { UploadToTrainingSetView } from "./uploadToTrainingSetView";
 import { CanvasCommandBar } from "../editorPage/canvasCommandBar";
 // import table_output from "./table_output.json"
-// import table_output2 from "./table_output_2 (1).json"
+// import table_output2 from "./table_output_2.json"
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -753,7 +753,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 });
             });
 
-             // uncomment this and comment all above for testing analyze results
+            //  uncomment this and comment all above for testing analyze results
             // this.setState({
             //     analyzeResult: table_output2,
             //     predictionLoaded: true,
@@ -762,7 +762,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             // }, () => {
             //     this.drawPredictionResult();
             // });
-            //
+
         if (this.appInsights) {
             this.appInsights.trackEvent({ name: "ANALYZE_EVENT" });
         }
@@ -1033,6 +1033,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         });
     }
 
+    // here
     private drawPredictionResult = (): void => {
         this.imageMap.removeAllFeatures();
         const features = [];
@@ -1042,12 +1043,29 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
 
         for (const fieldName of Object.keys(predictions)) {
-            const field = predictions[fieldName];
-            if (_.get(field, "page", null) === this.state.currPage) {
-                const text = fieldName;
-                const boundingbox = _.get(field, "boundingBox", []);
-                const feature = this.createBoundingBoxVectorFeature(text, boundingbox, imageExtent, ocrExtent);
-                features.push(feature);
+            const field: IField = predictions[fieldName];
+            if (predictions[fieldName]?.type === FieldFormat.Fixed || predictions[fieldName]?.type === FieldFormat.RowDynamic) {
+                const rows = predictions[fieldName].values;
+                for (const rowName of Object.keys(rows)) {
+                    const columns = rows[rowName];
+                    for (const cellName of Object.keys(columns)) {
+                        const field = columns[cellName];
+                        if (_.get(field, "page", null) === this.state.currPage)
+                        {
+                            const text = fieldName;
+                            const boundingbox = _.get(field, "boundingBox", []);
+                            const feature = this.createBoundingBoxVectorFeature(text, boundingbox, imageExtent, ocrExtent);
+                            features.push(feature);
+                        }
+                    }
+                }
+            } else {
+                if (_.get(field, "page", null) === this.state.currPage) {
+                    const text = fieldName;
+                    const boundingbox = _.get(field, "boundingBox", []);
+                    const feature = this.createBoundingBoxVectorFeature(text, boundingbox, imageExtent, ocrExtent);
+                    features.push(feature);
+                }
             }
         }
         this.imageMap.addFeatures(features);
