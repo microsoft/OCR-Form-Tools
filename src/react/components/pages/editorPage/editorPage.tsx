@@ -233,11 +233,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     <div>
                                         <Spinner
                                             size={SpinnerSize.small}
-                                            label="Running OCR"
+                                            label="Running Layout"
                                             ariaLive="off"
                                             labelPosition="right"
                                         />
-                                    </div> : "Run OCR on unvisited documents"
+                                    </div> : "Run Layout on unvisited documents"
                                 }
                             </PrimaryButton>
                         </div>}
@@ -362,7 +362,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 />
                 <PreventLeaving
                     when={isRunningOCRs || isCanvasRunningOCR}
-                    message={"An OCR operation is currently in progress, are you sure you want to leave?"}
+                    message={"An Layout operation is currently in progress, are you sure you want to leave?"}
                 />
                 <PreventLeaving
                     when={isCanvasRunningAutoLabeling}
@@ -501,7 +501,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      */
     private handleTagHotKey = (event: KeyboardEvent): void => {
         const tag = this.getTagFromKeyboardEvent(event);
-        const selection = this.canvas.current.getSelectedRegions();
+        const selection = this.canvas?.current?.getSelectedRegions();
 
         if (tag && selection.length) {
             const { format, type, documentCount, name } = tag;

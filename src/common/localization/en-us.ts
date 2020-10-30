@@ -453,8 +453,8 @@ export const english: IAppStrings = {
                     additionalActions: {
                         text: "Additional actions",
                         subIMenuItems: {
-                            runOcrOnCurrentDocument: "Run OCR on current document",
-                            runOcrOnAllDocuments: "Run OCR on all documents",
+                            runOcrOnCurrentDocument: "Run Layout on current document",
+                            runOcrOnAllDocuments: "Run Layout on all documents",
                             runAutoLabelingCurrentDocument: "Auto-label the current document",
                             runAutoLabelingOnMultipleUnlabeledDocuments: "Auto-label multiple unlabeled documents",
                             noPredictModelOnProject: "Predict model not avaliable, please train the model first.",
