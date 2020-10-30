@@ -838,20 +838,20 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             await this.props.actions.saveProject(this.props.project, false, false);
         });
     }
-    private reconfigureTableConfirm = (tagName: string, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => {
+    private reconfigureTableConfirm = (originalTagName: string, tagName: string, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => {
         console.log(tagName, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
         this.setState({ reconfigureTableConfirm: true });
-        this.reconfigTableConfirm.current.open(tagName, FieldType.Table, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
+        this.reconfigTableConfirm.current.open(originalTagName, tagName, FieldType.Table, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
     }
 
-    private reconfigureTable = async (tagName: string, tagType: FieldType, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => {
+    private reconfigureTable = async (originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => {
         console.log(tagName, tagType, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
-        const assetUpdates = await this.props.actions.reconfigureTableTag(this.props.project, tagName, tagType, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
+        const assetUpdates = await this.props.actions.reconfigureTableTag(this.props.project, originalTagName, tagName, tagType, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
         const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
         if (selectedAsset) {
             this.setState({ selectedAsset });
         }
-        this.setState({tagInputMode: TagInputMode.LabelTable}, () => this.resizeCanvas());
+        this.setState({tagInputMode: TagInputMode.Basic}, () => this.resizeCanvas());
         this.resizeCanvas();
     }
 

@@ -42,7 +42,7 @@ export default interface IProjectActions {
     deleteProjectTag(project: IProject, tagName: string, tagType: FieldType, tagFormat: FieldFormat): Promise<IAssetMetadata[]>;
     updateProjectTagsFromFiles(project: IProject, asset?: string): Promise<void>;
     updatedAssetMetadata(project: IProject, assetDocumentCountDifference: any): Promise<void>;
-    reconfigureTableTag?(project: IProject, tagName: string, tagType: FieldType, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]): Promise<IAssetMetadata[]>;
+    reconfigureTableTag?(project: IProject, originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]): Promise<IAssetMetadata[]>;
 }
 
 /**
@@ -336,7 +336,7 @@ export function deleteProjectTag(project: IProject, tagName: string, tagType: Fi
     };
 }
 
-export function reconfigureTableTag(project: IProject, tagName: string, tagType: FieldType, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[])
+export function reconfigureTableTag(project: IProject, originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[])
     : (dispatch: Dispatch, getState: () => IApplicationState) => Promise<IAssetMetadata[]> {
         return async (dispatch: Dispatch, getState: () => IApplicationState) => {
             console.log(project, tagName, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
@@ -353,7 +353,7 @@ export function reconfigureTableTag(project: IProject, tagName: string, tagType:
             const updatedProject = {
                 ...currentProject,
                 tags: currentProject.tags.reduce((result, tag) => {
-                    if (tag.name === tagName) {
+                    if (tag.name === originalTagName) {
                         (tag as ITableTag).rowKeys = newRows.map((newRow) => {
                             return {
                                 fieldKey: newRow.name,
@@ -368,6 +368,7 @@ export function reconfigureTableTag(project: IProject, tagName: string, tagType:
                                 fieldFormat: newColumn.format
                             } as IField
                         });
+                        (tag as ITag).name = tagName;
                         result.push(tag);
                         return result;
                     } else {

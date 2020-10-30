@@ -86,7 +86,7 @@ export interface ITagInputProps {
     selectedTableTagToLabel: ITableTag;
     handleLabelTable: (tagInputMode: TagInputMode, selectedTableTagToLabel) => void;
     addRowToDynamicTable: () => void;
-    reconfigureTableConfirm: (tagName: string, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => void;
+    reconfigureTableConfirm: (originalTagName: string, tagName: string, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => void;
     handleTableCellClick: (iTableCellIndex, jTableCellIndex) => void;
     selectedTableTagBody: ITableRegion[][][];
     splitPaneWidth: number;

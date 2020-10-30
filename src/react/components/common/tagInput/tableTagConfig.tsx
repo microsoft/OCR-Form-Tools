@@ -16,7 +16,7 @@ interface ITableTagConfigProps {
     addTableTag: (table: any) => void;
     splitPaneWidth: number;
     tableTag?: ITableTag;
-    reconfigureTableConfirm?: (tagName: string, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => void;
+    reconfigureTableConfirm?: (originalTagName: string, tagName: string, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => void;
     selectedTableBody: ITableRegion[][][];
 }
 
@@ -1007,7 +1007,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                                         tableTagToReconfigure["deletedRows"] = null;
                                         tableTagToReconfigure["format"] = FieldFormat.RowDynamic
                                     }
-                                    props.reconfigureTableConfirm(tableTagName?.originalTableName?.trim(), tableTagToReconfigure["format"], deletedColumns, deletedRows, tableTagToReconfigure["rows"], tableTagToReconfigure.columns);
+                                    props.reconfigureTableConfirm(tableTagName?.originalTableName?.trim(), tableTagName?.tableName?.trim(), tableTagToReconfigure["format"], deletedColumns, deletedRows, tableTagToReconfigure["rows"], tableTagToReconfigure.columns);
                                 } else {
                                     save(cleanTableName, cleanRows, cleanColumns);
                                 }
