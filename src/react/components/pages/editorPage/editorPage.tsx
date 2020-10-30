@@ -871,7 +871,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 const asset = this.state.selectedAsset.asset;
                 const currentAsset = _.get(this.props, `project.assets[${this.state.selectedAsset.asset.id}]`, null);
                 if (asset.state !== currentAsset.state || asset.labelingState !== currentAsset.labelingState) {
-                    this.updateSelectAsset({...currentAsset});
+                    this.updateSelectAsset(asset);
                 }
             }
         }
