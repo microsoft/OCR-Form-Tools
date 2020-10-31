@@ -103,7 +103,7 @@ def getArguments(argv):
     
     for opt, arg in opts:
         if opt == '-t':
-            if arg not in ('application/pdf', 'image/jpeg', 'image/png', 'image/tiff'):
+            if arg not in ('application/pdf', 'image/jpeg', 'image/png', 'image/tiff', 'image/bmp'):
                 print('Type ' + file_type + ' not supported')
                 sys.exit()
             else:
@@ -131,6 +131,8 @@ def inferrType(input_file):
         return 'application/pdf'
     elif file_extension ==  '.jpeg':
         return 'image/jpeg'
+    elif file_extension == '.bmp':
+        return 'image/bmp'
     elif file_extension ==  '.png':
         return 'image/png'
     elif file_extension ==  '.tiff':
