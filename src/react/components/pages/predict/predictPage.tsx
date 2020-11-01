@@ -327,7 +327,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                     <input
                                                         aria-hidden="true"
                                                         type="file"
-                                                        accept="application/pdf, image/jpeg, image/png, image/tiff"
+                                                        accept="application/pdf, image/jpeg, image/png, image/tiff, image/bmp"
                                                         id="hiddenInputFile"
                                                         ref={this.fileInput}
                                                         onChange={this.handleFileChange}
@@ -493,7 +493,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
     private getFileFromURL = () => {
         this.setState({ isFetching: true });
-        fetch(this.state.inputedFileURL, { headers: { Accept: "application/pdf, image/jpeg, image/png, image/tiff" } })
+        fetch(this.state.inputedFileURL, { headers: { Accept: "application/pdf, image/jpeg, image/png, image/tiff, image/bmp" } })
             .then((response) => {
                 if (!response.ok) {
                     this.setState({
@@ -506,7 +506,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     return;
                 }
                 const contentType = response.headers.get("Content-Type");
-                if (!["application/pdf", "image/jpeg", "image/png", "image/tiff"].includes(contentType)) {
+                if (!["application/pdf", "image/jpeg", "image/png", "image/tiff", "image/bmp"].includes(contentType)) {
                     this.setState({
                         isFetching: false,
                         shouldShowAlert: true,
@@ -859,6 +859,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         switch (file.type) {
             case "image/jpeg":
             case "image/png":
+            case "image/bmp":
                 this.loadImageFile(file);
                 break;
 
@@ -876,7 +877,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     imageUri: "",
                     shouldShowAlert: true,
                     alertTitle: "Not supported file type",
-                    alertMessage: "Sorry, we currently only support JPG/PNG/PDF files.",
+                    alertMessage: "Sorry, we currently only support JPG/PNG/PDF/BMP files.",
                 });
                 break;
         }
