@@ -78,6 +78,8 @@ export function registerIcons() {
             AzureAPIManagement: "\uF37F",
             GroupedList: "\uEF74",
             GroupList: "\uF168",
+            FieldChanged: "\uF2C3",
+            FieldNotChanged: "\uF2C4"
         },
     });
 }
