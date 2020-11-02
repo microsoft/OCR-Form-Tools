@@ -203,7 +203,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         errorMessage={getTextInputError(notUniqueNames.columns, row.name.trim(), index)}
                         onRenderLabel={() => {
                             return row.originalName ?
-                                <div className={"input-label-original-name"}>
+                                <div className={"input-label-original-name original-value"}>
                                     Original name: {row.originalName}
                                 </div>
                                 : null;
@@ -276,7 +276,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         errorMessage={getTextInputError(notUniqueNames.rows, row.name, index)}
                         onRenderLabel={() => {
                             return row.originalName ?
-                                <div className={"input-label-original-name"}>
+                                <div className={"input-label-original-name original-value"}>
                                     Original name: {row.originalName}
                                 </div>
                                 : null;
@@ -735,11 +735,11 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     if (i === 0 && j !== 0) {
                         const columnHeaderWasRenamed = props.tableTag && columns[j - 1].name !== columns[j - 1].originalName;
                         tableRow.push(
-                            <th key={`col-h-${j}`} className="column_header">
+                            <th key={`col-h-${j}`} className="header_column">
                                 {columnHeaderWasRenamed &&
-                                    <div className="renamed-header-value">{columns[j - 1].originalName}</div>
+                                    <div className="renamed-value">{columns[j - 1].originalName}</div>
                                 }
-                                <div className="column-header-value">
+                                <div className="original-value">
                                     {columns[j - 1].name}
                                 </div>
                             </th>);
@@ -747,13 +747,13 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         if (!isRowDynamic) {
                             const rowHeaderWasRenamed = props.tableTag && rows[i - 1].name !== rows[i - 1].originalName;
                             tableRow.push(
-                                <th key={`row-h-${j}`} className="row_header">
+                                <th key={`row-h-${j}`} className="header_row">
                                     {rowHeaderWasRenamed &&
-                                        <div className="renamed-header-value">
+                                        <div className="renamed-value">
                                             {rows[i - 1].originalName}
                                         </div>
                                     }
-                                    <div>
+                                    <div className="original-value">
                                         {rows[i - 1].name}
                                     </div>
                                 </th>
@@ -761,7 +761,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         }
                     } else if (j === 0 && i === 0) {
                         if (!isRowDynamic) {
-                            tableRow.push(<th key={"ignore"} className="empty_header" ></th>);
+                            tableRow.push(<th key={"ignore"} className="header_empty" ></th>);
                         }
                     } else {
                         tableRow.push(<td key={`cell-${i}-${j}`} className="table-cell" />);
@@ -941,7 +941,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         {tableTagName.tableName &&
                             <>
                                 {props.tableTag && tableTagName.originalTableName !== tableTagName.tableName &&
-                                    <div className="tableName-original">
+                                    <div className="tableName-original original-value">
                                         Table name: {tableTagName.originalTableName}
                                     </div>
                                 }

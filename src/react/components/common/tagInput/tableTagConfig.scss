@@ -116,25 +116,26 @@
                     padding: 0;
                     margin: 0;
                 }
-                .column_header {
-                    min-width: 130px;
-                    background-color: $lighter-3;
-                    border: 2px solid grey;
-                    text-align: center;
-                    padding: .125rem .25rem;
-                    height: 1.5rem;
-                    vertical-align: middle;
-                }
-                .row_header {
-                    min-width: 130px;
-                    background-color: $lighter-3;
-                    border: 2px solid grey;
-                    text-align: center;
-                    padding: .125rem .5rem;
-                }
-                .empty_header {
-                    border: 2px solid grey;
-                    background-color: $lighter-3;
+                .header {
+                    &_column, &_row {
+                        min-width: 130px;
+                        max-width: 200px;
+                        background-color: $lighter-3;
+                        border: 2px solid grey;
+                        text-align: center;
+                        padding: .125rem .5rem;
+                        .value {
+                        }
+                        .renamed-value {
+                            text-decoration: line-through;
+                            color: rgb(177, 177, 177);
+                            font-size: small;
+                        }
+                    }
+                    &_empty {
+                        border: 2px solid grey;
+                        background-color: $lighter-3;
+                    }
                 }
                 .table-cell {
                     text-align: center;
@@ -165,6 +166,11 @@
 
 
 // ========= utility classes
+
+.original-value, .renamed-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 .ml-12px {
     margin-left: 12px;
 }
@@ -185,9 +191,7 @@
  }
 
  .renamed-header-value {
-    text-decoration: line-through;
-    color: rgb(177, 177, 177);
-    font-size: small;
+
 
  }
 
