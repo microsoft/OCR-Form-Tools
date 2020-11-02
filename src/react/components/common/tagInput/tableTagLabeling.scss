@@ -30,6 +30,8 @@
         .viewed-table {
             margin-bottom: 1rem;
             .column_header {
+                text-overflow: ellipsis;
+                overflow: hidden;
                 min-width: 130px;
                 max-width: 200px;
                 background-color: $lighter-3;
@@ -38,6 +40,8 @@
                 padding: .125rem .25rem;
             }
             .row_header {
+                text-overflow: ellipsis;
+                overflow: hidden;
                 min-width: 130px;
                 max-width: 200px;
                 border: 2px solid grey;
