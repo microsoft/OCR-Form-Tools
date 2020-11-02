@@ -2,6 +2,7 @@ import {Dropdown, IDropdownOption, PrimaryButton, TextField} from '@fluentui/rea
 import React from 'react';
 import {strings} from '../../../../common/strings';
 import {getGreenWithWhiteBackgroundTheme, getPrimaryGreenTheme} from '../../../../common/themes';
+import "./documentFilePicker.scss";
 
 interface IDocumentFilePickerProps {
     disabled: boolean;
@@ -49,7 +50,9 @@ export class DocumentFilePicker extends React.Component<IDocumentFilePickerProps
             this.state.inputedFileURL === strings.prebuiltPredict.defaultURLInput;
 
         return <>
-            <div style={{marginBottom: "3px"}}>Image source</div>
+            <div
+                className="document-file-picker"
+                style={{marginBottom: "3px"}}>Image source</div>
             <div className="container-space-between">
                 <Dropdown
                     className="sourceDropdown"

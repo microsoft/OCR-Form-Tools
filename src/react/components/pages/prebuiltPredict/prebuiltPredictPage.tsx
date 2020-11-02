@@ -191,13 +191,13 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                 className={`predict skipToMainContent ${onPrebuiltsPath ? "" : "hidden"} `}
                 id="pagePredict"
                 style={{display: `${onPrebuiltsPath ? "flex" : "none"}`}} >
-                <div className="predict-main">
+                <div className="prebuilt-predict-main">
                     {this.state.file && this.state.imageUri && this.renderImageMap()}
                     {this.renderPrevPageButton()}
                     {this.renderNextPageButton()}
                     {this.renderPageIndicator()}
                 </div>
-                <div className="predict-sidebar bg-lighter-1">
+                <div className="prebuilt-predict-sidebar bg-lighter-1">
                     <div className="condensed-list">
                         <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
                             <FontIcon className="mr-1" iconName="Insights" />
@@ -224,7 +224,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                                 onFileChange={(data) => this.onFileChange(data)}
                                 onSelectSourceChange={() => this.onSelectSourceChange()}
                                 onError={(err) => this.onFileLoadError(err)} />
-                            <div className="container-items-end predict-button">
+                            <div className="container-items-end prebuilt-predict-button">
                                 <PrimaryButton
                                     theme={getPrimaryWhiteTheme()}
                                     iconProps={{iconName: "Insights"}}

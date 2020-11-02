@@ -3,6 +3,7 @@ import React from 'react';
 import {getGreenWithWhiteBackgroundTheme, getPrimaryGreyTheme} from '../../../../common/themes';
 import {IPrebuiltSettings} from '../../../../models/applicationState';
 import IAppPrebuiltSettingsActions from '../../../../redux/actions/prebuiltSettingsActions';
+import "./prebuiltSetting.scss";
 
 interface IPrebuiltSettingProps {
     prebuiltSettings: IPrebuiltSettings;
@@ -22,7 +23,7 @@ export class PrebuiltSetting extends React.Component<IPrebuiltSettingProps, IPre
     render() {
         const {disabled} = this.props;
         return <>
-            <div className="p-3" style={{marginTop: "8px"}}>
+            <div className="p-3 prebuilt-setting" style={{marginTop: "8px"}}>
                 <h5>Service configuration</h5>
                 <div style={{marginBottom: "3px"}}>Form recognizer service endpoint</div>
                 <TextField

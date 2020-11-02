@@ -1,10 +1,10 @@
 @import "../../../../assets/sass/theme.scss";
 
-.predict {
+.prebuilt-predict {
     display: flex;
     flex-grow: 1;
     flex-direction: row;
-    height: 10px; // Not sure why it helps
+    height: 10px;
     &-main {
         position: relative;
         display: flex;
@@ -22,47 +22,12 @@
         display: flex;
         width: 400px;
         min-width: 400px;
+        .prebuilt-type-dropdown {
+            width: 95px;
+            margin-bottom: 10px;
+        }
     }
     &-button {
         margin-bottom: 20px;
     }
-}
-
-.input-disabled {
-    color: #bbb;
-    background-color: white;
-}
-
-.seperator {
-    margin: 20px 10px;
-    position: relative;
-    background-color: inherit;
-    width: 45%;
-    display: inline-block;
-
-    &:before {
-        content: "";
-        position: absolute;
-        top: 50%;
-        left: 0;
-        border-top: 1px solid white;
-        background: white;
-        width: 100%;
-        transform: translateY(-50%);
-    }
-}
-
-.prebuilt-type-dropdown,
-.sourceDropdown {
-    width: 95px;
-    margin-bottom: 10px;
-}
-
-.apikeyContainer {
-    display: flex;
-    margin-bottom: 30px;
-}
-
-.apikey {
-    width: 100%;
 }
