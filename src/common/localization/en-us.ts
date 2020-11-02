@@ -269,8 +269,8 @@ export const english: IAppStrings = {
             notCompatibleTagType: "Tag type is not compatible with this feature. If you want to change type of this tag, please remove or reassign all labels which using this tag in your project.",
             checkboxPerTagLimit: "Cannot assign more than one checkbox per tag",
             notCompatibleWithDrawnRegionTag: "Drawn regions and ${otherCatagory} values cannot both be assigned to the same document's tag",
-            replaceAllExitingLabels:"Do you want to replace all exiting labels of current tag?",
-            replaceAllExitingLabelsTitle:"Replace label(s)",
+            replaceAllExitingLabels:"Are you sure you want to replace selected tag's labels?",
+            replaceAllExitingLabelsTitle:"Replace tag's labels",
         },
         preText:{
             autoLabel:"Auto-labeled: ",

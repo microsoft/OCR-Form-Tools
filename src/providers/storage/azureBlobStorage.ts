@@ -231,6 +231,36 @@ export class AzureBlobStorage implements IStorageProvider {
         return result;
     }
 
+    public async getAsset(folderPath: string, assetName: string): Promise<IAsset>{
+        const files: string[] = await this.listFiles(folderPath);
+        if(files.findIndex(f=>f===assetName)!==-1){
+            const url = this.getUrl(assetName);
+            const asset = await AssetService.createAssetFromFilePath(url, this.getFileName(url));
+            if (this.isSupportedAssetType(asset.type)) {
+                const labelFileName = decodeURIComponent(`${asset.name}${constants.labelFileExtension}`);
+                const ocrFileName = decodeURIComponent(`${asset.name}${constants.ocrFileExtension}`);
+
+                if (files.find((str) => str === labelFileName)) {
+                    asset.state = AssetState.Tagged;
+                    const labelFileName = decodeURIComponent(`${asset.name}${constants.labelFileExtension}`);
+                    const json = await this.readText(labelFileName, true);
+                    const labelData = JSON.parse(json) as ILabelData;
+                    if (labelData) {
+                        asset.labelingState = labelData.labelingState || AssetLabelingState.ManuallyLabeled;
+                    }
+                } else if (files.find((str) => str === ocrFileName)) {
+                    asset.state = AssetState.Visited;
+                } else {
+                    asset.state = AssetState.NotVisited;
+                }
+                return asset;
+            }
+        }
+        else{
+            return null;
+        }
+    }
+
     /**
      *
      * @param url - URL for Azure Blob

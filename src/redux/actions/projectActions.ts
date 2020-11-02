@@ -32,6 +32,7 @@ export default interface IProjectActions {
     addAssetToProject(project: IProject, fileName: string, buffer: Buffer, analyzeResult: any): Promise<IAsset>;
     deleteAsset(project: IProject, assetMetadata: IAssetMetadata): Promise<void>;
     loadAssets(project: IProject): Promise<IAsset[]>;
+    refreshAsset(project: IProject, assetName: string):Promise<void>;
     loadAssetMetadata(project: IProject, asset: IAsset): Promise<IAssetMetadata>;
     saveAssetMetadata(project: IProject, assetMetadata: IAssetMetadata): Promise<IAssetMetadata>;
     updateProjectTag(project: IProject, oldTag: ITag, newTag: ITag): Promise<IAssetMetadata[]>;
@@ -230,6 +231,14 @@ function areAssetsEqual(assets: IAsset[], projectAssets: { [index: string]: IAss
     return JSON.stringify(assetsMap) === JSON.stringify(projectAssets);
 }
 
+export function refreshAsset(project: IProject, assetName:string):(dispatch:Dispatch) => Promise<void> {
+    return async (dispatch:Dispatch) =>{
+        const assetService = new AssetService(project);
+        const asset = await assetService.getAsset( assetName);
+        dispatch(refreshAssetAction( asset));
+    }
+}
+
 /**
  * Load metadata from asset within project
  * @param project - Project from which to load asset metadata
@@ -313,9 +322,9 @@ export function deleteProjectTag(project: IProject, tagName)
         const assetUpdates = await assetService.deleteTag(tagName);
 
         // Save updated assets
-        await assetUpdates.forEachAsync(async (assetMetadata) => {
+        for (const assetMetadata of assetUpdates) {
             await saveAssetMetadata(project, assetMetadata)(dispatch);
-        });
+        }
 
         const currentProject = getState().currentProject;
         const updatedProject = {
@@ -386,7 +395,9 @@ export interface ILoadProjectAssetsAction extends IPayloadAction<string, IAsset[
 export interface IDeleteProjectAssetAction extends IPayloadAction<string, IAsset[]> {
     type: ActionTypes.DELETE_PROJECT_ASSET_SUCCESS;
 }
-
+export interface IRefreshAssetAction extends IPayloadAction<string, IAsset> {
+    type: ActionTypes.REFRESH_ASSET_SUCCESS;
+}
 /**
  * Load asset metadata action type
  */
@@ -445,6 +456,9 @@ export const loadProjectAssetsAction =
  */
 export const deleteProjectAssetAction =
     createPayloadAction<IDeleteProjectAssetAction>(ActionTypes.DELETE_PROJECT_ASSET_SUCCESS);
+
+export const refreshAssetAction =
+createPayloadAction<IRefreshAssetAction>(ActionTypes.REFRESH_ASSET_SUCCESS);
 /**
  * Instance of Load Asset Metadata action
  */

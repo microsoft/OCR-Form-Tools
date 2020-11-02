@@ -541,6 +541,10 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                         toast.warn(strings.tags.warnings.checkboxPerTagLimit);
                         return;
                     }
+                    if(tagCategory===FeatureCategory.Checkbox&&category!==FeatureCategory.Checkbox){
+                        toast.warn(strings.tags.warnings.notCompatibleTagType);
+                        return;
+                    }
                     onTagClick(tag);
                     deselect = false;
                 } else {

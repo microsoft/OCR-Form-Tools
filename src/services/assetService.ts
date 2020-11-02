@@ -316,6 +316,10 @@ export class AssetService {
         return this.filterAssets(assets, folderPath);
     }
 
+    public async getAsset(assetName: string): Promise<IAsset> {
+        return await this.assetProvider.getAsset(this.project.folderPath, assetName);
+    }
+
     private filterAssets = (assets, folderPath) => {
         if (this.project.sourceConnection.providerType === "localFileSystemProxy") {
             return assets.map((asset) => {

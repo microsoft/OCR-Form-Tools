@@ -83,6 +83,7 @@ describe("Asset Service", () => {
         beforeEach(() => {
             assetProviderMock = {
                 getAssets: () => Promise.resolve(testAssets),
+                getAsset:(folderPath: string, assetName: string) => Promise.resolve(testAssets[0]),
             };
 
             storageProviderMock = {

@@ -52,6 +52,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     project: IProject;
     lockedTags: string[];
     hoveredLabel: ILabel;
+    isRunningOCRs?: boolean;
     children?: ReactElement<AssetPreview>;
     setTableToView?: (tableToView: object, tableToViewId: string) => void;
     closeTableView?: (state: string) => void;
@@ -192,6 +193,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.selectedRegionIds = [];
             this.imageMap.removeAllFeatures();
             this.imageMap.resetAllLayerVisibility();
+
             this.setState({
                 currentAsset: this.props.selectedAsset,
                 ocr: null,
@@ -338,7 +340,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         Page {this.state.currentPage} of {this.state.numPages}
                     </p>
                 }
-                {this.state.ocrStatus !== OcrStatus.done &&
+                {(this.props.isRunningOCRs || this.state.ocrStatus !== OcrStatus.done) &&
                     <div className="canvas-ocr-loading">
                         <div className="canvas-ocr-loading-spinner">
                             <Label className="p-0" ></Label>
@@ -373,7 +375,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private runOcrForAllDocuments = () => {
-        this.setState({ocrStatus: OcrStatus.runningOCR})
         this.props.runOcrForAllDocs(true);
     }
 

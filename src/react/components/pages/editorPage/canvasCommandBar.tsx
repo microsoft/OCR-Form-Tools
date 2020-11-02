@@ -91,7 +91,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         key: "Label",
                         text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.labels,
                         canCheck: true,
-                        iconProps: { iconName: "LabelComposite" },
+                        iconProps: { iconName: "Label" },
                         isChecked: props.layers["label"],
                         onClick: () => props.handleLayerChange("label"),
                     },

@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { ActionTypes } from "../actions/actionTypes";
-import { IProject, ITag } from "../../models/applicationState";
-import { AnyAction } from "../actions/actionCreators";
+import {ActionTypes} from "../actions/actionTypes";
+import {IProject, ITag} from "../../models/applicationState";
+import {AnyAction} from "../actions/actionCreators";
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../../react/components/common/tagColors.json");
 
@@ -24,9 +24,9 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
         case ActionTypes.CLOSE_PROJECT_SUCCESS:
             return null;
         case ActionTypes.LOAD_PROJECT_SUCCESS:
-            return { ...action.payload };
+            return {...action.payload};
         case ActionTypes.ADD_ASSET_TO_PROJECT_SUCCESS:
-            return { ...state, lastVisitedAssetId: action.payload.id };
+            return {...state, lastVisitedAssetId: action.payload.id};
         case ActionTypes.LOAD_ASSET_METADATA_SUCCESS:
             if (!state) {
                 return state;
@@ -36,11 +36,18 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
                 ...state,
                 lastVisitedAssetId: action.payload.asset.id,
             };
+
+        case ActionTypes.REFRESH_ASSET_SUCCESS:
+            return {
+                ...state,
+                assets:{...state.assets, [action.payload.id]: action.payload},
+            };
+            break;
         case ActionTypes.DELETE_PROJECT_ASSET_SUCCESS:
         case ActionTypes.LOAD_PROJECT_ASSETS_SUCCESS:
             let assets = {};
             action.payload.forEach((asset) => {
-                assets = { ...assets, [asset.id]: { ...asset } };
+                assets = {...assets, [asset.id]: {...asset}};
             });
 
             return {
@@ -52,8 +59,8 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
                 return state;
             }
 
-            const updatedAssets = { ...state.assets } || {};
-            updatedAssets[action.payload.asset.id] = { ...action.payload.asset };
+            const updatedAssets = {...state.assets} || {};
+            updatedAssets[action.payload.asset.id] = {...action.payload.asset};
 
             const assetTags = new Set();
             action.payload.regions.forEach((region) => region.tags.forEach((tag) => assetTags.add(tag)));
@@ -88,11 +95,11 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
         case ActionTypes.UPDATE_PROJECT_TAG_SUCCESS:
         case ActionTypes.UPDATE_PROJECT_TAGS_FROM_FILES_SUCCESS:
         case ActionTypes.UPDATE_TAG_LABEL_COUNTS_SUCCESS:
+        case ActionTypes.DELETE_PROJECT_TAG_SUCCESS:
             return {
                 ...state,
                 tags: action.payload.tags,
             };
-
         case ActionTypes.SAVE_CONNECTION_SUCCESS:
             if (!state) {
                 return state;
@@ -101,7 +108,7 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
             return {
                 ...state,
                 sourceConnection: state.sourceConnection.id === action.payload.id
-                    ? { ...action.payload }
+                    ? {...action.payload}
                     : state.sourceConnection,
             };
         default:

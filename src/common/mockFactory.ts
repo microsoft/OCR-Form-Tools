@@ -7,20 +7,20 @@ import {
     IAppError, ErrorCode,
     IRegion, RegionType, FieldType, FieldFormat, FeatureCategory,
 } from "../models/applicationState";
-import { IAssetProvider, IAssetProviderRegistrationOptions } from "../providers/storage/assetProviderFactory";
-import { IAzureCloudStorageOptions } from "../providers/storage/azureBlobStorage";
-import { IStorageProvider, IStorageProviderRegistrationOptions } from "../providers/storage/storageProviderFactory";
-import { IProjectSettingsPageProps } from "../react/components/pages/projectSettings/projectSettingsPage";
-import { IEditorPageProps } from "../react/components/pages/editorPage/editorPage";
+import {IAssetProvider, IAssetProviderRegistrationOptions} from "../providers/storage/assetProviderFactory";
+import {IAzureCloudStorageOptions} from "../providers/storage/azureBlobStorage";
+import {IStorageProvider, IStorageProviderRegistrationOptions} from "../providers/storage/storageProviderFactory";
+import {IProjectSettingsPageProps} from "../react/components/pages/projectSettings/projectSettingsPage";
+import {IEditorPageProps} from "../react/components/pages/editorPage/editorPage";
 import IProjectActions, * as projectActions from "../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../redux/actions/appTitleActions";
-import { generateKey } from "./crypto";
-import { randomIntInRange, encodeFileURI } from "./utils";
-import { appInfo } from "./appInfo";
-import { IKeyboardBindingProps } from "../react/components/common/keyboardBinding/keyboardBinding";
-import { KeyEventType } from "../react/components/common/keyboardManager/keyboardManager";
-import { IKeyboardRegistrations } from "../react/components/common/keyboardManager/keyboardRegistrationManager";
+import {generateKey} from "./crypto";
+import {randomIntInRange, encodeFileURI} from "./utils";
+import {appInfo} from "./appInfo";
+import {IKeyboardBindingProps} from "../react/components/common/keyboardBinding/keyboardBinding";
+import {KeyEventType} from "../react/components/common/keyboardManager/keyboardManager";
+import {IKeyboardRegistrations} from "../react/components/common/keyboardManager/keyboardRegistrationManager";
 
 export default class MockFactory {
     /**
@@ -164,14 +164,14 @@ export default class MockFactory {
                 blobs: MockFactory.createAzureBlobs(i),
             });
         }
-        return { containerItems: result };
+        return {containerItems: result};
     }
 
     /**
      * Creates fake IAzureCloudStorageOptions
      */
     public static createAzureOptions(): IAzureCloudStorageOptions {
-        return { sas: "sas" };
+        return {sas: "sas"};
     }
 
     /**
@@ -196,7 +196,7 @@ export default class MockFactory {
      * @param fileType File type of blob
      */
     public static blob(name: string, content: string | Buffer, fileType: string): Blob {
-        const blob = new Blob([content], { type: fileType });
+        const blob = new Blob([content], {type: fileType});
         blob["name"] = name;
         return blob;
     }
@@ -213,7 +213,7 @@ export default class MockFactory {
                 name: `blob-${id}-${i}.jpg`,
             });
         }
-        return { segment: { blobItems: result } };
+        return {segment: {blobItems: result}};
     }
 
     /**
@@ -319,6 +319,7 @@ export default class MockFactory {
             createContainer: jest.fn(),
             deleteContainer: jest.fn(),
             getAssets: jest.fn(),
+            getAsset: jest.fn(),
             isFileExists: jest.fn(),
         };
     }
@@ -343,6 +344,9 @@ export default class MockFactory {
             getAssets(folderPath?: string, folderName?: string): Promise<IAsset[]> {
                 throw new Error("Method not implemented.");
             },
+            getAsset(folderPath: string, assetName: string): Promise<IAsset> {
+                throw new Error("Method not implemented.");
+            }
         };
     }
 
@@ -438,10 +442,10 @@ export default class MockFactory {
                 height: size.height,
             },
             points: [
-                { x: origin.x, y: origin.y }, // Top left
-                { x: origin.x + size.width, y: origin.y }, // Top Right
-                { x: origin.x, y: origin.y + size.height }, // Bottom Left
-                { x: origin.x + size.width, y: origin.y + size.height }, // Bottom Right
+                {x: origin.x, y: origin.y}, // Top left
+                {x: origin.x + size.width, y: origin.y}, // Top Right
+                {x: origin.x, y: origin.y + size.height}, // Bottom Left
+                {x: origin.x + size.width, y: origin.y + size.height}, // Bottom Right
             ],
             tags,
             type: RegionType.Rectangle,
@@ -480,6 +484,7 @@ export default class MockFactory {
             deleteAsset: jest.fn(() => Promise.resolve()),
             loadAssets: jest.fn(() => Promise.resolve()),
             loadAssetMetadata: jest.fn(() => Promise.resolve()),
+            refreshAsset: jest.fn(() => Promise.resolve()),
             saveAssetMetadata: jest.fn(() => Promise.resolve()),
             updateProjectTag: jest.fn(() => Promise.resolve()),
             deleteProjectTag: jest.fn(() => Promise.resolve()),
