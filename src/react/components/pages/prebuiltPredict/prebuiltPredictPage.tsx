@@ -201,7 +201,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                     <div className="condensed-list">
                         <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
                             <FontIcon className="mr-1" iconName="Insights" />
-                            <span>Analyze with pribuilt models</span>
+                            <span>Analyze with prebuilt models</span>
                         </h6>
 
                         <PrebuiltSetting prebuiltSettings={this.props.prebuiltSettings}
