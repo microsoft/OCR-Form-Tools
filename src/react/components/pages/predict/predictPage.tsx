@@ -42,7 +42,7 @@ import PredictResult, { IAnalyzeModelInfo, ITableResultItem } from "./predictRes
 import RecentModelsView from "./recentModelsView";
 import { UploadToTrainingSetView } from "./uploadToTrainingSetView";
 import { CanvasCommandBar } from "../editorPage/canvasCommandBar";
-// import table_output from "./table_output.json"
+// import table_output2 from "./table_output.json"
 // import table_output2 from "./table_output_2.json"
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
@@ -722,6 +722,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private handleClick = () => {
+        // comment all bellow for testing
         this.setState({ predictionLoaded: false, isPredicting: true });
         this.getPrediction()
             .then((result) => {
@@ -753,7 +754,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 });
             });
 
-            //  uncomment this and comment all above for testing analyze results
+            //  uncomment this and comment out all above for testing analyze results
             // this.setState({
             //     analyzeResult: table_output2,
             //     predictionLoaded: true,
@@ -1183,7 +1184,16 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             rows.push({ name: key, value: Table[key] });
         });
 
-        Object.keys(rows[0].value).forEach(key => columns.push({ name: key }));
+        /// temp solution to find all unique column keys before we will get rowKeys and colKeys in result file from backend
+        Object.keys(rows).forEach(key => {
+            const columnsInRow = rows[key].value;
+            Object.keys(columnsInRow).forEach(col => {
+                if (!columns.find(i => i.name === col)) {
+                    columns.push({ name: col })
+                }
+            })
+        });
+
 
         let tableBody = null;
         if (rows && rows?.length !== 0 && columns.length !== 0) {
@@ -1193,7 +1203,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 const rowName = rows[i-1];
                 const tableRow = [];
                 for (let j = 0; j < columns.length + 1; j++) {
-                    const key = columns[j-1];
+                    const key = columns[j - 1];
 
                     if (i === 0 && j !== 0) {
                         tableRow.push(<th key={j} className={"column_header"}>{
