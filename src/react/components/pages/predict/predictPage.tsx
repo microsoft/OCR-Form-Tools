@@ -8,40 +8,40 @@ import {
 } from "@fluentui/react";
 import axios from "axios";
 import _ from "lodash";
-import { Feature } from "ol";
+import {Feature} from "ol";
 import Polygon from "ol/geom/Polygon";
 import Fill from "ol/style/Fill";
 import Stroke from "ol/style/Stroke";
 import Style from "ol/style/Style";
 import pdfjsLib from "pdfjs-dist";
 import React from "react";
-import { connect } from "react-redux";
-import { RouteComponentProps } from "react-router-dom";
-import { bindActionCreators } from "redux";
+import {connect} from "react-redux";
+import {RouteComponentProps} from "react-router-dom";
+import {bindActionCreators} from "redux";
 import url from "url";
-import { constants } from "../../../../common/constants";
+import {constants} from "../../../../common/constants";
 import HtmlFileReader from "../../../../common/htmlFileReader";
-import { interpolate, strings } from "../../../../common/strings";
+import {interpolate, strings} from "../../../../common/strings";
 import {
     getGreenWithWhiteBackgroundTheme, getPrimaryGreenTheme, getPrimaryWhiteTheme,
     getRightPaneDefaultButtonTheme
 } from "../../../../common/themes";
-import { loadImageToCanvas, parseTiffData, renderTiffToCanvas } from "../../../../common/utils";
-import { AppError, ErrorCode, IApplicationState, IAppSettings, IConnection, ImageMapParent, IProject, IRecentModel } from "../../../../models/applicationState";
+import {loadImageToCanvas, parseTiffData, renderTiffToCanvas} from "../../../../common/utils";
+import {AppError, ErrorCode, IApplicationState, IAppSettings, IConnection, IProject, IRecentModel} from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import ServiceHelper from "../../../../services/serviceHelper";
-import { getAppInsights } from '../../../../services/telemetryService';
+import {getAppInsights} from '../../../../services/telemetryService';
 import Alert from "../../common/alert/alert";
 import Confirm from "../../common/confirm/confirm";
-import { ImageMap } from "../../common/imageMap/imageMap";
+import {ImageMap} from "../../common/imageMap/imageMap";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
+import {CanvasCommandBar} from "../editorPage/canvasCommandBar";
 import "./predictPage.scss";
-import PredictResult, { IAnalyzeModelInfo } from "./predictResult";
+import PredictResult, {IAnalyzeModelInfo} from "./predictResult";
 import RecentModelsView from "./recentModelsView";
-import { UploadToTrainingSetView } from "./uploadToTrainingSetView";
-import { CanvasCommandBar } from "../editorPage/canvasCommandBar";
+import {UploadToTrainingSetView} from "./uploadToTrainingSetView";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -830,13 +830,13 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             response = await ServiceHelper.postWithAutoRetry(
                 endpointURL, body, { headers }, this.props.project.apiKey as string);
         } catch (err) {
-            if (err.response.status === 404) {
+            if (err.response?.status === 404) {
                 throw new AppError(
                     ErrorCode.ModelNotFound,
                     interpolate(strings.errors.modelNotFound.message, { modelID })
                 );
             } else {
-                ServiceHelper.handleServiceError(err);
+                ServiceHelper.handleServiceError({...err, endpoint: endpointURL});
             }
         }
 

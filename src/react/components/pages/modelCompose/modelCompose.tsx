@@ -41,6 +41,7 @@ import { ViewSelection } from "./viewSelection";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import allSettled from "promise.allsettled";
 import { toast } from 'react-toastify';
+import Alert from "../../common/alert/alert";
 
 export interface IModelComposePageProps extends RouteComponentProps, React.Props<ModelComposePage> {
     recentProjects: IProject[];
@@ -65,6 +66,10 @@ export interface IModelComposePageState {
     isLoading: boolean;
     refreshFlag: boolean;
     hasText: boolean;
+
+    isError?: boolean;
+    errorTitle?: string;
+    errorMessage?: string;
 }
 
 export interface IModel {
@@ -344,6 +349,16 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                             onComposeConfirm={this.onComposeConfirm}
                             addToRecentModels={this.addToRecentModels}
                         />
+                        <Alert
+                            show={this.state.isError}
+                            title={this.state.errorTitle || "Error"}
+                            message={this.state.errorMessage}
+                            onClose={() => this.setState({
+                                isError: false,
+                                errorTitle: undefined,
+                                errorMessage: undefined,
+                            })}
+                        />
                     </Customizer>
                 </Fabric>
                 <PreventLeaving
@@ -427,7 +442,11 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 });
             });
         } catch (error) {
-            console.log(error);
+            this.setState({
+                isError: true,
+                errorTitle: error.title,
+                errorMessage: error.message,
+            });
         }
     }
 
@@ -504,7 +523,11 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 }
             }
         } catch (error) {
-            console.log(error);
+            this.setState({
+                isError: true,
+                errorTitle: error.title,
+                errorMessage: error.message,
+            });
         }
     }
 
@@ -545,7 +568,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             this.setState({
                 isLoading: false,
             });
-            ServiceHelper.handleServiceError(err);
+            ServiceHelper.handleServiceError({...err, endpoint: baseURL});
         }
     }
 
@@ -770,7 +793,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 this.props.project.apiKey as string,
             );
         } catch (err) {
-            ServiceHelper.handleServiceError(err);
+            ServiceHelper.handleServiceError({...err, endpoint: baseURL});
         }
     }
 

@@ -27,14 +27,14 @@ import IAppPrebuiltSettingsActions, * as appPrebuiltSettingsActions from "../../
 import ServiceHelper from "../../../../services/serviceHelper";
 import {getAppInsights} from "../../../../services/telemetryService";
 import Alert from "../../common/alert/alert";
+import {DocumentFilePicker} from "../../common/documentFilePicker/documentFilePicker";
 import {ImageMap} from "../../common/imageMap/imageMap";
+import {PrebuiltSetting} from "../../common/prebuiltSetting/prebuiltSetting";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import {CanvasCommandBar} from "../editorPage/canvasCommandBar";
-import {DocumentFilePicker} from "../../common/documentFilePicker/documentFilePicker";
 import {ILoadFileHelper, LoadFileHelper} from "./LoadFileHelper";
 import "./prebuiltPredictPage.scss";
 import PrebuiltPredictResult from "./prebuiltPredictResult";
-import {PrebuiltSetting} from "../../common/prebuiltSetting/prebuiltSetting";
 
 interface IPrebuiltTypes {
     name: string;
@@ -511,7 +511,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
             response = await ServiceHelper.postWithAutoRetry(
                 endpointURL, body, {headers}, apiKey as string);
         } catch (err) {
-            ServiceHelper.handleServiceError(err);
+            ServiceHelper.handleServiceError({...err, endpoint: endpointURL});
         }
 
         const operationLocation = response.headers["operation-location"];

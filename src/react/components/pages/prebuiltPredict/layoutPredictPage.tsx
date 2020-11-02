@@ -28,13 +28,14 @@ import {
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import IAppPrebuiltSettingsActions, * as appPrebuiltSettingsActions from "../../../../redux/actions/prebuiltSettingsActions";
 import ServiceHelper from "../../../../services/serviceHelper";
+import Alert from "../../common/alert/alert";
+import {DocumentFilePicker} from "../../common/documentFilePicker/documentFilePicker";
 import {ImageMap} from "../../common/imageMap/imageMap";
+import {PrebuiltSetting} from "../../common/prebuiltSetting/prebuiltSetting";
 import {CanvasCommandBar} from "../editorPage/canvasCommandBar";
 import {TableView} from "../editorPage/tableView";
-import {DocumentFilePicker} from "../../common/documentFilePicker/documentFilePicker";
-import {ILoadFileHelper, LoadFileHelper} from "./LoadFileHelper";
 import {ILayoutHelper, LayoutHelper} from "./layoutHelper";
-import {PrebuiltSetting} from "../../common/prebuiltSetting/prebuiltSetting";
+import {ILoadFileHelper, LoadFileHelper} from "./LoadFileHelper";
 
 interface ILayoutPredictPageProps extends RouteComponentProps {
     prebuiltSettings: IPrebuiltSettings;
@@ -240,6 +241,17 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
                             </div>
                         </div>
                     </div>
+                    <Alert
+                        show={this.state.shouldShowAlert}
+                        title={this.state.alertTitle}
+                        message={this.state.alertMessage}
+                        onClose={() => this.setState({
+                            shouldShowAlert: false,
+                            alertTitle: "",
+                            alertMessage: "",
+                            analyzationLoaded: true
+                        })}
+                    />
                 </div>
             </>
         )
@@ -620,12 +632,15 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
                     alertMessage = strings.errors.predictWithoutTrainForbidden.message;
                 } else if (error.errorCode === ErrorCode.ModelNotFound) {
                     alertMessage = error.message;
-                } else {
+                } else if (error.errorCode === ErrorCode.HttpStatusUnauthorized) {
+                    alertMessage = error.message;
+                }
+                else {
                     alertMessage = interpolate(strings.errors.endpointConnectionError.message, {endpoint: "form recognizer backend URL"});
                 }
                 this.setState({
                     shouldShowAlert: true,
-                    alertTitle: "Prediction Failed",
+                    alertTitle: "Analyze Failed",
                     alertMessage,
                     isAnalyzing: false,
                 });
@@ -654,7 +669,7 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
             // Make the second REST API call and get the response.
             return poll(() => ServiceHelper.getWithAutoRetry(operationLocation, {headers}, apiKey as string), 120000, 500);
         } catch (err) {
-            ServiceHelper.handleServiceError(err);
+            ServiceHelper.handleServiceError({...err, endpoint: endpointURL});
         }
     }
 }
