@@ -132,7 +132,7 @@ export const spanish: IAppStrings = {
         downloadJson: "Descargar archivo JSON",
         trainConfirm: {
             title: "Etiquetas no revisadas todavía",
-            message: "Tiene archivos de etiquetas que aún no han sido revisados, ¿desea entrenar con esos archivos?"
+            message: "Hay archivos recientemente etiquetados automáticamente que aún no ha revisado, ¿desea entrenar con esos archivos?"
         },
         errors: {
             electron: {
@@ -460,8 +460,8 @@ export const spanish: IAppStrings = {
                     additionalActions: {
                         text: "Acciones adicionales",
                         subIMenuItems: {
-                            runOcrOnCurrentDocument: "Ejecutar OCR en el documento actual",
-                            runOcrOnAllDocuments: "Ejecute OCR en todos los documentos",
+                            runOcrOnCurrentDocument: "Ejecutar Layout en el documento actual",
+                            runOcrOnAllDocuments: "Ejecute Layout en todos los documentos",
                             runAutoLabelingCurrentDocument: "Etiquetar automáticamente el documento actual",
                             runAutoLabelingOnMultipleUnlabeledDocuments: "Etiquetar automáticamente varios documentos sin etiquetar",
                             noPredictModelOnProject: "Predecir modelo no disponible, entrene el modelo primero.",

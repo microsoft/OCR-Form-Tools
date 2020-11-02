@@ -131,7 +131,7 @@ export const english: IAppStrings = {
         downloadJson: "Download JSON file",
         trainConfirm: {
             title: "Labels not revised yet",
-            message: "You have label files not yet revised, do you want to train with those files?"
+            message: "There are newly auto-labeled files not yet revised by you, do you want to train with those files?"
         },
         errors: {
             electron: {
@@ -459,8 +459,8 @@ export const english: IAppStrings = {
                     additionalActions: {
                         text: "Additional actions",
                         subIMenuItems: {
-                            runOcrOnCurrentDocument: "Run OCR on current document",
-                            runOcrOnAllDocuments: "Run OCR on all documents",
+                            runOcrOnCurrentDocument: "Run Layout on current document",
+                            runOcrOnAllDocuments: "Run Layout on all documents",
                             runAutoLabelingCurrentDocument: "Auto-label the current document",
                             runAutoLabelingOnMultipleUnlabeledDocuments: "Auto-label multiple unlabeled documents",
                             noPredictModelOnProject: "Predict model not avaliable, please train the model first.",
