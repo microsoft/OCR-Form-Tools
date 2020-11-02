@@ -259,7 +259,6 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                                 <PrebuiltPredictResult
                                     predictions={predictions}
                                     analyzeResult={this.state.analyzeResult}
-                                    // analyzeModelInfo={modelInfo}
                                     page={this.state.currentPage}
                                     tags={this.state.tags}
                                     resultType={this.state.currentPrebuiltType.name}
@@ -340,7 +339,6 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
         if (currentPrebuiltType && this.state.currentPrebuiltType.name !== currentPrebuiltType.name) {
             this.setState({
                 currentPrebuiltType,
-                // predictRun: false,
                 predictionLoaded: false,
                 analyzeResult: {}
             }, () => {
@@ -401,7 +399,6 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                     layers={{}}
                 />
                 <ImageMap
-                    // parentPage={ImageMapParent.Predict}
                     initPredictMap={true}
                     ref={(ref) => this.imageMap = ref}
                     imageUri={this.state.imageUri || ""}

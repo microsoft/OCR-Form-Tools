@@ -622,9 +622,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                         } else if (b.modelName) {
                             return 1;
                         }
-                    } else {
-                        return -1;
                     }
+                    return -1;
                 })
             )
         } else {

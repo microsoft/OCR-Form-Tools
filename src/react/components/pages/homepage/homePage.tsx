@@ -43,7 +43,6 @@ export interface IHomePageProps extends RouteComponentProps, React.Props<HomePag
 
 export interface IHomePageState {
     cloudPickerOpen: boolean;
-    // showModelWithLablesView: boolean;
 }
 
 function mapStateToProps(state: IApplicationState) {

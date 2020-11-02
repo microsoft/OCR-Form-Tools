@@ -578,7 +578,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         // This forces the root assets that are displayed in the sidebar to
         // accurately show their correct state (not-visited, visited or tagged)
         const assets = [...this.state.assets];
-        // const asset = { ...assetMetadata.asset };
         const assetIndex = assets.findIndex((a) => a.id === asset.id);
         if (assetIndex > -1) {
             assets[assetIndex] = {

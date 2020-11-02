@@ -1,13 +1,15 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import * as React from "react";
 import {CommandBar, ICommandBarItemProps} from "@fluentui/react/lib/CommandBar";
 import {ICustomizations, Customizer} from "@fluentui/react/lib/Utilities";
 import {getDarkGreyTheme} from "../../../../common/themes";
-import {interpolate, strings} from '../../../../common/strings';
+import {strings} from '../../../../common/strings';
 import {ContextualMenuItemType} from "@fluentui/react";
 import {IProject, IAssetMetadata, AssetLabelingState} from "../../../../models/applicationState";
 import _ from "lodash";
 import "./canvasCommandBar.scss";
-import {constants} from "../../../../common/constants";
 
 interface ICanvasCommandBarProps {
     handleZoomIn: () => void;
@@ -26,7 +28,6 @@ interface ICanvasCommandBarProps {
     drawRegionMode?: boolean;
     connectionType?: string;
     layers?: any;
-    // parentPage?: string;
     showLayerMenu?: boolean;
     showActionMenu?: boolean;
     enableDrawRegion?: boolean;
@@ -49,7 +50,6 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
     }
 
     let commandBarItems: ICommandBarItemProps[] = [];
-    // if (props.parentPage === strings.editorPage.title) {
     if (props.showLayerMenu) {
         const layerItem: ICommandBarItemProps = {
             key: "layers",
@@ -159,8 +159,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
             iconProps: {iconName: "ZoomIn"},
             onClick: () => props.handleZoomIn(),
         }
-    ]
-    // if (props.parentPage === strings.editorPage.title) {
+    ];
     if (props.showActionMenu) {
         commandBarFarItems.push({
             key: "additionalActions",

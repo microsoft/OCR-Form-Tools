@@ -9,7 +9,7 @@ import {
     EditorMode, IAssetMetadata,
     IProject, IRegion, RegionType,
     AssetType, ILabelData, ILabel,
-    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, ImageMapParent, LabelType, AssetLabelingState, APIVersionPatches
+    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, LabelType, AssetLabelingState, APIVersionPatches
 } from "../../../../models/applicationState";
 import CanvasHelpers from "./canvasHelpers";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
@@ -267,7 +267,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     drawRegionMode={this.state.drawRegionMode}
                     project={this.props.project}
                     selectedAsset={this.props.selectedAsset}
-                    // parentPage={strings.editorPage.title}
                     showLayerMenu={true}
                     showActionMenu={true}
                     enableDrawRegion={true}

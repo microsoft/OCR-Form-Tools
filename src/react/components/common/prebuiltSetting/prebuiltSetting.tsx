@@ -68,7 +68,6 @@ export class PrebuiltSetting extends React.Component<IPrebuiltSettingProps, IPre
     }
 
     private setInputedServiceURI = (e: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
-        // this.setState({inputedServiceURI: event.target.value});
         this.props.actions.update({...this.props.prebuiltSettings, serviceURI: newValue});
     }
 

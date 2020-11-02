@@ -648,12 +648,10 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     handleZoomOut={this.handleCanvasZoomOut}
                     handleRotateImage={this.handleRotateCanvas}
                     project={this.props.project}
-                    // parentPage={"predict"}
                     showActionMenu={false}
                     layers={{}}
                 />
                 <ImageMap
-                    // parentPage={ImageMapParent.Predict}
                     initPredictMap={true}
                     ref={(ref) => this.imageMap = ref}
                     imageUri={this.state.imageUri || ""}
