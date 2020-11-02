@@ -155,7 +155,7 @@ export class OCRService {
                     setTimeout(checkSucceeded, interval, resolve, reject);
                 } else {
                     // Didn't succeeded after too much time, reject
-                    reject(new Error("Timed out for getting OCR results"));
+                    reject(new Error("Timed out for getting Layout results"));
                 }
             });
         };
