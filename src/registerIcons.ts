@@ -37,6 +37,8 @@ export function registerIcons() {
             'Down': '\uE74B',
             'Download': '\uE896',
             'Edit': '\uE70F',
+            'FieldChanged': "\uF2C3",
+            'FieldNotChanged': "\uF2C4",
             'Filter': '\uE71C',
             'GroupedList': '\uEF74',
             'GroupList': '\uF168',
@@ -79,7 +81,7 @@ export function registerIcons() {
             'View': '\uE890',
             'WarningSolid': '\uF736',
             'ZoomIn': '\uE8A3',
-            'ZoomOut': '\uE71F'
+            'ZoomOut': '\uE71F',
         },
     });
 }
