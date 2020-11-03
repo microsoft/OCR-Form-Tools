@@ -369,13 +369,13 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         if (model.attributes.isComposed) {
             const inclModels = model.composedTrainResults ?
                 model.composedTrainResults
-                : (await this.getModelByURl(interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) }) + "/" + model.modelId)).composedTrainResults;
+                : (await this.getModelByURl(interpolate(constants.apiModelsPath, {apiVersion : (this.props.project?.apiVersion || constants.apiVersion) }) + "/" + model.modelId)).composedTrainResults;
 
             for (const i of Object.keys(inclModels)) {
                 let _model: IModel;
                 let modelInfo: IComposedModelInfo;
                 try {
-                    _model = await this.getModelByURl(interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) }) + "/" + inclModels[i].modelId);
+                    _model = await this.getModelByURl(interpolate(constants.apiModelsPath, {apiVersion : (this.props.project?.apiVersion || constants.apiVersion) }) + "/" + inclModels[i].modelId);
                     modelInfo = {
                         id: _model.modelId,
                         name: _model.modelName,
@@ -458,7 +458,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     private getRecentModels = async ():Promise<IModel[]> => {
         const recentModelsList: IModel[] = [];
         const recentModelRequest = await allSettled(this.props.project.recentModelRecords.map(async (model) => {
-            return this.getModelByURl(interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) }) + "/" + model.modelInfo.modelId);
+            return this.getModelByURl(interpolate(constants.apiModelsPath, {apiVersion : (this.props.project?.apiVersion || constants.apiVersion) }) + "/" + model.modelInfo.modelId);
         }))
         recentModelRequest.forEach((recentModelRequest) => {
             if (recentModelRequest.status === "fulfilled") {
@@ -523,7 +523,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     private async getResponse(nextLink?: string) {
         const baseURL = nextLink === undefined ? url.resolve(
             this.props.project.apiUriBase,
-            interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) }),
+            interpolate(constants.apiModelsPath, {apiVersion : (this.props.project?.apiVersion || constants.apiVersion) }),
         ) : url.resolve(
             this.props.project.apiUriBase,
             nextLink,
@@ -729,7 +729,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     modelName: name,
                 };
 
-                const link = interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) }) + "/compose";
+                const link = interpolate(constants.apiModelsPath, {apiVersion : (this.props.project?.apiVersion || constants.apiVersion) }) + "/compose";
                 const composeRes = await this.post(link, payload);
                 const composedModel = await this.waitUntilModelIsReady(composeRes["headers"]["location"]);
 

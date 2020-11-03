@@ -812,7 +812,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         }
         const endpointURL = url.resolve(
             this.props.project.apiUriBase,
-            `${interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) })}/${modelID}/analyze?includeTextDetails=true`,
+            `${interpolate(constants.apiModelsPath, {apiVersion : (this.props.project?.apiVersion || constants.apiVersion) })}/${modelID}/analyze?includeTextDetails=true`,
         );
         let headers;
         let body;
@@ -1168,7 +1168,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const modelID = this.props.project.predictModelId;
         const endpointURL = url.resolve(
             this.props.project.apiUriBase,
-            `${interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) })}/${modelID}`,
+            `${interpolate(constants.apiModelsPath, {apiVersion : (this.props.project?.apiVersion || constants.apiVersion) })}/${modelID}`,
         );
         let response;
         try {

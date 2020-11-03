@@ -375,7 +375,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     private async train(): Promise<any> {
         const baseURL = url.resolve(
             this.props.project.apiUriBase,
-            interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) }),
+            interpolate(constants.apiModelsPath, {apiVersion : (this.props.project?.apiVersion || constants.apiVersion) }),
         );
         const provider = this.props.project.sourceConnection.providerOptions as any;
         let trainSourceURL;
@@ -524,7 +524,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private async triggerJsonDownload(): Promise<any> {
-        const currModelUrl = this.props.project.apiUriBase + interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) }) + "/" + this.state.currTrainRecord.modelInfo.modelId;
+        const currModelUrl = this.props.project.apiUriBase + interpolate(constants.apiModelsPath, {apiVersion : (this.props.project?.apiVersion || constants.apiVersion) }) + "/" + this.state.currTrainRecord.modelInfo.modelId;
         const modelUrl = this.state.modelUrl.length ? this.state.modelUrl : currModelUrl;
         const modelJSON = await this.getModelsJson(this.props.project, modelUrl);
 
