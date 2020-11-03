@@ -546,9 +546,14 @@ export class AssetService {
             assetMetadata.asset.state = _.get(assetMetadata, "labelData.labels.length")
                 ? AssetState.Tagged : AssetState.Visited;
             if(assetMetadata.asset.labelingState===AssetLabelingState.Trained){
-                assetMetadata.asset.labelingState=AssetLabelingState.ManuallyLabeled
+                assetMetadata.asset.labelingState=AssetLabelingState.ManuallyLabeled;
                 if(assetMetadata.labelData){
                     assetMetadata.labelData.labelingState=AssetLabelingState.ManuallyLabeled;
+                }
+            }else if(assetMetadata.asset.labelingState===AssetLabelingState.AutoLabeled){
+                assetMetadata.asset.labelingState=AssetLabelingState.AutoLabeledAndAdjusted;
+                if(assetMetadata.labelData){
+                    assetMetadata.labelData.labelingState=AssetLabelingState.AutoLabeledAndAdjusted;
                 }
             }
             return true;
