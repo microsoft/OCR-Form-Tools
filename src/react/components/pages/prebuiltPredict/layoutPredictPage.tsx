@@ -50,7 +50,7 @@ interface ILayoutPredictPageState {
     imageWidth: number;
     imageHeight: number;
     currentPage: number;
-    pageCount: number;
+    numPages: number;
 
     shouldShowAlert: boolean;
     alertTitle: string;
@@ -96,7 +96,7 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
         imageWidth: 0,
         imageHeight: 0,
         currentPage: 1,
-        pageCount: 1,
+        numPages: 1,
 
         shouldShowAlert: false,
         alertTitle: "",
@@ -574,7 +574,7 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
     }
 
     private renderNextPageButton = () => {
-        const numPages = this.getPageCount();
+        const {numPages} = this.state;
         const nextPage = () => {
             this.goToPage(Math.min(this.state.currentPage + 1, numPages));
         };
@@ -590,19 +590,15 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
     }
 
     private renderPageIndicator = () => {
-        const pageCount = this.getPageCount();
-        return pageCount > 1 ?
+        const {numPages} = this.state;
+        return numPages > 1 ?
             <p className="page-number">
-                Page {this.state.currentPage} of {pageCount}
+                Page {this.state.currentPage} of {numPages}
             </p> : <div></div>;
     }
 
-    private getPageCount = () => {
-        return this.fileHelper.getPageCount();
-    }
-
     private goToPage = async (targetPage: number) => {
-        if (targetPage <= 0 || targetPage > this.getPageCount()) {
+        if (targetPage <= 0 || targetPage > this.state.numPages) {
             return;
         }
         this.setState({

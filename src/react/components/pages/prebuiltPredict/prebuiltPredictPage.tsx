@@ -32,9 +32,9 @@ import {ImageMap} from "../../common/imageMap/imageMap";
 import {PrebuiltSetting} from "../../common/prebuiltSetting/prebuiltSetting";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import {CanvasCommandBar} from "../editorPage/canvasCommandBar";
-import PredictResult from "../predict/predictResult";
-import {ILoadFileHelper, LoadFileHelper} from "./LoadFileHelper";
 import "../predict/predictPage.scss";
+import PredictResult from "../predict/predictResult";
+import {ILoadFileHelper, ILoadFileResult, LoadFileHelper} from "./LoadFileHelper";
 
 interface IPrebuiltTypes {
     name: string;
@@ -47,17 +47,7 @@ export interface IPrebuiltPredictPageProps extends RouteComponentProps {
     actions: IAppPrebuiltSettingsActions;
 }
 
-export interface IPrebuiltPredictPageState {
-    imageUri: string;
-    imageWidth: number;
-    imageHeight: number;
-    currentPage: number;
-
-    shouldShowAlert: boolean;
-    alertTitle: string;
-    alertMessage: string;
-    invalidFileFormat?: boolean;
-
+export interface IPrebuiltPredictPageState extends ILoadFileResult {
     fileLabel: string;
     fileChanged: boolean;
     file?: File;
@@ -111,6 +101,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         imageWidth: 0,
         imageHeight: 0,
         currentPage: 1,
+        numPages: 1,
 
         shouldShowAlert: false,
         alertTitle: "",
@@ -164,7 +155,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
     private loadFile = (file: File) => {
         this.setState({isFetching: true});
-        this.fileHelper.loadFile(file).then((res: any) => {
+        this.fileHelper.loadFile(file).then((res: ILoadFileResult) => {
             if (res) {
                 this.setState({
                     ...res,
@@ -354,7 +345,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         });
     };
     private nextPage = () => {
-        const numPages = this.getPageCount();
+        const {numPages} = this.state;
         this.setState((prevState) => ({
             currentPage: Math.min(prevState.currentPage + 1, numPages),
         }), () => {
@@ -372,7 +363,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private renderNextPageButton = () => {
-        return this.state.currentPage < this.getPageCount() ?
+        return this.state.currentPage < this.state.numPages ?
             <IconButton
                 className="toolbar-btn next"
                 title="Next"
@@ -382,10 +373,10 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private renderPageIndicator = () => {
-        const pageCount = this.getPageCount();
-        return pageCount > 1 ?
+        const {numPages} = this.state;
+        return numPages > 1 ?
             <p className="page-number">
-                Page {this.state.currentPage} of {pageCount}
+                Page {this.state.currentPage} of {numPages}
             </p> : <div></div>;
     }
 
@@ -463,10 +454,6 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         }
     }
 
-    private getPageCount() {
-        return this.fileHelper.getPageCount();
-    }
-
     private getTagsForPredictResults(predictions) {
         const tags: ITag[] = [];
         Object.keys(predictions).forEach((key, index) => {
@@ -485,24 +472,14 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private async getPrediction(): Promise<any> {
-        let endpointURL;
-        let apiKey;
-
-        endpointURL = url.resolve(
+        const endpointURL = url.resolve(
             this.props.prebuiltSettings.serviceURI,
             `/formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}`,
         );
-        apiKey = this.props.prebuiltSettings.apiKey;
+        const apiKey = this.props.prebuiltSettings.apiKey;
 
-        let headers;
-        let body;
-        if (this.state.file) {
-            headers = {"Content-Type": this.state.file.type, "cache-control": "no-cache"};
-            body = this.state.file;
-        } else {
-            headers = {"Content-Type": "application/json", "cache-control": "no-cache"};
-            body = {source: this.state.fetchedFileURL};
-        }
+        const headers = {"Content-Type": this.state.file ? this.state.file.type : "application/json", "cache-control": "no-cache"};
+        const body = this.state.file ?? {source: this.state.fetchedFileURL};
         let response;
         try {
             response = await ServiceHelper.postWithAutoRetry(

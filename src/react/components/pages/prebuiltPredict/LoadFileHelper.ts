@@ -15,16 +15,13 @@ export interface ILoadFileResult {
     imageHeight: number,
 
     shouldShowAlert: boolean;
-    invalidFileFormat: boolean;
+    invalidFileFormat?: boolean;
     alertTitle: string;
     alertMessage: string;
 }
 export interface ILoadFileHelper {
-    currPdf: any;
-    tiffImages: any[];
     loadFile(file: File): Promise<Partial<ILoadFileResult>>;
-    getPageCount(): number;
-    loadPage(pageNumber: number) : Promise<Partial<ILoadFileResult>>;
+    loadPage(pageNumber: number): Promise<Partial<ILoadFileResult>>;
     reset(): void;
 }
 
@@ -70,7 +67,7 @@ export class LoadFileHelper implements ILoadFileHelper {
         const canvas = await loadImageToCanvas(imageUri);
         return ({
             currentPage: 1,
-            numPages:1,
+            numPages: 1,
             imageUri: canvas.toDataURL(constants.convertedImageFormat, constants.convertedImageQuality),
             imageWidth: canvas.width,
             imageHeight: canvas.height,
@@ -89,10 +86,10 @@ export class LoadFileHelper implements ILoadFileHelper {
         this.tiffImages = [];
     }
 
-    public loadPage = async(pageNumber:number) =>{
-        if(this.currPdf){
+    public loadPage = async (pageNumber: number) => {
+        if (this.currPdf) {
             return this.loadPdfPage(pageNumber);
-        }else if(this.tiffImages?.length>0){
+        } else if (this.tiffImages?.length > 0) {
             return this.loadTiffPage(pageNumber);
         }
     }
