@@ -1437,6 +1437,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 }
             }
         }
+        regions.sort(this.compareRegionOrder);
         regions.forEach((region) => {
             const labelType = this.getLabelType(region.category);
             const boundingBox = region.id.split(",").map(parseFloat);
@@ -1851,7 +1852,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const order2 = this.getRegionOrder(r2.id);
 
         if (order1.page === order2.page) {
-            return order1.order > order2.order ? 1 : -1;
+            return order1.order >= order2.order ? 1 : -1;
         } else if (order1.page > order2.page) {
             return 1;
         } else {
