@@ -27,6 +27,10 @@
   display: flex;
   width: 400px;
   min-width: 400px;
+  .prebuilt-type-dropdown {
+    width: 95px;
+    margin-bottom: 10px;
+  }
 }
 
 .input-disabled {
@@ -78,7 +82,7 @@
 }
 
 .model-selection-container {
-  padding-top: 8px; 
+  padding-top: 8px;
   padding-bottom: 16px;
   display: flex;
   justify-content: space-between;

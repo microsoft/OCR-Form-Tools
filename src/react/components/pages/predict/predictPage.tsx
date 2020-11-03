@@ -42,6 +42,7 @@ import "./predictPage.scss";
 import PredictResult, {IAnalyzeModelInfo} from "./predictResult";
 import RecentModelsView from "./recentModelsView";
 import {UploadToTrainingSetView} from "./uploadToTrainingSetView";
+import PredictModelInfo from './predictModelInfo';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -415,7 +416,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                 <PredictResult
                                                     predictions={predictions}
                                                     analyzeResult={this.state.analyzeResult}
-                                                    analyzeModelInfo={modelInfo}
+                                                    // analyzeModelInfo={modelInfo}
                                                     page={this.state.currPage}
                                                     tags={this.props.project.tags}
                                                     downloadResultLabel={this.state.fileLabel}
@@ -423,7 +424,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                     onPredictionClick={this.onPredictionClick}
                                                     onPredictionMouseEnter={this.onPredictionMouseEnter}
                                                     onPredictionMouseLeave={this.onPredictionMouseLeave}
-                                                />
+                                                >
+                                                    <PredictModelInfo modelInfo={modelInfo} />
+                                                </PredictResult>
                                             }
                                             <UploadToTrainingSetView
                                                 showOption={!this.props.appSettings.hideUploadingOption}

@@ -32,9 +32,9 @@ import {ImageMap} from "../../common/imageMap/imageMap";
 import {PrebuiltSetting} from "../../common/prebuiltSetting/prebuiltSetting";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import {CanvasCommandBar} from "../editorPage/canvasCommandBar";
+import PredictResult from "../predict/predictResult";
 import {ILoadFileHelper, LoadFileHelper} from "./LoadFileHelper";
-import "./prebuiltPredictPage.scss";
-import PrebuiltPredictResult from "./prebuiltPredictResult";
+import "../predict/predictPage.scss";
 
 interface IPrebuiltTypes {
     name: string;
@@ -89,7 +89,7 @@ function mapDispatchToProps(dispatch) {
 }
 
 @connect(mapStateToProps, mapDispatchToProps)
-export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPageProps, IPrebuiltPredictPageState> {
+export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPageProps, IPrebuiltPredictPageState> {
     private appInsights: any = null;
     prebuiltTypes: IPrebuiltTypes[] = [
         {
@@ -191,13 +191,13 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                 className={`predict skipToMainContent ${onPrebuiltsPath ? "" : "hidden"} `}
                 id="pagePredict"
                 style={{display: `${onPrebuiltsPath ? "flex" : "none"}`}} >
-                <div className="prebuilt-predict-main">
+                <div className="predict-main">
                     {this.state.file && this.state.imageUri && this.renderImageMap()}
                     {this.renderPrevPageButton()}
                     {this.renderNextPageButton()}
                     {this.renderPageIndicator()}
                 </div>
-                <div className="prebuilt-predict-sidebar bg-lighter-1">
+                <div className="predict-sidebar bg-lighter-1">
                     <div className="condensed-list">
                         <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
                             <FontIcon className="mr-1" iconName="Insights" />
@@ -224,7 +224,7 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                                 onFileChange={(data) => this.onFileChange(data)}
                                 onSelectSourceChange={() => this.onSelectSourceChange()}
                                 onError={(err) => this.onFileLoadError(err)} />
-                            <div className="container-items-end prebuilt-predict-button">
+                            <div className="container-items-end predict-button">
                                 <PrimaryButton
                                     theme={getPrimaryWhiteTheme()}
                                     iconProps={{iconName: "Insights"}}
@@ -256,12 +256,12 @@ export default class PrebuiltPredictPage extends React.Component<IPrebuiltPredic
                                 </div>
                             }
                             {Object.keys(predictions).length > 0 &&
-                                <PrebuiltPredictResult
+                                <PredictResult
                                     predictions={predictions}
                                     analyzeResult={this.state.analyzeResult}
                                     page={this.state.currentPage}
                                     tags={this.state.tags}
-                                    resultType={this.state.currentPrebuiltType.name}
+                                    downloadPrefix={this.state.currentPrebuiltType.name}
                                     downloadResultLabel={this.state.fileLabel}
                                     onPredictionClick={this.onPredictionClick}
                                     onPredictionMouseEnter={this.onPredictionMouseEnter}
