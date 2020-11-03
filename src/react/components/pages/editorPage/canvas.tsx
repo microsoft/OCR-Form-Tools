@@ -443,7 +443,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
 
         if (selectedRegions.length === 1 && selectedRegions[0].category === FeatureCategory.Checkbox) {
-            this.setTagType(inputTag[0], FieldType.SelectionMark);
+            if (inputTag[0].type === FieldType.Table) {
+                // selection mark logic placeholder
+            } else {
+                this.setTagType(inputTag[0], FieldType.SelectionMark);
+            }
         } else if (selectedRegions[0].category === FeatureCategory.DrawnRegion) {
             selectedRegions.forEach((selectedRegion) => {
                 this.imageMap.removeDrawnRegionFeature(this.imageMap.getDrawnRegionFeatureByID(selectedRegion.id));
