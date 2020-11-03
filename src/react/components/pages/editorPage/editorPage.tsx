@@ -507,7 +507,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             const { format, type, documentCount, name } = tag;
             const tagCategory = this.tagInputRef.current.getTagCategory(tag.type);
             const category = selection[0].category;
-            const labels = this.state.selectedAsset.labelData.labels;
+            const labels = this.state.selectedAsset.labelData?.labels;
             const isTagLabelTypeDrawnRegion = this.tagInputRef.current.labelAssignedDrawnRegion(labels, tag.name);
             const labelAssigned = this.tagInputRef.current.labelAssigned(labels, name);
 
