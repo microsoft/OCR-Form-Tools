@@ -416,7 +416,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                 <PredictResult
                                                     predictions={predictions}
                                                     analyzeResult={this.state.analyzeResult}
-                                                    // analyzeModelInfo={modelInfo}
                                                     page={this.state.currPage}
                                                     tags={this.props.project.tags}
                                                     downloadResultLabel={this.state.fileLabel}

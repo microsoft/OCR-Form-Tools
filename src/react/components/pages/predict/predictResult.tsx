@@ -17,7 +17,6 @@ export interface IAnalyzeModelInfo {
 export interface IPredictResultProps {
     predictions: { [key: string]: any };
     analyzeResult: {};
-    // analyzeModelInfo: IAnalyzeModelInfo;
     downloadPrefix?: string;
     page: number;
     tags: ITag[];
@@ -64,7 +63,6 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                         onClick={this.triggerDownload}
                     />
                 </div>
-                {/* <PredictModelInfo modelInfo={analyzeModelInfo} /> */}
                 {this.props.children}
                 <div className="prediction-field-header">
                     <h6 className="prediction-field-header-field"> Page # / Field name / Value</h6>
