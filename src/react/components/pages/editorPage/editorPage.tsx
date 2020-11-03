@@ -567,9 +567,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 await this.updatedAssetMetadata(assetMetadata);
             }
             assetMetadata.asset = asset;
-            await this.props.actions.saveAssetMetadata(this.props.project, assetMetadata);
+            const newMeta = await this.props.actions.saveAssetMetadata(this.props.project, assetMetadata);
             if (this.props.project.lastVisitedAssetId === asset.id) {
-                this.setState({selectedAsset: assetMetadata});
+                this.setState({selectedAsset: newMeta});
             }
         }
 
@@ -719,9 +719,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
     }
     private isBusy = (): boolean => {
-        const busy = this.state.isRunningOCRs || this.state.isCanvasRunningOCR || this.state.isCanvasRunningAutoLabeling;
-        console.log("busy", busy);
-        return busy;
+        return this.state.isRunningOCRs || this.state.isCanvasRunningOCR || this.state.isCanvasRunningAutoLabeling;
     }
 
     public loadOcrForNotVisited = async (runForAll?: boolean) => {
@@ -889,7 +887,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 const asset = this.state.selectedAsset.asset;
                 const currentAsset = _.get(this.props, `project.assets[${this.state.selectedAsset.asset.id}]`, null);
                 if (asset.state !== currentAsset.state || asset.labelingState !== currentAsset.labelingState) {
-                    this.updateSelectAsset(asset);
+                    this.updateSelectAsset(currentAsset);
                 }
             }
         }

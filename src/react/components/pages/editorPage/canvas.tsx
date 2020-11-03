@@ -213,9 +213,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         } else if (this.isLabelDataChanged(this.props, prevProps)
             || (prevProps.project
                 && this.needUpdateAssetRegionsFromTags(prevProps.project.tags, this.props.project.tags))) {
-            const newRegions = this.convertLabelDataToRegions(this.props.selectedAsset.labelData);
-            this.updateAssetRegions(newRegions);
-            this.redrawAllFeatures();
+            this.setState({
+                currentAsset: this.props.selectedAsset
+            }, () => {
+                const newRegions = this.convertLabelDataToRegions(this.props.selectedAsset.labelData);
+                this.updateAssetRegions(newRegions);
+                this.redrawAllFeatures();
+            });
+
         }
 
         if (this.props.hoveredLabel !== prevProps.hoveredLabel) {
@@ -428,7 +433,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         let regions: IRegion[] = [];
         if (selectedRegions.length > 0) {
             const labelsData = this.state.currentAsset.labelData;
-            if(labelsData){
+            if (labelsData) {
                 const relatedLabel = labelsData.labels.find((label) => label.label === tag);
                 if (relatedLabel &&
                     (((relatedLabel.labelType === null || relatedLabel.labelType === undefined) && (selectedRegions[0].category === FeatureCategory.DrawnRegion))

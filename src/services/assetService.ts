@@ -545,6 +545,12 @@ export class AssetService {
             assetMetadata.regions = assetMetadata.regions.filter((region) => region.tags.length > 0);
             assetMetadata.asset.state = _.get(assetMetadata, "labelData.labels.length")
                 ? AssetState.Tagged : AssetState.Visited;
+            if(assetMetadata.asset.labelingState===AssetLabelingState.Trained){
+                assetMetadata.asset.labelingState=AssetLabelingState.ManuallyLabeled
+                if(assetMetadata.labelData){
+                    assetMetadata.labelData.labelingState=AssetLabelingState.ManuallyLabeled;
+                }
+            }
             return true;
         }
 
