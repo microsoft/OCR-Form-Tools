@@ -22,9 +22,10 @@ export class PredictService {
                 strings.errors.predictWithoutTrainForbidden.message,
                 strings.errors.predictWithoutTrainForbidden.title);
         }
+        const apiVersion = this.project?.apiVersion || constants.apiVersion;
         const endpointURL = url.resolve(
             this.project.apiUriBase,
-            `${interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) })}/${modelID}/analyze?includeTextDetails=true`,
+            `${interpolate(constants.apiModelsPath, {apiVersion})}/${modelID}/analyze?includeTextDetails=true`,
         );
 
         const headers = { "Content-Type": "application/json", "cache-control": "no-cache" };

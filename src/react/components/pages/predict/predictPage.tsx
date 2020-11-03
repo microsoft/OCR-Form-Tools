@@ -747,9 +747,10 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 strings.errors.predictWithoutTrainForbidden.message,
                 strings.errors.predictWithoutTrainForbidden.title);
         }
+        const apiVersion = this.props.project?.apiVersion;
         const endpointURL = url.resolve(
             this.props.project.apiUriBase,
-            `${interpolate(constants.apiModelsPath, {apiVersion: (constants.apiVersion || constants.appVersion)})}/${modelID}/analyze?includeTextDetails=true`,
+            `${interpolate(constants.apiModelsPath, {apiVersion})}/${modelID}/analyze?includeTextDetails=true`,
         );
         const headers = {"Content-Type": this.state.file ? this.state.file.type : "application/json", "cache-control": "no-cache"};
         const body = this.state.file ?? {source: this.state.fetchedFileURL};
@@ -993,9 +994,10 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
     private async getRecentModelFromPredictModelId(): Promise<any> {
         const modelID = this.props.project.predictModelId;
+        const apiVersion = this.props.project?.apiVersion || constants.apiVersion;
         const endpointURL = url.resolve(
             this.props.project.apiUriBase,
-            `${interpolate(constants.apiModelsPath, {apiVersion: (constants.apiVersion || constants.appVersion)})}/${modelID}`,
+            `${interpolate(constants.apiModelsPath, {apiVersion})}/${modelID}`,
         );
         let response;
         try {
