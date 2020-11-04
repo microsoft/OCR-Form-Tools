@@ -298,6 +298,12 @@ export const english: IAppStrings = {
             notCompatibleTagType: "Tag type is not compatible with this feature. If you want to change type of this tag, please remove or reassign all labels which using this tag in your project.",
             checkboxPerTagLimit: "Cannot assign more than one checkbox per tag",
             notCompatibleWithDrawnRegionTag: "Drawn regions and ${otherCatagory} values cannot both be assigned to the same document's tag",
+            replaceAllExitingLabels:"Are you sure you want to replace selected tag's labels?",
+            replaceAllExitingLabelsTitle:"Replace tag's labels",
+        },
+        preText:{
+            autoLabel:"Auto-labeled: ",
+            revised:"Revised: ",
         },
         toolbar: {
             add: "Add new tag",
@@ -502,6 +508,10 @@ export const english: IAppStrings = {
                     continuing to next asset.",
             },
         },
+        warningMessage: {
+            PreventLeavingWhileRunningOCR: "An Layout operation is currently in progress, are you sure you want to leave?",
+            PreventLeavingRunningAutoLabeling: "Auto-labeling is currently in progress, are you sure you want to leave?",
+        }
     },
     profile: {
         settings: "Profile Settings",

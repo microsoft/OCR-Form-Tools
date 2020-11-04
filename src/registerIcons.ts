@@ -13,6 +13,8 @@ export function registerIcons() {
             AddField: "\uE4C7",
             AddTo: "\uECC8",
             AlertSolid: "\uF331",
+            AutoEnhanceOff: "\uE78E",
+            AutoEnhanceOn: "\uE78D",
             AzureAPIManagement: "\uF37F",
             BookAnswers: "\uF8A4",
             BranchMerge: "\uF295",

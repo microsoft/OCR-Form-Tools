@@ -665,6 +665,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     alertMessage = strings.errors.predictWithoutTrainForbidden.message;
                 } else if (error.errorCode === ErrorCode.ModelNotFound) {
                     alertMessage = error.message;
+                } else if(error.code){
+                    alertMessage = `${error.message}, code ${error.code}`;
                 } else {
                     alertMessage = interpolate(strings.errors.endpointConnectionError.message, {endpoint: "form recognizer backend URL"});
                 }
@@ -747,7 +749,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 strings.errors.predictWithoutTrainForbidden.message,
                 strings.errors.predictWithoutTrainForbidden.title);
         }
-        const apiVersion = this.props.project?.apiVersion;
+        const apiVersion = this.props.project?.apiVersion || constants.apiVersion;
         const endpointURL = url.resolve(
             this.props.project.apiUriBase,
             `${interpolate(constants.apiModelsPath, {apiVersion})}/${modelID}/analyze?includeTextDetails=true`,

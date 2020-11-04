@@ -85,7 +85,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         key: "DrawnRegions",
                         text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.drawnRegions,
                         canCheck: true,
-                        iconProps: { iconName: "FieldNotChanged" },
+                        iconProps: {iconName: "FieldNotChanged"},
                         isChecked: props.layers["drawnRegions"],
                         className: props.drawRegionMode ? "disabled" : "",
                         onClick: () => props.handleLayerChange("drawnRegions"),
@@ -198,7 +198,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                     {
                         key: "runAutoLabelingOnMultipleUnlabeledDocuments",
                         text: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runAutoLabelingOnMultipleUnlabeledDocuments,
-                        iconProps: { iconName: "Tag" },
+                        iconProps: {iconName: "Tag"},
                         disabled: disableAutoLabeling,
                         title: props.project?.predictModelId ? "" :
                             strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.noPredictModelOnProject,

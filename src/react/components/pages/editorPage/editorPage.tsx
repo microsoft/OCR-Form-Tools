@@ -280,6 +280,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             setTableToView={this.setTableToView}
                                             closeTableView={this.closeTableView}
                                             runOcrForAllDocs={this.loadOcrForNotVisited}
+                                            isRunningOCRs={this.state.isRunningOCRs}
                                             onPageLoaded={this.onPageLoaded}
                                             runAutoLabelingOnNextBatch={this.runAutoLabelingOnNextBatch}
                                             appSettings={this.props.appSettings}
@@ -362,11 +363,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 />
                 <PreventLeaving
                     when={isRunningOCRs || isCanvasRunningOCR}
-                    message={"An Layout operation is currently in progress, are you sure you want to leave?"}
+                    message={strings.editorPage.warningMessage.PreventLeavingWhileRunningOCR}
                 />
                 <PreventLeaving
                     when={isCanvasRunningAutoLabeling}
-                    message={"An AutoLabeling option is currently in progress, are you sure you want to leave?"} />
+                    message={strings.editorPage.warningMessage.PreventLeavingRunningAutoLabeling} />
             </div>
         );
     }
@@ -562,15 +563,13 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         // Only update asset metadata if state changes or is different
         if (initialState !== asset.state || this.state.selectedAsset !== assetMetadata) {
-            if (this.state.selectedAsset.labelData && this.state.selectedAsset.labelData.labels &&
-                assetMetadata.labelData && assetMetadata.labelData.labels &&
-                assetMetadata.labelData.labels.toString() !== this.state.selectedAsset.labelData.labels.toString()) {
+            if (assetMetadata.labelData?.labels?.toString() !== this.state.selectedAsset.labelData?.labels?.toString()) {
                 await this.updatedAssetMetadata(assetMetadata);
             }
             assetMetadata.asset = asset;
-            await this.props.actions.saveAssetMetadata(this.props.project, assetMetadata);
+            const newMeta = await this.props.actions.saveAssetMetadata(this.props.project, assetMetadata);
             if (this.props.project.lastVisitedAssetId === asset.id) {
-                this.setState({ selectedAsset: assetMetadata });
+                this.setState({ selectedAsset: newMeta });
             }
         }
 
@@ -743,6 +742,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                             try {
                                 this.updateAssetState({ id: asset.id, isRunningOCR: true });
                                 await ocrService.getRecognizedText(asset.path, asset.name, asset.mimeType, undefined, runForAll);
+                                this.props.actions.refreshAsset(this.props.project, asset.name);
                                 this.updateAssetState({ id: asset.id, isRunningOCR: false, assetState: AssetState.Visited });
                             } catch (err) {
                                 this.updateAssetState({ id: asset.id, isRunningOCR: false });
@@ -817,33 +817,37 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         assetState?: AssetState,
         labelingState?: AssetLabelingState
     }) => {
-        this.setState((state) => ({
-            assets: state.assets.map((asset) => {
-                if (asset.id === newState.id) {
-                    const updatedAsset = { ...asset, isRunningOCR: newState.isRunningOCR || false };
-                    if (newState.assetState !== undefined && asset.state === AssetState.NotVisited) {
-                        updatedAsset.state = newState.assetState;
-                    }
-                    if (newState.labelingState) {
-                        updatedAsset.labelingState = newState.labelingState;
-                    }
-                    if (newState.isRunningAutoLabeling !== undefined) {
-                        updatedAsset.isRunningAutoLabeling = newState.isRunningAutoLabeling;
-                    }
-                    return updatedAsset;
-                } else {
-                    return asset;
+        const assets = this.state.assets.map((asset) => {
+            if (asset.id === newState.id) {
+                const updatedAsset = { ...asset, isRunningOCR: newState.isRunningOCR || false };
+                if (newState.assetState !== undefined && asset.state === AssetState.NotVisited) {
+                    updatedAsset.state = newState.assetState;
                 }
-            })
+                if (newState.labelingState) {
+                    updatedAsset.labelingState = newState.labelingState;
+                }
+                if (newState.isRunningAutoLabeling !== undefined) {
+                    updatedAsset.isRunningAutoLabeling = newState.isRunningAutoLabeling;
+                }
+                return updatedAsset;
+            } else {
+                return asset;
+            }
+        });
+        this.setState((state) => ({
+            assets
         }), () => {
-            const asset = this.state.assets.find((asset) => asset.id === newState.id);
-            if (this.state.selectedAsset && newState.id === this.state.selectedAsset.asset.id) {
-                if (asset) {
-                    this.setState({
-                        selectedAsset: { ...this.state.selectedAsset, asset: { ...asset } },
-                    });
+            if (this.state.selectedAsset?.asset?.id === newState.id) {
+                const asset = this.state.assets.find((asset) => asset.id === newState.id);
+                if (this.state.selectedAsset && newState.id === this.state.selectedAsset.asset.id) {
+                    if (asset) {
+                        this.setState({
+                            selectedAsset: { ...this.state.selectedAsset, asset: { ...asset } },
+                        });
+                    }
                 }
             }
+
         });
     }
 
@@ -870,7 +874,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 const asset = this.state.selectedAsset.asset;
                 const currentAsset = _.get(this.props, `project.assets[${this.state.selectedAsset.asset.id}]`, null);
                 if (asset.state !== currentAsset.state || asset.labelingState !== currentAsset.labelingState) {
-                    this.updateSelectAsset(asset);
+                    this.updateSelectAsset(currentAsset);
                 }
             }
         }
@@ -900,7 +904,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         this.setState({ hoveredLabel: label });
     }
 
-    private onLabelDoubleClicked = (label:ILabel) =>{
+    private onLabelDoubleClicked = (label: ILabel) => {
         this.canvas.current.focusOnLabel(label);
     }
 
@@ -970,10 +974,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const assetDocumentCountDifference = {};
         const updatedAssetLabels = {};
         const currentAssetLabels = {};
-        assetMetadata.labelData.labels.forEach((label) => {
+        assetMetadata.labelData?.labels?.forEach((label) => {
             updatedAssetLabels[label.label] = true;
         });
-        this.state.selectedAsset.labelData.labels.forEach((label) => {
+        this.state.selectedAsset.labelData?.labels?.forEach((label) => {
             currentAssetLabels[label.label] = true;
         });
         Object.keys(currentAssetLabels).forEach((label) => {
