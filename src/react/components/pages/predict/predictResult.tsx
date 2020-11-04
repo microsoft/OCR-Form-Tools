@@ -64,7 +64,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                     />
                 </div>
                 {this.props.children}
-                <div className="prediction-field-header">
+                <div className="prediction-field-header" style={{marginTop: 28}}>
                     <h6 className="prediction-field-header-field"> Page # / Field name / Value</h6>
                     <h6 className="prediction-field-header-confidence"> Confidence</h6>
                 </div>
