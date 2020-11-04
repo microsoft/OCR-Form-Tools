@@ -316,6 +316,10 @@ export class AssetService {
         return this.filterAssets(assets, folderPath);
     }
 
+    public async getAsset(assetName: string): Promise<IAsset> {
+        return await this.assetProvider.getAsset(this.project.folderPath, assetName);
+    }
+
     private filterAssets = (assets, folderPath) => {
         if (this.project.sourceConnection.providerType === "localFileSystemProxy") {
             return assets.map((asset) => {
@@ -541,6 +545,17 @@ export class AssetService {
             assetMetadata.regions = assetMetadata.regions.filter((region) => region.tags.length > 0);
             assetMetadata.asset.state = _.get(assetMetadata, "labelData.labels.length")
                 ? AssetState.Tagged : AssetState.Visited;
+            if(assetMetadata.asset.labelingState===AssetLabelingState.Trained){
+                assetMetadata.asset.labelingState=AssetLabelingState.ManuallyLabeled;
+                if(assetMetadata.labelData){
+                    assetMetadata.labelData.labelingState=AssetLabelingState.ManuallyLabeled;
+                }
+            }else if(assetMetadata.asset.labelingState===AssetLabelingState.AutoLabeled){
+                assetMetadata.asset.labelingState=AssetLabelingState.AutoLabeledAndAdjusted;
+                if(assetMetadata.labelData){
+                    assetMetadata.labelData.labelingState=AssetLabelingState.AutoLabeledAndAdjusted;
+                }
+            }
             return true;
         }
 
