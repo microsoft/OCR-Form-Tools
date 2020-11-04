@@ -285,6 +285,12 @@ export interface IAppStrings {
             notCompatibleTagType: string,
             checkboxPerTagLimit: string,
             notCompatibleWithDrawnRegionTag: string,
+            replaceAllExitingLabels:string,
+            replaceAllExitingLabelsTitle:string,
+        },
+        preText:{
+            autoLabel:string,
+            revised:string,
         }
     };
     connections: {
@@ -466,6 +472,10 @@ export interface IAppStrings {
                 title: string,
                 description: string,
             },
+        },
+        warningMessage: {
+            PreventLeavingWhileRunningOCR: string,
+            PreventLeavingRunningAutoLabeling: string,
         }
     };
     profile: {

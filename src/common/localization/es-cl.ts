@@ -268,6 +268,12 @@ export const spanish: IAppStrings = {
             notCompatibleTagType: "El tipo de etiqueta no es compatible con esta función. Si desea cambiar el tipo de esta etiqueta, elimine o reasigne todas las etiquetas que utilizan esta etiqueta en su proyecto.",
             checkboxPerTagLimit: "No se puede asignar más de una casilla de verificación por etiqueta",
             notCompatibleWithDrawnRegionTag: "Los valores de drawnRegion y $ {otherCatagory} no pueden asignarse a la misma etiqueta del documento",
+            replaceAllExitingLabels:"¿Está seguro de que desea reemplazar las etiquetas de la etiqueta seleccionada?",
+            replaceAllExitingLabelsTitle:"Reemplazar las etiquetas de la etiqueta",
+        },
+        preText:{
+            autoLabel:"Auto-etiquetado: ",
+            revised:"Revisado: ",
         },
         toolbar: {
             add: "Agregar nueva etiqueta",
@@ -474,6 +480,10 @@ export const spanish: IAppStrings = {
                     Por favor, etiquete todas las regiones antes de continuar con el siguiente activo.",
             },
         },
+        warningMessage: {
+            PreventLeavingWhileRunningOCR: "Una operación de diseño está actualmente en curso, ¿está seguro de que desea salir?",
+            PreventLeavingRunningAutoLabeling: "El etiquetado automático está actualmente en curso, ¿está seguro de que desea irse?",
+        }
     },
     profile: {
         settings: "Configuración de Perfíl",

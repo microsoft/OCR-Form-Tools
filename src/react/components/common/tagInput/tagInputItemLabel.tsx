@@ -37,7 +37,7 @@ export default class TagInputItemLabel extends React.Component<ITagInputItemLabe
                 <div className="flex-center">
                     {this.props.prefixText} {text}
                     {hasEmptyTextValue &&
-                        <FontIcon className="pr-1 pl-1" iconName="RectangleShape" />
+                        <FontIcon className="pr-1 pl-1" iconName="FieldNotChanged" />
                     }
                 </div>
             </div>
