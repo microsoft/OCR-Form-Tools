@@ -75,6 +75,11 @@ export function registerIcons() {
             RectangleShape: "\uF1A9",
             Rotate90CounterClockwise: "\uF80E",
             Rotate90Clockwise: "\uF80D",
-            AzureAPIManagement: "\uF37F",        },
+            AzureAPIManagement: "\uF37F",
+            GroupedList: "\uEF74",
+            GroupList: "\uF168",
+            FieldChanged: "\uF2C3",
+            FieldNotChanged: "\uF2C4"
+        },
     });
 }
