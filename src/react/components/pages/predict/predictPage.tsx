@@ -812,7 +812,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 strings.errors.predictWithoutTrainForbidden.message,
                 strings.errors.predictWithoutTrainForbidden.title);
         }
-        const apiVersion = this.props.project?.apiVersion;
+        const apiVersion = this.props.project?.apiVersion || constants.apiVersion;
         const endpointURL = url.resolve(
             this.props.project.apiUriBase,
             `${interpolate(constants.apiModelsPath, {apiVersion})}/${modelID}/analyze?includeTextDetails=true`,
