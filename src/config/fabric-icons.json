@@ -115,6 +115,14 @@
       "unicode": "E70F"
     },
     {
+      "name": "FieldChanged",
+      "unicode": "F2C3"
+    },
+    {
+      "name": "FieldNotChanged",
+      "unicode": "F2C4"
+    },
+    {
       "name": "Filter",
       "unicode": "E71C"
     },

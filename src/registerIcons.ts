@@ -36,6 +36,8 @@ export function registerIcons() {
             Down: "\uE74B",
             Download: "\uE896",
             Edit: "\uE70F",
+            FieldChanged: "\uF2C3",
+            FieldNotChanged: "\uF2C4",
             Filter: "\uE71C",
             GroupedList: "\uEF74",
             GroupList: "\uF168",

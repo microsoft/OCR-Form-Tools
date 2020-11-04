@@ -85,7 +85,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         key: "DrawnRegions",
                         text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.drawnRegions,
                         canCheck: true,
-                        iconProps: {iconName: "AddField"},
+                        iconProps: { iconName: "FieldNotChanged" },
                         isChecked: props.layers["drawnRegions"],
                         className: props.drawRegionMode ? "disabled" : "",
                         onClick: () => props.handleLayerChange("drawnRegions"),
@@ -107,7 +107,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
             {
                 key: "drawRegion",
                 text: strings.editorPage.canvas.canvasCommandBar.items.drawRegion,
-                iconProps: {iconName: "AddField"},
+                iconProps: {iconName: "FieldNotChanged"},
                 toggle: true,
                 checked: props.drawRegionMode,
                 className: !props.layers["drawnRegions"] ? "disabled" : "",
