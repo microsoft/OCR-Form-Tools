@@ -687,10 +687,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             delete currentAsset.asset.labelingState;
         }
 
+        const isLabelChanged=this.compareLabelData(_.get(currentAsset, "labelData.labels", []) as ILabel[],_.get(this.state.currentAsset, "labelData.labels", []) as ILabel[]);
         this.setState({
             currentAsset,
         }, () => {
-            this.props.onAssetMetadataChanged(currentAsset);
+            if(isLabelChanged){
+                this.props.onAssetMetadataChanged(currentAsset);
+            }
         });
     }
 
@@ -1723,7 +1726,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private isLabelDataChanged = (newProps: ICanvasProps, prevProps: ICanvasProps): boolean => {
         const newLabels = _.get(newProps, "selectedAsset.labelData.labels", []) as ILabel[];
         const prevLabels = _.get(prevProps, "selectedAsset.labelData.labels", []) as ILabel[];
-
+        return this.compareLabelData(newLabels,prevLabels);
+        
+    }
+    private compareLabelData(newLabels:ILabel[],prevLabels:ILabel[]):boolean{
         if (newLabels.length !== prevLabels.length) {
             return true;
         } else if (newLabels.length > 0) {
