@@ -91,7 +91,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             servicePath: "/prebuilt/invoice/analyze"
         },
         {
-            name: "BusinessCard",
+            name: "Business card",
             servicePath: "/prebuilt/businessCard/analyze"
         },
     ];
@@ -200,7 +200,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                             actions={this.props.actions}
                         />
                         <div className="p-3" style={{marginTop: "-3rem"}}>
-                            <div style={{marginBottom: "3px"}}>Pre-built</div>
+                            <div style={{marginBottom: "3px"}}>Form type</div>
                             <Dropdown
                                 disabled={this.state.isPredicting}
                                 className="prebuilt-type-dropdown"
@@ -256,14 +256,12 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                                     downloadResultLabel={this.state.fileLabel}
                                     onPredictionClick={this.onPredictionClick}
                                     onPredictionMouseEnter={this.onPredictionMouseEnter}
-                                    onPredictionMouseLeave={this.onPredictionMouseLeave}
+                                onPredictionMouseLeave={this.onPredictionMouseLeave}
                                 />
                             }
                             {
                                 (Object.keys(predictions).length === 0 && this.state.predictionLoaded) &&
-                                <div>
-                                    No field can be extracted.
-                                                </div>
+                                <div>No field can be extracted.</div>
                             }
                         </div>
 
