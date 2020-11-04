@@ -237,11 +237,16 @@ export const english: IAppStrings = {
         }
     },
     prebuiltPredict: {
-        title: "Analyze with prebuilt models",
+        title: "Prebuilt analyze",
         defaultLocalFileInput: "Browse for a file...",
         defaultURLInput: "Paste or type URL...",
         uploadFile: "Choose an image to analyze with",
-        inProgress: "Analysis in progress..."
+        inProgress: "Analysis in progress...",
+        anlayWithPrebuiltModels: "Analyze ${name} (preview)",
+    },
+    layoutPredict:{
+        title: "Layout analyze",
+        inProgress: "Analysis in progress...",
     },
     recentModelsView: {
         header: "Select a model to analyze with",

@@ -67,12 +67,12 @@ export function Sidebar({ project }) {
                     </NavLink>
                 </li>
                 <li className="prebuilt-demo-sidebar-item">
-                    <NavLink title={"Prebuilt predict"} to={`/prebuilts-predict`} role="button">
-                        <FontIcon iconName="KeyPhraseExtraction" />
+                    <NavLink title={strings.prebuiltPredict.title} to={`/prebuilts-analyze`} role="button">
+                        <FontIcon iconName="ContactCard" />
                     </NavLink>
                 </li>
                 <li className="prebuilt-demo-sidebar-item">
-                    <NavLink title={"text and table"} to={`/text-and-tables`} role="button">
+                    <NavLink title={strings.layoutPredict.title} to={`/layout-analyze`} role="button">
                         <FontIcon iconName="Table" />
                     </NavLink>
                 </li>

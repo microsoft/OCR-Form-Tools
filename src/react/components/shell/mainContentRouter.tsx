@@ -34,8 +34,8 @@ export function MainContentRouter() {
                 <Route path="/projects/:projectId/train" component={TrainPage} />
                 <Route path="/projects/:projectId/predict" />
                 <Route path="/projects/:projectId/settings" component={ProjectSettingsPage} />
-                <Route path="/prebuilts-predict" component={PrebuiltPredictPage} />
-                <Route path="/text-and-tables" component={LayoutPredictPage} />
+                <Route path="/prebuilts-analyze" component={PrebuiltPredictPage} />
+                <Route path="/layout-analyze" component={LayoutPredictPage} />
                 <Route component={HomePage} />
             </Switch>
             <PredictPageRoute />

@@ -236,10 +236,15 @@ export const spanish: IAppStrings = {
         }
     },
     prebuiltPredict: {
-        title: "Analizar con modelos prediseñados",
+        title: "Análisis preconstruido",
         defaultLocalFileInput: "Busca un archivo...",
         defaultURLInput: "Pegar o escribir URL...",
         uploadFile: "Elija una imagen para analizar con",
+        inProgress: "Análisis en curso...",
+        anlayWithPrebuiltModels: "Análisis ${name} (versión preliminar)",
+    },
+    layoutPredict:{
+        title: "Análisis de diseño",
         inProgress: "Análisis en curso...",
     },
     recentModelsView: {

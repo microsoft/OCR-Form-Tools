@@ -191,11 +191,11 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
     }
 
     private onPrebuiltClicked = () => {
-        this.props.history.push("/prebuilts-predict");
+        this.props.history.push("/prebuilts-analyze");
     }
 
     private onUseLayoutToGetTextAndTAblesClicked = () => {
-        this.props.history.push("/text-and-tables");
+        this.props.history.push("/layout-analyze");
     }
 
     private onTrainAndUseAModelWithLables = () => {

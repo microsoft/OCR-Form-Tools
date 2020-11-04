@@ -123,8 +123,8 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
     private fileHelper: ILoadFileHelper = new LoadFileHelper();
 
     componentDidMount() {
-        document.title = strings.prebuiltPredict.title + " - " + strings.appName;
-        this.props.appTitleActions.setTitle(`Analyze Layout`);
+        document.title = strings.layoutPredict.title + " - " + strings.appName;
+        this.props.appTitleActions.setTitle(strings.layoutPredict.title);
     }
     componentDidUpdate(_prevProps: ILayoutPredictPageProps, prevState: ILayoutPredictPageState) {
         if (this.state.file) {
@@ -163,14 +163,12 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
             !this.props.prebuiltSettings.apiKey ||
             !this.props.prebuiltSettings.serviceURI;
 
-        const showPage: boolean = this.props.match.path.includes("text-and-tables");
-
         return (
             <>
                 <div
-                    className={`predict skipToMainContent ${showPage ? "" : "hidden"} `}
+                    className="predict skipToMainContent"
                     id="pagePredict"
-                    style={{display: `${showPage ? "flex" : "none"}`}} >
+                    style={{display: "flex"}} >
                     <div className="predict-main">
                         {this.state.file && this.state.imageUri && this.renderImageMap()}
                         {this.renderPrevPageButton()}
@@ -181,14 +179,14 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
                         <div className="condensed-list">
                             <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
                                 <FontIcon className="mr-1" iconName="Insights" />
-                                <span>Analyze Layuot</span>
+                                <span>Layout</span>
                             </h6>
                             <PrebuiltSetting prebuiltSettings={this.props.prebuiltSettings}
                                 disabled={this.state.isFetching || this.state.isAnalyzing}
                                 actions={this.props.actions}
                             />
                             <div className="p-3" style={{marginTop: "8px"}}>
-                                <h5>Upload file and run analysis</h5>
+                                <h5>Upload file and run layout</h5>
                                 <DocumentFilePicker
                                     disabled={this.state.isFetching || this.state.isAnalyzing}
                                     onFileChange={(data) => this.onFileChange(data)}
@@ -199,7 +197,7 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
                                         theme={getPrimaryWhiteTheme()}
                                         iconProps={{iconName: "Insights"}}
                                         text="Run Layout"
-                                        aria-label={!this.state.analyzationLoaded ? strings.prebuiltPredict.inProgress : ""}
+                                        aria-label={!this.state.analyzationLoaded ? strings.layoutPredict.inProgress : ""}
                                         allowDisabledFocus
                                         disabled={analyzeDisabled}
                                         onClick={this.handleClick}
@@ -218,7 +216,7 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
                                 {this.state.isAnalyzing &&
                                     <div className="loading-container">
                                         <Spinner
-                                            label={strings.prebuiltPredict.inProgress}
+                                            label={strings.layoutPredict.inProgress}
                                             ariaLive="assertive"
                                             labelPosition="right"
                                             size={SpinnerSize.large}
