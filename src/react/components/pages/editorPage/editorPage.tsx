@@ -363,11 +363,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 />
                 <PreventLeaving
                     when={isRunningOCRs || isCanvasRunningOCR}
-                    message={"An Layout operation is currently in progress, are you sure you want to leave?"}
+                    message={strings.editorPage.warningMessage.PreventLeavingWhileRunningOCR}
                 />
                 <PreventLeaving
                     when={isCanvasRunningAutoLabeling}
-                    message={"Auto-labeling is currently in progress, are you sure you want to leave?"} />
+                    message={strings.editorPage.warningMessage.PreventLeavingRunningAutoLabeling} />
             </div>
         );
     }
@@ -577,7 +577,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         // This forces the root assets that are displayed in the sidebar to
         // accurately show their correct state (not-visited, visited or tagged)
         const assets = [...this.state.assets];
-        // const asset = { ...assetMetadata.asset };
         const assetIndex = assets.findIndex((a) => a.id === asset.id);
         if (assetIndex > -1) {
             assets[assetIndex] = {
@@ -744,8 +743,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                             try {
                                 this.updateAssetState({ id: asset.id, isRunningOCR: true });
                                 await ocrService.getRecognizedText(asset.path, asset.name, asset.mimeType, undefined, runForAll);
-                                // await this.props.actions.loadAssetMetadata(this.props.project, asset);
-                                // this.onAssetMetadataChanged(assetMetadata);
                                 this.props.actions.refreshAsset(this.props.project, asset.name);
                                 this.updateAssetState({ id: asset.id, isRunningOCR: false, assetState: AssetState.Visited });
                             } catch (err) {
@@ -839,17 +836,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 return asset;
             }
         });
-        // // const asset = assets.find(asset => asset.id === newState.id);
-        // // const selectedAsset = asset ? {...this.state.selectedAsset, asset: {...asset}} : this.state.selectedAsset;
-        // this.setState({
-        //     assets,
-        //     // selectedAsset
-        // })
-
         this.setState((state) => ({
             assets
         }), () => {
-            // this.props.actions.saveAssetMetadata()
             if (this.state.selectedAsset?.asset?.id === newState.id) {
                 const asset = this.state.assets.find((asset) => asset.id === newState.id);
                 if (this.state.selectedAsset && newState.id === this.state.selectedAsset.asset.id) {

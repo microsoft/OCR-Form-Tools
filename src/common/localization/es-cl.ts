@@ -480,6 +480,10 @@ export const spanish: IAppStrings = {
                     Por favor, etiquete todas las regiones antes de continuar con el siguiente activo.",
             },
         },
+        warningMessage: {
+            PreventLeavingWhileRunningOCR: "Una operación de diseño está actualmente en curso, ¿está seguro de que desea salir?",
+            PreventLeavingRunningAutoLabeling: "El etiquetado automático está actualmente en curso, ¿está seguro de que desea irse?",
+        }
     },
     profile: {
         settings: "Configuración de Perfíl",

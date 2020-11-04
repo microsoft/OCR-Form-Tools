@@ -472,6 +472,10 @@ export interface IAppStrings {
                 title: string,
                 description: string,
             },
+        },
+        warningMessage: {
+            PreventLeavingWhileRunningOCR: string,
+            PreventLeavingRunningAutoLabeling: string,
         }
     };
     profile: {

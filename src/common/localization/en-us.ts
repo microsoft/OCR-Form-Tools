@@ -479,6 +479,10 @@ export const english: IAppStrings = {
                     continuing to next asset.",
             },
         },
+        warningMessage: {
+            PreventLeavingWhileRunningOCR: "An Layout operation is currently in progress, are you sure you want to leave?",
+            PreventLeavingRunningAutoLabeling: "Auto-labeling is currently in progress, are you sure you want to leave?",
+        }
     },
     profile: {
         settings: "Profile Settings",
