@@ -392,7 +392,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const result = await predictService.getPrediction(assetPath);
             const assetService = new AssetService(this.props.project);
             const assetMetadata = assetService.getAssetPredictMetadata(asset, result);
-            await this.props.onAssetMetadataChanged(assetMetadata);
+            if(assetMetadata) {
+                await this.props.onAssetMetadataChanged(assetMetadata);
+            }
         }
         finally {
             this.setAutoLabelingStatus(AutoLabelingStatus.done);
@@ -687,7 +689,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             delete currentAsset.asset.labelingState;
         }
 
-        const isLabelChanged = this.compareLabelData(_.get(currentAsset, "labelData.labels", []) as ILabel[], _.get(this.state.currentAsset, "labelData.labels", []) as ILabel[]);
+        const isLabelChanged = this.compareLabelChanged(_.get(currentAsset, "labelData.labels", []) as ILabel[], _.get(this.state.currentAsset, "labelData.labels", []) as ILabel[]);
         this.setState({
             currentAsset,
         }, () => {
@@ -1726,10 +1728,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private isLabelDataChanged = (newProps: ICanvasProps, prevProps: ICanvasProps): boolean => {
         const newLabels = _.get(newProps, "selectedAsset.labelData.labels", []) as ILabel[];
         const prevLabels = _.get(prevProps, "selectedAsset.labelData.labels", []) as ILabel[];
-        return this.compareLabelData(newLabels, prevLabels);
+        return this.compareLabelChanged(newLabels, prevLabels);
 
     }
-    private compareLabelData(newLabels: ILabel[], prevLabels: ILabel[]): boolean {
+    private compareLabelChanged(newLabels: ILabel[], prevLabels: ILabel[]): boolean {
         if (newLabels.length !== prevLabels.length) {
             return true;
         } else if (newLabels.length > 0) {
