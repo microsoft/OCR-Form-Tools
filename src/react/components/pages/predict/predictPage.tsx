@@ -718,7 +718,10 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     alertMessage = strings.errors.predictWithoutTrainForbidden.message;
                 } else if (error.errorCode === ErrorCode.ModelNotFound) {
                     alertMessage = error.message;
-                } else {
+                } else if(error.code){
+                    alertMessage = error.message;
+                }
+                  else {
                     alertMessage = interpolate(strings.errors.endpointConnectionError.message, { endpoint: "form recognizer backend URL" });
                 }
                 this.setState({

@@ -395,6 +395,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             if(assetMetadata) {
                 await this.props.onAssetMetadataChanged(assetMetadata);
             }
+        } catch(err){
+            this.setState({
+                isError: true,
+                errorMessage: err.message
+            });
         }
         finally {
             this.setAutoLabelingStatus(AutoLabelingStatus.done);
