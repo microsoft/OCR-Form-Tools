@@ -39,6 +39,7 @@ export interface IAppStrings {
         newProject: string,
         openLocalProject: {
             title: string,
+            description: string,
         },
         openCloudProject: {
             title: string,

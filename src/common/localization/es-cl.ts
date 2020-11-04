@@ -39,6 +39,7 @@ export const spanish: IAppStrings = {
         recentProjects: "Proyectos Recientes",
         openLocalProject: {
             title: "Abrir Proyecto Local",
+            description: "Abrir Proyecto Local",
         },
         openCloudProject: {
             title: "Abrir Proyecto de la Nube",

@@ -124,7 +124,11 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                                 <a href="#" className="p-5 file-upload"
                                     onClick={() => this.filePicker.current.upload()} >
                                     <FontIcon iconName="System" className="icon-7x" />
-                                    <h6>{strings.homePage.openLocalProject.title}</h6>
+                                    <div className="title">{strings.homePage.openLocalProject.title}</div>
+                                    <div className="description">
+                                        {strings.homePage.openLocalProject.description}
+                                    </div>
+                                    <div className="quickstart"><FontIcon iconName="Rocket" />{strings.homePage.quickStartGuide}</div>
                                 </a>
                                 <FilePicker ref={this.filePicker}
                                     onChange={this.onProjectFileUpload}

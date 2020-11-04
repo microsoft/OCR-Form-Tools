@@ -65,9 +65,11 @@
     &-open-cloud-project {
         display: flex;
         align-items: center;
+        margin: 10px 0;
+        background-color: $lighter-1;
         &:hover {
             color: #fff;
-            background-color: $lighter-2;
+            background-color: $lighter-3;
             text-decoration: none;
         }
         .icon {
