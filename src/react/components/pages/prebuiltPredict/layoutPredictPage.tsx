@@ -178,7 +178,7 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
                     <div className="predict-sidebar bg-lighter-1">
                         <div className="condensed-list">
                             <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
-                                <FontIcon className="mr-1" iconName="Insights" />
+                                <FontIcon className="mr-1" iconName="KeyPhraseExtraction" />
                                 <span>Layout</span>
                             </h6>
                             <PrebuiltSetting prebuiltSettings={this.props.prebuiltSettings}
@@ -195,7 +195,7 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
                                 <div className="container-items-end predict-button">
                                     <PrimaryButton
                                         theme={getPrimaryWhiteTheme()}
-                                        iconProps={{iconName: "Insights"}}
+                                        iconProps={{iconName: "KeyPhraseExtraction"}}
                                         text="Run Layout"
                                         aria-label={!this.state.analyzationLoaded ? strings.layoutPredict.inProgress : ""}
                                         allowDisabledFocus
