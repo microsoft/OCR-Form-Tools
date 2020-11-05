@@ -63,11 +63,11 @@ export const english: IAppStrings = {
         },
         prebuiltPredict: {
             title: "Use prebuilt model to get data",
-            description: "Start with a pre-built model for forms link receipts or business cards. Submit your data and get result right away."
+            description: "Start with a pre-built model to extract data from your forms – Invoices, Receipts, Business cards and more. Submit your data and get results right away."
         },
         layoutPredict:{
             title:"Use Layout to get text and tables",
-            description:"Form recognizer can extract text and table structure using high-definition optical character recognition(OCR)."
+            description:"Try out the Form Recognizer Layout service to extract text, tables, selection marks and the structure of your document."
         },
         trainWithLabels:{
             title:"Train and use a model with labels",

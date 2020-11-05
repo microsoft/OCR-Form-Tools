@@ -63,11 +63,11 @@ export const spanish: IAppStrings = {
         },
         prebuiltPredict: {
             title: "Utilice un modelo prediseñado para obtener datos",
-            description: "Comience con un modelo prediseñado para formularios con enlaces a recibos o tarjetas de presentación. Envíe sus datos y obtenga resultados de inmediato."
+            description: "Comience con un modelo preconstruidos para extraer datos de sus formularios: facturas, recibos, tarjetas de visita y mucho más. Envíe sus datos y obtenga resultados de inmediato."
         },
         layoutPredict:{
             title:"Use Layout para obtener texto y tablas",
-            description:"El reconocedor de formularios puede extraer texto y estructura de tablas mediante el reconocimiento óptico de caracteres (OCR) de alta definición."
+            description:"Pruebe el servicio Diseño del reconocedor de formularios para extraer texto, tablas, marcas de selección y la estructura del documento."
         },
         trainWithLabels:{
             title:"Entrene y use un modelo con etiquetas",
