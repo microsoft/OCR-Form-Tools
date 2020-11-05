@@ -133,6 +133,10 @@ export interface IAppStrings {
             title: string;
             message: string;
         },
+        cleanAutoLabelConfirm: {
+            title: string,
+            message: string,
+        }
         errors: {
             electron: {
                 cantAccessFiles: string;

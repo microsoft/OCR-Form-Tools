@@ -131,8 +131,12 @@ export const spanish: IAppStrings = {
         addName: "Agregar nombre de modelo ...",
         downloadJson: "Descargar archivo JSON",
         trainConfirm: {
-            title: "Etiquetas no revisadas todavía",
-            message: "Hay archivos recientemente etiquetados automáticamente que aún no ha revisado, ¿desea entrenar con esos archivos?"
+            title: "Etiquetas aún no revisadas y datos de autoetiquetados limpios",
+            message: "Hay archivos con etiqueta automática recientemente que aún no han sido revisados por usted, también, los datos de autoLabel se limpiarán. ¿Quieres continuar?"
+        },
+        cleanAutoLabelConfirm: {
+            title: "Datos de autoetiquetado limpios",
+            message: "Los datos de la etiqueta automática se limpiarán, ¿quiere continuar?",
         },
         errors: {
             electron: {

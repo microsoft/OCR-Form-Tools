@@ -130,8 +130,12 @@ export const english: IAppStrings = {
         addName: "Add a model name...",
         downloadJson: "Download JSON file",
         trainConfirm: {
-            title: "Labels not revised yet",
-            message: "There are newly auto-labeled files not yet revised by you, do you want to train with those files?"
+            title: "Labels not revised yet and clean autolabel data",
+            message: "There are newly auto-labeled files not yet revised by you, also, the autoLabel data will be cleaned. do you want to continue?"
+        },
+        cleanAutoLabelConfirm: {
+            title: "Clean autolabel data",
+            message: "The autolabel data will be cleaned, do you want to continue?",
         },
         errors: {
             electron: {

@@ -10,7 +10,7 @@ import IProjectActions, * as projectActions from "../../../../redux/actions/proj
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import {
-    IApplicationState, IConnection, IProject, IAppSettings, FieldType, IRecentModel, AssetLabelingState,
+    IApplicationState, IConnection, IProject, IAppSettings, FieldType, IRecentModel, AssetLabelingState, IAssetMetadata,
 } from "../../../../models/applicationState";
 import TrainChart from "./trainChart";
 import TrainPanel from "./trainPanel";
@@ -82,8 +82,8 @@ function mapDispatchToProps(dispatch) {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class TrainPage extends React.Component<ITrainPageProps, ITrainPageState> {
     private appInsights: any = null;
-    private notAdjustedLabelsConfirm: React.RefObject<Confirm> = React.createRef();
-
+    private notAdjustedLabelsAndCleanAutoLabelDataConfirm: React.RefObject<Confirm> = React.createRef();
+    private CleanAutoLabelDataConfirm: React.RefObject<Confirm>=React.createRef();
     constructor(props) {
         super(props);
 
@@ -250,9 +250,16 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                     message={"A training operation is currently in progress, are you sure you want to leave?"}
                 />
                 <Confirm
-                    ref={this.notAdjustedLabelsConfirm}
+                    ref={this.notAdjustedLabelsAndCleanAutoLabelDataConfirm}
                     title={strings.train.trainConfirm.title}
                     message={strings.train.trainConfirm.message}
+                    onConfirm={this.handleModelTrainConfirm}
+                    confirmButtonTheme={getPrimaryGreenTheme()}
+                />
+                <Confirm
+                    ref={this.CleanAutoLabelDataConfirm}
+                    title={strings.train.cleanAutoLabelConfirm.title}
+                    message={strings.train.cleanAutoLabelConfirm.message}
                     onConfirm={this.handleModelTrainConfirm}
                     confirmButtonTheme={getPrimaryGreenTheme()}
                 />
@@ -297,9 +304,17 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
     private handleTrainClick = () => {
         const assets = Object.values(this.props.project.assets)
-            .filter(asset => asset.labelingState === AssetLabelingState.AutoLabeled);
+            .filter(asset => asset.labelingState === AssetLabelingState.AutoLabeled||asset.labelingState===AssetLabelingState.AutoLabeledAndAdjusted);
         if (assets.length > 0) {
-            this.notAdjustedLabelsConfirm.current.open();
+          
+            if(assets.findIndex(asset=>asset.labelingState===AssetLabelingState.AutoLabeled)>=0){
+                this.notAdjustedLabelsAndCleanAutoLabelDataConfirm.current.open();
+            }
+            else{
+                this.CleanAutoLabelDataConfirm.current.open();
+            }
+            
+            
         } else {
             this.handleModelTrain();
         }
@@ -389,6 +404,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             trainSourceURL = provider.sas;
             trainPrefix = this.props.project.folderPath ? this.props.project.folderPath : "";
         }
+        await this.cleanLabelData();
         const payload = {
             source: trainSourceURL,
             sourceFilter: {
@@ -410,6 +426,23 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         } catch (err) {
             ServiceHelper.handleServiceError(err);
         }
+    }
+    private async cleanLabelData(){
+        const allAssets ={...this.props.project.assets};
+        await Object.values(allAssets)
+        .filter((asset)=>asset.labelingState===AssetLabelingState.AutoLabeled||asset.labelingState===AssetLabelingState.AutoLabeledAndAdjusted)
+        .forEachAsync(async (asset)=>{
+            const assetMetadata:IAssetMetadata = await this.props.actions.loadAssetMetadata(this.props.project, asset);
+            assetMetadata.asset.labelingState=AssetLabelingState.ManuallyLabeled;
+            assetMetadata.labelData.labelingState=AssetLabelingState.ManuallyLabeled;
+            assetMetadata.labelData?.labels?.forEach((label)=>{
+                delete label.confidence;
+                delete label.originValue;
+                delete label.revised;
+                
+            });
+            await this.props.actions.saveAssetMetadata(this.props.project,assetMetadata);
+        });
     }
 
     private async getTrainStatus(operationLocation: string): Promise<any> {
