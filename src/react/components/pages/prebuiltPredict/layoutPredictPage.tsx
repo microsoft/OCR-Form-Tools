@@ -32,6 +32,7 @@ import Alert from "../../common/alert/alert";
 import {DocumentFilePicker} from "../../common/documentFilePicker/documentFilePicker";
 import {ImageMap} from "../../common/imageMap/imageMap";
 import {PrebuiltSetting} from "../../common/prebuiltSetting/prebuiltSetting";
+import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import {CanvasCommandBar} from "../editorPage/canvasCommandBar";
 import {TableView} from "../editorPage/tableView";
 import {ILayoutHelper, LayoutHelper} from "./layoutHelper";
@@ -249,6 +250,10 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
                             alertMessage: "",
                             analyzationLoaded: true
                         })}
+                    />
+                    <PreventLeaving
+                        when={this.state.isAnalyzing}
+                        message={"A prediction operation is currently in progress, are you sure you want to leave?"}
                     />
                 </div>
             </>
