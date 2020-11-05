@@ -160,8 +160,8 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
             || this.state.invalidFileFormat ||
             !this.state.fileLoaded ||
             this.state.isAnalyzing ||
-            !this.props.prebuiltSettings.apiKey ||
-            !this.props.prebuiltSettings.serviceURI;
+            !this.props.prebuiltSettings?.apiKey ||
+            !this.props.prebuiltSettings?.serviceURI;
 
         return (
             <>
