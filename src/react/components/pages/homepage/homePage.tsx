@@ -93,11 +93,11 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                                 <div className="title">{strings.homePage.prebuiltPredict.title}</div>
                                 <div className="description">{strings.homePage.prebuiltPredict.description}</div>
                             </a>
-                            {/* wait for link url */}
-                            {/* <a className="quickstart"
+                            <a className="quickstart"
+                                href="https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/quickstarts/label-tool?tabs=v2-0"
                                 target="_blank"
                                 rel="noopener noreferrer">
-                                <FontIcon iconName="Rocket" />{strings.homePage.quickStartGuide}</a> */}
+                                <FontIcon iconName="Rocket" />{strings.homePage.quickStartGuide}</a>
                         </li>
                         <li className="p-5">
                             <a onClick={this.onUseLayoutToGetTextAndTAblesClicked}
@@ -109,11 +109,11 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                                     {strings.homePage.layoutPredict.description}
                                 </div>
                             </a>
-                            {/* wait for link url */}
-                            {/* <a className="quickstart"
+                            <a className="quickstart"
+                                href="https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/quickstarts/label-tool?tabs=v2-0"
                                 target="_blank"
                                 rel="noopener noreferrer">
-                                <FontIcon iconName="Rocket" />{strings.homePage.quickStartGuide}</a> */}
+                                <FontIcon iconName="Rocket" />{strings.homePage.quickStartGuide}</a>
                         </li>
                         <li className="p-5">
                             <a onClick={this.onTrainAndUseAModelWithLables}
