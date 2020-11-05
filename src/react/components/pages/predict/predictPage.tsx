@@ -3,8 +3,8 @@
 
 import {
     DefaultButton, FontIcon, IconButton,
-    ISelection, PrimaryButton, Selection,
-    SelectionMode, Separator, Spinner, SpinnerSize
+    ISelection, ITooltipHostStyles, PrimaryButton, Selection,
+    SelectionMode, Separator, Spinner, SpinnerSize, TooltipHost
 } from "@fluentui/react";
 import axios from "axios";
 import _ from "lodash";
@@ -37,8 +37,9 @@ import {DocumentFilePicker} from "../../common/documentFilePicker/documentFilePi
 import {ImageMap} from "../../common/imageMap/imageMap";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import {CanvasCommandBar} from "../editorPage/canvasCommandBar";
-import {ILayoutHelper, LayoutHelper} from "../prebuiltPredict/layoutHelper";
+import {TableView} from "../editorPage/tableView";
 import {ILoadFileHelper, ILoadFileResult, LoadFileHelper} from "../prebuiltPredict/LoadFileHelper";
+import {ITableHelper, ITableState, TableHelper} from "../prebuiltPredict/tableHelper";
 import PredictModelInfo from './predictModelInfo';
 import "./predictPage.scss";
 import PredictResult, {IAnalyzeModelInfo} from "./predictResult";
@@ -57,7 +58,7 @@ export interface IPredictPageProps extends RouteComponentProps, React.Props<Pred
     appTitleActions: IAppTitleActions;
 }
 
-export interface IPredictPageState extends ILoadFileResult {
+export interface IPredictPageState extends ILoadFileResult, ITableState {
     couldNotGetRecentModel: boolean;
     selectionIndexTracker: number;
     selectedRecentModelIndex: number;
@@ -68,7 +69,7 @@ export interface IPredictPageState extends ILoadFileResult {
     isFetching: boolean;
     fetchedFileURL: string;
     inputedFileURL: string;
-    analyzeResult: {};
+    analyzeResult: any;
     fileLabel: string;
     predictionLoaded: boolean;
     fileChanged: boolean;
@@ -110,7 +111,7 @@ function mapDispatchToProps(dispatch) {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class PredictPage extends React.Component<IPredictPageProps, IPredictPageState> {
     private appInsights: any = null;
-    private layoutHelper: ILayoutHelper = new LayoutHelper();
+    private tableHelper: ITableHelper = new TableHelper(this);
     private fileHelper: ILoadFileHelper = new LoadFileHelper();
 
     public state: IPredictPageState = {
@@ -142,6 +143,11 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         modelList: [],
         modelOption: "",
         imageAngle: 0,
+
+        tableIconTooltip: {display: "none", width: 0, height: 0, top: 0, left: 0},
+        hoveringFeature: null,
+        tableToView: null,
+        tableToViewId: null,
     };
 
     private selectionHandler: ISelection;
@@ -195,7 +201,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             }
             if (this.getOcrFromAnalyzeResult(this.state.analyzeResult).length > 0 &&
                 prevState.imageUri !== this.state.imageUri) {
-                this.imageMap.removeAllFeatures();
                 this.drawPredictionResult();
             }
 
@@ -418,7 +423,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             fileLoaded: false,
             fileChanged: true,
         }, () => {
-            this.layoutHelper?.reset();
+            this.imageMap?.removeAllFeatures();
         });
     }
 
@@ -445,7 +450,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             isPredicting: false,
             highlightedField: "",
         }, () => {
-            this.layoutHelper.reset();
+            this.imageMap?.removeAllFeatures();
         });
 
     }
@@ -458,108 +463,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         });
     }
 
-
-    private getFileFromURL = () => {
-        this.setState({isFetching: true});
-        fetch(this.state.inputedFileURL, {headers: {Accept: "application/pdf, image/jpeg, image/png, image/tiff, image/bmp"}})
-            .then((response) => {
-                if (!response.ok) {
-                    this.setState({
-                        isFetching: false,
-                        shouldShowAlert: true,
-                        alertTitle: "Failed to fetch",
-                        alertMessage: response.status.toString() + " " + response.statusText,
-                        isPredicting: false,
-                    });
-                    return;
-                }
-                const contentType = response.headers.get("Content-Type");
-                if (!["application/pdf", "image/jpeg", "image/png", "image/tiff", "image/bmp"].includes(contentType)) {
-                    this.setState({
-                        isFetching: false,
-                        shouldShowAlert: true,
-                        alertTitle: "Content-Type not supported",
-                        alertMessage: "Content-Type " + contentType + " not supported",
-                        isPredicting: false,
-                    });
-                    return;
-                }
-                response.blob().then((blob) => {
-                    const fileAsURL = new URL(this.state.inputedFileURL);
-                    const fileName = fileAsURL.pathname.split("/").pop();
-                    const file = new File([blob], fileName, {type: contentType});
-                    this.setState({
-                        fetchedFileURL: this.state.inputedFileURL,
-                        isFetching: false,
-                        fileLabel: fileName,
-                        currentPage: 1,
-                        analyzeResult: {},
-                        fileChanged: true,
-                        file,
-                        predictRun: false,
-                    }, () => {
-                        if (this.imageMap) {
-                            this.imageMap.removeAllFeatures();
-                        }
-                    });
-                }).catch((error) => {
-                    this.setState({
-                        isFetching: false,
-                        shouldShowAlert: true,
-                        alertTitle: "Invalid data",
-                        alertMessage: error,
-                        isPredicting: false,
-                    });
-                    return;
-                });
-            }).catch(() => {
-                this.setState({
-                    isFetching: false,
-                    shouldShowAlert: true,
-                    alertTitle: "Fetch failed",
-                    alertMessage: "Network error or Cross-Origin Resource Sharing (CORS) is not configured server-side",
-                });
-                return;
-            });
-    }
-
-    private selectSource = (event, option) => {
-        if (option.key !== this.state.sourceOption) {
-            this.setState({
-                sourceOption: option.key,
-                inputedFileURL: strings.predict.defaultURLInput,
-                inputedLocalFile: strings.predict.defaultLocalFileInput,
-                fileLabel: "",
-                currentPage: undefined,
-                analyzeResult: {},
-                fileChanged: true,
-                file: undefined,
-                predictRun: false,
-                isFetching: false,
-                fetchedFileURL: "",
-                predictionLoaded: true,
-                imageUri: null,
-                imageWidth: 0,
-                imageHeight: 0,
-                shouldShowAlert: false,
-                alertTitle: "",
-                alertMessage: "",
-                isPredicting: false,
-                highlightedField: "",
-            }, () => {
-                if (this.imageMap) {
-                    this.imageMap.removeAllFeatures();
-                }
-            });
-        }
-    }
-
     private renderPrevPageButton = () => {
         const prevPage = () => {
             this.setState((prevState) => ({
                 currentPage: Math.max(1, prevState.currentPage - 1),
             }), () => {
-                this.imageMap.removeAllFeatures();
+                this.imageMap?.removeAllFeatures();
             });
         };
 
@@ -583,7 +492,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             this.setState((prevState) => ({
                 currentPage: Math.min(prevState.currentPage + 1, numPages),
             }), () => {
-                this.imageMap.removeAllFeatures();
+                this.imageMap?.removeAllFeatures();
             });
         };
 
@@ -609,6 +518,16 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private renderImageMap = () => {
+        const hostStyles: Partial<ITooltipHostStyles> = {
+            root: {
+                position: "absolute",
+                top: this.state.tableIconTooltip.top,
+                left: this.state.tableIconTooltip.left,
+                width: this.state.tableIconTooltip.width,
+                height: this.state.tableIconTooltip.height,
+                display: this.state.tableIconTooltip.display,
+            },
+        };
         return (
             <div style={{width: "100%", height: "100%"}}>
                 <CanvasCommandBar
@@ -620,17 +539,68 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     layers={{}}
                 />
                 <ImageMap
-                    initPredictMap={true}
-                    ref={(ref) => this.imageMap = ref}
+                    initEditorMap={true}
+                    ref={(ref) => {
+                        this.imageMap = ref;
+                        this.tableHelper.setImageMap(ref);
+                    }}
                     imageUri={this.state.imageUri || ""}
                     imageWidth={this.state.imageWidth}
                     imageHeight={this.state.imageHeight}
                     imageAngle={this.state.imageAngle}
                     featureStyler={this.featureStyler}
                     onMapReady={this.noOp}
+                    tableBorderFeatureStyler={this.tableHelper.tableBorderFeatureStyler}
+                    tableIconFeatureStyler={this.tableHelper.tableIconFeatureStyler}
+                    tableIconBorderFeatureStyler={this.tableHelper.tableIconBorderFeatureStyler}
+                    handleTableToolTipChange={this.tableHelper.handleTableToolTipChange}
                 />
+                <TooltipHost
+                    content={"rows: " + this.state.tableIconTooltip.rows +
+                        " columns: " + this.state.tableIconTooltip.columns}
+                    id="tableInfo"
+                    styles={hostStyles}
+                >
+                    <div
+                        aria-describedby="tableInfo"
+                        className="tooltip-container"
+                        onClick={this.handleTableIconFeatureSelect}
+                    />
+                </TooltipHost>
+                {this.state.tableToView !== null &&
+                    <TableView
+                        handleTableViewClose={this.handleTableViewClose}
+                        tableToView={this.state.tableToView}
+                    />
+                }
             </div>
         );
+    }
+
+    private handleTableIconFeatureSelect = () => {
+        if (this.state.hoveringFeature != null) {
+            const tableState = this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).get("state");
+            if (tableState === "hovering" || tableState === "rest") {
+                this.tableHelper.setTableToView(this.tableHelper.getTable(this.state.currentPage, this.state.hoveringFeature),
+                    this.state.hoveringFeature);
+            } else {
+                this.closeTableView("hovering");
+            }
+        }
+    }
+
+    private handleTableViewClose = () => {
+        this.closeTableView("rest");
+    }
+
+    private closeTableView = (state: string) => {
+        if (this.state.tableToView) {
+            this.tableHelper.setTableState(this.state.tableToViewId, state);
+            this.setState({
+                tableToView: null,
+                tableToViewId: null,
+            });
+        }
     }
 
     private handleCanvasZoomIn = () => {
@@ -649,8 +619,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         this.setState({predictionLoaded: false, isPredicting: true});
         this.getPrediction()
             .then((result) => {
+                this.tableHelper.setAnalyzeResult(result?.analyzeResult);
                 this.setState({
-                    analyzeResult: result,
+                    analyzeResult: result?.analyzeResult,
                     predictionLoaded: true,
                     predictRun: true,
                     isPredicting: false,
@@ -665,7 +636,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     alertMessage = strings.errors.predictWithoutTrainForbidden.message;
                 } else if (error.errorCode === ErrorCode.ModelNotFound) {
                     alertMessage = error.message;
-                } else if(error.code){
+                } else if (error.code) {
                     alertMessage = `${error.message}, code ${error.code}`;
                 } else {
                     alertMessage = interpolate(strings.errors.endpointConnectionError.message, {endpoint: "form recognizer backend URL"});
@@ -835,7 +806,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private drawPredictionResult = (): void => {
-        this.imageMap.removeAllFeatures();
+        this.imageMap?.removeAllFeatures();
         const features = [];
         const imageExtent = [0, 0, this.state.imageWidth, this.state.imageHeight];
         const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[this.state.currentPage - 1];
@@ -851,7 +822,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 features.push(feature);
             }
         }
-        this.imageMap.addFeatures(features);
+        this.imageMap?.addFeatures(features);
+        this.tableHelper.drawTables(this.state.currentPage);
     }
 
     /**
@@ -890,16 +862,16 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private getPredictionsFromAnalyzeResult(analyzeResult: any) {
-        return _.get(analyzeResult, "analyzeResult.documentResults[0].fields", {});
+        return _.get(analyzeResult, "documentResults[0].fields", {});
     }
 
     private getAnalyzeModelInfo(analyzeResult) {
-        const {modelId, docType, docTypeConfidence} = _.get(analyzeResult, "analyzeResult.documentResults[0]", {})
+        const {modelId, docType, docTypeConfidence} = _.get(analyzeResult, "documentResults[0]", {})
         return {modelId, docType, docTypeConfidence};
     }
 
     private getOcrFromAnalyzeResult(analyzeResult: any) {
-        return _.get(analyzeResult, "analyzeResult.readResults", []);
+        return _.get(analyzeResult, "readResults", []);
     }
 
     private noOp = () => {

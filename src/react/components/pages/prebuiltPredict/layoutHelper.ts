@@ -1,5 +1,7 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import {Feature} from "ol";
-import Point from "ol/geom/Point";
 import Polygon from "ol/geom/Polygon";
 import {ImageMap} from "../../common/imageMap/imageMap";
 
@@ -9,7 +11,6 @@ export interface ILayoutHelper {
     drawLayout(targetPage: number): void;
     reset(): void;
     getOcrResultForPage(targetPage: number): any;
-    getTable(targetPage: number, hoveringFeature: string): any;
 }
 
 export class LayoutHelper implements ILayoutHelper {
@@ -17,8 +18,6 @@ export class LayoutHelper implements ILayoutHelper {
     private layoutData: any;
     private regionOrders: Record<string, number>[] = [];
     private regionOrderById: string[][] = [];
-
-    private tableIDToIndexMap: object;
 
     setImageMap(imageMap: ImageMap) {
         this.imageMap = imageMap;
@@ -79,10 +78,6 @@ export class LayoutHelper implements ILayoutHelper {
         const ocrForCurrentPage = this.getOcrResultForPage(targetPage);
         const textFeatures = [];
 
-        const tableBorderFeatures = [];
-        const tableIconFeatures = [];
-        const tableIconBorderFeatures = [];
-
         const checkboxFeatures = [];
         const ocrReadResults = ocrForCurrentPage["readResults"];
         const ocrPageResults = ocrForCurrentPage["pageResults"];
@@ -102,26 +97,6 @@ export class LayoutHelper implements ILayoutHelper {
                 });
             }
 
-            this.tableIDToIndexMap = {};
-            if (ocrPageResults && ocrPageResults.tables) {
-                ocrPageResults.tables.forEach((table, index) => {
-                    if (table.cells && table.columns && table.rows) {
-                        const tableBoundingBox = this.getTableBoundingBox(table.cells.map((cell) => cell.boundingBox));
-                        const createdTableFeatures = this.createBoundingBoxVectorTable(
-                            tableBoundingBox,
-                            imageExtent,
-                            ocrExtent,
-                            ocrPageResults.page,
-                            table.rows,
-                            table.columns,
-                            index);
-                        tableBorderFeatures.push(createdTableFeatures["border"]);
-                        tableIconFeatures.push(createdTableFeatures["icon"]);
-                        tableIconBorderFeatures.push(createdTableFeatures["iconBorder"]);
-                    }
-                });
-            }
-
             if (ocrReadResults && ocrReadResults.selectionMarks) {
                 ocrReadResults.selectionMarks.forEach((checkbox) => {
                     checkboxFeatures.push(this.createBoundingBoxVectorFeature(
@@ -132,13 +107,6 @@ export class LayoutHelper implements ILayoutHelper {
                     checkboxFeatures.push(this.createBoundingBoxVectorFeature(
                         checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, ocrPageResults.page));
                 });
-            }
-
-            if (tableBorderFeatures.length > 0 && tableBorderFeatures.length === tableIconFeatures.length
-                && tableBorderFeatures.length === tableIconBorderFeatures.length) {
-                this.imageMap.addTableBorderFeatures(tableBorderFeatures);
-                this.imageMap.addTableIconFeatures(tableIconFeatures);
-                this.imageMap.addTableIconBorderFeatures(tableIconBorderFeatures);
             }
 
             if (textFeatures.length > 0) {
@@ -154,7 +122,7 @@ export class LayoutHelper implements ILayoutHelper {
         if (!this.layoutData) {
             return {};
         }
-        if (this.layoutData.analyzeResult && this.layoutData.analyzeResult.readResults) {
+        if (this.layoutData.analyzeResult?.readResults) {
             // OCR schema with analyzeResult/readResults property
             const ocrResultsForCurrentPage = {};
             if (this.layoutData.analyzeResult.pageResults) {
@@ -164,11 +132,6 @@ export class LayoutHelper implements ILayoutHelper {
             return ocrResultsForCurrentPage;
         }
         return {};
-    }
-
-    getTable(targetPage: number, hoveringFeature: string) {
-        const pageOcrData = this.getOcrResultForPage(targetPage);
-        return pageOcrData?.pageResults.tables[this.tableIDToIndexMap[hoveringFeature]];
     }
 
     private createBoundingBoxVectorFeature = (text, boundingBox, imageExtent, ocrExtent, page) => {
@@ -227,67 +190,5 @@ export class LayoutHelper implements ILayoutHelper {
             this.regionOrders[pageIndex][checkboxFeature.getId()] = order++;
             this.regionOrderById[pageIndex].push(checkboxFeature.getId());
         });
-    }
-
-    private getTableBoundingBox = (lines: []) => {
-        const flattenedLines = [].concat(...lines);
-        const xAxisValues = flattenedLines.filter((value, index) => index % 2 === 0);
-        const yAxisValues = flattenedLines.filter((value, index) => index % 2 === 1);
-        const left = Math.min(...xAxisValues);
-        const top = Math.min(...yAxisValues);
-        const right = Math.max(...xAxisValues);
-        const bottom = Math.max(...yAxisValues);
-        return ([left, top, right, top, right, bottom, left, bottom]);
-    }
-
-    private createBoundingBoxVectorTable = (boundingBox, imageExtent, ocrExtent, page, rows, columns, index) => {
-        const coordinates: any[] = [];
-        const polygonPoints: number[] = [];
-        const imageWidth = imageExtent[2] - imageExtent[0];
-        const imageHeight = imageExtent[3] - imageExtent[1];
-        const ocrWidth = ocrExtent[2] - ocrExtent[0];
-        const ocrHeight = ocrExtent[3] - ocrExtent[1];
-
-        for (let i = 0; i < boundingBox.length; i += 2) {
-            // An array of numbers representing an extent: [minx, miny, maxx, maxy]
-            coordinates.push([
-                Math.round((boundingBox[i] / ocrWidth) * imageWidth),
-                Math.round((1 - (boundingBox[i + 1] / ocrHeight)) * imageHeight),
-            ]);
-
-            polygonPoints.push(boundingBox[i] / ocrWidth);
-            polygonPoints.push(boundingBox[i + 1] / ocrHeight);
-        }
-        const tableID = this.createRegionIdFromBoundingBox(polygonPoints, page);
-        this.tableIDToIndexMap[tableID] = index;
-        const tableFeatures = {};
-        tableFeatures["border"] = new Feature({
-            geometry: new Polygon([coordinates]),
-            id: tableID,
-            state: "rest",
-            boundingbox: boundingBox,
-        });
-        tableFeatures["icon"] = new Feature({
-            geometry: new Point([coordinates[0][0] - 6.5, coordinates[0][1] - 4.5]),
-            id: tableID,
-            state: "rest",
-        });
-
-        const iconTR = [coordinates[0][0] - 5, coordinates[0][1]];
-        const iconTL = [iconTR[0] - 31.5, iconTR[1]];
-        const iconBL = [iconTR[0], iconTR[1] - 29.5];
-        const iconBR = [iconTR[0] - 31.5, iconTR[1] - 29.5];
-
-        tableFeatures["iconBorder"] = new Feature({
-            geometry: new Polygon([[iconTR, iconTL, iconBR, iconBL]]),
-            id: tableID,
-            rows,
-            columns,
-        });
-
-        tableFeatures["border"].setId(tableID);
-        tableFeatures["icon"].setId(tableID);
-        tableFeatures["iconBorder"].setId(tableID);
-        return tableFeatures;
     }
 }

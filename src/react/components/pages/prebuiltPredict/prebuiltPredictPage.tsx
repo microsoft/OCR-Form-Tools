@@ -3,8 +3,9 @@
 
 import {
     Dropdown, FontIcon, IconButton, IDropdownOption,
+    ITooltipHostStyles,
     PrimaryButton,
-    Spinner, SpinnerSize
+    Spinner, SpinnerSize, TooltipHost
 } from "@fluentui/react";
 import _ from "lodash";
 import {Feature} from "ol";
@@ -32,9 +33,11 @@ import {ImageMap} from "../../common/imageMap/imageMap";
 import {PrebuiltSetting} from "../../common/prebuiltSetting/prebuiltSetting";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import {CanvasCommandBar} from "../editorPage/canvasCommandBar";
+import {TableView} from "../editorPage/tableView";
 import "../predict/predictPage.scss";
 import PredictResult from "../predict/predictResult";
 import {ILoadFileHelper, ILoadFileResult, LoadFileHelper} from "./LoadFileHelper";
+import {ITableHelper, ITableState, TableHelper} from "./tableHelper";
 
 interface IPrebuiltTypes {
     name: string;
@@ -47,7 +50,7 @@ export interface IPrebuiltPredictPageProps extends RouteComponentProps {
     actions: IAppPrebuiltSettingsActions;
 }
 
-export interface IPrebuiltPredictPageState extends ILoadFileResult {
+export interface IPrebuiltPredictPageState extends ILoadFileResult, ITableState {
     fileLabel: string;
     fileChanged: boolean;
     file?: File;
@@ -57,7 +60,7 @@ export interface IPrebuiltPredictPageState extends ILoadFileResult {
     isPredicting: boolean;
     predictionLoaded: boolean;
     fetchedFileURL: string;
-    analyzeResult: object;
+    analyzeResult: any;
 
     tags?: ITag[];
     highlightedField?: string;
@@ -117,9 +120,17 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
         imageAngle: 0,
         currentPrebuiltType: this.prebuiltTypes[0],
+
+        tableIconTooltip: {display: "none", width: 0, height: 0, top: 0, left: 0},
+        hoveringFeature: null,
+        tableToView: null,
+        tableToViewId: null,
     };
 
     private fileHelper: ILoadFileHelper = new LoadFileHelper();
+
+    private tableHelper: ITableHelper = new TableHelper(this);
+
     private imageMap: ImageMap;
     private tagColors = require("../../common/tagColors.json");
 
@@ -145,6 +156,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 prevState.imageUri !== this.state.imageUri) {
                 this.imageMap.removeAllFeatures();
                 this.drawPredictionResult();
+
             }
 
             if (prevState.highlightedField !== this.state.highlightedField) {
@@ -256,7 +268,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                                     downloadResultLabel={this.state.fileLabel}
                                     onPredictionClick={this.onPredictionClick}
                                     onPredictionMouseEnter={this.onPredictionMouseEnter}
-                                onPredictionMouseLeave={this.onPredictionMouseLeave}
+                                    onPredictionMouseLeave={this.onPredictionMouseLeave}
                                 />
                             }
                             {
@@ -379,6 +391,16 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private renderImageMap = () => {
+        const hostStyles: Partial<ITooltipHostStyles> = {
+            root: {
+                position: "absolute",
+                top: this.state.tableIconTooltip.top,
+                left: this.state.tableIconTooltip.left,
+                width: this.state.tableIconTooltip.width,
+                height: this.state.tableIconTooltip.height,
+                display: this.state.tableIconTooltip.display,
+            },
+        };
         return (
             <div style={{width: "100%", height: "100%"}}>
                 <CanvasCommandBar
@@ -389,17 +411,100 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 />
                 <ImageMap
                     initPredictMap={true}
-                    ref={(ref) => this.imageMap = ref}
+                    initEditorMap={true}
+                    ref={(ref) => {
+                        this.imageMap = ref;
+                        this.tableHelper.setImageMap(ref);
+                    }}
                     imageUri={this.state.imageUri || ""}
                     imageWidth={this.state.imageWidth}
                     imageHeight={this.state.imageHeight}
                     imageAngle={this.state.imageAngle}
                     featureStyler={this.featureStyler}
                     onMapReady={this.noOp}
+                    tableBorderFeatureStyler={this.tableHelper.tableBorderFeatureStyler}
+                    tableIconFeatureStyler={this.tableHelper.tableIconFeatureStyler}
+                    tableIconBorderFeatureStyler={this.tableHelper.tableIconBorderFeatureStyler}
+                    handleTableToolTipChange={this.tableHelper.handleTableToolTipChange}
                 />
+                <TooltipHost
+                    content={"rows: " + this.state.tableIconTooltip.rows +
+                        " columns: " + this.state.tableIconTooltip.columns}
+                    id="tableInfo"
+                    styles={hostStyles}
+                >
+                    <div
+                        aria-describedby="tableInfo"
+                        className="tooltip-container"
+                        onClick={this.handleTableIconFeatureSelect}
+                    />
+                </TooltipHost>
+                {this.state.tableToView !== null &&
+                    <TableView
+                        handleTableViewClose={this.handleTableViewClose}
+                        tableToView={this.state.tableToView}
+                    />
+                }
             </div>
         );
     }
+
+    private handleTableIconFeatureSelect = () => {
+        if (this.state.hoveringFeature != null) {
+            const tableState = this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).get("state");
+            if (tableState === "hovering" || tableState === "rest") {
+                this.tableHelper.setTableToView(this.tableHelper.getTable(this.state.currentPage, this.state.hoveringFeature),
+                    this.state.hoveringFeature);
+            } else {
+                this.closeTableView("hovering");
+            }
+        }
+    }
+
+    private handleTableViewClose = () => {
+        this.closeTableView("rest");
+    }
+
+    private closeTableView = (state: string) => {
+        if (this.state.tableToView) {
+            this.tableHelper.setTableState(this.state.tableToViewId, state);
+            this.setState({
+                tableToView: null,
+                tableToViewId: null,
+            });
+        }
+    }
+
+
+    private handleTableToolTipChange = async (display: string, width: number, height: number, top: number,
+        left: number, rows: number, columns: number, featureID: string) => {
+        if (!this.imageMap) {
+            return;
+        }
+
+        if (featureID !== null && this.imageMap.getTableBorderFeatureByID(featureID).get("state") !== "selected") {
+            this.imageMap.getTableBorderFeatureByID(featureID).set("state", "hovering");
+            this.imageMap.getTableIconFeatureByID(featureID).set("state", "hovering");
+        } else if (featureID === null && this.state.hoveringFeature &&
+            this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).get("state") !== "selected") {
+            this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).set("state", "rest");
+            this.imageMap.getTableIconFeatureByID(this.state.hoveringFeature).set("state", "rest");
+        }
+        const newTableIconTooltip = {
+            display,
+            width,
+            height,
+            top,
+            left,
+            rows,
+            columns,
+        };
+        this.setState({
+            tableIconTooltip: newTableIconTooltip,
+            hoveringFeature: featureID,
+        });
+    }
+
     private handleCanvasZoomIn = () => {
         this.imageMap.zoomIn();
     }
@@ -420,10 +525,11 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         this.setState({predictionLoaded: false, isPredicting: true});
         this.getPrediction()
             .then((result) => {
-                const tags = this.getTagsForPredictResults(this.getPredictionsFromAnalyzeResult(result));
+                this.tableHelper.setAnalyzeResult(result?.analyzeResult);
+                const tags = this.getTagsForPredictResults(this.getPredictionsFromAnalyzeResult(result?.analyzeResult));
                 this.setState({
                     tags,
-                    analyzeResult: result,
+                    analyzeResult: result.analyzeResult,
                     predictionLoaded: true,
                     isPredicting: false,
                 }, () => {
@@ -551,14 +657,12 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             }
         }
         this.imageMap.addFeatures(features);
+        this.tableHelper.drawTables(this.state.currentPage);
     }
-
-
-
 
     private getPredictionsFromAnalyzeResult(analyzeResult: any) {
         if (analyzeResult) {
-            const predictions = _.get(analyzeResult, "analyzeResult.documentResults[0].fields", {});
+            const predictions = _.get(analyzeResult, "documentResults[0].fields", {});
             const predictionsCopy = Object.assign({}, predictions);
             delete predictionsCopy.ReceiptType;
             if (!predictionsCopy.Items) {
@@ -579,17 +683,12 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             return predictionsCopy;
 
         } else {
-            return _.get(analyzeResult, "analyzeResult.documentResults[0].fields", {});
+            return _.get(analyzeResult, "documentResults[0].fields", {});
         }
     }
 
     private getOcrFromAnalyzeResult(analyzeResult: any) {
-        return _.get(analyzeResult, "analyzeResult.readResults", []);
-    }
-
-    private createObjectURL = (object: File) => {
-        // generate a URL for the object
-        return (window.URL) ? window.URL.createObjectURL(object) : "";
+        return _.get(analyzeResult, "readResults", []);
     }
 
     private noOp = () => {

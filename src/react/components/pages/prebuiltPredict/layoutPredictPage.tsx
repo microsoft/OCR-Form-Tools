@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import {
     FontIcon,
     IconButton,
@@ -36,6 +39,7 @@ import {CanvasCommandBar} from "../editorPage/canvasCommandBar";
 import {TableView} from "../editorPage/tableView";
 import {ILayoutHelper, LayoutHelper} from "./layoutHelper";
 import {ILoadFileHelper, LoadFileHelper} from "./LoadFileHelper";
+import {ITableHelper, ITableState, TableHelper} from "./tableHelper";
 
 interface ILayoutPredictPageProps extends RouteComponentProps {
     prebuiltSettings: IPrebuiltSettings;
@@ -43,7 +47,7 @@ interface ILayoutPredictPageProps extends RouteComponentProps {
     actions: IAppPrebuiltSettingsActions;
 }
 
-interface ILayoutPredictPageState {
+interface ILayoutPredictPageState extends ITableState {
     layers: any;
 
     imageUri: string;
@@ -67,11 +71,6 @@ interface ILayoutPredictPageState {
     fetchedFileURL: string;
     layoutData: any;
     imageAngle: number;
-
-    tableIconTooltip: any;
-    hoveringFeature: string;
-    tableToView: object;
-    tableToViewId: string;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -90,6 +89,7 @@ function mapDispatchToProps(dispatch) {
 @connect(mapStateToProps, mapDispatchToProps)
 export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPageProps>, ILayoutPredictPageState>{
     private layoutHelper: ILayoutHelper = new LayoutHelper();
+    private tableHelper: ITableHelper = new TableHelper(this);
 
     state: ILayoutPredictPageState = {
         imageUri: null,
@@ -114,7 +114,6 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
 
         tableIconTooltip: {display: "none", width: 0, height: 0, top: 0, left: 0},
         hoveringFeature: null,
-
         tableToView: null,
         tableToViewId: null,
     };
@@ -321,6 +320,7 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
                     ref={(ref) => {
                         this.imageMap = ref;
                         this.layoutHelper.setImageMap(ref);
+                        this.tableHelper.setImageMap(ref);
                     }}
                     imageUri={this.state.imageUri || ""}
                     imageWidth={this.state.imageWidth}
@@ -330,10 +330,10 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
                     hoveringFeature={this.state.hoveringFeature}
                     onMapReady={this.noOp}
                     featureStyler={this.featureStyler}
-                    tableBorderFeatureStyler={this.tableBorderFeatureStyler}
-                    tableIconFeatureStyler={this.tableIconFeatureStyler}
-                    tableIconBorderFeatureStyler={this.tableIconBorderFeatureStyler}
-                    handleTableToolTipChange={this.handleTableToolTipChange}
+                    tableBorderFeatureStyler={this.tableHelper.tableBorderFeatureStyler}
+                    tableIconFeatureStyler={this.tableHelper.tableIconFeatureStyler}
+                    tableIconBorderFeatureStyler={this.tableHelper.tableIconBorderFeatureStyler}
+                    handleTableToolTipChange={this.tableHelper.handleTableToolTipChange}
                 />
                 <TooltipHost
                     content={"rows: " + this.state.tableIconTooltip.rows +
@@ -398,26 +398,12 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
         if (this.state.hoveringFeature != null) {
             const tableState = this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).get("state");
             if (tableState === "hovering" || tableState === "rest") {
-                this.setTableToView(this.layoutHelper.getTable(this.state.currentPage, this.state.hoveringFeature),
+                this.tableHelper.setTableToView(this.tableHelper.getTable(this.state.currentPage, this.state.hoveringFeature),
                     this.state.hoveringFeature);
             } else {
                 this.closeTableView("hovering");
             }
         }
-    }
-    public setTableState(viewedTableId, state) {
-        this.imageMap.getTableBorderFeatureByID(viewedTableId).set("state", state);
-        this.imageMap.getTableIconFeatureByID(viewedTableId).set("state", state);
-    }
-    private setTableToView = async (tableToView, tableToViewId) => {
-        if (this.state.tableToViewId) {
-            this.setTableState(this.state.tableToViewId, "rest");
-        }
-        this.setTableState(tableToViewId, "selected");
-        this.setState({
-            tableToView,
-            tableToViewId,
-        });
     }
 
     private handleTableViewClose = () => {
@@ -426,7 +412,7 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
 
     private closeTableView = (state: string) => {
         if (this.state.tableToView) {
-            this.setTableState(this.state.tableToViewId, state);
+            this.tableHelper.setTableState(this.state.tableToViewId, state);
             this.setState({
                 tableToView: null,
                 tableToViewId: null,
@@ -436,81 +422,6 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
 
     private noOp = () => {
         // no operation
-    }
-
-    private tableBorderFeatureStyler = (feature) => {
-        if (feature.get("state") === "rest") {
-            return new Style({
-                stroke: new Stroke({
-                    color: "transparent",
-                }),
-                fill: new Fill({
-                    color: "transparent",
-                }),
-            });
-        } else if (feature.get("state") === "hovering") {
-            return new Style({
-                stroke: new Stroke({
-                    opacity: 0.75,
-                    color: "black",
-                    lineDash: [2, 6],
-                    width: 0.75,
-                }),
-                fill: new Fill({
-                    color: "rgba(217, 217, 217, 0.1)",
-                }),
-            });
-        } else {
-            return new Style({
-                stroke: new Stroke({
-                    color: "black",
-                    lineDash: [2, 6],
-                    width: 2,
-                }),
-                fill: new Fill({
-                    color: "rgba(217, 217, 217, 0.1)",
-                }),
-            });
-        }
-    }
-    private tableIconFeatureStyler = (feature, resolution) => {
-        if (feature.get("state") === "rest") {
-            return new Style({
-                image: new Icon({
-                    opacity: 0.3,
-                    scale: this.imageMap && this.imageMap.getResolutionForZoom(3) ?
-                        this.imageMap.getResolutionForZoom(3) / resolution : 1,
-                    anchor: [.95, 0.15],
-                    anchorXUnits: "fraction",
-                    anchorYUnits: "fraction",
-                    src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAAmCAYAAABZNrIjAAABhUlEQVRYR+1YQaqCUBQ9BYZOWkHQyEELSAJbQM7cQiMxmjTXkQtwEomjttAsF6AguoAGjQRX0CRRsI/yg/hlqV8w4b3xfe8ezn3nHN7rKYpy8zwP37o4jkNPkqSbaZrfihGSJHUQ5G63w2QyaZ3V0+mE1WqV43hi0rZt8DzfOkjHcTCfzzsMcr1eYzQatc5kGIbYbrevmWwd3QsA3VR3mXE/jiIT2WKxAEVRhUNIkgSWZSETQ7aq9qil7r/K03UdDMMUgrxer9hsNrgHRhkH+be6CcjfeRAmX13Mxu/k8XjEdDp9a5e+70MQhLxmuVxC0zTQNF24J4oiqKqK/X6f11Tt0U2fJIlTkwFi5nfiGld3ncgisVj3+UCyu0x2z2YzDIfDt2ZxuVzgum5eMx6PwbIs+v1+4Z40TXE+nxEEQV5TtQdJnJre/bTtickynwOPD3dRFCHLMgaDQSGmOI5hGAYOh0NeU7UHSRySOJ/+goiZlzHzqsprRd1NeVuT53Qncbrwsf8D9suXe5WWs/YAAAAASUVORK5CYII=",
-                }),
-            });
-        } else {
-            return new Style({
-                image: new Icon({
-                    opacity: 1,
-                    scale: this.imageMap && this.imageMap.getResolutionForZoom(3) ?
-                        this.imageMap.getResolutionForZoom(3) / resolution : 1,
-                    anchor: [.95, 0.15],
-                    anchorXUnits: "fraction",
-                    anchorYUnits: "fraction",
-                    src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAAmCAYAAABZNrIjAAABhUlEQVRYR+1YQaqCUBQ9BYZOWkHQyEELSAJbQM7cQiMxmjTXkQtwEomjttAsF6AguoAGjQRX0CRRsI/yg/hlqV8w4b3xfe8ezn3nHN7rKYpy8zwP37o4jkNPkqSbaZrfihGSJHUQ5G63w2QyaZ3V0+mE1WqV43hi0rZt8DzfOkjHcTCfzzsMcr1eYzQatc5kGIbYbrevmWwd3QsA3VR3mXE/jiIT2WKxAEVRhUNIkgSWZSETQ7aq9qil7r/K03UdDMMUgrxer9hsNrgHRhkH+be6CcjfeRAmX13Mxu/k8XjEdDp9a5e+70MQhLxmuVxC0zTQNF24J4oiqKqK/X6f11Tt0U2fJIlTkwFi5nfiGld3ncgisVj3+UCyu0x2z2YzDIfDt2ZxuVzgum5eMx6PwbIs+v1+4Z40TXE+nxEEQV5TtQdJnJre/bTtickynwOPD3dRFCHLMgaDQSGmOI5hGAYOh0NeU7UHSRySOJ/+goiZlzHzqsprRd1NeVuT53Qncbrwsf8D9suXe5WWs/YAAAAASUVORK5CYII=",
-                }),
-            });
-        }
-    }
-
-    private tableIconBorderFeatureStyler = (_feature) => {
-        return new Style({
-            stroke: new Stroke({
-                width: 0,
-                color: "transparent",
-            }),
-            fill: new Fill({
-                color: "rgba(217, 217, 217, 0)",
-            }),
-        });
     }
 
     private featureStyler = (feature) => {
@@ -524,35 +435,6 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
             fill: new Fill({
                 color: "rgba(255, 252, 127, 0.2)",
             }),
-        });
-    }
-
-    private handleTableToolTipChange = async (display: string, width: number, height: number, top: number,
-        left: number, rows: number, columns: number, featureID: string) => {
-        if (!this.imageMap) {
-            return;
-        }
-
-        if (featureID !== null && this.imageMap.getTableBorderFeatureByID(featureID).get("state") !== "selected") {
-            this.imageMap.getTableBorderFeatureByID(featureID).set("state", "hovering");
-            this.imageMap.getTableIconFeatureByID(featureID).set("state", "hovering");
-        } else if (featureID === null && this.state.hoveringFeature &&
-            this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).get("state") !== "selected") {
-            this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).set("state", "rest");
-            this.imageMap.getTableIconFeatureByID(this.state.hoveringFeature).set("state", "rest");
-        }
-        const newTableIconTooltip = {
-            display,
-            width,
-            height,
-            top,
-            left,
-            rows,
-            columns,
-        };
-        this.setState({
-            tableIconTooltip: newTableIconTooltip,
-            hoveringFeature: featureID,
         });
     }
 
@@ -602,21 +484,24 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
         this.setState({
             currentPage: targetPage,
         }, () => {
-            this.layoutHelper?.drawLayout(targetPage);
+            this.layoutHelper.drawLayout(targetPage);
+            this.tableHelper.drawTables(targetPage);
         });
     }
 
     private handleClick = () => {
         this.setState({analyzationLoaded: false, isAnalyzing: true});
         this.getAnalzation()
-            .then((layoutData) => {
+            .then((result) => {
+                this.tableHelper.setAnalyzeResult(result?.analyzeResult);
                 this.setState({
                     isAnalyzing: false,
                     analyzationLoaded: true,
-                    layoutData,
+                    layoutData: result,
                 }, () => {
-                    this.layoutHelper.setLayoutData(layoutData);
+                    this.layoutHelper.setLayoutData(result);
                     this.layoutHelper.drawLayout(this.state.currentPage);
+                    this.tableHelper.drawTables(this.state.currentPage);
                 })
             }).catch((error) => {
                 let alertMessage = "";
