@@ -376,6 +376,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                 }
                                     <Confirm
                                         title={strings.tags.regionTableTags.confirm.reconfigure.title}
+                                        loadMessage={"Reconfiguring..."}
                                         ref={this.reconfigTableConfirm}
                                         message={strings.tags.regionTableTags.confirm.reconfigure.message}
                                         confirmButtonTheme={getPrimaryBlueTheme()}
@@ -719,7 +720,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         // Only update asset metadata if state changes or is different
         if (initialState !== asset.state || this.state.selectedAsset !== assetMetadata) {
-            if (this.state.selectedAsset?.labelData?.labels && assetMetadata?.labelData?.labels && assetMetadata.labelData.labels.toString() !== this.state.selectedAsset.labelData.labels.toString()) {
+            if (assetMetadata?.labelData?.labels?.toString() !== this.state.selectedAsset?.labelData?.labels?.toString()) {
                 await this.updatedAssetMetadata(assetMetadata);
             }
             assetMetadata.asset = asset;
@@ -839,18 +840,17 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         });
     }
     private reconfigureTableConfirm = (originalTagName: string, tagName: string, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => {
-        console.log(tagName, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
         this.setState({ reconfigureTableConfirm: true });
         this.reconfigTableConfirm.current.open(originalTagName, tagName, FieldType.Table, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
     }
 
     private reconfigureTable = async (originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => {
-        console.log(tagName, tagType, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
         const assetUpdates = await this.props.actions.reconfigureTableTag(this.props.project, originalTagName, tagName, tagType, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
         const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
         if (selectedAsset) {
             this.setState({ selectedAsset });
         }
+        this.reconfigTableConfirm.current.close();
         this.setState({tagInputMode: TagInputMode.Basic}, () => this.resizeCanvas());
         this.resizeCanvas();
     }
@@ -1138,13 +1138,14 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private async updatedAssetMetadata(assetMetadata: IAssetMetadata) {
+        console.log("testing doc count", assetMetadata);
         const assetDocumentCountDifference = {};
         const updatedAssetLabels = {};
         const currentAssetLabels = {};
-        assetMetadata.labelData.labels.forEach((label) => {
+        assetMetadata.labelData?.labels?.forEach((label) => {
             updatedAssetLabels[label.label] = true;
         });
-        this.state.selectedAsset.labelData.labels.forEach((label) => {
+        this.state.selectedAsset?.labelData?.labels.forEach((label) => {
             currentAssetLabels[label.label] = true;
         });
         Object.keys(currentAssetLabels).forEach((label) => {

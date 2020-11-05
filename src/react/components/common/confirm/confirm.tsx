@@ -11,9 +11,12 @@ import {
     ITheme,
     PrimaryButton,
     DefaultButton,
+    SpinnerSize
 } from "@fluentui/react";
 import { MessageFormatHandler } from "../messageBox/messageBox";
-import { getDarkTheme } from "../../../../common/themes";
+import { getDarkTheme, getDefaultDarkTheme, getDefaultTheme } from "../../../../common/themes";
+import { Spinner } from "reactstrap";
+import "./confirm.scss";
 
 /**
  * Properties for Confirm Component
@@ -26,6 +29,7 @@ import { getDarkTheme } from "../../../../common/themes";
 export interface IConfirmProps {
     title?: string;
     message: string | ReactElement<any> | MessageFormatHandler;
+    loadMessage?: string;
     confirmButtonText?: string;
     cancelButtonText?: string;
     confirmButtonTheme?: ITheme;
@@ -40,6 +44,7 @@ export interface IConfirmProps {
 export interface IConfirmState {
     params: any[];
     hideDialog: boolean;
+    loading: boolean;
 }
 
 /**
@@ -54,12 +59,14 @@ export default class Confirm extends React.Component<IConfirmProps, IConfirmStat
         this.state = {
             params: null,
             hideDialog: true,
+            loading: false,
         };
 
         this.open = this.open.bind(this);
         this.close = this.close.bind(this);
         this.onConfirmClick = this.onConfirmClick.bind(this);
         this.onCancelClick = this.onCancelClick.bind(this);
+        this.load = this.load.bind(this)
     }
 
     public render() {
@@ -69,8 +76,16 @@ export default class Confirm extends React.Component<IConfirmProps, IConfirmStat
             },
             scopedSettings: {},
         };
+
+        const defaultCustomization: ICustomizations = {
+            settings: {
+              theme: getDefaultTheme(),
+            },
+            scopedSettings: {},
+        };
+
         const { confirmButtonTheme } = this.props;
-        const { hideDialog } = this.state;
+        const { hideDialog, loading } = this.state;
 
         return (
             <Customizer {...dark}>
@@ -78,15 +93,24 @@ export default class Confirm extends React.Component<IConfirmProps, IConfirmStat
                     <Dialog
                         hidden={hideDialog}
                         onDismiss={this.close}
-                        dialogContentProps={{
+                        dialogContentProps={!loading ? {
                             type: DialogType.normal,
                             title: this.props.title,
                             subText: this.getMessage(this.props.message),
-                        }}
+                        } : null}
                         modalProps={{
                             isBlocking: true,
                         }}
                     >
+                        {loading && this.props.loadMessage &&
+                                <Spinner
+                                    label={"sfds"}
+                                    labelPosition="right"
+                                    className="confirm-spinner"
+                                    theme={getDefaultDarkTheme()}
+                                    size={SpinnerSize.large}
+                                />
+                        }
                         <DialogFooter>
                             <PrimaryButton
                                 theme={confirmButtonTheme}
@@ -117,9 +141,17 @@ export default class Confirm extends React.Component<IConfirmProps, IConfirmStat
         this.setState({ hideDialog: true });
     }
 
+    public load(): void {
+        this.setState({loading: true});
+    }
+
     private onConfirmClick() {
         this.props.onConfirm.apply(null, this.state.params);
-        this.close();
+        if (this.props.loadMessage) {
+            this.load();
+        } else {
+            this.close();
+        }
     }
 
     private onCancelClick() {
