@@ -103,7 +103,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                             <a onClick={this.onUseLayoutToGetTextAndTAblesClicked}
                                 className="p-2"
                                 role="button">
-                                <FontIcon iconName="Table" className="icon-7x" />
+                                <FontIcon iconName="KeyPhraseExtraction" className="icon-7x" />
                                 <div className="title">{strings.homePage.layoutPredict.title}</div>
                                 <div className="description">
                                     {strings.homePage.layoutPredict.description}

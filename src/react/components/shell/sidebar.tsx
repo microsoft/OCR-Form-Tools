@@ -73,7 +73,7 @@ export function Sidebar({ project }) {
                 </li>
                 <li className="prebuilt-demo-sidebar-item">
                     <NavLink title={strings.layoutPredict.title} to={`/layout-analyze`} role="button">
-                        <FontIcon iconName="Table" />
+                        <FontIcon iconName="KeyPhraseExtraction" />
                     </NavLink>
                 </li>
             </ul>
