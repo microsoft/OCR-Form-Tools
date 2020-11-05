@@ -538,9 +538,12 @@ export class AssetService {
             if (field) {
                 foundTag = true;
                 assetMetadata.labelData = labelTransformer(assetMetadata.labelData);
+                if(assetMetadata.labelData.labels.length===0){
+                    delete assetMetadata.labelData.labelingState;
+                    delete assetMetadata.asset.labelingState;
+                }
             }
         }
-
         if (foundTag) {
             assetMetadata.regions = assetMetadata.regions.filter((region) => region.tags.length > 0);
             assetMetadata.asset.state = _.get(assetMetadata, "labelData.labels.length")
