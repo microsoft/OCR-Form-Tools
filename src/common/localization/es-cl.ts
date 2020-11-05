@@ -705,6 +705,10 @@ export const spanish: IAppStrings = {
         getOcrError: {
             title: "No se puede cargar el archivo OCR",
             message: "Error al cargar desde el archivo OCR. Verifique su conexión o configuración de red."
+        },
+        onPremiseConnectionError: {
+            title: "No se puede acceder a los archivos o al servicio",
+            message: "No se pudo acceder a los archivos o al servicio. Compruebe si el contenedor está configurado correctamente y se está ejecutando.",
         }
 
     },

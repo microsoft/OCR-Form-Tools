@@ -83,6 +83,8 @@ function mapDispatchToProps(dispatch) {
 export default class TrainPage extends React.Component<ITrainPageProps, ITrainPageState> {
     private appInsights: any = null;
     private notAdjustedLabelsConfirm: React.RefObject<Confirm> = React.createRef();
+    private isOnPrem: boolean = isElectron && this.props.project.sourceConnection.providerType === "localFileSystemProxy";
+
 
     constructor(props) {
         super(props);
@@ -338,7 +340,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         }).catch((err) => {
             this.setState({
                 isTraining: false,
-                trainMessage: err.message,
+                trainMessage: this.isOnPrem ? strings.errors.onPremiseConnectionError : err.message,
             });
         });
         if (this.appInsights) {
@@ -362,12 +364,20 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
             return trainStatusRes;
         } catch (error) {
-            const isOnPrem = isElectron && this.props.project.sourceConnection.providerType === "localFileSystemProxy";
+            function getErrorMessage() {
+                if (this.isOnPrem) {
+                    return interpolate(strings.train.errors.electron.cantAccessFiles, { folderUri: this.state.inputtedLabelFolderURL });
+                } else {
+                    if (error?.message !== undefined) {
+                        return error.message;
+                    }
+                    return error;
+                }
+            };
+
             this.setState({
                 showTrainingFailedWarning: true,
-                trainingFailedMessage: isOnPrem ? interpolate(strings.train.errors.electron.cantAccessFiles, { folderUri: this.state.inputtedLabelFolderURL }) :
-                    error?.message !== undefined
-                    ? error.message : error,
+                trainingFailedMessage: getErrorMessage(),
             });
         }
     }

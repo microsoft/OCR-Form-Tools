@@ -581,7 +581,7 @@ export const english: IAppStrings = {
         },
         genericRenderError: {
             title: "Error Loading Application",
-            message: "An error occured while rendering the application. Please try again",
+            message: "An error occurred while rendering the application. Please try again",
         },
         projectInvalidSecurityToken: {
             title: "Error loading project file",
@@ -594,7 +594,7 @@ export const english: IAppStrings = {
         },
         projectDeleteError: {
             title: "Error deleting project",
-            message: `An error occured while deleting the project.
+            message: `An error occurred while deleting the project.
                 Validate the project file and security token exist and try again`,
         },
         projectDeleteErrorSecurityTokenNotFound: {
@@ -705,6 +705,10 @@ export const english: IAppStrings = {
         getOcrError: {
             title: "Cannot load OCR file",
             message: "Failed to load from OCR file. Please check your connection or network settings.",
+        },
+        onPremiseConnectionError: {
+            title: "Cannot access files or service",
+            message: "Failed to access files or service. Please check if your container is configured correctly and is running.",
         }
     },
     shareProject: {
