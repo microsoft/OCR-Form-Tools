@@ -91,7 +91,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                                 role="button">
                                 <FontIcon iconName="ContactCard" className="icon-7x" />
                                 <div className="title">{strings.homePage.prebuiltPredict.title}</div>
-                                <a className="description">{strings.homePage.prebuiltPredict.description}</a>
+                                <div className="description">{strings.homePage.prebuiltPredict.description}</div>
                             </a>
                             {/* wait for link url */}
                             {/* <a className="quickstart"
