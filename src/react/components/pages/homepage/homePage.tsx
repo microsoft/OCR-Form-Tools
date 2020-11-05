@@ -84,51 +84,66 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
             <div className="app-homepage" id="pageHome">
                 <div className="app-homepage-main">
                     <ul>
-                        <li>
+                        <li className="p-5">
                             <a id="home_prebuilt"
                                 onClick={this.onPrebuiltClicked}
-                                className="p-5"
+                                className="p-2"
                                 role="button">
                                 <FontIcon iconName="ContactCard" className="icon-7x" />
                                 <div className="title">{strings.homePage.prebuiltPredict.title}</div>
-                                <div className="description">{strings.homePage.prebuiltPredict.description}</div>
-                                <div className="quickstart"><FontIcon iconName="Rocket" />{strings.homePage.quickStartGuide}</div>
+                                <a className="description">{strings.homePage.prebuiltPredict.description}</a>
                             </a>
+                            {/* wait for link url */}
+                            {/* <a className="quickstart"
+                                target="_blank"
+                                rel="noopener noreferrer">
+                                <FontIcon iconName="Rocket" />{strings.homePage.quickStartGuide}</a> */}
                         </li>
-                        <li>
+                        <li className="p-5">
                             <a onClick={this.onUseLayoutToGetTextAndTAblesClicked}
-                                role="button"
-                                className="p-5">
+                                className="p-2"
+                                role="button">
                                 <FontIcon iconName="Table" className="icon-7x" />
                                 <div className="title">{strings.homePage.layoutPredict.title}</div>
                                 <div className="description">
                                     {strings.homePage.layoutPredict.description}
                                 </div>
-                                <div className="quickstart"><FontIcon iconName="Rocket" />{strings.homePage.quickStartGuide}</div>
                             </a>
+                            {/* wait for link url */}
+                            {/* <a className="quickstart"
+                                target="_blank"
+                                rel="noopener noreferrer">
+                                <FontIcon iconName="Rocket" />{strings.homePage.quickStartGuide}</a> */}
                         </li>
-                        <li>
+                        <li className="p-5">
                             <a onClick={this.onTrainAndUseAModelWithLables}
-                                role="button"
-                                className="p-5">
+                                className="p-2"
+                                role="button">
                                 <FontIcon iconName="AddTo" className="icon-7x" />
                                 <div className="title">{strings.homePage.trainWithLabels.title}</div>
                                 <div className="description">
                                     {strings.homePage.trainWithLabels.description}
                                 </div>
-                                <div className="quickstart"><FontIcon iconName="Rocket" />{strings.homePage.quickStartGuide}</div>
                             </a>
+                            <a className="quickstart"
+                                href="https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/quickstarts/label-tool?tabs=v2-0"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            ><FontIcon iconName="Rocket" />{strings.homePage.quickStartGuide}</a>
                         </li>
                         {isElectron() &&
-                            <li>
-                                <a href="#" className="p-5 file-upload"
+                            <li className="p-5">
+                                <a href="#" className="p-2 file-upload"
                                     onClick={() => this.filePicker.current.upload()} >
                                     <FontIcon iconName="System" className="icon-7x" />
                                     <div className="title">{strings.homePage.openLocalProject.title}</div>
                                     <div className="description">
                                         {strings.homePage.openLocalProject.description}
                                     </div>
-                                    <div className="quickstart"><FontIcon iconName="Rocket" />{strings.homePage.quickStartGuide}</div>
+                                    <a className="quickstart"
+                                        target="_blank"
+                                        rel="noopener noreferrer">
+                                        <FontIcon iconName="Rocket" />{strings.homePage.quickStartGuide}</a>
                                 </a>
                                 <FilePicker ref={this.filePicker}
                                     onChange={this.onProjectFileUpload}
