@@ -82,8 +82,7 @@ function mapDispatchToProps(dispatch) {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class TrainPage extends React.Component<ITrainPageProps, ITrainPageState> {
     private appInsights: any = null;
-    private notAdjustedLabelsAndCleanAutoLabelDataConfirm: React.RefObject<Confirm> = React.createRef();
-    private CleanAutoLabelDataConfirm: React.RefObject<Confirm>=React.createRef();
+    private notAdjustedLabelsConfirm: React.RefObject<Confirm> = React.createRef();
     constructor(props) {
         super(props);
 
@@ -250,16 +249,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                     message={"A training operation is currently in progress, are you sure you want to leave?"}
                 />
                 <Confirm
-                    ref={this.notAdjustedLabelsAndCleanAutoLabelDataConfirm}
+                    ref={this.notAdjustedLabelsConfirm}
                     title={strings.train.trainConfirm.title}
                     message={strings.train.trainConfirm.message}
-                    onConfirm={this.handleModelTrainConfirm}
-                    confirmButtonTheme={getPrimaryGreenTheme()}
-                />
-                <Confirm
-                    ref={this.CleanAutoLabelDataConfirm}
-                    title={strings.train.cleanAutoLabelConfirm.title}
-                    message={strings.train.cleanAutoLabelConfirm.message}
                     onConfirm={this.handleModelTrainConfirm}
                     confirmButtonTheme={getPrimaryGreenTheme()}
                 />
@@ -304,17 +296,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
     private handleTrainClick = () => {
         const assets = Object.values(this.props.project.assets)
-            .filter(asset => asset.labelingState === AssetLabelingState.AutoLabeled||asset.labelingState===AssetLabelingState.AutoLabeledAndAdjusted);
+            .filter(asset => asset.labelingState === AssetLabelingState.AutoLabeled);
         if (assets.length > 0) {
-          
-            if(assets.findIndex(asset=>asset.labelingState===AssetLabelingState.AutoLabeled)>=0){
-                this.notAdjustedLabelsAndCleanAutoLabelDataConfirm.current.open();
-            }
-            else{
-                this.CleanAutoLabelDataConfirm.current.open();
-            }
-            
-            
+            this.notAdjustedLabelsConfirm.current.open();
         } else {
             this.handleModelTrain();
         }
@@ -331,12 +315,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         });
 
         this.trainProcess().then(async (trainResult) => {
-            this.setState((prevState, props) => ({
-                isTraining: false,
-                trainMessage: this.getTrainMessage(trainResult),
-                currTrainRecord: this.getProjectTrainRecord(),
-                modelName: "",
-            }));
             const assets = Object.values(this.props.project.assets);
             const assetService = new AssetService(this.props.project);
             for (const asset of assets) {
@@ -348,6 +326,12 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                     await assetService.save({ ...metadata });
                 }
             }
+            this.setState((prevState, props) => ({
+                isTraining: false,
+                trainMessage: this.getTrainMessage(trainResult),
+                currTrainRecord: this.getProjectTrainRecord(),
+                modelName: "",
+            }));
             // reset localStorage successful train process
             localStorage.setItem("trainPage_inputs", "{}");
         }).catch((err) => {
@@ -382,7 +366,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 showTrainingFailedWarning: true,
                 trainingFailedMessage: isOnPrem ? interpolate(strings.train.errors.electron.cantAccessFiles, { folderUri: this.state.inputtedLabelFolderURL }) :
                     error?.message !== undefined
-                    ? error.message : error,
+                        ? error.message : error,
             });
         }
     }
@@ -427,22 +411,35 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             ServiceHelper.handleServiceError(err);
         }
     }
-    private async cleanLabelData(){
-        const allAssets ={...this.props.project.assets};
+    private async cleanLabelData() {
+        const allAssets = { ...this.props.project.assets };
         await Object.values(allAssets)
-        .filter((asset)=>asset.labelingState===AssetLabelingState.AutoLabeled||asset.labelingState===AssetLabelingState.AutoLabeledAndAdjusted)
-        .forEachAsync(async (asset)=>{
-            const assetMetadata:IAssetMetadata = await this.props.actions.loadAssetMetadata(this.props.project, asset);
-            assetMetadata.asset.labelingState=AssetLabelingState.ManuallyLabeled;
-            assetMetadata.labelData.labelingState=AssetLabelingState.ManuallyLabeled;
-            assetMetadata.labelData?.labels?.forEach((label)=>{
-                delete label.confidence;
-                delete label.originValue;
-                delete label.revised;
-                
+            .filter(asset => asset.labelingState !== AssetLabelingState.Trained)
+            .forEachAsync(async (asset) => {
+                const assetMetadata: IAssetMetadata = { ...await this.props.actions.loadAssetMetadata(this.props.project, asset) };
+                if (assetMetadata.asset.labelingState === AssetLabelingState.ManuallyLabeled
+                    && assetMetadata.labelData?.labels?.findIndex(label => label.confidence
+                        || label.originValue
+                        || label.revised
+                        || label.value?.findIndex(item => item["confidence"]) < 0) < 0
+                ) {
+                    return;
+                }
+                assetMetadata.asset.labelingState = AssetLabelingState.ManuallyLabeled;
+                if (assetMetadata.labelData) {
+                    assetMetadata.labelData.labelingState = AssetLabelingState.ManuallyLabeled;
+                }
+
+                assetMetadata.labelData?.labels?.forEach((label) => {
+                    delete label.confidence;
+                    delete label.originValue;
+                    delete label.revised;
+                    label.value?.forEach(item => {
+                        delete item["confidence"];
+                    });
+                });
+                await this.props.actions.saveAssetMetadata(this.props.project,assetMetadata);
             });
-            await this.props.actions.saveAssetMetadata(this.props.project,assetMetadata);
-        });
     }
 
     private async getTrainStatus(operationLocation: string): Promise<any> {
