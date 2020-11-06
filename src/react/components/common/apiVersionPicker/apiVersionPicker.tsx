@@ -31,7 +31,7 @@ export class APIVersionPicker extends React.Component<IAPIVersionPickerProps> {
         return (
             <select id={this.props.id}
                 disabled={!constants.enableAPIVersionSelection}
-                defaultValue={constants.enableAPIVersionSelection ? APIVersionPatches.patch2 : undefined}
+                defaultValue={constants.enableAPIVersionSelection && !this.props.value ? APIVersionPatches.patch2 : undefined}
                 className="form-control"
                 value={(constants.enableAPIVersionSelection ? this.props.value : APIVersionPatches.patch2)}
                 onChange={this.onChange}
