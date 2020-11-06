@@ -94,7 +94,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                                 <div className="description">{strings.homePage.prebuiltPredict.description}</div>
                             </a>
                             <a className="quickstart"
-                                href="https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/quickstarts/label-tool?tabs=v2-0"
+                                href="https://aka.ms/form-recognizer/pre-built"
                                 target="_blank"
                                 rel="noopener noreferrer">
                                 <FontIcon iconName="Rocket" />{strings.homePage.quickStartGuide}</a>
@@ -110,7 +110,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                                 </div>
                             </a>
                             <a className="quickstart"
-                                href="https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/quickstarts/label-tool?tabs=v2-0"
+                                href="https://aka.ms/form-recognizer/layout"
                                 target="_blank"
                                 rel="noopener noreferrer">
                                 <FontIcon iconName="Rocket" />{strings.homePage.quickStartGuide}</a>
@@ -126,7 +126,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                                 </div>
                             </a>
                             <a className="quickstart"
-                                href="https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/quickstarts/label-tool?tabs=v2-0"
+                                href="https://aka.ms/form-recognizer/custom"
                                 target="_blank"
                                 rel="noopener noreferrer"
                             ><FontIcon iconName="Rocket" />{strings.homePage.quickStartGuide}</a>
