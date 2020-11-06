@@ -21,7 +21,7 @@ import VectorSource from "ol/source/Vector";
 import * as React from "react";
 import "./styles.css";
 import Utils from "./utils";
-import {FeatureCategory, IRegion, ImageMapParent} from "../../../../models/applicationState";
+import {FeatureCategory, IRegion} from "../../../../models/applicationState";
 
 interface IImageMapProps {
     imageUri: string;
@@ -1105,7 +1105,9 @@ export class ImageMap extends React.Component<IImageMapProps> {
             if (this.props.isDrawing) {
                 this.cancelDrawing();
             }
-            this.props.handleIsPointerOnImage(false);
+            if(this.props.handleIsPointerOnImage) {
+                this.props.handleIsPointerOnImage(false);
+            }
         }
     }
 
