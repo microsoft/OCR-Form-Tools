@@ -33,10 +33,10 @@ export class APIVersionPicker extends React.Component<IAPIVersionPickerProps> {
                 disabled={!constants.enableAPIVersionSelection}
                 defaultValue={APIVersionPatches.patch2}
                 className="form-control"
-                value={this.props.value}
+                value={(constants.enableAPIVersionSelection ? this.props.value : APIVersionPatches.patch2)}
                 onChange={this.onChange}>
                 <option value={APIVersionPatches.patch1}>{APIVersionPatches.patch1}</option>
-                <option value={APIVersionPatches.patch2}>{APIVersionPatches.patch2}</option>
+                <option value={APIVersionPatches.patch2}>{APIVersionPatches.patch2 + " (default)"}</option>
                 <option value={APIVersionPatches.patch3}>{APIVersionPatches.patch3 + " (testing)"}</option>
             </select>
         );

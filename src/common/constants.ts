@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import { appInfo } from "./appInfo"
-import { APIInfo } from "./APIInfo"
+import { APIInfo } from "./apiInfo"
 
 const appVersionRaw = appInfo.version
 const appVersionArr = appVersionRaw.split(".");
