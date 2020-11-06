@@ -1,5 +1,0 @@
-commit 5fcd2eca1ff5df56cf974e29a16c273471e49e26
-Author: Alex Chen <v-yongbc@microsoft.com>
-Date:   Wed Oct 21 18:31:58 2020 +0800
-
-    update asset labelingState when load local project
