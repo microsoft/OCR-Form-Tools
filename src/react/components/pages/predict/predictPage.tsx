@@ -69,6 +69,7 @@ export interface IPredictPageState extends ILoadFileResult, ITableState {
     isFetching: boolean;
     fetchedFileURL: string;
     inputedFileURL: string;
+    predictionResult: any;
     analyzeResult: any;
     fileLabel: string;
     predictionLoaded: boolean;
@@ -125,6 +126,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         fetchedFileURL: "",
         inputedFileURL: strings.predict.defaultURLInput,
         inputedLocalFile: strings.predict.defaultLocalFileInput,
+        predictionResult: {},
         analyzeResult: {},
         fileLabel: "",
         predictionLoaded: true,
@@ -621,6 +623,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             .then((result) => {
                 this.tableHelper.setAnalyzeResult(result?.analyzeResult);
                 this.setState({
+                    predictionResult: result,
                     analyzeResult: result?.analyzeResult,
                     predictionLoaded: true,
                     predictRun: true,
@@ -893,6 +896,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             }
         }
     }
+
     private onAddAssetToProjectConfirm = async () => {
         if (this.props.appSettings.hideUploadingOption) {
             this.uploadToTrainingSetView.current.open();
@@ -902,15 +906,16 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             this.uploadToTrainingSetView.current.open();
         }
     }
+
     private onAddAssetToProject = async () => {
         if (this.state.file) {
-            const fileData = new Buffer(await this.state.file.arrayBuffer());
-            const readResults: any = this.state.analyzeResult;
+            const fileData = Buffer.from(await this.state.file.arrayBuffer());
             const fileName = decodeURIComponent(this.state.file.name).split("/").pop();
-            await this.props.actions.addAssetToProject(this.props.project, fileName, fileData, readResults);
+            await this.props.actions.addAssetToProject(this.props.project, fileName, fileData, this.state.predictionResult);
             this.props.history.push(`/projects/${this.props.project.id}/edit`);
         }
     }
+
     private onPredictionClick = (predictedItem: any) => {
         const targetPage = predictedItem.page;
         if (Number.isInteger(targetPage) && targetPage !== this.state.currentPage) {
