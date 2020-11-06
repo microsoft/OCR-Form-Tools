@@ -191,7 +191,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 <div className="predict-sidebar bg-lighter-1">
                     <div className="condensed-list">
                         <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
-                            <FontIcon className="mr-1" iconName="Insights" />
+                            <FontIcon className="mr-1" iconName="ContactCard" />
                             <span>{interpolate(strings.prebuiltPredict.anlayWithPrebuiltModels, this.state.currentPrebuiltType)}</span>
                         </h6>
 
@@ -218,7 +218,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                             <div className="container-items-end predict-button">
                                 <PrimaryButton
                                     theme={getPrimaryWhiteTheme()}
-                                    iconProps={{iconName: "Insights"}}
+                                    iconProps={{iconName: "ContactCard"}}
                                     text="Run analysis"
                                     aria-label={!this.state.isPredicting ? strings.prebuiltPredict.inProgress : ""}
                                     allowDisabledFocus
