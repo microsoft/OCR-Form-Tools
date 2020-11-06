@@ -5,7 +5,7 @@ import _ from "lodash";
 import Guard from "../common/guard";
 import {
     IAsset, AssetType, IProject, IAssetMetadata, AssetState,
-    ILabelData, ILabel, AssetLabelingState
+    ILabelData, ILabel, AssetLabelingState, IFormRegion
 } from "../models/applicationState";
 import { AssetProviderFactory, IAssetProvider } from "../providers/storage/assetProviderFactory";
 import { StorageProviderFactory, IStorageProvider } from "../providers/storage/storageProviderFactory";
@@ -85,13 +85,12 @@ export class AssetService {
             return result;
         };
         const getLabelValues = (field: any) => {
-            return field.elements.map((path: string) => {
+            return field.elements.map((path: string):IFormRegion => {
                 const pathArr = path.split('/').slice(1);
                 const word = pathArr.reduce((obj: any, key: string) => obj[key], { ...predictResults.analyzeResult });
                 return {
                     page: field.page,
                     text: word.text || word.state,
-                    confidence: word.confidence,
                     boundingBoxes: [getBoundingBox(field.page, word.boundingBox)]
                 };
             });
@@ -538,9 +537,12 @@ export class AssetService {
             if (field) {
                 foundTag = true;
                 assetMetadata.labelData = labelTransformer(assetMetadata.labelData);
+                if(assetMetadata.labelData.labels.length===0){
+                    delete assetMetadata.labelData.labelingState;
+                    delete assetMetadata.asset.labelingState;
+                }
             }
         }
-
         if (foundTag) {
             assetMetadata.regions = assetMetadata.regions.filter((region) => region.tags.length > 0);
             assetMetadata.asset.state = _.get(assetMetadata, "labelData.labels.length")
