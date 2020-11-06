@@ -295,6 +295,7 @@ export const spanish: IAppStrings = {
             incorrectFileExtension: {
                 attention: "¡Atención!",
                 text: "-- la extensión de este archivo no corresponde al tipo MIME. Por favor revise el archivo:",
+                failedToFetch: "No se pudo recuperar ${fileName} para la validación del tipo de mímica",
             },
         },
         assetError: "No se puede mostrar el activo",
