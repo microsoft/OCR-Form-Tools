@@ -22,7 +22,7 @@ export class PredictService {
                 strings.errors.predictWithoutTrainForbidden.message,
                 strings.errors.predictWithoutTrainForbidden.title);
         }
-        const apiVersion = this.project?.apiVersion || constants.apiVersion;
+        const apiVersion = (constants.enableAPIVersionSelection && this.project?.apiVersion) ? this.project.apiVersion : constants.apiVersion;
         const endpointURL = url.resolve(
             this.project.apiUriBase,
             `${interpolate(constants.apiModelsPath, {apiVersion})}/${modelID}/analyze?includeTextDetails=true`,

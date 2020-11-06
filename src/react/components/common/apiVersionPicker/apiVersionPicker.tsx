@@ -3,6 +3,7 @@
 
 import React, { SyntheticEvent } from "react";
 import { APIVersionPatches } from "../../../../models/applicationState";
+import { constants } from "../../../../common/constants"
 
 /**
  * api version Picker Properties
@@ -29,6 +30,8 @@ export class APIVersionPicker extends React.Component<IAPIVersionPickerProps> {
     public render() {
         return (
             <select id={this.props.id}
+                disabled={!constants.enableAPIVersionSelection}
+                defaultValue={APIVersionPatches.patch2}
                 className="form-control"
                 value={this.props.value}
                 onChange={this.onChange}>

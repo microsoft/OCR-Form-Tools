@@ -26,6 +26,7 @@ export class StatusBar extends React.Component<IStatusBarProps, IStatusBarState>
 
 // export class StatusBar extends React.Component<IStatusBarProps> {
     public render() {
+        const apiVersion = (constants.enableAPIVersionSelection && this.props.project?.apiVersion) ? this.props.project.apiVersion : constants.apiVersion;
         return (
             <div className="status-bar">
                 <div className="status-bar-main">{this.props.children}</div>
@@ -35,7 +36,7 @@ export class StatusBar extends React.Component<IStatusBarProps, IStatusBarState>
                             <li>
                             <a href="https://github.com/microsoft/OCR-Form-Tools/blob/master/CHANGELOG.md" target="blank" rel="noopener noreferrer">
                                     <FontIcon iconName="AzureAPIManagement" />
-                                    <span>{ this.props.project.apiVersion || constants.apiVersion }</span>
+                                    <span>{ apiVersion }</span>
                                 </a>
                             </li>
                         }
