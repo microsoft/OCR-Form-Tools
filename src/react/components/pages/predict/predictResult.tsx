@@ -50,10 +50,13 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
 
                 </div>
                 <div className="container-items-center container-space-between">
-                    <PrimaryButton
-                        theme={getPrimaryGreenTheme()}
-                        onClick={this.onAddAssetToProject}
-                        text={strings.predict.editAndUploadToTrainingSet} />
+                    {this.props.onAddAssetToProject ?
+                        <PrimaryButton
+                            theme={getPrimaryGreenTheme()}
+                            onClick={this.onAddAssetToProject}
+                            text={strings.predict.editAndUploadToTrainingSet} />
+                        :<span></span>
+                    }
                     <PrimaryButton
                         className="align-self-end keep-button-80px"
                         theme={getPrimaryGreenTheme()}
