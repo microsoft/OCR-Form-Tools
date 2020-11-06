@@ -169,9 +169,9 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     public render() {
         const predictDisabled: boolean = this.state.isPredicting || !this.state.file
             || this.state.invalidFileFormat ||
-            !this.props.prebuiltSettings.apiKey ||
             !this.state.fileLoaded ||
-            !this.props.prebuiltSettings.serviceURI;
+            !this.props.prebuiltSettings?.apiKey ||
+            !this.props.prebuiltSettings?.serviceURI;
 
         const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
 
