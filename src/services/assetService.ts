@@ -371,7 +371,7 @@ export class AssetService {
             await this.storageProvider.writeText(labelFileName, JSON.stringify(metadata.labelData, null, 4));
         }
 
-        if (metadata.asset.state !== AssetState.Tagged) {
+        if (!metadata.labelData?.labels?.find(label=>label?.value?.length!==0)) {
             // If the asset is no longer tagged, then it doesn't contain any regions
             // and the file is not required.
             try {

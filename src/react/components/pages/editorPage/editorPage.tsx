@@ -553,8 +553,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         const asset = { ...assetMetadata.asset };
 
-        if (this.isTaggableAssetType(asset)) {
-            asset.state = _.get(assetMetadata, "labelData.labels.length", 0) > 0 ?
+        if (this.isTaggableAssetType(asset)&&asset.state!==AssetState.Tagged) {
+            asset.state = _.get(assetMetadata, "labelData.labels.length", 0) > 0
+            && assetMetadata.labelData.labels.findIndex(item=>item.value?.length>0)>=0 ?
                 AssetState.Tagged :
                 AssetState.Visited;
         } else if (asset.state === AssetState.NotVisited) {

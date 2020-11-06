@@ -12,7 +12,7 @@ import {constants} from "../../../../common/constants";
 import {isElectron} from "../../../../common/hostProcess";
 import {interpolate, strings} from "../../../../common/strings";
 import {getGreenWithWhiteBackgroundTheme, getPrimaryGreenTheme} from "../../../../common/themes";
-import {AssetLabelingState, FieldType, IApplicationState, IAppSettings, IAssetMetadata, IConnection, IProject, IRecentModel} from "../../../../models/applicationState";
+import {AssetLabelingState, AssetState, FieldType, IApplicationState, IAppSettings, IAssetMetadata, IConnection, IProject, IRecentModel} from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -415,7 +415,14 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             .filter(asset => asset.labelingState !== AssetLabelingState.Trained)
             .forEachAsync(async (asset) => {
                 const assetMetadata: IAssetMetadata = { ...await this.props.actions.loadAssetMetadata(this.props.project, asset) };
-                if (assetMetadata.asset.labelingState === AssetLabelingState.ManuallyLabeled
+                let isUpdated=false;
+                assetMetadata.labelData?.labels?.forEach((label,index)=>{
+                    if(label.value?.length===0){
+                        assetMetadata.labelData.labels.splice(index,1);
+                        isUpdated=true;
+                    }
+                });
+                if (!isUpdated&&assetMetadata.asset.labelingState === AssetLabelingState.ManuallyLabeled
                     && assetMetadata.labelData?.labels?.findIndex(label => label.confidence
                         || label.originValue
                         || label.revised
