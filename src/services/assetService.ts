@@ -5,7 +5,8 @@ import _ from "lodash";
 import Guard from "../common/guard";
 import {
     IAsset, AssetType, IProject, IAssetMetadata, AssetState,
-    ILabelData, ILabel, AssetLabelingState, FieldType, FieldFormat, ITableConfigItem, ITableRegion, ITableCellLabel
+    FieldType, FieldFormat, ITableConfigItem, ITableRegion, ITableCellLabel,
+    ILabelData, ILabel, AssetLabelingState
 } from "../models/applicationState";
 import { AssetProviderFactory, IAssetProvider } from "../providers/storage/assetProviderFactory";
 import { StorageProviderFactory, IStorageProvider } from "../providers/storage/storageProviderFactory";
@@ -314,6 +315,10 @@ export class AssetService {
         const folderPath = this.project.folderPath;
         const assets = await this.assetProvider.getAssets(folderPath);
         return this.filterAssets(assets, folderPath);
+    }
+
+    public async getAsset(assetName: string): Promise<IAsset> {
+        return await this.assetProvider.getAsset(this.project.folderPath, assetName);
     }
 
     private filterAssets = (assets, folderPath) => {
@@ -685,6 +690,17 @@ export class AssetService {
             assetMetadata.regions = assetMetadata.regions.filter((region) => region.tags.length > 0);
             assetMetadata.asset.state = _.get(assetMetadata, "labelData.labels.length") ||  _.get(assetMetadata, "labelData.tableLabels.length")
                 ? AssetState.Tagged : AssetState.Visited;
+            if(assetMetadata.asset.labelingState===AssetLabelingState.Trained){
+                assetMetadata.asset.labelingState=AssetLabelingState.ManuallyLabeled;
+                if(assetMetadata.labelData){
+                    assetMetadata.labelData.labelingState=AssetLabelingState.ManuallyLabeled;
+                }
+            }else if(assetMetadata.asset.labelingState===AssetLabelingState.AutoLabeled){
+                assetMetadata.asset.labelingState=AssetLabelingState.AutoLabeledAndAdjusted;
+                if(assetMetadata.labelData){
+                    assetMetadata.labelData.labelingState=AssetLabelingState.AutoLabeledAndAdjusted;
+                }
+            }
             return true;
         }
 

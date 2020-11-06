@@ -11,12 +11,12 @@
       "unicode": "E710"
     },
     {
-      "name": "AddField",
-      "unicode": "E4C7"
-    },
-    {
       "name": "AddTable",
       "unicode": "E4C6"
+    },
+    {
+      "name": "AddField",
+      "unicode": "E4C7"
     },
     {
       "name": "AddTo",
@@ -25,6 +25,14 @@
     {
       "name": "AlertSolid",
       "unicode": "F331"
+    },
+    {
+      "name": "AutoEnhanceOff",
+      "unicode": "E78E"
+    },
+    {
+      "name": "AutoEnhanceOn",
+      "unicode": "E78D"
     },
     {
       "name": "AzureAPIManagement",
@@ -79,6 +87,10 @@
       "unicode": "EA3A"
     },
     {
+      "name": "ClearFilter",
+      "unicode": "EF8F"
+    },
+    {
       "name": "Cloud",
       "unicode": "E753"
     },
@@ -115,12 +127,36 @@
       "unicode": "E4C4"
     },
     {
+      "name": "FixedColumnWidth",
+      "unicode": "E3EA"
+    },
+    {
+      "name": "InsertColumnsRight",
+      "unicode": "F64B"
+    },
+    {
+      "name": "InsertRowsBelow",
+      "unicode": "F64D"
+    },
+    {
+      "name": "FieldChanged",
+      "unicode": "F2C3"
+    },
+    {
+      "name": "FieldNotChanged",
+      "unicode": "F2C4"
+    },
+    {
       "name": "Filter",
       "unicode": "E71C"
     },
     {
-      "name": "FixedColumnWidth",
-      "unicode": "E3EA"
+      "name": "GroupedList",
+      "unicode": "EF74"
+    },
+    {
+      "name": "GroupList",
+      "unicode": "F168"
     },
     {
       "name": "Help",
@@ -137,14 +173,6 @@
     {
       "name": "Info",
       "unicode": "E946"
-    },
-    {
-      "name": "InsertColumnsRight",
-      "unicode": "F64B"
-    },
-    {
-      "name": "InsertRowsBelow",
-      "unicode": "F64D"
     },
     {
       "name": "Insights",

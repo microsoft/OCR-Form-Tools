@@ -17,7 +17,20 @@ describe("Tag Input Component", () => {
     }
 
     function createProps(tags?: ITag[], onChange?): ITagInputProps {
-        return null;
+        return {
+            tagsLoaded: true,
+            pageNumber: 1,
+            tags: tags || MockFactory.createTestTags(),
+            lockedTags: [],
+            selectedRegions: [MockFactory.createTestRegion()],
+            onChange: onChange || jest.fn(),
+            onLockedTagsChange: jest.fn(),
+            onTagClick: jest.fn(),
+            onCtrlTagClick: jest.fn(),
+            labels: [],
+            onLabelEnter: jest.fn(),
+            onLabelLeave: jest.fn(),
+        };
     }
 
     it("Renders correctly", () => {

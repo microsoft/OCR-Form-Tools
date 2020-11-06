@@ -136,15 +136,27 @@ export default class EditorSideBar extends React.Component<IEditorSideBarProps, 
     }
 
     private renderBadges = (asset: IAsset): JSX.Element => {
-        const getBadgeTaggedClass = (state: AssetLabelingState): string => {
-            return state ? `badge-tagged-${AssetLabelingState[state]}` : "";
+        const getBadgeTaggedClass = (state: AssetLabelingState): string => state ? `badge-tagged-${AssetLabelingState[state]}` : "";
+
+        const getBadgeTaggedIcon = (labelingState: AssetLabelingState) => {
+            switch (labelingState) {
+                case AssetLabelingState.AutoLabeled:
+                    return <FontIcon iconName="AutoEnhanceOn" />;
+                case AssetLabelingState.AutoLabeledAndAdjusted:
+                    return <FontIcon iconName="AutoEnhanceOff" />;
+                case AssetLabelingState.Trained:
+                    return <FontIcon iconName="MachineLearning" />;
+                default:
+                    return <FontIcon iconName="Tag" />
+            }
         };
+
         switch (asset.state) {
             case AssetState.Tagged:
                 return (
-                    <span title={_.startCase(AssetLabelingState[asset.labelingState])}
+                    <span title={_.capitalize(_.lowerCase(AssetLabelingState[asset.labelingState]))}
                         className={["badge", "badge-tagged", getBadgeTaggedClass(asset.labelingState)].join(" ")}>
-                        <FontIcon iconName="Tag" />
+                        {getBadgeTaggedIcon(asset.labelingState)}
                     </span>
                 );
             case AssetState.Visited:

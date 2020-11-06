@@ -1,5 +1,5 @@
-commit 8785f08f8fd966a474665d4e4d236e0d4426e621
-Author: Alex Chen <v-yongbc@microsoft.com>
-Date:   Thu Oct 22 21:19:39 2020 +0800
+commit 191b4d1c4a262b9523dbf9f18c14ce3f890be0a1
+Author: Robert Stewart (eXcell <v-stewro@microsoft.com>
+Date:   Thu Nov 5 04:25:44 2020 -0800
 
-    tslint check
+    feat: add progress to table reconfigure

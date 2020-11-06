@@ -230,6 +230,7 @@ export interface IRegion {
 export interface ITableRegion extends IRegion {
     rowKey: string,
     columnKey: string,
+    changed?: boolean,
 }
 
 /**
@@ -251,8 +252,10 @@ export interface ILabel {
     label: string,
     key?: IFormRegion[],
     value: IFormRegion[],
+    originValue?: IFormRegion[],
     labelType?: string,
     confidence?: number,
+    revised?: boolean,
 }
 
 export interface ITableLabel {
@@ -264,6 +267,7 @@ export interface ITableCellLabel {
     rowKey: string,
     columnKey: string,
     value: IFormRegion[],
+    revised?: boolean;
 }
 
 /**

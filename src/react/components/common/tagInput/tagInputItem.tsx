@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { MouseEvent } from "react";
+import React, { MouseEvent, Fragment } from "react";
 import { FontIcon, IconButton } from "@fluentui/react";
 import { ITag, ILabel, FieldType, FieldFormat, TagInputMode } from "../../../../models/applicationState";
 import { strings } from "../../../../common/strings";
@@ -27,6 +27,8 @@ export interface ITagInputItemProps {
     index: number;
     /** Labels owned by the tag */
     labels: ILabel[];
+    /** show Origin Labels or not */
+    showOriginLabels: boolean;
     /** Tag is currently renaming */
     isRenaming: boolean;
     /** Tag is currently locked for application */
@@ -83,14 +85,13 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         const style: any = {
             background: this.props.tag.color,
         };
-        const confidence = _.get(this.props, "labels[0].confidence", null);
         return (
             <div className={"tag-item-block"}>
-                {confidence &&
+                {/* {confidence &&
                     <div className="tag-item-confidence">
                         {confidence}
                     </div>
-                }
+                } */}
                 <div
                     className={"tag-color"}
                     style={style}
@@ -129,7 +130,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         e.stopPropagation();
 
         const clickedDropDown = true;
-        this.props.onClick(this.props.tag, { clickedDropDown });
+        this.props.onClick(this.props.tag, {clickedDropDown});
     }
 
     private onColorClick = (e: MouseEvent) => {
@@ -138,7 +139,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         const ctrlKey = e.ctrlKey || e.metaKey;
         const altKey = e.altKey;
         const clickedColor = true;
-        this.props.onClick(this.props.tag, { ctrlKey, altKey, clickedColor });
+        this.props.onClick(this.props.tag, {ctrlKey, altKey, clickedColor});
     }
 
     private onNameClick = (e: MouseEvent) => {
@@ -146,12 +147,12 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
 
         const ctrlKey = e.ctrlKey || e.metaKey;
         const altKey = e.altKey;
-        this.props.onClick(this.props.tag, { ctrlKey, altKey });
+        this.props.onClick(this.props.tag, {ctrlKey, altKey});
     }
 
-    private onNameDoubleClick = (e:MouseEvent) => {
+    private onNameDoubleClick = (e: MouseEvent) => {
         e.stopPropagation();
-        const { labels } = this.props;
+        const {labels} = this.props;
         if (labels.length > 0) {
             this.props.onTagDoubleClick(labels[0]);
         }
@@ -216,29 +217,62 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
     }
 
     private renderTagDetail = () => {
-            // console.log("# tag:", tag)
-    if (this.props.tag.type === FieldType.Table) {
-        return (
-            <div
-                className={"tag-item-label px-2"}
-                onClick={() => this.props.handleLabelTable(TagInputMode.LabelTable, this.props.tag)}
-            >
-                <FontIcon
-                    className="pr-1 pl-1" iconName="Table"
-                />
+        // console.log("# tag:", tag)
+        if (this.props.tag.type === FieldType.Table) {
+            return (
+                <div
+                    className={"tag-item-label px-2"}
+                    onClick={() => this.props.handleLabelTable(TagInputMode.LabelTable, this.props.tag)}
+                >
+                    <FontIcon
+                        className="pr-1 pl-1" iconName="Table"
+                    />
                 Click to assign labels
-            </div>
-        );
-    }
-        return this.props.labels.map((label, idx) =>
-            <TagInputItemLabel
-                tag={this.props.tag}
-                key={idx}
-                label={label}
-                onLabelEnter={this.props.onLabelEnter}
-                onLabelLeave={this.props.onLabelLeave}
-                handleLabelTable={this.props.handleLabelTable}
-            />);
+                </div>
+            );
+        } else {
+
+            let confidence = _.get(this.props, "labels[0].confidence", null);
+            if (confidence > .995) {
+                confidence = 0.995;
+            }
+            const revised = _.get(this.props, "labels[0].revised", false);
+            return this.props.labels.map((label, idx) =>
+                <Fragment key={idx}>
+                    <div className="tag-item-label-container">
+                        {(confidence || revised) &&
+                            <div className="tag-item-label-container-item1">
+                                {confidence &&
+                                    <div className="tag-item-confidence">
+                                        {confidence}
+                                    </div>
+                                }
+                                {revised &&
+                                    <FontIcon iconName="StatusCircleCheckmark" className="ms-Icon-25px" />
+                                }
+                            </div>
+                        }
+                        <div className="tag-item-label-container-item2">
+                            {this.props.showOriginLabels && label.originValue &&
+                                <TagInputItemLabel
+                                    label={label}
+                                    isOrigin={true}
+                                    value={label.originValue}
+                                    prefixText={strings.tags.preText.autoLabel}
+                                />
+                            }
+                            <TagInputItemLabel
+                                label={label}
+                                value={label.value}
+                                isOrigin={false}
+                                onLabelEnter={this.props.onLabelEnter}
+                                onLabelLeave={this.props.onLabelLeave}
+                                prefixText={revised ? strings.tags.preText.revised : undefined}
+                            />
+                        </div>
+                    </div>
+                </Fragment>);
+        }
     }
 
     private onInputRef = (element: HTMLInputElement) => {
@@ -298,14 +332,14 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
     }
 
     private handleMouseEnter = () => {
-        const { labels } = this.props;
+        const {labels} = this.props;
         if (labels.length > 0) {
             this.props.onLabelEnter(labels[0]);
         }
     }
 
     private handleMouseLeave = () => {
-        const { labels } = this.props;
+        const {labels} = this.props;
         if (labels.length > 0) {
             this.props.onLabelLeave(labels[0]);
         }

@@ -42,8 +42,9 @@ Please see instructions [here](https://docs.microsoft.com/en-us/azure/cognitive-
 
 ### Run as web application
 
-Using a modern Web browser, FOTT can be run directly at: https://fott.azurewebsites.net/  (for Form Recognizer 2.0 GA services), and https://fott-preview.azurewebsites.net/  (for Form REcognizer 2.1-preview.* services). 
-Note: these web apps are for testing purpose only. 
+Using a modern Web browser, FOTT can be run directly at: https://fott.azurewebsites.net/  (for Form Recognizer 2.0 GA services), and https://fott-preview.azurewebsites.net/  (for Form Recognizer 2.1-preview.* services). 
+ 
+**Note: these web app are for testing purpose only. HTTPS is required, unless it's for localhost.**
 
 ### Run as desktop application
 
@@ -66,7 +67,7 @@ FOTT can be released as a distributable desktop application.
    ```
 The distributable will saved in the releases folder of the cloned repository.
 
-**Note: the site is for testing purpose only.**
+
 
 ## Using labeling tool
 
@@ -172,6 +173,15 @@ Click on the Analyze icon on the left pane to open the Analyze page. Upload a fo
 ![alt text](docs/images/analyze-form.png "Analyze Form")
 
 Tip: You can also run the Analyze API with a REST call. To learn how to do this, see [Train with labels using Python](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/quickstarts/python-labeled-data).
+
+#### Compose a model ####
+Click the Compose icon on the left pane to open the Compose page. FoTT will display the first page of your models—by decending order of Model ID—in a list. Select multiple models you want to compose into one model and click the **Compose** button. Once the new model has been composed, it's ready to analyze with.
+
+![alt text](docs/images/compose.png "Compose")
+
+To load more of your models, click the **Load next page** button at the bottom of the list. This will load the next page of your models by decending order of model ID.
+
+You can sort the currently loaded models by clicking the column headers at the top of the list. Only the currently loaded models will be sorted. You will need to load all pages of your models first and then sort to view the complete sorted list of your models.  
 
 #### Save a project and resume later ####
 

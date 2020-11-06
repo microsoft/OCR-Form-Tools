@@ -15,7 +15,7 @@ interface ICanvasCommandBarProps {
     handleRunOcr?: () => void;
     handleRunOcrForAllDocuments?: () => void;
     handleRunAutoLabelingOnCurrentDocument?: () => void;
-    handleRunAutoLabelingForRestDocuments?: () => void;
+    handleRunAutoLabelingOnMultipleUnlabeledDocuments?: () => void;
     handleLayerChange?: (layer: string) => void;
     handleToggleDrawRegionMode?: () => void;
     handleAssetDeleted?: () => void;
@@ -81,7 +81,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                       key: "DrawnRegions",
                       text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.drawnRegions,
                       canCheck: true,
-                      iconProps: { iconName: "AddField" },
+                      iconProps: { iconName: "FieldNotChanged" },
                       isChecked: props.layers["drawnRegions"],
                       className: props.drawRegionMode ? "disabled" : "",
                       onClick: () => props.handleLayerChange("drawnRegions"),
@@ -91,7 +91,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         key: "Label",
                         text: strings.editorPage.canvas.canvasCommandBar.items.layers.subMenuItems.labels,
                         canCheck: true,
-                        iconProps: { iconName: "LabelComposite" },
+                        iconProps: { iconName: "Label" },
                         isChecked: props.layers["label"],
                         onClick: () => props.handleLayerChange("label"),
                     },
@@ -101,7 +101,7 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
         {
               key: "drawRegion",
               text: strings.editorPage.canvas.canvasCommandBar.items.drawRegion,
-              iconProps: { iconName: "AddField" },
+              iconProps: { iconName: "FieldNotChanged" },
               toggle: true,
               checked: props.drawRegionMode,
               className: !props.layers["drawnRegions"] ? "disabled" : "",
@@ -153,11 +153,9 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
     if (props.parentPage === strings.editorPage.title) {
         commandBarFarItems.push({
             key: "additionalActions",
+            text: "Actions",
             title: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.text,
-            // This needs an ariaLabel since it's icon-only
-            ariaLabel: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.text,
             className: "additional-action-dropdown",
-            iconProps: { iconName: "More" },
             subMenuProps: {
                 items: [
                     {
@@ -188,14 +186,14 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         },
                     },
                     {
-                        key: "runAutoLabelingForRestDocuments",
-                        text: interpolate(strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runAutoLabelingOnNotLabelingDocuments, { batchSize: constants.autoLabelBatchSize }),
+                        key: "runAutoLabelingOnMultipleUnlabeledDocuments",
+                        text: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.runAutoLabelingOnMultipleUnlabeledDocuments,
                         iconProps: { iconName: "Tag" },
                         disabled: disableAutoLabeling,
                         title: props.project.predictModelId ? "" :
                             strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.noPredictModelOnProject,
                         onClick: () => {
-                            if (props.handleRunAutoLabelingForRestDocuments) props.handleRunAutoLabelingForRestDocuments();
+                            if (props.handleRunAutoLabelingOnMultipleUnlabeledDocuments) props.handleRunAutoLabelingOnMultipleUnlabeledDocuments();
                         },
                     },
                     {

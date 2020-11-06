@@ -245,19 +245,23 @@ export interface IAppStrings {
             color: string,
         }
         toolbar: {
-            add: string;
-            addTable: string;
-            contextualMenu: string;
-            delete: string;
-            edit: string;
-            format: string;
-            lock: string;
-            moveDown: string;
-            moveUp: string;
-            rename: string;
-            search: string;
-            type: string;
-            vertiline: string;
+            addTable: string,
+            add: string,
+            onlyShowCurrentPageTags:string,
+            showAllTags:string,
+            showOriginLabels: string
+            hideOriginLabels: string,
+            contextualMenu: string,
+            delete: string,
+            edit: string,
+            format: string,
+            lock: string,
+            moveDown: string,
+            moveUp: string,
+            rename: string,
+            search: string,
+            type: string,
+            vertiline: string,
         }
         colors: {
             white: string,
@@ -282,6 +286,12 @@ export interface IAppStrings {
             notCompatibleTagType: string,
             checkboxPerTagLimit: string,
             notCompatibleWithDrawnRegionTag: string,
+            replaceAllExitingLabels:string,
+            replaceAllExitingLabelsTitle:string,
+        },
+        preText:{
+            autoLabel:string,
+            revised:string,
         }
         regionTableTags: {
             configureTag: {
@@ -482,7 +492,7 @@ export interface IAppStrings {
                             runOcrOnCurrentDocument: string,
                             runOcrOnAllDocuments: string,
                             runAutoLabelingCurrentDocument: string,
-                            runAutoLabelingOnNotLabelingDocuments: string,
+                            runAutoLabelingOnMultipleUnlabeledDocuments: string,
                             noPredictModelOnProject: string,
                         }
                     }
@@ -497,6 +507,10 @@ export interface IAppStrings {
                 title: string,
                 description: string,
             },
+        },
+        warningMessage: {
+            PreventLeavingWhileRunningOCR: string,
+            PreventLeavingRunningAutoLabeling: string,
         }
     };
     profile: {
@@ -623,7 +637,7 @@ export interface IAppStrings {
         errors: {
             cannotDecodeString: string,
             connectionNotFound: string,
-            noConnections: string,
+            connectionRequirement: string,
             tokenNameExist: string,
         },
         copy: {
