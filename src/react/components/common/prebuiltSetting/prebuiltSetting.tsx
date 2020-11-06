@@ -52,15 +52,6 @@ export class PrebuiltSetting extends React.Component<IPrebuiltSettingProps, IPre
                     >
                         <FontIcon iconName={this.state.showInputedAPIKey ? "Hide3" : "View"} />
                     </DefaultButton>
-                    <DefaultButton
-                        theme={getPrimaryGreyTheme()}
-                        type="button"
-                        title="Copy"
-                        disabled={disabled}
-                        onClick={() => this.copyKey()}
-                    >
-                        <FontIcon iconName="Copy" />
-                    </DefaultButton>
                 </div>
             </div>
 
