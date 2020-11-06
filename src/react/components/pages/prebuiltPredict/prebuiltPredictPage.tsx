@@ -665,23 +665,53 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             const predictions = _.get(analyzeResult, "documentResults[0].fields", {});
             const predictionsCopy = Object.assign({}, predictions);
             delete predictionsCopy.ReceiptType;
-            if (!predictionsCopy.Items) {
-                return predictionsCopy;
-            }
-            if (!predictionsCopy.Items.valueArray || Object.keys(predictionsCopy.Items).length === 0) {
-                delete predictionsCopy.Items;
-                return predictionsCopy;
-            }
-            predictionsCopy.Items.valueArray.forEach((item, index) => {
-                const itemName = "Item " + (index + 1);
-                predictionsCopy[itemName] = item.valueObject.Name;
-                if (item.valueObject.TotalPrice) {
-                    predictionsCopy[itemName + " price"] = item.valueObject.TotalPrice;
-                }
-            });
-            delete predictionsCopy.Items;
-            return predictionsCopy;
 
+            const extendPredictionItem = (key, field) => {
+                const result = {};
+                if (field.valueArray) {
+                    if (field.valueArray.length === 1) {
+                        const item = field.valueArray[0];
+                        const itemName = `${key}`;
+                        if (item.valueObject) {
+                            result[itemName] = item.valueObject.Name;
+                            if (item.valueObject.TotalPrice) {
+                                result[itemName + " price"] = item.valueObject.TotalPrice;
+                            }
+                        }
+                        else {
+                            result[itemName] = item;
+                        }
+                    }
+                    else {
+                        field.valueArray.forEach((item, index) => {
+                            const itemName = `${key} ${index + 1}`;
+                            if (item.valueObject) {
+                                result[itemName] = item.valueObject.Name;
+                                if (item.valueObject.TotalPrice) {
+                                    result[itemName + " price"] = item.valueObject.TotalPrice;
+                                }
+                            }
+                            else {
+                                result[itemName] = item;
+                            }
+                        });
+                    }
+                }
+                else {
+                    result[key] = field;
+                }
+                return result;
+            };
+            let predictionResult = {};
+            for (const key in predictionsCopy) {
+                if (Object.prototype.hasOwnProperty.call(predictionsCopy, key)) {
+                    const item = predictionsCopy[key];
+                    if (item) {
+                        predictionResult = Object.assign({}, predictionResult, extendPredictionItem(key, item));
+                    }
+                }
+            }
+            return predictionResult;
         } else {
             return _.get(analyzeResult, "documentResults[0].fields", {});
         }
