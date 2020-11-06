@@ -131,27 +131,6 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                                 rel="noopener noreferrer"
                             ><FontIcon iconName="Rocket" />{strings.homePage.quickStartGuide}</a>
                         </li>
-                        {isElectron() &&
-                            <li className="p-5">
-                                <a href="#" className="p-2 file-upload"
-                                    onClick={() => this.filePicker.current.upload()} >
-                                    <FontIcon iconName="System" className="icon-7x" />
-                                    <div className="title">{strings.homePage.openLocalProject.title}</div>
-                                    <div className="description">
-                                        {strings.homePage.openLocalProject.description}
-                                    </div>
-                                    <a className="quickstart"
-                                        target="_blank"
-                                        rel="noopener noreferrer">
-                                        <FontIcon iconName="Rocket" />{strings.homePage.quickStartGuide}</a>
-                                </a>
-                                <FilePicker ref={this.filePicker}
-                                    onChange={this.onProjectFileUpload}
-                                    onError={this.onProjectFileUploadError}
-                                    accept={[".fott"]}
-                                />
-                            </li>
-                        }
                         <CloudFilePicker
                             ref={this.cloudFilePickerRef}
                             connections={this.props.connections}
@@ -167,6 +146,20 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                             <FontIcon iconName="AddTo" className="icon" />
                             <span className="title">{strings.homePage.newProject}</span>
                         </div>
+                        {isElectron() &&
+                            <>
+                                <div className="app-homepage-open-cloud-project" role="button"
+                                    onClick={() => this.filePicker.current.upload()}>
+                                    <FontIcon iconName="System" className="icon" />
+                                    <span className="title">{strings.homePage.openLocalProject.title}</span>
+                                </div>
+                                <FilePicker ref={this.filePicker}
+                                    onChange={this.onProjectFileUpload}
+                                    onError={this.onProjectFileUploadError}
+                                    accept={[".fott"]}
+                                />
+                            </>
+                        }
                         <div className="app-homepage-open-cloud-project" role="button"
                             onClick={this.onOpenCloudProjectClick}>
                             <FontIcon iconName="Cloud" className="icon" />
