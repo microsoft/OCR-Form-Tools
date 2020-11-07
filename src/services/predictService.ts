@@ -2,6 +2,7 @@ import _ from "lodash";
 import url from 'url';
 import { constants } from "../common/constants";
 import { interpolate, strings } from "../common/strings";
+import { getAPIVersion } from "../common/utils";
 import { AppError, ErrorCode, IProject } from "../models/applicationState";
 import ServiceHelper from "./serviceHelper";
 
@@ -22,7 +23,7 @@ export class PredictService {
                 strings.errors.predictWithoutTrainForbidden.message,
                 strings.errors.predictWithoutTrainForbidden.title);
         }
-        const apiVersion = (constants.enableAPIVersionSelection && this.project?.apiVersion) ? this.project.apiVersion : constants.apiVersion;
+        const apiVersion = getAPIVersion(this.project?.apiVersion);
         const endpointURL = url.resolve(
             this.project.apiUriBase,
             `${interpolate(constants.apiModelsPath, {apiVersion})}/${modelID}/analyze?includeTextDetails=true`,

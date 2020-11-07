@@ -7,6 +7,7 @@ import { IStorageProvider, StorageProviderFactory } from "../providers/storage/s
 import { constants } from "../common/constants";
 import ServiceHelper from "./serviceHelper";
 import { strings } from "../common/strings";
+import { getAPIVersion } from "../common/utils";
 
 export enum OcrStatus {
     loadingFromAzureBlob="loadingFromAzureBlob",
@@ -99,7 +100,7 @@ export class OCRService {
                 body = { url: filePath };
                 headers = { "Content-Type": "application/json" };
             }
-            const apiVersion = (constants.enableAPIVersionSelection && this.project?.apiVersion) ? this.project.apiVersion : constants.apiVersion;
+            const apiVersion = getAPIVersion(this.project?.apiVersion);
             const response = await ServiceHelper.postWithAutoRetry(
                 this.project.apiUriBase + `/formrecognizer/${apiVersion}/layout/analyze`,
                 body,

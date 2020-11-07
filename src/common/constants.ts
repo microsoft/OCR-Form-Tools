@@ -2,14 +2,13 @@
 // Licensed under the MIT license.
 
 import { appInfo } from "./appInfo"
-import { buildInfo } from "./buildInfo"
 
 const appVersionRaw = appInfo.version
 const appVersionArr = appVersionRaw.split(".");
 appVersionArr[1] = appVersionArr[1] + "-preview";
 const appVersion = appVersionArr.join(".");
 
-const enableAPIVersionSelection = buildInfo.enableAPIVersionSelection;
+const enableAPIVersionSelection = appInfo.enableAPIVersionSelection;
 const apiVersion = "v2.1-preview.2";
 
 /**

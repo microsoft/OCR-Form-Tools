@@ -41,6 +41,7 @@ import { ViewSelection } from "./viewSelection";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import allSettled from "promise.allsettled";
 import { toast } from 'react-toastify';
+import { getAPIVersion } from "../../../../common/utils";
 
 export interface IModelComposePageProps extends RouteComponentProps, React.Props<ModelComposePage> {
     recentProjects: IProject[];
@@ -367,7 +368,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         this.composeModalRef.current.open([], false, false);
 
         if (model.attributes.isComposed) {
-            const apiVersion = (constants.enableAPIVersionSelection && this.props.project?.apiVersion) ? this.props.project.apiVersion : constants.apiVersion;
+            const apiVersion = getAPIVersion(this.props.project?.apiVersion);
             const inclModels = model.composedTrainResults ?
                 model.composedTrainResults
                 : (await this.getModelByURl(interpolate(constants.apiModelsPath, {apiVersion}) + "/" + model.modelId)).composedTrainResults;
@@ -458,7 +459,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
     private getRecentModels = async ():Promise<IModel[]> => {
         const recentModelsList: IModel[] = [];
-        const apiVersion = (constants.enableAPIVersionSelection && this.props.project?.apiVersion) ? this.props.project.apiVersion : constants.apiVersion;
+        const apiVersion = getAPIVersion(this.props.project?.apiVersion);
         const recentModelRequest = await allSettled(this.props.project.recentModelRecords.map(async (model) => {
             return this.getModelByURl(interpolate(constants.apiModelsPath, {apiVersion}) + "/" + model.modelInfo.modelId);
         }))
@@ -523,7 +524,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     private async getResponse(nextLink?: string) {
-        const apiVersion = (constants.enableAPIVersionSelection && this.props.project?.apiVersion) ? this.props.project.apiVersion : constants.apiVersion;
+        const apiVersion = getAPIVersion(this.props.project?.apiVersion);
         const baseURL = nextLink === undefined ? url.resolve(
             this.props.project.apiUriBase,
             interpolate(constants.apiModelsPath, {apiVersion}),
@@ -732,7 +733,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     modelName: name,
                 };
 
-                const apiVersion = (constants.enableAPIVersionSelection && this.props.project?.apiVersion) ? this.props.project.apiVersion : constants.apiVersion;
+                const apiVersion = getAPIVersion(this.props.project?.apiVersion);
                 const link = interpolate(constants.apiModelsPath, {apiVersion}) + "/compose";
                 const composeRes = await this.post(link, payload);
                 const composedModel = await this.waitUntilModelIsReady(composeRes["headers"]["location"]);
