@@ -2,12 +2,12 @@
 // Licensed under the MIT license.
 
 // tslint:disable-next-line:no-var-requires
-const APIConfig = require("../apiConfig.json");
+const buildConfig = require("../buildConfig.json");
 
 /**
  * Defines the API information
  */
-export interface IAPIInfo {
+export interface IBuildInfo {
     /** If API is selectable */
     enableAPIVersionSelection: boolean;
 }
@@ -15,4 +15,4 @@ export interface IAPIInfo {
 /**
  * Gets current API info
  */
-export const APIInfo = APIConfig as IAPIInfo;
+export const buildInfo = buildConfig as IBuildInfo;
