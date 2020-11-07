@@ -5,6 +5,7 @@ import Guard from "./guard";
 import { IProject, ISecurityToken, IProviderOptions, ISecureString, ITag } from "../models/applicationState";
 import { encryptObject, decryptObject, encrypt, decrypt } from "./crypto";
 import UTIF from "utif";
+import { constants } from "./constants";
 
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../react/components/common/tagColors.json");
@@ -356,4 +357,8 @@ export function fixedEncodeURIComponent(str: string) {
     return encodeURIComponent(str).replace(/[!'()*]/g, (c) => {
       return '%' + c.charCodeAt(0).toString(16)
     })
-  }
+}
+
+export function getAPIVersion(projectAPIVersion: string): string {
+    return (constants.enableAPIVersionSelection && projectAPIVersion) ? projectAPIVersion : constants.apiVersion;
+}
