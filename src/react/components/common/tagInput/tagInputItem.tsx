@@ -198,7 +198,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
     }
 
     private renderTagDetail = () => {
-        return this.props.labels.map((label, idx) =>
+        return this.props?.labels.map((label, idx) =>
             <TagInputItemLabel
                 key={idx}
                 label={label}

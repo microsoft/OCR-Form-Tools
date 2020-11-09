@@ -223,7 +223,7 @@ export default class ProjectService implements IProjectService {
                     try {
                         if (!assetLabel || assetLabel === blob) {
                             const content = JSON.parse(await storageProvider.readText(blob));
-                            content.labels.forEach((label) => {
+                            content?.labels.forEach((label) => {
                                 tagNameSet.add(label.label);
                                 if (tagDocumentCount[label.label]) {
                                     tagDocumentCount[label.label] += 1;

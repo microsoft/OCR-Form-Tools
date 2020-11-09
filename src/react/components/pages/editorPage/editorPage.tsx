@@ -179,9 +179,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const { project } = this.props;
         const { assets, selectedAsset, isRunningOCRs, isCanvasRunningOCR } = this.state;
 
-        const labels = (selectedAsset &&
-            selectedAsset.labelData &&
-            selectedAsset.labelData.labels) || [];
+        const labels = (selectedAsset?.labelData?.labels) || [];
 
         const needRunOCRButton = assets.some((asset) => asset.state === AssetState.NotVisited);
 
@@ -491,8 +489,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         // Only update asset metadata if state changes or is different
         if (initialState !== assetMetadata.asset.state || this.state.selectedAsset !== assetMetadata) {
-            if (this.state.selectedAsset.labelData && this.state.selectedAsset.labelData.labels &&
-                assetMetadata.labelData && assetMetadata.labelData.labels &&
+            if (this.state.selectedAsset?.labelData?.labels &&
+                assetMetadata?.labelData?.labels &&
                 assetMetadata.labelData.labels.toString() !== this.state.selectedAsset.labelData.labels.toString()) {
                 await this.updatedAssetMetadata(assetMetadata);
             }
@@ -776,10 +774,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const assetDocumentCountDifference = {};
         const updatedAssetLabels = {};
         const currentAssetLabels = {};
-        assetMetadata.labelData.labels.forEach((label) => {
+        assetMetadata?.labelData?.labels.forEach((label) => {
             updatedAssetLabels[label.label] = true;
         });
-        this.state.selectedAsset.labelData.labels.forEach((label) => {
+        this.state.selectedAsset?.labelData?.labels.forEach((label) => {
             currentAssetLabels[label.label] = true;
         });
         Object.keys(currentAssetLabels).forEach((label) => {

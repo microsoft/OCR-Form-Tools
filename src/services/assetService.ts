@@ -252,7 +252,7 @@ export class AssetService {
         try {
             const json = await this.storageProvider.readText(labelFileName, true);
             const labelData = JSON.parse(json) as ILabelData;
-            if (!labelData.document || !labelData.labels) {
+            if (!labelData.document || !labelData?.labels) {
                 const reason = interpolate(strings.errors.missingRequiredFieldInLabelFile.message, { labelFileName });
                 toast.error(reason, { autoClose: false });
                 throw new Error("Invalid label file");
@@ -322,7 +322,7 @@ export class AssetService {
     public async deleteTag(tagName: string): Promise<IAssetMetadata[]> {
         const transformer = (tagNames) => tagNames.filter((t) => t !== tagName);
         const labelTransformer = (labelData: ILabelData) => {
-            labelData.labels = labelData.labels.filter((label) => label.label !== tagName);
+            labelData.labels = labelData?.labels?.filter((label) => label.label !== tagName);
             return labelData;
         };
         return await this.getUpdatedAssets(tagName, transformer, labelTransformer);
@@ -335,7 +335,7 @@ export class AssetService {
     public async renameTag(tagName: string, newTagName: string): Promise<IAssetMetadata[]> {
         const transformer = (tags) => tags.map((t) => (t === tagName) ? newTagName : t);
         const labelTransformer = (labelData: ILabelData) => {
-            const field = labelData.labels.find((label) => label.label === tagName);
+            const field = labelData?.labels?.find((label) => label.label === tagName);
             if (field) {
                 field.label = newTagName;
             }
@@ -386,7 +386,7 @@ export class AssetService {
             }
         }
 
-        if (assetMetadata.labelData && assetMetadata.labelData.labels) {
+        if (assetMetadata?.labelData?.labels) {
             const field = assetMetadata.labelData.labels.find((field) => field.label === tagName);
             if (field) {
                 foundTag = true;
