@@ -9,7 +9,7 @@ import {
     EditorMode, IAssetMetadata,
     IProject, IRegion, RegionType,
     AssetType, ILabelData, ILabel,
-    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, ImageMapParent, LabelType, AssetLabelingState, APIVersionPatches
+    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, LabelType, AssetLabelingState, APIVersionPatches
 } from "../../../../models/applicationState";
 import CanvasHelpers from "./canvasHelpers";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
@@ -273,10 +273,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     drawRegionMode={this.state.drawRegionMode}
                     project={this.props.project}
                     selectedAsset={this.props.selectedAsset}
-                    parentPage={strings.editorPage.title}
+                    showLayerMenu={true}
+                    showActionMenu={true}
+                    enableDrawRegion={true}
                 />
                 <ImageMap
-                    parentPage={ImageMapParent.Editor}
+                    initEditorMap={true}
                     ref={(ref) => this.imageMap = ref}
                     imageUri={this.state.imageUri}
                     imageWidth={this.state.imageWidth}
@@ -401,6 +403,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 errorMessage: `${err.message}, code ${err.code}`
             });
         }
+        // catch(error){
+        //     this.setState({
+        //         isError: true,
+        //         errorTitle: error.title,
+        //         errorMessage: error.message,
+        //     });
+        // }
         finally {
             this.setAutoLabelingStatus(AutoLabelingStatus.done);
         }
@@ -687,13 +696,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 currentAsset.labelData.labelingState = this.state.currentAsset.labelData.labelingState;
             }
         }
-
-        if (currentAsset.labelData) {
-            currentAsset.asset.labelingState = currentAsset.labelData.labelingState;
-        } else if (currentAsset.asset.labelingState) {
+        if(currentAsset.labelData?.labelingState!==AssetLabelingState.AutoLabeledAndAdjusted
+            &&(!currentAsset.labelData||currentAsset.labelData.labels?.findIndex(label=>label.value.length>0)<0)){
+            delete currentAsset.labelData?.labelingState;
             delete currentAsset.asset.labelingState;
         }
-
+        else {
+            currentAsset.asset.labelingState = currentAsset.labelData.labelingState;
+        }
         const isLabelChanged = this.compareLabelChanged(_.get(currentAsset, "labelData.labels", []) as ILabel[], _.get(this.state.currentAsset, "labelData.labels", []) as ILabel[]);
         this.setState({
             currentAsset,
@@ -1080,7 +1090,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (this.props.hoveredLabel) {
             const label = this.props.hoveredLabel;
             const id = feature.get("id");
-            if (label.value.find((region) =>
+            if (label.value?.find((region) =>
                 id === this.createRegionIdFromBoundingBox(region.boundingBoxes[0], region.page))) {
                 this.setFeatureProperty(feature, "highlighted", true);
             }
@@ -1440,9 +1450,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 if (relatedLabels && relatedLabels.confidence) {
                     const originLabel = this.props.selectedAsset!.labelData?.labels?.find(a => a.label === relatedLabels.label);
                     if (originLabel) {
-                        delete relatedLabels.confidence;
                         relatedLabels.revised = true;
-                        relatedLabels.originValue = [...originLabel.value];
+                        if(!relatedLabels.originValue){
+                            relatedLabels.originValue = [...originLabel.value];
+                        }
                     }
                 }
             }
@@ -1461,9 +1472,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 if (label) {
                     const originLabel = this.props.selectedAsset!.labelData?.labels?.find(a => a.label === tag);
                     if (originLabel && label.confidence && region.changed) {
-                        delete label.confidence;
                         label.revised = true;
-                        label.originValue = [...originLabel.value];
+                        if(!label.originValue){
+                            label.originValue = [...originLabel.value];
+                        }
                     }
                     if (originLabel && region.changed && label.labelType !== labelType) {
                         label.labelType = labelType;
@@ -1489,12 +1501,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 }
             });
         });
-        const newLabels = labels.filter(label => label.value.length > 0);
-        const labelData: ILabelData = newLabels.length > 0 ?
-            {
-                document: decodeURIComponent(assetName).split("/").pop(),
-                labels: newLabels,
-            } : null;
+        const labelData:ILabelData={
+            document: decodeURIComponent(assetName).split("/").pop(),
+            labels: [...labels],
+        }
         return labelData;
     }
 
@@ -1737,17 +1747,15 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     }
     private compareLabelChanged(newLabels: ILabel[], prevLabels: ILabel[]): boolean {
-        if (newLabels.length !== prevLabels.length) {
-            return true;
-        } else if (newLabels.length > 0) {
+        if (newLabels.length > 0) {
             const newFieldNames = newLabels.map((label) => label.label);
             const prevFieldNames = prevLabels.map((label) => label.label);
             if (_.isEqual(newFieldNames.sort(), prevFieldNames.sort())) {
                 for (const name of newFieldNames) {
-                    const newValue = newLabels.find(label => label.label === name).value.map(region => region.boundingBoxes).join(",");
-                    const prevValue = prevLabels.find(label => label.label === name).value.map(region => region.boundingBoxes).join(",");
+                    const newValue = newLabels.find(label => label.label === name).value?.map(region => region.boundingBoxes).join(",");
+                    const prevValue = prevLabels.find(label => label.label === name).value?.map(region => region.boundingBoxes).join(",");
                     if (newValue !== prevValue) {
-                        return true;
+                         return true;
                     }
                 }
                 return false;
