@@ -23,7 +23,12 @@
                 flex:1;
                 list-style-type: none;
                 text-align: center;
-                min-width: 24%;
+                margin: 3rem !important;
+                padding: 1rem;
+                border-radius: 4px;
+                &:hover{
+                    background-color: $lighter-2;
+                }
                 a {
                     display: inline-block;
                     .title {
@@ -39,7 +44,6 @@
                     &.active,
                     &:hover {
                         color: #fff;
-                        background-color: $lighter-2;
                         text-decoration: none;
                         flex-wrap: wrap;
                     }
