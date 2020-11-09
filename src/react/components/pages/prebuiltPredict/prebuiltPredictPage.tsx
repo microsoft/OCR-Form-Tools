@@ -578,7 +578,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     private async getPrediction(): Promise<any> {
         const endpointURL = url.resolve(
             this.props.prebuiltSettings.serviceURI,
-            `/formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}`,
+            `/formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`,
         );
         const apiKey = this.props.prebuiltSettings.apiKey;
 

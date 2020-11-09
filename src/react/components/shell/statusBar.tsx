@@ -7,6 +7,7 @@ import {constants} from "../../../common/constants";
 import axios from 'axios';
 import "./statusBar.scss";
 import { IProject } from "../../../models/applicationState";
+import { getAPIVersion } from "../../../common/utils";
 export interface IStatusBarProps {
     project: IProject;
 }
@@ -26,6 +27,7 @@ export class StatusBar extends React.Component<IStatusBarProps, IStatusBarState>
 
 // export class StatusBar extends React.Component<IStatusBarProps> {
     public render() {
+        const apiVersion = getAPIVersion(this.props.project?.apiVersion);
         return (
             <div className="status-bar">
                 <div className="status-bar-main">{this.props.children}</div>
@@ -35,7 +37,7 @@ export class StatusBar extends React.Component<IStatusBarProps, IStatusBarState>
                             <li>
                             <a href="https://github.com/microsoft/OCR-Form-Tools/blob/master/CHANGELOG.md" target="blank" rel="noopener noreferrer">
                                     <FontIcon iconName="AzureAPIManagement" />
-                                    <span>{ this.props.project.apiVersion || constants.apiVersion }</span>
+                                    <span>{ apiVersion }</span>
                                 </a>
                             </li>
                         }
