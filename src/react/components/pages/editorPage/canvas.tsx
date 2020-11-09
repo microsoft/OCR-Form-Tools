@@ -1449,16 +1449,18 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (selectedRegions.length > 0) {
             const intersectionResult = _.intersection(selectedRegions, regions);
             if (intersectionResult.length === 0) {
-                const relatedLabels = labels.find(label => selectedRegions.find(sr => sr.tags.find(t => t === label.label)));
-                if (relatedLabels && relatedLabels.confidence) {
-                    const originLabel = this.props.selectedAsset!.labelData?.labels?.find(a => a.label === relatedLabels.label);
-                    if (originLabel) {
-                        relatedLabels.revised = true;
-                        if(!relatedLabels.originValue){
-                            relatedLabels.originValue = [...originLabel.value];
+                const relatedLabels = labels.filter(label => selectedRegions.find(sr => sr.tags.find(t => t === label.label)));
+                relatedLabels?.forEach(relatedLabel=>{
+                    if (relatedLabel && relatedLabel.confidence) {
+                        const originLabel = this.props.selectedAsset!.labelData?.labels?.find(a => a.label === relatedLabel.label);
+                        if (originLabel) {
+                            relatedLabel.revised = true;
+                            if(!relatedLabel.originValue){
+                                relatedLabel.originValue = [...originLabel.value];
+                            }
                         }
                     }
-                }
+                });
             }
         }
         regions.sort(this.compareRegionOrder);
