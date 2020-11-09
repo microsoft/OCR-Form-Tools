@@ -263,7 +263,7 @@ export function loadAssetMetadata(project: IProject, asset: IAsset): (dispatch: 
 export function saveAssetMetadata(
     project: IProject,
     assetMetadata: IAssetMetadata): (dispatch: Dispatch) => Promise<IAssetMetadata> {
-    const newAssetMetadata = { ...assetMetadata, version: appInfo.version };
+    const newAssetMetadata = { ...JSON.parse(JSON.stringify(assetMetadata)), version: appInfo.version };
 
     return async (dispatch: Dispatch) => {
         const assetService = new AssetService(project);
@@ -277,7 +277,7 @@ export function saveAssetMetadata(
 export function saveAssetMetadataAndCleanEmptyLabel(
     project: IProject,
     assetMetadata: IAssetMetadata): (dispatch: Dispatch) => Promise<IAssetMetadata> {
-    const newAssetMetadata = { ...assetMetadata, version: appInfo.version };
+    const newAssetMetadata: IAssetMetadata = { ...JSON.parse(JSON.stringify(assetMetadata)), version: appInfo.version};
 
     return async (dispatch: Dispatch) => {
         const assetService = new AssetService(project);
