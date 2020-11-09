@@ -11,7 +11,7 @@ import _ from "lodash";
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../react/components/common/tagColors.json");
 
-/*
+/**
  * Generates a random integer in provided range
  * @param min Lower bound of random number generation - INCLUSIVE
  * @param max Upper bound of random number generation - EXCLUSIVE

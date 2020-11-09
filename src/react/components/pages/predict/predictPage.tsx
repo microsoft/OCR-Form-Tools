@@ -25,8 +25,8 @@ import {
     getPrimaryGreenTheme, getPrimaryWhiteTheme,
     getRightPaneDefaultButtonTheme
 } from "../../../../common/themes";
-import { getAPIVersion, loadImageToCanvas, parseTiffData, renderTiffToCanvas } from "../../../..";
-import { AppError, ErrorCode, IApplicationState, IAppSettings, IConnection, ImageMapParent, IProject, IRecentModel } from "../../../../models/applicationState";
+import { getAPIVersion } from "../../../../common/utils";
+import { AppError, ErrorCode, IApplicationState, IAppSettings, IConnection, IProject, IRecentModel } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";

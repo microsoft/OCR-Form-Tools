@@ -2,8 +2,8 @@ import _ from "lodash";
 import url from 'url';
 import { getAPIVersion } from "../common/utils";
 import { AppError, ErrorCode, IProject } from "../models/applicationState";
-import {constants} from "../common/constants";
-import {interpolate, strings} from "../common/strings";
+import { constants } from "../common/constants";
+import { interpolate, strings } from "../common/strings";
 import ServiceHelper from "./serviceHelper";
 
 export enum AutoLabelingStatus {
@@ -26,7 +26,7 @@ export class PredictService {
         const apiVersion = getAPIVersion(this.project?.apiVersion);
         const endpointURL = url.resolve(
             this.project.apiUriBase,
-            `${interpolate(constants.apiModelsPath, {apiVersion})}/${modelID}/analyze?includeTextDetails=true`,
+            `${interpolate(constants.apiModelsPath, { apiVersion })}/${modelID}/analyze?includeTextDetails=true`,
         );
 
         const headers = { "Content-Type": "application/json", "cache-control": "no-cache" };
@@ -37,8 +37,8 @@ export class PredictService {
             const operationLocation = response.headers["operation-location"];
 
             return this.poll(() =>
-            ServiceHelper.getWithAutoRetry(
-                operationLocation, { headers }, this.project.apiKey as string), 120000, 500);
+                ServiceHelper.getWithAutoRetry(
+                    operationLocation, { headers }, this.project.apiKey as string), 120000, 500);
 
 
         } catch (err) {
@@ -48,7 +48,7 @@ export class PredictService {
                     interpolate(strings.errors.modelNotFound.message, { modelID })
                 );
             } else {
-                ServiceHelper.handleServiceError({...err, endpoint: endpointURL});
+                ServiceHelper.handleServiceError({ ...err, endpoint: endpointURL });
             }
         }
     }
