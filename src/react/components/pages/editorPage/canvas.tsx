@@ -187,8 +187,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     public componentDidUpdate = async (prevProps: Readonly<ICanvasProps>, prevState: Readonly<ICanvasState>) => {
         // Handles asset changing
-        if (this.props.selectedAsset.asset.name !== prevProps.selectedAsset.asset.name ||
-            this.props.selectedAsset.asset.isRunningOCR !== prevProps.selectedAsset.asset.isRunningOCR
+        if (this.props.selectedAsset.asset.name !== prevProps.selectedAsset.asset.name
         ) {
             this.selectedRegionIds = [];
             this.imageMap.removeAllFeatures();
@@ -209,6 +208,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 await this.loadImage();
                 await this.loadOcr();
                 this.loadLabelData(asset);
+            });
+        } else if (this.props.selectedAsset.asset.isRunningOCR !== prevProps.selectedAsset.asset.isRunningOCR) {
+            this.setState({
+                currentAsset: this.props.selectedAsset
             });
         } else if (this.isLabelDataChanged(this.props, prevProps)
             || (prevProps.project
