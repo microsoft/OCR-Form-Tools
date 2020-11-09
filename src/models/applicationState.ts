@@ -516,3 +516,9 @@ export enum TagInputMode {
     ConfigureTable = "configureTable",
     LabelTable = "labelTable",
 }
+
+export enum AnalyzedTagsMode {
+    default = "default",
+    LoadingRecentModel = "loadingRecentModel",
+    ViewTable = "viewTable",
+}
