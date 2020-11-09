@@ -327,7 +327,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                     <input
                                                         aria-hidden="true"
                                                         type="file"
-                                                        accept="application/pdf, image/jpeg, image/png, image/tiff"
+                                                        accept="application/pdf, image/jpeg, image/png, image/tiff, image/bmp"
                                                         id="hiddenInputFile"
                                                         ref={this.fileInput}
                                                         onChange={this.handleFileChange}
@@ -493,7 +493,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
     private getFileFromURL = () => {
         this.setState({ isFetching: true });
-        fetch(this.state.inputedFileURL, { headers: { Accept: "application/pdf, image/jpeg, image/png, image/tiff" } })
+        fetch(this.state.inputedFileURL, { headers: { Accept: "application/pdf, image/jpeg, image/png, image/tiff, image/bmp" } })
             .then((response) => {
                 if (!response.ok) {
                     this.setState({
@@ -506,7 +506,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     return;
                 }
                 const contentType = response.headers.get("Content-Type");
-                if (!["application/pdf", "image/jpeg", "image/png", "image/tiff"].includes(contentType)) {
+                if (!["application/pdf", "image/jpeg", "image/png", "image/tiff", "image/bmp"].includes(contentType)) {
                     this.setState({
                         isFetching: false,
                         shouldShowAlert: true,
@@ -718,6 +718,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     alertMessage = strings.errors.predictWithoutTrainForbidden.message;
                 } else if (error.errorCode === ErrorCode.ModelNotFound) {
                     alertMessage = error.message;
+                } else if(error.code){
+                    alertMessage = `${error.message}, code ${error.code}`;
                 } else {
                     alertMessage = interpolate(strings.errors.endpointConnectionError.message, { endpoint: "form recognizer backend URL" });
                 }
@@ -810,9 +812,10 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 strings.errors.predictWithoutTrainForbidden.message,
                 strings.errors.predictWithoutTrainForbidden.title);
         }
+        const apiVersion = this.props.project?.apiVersion || constants.apiVersion;
         const endpointURL = url.resolve(
             this.props.project.apiUriBase,
-            `${interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) })}/${modelID}/analyze?includeTextDetails=true`,
+            `${interpolate(constants.apiModelsPath, {apiVersion})}/${modelID}/analyze?includeTextDetails=true`,
         );
         let headers;
         let body;
@@ -857,6 +860,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         switch (file.type) {
             case "image/jpeg":
             case "image/png":
+            case "image/bmp":
                 this.loadImageFile(file);
                 break;
 
@@ -874,7 +878,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     imageUri: "",
                     shouldShowAlert: true,
                     alertTitle: "Not supported file type",
-                    alertMessage: "Sorry, we currently only support JPG/PNG/PDF files.",
+                    alertMessage: "Sorry, we currently only support JPG/PNG/PDF/BMP files.",
                 });
                 break;
         }
@@ -1165,9 +1169,10 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
     private async getRecentModelFromPredictModelId(): Promise<any> {
         const modelID = this.props.project.predictModelId;
+        const apiVersion = this.props.project?.apiVersion || constants.apiVersion;
         const endpointURL = url.resolve(
             this.props.project.apiUriBase,
-            `${interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) })}/${modelID}`,
+            `${interpolate(constants.apiModelsPath, {apiVersion})}/${modelID}`,
         );
         let response;
         try {

@@ -131,7 +131,7 @@ export const english: IAppStrings = {
         downloadJson: "Download JSON file",
         trainConfirm: {
             title: "Labels not revised yet",
-            message: "You have label files not yet revised, do you want to train with those files?"
+            message: "There are newly auto-labeled files not yet revised by you, do you want to train with those files?"
         },
         errors: {
             electron: {
@@ -269,6 +269,12 @@ export const english: IAppStrings = {
             notCompatibleTagType: "Tag type is not compatible with this feature. If you want to change type of this tag, please remove or reassign all labels which using this tag in your project.",
             checkboxPerTagLimit: "Cannot assign more than one checkbox per tag",
             notCompatibleWithDrawnRegionTag: "Drawn regions and ${otherCatagory} values cannot both be assigned to the same document's tag",
+            replaceAllExitingLabels:"Are you sure you want to replace selected tag's labels?",
+            replaceAllExitingLabelsTitle:"Replace tag's labels",
+        },
+        preText:{
+            autoLabel:"Auto-labeled: ",
+            revised:"Revised: ",
         },
         toolbar: {
             add: "Add new tag",
@@ -453,8 +459,8 @@ export const english: IAppStrings = {
                     additionalActions: {
                         text: "Additional actions",
                         subIMenuItems: {
-                            runOcrOnCurrentDocument: "Run OCR on current document",
-                            runOcrOnAllDocuments: "Run OCR on all documents",
+                            runOcrOnCurrentDocument: "Run Layout on current document",
+                            runOcrOnAllDocuments: "Run Layout on all documents",
                             runAutoLabelingCurrentDocument: "Auto-label the current document",
                             runAutoLabelingOnMultipleUnlabeledDocuments: "Auto-label multiple unlabeled documents",
                             noPredictModelOnProject: "Predict model not avaliable, please train the model first.",
@@ -473,6 +479,10 @@ export const english: IAppStrings = {
                     continuing to next asset.",
             },
         },
+        warningMessage: {
+            PreventLeavingWhileRunningOCR: "An Layout operation is currently in progress, are you sure you want to leave?",
+            PreventLeavingRunningAutoLabeling: "Auto-labeling is currently in progress, are you sure you want to leave?",
+        }
     },
     profile: {
         settings: "Profile Settings",

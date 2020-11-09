@@ -52,8 +52,8 @@
     "scripts": {
         "start": "env-cmd -f .env.electron nf start -p 3000",
         "compile": "tsc",
-        "build": "./scripts/dump_git_info.sh && react-scripts build",
-        "react-start": "./scripts/dump_git_info.sh && react-scripts start",
+        "build": "node ./scripts/dump_git_info.js && react-scripts build",
+        "react-start": "node ./scripts/dump_git_info.js && react-scripts start",
         "test": "react-scripts test --env=jsdom --silent",
         "eject": "react-scripts eject",
         "webpack:dev": "webpack --config ./config/webpack.dev.js",
