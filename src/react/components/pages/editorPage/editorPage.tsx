@@ -548,12 +548,14 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      */
     private onAssetMetadataChanged = async (assetMetadata: IAssetMetadata): Promise<void> => {
         // Comment out below code as we allow regions without tags, it would make labeler's work easier.
-        assetMetadata = JSON.parse(JSON.stringify(assetMetadata));
+        assetMetadata = _.cloneDeep(assetMetadata);
         const initialState = assetMetadata.asset.state;
 
         const asset = { ...assetMetadata.asset };
 
-        if (this.isTaggableAssetType(asset)&&asset.state!==AssetState.Tagged) {
+        if (this.isTaggableAssetType(asset)
+           && asset.labelingState !== AssetLabelingState.AutoLabeled
+           && asset.labelingState !== AssetLabelingState.AutoLabeledAndAdjusted) {
             asset.state = _.get(assetMetadata, "labelData.labels.length", 0) > 0
             && assetMetadata.labelData.labels.findIndex(item=>item.value?.length>0)>=0 ?
                 AssetState.Tagged :

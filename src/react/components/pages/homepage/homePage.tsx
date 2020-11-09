@@ -84,7 +84,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
             <div className="app-homepage" id="pageHome">
                 <div className="app-homepage-main">
                     <ul>
-                        <li className="p-5">
+                        <li>
                             <a id="home_prebuilt"
                                 onClick={this.onPrebuiltClicked}
                                 className="p-2"
@@ -99,7 +99,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                                 rel="noopener noreferrer">
                                 <FontIcon iconName="Rocket" />{strings.homePage.quickStartGuide}</a>
                         </li>
-                        <li className="p-5">
+                        <li>
                             <a onClick={this.onUseLayoutToGetTextAndTAblesClicked}
                                 className="p-2"
                                 role="button">
@@ -115,7 +115,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                                 rel="noopener noreferrer">
                                 <FontIcon iconName="Rocket" />{strings.homePage.quickStartGuide}</a>
                         </li>
-                        <li className="p-5">
+                        <li>
                             <a onClick={this.onTrainAndUseAModelWithLables}
                                 className="p-2"
                                 role="button">
