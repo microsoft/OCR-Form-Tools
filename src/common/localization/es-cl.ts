@@ -39,6 +39,7 @@ export const spanish: IAppStrings = {
         recentProjects: "Proyectos Recientes",
         openLocalProject: {
             title: "Abrir Proyecto Local",
+            description: "Abrir Proyecto Local",
         },
         openCloudProject: {
             title: "Abrir Proyecto de la Nube",
@@ -57,6 +58,22 @@ export const spanish: IAppStrings = {
         messages: {
             deleteSuccess: "${project.name} eliminado correctamente",
         },
+        homeProjectView: {
+            title: "Entrene y use un modelo con etiquetas"
+        },
+        prebuiltPredict: {
+            title: "Utilice un modelo prediseñado para obtener datos",
+            description: "Comience con un modelo preconstruidos para extraer datos de sus formularios: facturas, recibos, tarjetas de visita y mucho más. Envíe sus datos y obtenga resultados de inmediato."
+        },
+        layoutPredict:{
+            title:"Use Layout para obtener texto y tablas",
+            description:"Pruebe el servicio Diseño del reconocedor de formularios para extraer texto, tablas, marcas de selección y la estructura del documento."
+        },
+        trainWithLabels:{
+            title:"Entrene y use un modelo con etiquetas",
+            description:"Tú proporcionas tus propios datos de entrenamiento y haces el aprendizaje. El modelo que cree puede adaptarse a los formularios específicos de su industria."
+        },
+        quickStartGuide:"Quick start guide",
     },
     appSettings: {
         title: "Configuración de Aplicación",
@@ -218,6 +235,18 @@ export const spanish: IAppStrings = {
             title: "El nombre del activo existe",
             message: "El activo con el nombre '${name}' existe en el proyecto, ¿anularlo?"
         }
+    },
+    prebuiltPredict: {
+        title: "Análisis preconstruido",
+        defaultLocalFileInput: "Busca un archivo...",
+        defaultURLInput: "Pegar o escribir URL...",
+        uploadFile: "Elija una imagen para analizar con",
+        inProgress: "Análisis en curso...",
+        anlayWithPrebuiltModels: "Análisis ${name} (versión preliminar)",
+    },
+    layoutPredict:{
+        title: "Análisis de diseño",
+        inProgress: "Análisis en curso...",
     },
     recentModelsView: {
         header: "Seleccionar modelo para analizar con",

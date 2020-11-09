@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { IApplicationState } from "../../models/applicationState";
+import {IApplicationState} from "../../models/applicationState";
 
 /**
  * Initial state of application
@@ -18,6 +18,7 @@ const initialState: IApplicationState = {
     recentProjects: [],
     currentProject: null,
     appError: null,
+    prebuiltSettings: null
 };
 
 /**

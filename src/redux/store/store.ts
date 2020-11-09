@@ -16,7 +16,7 @@ import { Env } from "../../common/environment";
 export default function createReduxStore(
     initialState?: IApplicationState,
     useLocalStorage: boolean = false): Store {
-    const paths: string[] = ["appSettings", "connections", "recentProjects"];
+    const paths: string[] = ["appSettings", "connections", "recentProjects", "prebuiltSettings"];
 
     let middlewares = [thunk];
 

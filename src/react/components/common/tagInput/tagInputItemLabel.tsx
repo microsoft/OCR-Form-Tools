@@ -20,7 +20,7 @@ export default class TagInputItemLabel extends React.Component<ITagInputItemLabe
     public render() {
         const texts = [];
         let hasEmptyTextValue = false;
-        this.props.value.forEach((formRegion: IFormRegion, idx) => {
+        this.props.value?.forEach((formRegion: IFormRegion, idx) => {
             if (formRegion.text === "") {
                 hasEmptyTextValue = true;
             } else {
@@ -35,7 +35,7 @@ export default class TagInputItemLabel extends React.Component<ITagInputItemLabe
                 onMouseLeave={this.handleMouseLeave}
             >
                 <div className="flex-center">
-                    {this.props.prefixText} {text}
+                    {text ? this.props.prefixText : undefined} {text}
                     {hasEmptyTextValue &&
                         <FontIcon className="pr-1 pl-1" iconName="FieldNotChanged" />
                     }

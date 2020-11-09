@@ -486,6 +486,7 @@ export default class MockFactory {
             loadAssetMetadata: jest.fn(() => Promise.resolve()),
             refreshAsset: jest.fn(() => Promise.resolve()),
             saveAssetMetadata: jest.fn(() => Promise.resolve()),
+            saveAssetMetadataAndCleanEmptyLabel: jest.fn(()=> Promise.resolve()),
             updateProjectTag: jest.fn(() => Promise.resolve()),
             deleteProjectTag: jest.fn(() => Promise.resolve()),
         };
