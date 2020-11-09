@@ -433,7 +433,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
         if (onlyCurrentPageTags) {
 
-            const labels = this.props.labels.filter(item => item.value[ 0 ].page === this.props.pageNumber)
+            const labels = this.props.labels.filter(item => item.value[ 0 ]?.page === this.props.pageNumber)
                 .map(item => item.label);
             if (labels.length) {
 

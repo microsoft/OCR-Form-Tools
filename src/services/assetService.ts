@@ -363,15 +363,18 @@ export class AssetService {
      * Save metadata for asset
      * @param metadata - Metadata for asset
      */
-    public async save(metadata: IAssetMetadata): Promise<IAssetMetadata> {
+    public async save(metadata: IAssetMetadata, needCleanEmptyLabel: boolean=false): Promise<IAssetMetadata> {
         Guard.null(metadata);
 
         const labelFileName = decodeURIComponent(`${metadata.asset.name}${constants.labelFileExtension}`);
         if (metadata.labelData) {
             await this.storageProvider.writeText(labelFileName, JSON.stringify(metadata.labelData, null, 4));
         }
-
-        if (metadata.asset.state !== AssetState.Tagged) {
+        let cleanLabel: boolean=false;
+        if (needCleanEmptyLabel && !metadata.labelData?.labels?.find(label => label?.value?.length !== 0)) {
+            cleanLabel = true;
+        }
+        if (cleanLabel || metadata.asset.state !== AssetState.Tagged) {
             // If the asset is no longer tagged, then it doesn't contain any regions
             // and the file is not required.
             try {
