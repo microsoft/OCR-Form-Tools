@@ -443,7 +443,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                         delete item["confidence"];
                     });
                 });
-                await this.props.actions.saveAssetMetadata(this.props.project,assetMetadata);
+                await this.props.actions.saveAssetMetadataAndCleanEmptyLabel(this.props.project,assetMetadata);
             });
     }
 
