@@ -28,6 +28,7 @@ import "./trainPage.scss";
 import TrainPanel from "./trainPanel";
 import {ITrainRecordProps} from "./trainRecord";
 import TrainTable from "./trainTable";
+import { getAPIVersion } from "../../../../common/utils";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -370,7 +371,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private async train(): Promise<any> {
-        const apiVersion = (this.props.project?.apiVersion || constants.apiVersion);
+        const apiVersion = getAPIVersion(this.props.project?.apiVersion);
         const baseURL = url.resolve(
             this.props.project.apiUriBase,
             interpolate(constants.apiModelsPath, {apiVersion}),
@@ -560,7 +561,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private async triggerJsonDownload(): Promise<any> {
-        const apiVersion = (this.props.project?.apiVersion || constants.apiVersion);
+        const apiVersion = getAPIVersion(this.props.project?.apiVersion);
         const currModelUrl = this.props.project.apiUriBase + interpolate(constants.apiModelsPath, {apiVersion}) + "/" + this.state.currTrainRecord.modelInfo.modelId;
         const modelUrl = this.state.modelUrl.length ? this.state.modelUrl : currModelUrl;
         const modelJSON = await this.getModelsJson(this.props.project, modelUrl);
