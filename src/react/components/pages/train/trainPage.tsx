@@ -316,7 +316,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             const assets = Object.values(this.props.project.assets);
             const assetService = new AssetService(this.props.project);
             for (const asset of assets) {
-                const newAsset = JSON.parse(JSON.stringify(asset));
+                const newAsset = _.cloneDeep(asset);
                 newAsset.labelingState = AssetLabelingState.Trained;
                 const metadata = await assetService.getAssetMetadata(newAsset);
                 if (metadata.labelData && metadata.labelData.labelingState !== AssetLabelingState.Trained) {
