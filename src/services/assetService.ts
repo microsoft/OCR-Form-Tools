@@ -69,7 +69,7 @@ export class AssetService {
         return _.get(analyzeResult, "analyzeResult.readResults", []);
     }
     getAssetPredictMetadata(asset: IAsset, predictResults: any) {
-        asset = JSON.parse(JSON.stringify(asset));
+        asset = _.cloneDeep(asset);
         const getBoundingBox = (pageIndex, arr: number[]) => {
             const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(predictResults)[pageIndex - 1];
             const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
@@ -128,7 +128,7 @@ export class AssetService {
         }
     }
     async uploadPredictResultAsOrcResult(asset: IAsset, predictResults: any): Promise<void> {
-        const ocrData = JSON.parse(JSON.stringify(predictResults));
+        const ocrData = _.cloneDeep(predictResults);
         delete ocrData.analyzeResult.documentResults;
         if (ocrData.analyzeResult.errors) {
             delete ocrData.analyzeResult.errors;
@@ -139,7 +139,7 @@ export class AssetService {
 
     async syncAssetPredictResult(asset: IAsset, predictResults: any): Promise<IAssetMetadata> {
         const assetMeatadata = this.getAssetPredictMetadata(asset, predictResults);
-        const ocrData = JSON.parse(JSON.stringify(predictResults));
+        const ocrData = _.cloneDeep(predictResults);
         delete ocrData.analyzeResult.documentResults;
         if (ocrData.analyzeResult.errors) {
             delete ocrData.analyzeResult.errors;
@@ -383,7 +383,7 @@ export class AssetService {
                 // The file may not exist - that's OK.
             }
         }
-        return JSON.parse(JSON.stringify(metadata));
+        return _.cloneDeep(metadata);
     }
 
     /**
