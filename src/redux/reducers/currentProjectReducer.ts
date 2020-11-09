@@ -2,8 +2,9 @@
 // Licensed under the MIT license.
 
 import {ActionTypes} from "../actions/actionTypes";
-import {IProject, ITag} from "../../models/applicationState";
+import {AssetLabelingState, AssetState, IProject, ITag} from "../../models/applicationState";
 import {AnyAction} from "../actions/actionCreators";
+import _ from "lodash";
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../../react/components/common/tagColors.json");
 
@@ -60,7 +61,7 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
             }
 
             const updatedAssets = {...state.assets} || {};
-            updatedAssets[action.payload.asset.id] = {...action.payload.asset};
+            updatedAssets[action.payload.asset.id] = _.cloneDeep(action.payload.asset);
 
             const assetTags = new Set();
             action.payload.regions.forEach((region) => region.tags.forEach((tag) => assetTags.add(tag)));
