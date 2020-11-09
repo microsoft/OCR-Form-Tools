@@ -1,32 +1,35 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { SyntheticEvent } from "react";
-import { connect } from "react-redux";
-import { RouteComponentProps } from "react-router-dom";
-import { bindActionCreators } from "redux";
-import { FontIcon } from "@fluentui/react";
-import { strings, interpolate } from "../../../../common/strings";
-import { getPrimaryRedTheme } from "../../../../common/themes";
+/* eslint-disable jsx-a11y/anchor-is-valid */
+
+import React, {SyntheticEvent} from "react";
+import {connect} from "react-redux";
+import {RouteComponentProps} from "react-router-dom";
+import {bindActionCreators} from "redux";
+import {FontIcon} from "@fluentui/react";
+import {strings, interpolate} from "../../../../common/strings";
+import {getPrimaryRedTheme} from "../../../../common/themes";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
-import { CloudFilePicker } from "../../common/cloudFilePicker/cloudFilePicker";
+import {CloudFilePicker} from "../../common/cloudFilePicker/cloudFilePicker";
 import FilePicker from "../../common/filePicker/filePicker";
 import CondensedList from "../../common/condensedList/condensedList";
 import Confirm from "../../common/confirm/confirm";
 import "./homePage.scss";
 import RecentProjectItem from "./recentProjectItem";
-import { constants } from "../../../../common/constants";
+import {constants} from "../../../../common/constants";
 import {
     IApplicationState, IConnection, IProject,
     ErrorCode, AppError, IAppSettings,
 } from "../../../../models/applicationState";
-import { StorageProviderFactory } from "../../../../providers/storage/storageProviderFactory";
-import { decryptProject } from "../../../../common/utils";
-import { toast } from "react-toastify";
-import { isElectron } from "../../../../common/hostProcess";
+import {StorageProviderFactory} from "../../../../providers/storage/storageProviderFactory";
+import {decryptProject} from "../../../../common/utils";
+import {toast} from "react-toastify";
+import {isElectron} from "../../../../common/hostProcess";
 import ProjectService from "../../../../services/projectService";
+import {HomeProjectView} from "./homeProjectView";
 
 export interface IHomePageProps extends RouteComponentProps, React.Props<HomePage> {
     recentProjects: IProject[];
@@ -63,23 +66,17 @@ function mapDispatchToProps(dispatch) {
 export default class HomePage extends React.Component<IHomePageProps, IHomePageState> {
 
     public state: IHomePageState = {
-        cloudPickerOpen: false,
+        cloudPickerOpen: false
     };
-
+    private homeProjectViewRef: React.RefObject<HomeProjectView> = React.createRef();
     private filePicker: React.RefObject<FilePicker> = React.createRef();
-    private newProjectRef = React.createRef<HTMLAnchorElement>();
     private deleteConfirmRef = React.createRef<Confirm>();
     private cloudFilePickerRef = React.createRef<CloudFilePicker>();
     private importConfirmRef: React.RefObject<Confirm> = React.createRef();
 
     public async componentDidMount() {
         this.props.appTitleActions.setTitle("Welcome");
-        this.newProjectRef.current.focus();
         document.title = strings.homePage.title + " - " + strings.appName;
-    }
-
-    public async componentDidUpdate() {
-        this.newProjectRef.current.focus();
     }
 
     public render() {
@@ -87,48 +84,87 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
             <div className="app-homepage" id="pageHome">
                 <div className="app-homepage-main">
                     <ul>
-                        <li>
-                            {/* eslint-disable-next-line */}
-                            <a ref={this.newProjectRef}
-                                id="home_newProject"
-                                href="#" onClick={this.createNewProject} className="p-5 new-project skipToMainContent" role="button">
-                                <FontIcon iconName="AddTo" className="icon-9x"  />
-                                <div>{strings.homePage.newProject}</div>
+                        <li className="p-5">
+                            <a id="home_prebuilt"
+                                onClick={this.onPrebuiltClicked}
+                                className="p-2"
+                                role="button">
+                                <FontIcon iconName="ContactCard" className="icon-7x" />
+                                <div className="title">{strings.homePage.prebuiltPredict.title}</div>
+                                <div className="description">{strings.homePage.prebuiltPredict.description}</div>
                             </a>
+                            <a className="quickstart"
+                                href="https://aka.ms/form-recognizer/pre-built"
+                                target="_blank"
+                                rel="noopener noreferrer">
+                                <FontIcon iconName="Rocket" />{strings.homePage.quickStartGuide}</a>
                         </li>
+                        <li className="p-5">
+                            <a onClick={this.onUseLayoutToGetTextAndTAblesClicked}
+                                className="p-2"
+                                role="button">
+                                <FontIcon iconName="KeyPhraseExtraction" className="icon-7x" />
+                                <div className="title">{strings.homePage.layoutPredict.title}</div>
+                                <div className="description">
+                                    {strings.homePage.layoutPredict.description}
+                                </div>
+                            </a>
+                            <a className="quickstart"
+                                href="https://aka.ms/form-recognizer/layout"
+                                target="_blank"
+                                rel="noopener noreferrer">
+                                <FontIcon iconName="Rocket" />{strings.homePage.quickStartGuide}</a>
+                        </li>
+                        <li className="p-5">
+                            <a onClick={this.onTrainAndUseAModelWithLables}
+                                className="p-2"
+                                role="button">
+                                <FontIcon iconName="AddTo" className="icon-7x" />
+                                <div className="title">{strings.homePage.trainWithLabels.title}</div>
+                                <div className="description">
+                                    {strings.homePage.trainWithLabels.description}
+                                </div>
+                            </a>
+                            <a className="quickstart"
+                                href="https://aka.ms/form-recognizer/custom"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            ><FontIcon iconName="Rocket" />{strings.homePage.quickStartGuide}</a>
+                        </li>
+                        <CloudFilePicker
+                            ref={this.cloudFilePickerRef}
+                            connections={this.props.connections}
+                            onSubmit={(content, sharedToken?) => this.loadSelectedProject(JSON.parse(content), sharedToken)}
+                            fileExtension={constants.projectFileExtension}
+                        />
+                    </ul>
+                </div>
+                {(this.props.recentProjects && this.props.recentProjects.length > 0) &&
+                    <div className="app-homepage-recent bg-lighter-1">
+                        <div className="app-homepage-open-cloud-project" role="button"
+                            onClick={this.createNewProject}>
+                            <FontIcon iconName="AddTo" className="icon" />
+                            <span className="title">{strings.homePage.newProject}</span>
+                        </div>
                         {isElectron() &&
-                            <li>
-                                <a href="#" className="p-5 file-upload"
-                                    onClick={() => this.filePicker.current.upload()} >
-                                    <FontIcon iconName="System" className="icon-9x" />
-                                    <h6>{strings.homePage.openLocalProject.title}</h6>
-                                </a>
+                            <>
+                                <div className="app-homepage-open-cloud-project" role="button"
+                                    onClick={() => this.filePicker.current.upload()}>
+                                    <FontIcon iconName="System" className="icon" />
+                                    <span className="title">{strings.homePage.openLocalProject.title}</span>
+                                </div>
                                 <FilePicker ref={this.filePicker}
                                     onChange={this.onProjectFileUpload}
                                     onError={this.onProjectFileUploadError}
                                     accept={[".fott"]}
                                 />
-                            </li>
+                            </>
                         }
-                        <li>
-                            {/*Open Cloud Project*/}
-                            {/* eslint-disable-next-line */}
-                            <a href="#" onClick={this.handleOpenCloudProjectClick}
-                                className="p-5 cloud-open-project" role="button">
-                                <FontIcon iconName="Cloud" className="icon-9x" />
-                                <div>{strings.homePage.openCloudProject.title}</div>
-                            </a>
-                            <CloudFilePicker
-                                ref={this.cloudFilePickerRef}
-                                connections={this.props.connections}
-                                onSubmit={(content, sharedToken?) => this.loadSelectedProject(JSON.parse(content), sharedToken)}
-                                fileExtension={constants.projectFileExtension}
-                            />
-                        </li>
-                    </ul>
-                </div>
-                {(this.props.recentProjects && this.props.recentProjects.length > 0) &&
-                    <div className="app-homepage-recent bg-lighter-1">
+                        <div className="app-homepage-open-cloud-project" role="button"
+                            onClick={this.onOpenCloudProjectClick}>
+                            <FontIcon iconName="Cloud" className="icon" />
+                            <span className="title">{strings.homePage.openCloudProject.title}</span>
+                        </div>
                         <CondensedList
                             title={strings.homePage.recentProjects}
                             Component={RecentProjectItem}
@@ -142,6 +178,19 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                     message={(project: IProject) => `${strings.homePage.deleteProject.confirmation} ${project.name}?`}
                     confirmButtonTheme={getPrimaryRedTheme()}
                     onConfirm={this.deleteProject} />
+
+                <HomeProjectView
+                    ref={this.homeProjectViewRef}
+                    recentProjects={this.props.recentProjects}
+                    connections={this.props.connections}
+                    createNewProject={this.createNewProject}
+                    onProjectFileUpload={this.onProjectFileUploadError}
+                    onProjectFileUploadError={this.onProjectFileUploadError}
+                    onOpenCloudProjectClick={this.onOpenCloudProjectClick}
+                    loadSelectedProject={this.loadSelectedProject}
+                    freshLoadSelectedProject={this.freshLoadSelectedProject}
+                    deleteProject={this.deleteProject}
+                />
             </div>
         );
     }
@@ -153,7 +202,20 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
         e.preventDefault();
     }
 
-    private handleOpenCloudProjectClick = () => {
+    private onPrebuiltClicked = () => {
+        this.props.history.push("/prebuilts-analyze");
+    }
+
+    private onUseLayoutToGetTextAndTAblesClicked = () => {
+        this.props.history.push("/layout-analyze");
+    }
+
+    private onTrainAndUseAModelWithLables = () => {
+        this.homeProjectViewRef.current.open();
+    }
+
+    private onOpenCloudProjectClick = () => {
+        this.homeProjectViewRef.current.close();
         this.cloudFilePickerRef.current.open();
     }
 
@@ -165,10 +227,10 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
             }
         } catch (error) {
             if (error instanceof AppError && error.errorCode === ErrorCode.SecurityTokenNotFound) {
-                toast.error(strings.errors.securityTokenNotFound.message, { autoClose: 5000 });
+                toast.error(strings.errors.securityTokenNotFound.message, {autoClose: 5000});
             }
-            if(error instanceof AppError && error.errorCode === ErrorCode.ProjectInvalidSecurityToken) {
-                toast.error(strings.errors.projectInvalidSecurityToken.message, { autoClose: 5000 });
+            if (error instanceof AppError && error.errorCode === ErrorCode.ProjectInvalidSecurityToken) {
+                toast.error(strings.errors.projectInvalidSecurityToken.message, {autoClose: 5000});
             }
         }
     }
@@ -179,7 +241,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
             .find((securityToken) => securityToken.name === project.securityToken);
 
         if (!projectToken) {
-            toast.error(strings.errors.securityTokenNotFound.message, { autoClose: 3000 });
+            toast.error(strings.errors.securityTokenNotFound.message, {autoClose: 3000});
             return;
         }
 
@@ -204,12 +266,12 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                     throw err;
                 }
             }
-            const selectedProject = { ...JSON.parse(projectStr), sourceConnection: project.sourceConnection };
+            const selectedProject = {...JSON.parse(projectStr), sourceConnection: project.sourceConnection};
             await this.loadSelectedProject(selectedProject);
         } catch (err) {
             if (err instanceof AppError && err.errorCode === ErrorCode.BlobContainerIONotFound) {
-                const reason = interpolate(strings.errors.projectNotFound.message, { file: `${project.name}${constants.projectFileExtension}`, container: project.sourceConnection.name });
-                toast.error(reason, { autoClose: false });
+                const reason = interpolate(strings.errors.projectNotFound.message, {file: `${project.name}${constants.projectFileExtension}`, container: project.sourceConnection.name});
+                toast.error(reason, {autoClose: false});
                 return;
             }
             throw err;
@@ -220,10 +282,10 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
         try {
             await this.props.actions.deleteProject(project);
         } catch (error) {
-            if(error instanceof AppError && error.errorCode === ErrorCode.SecurityTokenNotFound){
-                toast.error(error.message, {autoClose:false});
+            if (error instanceof AppError && error.errorCode === ErrorCode.SecurityTokenNotFound) {
+                toast.error(error.message, {autoClose: false});
             }
-            else{
+            else {
                 throw error;
             }
         }

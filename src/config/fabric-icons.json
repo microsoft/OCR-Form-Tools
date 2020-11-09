@@ -91,6 +91,10 @@
       "unicode": "E753"
     },
     {
+      "name": "ContactCard",
+      "unicode": "EEBD"
+    },
+    {
       "name": "Copy",
       "unicode": "E8C8"
     },
@@ -217,6 +221,10 @@
     {
       "name": "Rename",
       "unicode": "E8AC"
+    },
+    {
+      "name": "Rocket",
+      "unicode": "F3B3"
     },
     {
       "name": "Rotate90Clockwise",

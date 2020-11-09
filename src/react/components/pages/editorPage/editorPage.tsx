@@ -553,8 +553,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         const asset = { ...assetMetadata.asset };
 
-        if (this.isTaggableAssetType(asset)) {
-            asset.state = _.get(assetMetadata, "labelData.labels.length", 0) > 0 ?
+        if (this.isTaggableAssetType(asset)
+           && asset.labelingState !== AssetLabelingState.AutoLabeled
+           && asset.labelingState !== AssetLabelingState.AutoLabeledAndAdjusted) {
+            asset.state = _.get(assetMetadata, "labelData.labels.length", 0) > 0
+            && assetMetadata.labelData.labels.findIndex(item=>item.value?.length>0)>=0 ?
                 AssetState.Tagged :
                 AssetState.Visited;
         } else if (asset.state === AssetState.NotVisited) {
@@ -729,7 +732,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const ocrService = new OCRService(project);
         if (this.state.assets) {
             this.setState({ isRunningOCRs: true });
-            console.log({ isRunningOCRs: true });
             try {
                 await throttle(
                     constants.maxConcurrentServiceRequests,
@@ -758,7 +760,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 );
             } finally {
                 this.setState({ isRunningOCRs: false });
-                console.log({ isRunningOCRs: false });
             }
         }
     }

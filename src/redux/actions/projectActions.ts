@@ -35,6 +35,7 @@ export default interface IProjectActions {
     refreshAsset(project: IProject, assetName: string):Promise<void>;
     loadAssetMetadata(project: IProject, asset: IAsset): Promise<IAssetMetadata>;
     saveAssetMetadata(project: IProject, assetMetadata: IAssetMetadata): Promise<IAssetMetadata>;
+    saveAssetMetadataAndCleanEmptyLabel(project: IProject, assetMetadata: IAssetMetadata): Promise<IAssetMetadata>;
     updateProjectTag(project: IProject, oldTag: ITag, newTag: ITag): Promise<IAssetMetadata[]>;
     deleteProjectTag(project: IProject, tagName): Promise<IAssetMetadata[]>;
     updateProjectTagsFromFiles(project: IProject, asset?: string): Promise<void>;
@@ -262,7 +263,7 @@ export function loadAssetMetadata(project: IProject, asset: IAsset): (dispatch: 
 export function saveAssetMetadata(
     project: IProject,
     assetMetadata: IAssetMetadata): (dispatch: Dispatch) => Promise<IAssetMetadata> {
-    const newAssetMetadata = { ...assetMetadata, version: appInfo.version };
+    const newAssetMetadata = { ...JSON.parse(JSON.stringify(assetMetadata)), version: appInfo.version };
 
     return async (dispatch: Dispatch) => {
         const assetService = new AssetService(project);
@@ -273,6 +274,19 @@ export function saveAssetMetadata(
     };
 }
 
+export function saveAssetMetadataAndCleanEmptyLabel(
+    project: IProject,
+    assetMetadata: IAssetMetadata): (dispatch: Dispatch) => Promise<IAssetMetadata> {
+    const newAssetMetadata: IAssetMetadata = { ...JSON.parse(JSON.stringify(assetMetadata)), version: appInfo.version};
+
+    return async (dispatch: Dispatch) => {
+        const assetService = new AssetService(project);
+        const savedMetadata = await assetService.save(newAssetMetadata,true);
+        dispatch(saveAssetMetadataAction(savedMetadata));
+
+        return { ...savedMetadata };
+    };
+}
 /**
  * Updates a project and all asset references from oldTagName to newTagName
  * @param project The project to update tags

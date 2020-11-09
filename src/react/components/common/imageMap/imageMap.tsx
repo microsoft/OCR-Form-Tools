@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Feature, MapBrowserEvent, View } from "ol";
-import { Extent, getCenter } from "ol/extent";
-import { defaults as defaultInteractions, DragPan, Interaction, DragBox, Snap } from "ol/interaction.js";
+import {Feature, MapBrowserEvent, View} from "ol";
+import {Extent, getCenter} from "ol/extent";
+import {defaults as defaultInteractions, DragPan, Interaction, DragBox, Snap} from "ol/interaction.js";
 import PointerInteraction from 'ol/interaction/Pointer';
 import Draw from "ol/interaction/Draw.js";
 import Style from "ol/style/Style";
 import Collection from 'ol/Collection';
-import { shiftKeyOnly, never } from 'ol/events/condition';
-import { Modify } from "ol/interaction";
+import {shiftKeyOnly, never} from 'ol/events/condition';
+import {Modify} from "ol/interaction";
 import Polygon from "ol/geom/Polygon";
 import ImageLayer from "ol/layer/Image";
 import Layer from "ol/layer/Layer";
@@ -21,7 +21,7 @@ import VectorSource from "ol/source/Vector";
 import * as React from "react";
 import "./styles.css";
 import Utils from "./utils";
-import { FeatureCategory, IRegion, ImageMapParent } from "../../../../models/applicationState";
+import {FeatureCategory, IRegion} from "../../../../models/applicationState";
 
 interface IImageMapProps {
     imageUri: string;
@@ -39,7 +39,9 @@ interface IImageMapProps {
     drawnRegionStyler?: (feature) => Style;
     modifyStyler?: () => Style;
 
-    parentPage?: string;
+    initEditorMap?: boolean;
+    initPredictMap?: boolean;
+    initLayoutMap?: boolean;
 
     enableFeatureSelection?: boolean;
     handleFeatureSelect?: (feature: any, isTaggle: boolean, category: FeatureCategory) => void;
@@ -85,7 +87,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
     private modify: Modify;
     private snap: Snap;
 
-    private drawnFeatures: Collection = new Collection([], { unique: true });
+    private drawnFeatures: Collection = new Collection([], {unique: true});
     public modifyStartFeatureCoordinates: any = {};
 
     private imageExtent: number[];
@@ -141,15 +143,18 @@ export class ImageMap extends React.Component<IImageMapProps> {
     }
 
     public componentDidMount() {
-        if (this.props.parentPage === ImageMapParent.Editor) {
+        if (this.props.initEditorMap) {
             this.initEditorMap();
-        } else {
+        } else if (this.props.initPredictMap) {
             this.initPredictMap();
+        }
+        else if (this.props.initLayoutMap) {
+            this.initLayoutMap();
         }
     }
 
     public componentDidUpdate(prevProps: IImageMapProps) {
-        if (this.props.parentPage === ImageMapParent.Editor) {
+        if (this.props.initEditorMap || this.props.initLayoutMap) {
             if (this.props?.drawRegionMode) {
                 this.removeInteraction(this.dragBox);
                 this.initializeDraw();
@@ -199,7 +204,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
                 onMouseEnter={this.handlePointerEnterImageMap}
                 className="map-wrapper"
             >
-                <div style={{ cursor: this.getCursor() }} id="map" className="map" ref={(el) => this.mapElement = el} />
+                <div style={{cursor: this.getCursor()}} id="map" className="map" ref={(el) => this.mapElement = el} />
             </div>
         );
     }
@@ -469,7 +474,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.tableIconBorderVectorLayer?.getSource().clear();
         this.checkboxVectorLayer?.getSource().clear();
         this.labelVectorLayer?.getSource().clear();
-        if (this.props.parentPage === ImageMapParent.Editor) {
+        if (this.props.initEditorMap) {
             this.clearDrawnRegions();
         }
     }
@@ -478,7 +483,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.drawRegionVectorLayer?.getSource().clear();
         this.drawnLabelVectorLayer?.getSource().clear();
 
-        this.drawnFeatures = new Collection([], { unique: true });
+        this.drawnFeatures = new Collection([], {unique: true});
 
         this.drawRegionVectorLayer.getSource().on("addfeature", (evt) => {
             this.pushToDrawnFeatures(evt.feature, this.drawnFeatures);
@@ -582,6 +587,22 @@ export class ImageMap extends React.Component<IImageMapProps> {
 
         this.initializeDefaultSelectionMode();
         this.initializeDragPan();
+    }
+
+    private initLayoutMap = () => {
+        const projection = this.createProjection(this.imageExtent);
+        const layers = this.initializeEditorLayers(projection);
+        this.initializeMap(projection, layers);
+
+        this.map.on("pointerdown", this.handlePointerDown);
+        this.map.on("pointermove", this.handlePointerMove);
+        this.map.on("pointermove", this.handlePointerMoveOnTableIcon);
+        this.map.on("pointerup", this.handlePointerUp);
+        this.map.on("dblclick", this.handleDoubleClick);
+
+        this.initializeDefaultSelectionMode();
+        this.initializeDragPan();
+
     }
 
     private setImage = (imageUri: string, imageExtent: number[]) => {
@@ -1026,7 +1047,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
     private initializeSnapCheck = () => {
         const snapCheck = new Interaction({
             handleEvent: (evt: MapBrowserEvent) => {
-                if (!this.props.isVertexDragging) {
+                if (!this.props.isVertexDragging && this.props.handleIsSnapped) {
                     this.props.handleIsSnapped(this.snap.snapTo(evt.pixel, evt.coordinate, evt.map).snapped && this.props.isPointerOnImage)
                 }
                 return true;
@@ -1045,10 +1066,13 @@ export class ImageMap extends React.Component<IImageMapProps> {
                         return true
                     },
                     this.imageLayerFilter);
-                if (!Boolean(test) && this.props.isPointerOnImage) {
-                    this.props.handleIsPointerOnImage(false);
-                } else if (!this.props.isPointerOnImage && Boolean(test)) {
-                    this.props.handleIsPointerOnImage(true);
+
+                if (this.props.handleIsPointerOnImage) {
+                    if (!Boolean(test) && this.props.isPointerOnImage) {
+                        this.props.handleIsPointerOnImage(false);
+                    } else if (!this.props.isPointerOnImage && Boolean(test)) {
+                        this.props.handleIsPointerOnImage(true);
+                    }
                 }
                 return true
             }
@@ -1057,7 +1081,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
     }
 
     private getCursor = () => {
-        if (this.props.parentPage === ImageMapParent.Editor) {
+        if (this.props.initEditorMap) {
             if (this.props.isVertexDragging) {
                 return "grabbing";
             } else if (this.props.isSnapped) {
@@ -1077,11 +1101,13 @@ export class ImageMap extends React.Component<IImageMapProps> {
     }
 
     private handlePonterLeaveImageMap = () => {
-        if (this.props.parentPage === ImageMapParent.Editor) {
+        if (this.props.initEditorMap) {
             if (this.props.isDrawing) {
                 this.cancelDrawing();
             }
-            this.props.handleIsPointerOnImage(false);
+            if(this.props.handleIsPointerOnImage) {
+                this.props.handleIsPointerOnImage(false);
+            }
         }
     }
 
