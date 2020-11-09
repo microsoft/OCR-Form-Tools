@@ -85,7 +85,7 @@ export class AssetService {
             return result;
         };
         const getLabelValues = (field: any) => {
-            return field.elements.map((path: string):IFormRegion => {
+            return field.elements?.map((path: string):IFormRegion => {
                 const pathArr = path.split('/').slice(1);
                 const word = pathArr.reduce((obj: any, key: string) => obj[key], { ...predictResults.analyzeResult });
                 return {
