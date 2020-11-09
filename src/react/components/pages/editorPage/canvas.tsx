@@ -9,7 +9,7 @@ import {
     EditorMode, IAssetMetadata,
     IProject, IRegion, RegionType,
     AssetType, ILabelData, ILabel,
-    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, ImageMapParent, LabelType, AssetLabelingState, APIVersionPatches
+    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, LabelType, AssetLabelingState, APIVersionPatches
 } from "../../../../models/applicationState";
 import CanvasHelpers from "./canvasHelpers";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
@@ -39,7 +39,7 @@ import { AutoLabelingStatus, PredictService } from "../../../../services/predict
 import { AssetService } from "../../../../services/assetService";
 import { interpolate, strings } from "../../../../common/strings";
 import { toast } from "react-toastify";
-import {BatchSizeModal} from "./batchSizeModal";
+import { BatchSizeModal } from "./batchSizeModal";
 
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
@@ -52,6 +52,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     project: IProject;
     lockedTags: string[];
     hoveredLabel: ILabel;
+    isRunningOCRs?: boolean;
     children?: ReactElement<AssetPreview>;
     setTableToView?: (tableToView: object, tableToViewId: string) => void;
     closeTableView?: (state: string) => void;
@@ -186,13 +187,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     public componentDidUpdate = async (prevProps: Readonly<ICanvasProps>, prevState: Readonly<ICanvasState>) => {
         // Handles asset changing
-        if (this.props.selectedAsset.asset.name !== prevProps.selectedAsset.asset.name ||
-            this.props.selectedAsset.asset.isRunningOCR !== prevProps.selectedAsset.asset.isRunningOCR ||
-            this.props.selectedAsset.asset.labelingState !== prevProps.selectedAsset.asset.labelingState
+        if (this.props.selectedAsset.asset.name !== prevProps.selectedAsset.asset.name
         ) {
             this.selectedRegionIds = [];
             this.imageMap.removeAllFeatures();
             this.imageMap.resetAllLayerVisibility();
+
             this.setState({
                 currentAsset: this.props.selectedAsset,
                 ocr: null,
@@ -209,12 +209,21 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 await this.loadOcr();
                 this.loadLabelData(asset);
             });
+        } else if (this.props.selectedAsset.asset.isRunningOCR !== prevProps.selectedAsset.asset.isRunningOCR) {
+            this.setState({
+                currentAsset: this.props.selectedAsset
+            });
         } else if (this.isLabelDataChanged(this.props, prevProps)
             || (prevProps.project
                 && this.needUpdateAssetRegionsFromTags(prevProps.project.tags, this.props.project.tags))) {
-            const newRegions = this.convertLabelDataToRegions(this.props.selectedAsset.labelData);
-            this.updateAssetRegions(newRegions);
-            this.redrawAllFeatures();
+            this.setState({
+                currentAsset: this.props.selectedAsset
+            }, () => {
+                const newRegions = this.convertLabelDataToRegions(this.props.selectedAsset.labelData);
+                this.updateAssetRegions(newRegions);
+                this.redrawAllFeatures();
+            });
+
         }
 
         if (this.props.hoveredLabel !== prevProps.hoveredLabel) {
@@ -267,10 +276,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     drawRegionMode={this.state.drawRegionMode}
                     project={this.props.project}
                     selectedAsset={this.props.selectedAsset}
-                    parentPage={strings.editorPage.title}
+                    showLayerMenu={true}
+                    showActionMenu={true}
+                    enableDrawRegion={true}
                 />
                 <ImageMap
-                    parentPage={ImageMapParent.Editor}
+                    initEditorMap={true}
                     ref={(ref) => this.imageMap = ref}
                     imageUri={this.state.imageUri}
                     imageWidth={this.state.imageWidth}
@@ -339,7 +350,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         Page {this.state.currentPage} of {this.state.numPages}
                     </p>
                 }
-                {this.state.ocrStatus !== OcrStatus.done &&
+                {(this.props.isRunningOCRs || this.state.ocrStatus !== OcrStatus.done) &&
                     <div className="canvas-ocr-loading">
                         <div className="canvas-ocr-loading-spinner">
                             <Label className="p-0" ></Label>
@@ -368,13 +379,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 <BatchSizeModal
                     ref={this.autoLabelingBatchSizeModal}
                     onConfirm={this.confirmRunAutoLabelingOnMultipleUnlabeledDocuments}
-                 />
+                />
             </div>
         );
     }
 
     private runOcrForAllDocuments = () => {
-        this.setState({ ocrStatus: OcrStatus.runningOCR })
         this.props.runOcrForAllDocs(true);
     }
 
@@ -387,8 +397,22 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const result = await predictService.getPrediction(assetPath);
             const assetService = new AssetService(this.props.project);
             const assetMetadata = assetService.getAssetPredictMetadata(asset, result);
-            await this.props.onAssetMetadataChanged(assetMetadata);
+            if(assetMetadata) {
+                await this.props.onAssetMetadataChanged(assetMetadata);
+            }
+        } catch(err){
+            this.setState({
+                isError: true,
+                errorMessage: `${err.message}, code ${err.code}`
+            });
         }
+        // catch(error){
+        //     this.setState({
+        //         isError: true,
+        //         errorTitle: error.title,
+        //         errorMessage: error.message,
+        //     });
+        // }
         finally {
             this.setAutoLabelingStatus(AutoLabelingStatus.done);
         }
@@ -425,6 +449,25 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (this.showMultiPageFieldWarningIfNecessary(tag, selectedRegions)) {
             return;
         }
+        let regions: IRegion[] = [];
+        if (selectedRegions.length > 0) {
+            const labelsData = this.state.currentAsset.labelData;
+            if (labelsData) {
+                const relatedLabel = labelsData.labels.find((label) => label.label === tag);
+                if (relatedLabel &&
+                    (((relatedLabel.labelType === null || relatedLabel.labelType === undefined) && (selectedRegions[0].category === FeatureCategory.DrawnRegion))
+                        || (relatedLabel.labelType !== null && relatedLabel.labelType !== undefined && relatedLabel.labelType !== selectedRegions[0].category))) {
+                    regions = this.convertLabelToRegion(relatedLabel)
+                    regions.forEach((region) => {
+                        region.tags = [];
+                        const regionIndex = this.state.currentAsset.regions.findIndex(r => r.id === region.id);
+                        if (regionIndex !== -1) {
+                            this.state.currentAsset.regions.splice(regionIndex, 1, region);
+                        }
+                    });
+                }
+            }
+        }
 
         const transformer: (tags: string[], tag: string) => string[] = CanvasHelpers.setSingleTag;
         const inputTag = this.props.project.tags.filter((t) => t.name === tag);
@@ -432,8 +475,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         for (const selectedRegion of selectedRegions) {
             selectedRegion.tags = transformer(selectedRegion.tags, tag);
         }
-
-        this.updateRegions(selectedRegions);
+        this.updateRegions([...selectedRegions, ...regions]);
 
         this.selectedRegionIds = [];
         if (this.props.onSelectedRegionsChanged) {
@@ -657,17 +699,21 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 currentAsset.labelData.labelingState = this.state.currentAsset.labelData.labelingState;
             }
         }
-
-        if (currentAsset.labelData) {
-            currentAsset.asset.labelingState = currentAsset.labelData.labelingState;
-        } else if (currentAsset.asset.labelingState) {
+        if(currentAsset.labelData?.labelingState!==AssetLabelingState.AutoLabeledAndAdjusted
+            &&(!currentAsset.labelData||currentAsset.labelData.labels?.findIndex(label=>label.value.length>0)<0)){
+            delete currentAsset.labelData?.labelingState;
             delete currentAsset.asset.labelingState;
         }
-
+        else {
+            currentAsset.asset.labelingState = currentAsset.labelData.labelingState;
+        }
+        const isLabelChanged = this.compareLabelChanged(_.get(currentAsset, "labelData.labels", []) as ILabel[], _.get(this.state.currentAsset, "labelData.labels", []) as ILabel[]);
         this.setState({
             currentAsset,
         }, () => {
-            this.props.onAssetMetadataChanged(currentAsset);
+            if (isLabelChanged) {
+                this.props.onAssetMetadataChanged(currentAsset);
+            }
         });
     }
 
@@ -699,7 +745,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
     private onRegionDoubleClick = (id: string) => {
         if (this.props.onRegionDoubleClick) {
-            const region = this.state.currentAsset.regions.find(region=>region.id === id);
+            const region = this.state.currentAsset.regions.find(region => region.id === id);
             this.props.onRegionDoubleClick(region);
         }
     }
@@ -1047,7 +1093,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (this.props.hoveredLabel) {
             const label = this.props.hoveredLabel;
             const id = feature.get("id");
-            if (label.value.find((region) =>
+            if (label.value?.find((region) =>
                 id === this.createRegionIdFromBoundingBox(region.boundingBoxes[0], region.page))) {
                 this.setFeatureProperty(feature, "highlighted", true);
             }
@@ -1377,6 +1423,20 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
         return regions;
     }
+    private convertLabelToRegion = (label: ILabel): IRegion[] => {
+        const regions = [];
+        if (label.value) {
+            label.value.forEach((formRegion) => {
+                if (formRegion.boundingBoxes) {
+                    formRegion.boundingBoxes.forEach((boundingBox, boundingBoxIndex) => {
+                        const text = this.getBoundingBoxTextFromRegion(formRegion, boundingBoxIndex);
+                        regions.push(this.createRegion(boundingBox, text, label.label, formRegion.page, label?.labelType));
+                    });
+                }
+            });
+        }
+        return regions;
+    }
 
     private convertRegionsToLabelData = (regions: IRegion[], assetName: string) => {
         const labels = (this.props.selectedAsset
@@ -1389,15 +1449,21 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (selectedRegions.length > 0) {
             const intersectionResult = _.intersection(selectedRegions, regions);
             if (intersectionResult.length === 0) {
-                const relatedLabels = labels.find(label => selectedRegions.find(sr => sr.tags.find(t => t === label.label)));
-                const originLabel = this.props.selectedAsset!.labelData!.labels.find(a => a.label === relatedLabels.label);
-                if (relatedLabels&&originLabel&&relatedLabels.confidence) {
-                    delete relatedLabels.confidence;
-                    relatedLabels.revised = true;
-                    relatedLabels.originValue = [...originLabel.value];
+                const relatedLabels = labels.filter(label => selectedRegions.find(sr => sr.tags.find(t => t === label.label)));
+                relatedLabels?.forEach(relatedLabel=>{
+                    if (relatedLabel && relatedLabel.confidence) {
+                        const originLabel = this.props.selectedAsset!.labelData?.labels?.find(a => a.label === relatedLabel.label);
+                        if (originLabel) {
+                            relatedLabel.revised = true;
+                            if(!relatedLabel.originValue){
+                                relatedLabel.originValue = [...originLabel.value];
+                            }
+                        }
                     }
-                }
+                });
+            }
         }
+        regions.sort(this.compareRegionOrder);
         regions.forEach((region) => {
             const labelType = this.getLabelType(region.category);
             const boundingBox = region.id.split(",").map(parseFloat);
@@ -1409,11 +1475,15 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             region.tags.forEach((tag) => {
                 const label = labels.find(label => label.label === tag);
                 if (label) {
-                    const originLabel = this.props.selectedAsset!.labelData!.labels.find(a=>a.label === tag);
-                    if (label.confidence && region.changed) {
-                        delete label.confidence;
+                    const originLabel = this.props.selectedAsset!.labelData?.labels?.find(a => a.label === tag);
+                    if (originLabel && label.confidence && region.changed) {
                         label.revised = true;
-                        label.originValue = [...originLabel.value];
+                        if(!label.originValue){
+                            label.originValue = [...originLabel.value];
+                        }
+                    }
+                    if (originLabel && region.changed && label.labelType !== labelType) {
+                        label.labelType = labelType;
                     }
                     label.value.push(formRegion);
                 } else {
@@ -1436,12 +1506,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 }
             });
         });
-        const newLabels = labels.filter(label => label.value.length > 0);
-        const labelData: ILabelData = newLabels.length > 0 ?
-            {
-                document: decodeURIComponent(assetName).split("/").pop(),
-                labels: newLabels,
-            } : null;
+        const labelData:ILabelData={
+            document: decodeURIComponent(assetName).split("/").pop(),
+            labels: [...labels],
+        }
         return labelData;
     }
 
@@ -1680,18 +1748,19 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private isLabelDataChanged = (newProps: ICanvasProps, prevProps: ICanvasProps): boolean => {
         const newLabels = _.get(newProps, "selectedAsset.labelData.labels", []) as ILabel[];
         const prevLabels = _.get(prevProps, "selectedAsset.labelData.labels", []) as ILabel[];
+        return this.compareLabelChanged(newLabels, prevLabels);
 
-        if (newLabels.length !== prevLabels.length) {
-            return true;
-        } else if (newLabels.length > 0) {
+    }
+    private compareLabelChanged(newLabels: ILabel[], prevLabels: ILabel[]): boolean {
+        if (newLabels.length > 0) {
             const newFieldNames = newLabels.map((label) => label.label);
             const prevFieldNames = prevLabels.map((label) => label.label);
             if (_.isEqual(newFieldNames.sort(), prevFieldNames.sort())) {
                 for (const name of newFieldNames) {
-                    const newValue = newLabels.find(label => label.label === name).value.map(region => region.boundingBoxes).join(",");
-                    const prevValue = prevLabels.find(label => label.label === name).value.map(region => region.boundingBoxes).join(",");
+                    const newValue = newLabels.find(label => label.label === name).value?.map(region => region.boundingBoxes).join(",");
+                    const prevValue = prevLabels.find(label => label.label === name).value?.map(region => region.boundingBoxes).join(",");
                     if (newValue !== prevValue) {
-                        return true;
+                         return true;
                     }
                 }
                 return false;
@@ -1809,7 +1878,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const order2 = this.getRegionOrder(r2.id);
 
         if (order1.page === order2.page) {
-            return order1.order > order2.order ? 1 : -1;
+            return order1.order >= order2.order ? 1 : -1;
         } else if (order1.page > order2.page) {
             return 1;
         } else {
@@ -2182,7 +2251,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private handleToggleDrawRegionMode = () => {
         if (!this.state.drawRegionMode && this.props.project.apiVersion !== APIVersionPatches.patch3) {
-            toast.warn(interpolate(strings.editorPage.canvas.canvasCommandBar.warings.drawRegionUnsupportedAPIVersion, { apiVersion: (this.props.project.apiVersion || constants.appVersion ) }), {autoClose: 7000});
+            toast.warn(interpolate(strings.editorPage.canvas.canvasCommandBar.warings.drawRegionUnsupportedAPIVersion, { apiVersion: (this.props.project.apiVersion || constants.appVersion) }), { autoClose: 7000 });
         }
         this.setState({
             drawRegionMode: !this.state.drawRegionMode

@@ -39,6 +39,7 @@ export const spanish: IAppStrings = {
         recentProjects: "Proyectos Recientes",
         openLocalProject: {
             title: "Abrir Proyecto Local",
+            description: "Abrir Proyecto Local",
         },
         openCloudProject: {
             title: "Abrir Proyecto de la Nube",
@@ -57,6 +58,22 @@ export const spanish: IAppStrings = {
         messages: {
             deleteSuccess: "${project.name} eliminado correctamente",
         },
+        homeProjectView: {
+            title: "Entrene y use un modelo con etiquetas"
+        },
+        prebuiltPredict: {
+            title: "Utilice un modelo prediseñado para obtener datos",
+            description: "Comience con un modelo preconstruidos para extraer datos de sus formularios: facturas, recibos, tarjetas de visita y mucho más. Envíe sus datos y obtenga resultados de inmediato."
+        },
+        layoutPredict:{
+            title:"Use Layout para obtener texto y tablas",
+            description:"Pruebe el servicio Diseño del reconocedor de formularios para extraer texto, tablas, marcas de selección y la estructura del documento."
+        },
+        trainWithLabels:{
+            title:"Entrene y use un modelo con etiquetas",
+            description:"Tú proporcionas tus propios datos de entrenamiento y haces el aprendizaje. El modelo que cree puede adaptarse a los formularios específicos de su industria."
+        },
+        quickStartGuide:"Quick start guide",
     },
     appSettings: {
         title: "Configuración de Aplicación",
@@ -131,8 +148,8 @@ export const spanish: IAppStrings = {
         addName: "Agregar nombre de modelo ...",
         downloadJson: "Descargar archivo JSON",
         trainConfirm: {
-            title: "Etiquetas no revisadas todavía",
-            message: "Hay archivos recientemente etiquetados automáticamente que aún no ha revisado, ¿desea entrenar con esos archivos?"
+            title: "Etiquetas aún no revisadas",
+            message: "Hay archivos recién etiquetados automáticamente aún no revisados por usted, ¿quieres entrenar con esos archivos?"
         },
         errors: {
             electron: {
@@ -219,6 +236,18 @@ export const spanish: IAppStrings = {
             message: "El activo con el nombre '${name}' existe en el proyecto, ¿anularlo?"
         }
     },
+    prebuiltPredict: {
+        title: "Análisis preconstruido",
+        defaultLocalFileInput: "Busca un archivo...",
+        defaultURLInput: "Pegar o escribir URL...",
+        uploadFile: "Elija una imagen para analizar con",
+        inProgress: "Análisis en curso...",
+        anlayWithPrebuiltModels: "Análisis ${name} (versión preliminar)",
+    },
+    layoutPredict:{
+        title: "Análisis de diseño",
+        inProgress: "Análisis en curso...",
+    },
     recentModelsView: {
         header: "Seleccionar modelo para analizar con",
         checkboxAriaLabel: "Seleccione la casilla de verificación del modelo",
@@ -268,6 +297,12 @@ export const spanish: IAppStrings = {
             notCompatibleTagType: "El tipo de etiqueta no es compatible con esta función. Si desea cambiar el tipo de esta etiqueta, elimine o reasigne todas las etiquetas que utilizan esta etiqueta en su proyecto.",
             checkboxPerTagLimit: "No se puede asignar más de una casilla de verificación por etiqueta",
             notCompatibleWithDrawnRegionTag: "Los valores de drawnRegion y $ {otherCatagory} no pueden asignarse a la misma etiqueta del documento",
+            replaceAllExitingLabels:"¿Está seguro de que desea reemplazar las etiquetas de la etiqueta seleccionada?",
+            replaceAllExitingLabelsTitle:"Reemplazar las etiquetas de la etiqueta",
+        },
+        preText:{
+            autoLabel:"Auto-etiquetado: ",
+            revised:"Revisado: ",
         },
         toolbar: {
             add: "Agregar nueva etiqueta",
@@ -474,6 +509,10 @@ export const spanish: IAppStrings = {
                     Por favor, etiquete todas las regiones antes de continuar con el siguiente activo.",
             },
         },
+        warningMessage: {
+            PreventLeavingWhileRunningOCR: "Una operación de diseño está actualmente en curso, ¿está seguro de que desea salir?",
+            PreventLeavingRunningAutoLabeling: "El etiquetado automático está actualmente en curso, ¿está seguro de que desea irse?",
+        }
     },
     profile: {
         settings: "Configuración de Perfíl",

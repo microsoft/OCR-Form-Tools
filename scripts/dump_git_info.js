@@ -1,21 +1,15 @@
-spawn = require('child_process').spawn,
-fs = require('fs');
+var fs = require('fs');
+var child_process = require('child_process');
 
-git = spawn('git', ['log', '-1']),
-buf = Buffer.alloc(0);
-
-git.stdout.on('data', (data) => {
-    buf = Buffer.concat([buf, data])
-});
-
-git.stderr.on('data', (data) => {
-    console.log(data.toString());
-});
-
-git.on('close', (code) => {
-    fs.writeFile("src/git-commit-info.txt", buf.toString(), (err, data) => {
+try {
+    const lastCommit = child_process.execSync('git log -1', {encoding: 'utf8'});
+    fs.writeFile("src/git-commit-info.txt", lastCommit, (err) => {
         if (err) {
-            console.log(err);
+            console.error(err);
+        } else {
+            console.log("last commit written to git-commit-info.txt")
         }
     });
-});
+} catch (err) {
+    console.log("not a git repository");
+}

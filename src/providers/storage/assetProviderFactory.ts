@@ -13,6 +13,7 @@ import getHostProcess, { HostProcessType } from "../../common/hostProcess";
 export interface IAssetProvider {
     initialize?(): Promise<void>;
     getAssets(folderPath?: string, folderName?: string): Promise<IAsset[]>;
+    getAsset(folderPath: string, assetName: string): Promise<IAsset>;
 }
 
 /**

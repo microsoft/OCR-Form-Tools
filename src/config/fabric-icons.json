@@ -23,6 +23,14 @@
       "unicode": "F331"
     },
     {
+      "name": "AutoEnhanceOff",
+      "unicode": "E78E"
+    },
+    {
+      "name": "AutoEnhanceOn",
+      "unicode": "E78D"
+    },
+    {
       "name": "AzureAPIManagement",
       "unicode": "F37F"
     },
@@ -81,6 +89,10 @@
     {
       "name": "Cloud",
       "unicode": "E753"
+    },
+    {
+      "name": "ContactCard",
+      "unicode": "EEBD"
     },
     {
       "name": "Copy",
@@ -209,6 +221,10 @@
     {
       "name": "Rename",
       "unicode": "E8AC"
+    },
+    {
+      "name": "Rocket",
+      "unicode": "F3B3"
     },
     {
       "name": "Rotate90Clockwise",

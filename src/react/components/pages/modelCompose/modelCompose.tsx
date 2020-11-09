@@ -41,6 +41,8 @@ import { ViewSelection } from "./viewSelection";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import allSettled from "promise.allsettled";
 import { toast } from 'react-toastify';
+import { getAPIVersion } from "../../../../common/utils";
+import Alert from "../../common/alert/alert";
 
 export interface IModelComposePageProps extends RouteComponentProps, React.Props<ModelComposePage> {
     recentProjects: IProject[];
@@ -65,6 +67,10 @@ export interface IModelComposePageState {
     isLoading: boolean;
     refreshFlag: boolean;
     hasText: boolean;
+
+    isError?: boolean;
+    errorTitle?: string;
+    errorMessage?: string;
 }
 
 export interface IModel {
@@ -99,7 +105,7 @@ function mapDispatchToProps(dispatch) {
         actions: bindActionCreators(projectActions, dispatch),
         applicationActions: bindActionCreators(applicationActions, dispatch),
         appTitleActions: bindActionCreators(appTitleActions, dispatch),
-    };
+    }
 }
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -344,6 +350,16 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                             onComposeConfirm={this.onComposeConfirm}
                             addToRecentModels={this.addToRecentModels}
                         />
+                        <Alert
+                            show={this.state.isError}
+                            title={this.state.errorTitle || "Error"}
+                            message={this.state.errorMessage}
+                            onClose={() => this.setState({
+                                isError: false,
+                                errorTitle: undefined,
+                                errorMessage: undefined,
+                            })}
+                        />
                     </Customizer>
                 </Fabric>
                 <PreventLeaving
@@ -367,15 +383,16 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         this.composeModalRef.current.open([], false, false);
 
         if (model.attributes.isComposed) {
+            const apiVersion = getAPIVersion(this.props.project?.apiVersion);
             const inclModels = model.composedTrainResults ?
                 model.composedTrainResults
-                : (await this.getModelByURl(interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) }) + "/" + model.modelId)).composedTrainResults;
+                : (await this.getModelByURl(interpolate(constants.apiModelsPath, {apiVersion}) + "/" + model.modelId)).composedTrainResults;
 
             for (const i of Object.keys(inclModels)) {
                 let _model: IModel;
                 let modelInfo: IComposedModelInfo;
                 try {
-                    _model = await this.getModelByURl(interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) }) + "/" + inclModels[i].modelId);
+                    _model = await this.getModelByURl(interpolate(constants.apiModelsPath, {apiVersion}) + "/" + inclModels[i].modelId);
                     modelInfo = {
                         id: _model.modelId,
                         name: _model.modelName,
@@ -427,7 +444,11 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 });
             });
         } catch (error) {
-            console.log(error);
+            this.setState({
+                isError: true,
+                errorTitle: error.title,
+                errorMessage: error.message,
+            });
         }
     }
 
@@ -457,8 +478,9 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
     private getRecentModels = async ():Promise<IModel[]> => {
         const recentModelsList: IModel[] = [];
+        const apiVersion = getAPIVersion(this.props.project?.apiVersion);
         const recentModelRequest = await allSettled(this.props.project.recentModelRecords.map(async (model) => {
-            return this.getModelByURl(interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) }) + "/" + model.modelInfo.modelId);
+            return this.getModelByURl(interpolate(constants.apiModelsPath, {apiVersion}) + "/" + model.modelInfo.modelId);
         }))
         recentModelRequest.forEach((recentModelRequest) => {
             if (recentModelRequest.status === "fulfilled") {
@@ -504,7 +526,11 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 }
             }
         } catch (error) {
-            console.log(error);
+            this.setState({
+                isError: true,
+                errorTitle: error.title,
+                errorMessage: error.message,
+            });
         }
     }
 
@@ -521,9 +547,10 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     private async getResponse(nextLink?: string) {
+        const apiVersion = getAPIVersion(this.props.project?.apiVersion);
         const baseURL = nextLink === undefined ? url.resolve(
             this.props.project.apiUriBase,
-            interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) }),
+            interpolate(constants.apiModelsPath, {apiVersion}),
         ) : url.resolve(
             this.props.project.apiUriBase,
             nextLink,
@@ -545,7 +572,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             this.setState({
                 isLoading: false,
             });
-            ServiceHelper.handleServiceError(err);
+            ServiceHelper.handleServiceError({...err, endpoint: baseURL});
         }
     }
 
@@ -599,9 +626,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                         } else if (b.modelName) {
                             return 1;
                         }
-                    } else {
-                        return -1;
                     }
+                    return -1;
                 })
             )
         } else {
@@ -729,7 +755,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     modelName: name,
                 };
 
-                const link = interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) }) + "/compose";
+                const apiVersion = getAPIVersion(this.props.project?.apiVersion);
+                const link = interpolate(constants.apiModelsPath, {apiVersion}) + "/compose";
                 const composeRes = await this.post(link, payload);
                 const composedModel = await this.waitUntilModelIsReady(composeRes["headers"]["location"]);
 
@@ -770,7 +797,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 this.props.project.apiKey as string,
             );
         } catch (err) {
-            ServiceHelper.handleServiceError(err);
+            ServiceHelper.handleServiceError({...err, endpoint: baseURL});
         }
     }
 

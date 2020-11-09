@@ -16,9 +16,10 @@ import React, {KeyboardEvent} from "react";
 import {toast} from "react-toastify";
 import {constants} from "../../../../common/constants";
 import {interpolate, strings} from "../../../../common/strings";
-import {getDarkTheme} from "../../../../common/themes";
+import {getDarkTheme, getPrimaryRedTheme} from "../../../../common/themes";
 import {getNextColor} from "../../../../common/utils";
 import {FeatureCategory, FieldFormat, FieldType, ILabel, IRegion, ITag} from "../../../../models/applicationState";
+import Confirm from "../../common/confirm/confirm";
 import {AlignPortal} from "../align/alignPortal";
 import {ColorPicker} from "../colorPicker";
 import "../condensedList/condensedList.scss";
@@ -143,7 +144,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     private tagItemRefs: Map<string, TagInputItem> = new Map<string, TagInputItem>();
     private headerRef = React.createRef<HTMLDivElement>();
     private inputRef = React.createRef<HTMLInputElement>();
-
+    private replaceConfirmRef = React.createRef<Confirm>();
     public componentDidUpdate(prevProps: ITagInputProps) {
         if (prevProps.tags !== this.props.tags) {
             let selectedTag = this.state.selectedTag;
@@ -248,6 +249,13 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     :
                     <Spinner className="loading-tag" size={SpinnerSize.large} />
                 }
+                <Confirm
+                    title={strings.tags.warnings.replaceAllExitingLabelsTitle}
+                    ref={this.replaceConfirmRef}
+                    message={strings.tags.warnings.replaceAllExitingLabels}
+                    confirmButtonTheme={getPrimaryRedTheme()}
+                    onConfirm={this.onReplaceConfirm}
+                />
             </div>
         );
     }
@@ -321,7 +329,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             return;
         }
 
-        const tags = [ ...this.state.tags, tag ];
+        const tags = [...this.state.tags, tag];
         this.setState({
             tags,
         }, () => this.props.onChange(tags));
@@ -425,7 +433,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
         if (onlyCurrentPageTags) {
 
-            const labels = this.props.labels.filter(item => item.value[ 0 ].page === this.props.pageNumber)
+            const labels = this.props.labels.filter(item => item.value[ 0 ]?.page === this.props.pageNumber)
                 .map(item => item.label);
             if (labels.length) {
 
@@ -517,18 +525,24 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 const labelAssigned = this.labelAssigned(labels, name);
 
                 if (labelAssigned && ((category === FeatureCategory.DrawnRegion) !== isTagLabelTypeDrawnRegion)) {
-                    if (isTagLabelTypeDrawnRegion) {
-                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, {otherCatagory: category}));
+                    if(category===FeatureCategory.Checkbox&&isTagLabelTypeDrawnRegion){
+                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, {otherCatagory: FeatureCategory.Checkbox}));
+                    }else if (isTagLabelTypeDrawnRegion) {
+                        this.replaceConfirmRef.current.open(tag, props);
                     } else if (tagCategory === FeatureCategory.Checkbox) {
                         toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, {otherCatagory: FeatureCategory.Checkbox}));
                     } else {
-                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, {otherCatagory: FeatureCategory.Text}));
+                        this.replaceConfirmRef.current.open(tag, props);
                     }
                     return;
                 } else if (tagCategory === category || category === FeatureCategory.DrawnRegion ||
                     (documentCount === 0 && type === FieldType.String && format === FieldFormat.NotSpecified)) {
                     if (tagCategory === FeatureCategory.Checkbox && labelAssigned) {
                         toast.warn(strings.tags.warnings.checkboxPerTagLimit);
+                        return;
+                    }
+                    if(tagCategory===FeatureCategory.Checkbox&&category!==FeatureCategory.Checkbox){
+                        toast.warn(strings.tags.warnings.notCompatibleTagType);
                         return;
                     }
                     onTagClick(tag);
@@ -542,6 +556,18 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 tagOperation,
             });
         }
+    }
+    private onReplaceConfirm = (tag: ITag, props: ITagClickProps) => {
+        const {onTagClick} = this.props;
+        const {selectedTag, tagOperation: oldTagOperation} = this.state;
+        const selected = selectedTag && isNameEqual(selectedTag.name, tag.name);
+        const tagOperation = selected ? oldTagOperation : TagOperationMode.None;
+        const deselect = selected && oldTagOperation === TagOperationMode.None;
+        onTagClick(tag);
+        this.setState({
+            selectedTag: deselect ? null : tag,
+            tagOperation,
+        });
     }
     focusTag(tag: string) {
         const tagItemRef = this.tagItemRefs.get(tag)?.getTagNameRef();

@@ -5,7 +5,7 @@ import _ from "lodash";
 import Guard from "../common/guard";
 import {
     IAsset, AssetType, IProject, IAssetMetadata, AssetState,
-    ILabelData, ILabel, AssetLabelingState
+    ILabelData, ILabel, AssetLabelingState, IFormRegion
 } from "../models/applicationState";
 import { AssetProviderFactory, IAssetProvider } from "../providers/storage/assetProviderFactory";
 import { StorageProviderFactory, IStorageProvider } from "../providers/storage/storageProviderFactory";
@@ -69,7 +69,7 @@ export class AssetService {
         return _.get(analyzeResult, "analyzeResult.readResults", []);
     }
     getAssetPredictMetadata(asset: IAsset, predictResults: any) {
-        asset = JSON.parse(JSON.stringify(asset));
+        asset = _.cloneDeep(asset);
         const getBoundingBox = (pageIndex, arr: number[]) => {
             const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(predictResults)[pageIndex - 1];
             const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
@@ -77,7 +77,7 @@ export class AssetService {
             const ocrHeight = ocrExtent[3] - ocrExtent[1];
             const result = [];
             for (let i = 0; i < arr.length; i += 2) {
-                result.push([
+                result.push(...[
                     (arr[i] / ocrWidth),
                     (arr[i + 1] / ocrHeight),
                 ]);
@@ -85,13 +85,12 @@ export class AssetService {
             return result;
         };
         const getLabelValues = (field: any) => {
-            return field.elements.map((path: string) => {
+            return field.elements?.map((path: string):IFormRegion => {
                 const pathArr = path.split('/').slice(1);
                 const word = pathArr.reduce((obj: any, key: string) => obj[key], { ...predictResults.analyzeResult });
                 return {
                     page: field.page,
                     text: word.text || word.state,
-                    confidence: word.confidence,
                     boundingBoxes: [getBoundingBox(field.page, word.boundingBox)]
                 };
             });
@@ -129,7 +128,7 @@ export class AssetService {
         }
     }
     async uploadPredictResultAsOrcResult(asset: IAsset, predictResults: any): Promise<void> {
-        const ocrData = JSON.parse(JSON.stringify(predictResults));
+        const ocrData = _.cloneDeep(predictResults);
         delete ocrData.analyzeResult.documentResults;
         if (ocrData.analyzeResult.errors) {
             delete ocrData.analyzeResult.errors;
@@ -140,7 +139,7 @@ export class AssetService {
 
     async syncAssetPredictResult(asset: IAsset, predictResults: any): Promise<IAssetMetadata> {
         const assetMeatadata = this.getAssetPredictMetadata(asset, predictResults);
-        const ocrData = JSON.parse(JSON.stringify(predictResults));
+        const ocrData = _.cloneDeep(predictResults);
         delete ocrData.analyzeResult.documentResults;
         if (ocrData.analyzeResult.errors) {
             delete ocrData.analyzeResult.errors;
@@ -316,6 +315,10 @@ export class AssetService {
         return this.filterAssets(assets, folderPath);
     }
 
+    public async getAsset(assetName: string): Promise<IAsset> {
+        return await this.assetProvider.getAsset(this.project.folderPath, assetName);
+    }
+
     private filterAssets = (assets, folderPath) => {
         if (this.project.sourceConnection.providerType === "localFileSystemProxy") {
             return assets.map((asset) => {
@@ -360,15 +363,18 @@ export class AssetService {
      * Save metadata for asset
      * @param metadata - Metadata for asset
      */
-    public async save(metadata: IAssetMetadata): Promise<IAssetMetadata> {
+    public async save(metadata: IAssetMetadata, needCleanEmptyLabel: boolean=false): Promise<IAssetMetadata> {
         Guard.null(metadata);
 
         const labelFileName = decodeURIComponent(`${metadata.asset.name}${constants.labelFileExtension}`);
         if (metadata.labelData) {
             await this.storageProvider.writeText(labelFileName, JSON.stringify(metadata.labelData, null, 4));
         }
-
-        if (metadata.asset.state !== AssetState.Tagged) {
+        let cleanLabel: boolean=false;
+        if (needCleanEmptyLabel && !metadata.labelData?.labels?.find(label => label?.value?.length !== 0)) {
+            cleanLabel = true;
+        }
+        if (cleanLabel || metadata.asset.state !== AssetState.Tagged) {
             // If the asset is no longer tagged, then it doesn't contain any regions
             // and the file is not required.
             try {
@@ -377,7 +383,7 @@ export class AssetService {
                 // The file may not exist - that's OK.
             }
         }
-        return JSON.parse(JSON.stringify(metadata));
+        return _.cloneDeep(metadata);
     }
 
     /**
@@ -534,13 +540,27 @@ export class AssetService {
             if (field) {
                 foundTag = true;
                 assetMetadata.labelData = labelTransformer(assetMetadata.labelData);
+                if(assetMetadata.labelData.labels.length===0){
+                    delete assetMetadata.labelData.labelingState;
+                    delete assetMetadata.asset.labelingState;
+                }
             }
         }
-
         if (foundTag) {
             assetMetadata.regions = assetMetadata.regions.filter((region) => region.tags.length > 0);
             assetMetadata.asset.state = _.get(assetMetadata, "labelData.labels.length")
                 ? AssetState.Tagged : AssetState.Visited;
+            if(assetMetadata.asset.labelingState===AssetLabelingState.Trained){
+                assetMetadata.asset.labelingState=AssetLabelingState.ManuallyLabeled;
+                if(assetMetadata.labelData){
+                    assetMetadata.labelData.labelingState=AssetLabelingState.ManuallyLabeled;
+                }
+            }else if(assetMetadata.asset.labelingState===AssetLabelingState.AutoLabeled){
+                assetMetadata.asset.labelingState=AssetLabelingState.AutoLabeledAndAdjusted;
+                if(assetMetadata.labelData){
+                    assetMetadata.labelData.labelingState=AssetLabelingState.AutoLabeledAndAdjusted;
+                }
+            }
             return true;
         }
 
