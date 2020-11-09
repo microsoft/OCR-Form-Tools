@@ -3,6 +3,8 @@
 
 // tslint:disable-next-line:no-var-requires
 const packageJson = require("../../package.json");
+// tslint:disable-next-line:no-var-requires
+const appConfig = require("../appConfig.json");
 
 /**
  * Defines the application information
@@ -14,9 +16,12 @@ export interface IAppInfo {
     version: string;
     /** The app description */
     description: string;
+    /** Flag for if API version is selectable */
+    enableAPIVersionSelection: boolean;
+
 }
 
 /**
  * Gets current application info
  */
-export const appInfo = packageJson as IAppInfo;
+export const appInfo = { ...packageJson, enableAPIVersionSelection: appConfig["enableAPIVersionSelection"] } as IAppInfo;
