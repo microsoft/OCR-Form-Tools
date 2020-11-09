@@ -14,12 +14,15 @@ import {
     IProject,
     ITag,
     ISecurityToken,
+    AssetState,
+    AssetLabelingState,
 } from "../../models/applicationState";
 import { createAction, createPayloadAction, IPayloadAction } from "./actionCreators";
 import { appInfo } from "../../common/appInfo";
 import { saveAppSettingsAction } from "./applicationActions";
 import { toast } from 'react-toastify';
 import { strings, interpolate } from "../../common/strings";
+import _ from "lodash";
 
 /**
  * Actions to be performed in relation to projects
@@ -249,7 +252,7 @@ export function loadAssetMetadata(project: IProject, asset: IAsset): (dispatch: 
     return async (dispatch: Dispatch) => {
         const assetService = new AssetService(project);
         const assetMetadata = await assetService.getAssetMetadata(asset);
-        dispatch(loadAssetMetadataAction(assetMetadata));
+        dispatch(loadAssetMetadataAction(_.cloneDeep(assetMetadata)));
 
         return { ...assetMetadata };
     };
@@ -263,7 +266,7 @@ export function loadAssetMetadata(project: IProject, asset: IAsset): (dispatch: 
 export function saveAssetMetadata(
     project: IProject,
     assetMetadata: IAssetMetadata): (dispatch: Dispatch) => Promise<IAssetMetadata> {
-    const newAssetMetadata = { ...JSON.parse(JSON.stringify(assetMetadata)), version: appInfo.version };
+    const newAssetMetadata = { ...(_.cloneDeep(assetMetadata)), version: appInfo.version };
 
     return async (dispatch: Dispatch) => {
         const assetService = new AssetService(project);
@@ -277,7 +280,7 @@ export function saveAssetMetadata(
 export function saveAssetMetadataAndCleanEmptyLabel(
     project: IProject,
     assetMetadata: IAssetMetadata): (dispatch: Dispatch) => Promise<IAssetMetadata> {
-    const newAssetMetadata: IAssetMetadata = { ...JSON.parse(JSON.stringify(assetMetadata)), version: appInfo.version};
+    const newAssetMetadata: IAssetMetadata = { ...(_.cloneDeep(assetMetadata)), version: appInfo.version};
 
     return async (dispatch: Dispatch) => {
         const assetService = new AssetService(project);
