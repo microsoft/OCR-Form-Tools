@@ -77,7 +77,10 @@ export class AssetService {
             const ocrHeight = ocrExtent[3] - ocrExtent[1];
             const result = [];
             for (let i = 0; i < arr.length; i += 2) {
-                result.push((arr[i] / ocrWidth), (arr[i + 1] / ocrHeight));
+                result.push(...[
+                    (arr[i] / ocrWidth),
+                    (arr[i + 1] / ocrHeight),
+                ]);
             }
             return result;
         };

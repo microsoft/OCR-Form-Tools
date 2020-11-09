@@ -8,6 +8,7 @@ import {connect} from "react-redux";
 import {RouteComponentProps} from "react-router-dom";
 import {bindActionCreators} from "redux";
 import url from "url";
+import {IAsset} from "vott-react";
 import {constants} from "../../../../common/constants";
 import {isElectron} from "../../../../common/hostProcess";
 import {interpolate, strings} from "../../../../common/strings";
@@ -315,15 +316,20 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         this.trainProcess().then(async (trainResult) => {
             const assets = Object.values(this.props.project.assets);
             const assetService = new AssetService(this.props.project);
+
+            const newAssets = {};
             for (const asset of assets) {
                 const newAsset = _.cloneDeep(asset);
-                newAsset.labelingState = AssetLabelingState.Trained;
+
                 const metadata = await assetService.getAssetMetadata(newAsset);
-                if (metadata.labelData && metadata.labelData.labelingState !== AssetLabelingState.Trained) {
+                if (metadata.labelData && metadata.labelData.labels?.findIndex(label=>label.value?.length>0)>=0 && metadata.labelData.labelingState !== AssetLabelingState.Trained) {
                     metadata.labelData.labelingState = AssetLabelingState.Trained;
-                    await assetService.save({ ...metadata });
+                    metadata.asset.labelingState=AssetLabelingState.Trained;
+                    const newMeta = await assetService.save({ ...metadata });
+                    newAssets[asset.id] = newMeta.asset;
                 }
             }
+            await this.props.actions.saveProject({...this.props.project, assets: newAssets},false,false);
             this.setState((prevState, props) => ({
                 isTraining: false,
                 trainMessage: this.getTrainMessage(trainResult),
@@ -366,6 +372,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                     error?.message !== undefined
                         ? error.message : error,
             });
+            throw error;
         }
     }
 
@@ -430,9 +437,11 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 ) {
                     return;
                 }
-                assetMetadata.asset.labelingState = AssetLabelingState.ManuallyLabeled;
-                if (assetMetadata.labelData) {
-                    assetMetadata.labelData.labelingState = AssetLabelingState.ManuallyLabeled;
+                if(assetMetadata.labelData?.labels?.findIndex(label=>label.value?.length>0)>=0){
+                    assetMetadata.asset.labelingState = AssetLabelingState.ManuallyLabeled;
+                    if (assetMetadata.labelData) {
+                        assetMetadata.labelData.labelingState = AssetLabelingState.ManuallyLabeled;
+                    }
                 }
 
                 assetMetadata.labelData?.labels?.forEach((label) => {
