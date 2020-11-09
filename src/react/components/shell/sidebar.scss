@@ -1,0 +1,19 @@
+.prebuilt-demo-sidebar-item {
+    position: relative;
+    a {
+        text-decoration: none;
+        .demo-badge {
+            display: flex;
+            justify-content: center;
+            font-size: .35rem;
+            color:white;
+            font-weight: 600;
+            margin-top: -2px;
+            margin-left: -1px;
+            background-color: rgb(177, 7, 7);
+            border-radius: 2px;
+            text-decoration: none;
+            padding: 1px 14px;
+        }
+    }
+}

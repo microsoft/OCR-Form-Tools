@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { constants } from "../common/constants";
-import { AppError, ErrorCode } from "../models/applicationState";
-import { delay } from "../common/utils";
-import axios, { AxiosRequestConfig, AxiosPromise } from "axios";
-import { strings } from "../common/strings";
-import { toast } from "react-toastify";
+import axios, {AxiosPromise, AxiosRequestConfig} from "axios";
+import {toast} from "react-toastify";
+import {constants} from "../common/constants";
+import {interpolate, strings} from "../common/strings";
+import {delay} from "../common/utils";
+import {AppError, ErrorCode} from "../models/applicationState";
 
 export default class ServiceHelper {
     public static handleServiceError = (err: any) => {
@@ -14,7 +14,7 @@ export default class ServiceHelper {
             if (err.response.status === 401) {
                 const message = (err.response.data && err.response.data.error && err.response.data.error.message) || "Please make sure the API key is correct.";
                 throw new AppError(ErrorCode.HttpStatusUnauthorized, message, "Permission Denied");
-            } else if (err.response.status === 404) {
+            } else if (err.response?.status === 404) {
                 throw new AppError(
                     ErrorCode.HttpStatusNotFound,
                     "Please make sure the service endpoint is correct.",
@@ -48,6 +48,12 @@ export default class ServiceHelper {
                     "An error occurred in the service. Please try again later.",
                     "Error");
             }
+        } else if (err.endpoint) {
+            toast.warn(interpolate(strings.errors.endpointConnectionError.message, err), {autoClose: 10000})
+            throw new AppError(
+                ErrorCode.HttpStatusNotFound,
+                interpolate(strings.errors.endpointConnectionError.message, err),
+                strings.errors.endpointConnectionError.title);
         } else {
             // Network Error
             toast.warn("Over rate limitation, please try again later",{autoClose: 10000})
@@ -77,7 +83,7 @@ export default class ServiceHelper {
         ...config,
         headers: {
             ...config.headers,
-            ...(apiKey ? { [constants.apiKeyHeader]: apiKey } : {}),
+            ...(apiKey ? {[constants.apiKeyHeader]: apiKey} : {}),
         },
     })
 

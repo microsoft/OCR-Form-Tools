@@ -220,7 +220,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                 <div className="tag-item-label-container">
                     {(confidence||revised) &&
                         <div className="tag-item-label-container-item1">
-                            {confidence &&
+                            {!revised && confidence &&
                                 <div className="tag-item-confidence">
                                     {confidence}
                                 </div>
@@ -231,7 +231,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                         </div>
                     }
                     <div className="tag-item-label-container-item2">
-                        { this.props.showOriginLabels && label.originValue &&
+                        {this.props.showOriginLabels && label.originValue &&
                             <TagInputItemLabel
                                 label={label}
                                 isOrigin={true}
@@ -239,14 +239,14 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                                 prefixText={strings.tags.preText.autoLabel}
                             />
                         }
-                        <TagInputItemLabel
+                        {(label.originValue?.length > 0 || label.value?.length > 0) && <TagInputItemLabel
                             label={label}
                             value={label.value}
                             isOrigin={false}
                             onLabelEnter={this.props.onLabelEnter}
                             onLabelLeave={this.props.onLabelLeave}
                             prefixText={revised ? strings.tags.preText.revised : undefined}
-                        />
+                        />}
                     </div>
                 </div>
             </Fragment>);

@@ -1,35 +1,33 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import {FontIcon, PrimaryButton, Spinner, SpinnerSize, TextField} from "@fluentui/react";
+import _ from "lodash";
 import React from "react";
-import { connect } from "react-redux";
-import { RouteComponentProps } from "react-router-dom";
-import { bindActionCreators } from "redux";
-import { FontIcon, PrimaryButton, Spinner, SpinnerSize, TextField } from "@fluentui/react";
-import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
+import {connect} from "react-redux";
+import {RouteComponentProps} from "react-router-dom";
+import {bindActionCreators} from "redux";
+import url from "url";
+import {constants} from "../../../../common/constants";
+import {isElectron} from "../../../../common/hostProcess";
+import {interpolate, strings} from "../../../../common/strings";
+import {getGreenWithWhiteBackgroundTheme, getPrimaryGreenTheme} from "../../../../common/themes";
+import {AssetLabelingState, AssetState, FieldType, IApplicationState, IAppSettings, IAssetMetadata, IConnection, IProject, IRecentModel} from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
-import {
-    IApplicationState, IConnection, IProject, IAppSettings, FieldType, IRecentModel, AssetLabelingState, IAssetMetadata,
-} from "../../../../models/applicationState";
-import TrainChart from "./trainChart";
-import TrainPanel from "./trainPanel";
-import TrainTable from "./trainTable";
-import { ITrainRecordProps } from "./trainRecord";
-import "./trainPage.scss";
-import { strings, interpolate } from "../../../../common/strings";
-import { constants } from "../../../../common/constants";
-import _ from "lodash";
-import Alert from "../../common/alert/alert";
-import url from "url";
-import PreventLeaving from "../../common/preventLeaving/preventLeaving";
+import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
+import {AssetService} from "../../../../services/assetService";
 import ServiceHelper from "../../../../services/serviceHelper";
-import { getPrimaryGreenTheme, getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
-import { getAppInsights } from '../../../../services/telemetryService';
-import { AssetService } from "../../../../services/assetService";
-import Confirm from "../../common/confirm/confirm";
+import {getAppInsights} from '../../../../services/telemetryService';
 import UseLocalStorage from '../../../../services/useLocalStorage';
-import { isElectron } from "../../../../common/hostProcess";
+import Alert from "../../common/alert/alert";
+import Confirm from "../../common/confirm/confirm";
+import PreventLeaving from "../../common/preventLeaving/preventLeaving";
+import TrainChart from "./trainChart";
+import "./trainPage.scss";
+import TrainPanel from "./trainPanel";
+import {ITrainRecordProps} from "./trainRecord";
+import TrainTable from "./trainTable";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -408,7 +406,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             this.setState({ modelUrl: result.headers.location });
             return result;
         } catch (err) {
-            ServiceHelper.handleServiceError(err);
+            ServiceHelper.handleServiceError({...err, endpoint: baseURL});
         }
     }
     private async cleanLabelData() {
@@ -417,7 +415,14 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             .filter(asset => asset.labelingState !== AssetLabelingState.Trained)
             .forEachAsync(async (asset) => {
                 const assetMetadata: IAssetMetadata = { ...await this.props.actions.loadAssetMetadata(this.props.project, asset) };
-                if (assetMetadata.asset.labelingState === AssetLabelingState.ManuallyLabeled
+                let isUpdated=false;
+                assetMetadata.labelData?.labels?.forEach((label,index)=>{
+                    if(label.value?.length===0){
+                        assetMetadata.labelData.labels.splice(index,1);
+                        isUpdated=true;
+                    }
+                });
+                if (!isUpdated&&assetMetadata.asset.labelingState === AssetLabelingState.ManuallyLabeled
                     && assetMetadata.labelData?.labels?.findIndex(label => label.confidence
                         || label.originValue
                         || label.revised
@@ -438,7 +443,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                         delete item["confidence"];
                     });
                 });
-                await this.props.actions.saveAssetMetadata(this.props.project,assetMetadata);
+                await this.props.actions.saveAssetMetadataAndCleanEmptyLabel(this.props.project,assetMetadata);
             });
     }
 
@@ -590,7 +595,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 project.apiKey as string,
             ).then(res => res.request.response);
         } catch (error) {
-            ServiceHelper.handleServiceError(error);
+            ServiceHelper.handleServiceError({...error, endpoint: baseURL});
         }
     }
 }
