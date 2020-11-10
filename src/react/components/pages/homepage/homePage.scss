@@ -1,14 +1,20 @@
 @import "../../../../assets/sass/theme.scss";
 
+$lighter-6: rgba(255,255,255,0.5);
+$lighter-7: rgba(255,255,255,0.55);
+$lighter-8: rgba(255,255,255,0.60);
+
 .app-homepage {
     flex-grow: 1;
     display: flex;
     flex-direction: row;
     min-height: fit-content;
+    overflow-y: auto;
 
     &-main {
         display: flex;
         flex-grow: 1;
+        overflow-y: auto;
 
         ul {
             display: flex;
@@ -20,23 +26,39 @@
             padding: 0;
 
             li {
-                flex:1;
+                flex: 1;
                 list-style-type: none;
                 text-align: center;
-                margin: 3rem !important;
-                padding: 1rem;
-                border-radius: 4px;
-                &:hover{
+                margin: 1rem;
+                border-radius: 2px;
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                &:hover {
                     background-color: $lighter-2;
                 }
+                &:first-child {
+                    margin-left: 2rem;
+                }
+                &:last-child {
+                    margin-right: 2rem;
+                }
+
                 a {
                     display: inline-block;
+                    &.primary-link {
+                        flex: 1;
+                        padding: 1rem;
+                    }
+                    .ms-Icon {
+                        color: $lighter-7;
+                    }
                     .title {
                         max-width: 12em;
                         margin: auto;
                         font-size: 1.3em;
                         font-weight: bold;
-                        color: white;
+                        color: $lighter-8;
                         text-align: center;
                         margin-bottom: 1em;
                     }
@@ -46,17 +68,26 @@
                         color: #fff;
                         text-decoration: none;
                         flex-wrap: wrap;
+                        .ms-Icon {
+                            color: #fff;
+                        }
+                        .title {
+                            color: #fff;
+                        }
                     }
-                    .quickstart{
-                        line-height: 2em;
-                        .ms-Icon{
+                    &.quickstart {
+                        color: $lighter-7;
+                        &:hover {
+                            color: #fff;
+                        }
+                        .ms-Icon {
                             margin: 5px;
                         }
                     }
                 }
                 .description {
                     font-size: 1em;
-                    color: $lighter-5;
+                    color: $lighter-6;
                 }
             }
         }
@@ -88,9 +119,8 @@
     }
 }
 
-
 .homepage-modal {
-    z-index: 10!important;
+    z-index: 10 !important;
     .modal-container {
         height: 90vh !important;
         width: calc(100% - 32px) !important;
@@ -130,6 +160,7 @@
                             list-style-type: none;
                             text-align: center;
                             min-width: 24%;
+                            border-radius: 2px;
                             a {
                                 display: inline-block;
                                 .title {
