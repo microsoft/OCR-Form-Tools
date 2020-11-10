@@ -37,7 +37,7 @@ export interface IResultItem {
 export interface IPredictResultProps {
     predictions: { [key: string]: any };
     analyzeResult: {};
-    analyzeModelInfo: IAnalyzeModelInfo;
+    downloadPrefix?: string;
     page: number;
     tags: ITag[];
     downloadResultLabel: string;
@@ -52,7 +52,7 @@ export interface IPredictResultState { }
 
 export default class PredictResult extends React.Component<IPredictResultProps, IPredictResultState> {
     public render() {
-        const { tags, predictions, analyzeModelInfo } = this.props;
+        const { tags, predictions } = this.props;
         const tagsDisplayOrder = tags.map((tag) => tag.name);
         for (const name of Object.keys(predictions)) {
             const prediction = predictions[name];
@@ -71,10 +71,13 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
 
                 </div>
                 <div className="container-items-center container-space-between">
-                    <PrimaryButton
-                        theme={getPrimaryGreenTheme()}
-                        onClick={this.onAddAssetToProject}
-                        text={strings.predict.editAndUploadToTrainingSet} />
+                    {this.props.onAddAssetToProject ?
+                        <PrimaryButton
+                            theme={getPrimaryGreenTheme()}
+                            onClick={this.onAddAssetToProject}
+                            text={strings.predict.editAndUploadToTrainingSet} />
+                        :<span></span>
+                    }
                     <PrimaryButton
                         className="align-self-end keep-button-80px"
                         theme={getPrimaryGreenTheme()}
@@ -84,8 +87,8 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                         onClick={this.triggerDownload}
                     />
                 </div>
-                <PredictModelInfo modelInfo={analyzeModelInfo} />
-                <div className="prediction-field-header">
+                {this.props.children}
+                <div className="prediction-field-header" style={{marginTop: 28}}>
                     <h6 className="prediction-field-header-field"> Page # / Field name / Value</h6>
                     <h6 className="prediction-field-header-confidence"> Confidence</h6>
                 </div>
@@ -211,7 +214,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         const fileURL = window.URL.createObjectURL(new Blob([predictionData]));
         const fileLink = document.createElement("a");
         const fileBaseName = this.props.downloadResultLabel.split(".")[0];
-        const downloadFileName = "Result-" + fileBaseName + ".json";
+        const downloadFileName = this.props.downloadPrefix + "Result-" + fileBaseName + ".json";
 
         fileLink.href = fileURL;
         fileLink.setAttribute("download", downloadFileName);

@@ -9,9 +9,9 @@ import ServiceHelper from "./serviceHelper";
 import { strings } from "../common/strings";
 
 export enum OcrStatus {
-    loadingFromAzureBlob,
-    runningOCR,
-    done,
+    loadingFromAzureBlob="loadingFromAzureBlob",
+    runningOCR="runningOCR",
+    done="done",
 }
 
 /**
@@ -110,8 +110,8 @@ export class OCRService {
             return this.poll(
                 () => ServiceHelper.getWithAutoRetry(operationLocation, { headers }, this.project.apiKey as string),
                 120000,
-                1500).then((data) => {
-                    this.save(ocrFileName, data);
+                1500).then(async (data) => {
+                    await this.save(ocrFileName, data);
                     return data;
                 });
         } catch (error) {
@@ -155,7 +155,7 @@ export class OCRService {
                     setTimeout(checkSucceeded, interval, resolve, reject);
                 } else {
                     // Didn't succeeded after too much time, reject
-                    reject(new Error("Timed out for getting OCR results"));
+                    reject(new Error("Timed out for getting Layout results"));
                 }
             });
         };

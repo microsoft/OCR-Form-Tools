@@ -7,6 +7,8 @@ import { encryptObject, decryptObject, encrypt, decrypt } from "./crypto";
 import UTIF from "utif";
 import { useState } from 'react';
 import { useEffect } from 'react';
+import {constants} from "./constants";
+import _ from "lodash";
 
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../react/components/common/tagColors.json");
@@ -402,19 +404,72 @@ export function filterFormat(type: FieldType | string): any[] {
  * @param delay - delay after which the change will be registered in milliseconds
  */
 export function useDebounce(value: any, delay: number) {
-        const [debouncedValue, setDebouncedValue] = useState(value);
-        useEffect(
+    const [debouncedValue, setDebouncedValue] = useState(value);
+    useEffect(
           () => {
             // Update debounced value after delay
             const delayHandler = setTimeout(() => {
-              setDebouncedValue(value);
+                setDebouncedValue(value);
             }, delay);
             // cleanup
             return () => {
-              clearTimeout(delayHandler);
+                clearTimeout(delayHandler);
             };
-          },
-          [value, delay]
-        );
-        return debouncedValue;
-      }
+        },
+        [value, delay]
+    );
+    return debouncedValue;
+}
+
+
+/**
+ * Poll function to repeatly check if request succeeded
+ * @param func - function that will be called repeatly
+ * @param timeout - timeout
+ * @param interval - interval
+ */
+export function poll(func, timeout, interval): Promise<any> {
+    const endTime = Number(new Date()) + (timeout || 10000);
+    interval = interval || 100;
+
+    const checkSucceeded = (resolve, reject) => {
+        const ajax = func();
+        ajax.then((response) => {
+            if (response.data.status.toLowerCase() === constants.statusCodeSucceeded) {
+                resolve(response.data);
+            } else if (response.data.status.toLowerCase() === constants.statusCodeFailed) {
+                reject(_.get(
+                    response,
+                    "data.analyzeResult.errors[0].errorMessage",
+                    "Generic error during prediction"));
+            } else if (Number(new Date()) < endTime) {
+                // If the request isn't succeeded and the timeout hasn't elapsed, go again
+                setTimeout(checkSucceeded, interval, resolve, reject);
+            } else {
+                // Didn't succeeded after too much time, reject
+                reject("Timed out, please try other file.");
+            }
+        });
+    };
+
+    return new Promise(checkSucceeded);
+}
+
+/**
+ * download data as json file
+ * @param data
+ * @param fileName
+ * @param prefix
+ */
+export function downloadAsJsonFile(data: any, fileName: string, prefix?: string): void {
+    const predictionData = JSON.stringify(data, null, 2);
+    const fileURL = window.URL.createObjectURL(new Blob([predictionData]));
+    const fileLink = document.createElement("a");
+    const fileBaseName = fileName.split(".")[0];
+    const downloadFileName = prefix + "Result-" + fileBaseName + ".json";
+
+    fileLink.href = fileURL;
+    fileLink.setAttribute("download", downloadFileName);
+    document.body.appendChild(fileLink);
+    fileLink.click();
+}

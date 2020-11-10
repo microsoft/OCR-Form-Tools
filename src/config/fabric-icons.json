@@ -22,9 +22,18 @@
       "name": "AddTo",
       "unicode": "ECC8"
     },
+
+    {
+      "name": "AutoEnhanceOff",
+      "unicode": "E78E"
+    },
     {
       "name": "AlertSolid",
       "unicode": "F331"
+    },
+    {
+      "name": "AutoEnhanceOn",
+      "unicode": "E78D"
     },
     {
       "name": "AzureAPIManagement",
@@ -79,8 +88,16 @@
       "unicode": "EA3A"
     },
     {
+      "name": "ClearFilter",
+      "unicode": "EF8F"
+    },
+    {
       "name": "Cloud",
       "unicode": "E753"
+    },
+    {
+      "name": "ContactCard",
+      "unicode": "EEBD"
     },
     {
       "name": "Copy",
@@ -147,6 +164,24 @@
       "unicode": "F64D"
     },
     {
+      "name": "FieldChanged",
+      "unicode": "F2C3"
+    },
+    {
+      "name": "FieldNotChanged",
+      "unicode": "F2C4"
+    },
+    {
+      "name": "GroupedList",
+      "unicode": "EF74"
+    },
+    {
+      "name": "GroupList",
+      "unicode": "F168"
+    },
+    {
+    },
+    {
       "name": "Insights",
       "unicode": "E3AF"
     },
@@ -209,6 +244,10 @@
     {
       "name": "Rename",
       "unicode": "E8AC"
+    },
+    {
+      "name": "Rocket",
+      "unicode": "F3B3"
     },
     {
       "name": "Rotate90Clockwise",

@@ -1,5 +1,5 @@
-commit 8785f08f8fd966a474665d4e4d236e0d4426e621
-Author: Alex Chen <v-yongbc@microsoft.com>
-Date:   Thu Oct 22 21:19:39 2020 +0800
+commit dd488b5bb6309f8a154dbcf59259dd3e0f3102c2
+Author: Robert Stewart (eXcell <v-stewro@microsoft.com>
+Date:   Mon Nov 9 06:00:17 2020 -0800
 
-    tslint check
+    feat: support rowKeys and columnKeys for analysis

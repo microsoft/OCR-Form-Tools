@@ -1,8 +1,8 @@
 import _ from "lodash";
 import url from 'url';
-import { constants } from "../common/constants";
-import { interpolate, strings } from "../common/strings";
-import { AppError, ErrorCode, IProject } from "../models/applicationState";
+import {constants} from "../common/constants";
+import {interpolate, strings} from "../common/strings";
+import {AppError, ErrorCode, IProject} from "../models/applicationState";
 import ServiceHelper from "./serviceHelper";
 
 export enum AutoLabelingStatus {
@@ -22,9 +22,10 @@ export class PredictService {
                 strings.errors.predictWithoutTrainForbidden.message,
                 strings.errors.predictWithoutTrainForbidden.title);
         }
+        const apiVersion = this.project?.apiVersion || constants.apiVersion;
         const endpointURL = url.resolve(
             this.project.apiUriBase,
-            `${interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) })}/${modelID}/analyze?includeTextDetails=true`,
+            `${interpolate(constants.apiModelsPath, {apiVersion})}/${modelID}/analyze?includeTextDetails=true`,
         );
 
         const headers = { "Content-Type": "application/json", "cache-control": "no-cache" };
@@ -40,13 +41,13 @@ export class PredictService {
 
 
         } catch (err) {
-            if (err.response.status === 404) {
+            if (err.response?.status === 404) {
                 throw new AppError(
                     ErrorCode.ModelNotFound,
                     interpolate(strings.errors.modelNotFound.message, { modelID })
                 );
             } else {
-                ServiceHelper.handleServiceError(err);
+                ServiceHelper.handleServiceError({...err, endpoint: endpointURL});
             }
         }
     }

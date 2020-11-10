@@ -23,6 +23,7 @@ describe("Tag Input Item", () => {
             onLabelLeave: jest.fn(),
             handleLabelTable: null,
             addRowToDynamicTable: null,
+            showOriginLabels:false,
         };
     }
 
