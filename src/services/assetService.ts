@@ -388,18 +388,18 @@ export class AssetService {
 
     /**
      * Get metadata for asset
-     * @param asset - Asset for which to retrieve metadata
+     * @param newAsset - Asset for which to retrieve metadata
      */
     public async getAssetMetadata(asset: IAsset): Promise<IAssetMetadata> {
         Guard.null(asset);
-
-        const labelFileName = decodeURIComponent(`${asset.name}${constants.labelFileExtension}`);
+        const newAsset=_.cloneDeep(asset);
+        const labelFileName = decodeURIComponent(`${newAsset.name}${constants.labelFileExtension}`);
         try {
             const json = await this.storageProvider.readText(labelFileName, true);
             const labelData = JSON.parse(json) as ILabelData;
             if (labelData) {
                 labelData.labelingState = labelData.labelingState || AssetLabelingState.ManuallyLabeled;
-                asset.labelingState = labelData.labelingState;
+                newAsset.labelingState = labelData.labelingState;
             }
             if (!labelData.document || !labelData.labels) {
                 const reason = interpolate(strings.errors.missingRequiredFieldInLabelFile.message, { labelFileName });
@@ -445,7 +445,7 @@ export class AssetService {
             }
             toast.dismiss();
             return {
-                asset: { ...asset, labelingState: labelData.labelingState },
+                asset: { ...newAsset, labelingState: labelData.labelingState },
                 regions: [],
                 version: appInfo.version,
                 labelData,
@@ -456,7 +456,7 @@ export class AssetService {
                 toast.error(reason, { autoClose: false });
             }
             return {
-                asset: { ...asset },
+                asset: { ...newAsset },
                 regions: [],
                 version: appInfo.version,
                 labelData: null,
