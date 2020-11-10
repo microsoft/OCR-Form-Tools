@@ -50,6 +50,7 @@ export function registerIcons() {
             Insights: "\uE3AF",
             KeyPhraseExtraction: "\uE395",
             Label: "\uE932",
+            LabelComposite: "\uE932",
             Link: "\uE71B",
             MachineLearning: "\uE3B8",
             MapLayers: "\uE81E",
@@ -92,7 +93,7 @@ export function registerIcons() {
             View: "\uE890",
             WarningSolid: "\uF736",
             ZoomIn: "\uE8A3",
-            ZoomOut: "\uE71F"
+            ZoomOut: "\uE71F",
         },
     });
 }
