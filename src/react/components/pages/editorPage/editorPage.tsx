@@ -184,7 +184,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     public render() {
         const { project } = this.props;
-        const { assets, selectedAsset, isRunningOCRs, isCanvasRunningOCR, isCanvasRunningAutoLabeling } = this.state;
+        const { assets, selectedAsset, isRunningOCRs, isCanvasRunningOCR, isCanvasRunningAutoLabeling, isRunningAutoLabelings } = this.state;
 
         const labels = (selectedAsset &&
             selectedAsset.labelData &&
@@ -366,7 +366,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                     message={strings.editorPage.warningMessage.PreventLeavingWhileRunningOCR}
                 />
                 <PreventLeaving
-                    when={isCanvasRunningAutoLabeling}
+                    when={isCanvasRunningAutoLabeling||isRunningAutoLabelings}
                     message={strings.editorPage.warningMessage.PreventLeavingRunningAutoLabeling} />
             </div>
         );
