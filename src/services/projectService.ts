@@ -18,6 +18,7 @@ import { decryptProject, encryptProject, joinPath, patch, getNextColor } from ".
 import packageJson from "../../package.json";
 import { strings, interpolate } from "../common/strings";
 import { toast } from "react-toastify";
+import clone from "rfdc";
 
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../react/components/common/tagColors.json");
@@ -41,7 +42,7 @@ export interface IProjectService {
     delete(project: IProject): Promise<void>;
     isDuplicate(project: IProject, projectList: IProject[]): boolean;
     updateProjectTagsFromFiles(oldProject: IProject): Promise<IProject>;
-    updatedAssetMetadata(oldProject: IProject, assetDocumentCountDifference: []): Promise<IProject>;
+    updatedAssetMetadata(oldProject: IProject, assetDocumentCountDifference: any, columnDocumentCountDifference: any, rowDocumentCountDifference: any): Promise<IProject>;
 }
 
 /**
@@ -193,23 +194,29 @@ export default class ProjectService implements IProjectService {
         }
     }
 
-    public async updatedAssetMetadata(project: IProject,  assetDocumentCountDifference: any): Promise<IProject> {
-        const updatedProject = Object.assign({}, project);
-        const tags: ITag[] = [];
-        updatedProject.tags.forEach((tag) => {
-            const diff = assetDocumentCountDifference[tag.name];
+    public async updatedAssetMetadata(project: IProject,  assetDocumentCountDifference: any, columnDocumentCountDifference: any,
+        rowDocumentCountDifference: any): Promise<IProject> {
+        console.log("final sol", assetDocumentCountDifference, columnDocumentCountDifference, rowDocumentCountDifference)
+        const updatedProject = clone()(project);
+        updatedProject.tags.forEach((tag: ITag) => {
+            const diff = assetDocumentCountDifference?.[tag.name];
             if (diff) {
-                tags.push({
-                    ...tag,
-                    documentCount: tag.documentCount + diff,
-                } as ITag);
-            } else {
-                tags.push({
-                    ...tag,
-                } as ITag);
+                tag.documentCount += diff;
+            }
+            if (tag.type === FieldType.Table) {
+                (tag as ITableTag).columnKeys.forEach((columnKey) => {
+                    if (columnDocumentCountDifference?.[tag.name]?.[columnKey.fieldKey]) {
+                        columnKey.documentCount += columnDocumentCountDifference[tag.name][columnKey.fieldKey];
+                    }
+                });
+                (tag as ITableTag).rowKeys.forEach((rowKey) => {
+                    if (rowDocumentCountDifference?.[tag.name]?.[rowKey.fieldKey]) {
+                        rowKey.documentCount += rowDocumentCountDifference[tag.name][rowKey.fieldKey]
+                    }
+                });
             }
         });
-        updatedProject.tags = tags;
+        console.log("final sol", updatedProject.tags)
         if (JSON.stringify(updatedProject.tags) === JSON.stringify(project.tags)) {
             return project;
         } else {

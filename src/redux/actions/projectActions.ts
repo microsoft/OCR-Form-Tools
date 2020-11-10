@@ -6,17 +6,10 @@ import ProjectService from "../../services/projectService";
 import { ActionTypes } from "./actionTypes";
 import { AssetService } from "../../services/assetService";
 import {
-    AppError,
-    ErrorCode,
-    IApplicationState,
-    IAsset,
-    IAssetMetadata,
-    IProject,
-    ITag,
-    ISecurityToken,
-    FieldType,
-    FieldFormat, ITableConfigItem, ITableTag, IField,
-    AssetLabelingState,
+    AppError, ErrorCode, IApplicationState, IAsset,
+    IAssetMetadata, IProject, ITag, ISecurityToken,
+    FieldType, AssetLabelingState, FieldFormat, ITableConfigItem,
+    ITableTag, IField, ITableField, ITableKeyField
 } from "../../models/applicationState";
 import { createAction, createPayloadAction, IPayloadAction } from "./actionCreators";
 import { appInfo } from "../../common/appInfo";
@@ -44,7 +37,7 @@ export default interface IProjectActions {
     updateProjectTag(project: IProject, oldTag: ITag, newTag: ITag): Promise<IAssetMetadata[]>;
     deleteProjectTag(project: IProject, tagName: string, tagType: FieldType, tagFormat: FieldFormat): Promise<IAssetMetadata[]>;
     updateProjectTagsFromFiles(project: IProject, asset?: string): Promise<void>;
-    updatedAssetMetadata(project: IProject, assetDocumentCountDifference: any): Promise<void>;
+    updatedAssetMetadata(project: IProject, assetDocumentCountDifference: any, columnDocumentCountDifference: any, rowDocumentCountDifference: any): Promise<void>;
     reconfigureTableTag?(project: IProject, originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]): Promise<IAssetMetadata[]>;
 }
 
@@ -134,11 +127,11 @@ export function updateProjectTagsFromFiles(project: IProject, asset?: string): (
     };
 }
 
-export function updatedAssetMetadata(project: IProject,
-    assetDocumentCountDifference: any): (dispatch: Dispatch) => Promise<void> {
+export function updatedAssetMetadata(project: IProject, assetDocumentCountDifference: any, columnDocumentCountDifference: any,
+    rowDocumentCountDifference: any): (dispatch: Dispatch) => Promise<void> {
     return async (dispatch: Dispatch) => {
         const projectService = new ProjectService();
-        const updatedProject = await projectService.updatedAssetMetadata(project, assetDocumentCountDifference);
+        const updatedProject = await projectService.updatedAssetMetadata(project, assetDocumentCountDifference, columnDocumentCountDifference, rowDocumentCountDifference);
         if (updatedProject !== project) {
             dispatch(updatedAssetMetadataAction(updatedProject));
         }
@@ -383,14 +376,14 @@ export function reconfigureTableTag(project: IProject, originalTagName: string, 
                                 fieldKey: newRow.name,
                                 fieldType: newRow.type,
                                 fieldFormat: newRow.format
-                            } as IField
+                            } as ITableKeyField
                         });
                         (tag as ITableTag).columnKeys = newColumns.map((newColumn) => {
                             return {
                                 fieldKey: newColumn.name,
                                 fieldType: newColumn.type,
                                 fieldFormat: newColumn.format
-                            } as IField
+                            } as ITableKeyField
                         });
                         (tag as ITag).name = tagName;
                         result.push(tag);

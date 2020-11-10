@@ -20,6 +20,8 @@ export interface ITableResultItem {
     fieldName: string,
     type: string,
     values: {},
+    rowKeys?: [],
+    columnKeys: [],
 }
 
 export interface IResultItem {

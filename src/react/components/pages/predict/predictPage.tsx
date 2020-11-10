@@ -26,7 +26,7 @@ import {
     getRightPaneDefaultButtonTheme
 } from "../../../../common/themes";
 import { loadImageToCanvas, parseTiffData, renderTiffToCanvas } from "../../../../common/utils";
-import { AppError, ErrorCode, FieldFormat, IApplicationState, IAppSettings, IConnection, ImageMapParent, IProject, IRecentModel, IField } from "../../../../models/applicationState";
+import { AppError, ErrorCode, FieldFormat, IApplicationState, IAppSettings, IConnection, ImageMapParent, IProject, IRecentModel, IField, AnalyzedTagsMode } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -47,6 +47,7 @@ import RecentModelsView from "./recentModelsView";
 import { UploadToTrainingSetView } from "./uploadToTrainingSetView";
 import { CanvasCommandBar } from "../editorPage/canvasCommandBar";
 // import table_output2 from "./table_prediction.json"
+
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 
 export interface IPredictPageProps extends RouteComponentProps, React.Props<PredictPage> {
@@ -231,6 +232,15 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const onPredictionPath: boolean = this.props.match.path.includes("predict");
         const sidebarWidth = this.state.viewTable ? 650 : 400;
 
+        let tagViewMode: AnalyzedTagsMode;
+        if (this.state.loadingRecentModel) {
+            tagViewMode = AnalyzedTagsMode.LoadingRecentModel;
+        } else if (this.state.viewTable) {
+            tagViewMode = AnalyzedTagsMode.ViewTable;
+        } else {
+            tagViewMode = AnalyzedTagsMode.default;
+        }
+
         return (
             <div
                 className={`predict skipToMainContent ${onPredictionPath ? "" : "hidden"} `}
@@ -248,7 +258,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             <FontIcon className="mr-1" iconName="Insights" />
                             <span>Analyze</span>
                         </h6>
-                        {!this.state.viewTable && !this.state.loadingRecentModel ?
+                        {tagViewMode === AnalyzedTagsMode.default &&
                             <>
                                 {!mostRecentModel ?
                                     <div className="bg-darker-2 pl-3 pr-3 flex-center ">
@@ -388,20 +398,19 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                         </div>
                                     </>
                                 }
-                            </> :
-                            // comment out for testing
-                            // <></>
+                            </>
+                        }
+                        {tagViewMode === AnalyzedTagsMode.LoadingRecentModel &&
                             <Spinner className="loading-tag" size={SpinnerSize.large} />
                         }
-                        {
-                            this.state.viewTable &&
+                        {this.state.viewTable &&
                             <div className="m-2">
                                 <h4 className="ml-1 mb-4">View analyzed Table</h4>
                                 {this.displayTable(this.state.tableToView)}
                                 <PrimaryButton
                                     className="mt-4 ml-2"
                                     theme={getPrimaryGreyTheme()}
-                                    onClick={() => this.setState({ viewTable: false })}>Cancel</PrimaryButton>
+                                    onClick={() => this.setState({ viewTable: false })}>Back</PrimaryButton>
                             </div>
                         }
                     </div>
@@ -640,7 +649,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private handleClick = () => {
-        this.setState({predictionLoaded: false, isPredicting: true});
+        this.setState({ predictionLoaded: false, isPredicting: true });
         this.getPrediction()
             .then((result) => {
                 this.tableHelper.setAnalyzeResult(result?.analyzeResult);
@@ -983,46 +992,52 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private displayTable = (tableToView: ITableResultItem) => {
-        const rows = [];
-        const columns= [];
+        let rows;
+        if (tableToView.type === FieldFormat.RowDynamic) {
+            rows = Object.keys(tableToView.values);
+        } else {
+            rows = tableToView.rowKeys;
+        }
+        const columns= tableToView.columnKeys;
         const Table = tableToView.values;
-        Object.keys(Table).forEach(key => {
-            rows.push({ name: key, value: Table[key] });
-        });
-
-        /// temp solution to find all unique column keys before we will get rowKeys and colKeys in result file from backend
-        Object.keys(rows).forEach(key => {
-            const columnsInRow = rows[key].value;
-            Object.keys(columnsInRow).forEach(col => {
-                if (!columns.find(i => i.name === col)) {
-                    columns.push({ name: col })
-                }
-            })
-        });
-
 
         let tableBody = null;
-        if (rows && rows?.length !== 0 && columns.length !== 0) {
+        let rowName;
+        let columnName;
+        if (rows?.length > 0 && columns?.length > 0) {
             tableBody = [];
-
             for (let i = 0; i < rows.length + 1; i++) {
-                const rowName = rows[i-1];
+                if (i > 0) {
+                    rowName = rows[i-1];
+                }
                 const tableRow = [];
                 for (let j = 0; j < columns.length + 1; j++) {
-                    const key = columns[j - 1];
-
+                    if (j > 0) {
+                        columnName = columns[j-1];
+                    }
                     if (i === 0 && j !== 0) {
-                        tableRow.push(<th key={j} className={"column_header"}>{
-                        columns[j - 1].name}</th>);
+                        tableRow.push(
+                            <th key={j} className={"column_header"}>
+                                {columns[j - 1]}
+                            </th>
+                        );
                     } else if (j === 0 && i !== 0) {
-                        tableRow.push(<th key={j} className={`row_header ${ tableToView.type === FieldFormat.RowDynamic ? "hidden" : ""}`}>{rows[i - 1].name}</th>);
+                        tableRow.push(
+                            <th key={j} className={`row_header ${ tableToView.type === FieldFormat.RowDynamic ? "hidden" : ""}`}>
+                                {rows[i - 1]}
+                            </th>
+                        );
                     } else if (j === 0 && i === 0) {
-                        tableRow.push(<th key={j} className={`empty_header  ${tableToView.type === FieldFormat.RowDynamic ? "hidden" : ""}`} />);
+                        tableRow.push(
+                            <th key={j} className={`empty_header  ${tableToView.type === FieldFormat.RowDynamic ? "hidden" : ""}`}/>
+                        );
                     } else {
-                        const tableCell = rowName?.value[key?.name]?.text;
-                            tableRow.push(<td
-                                className={"table-cell"} key={j}>{tableCell ?tableCell : null }
-                            </td>);
+                        const tableCell = Table?.[rowName]?.[columnName];
+                        tableRow.push(
+                            <td className={"table-cell"} key={j}>
+                                {tableCell ? tableCell.valueString : null }
+                            </td>
+                        );
                     }
                 }
                 tableBody.push(<tr key={i}>{tableRow}</tr>);

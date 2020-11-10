@@ -735,6 +735,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             if (assetMetadata.labelData?.labels?.toString() !== this.state.selectedAsset.labelData?.labels?.toString()) {
                 await this.updatedAssetMetadata(assetMetadata);
             }
+
             assetMetadata.asset = asset;
             const newMeta = await this.props.actions.saveAssetMetadata(this.props.project, assetMetadata);
             if (this.props.project.lastVisitedAssetId === asset.id) {
@@ -979,7 +980,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                 assetState: AssetState.Tagged,
                                 labelingState: AssetLabelingState.AutoLabeled,
                             });
-                            this.props.actions.updatedAssetMetadata(this.props.project, assetMetadata);
+                            this.updatedAssetMetadata(assetMetadata);
                         } catch (err) {
                             this.updateAssetState({ id: asset.id, isRunningOCR: false, isRunningAutoLabeling: false });
                             this.setState({
@@ -1158,6 +1159,78 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     private async updatedAssetMetadata(assetMetadata: IAssetMetadata) {
         console.log("testing doc count", assetMetadata);
+        const rowDocumentCountDifference = {};
+        const updatedRowLabels = {};
+        const currentRowLabels = {};
+        const columnDocumentCountDifference = {};
+        const updatedColumnLabels = {};
+        const currentColumnLabels = {};
+        assetMetadata?.labelData?.tableLabels?.forEach((table) => {
+            updatedRowLabels[table.tableKey] = {};
+            updatedColumnLabels[table.tableKey] = {};
+            table.labels.forEach((label) => {
+                updatedRowLabels[table.tableKey][label.rowKey] = true;
+                updatedColumnLabels[table.tableKey][label.columnKey] = true;
+            })
+        });
+
+        this.state.selectedAsset?.labelData?.tableLabels?.forEach((table) => {
+            currentRowLabels[table.tableKey] = {};
+            currentColumnLabels[table.tableKey] = {};
+            table.labels.forEach((label) => {
+                currentRowLabels[table.tableKey][label.rowKey] = true;
+                currentColumnLabels[table.tableKey][label.columnKey] = true;
+            })
+        });
+
+        console.log(currentRowLabels, updatedRowLabels, currentColumnLabels, updatedColumnLabels);
+
+        Object.keys(currentColumnLabels).forEach((table) => {
+            console.log(table)
+            Object.keys(currentColumnLabels[table]).forEach((columnKey) => {
+                console.log(columnKey)
+                if (!updatedColumnLabels?.[table]?.[columnKey]) {
+                    if (!(table in columnDocumentCountDifference)) {
+                        columnDocumentCountDifference[table] = {};
+                    }
+                    columnDocumentCountDifference[table][columnKey] = -1;
+                }
+            });
+        });
+
+        Object.keys(updatedColumnLabels).forEach((table) => {
+            Object.keys(updatedColumnLabels[table]).forEach((columnKey) => {
+                if (!currentColumnLabels?.[table]?.[columnKey]) {
+                    if (!(table in columnDocumentCountDifference)) {
+                        columnDocumentCountDifference[table] = {};
+                    }
+                    columnDocumentCountDifference[table][columnKey] = 1;
+                }
+            });
+        });
+
+        Object.keys(currentRowLabels).forEach((table) => {
+            Object.keys(currentRowLabels[table]).forEach((rowKey) => {
+                if (!updatedRowLabels?.[table]?.[rowKey]) {
+                    if (!(table in rowDocumentCountDifference)) {
+                        rowDocumentCountDifference[table] = {};
+                    }
+                    rowDocumentCountDifference[table][rowKey] = -1;
+                }
+            });
+        });
+
+        Object.keys(updatedRowLabels).forEach((table) => {
+            Object.keys(updatedRowLabels[table]).forEach((rowKey) => {
+                if (!currentRowLabels?.[table]?.[rowKey]) {
+                    if (!(table in rowDocumentCountDifference)) {
+                        rowDocumentCountDifference[table] = {};
+                    }
+                    rowDocumentCountDifference[table][rowKey] = 1;
+                }
+            });
+        });
+
         const assetDocumentCountDifference = {};
         const updatedAssetLabels = {};
         const currentAssetLabels = {};
@@ -1177,6 +1250,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 assetDocumentCountDifference[label] = 1;
             }
         });
-        await this.props.actions.updatedAssetMetadata(this.props.project, assetDocumentCountDifference);
+        await this.props.actions.updatedAssetMetadata(this.props.project, assetDocumentCountDifference, columnDocumentCountDifference, rowDocumentCountDifference);
     }
 }
