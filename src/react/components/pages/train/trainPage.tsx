@@ -8,7 +8,6 @@ import {connect} from "react-redux";
 import {RouteComponentProps} from "react-router-dom";
 import {bindActionCreators} from "redux";
 import url from "url";
-import {IAsset} from "vott-react";
 import {constants} from "../../../../common/constants";
 import {isElectron} from "../../../../common/hostProcess";
 import {interpolate, strings} from "../../../../common/strings";
