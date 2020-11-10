@@ -85,6 +85,8 @@ export function registerIcons() {
             SortUp: "\uEE68",
             StatusCircleCheckmark: "\uF13E",
             Table: "\uED86",
+            TableFirstColumn: "\uE3EF",
+            TableHeaderRow: "\uE3EC",
             Tag: "\uE8EC",
             TagGroup: "\uE3F6",
             TextDocument: "\uF029",

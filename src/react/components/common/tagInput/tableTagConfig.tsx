@@ -58,12 +58,12 @@ const headersFormatAndTypeOptions: IChoiceGroupOption[] = [
     {
         key: TableElements.columns,
         text: 'Column fields',
-        iconProps: { iconName: 'TableBrandedColumn' }
+        iconProps: { iconName: 'TableHeaderRow' }
     },
     {
         key: TableElements.rows,
         text: 'Row\n fields',
-        iconProps: { iconName: 'TableBrandedRow' }
+        iconProps: { iconName: 'TableFirstColumn' }
     },
 ];
 
