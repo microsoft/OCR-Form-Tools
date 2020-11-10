@@ -388,7 +388,7 @@ export class AssetService {
 
     /**
      * Get metadata for asset
-     * @param newAsset - Asset for which to retrieve metadata
+     * @param asset - Asset for which to retrieve metadata
      */
     public async getAssetMetadata(asset: IAsset): Promise<IAssetMetadata> {
         Guard.null(asset);
