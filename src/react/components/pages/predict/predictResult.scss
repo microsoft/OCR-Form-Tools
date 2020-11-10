@@ -36,6 +36,11 @@
             margin-bottom: 2px;
             padding-left: 3px;
             font-size: 0.95em;
+
+            &-null {
+                color: rgb(255, 255, 117);
+                list-style-type: none;
+            }
         }
     }
 
