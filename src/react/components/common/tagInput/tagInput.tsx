@@ -18,7 +18,7 @@ import { strings, interpolate } from "../../../../common/strings";
 import { getDarkTheme } from "../../../../common/themes";
 import { AlignPortal } from "../align/alignPortal";
 import { filterFormat, getNextColor } from "../../../../common/utils";
-import { IRegion, ITag, ILabel, FieldType, FieldFormat, IField, TagInputMode, FeatureCategory, ITableTag, ITableRegion, ITableConfigItem } from "../../../../models/applicationState";
+import { IRegion, ITag, ILabel, FieldType, FieldFormat, IField, TagInputMode, FeatureCategory, ITableTag, ITableRegion, ITableConfigItem, ITableField, ITableKeyField } from "../../../../models/applicationState";
 import { ColorPicker } from "../colorPicker";
 import "./tagInput.scss";
 import "../condensedList/condensedList.scss";
@@ -648,14 +648,16 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     fieldKey: column.name,
                     fieldType: column.type,
                     fieldFormat: column.format,
-                } as IField)
+                    documentCount: 0,
+                } as ITableKeyField)
             }),
             rowKeys: tableConfig.rows?.map((row) => {
                 return ({
                     fieldKey: row.name,
                     fieldType: row.type,
                     fieldFormat: row.format,
-                } as IField)
+                    documentCount: 0,
+                } as ITableKeyField)
             }),
             tableTypeAndFormatFor: tableConfig.headersFormatAndType
         };

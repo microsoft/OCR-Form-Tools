@@ -2,7 +2,7 @@ import React from 'react';
 import "./tableTagConfig.scss";
 import { PrimaryButton, FontIcon, DefaultButton } from "@fluentui/react";
 import { getPrimaryGreenTheme, getPrimaryBlueTheme } from '../../../../common/themes';
-import { FieldFormat, FieldType, TagInputMode, IRegion, ITableTag, ITableRegion, IField, TableElements } from '../../../../models/applicationState';
+import { FieldFormat, FieldType, TagInputMode, IRegion, ITableTag, ITableRegion, IField, TableElements, ITableField, ITableKeyField } from '../../../../models/applicationState';
 import "./tableTagLabeling.scss";
 
 import { strings } from "../../../../common/strings";
@@ -23,8 +23,8 @@ interface ITableTagLabelingProps {
 interface ITableTagLabelingState {
     selectedRowIndex: number;
     selectedColumnIndex: number;
-    rows: IField[],
-    columns: IField[],
+    rows: ITableKeyField[],
+    columns: ITableKeyField[],
     selectedTableTagBody: any,
 }
 

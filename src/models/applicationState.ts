@@ -126,8 +126,8 @@ export interface ITag {
 }
 
 export interface ITableTag extends ITag {
-    columnKeys: IField[];
-    rowKeys?: IField[];
+    columnKeys: ITableKeyField[];
+    rowKeys?: ITableKeyField[];
     tableTypeAndFormatFor?: TableHeaderTypeAndFormat,
 }
 
@@ -317,10 +317,14 @@ export interface IField {
     fieldFormat: FieldFormat;
 }
 
+export interface ITableKeyField extends IField {
+    documentCount?: number;
+}
+
 export interface ITableField extends IField {
-    columnKeys: IField[];
-    rowKeys?: IField[];
-    tableTypeAndFormatFor: TableHeaderTypeAndFormat;
+    columnKeys: ITableKeyField[];
+    rowKeys?: ITableKeyField[];
+    tableTypeAndFormatFor?: TableHeaderTypeAndFormat;
 }
 
 export interface ITableConfigItem {
