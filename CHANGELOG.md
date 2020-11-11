@@ -3,7 +3,7 @@
 Click [here](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/whats-new) to see what's new in Form Recognizer.
 
 ## Released conatiner's currently referenced commit
-2.1-Preview's released container image, tracked by the `latest-preview` image tag in our [docker hub repository](https://hub.docker.com/_/microsoft-azure-cognitive-services-custom-form-labeltool), currently references **2.1-preview.1-e015973 (10-09-2020)**
+2.1-Preview's released container image, tracked by the `latest-preview` image tag in our [docker hub repository](https://hub.docker.com/_/microsoft-azure-cognitive-services-custom-form-labeltool), currently references **2.1-preview.1-1f33130 (10-09-2020)**
 
 ## Commit history
 ### 2.1-preview.1-2e50498 (11-09-2020)
@@ -84,7 +84,7 @@ Click [here](https://docs.microsoft.com/en-us/azure/cognitive-services/form-reco
 ### 2.1-preview.1-7d1f871 (10-10-2020)
 * Update CHANGELOG.md([#??](https://github.com/microsoft/OCR-Form-Tools/commit/7d1f87193b3917f2140ab9bcce04c64e7aceb823))
 
-### 2.1-preview.1-e015973 (10-09-2020)
+### 2.1-preview.1-1f33130 (10-09-2020)
 * fix: support image map interactions for container releases([#639](https://github.com/microsoft/OCR-Form-Tools/commit/e015973aee152b8a8b22fc2fe32ce80bdd2b46ea))
 
 ### 2.1-preview.1-6d4e93b (10-07-2020)
