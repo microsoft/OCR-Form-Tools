@@ -187,8 +187,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     public componentDidUpdate = async (prevProps: Readonly<ICanvasProps>, prevState: Readonly<ICanvasState>) => {
         // Handles asset changing
-        if (this.props.selectedAsset.asset.name !== prevProps.selectedAsset.asset.name ||
-            this.props.selectedAsset.asset.isRunningOCR !== prevProps.selectedAsset.asset.isRunningOCR
+        if (this.props.selectedAsset.asset.name !== prevProps.selectedAsset.asset.name
         ) {
             this.selectedRegionIds = [];
             this.imageMap.removeAllFeatures();
@@ -209,6 +208,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 await this.loadImage();
                 await this.loadOcr();
                 this.loadLabelData(asset);
+            });
+        } else if (this.props.selectedAsset.asset.isRunningOCR !== prevProps.selectedAsset.asset.isRunningOCR) {
+            this.setState({
+                currentAsset: this.props.selectedAsset
             });
         } else if (this.isLabelDataChanged(this.props, prevProps)
             || (prevProps.project
@@ -1446,16 +1449,18 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (selectedRegions.length > 0) {
             const intersectionResult = _.intersection(selectedRegions, regions);
             if (intersectionResult.length === 0) {
-                const relatedLabels = labels.find(label => selectedRegions.find(sr => sr.tags.find(t => t === label.label)));
-                if (relatedLabels && relatedLabels.confidence) {
-                    const originLabel = this.props.selectedAsset!.labelData?.labels?.find(a => a.label === relatedLabels.label);
-                    if (originLabel) {
-                        relatedLabels.revised = true;
-                        if(!relatedLabels.originValue){
-                            relatedLabels.originValue = [...originLabel.value];
+                const relatedLabels = labels.filter(label => selectedRegions.find(sr => sr.tags.find(t => t === label.label)));
+                relatedLabels?.forEach(relatedLabel=>{
+                    if (relatedLabel && relatedLabel.confidence) {
+                        const originLabel = this.props.selectedAsset!.labelData?.labels?.find(a => a.label === relatedLabel.label);
+                        if (originLabel) {
+                            relatedLabel.revised = true;
+                            if(!relatedLabel.originValue){
+                                relatedLabel.originValue = [...originLabel.value];
+                            }
                         }
                     }
-                }
+                });
             }
         }
         regions.sort(this.compareRegionOrder);
@@ -1475,6 +1480,17 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         label.revised = true;
                         if(!label.originValue){
                             label.originValue = [...originLabel.value];
+                        }
+                    }
+                    if (region.changed) {
+                        const boundingBox = region.id.split(",").map(parseFloat);
+                        const oldLabel: ILabel = this.props.selectedAsset.labelData.labels.find(item => item.value.findIndex(v => v.boundingBoxes.findIndex(b => _.isEqual(b, boundingBox)) >= 0 && v.page === region.pageNumber) >= 0)
+                        if (oldLabel && oldLabel.confidence) {
+                            const relatedOldLabel = labels.find(l => l.label === oldLabel.label);
+                            relatedOldLabel.revised = true;
+                            if (!relatedOldLabel.originValue) {
+                                relatedOldLabel.originValue = [...oldLabel.value];
+                            }
                         }
                     }
                     if (originLabel && region.changed && label.labelType !== labelType) {

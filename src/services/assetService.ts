@@ -69,7 +69,7 @@ export class AssetService {
         return _.get(analyzeResult, "analyzeResult.readResults", []);
     }
     getAssetPredictMetadata(asset: IAsset, predictResults: any) {
-        asset = JSON.parse(JSON.stringify(asset));
+        asset = _.cloneDeep(asset);
         const getBoundingBox = (pageIndex, arr: number[]) => {
             const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(predictResults)[pageIndex - 1];
             const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
@@ -77,7 +77,7 @@ export class AssetService {
             const ocrHeight = ocrExtent[3] - ocrExtent[1];
             const result = [];
             for (let i = 0; i < arr.length; i += 2) {
-                result.push([
+                result.push(...[
                     (arr[i] / ocrWidth),
                     (arr[i + 1] / ocrHeight),
                 ]);
@@ -85,7 +85,7 @@ export class AssetService {
             return result;
         };
         const getLabelValues = (field: any) => {
-            return field.elements.map((path: string):IFormRegion => {
+            return field.elements?.map((path: string):IFormRegion => {
                 const pathArr = path.split('/').slice(1);
                 const word = pathArr.reduce((obj: any, key: string) => obj[key], { ...predictResults.analyzeResult });
                 return {
@@ -137,7 +137,7 @@ export class AssetService {
         }
     }
     async uploadPredictResultAsOrcResult(asset: IAsset, predictResults: any): Promise<void> {
-        const ocrData = JSON.parse(JSON.stringify(predictResults));
+        const ocrData = _.cloneDeep(predictResults);
         delete ocrData.analyzeResult.documentResults;
         if (ocrData.analyzeResult.errors) {
             delete ocrData.analyzeResult.errors;
@@ -148,7 +148,7 @@ export class AssetService {
 
     async syncAssetPredictResult(asset: IAsset, predictResults: any): Promise<IAssetMetadata> {
         const assetMeatadata = this.getAssetPredictMetadata(asset, predictResults);
-        const ocrData = JSON.parse(JSON.stringify(predictResults));
+        const ocrData = _.cloneDeep(predictResults);
         delete ocrData.analyzeResult.documentResults;
         if (ocrData.analyzeResult.errors) {
             delete ocrData.analyzeResult.errors;
@@ -392,7 +392,7 @@ export class AssetService {
                 // The file may not exist - that's OK.
             }
         }
-        return JSON.parse(JSON.stringify(metadata));
+        return _.cloneDeep(metadata);
     }
 
     /**

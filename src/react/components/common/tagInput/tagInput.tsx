@@ -580,7 +580,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         }
     }
     public labelAssigned = (labels: ILabel[], name): boolean => {
-        const label = labels.find((label) => label.label === name ? true : false);
+        const label = labels?.find((label) => label.label === name ? true : false);
         if (!label) {
             return false;
         } else {
@@ -589,7 +589,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     public labelAssignedDrawnRegion = (labels: ILabel[], name): boolean => {
-        const label = labels.find((label) => label.label === name ? true : false);
+        const label = labels?.find((label) => label.label === name ? true : false);
         if (label?.labelType === FeatureCategory.DrawnRegion) {
             return true;
         } else {

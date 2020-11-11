@@ -25,7 +25,8 @@ import {
     getPrimaryGreenTheme, getPrimaryWhiteTheme,
     getRightPaneDefaultButtonTheme
 } from "../../../../common/themes";
-import {AppError, ErrorCode, IApplicationState, IAppSettings, IConnection, IProject, IRecentModel} from "../../../../models/applicationState";
+import { getAPIVersion } from "../../../../common/utils";
+import { AppError, ErrorCode, IApplicationState, IAppSettings, IConnection, IProject, IRecentModel } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -681,7 +682,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                         case "<model_id>":
                             return modelID;
                         case "<API_version>":
-                            return (this.props.project?.apiVersion || constants.apiVersion);
+                            return getAPIVersion(this.props.project?.apiVersion);
+
                     }
                 });
             const fileURL = window.URL.createObjectURL(
@@ -723,7 +725,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 strings.errors.predictWithoutTrainForbidden.message,
                 strings.errors.predictWithoutTrainForbidden.title);
         }
-        const apiVersion = this.props.project?.apiVersion || constants.apiVersion;
+        const apiVersion = getAPIVersion(this.props.project?.apiVersion);
         const endpointURL = url.resolve(
             this.props.project.apiUriBase,
             `${interpolate(constants.apiModelsPath, {apiVersion})}/${modelID}/analyze?includeTextDetails=true`,
@@ -973,7 +975,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
     private async getRecentModelFromPredictModelId(): Promise<any> {
         const modelID = this.props.project.predictModelId;
-        const apiVersion = this.props.project?.apiVersion || constants.apiVersion;
+        const apiVersion = getAPIVersion(this.props.project?.apiVersion);
         const endpointURL = url.resolve(
             this.props.project.apiUriBase,
             `${interpolate(constants.apiModelsPath, {apiVersion})}/${modelID}`,
