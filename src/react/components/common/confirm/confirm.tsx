@@ -133,7 +133,7 @@ export default class Confirm extends React.Component<IConfirmProps, IConfirmStat
      * Close Confirm Dialog
      */
     public close(): void {
-        this.setState({ hideDialog: true });
+        this.setState({ hideDialog: true, loading: false });
     }
 
     public load(): void {
