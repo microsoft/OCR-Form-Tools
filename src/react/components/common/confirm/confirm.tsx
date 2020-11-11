@@ -11,11 +11,11 @@ import {
     ITheme,
     PrimaryButton,
     DefaultButton,
-    SpinnerSize
+    SpinnerSize,
+    Spinner
 } from "@fluentui/react";
 import { MessageFormatHandler } from "../messageBox/messageBox";
-import { getDarkTheme, getDefaultDarkTheme, getDefaultTheme } from "../../../../common/themes";
-import { Spinner } from "reactstrap";
+import { getDarkTheme, getDefaultDarkTheme } from "../../../../common/themes";
 import "./confirm.scss";
 
 /**
@@ -77,13 +77,6 @@ export default class Confirm extends React.Component<IConfirmProps, IConfirmStat
             scopedSettings: {},
         };
 
-        const defaultCustomization: ICustomizations = {
-            settings: {
-              theme: getDefaultTheme(),
-            },
-            scopedSettings: {},
-        };
-
         const { confirmButtonTheme } = this.props;
         const { hideDialog, loading } = this.state;
 
@@ -102,14 +95,16 @@ export default class Confirm extends React.Component<IConfirmProps, IConfirmStat
                             isBlocking: true,
                         }}
                     >
-                        {loading && this.props.loadMessage &&
-                                <Spinner
-                                    label={"sfds"}
+                    {loading && this.props.loadMessage &&
+                        <div className="spinner-container">
+                                    <Spinner
+                                    label={this.props.loadMessage}
                                     labelPosition="right"
-                                    className="confirm-spinner"
                                     theme={getDefaultDarkTheme()}
                                     size={SpinnerSize.large}
                                 />
+                        </div>
+
                         }
                         <DialogFooter>
                             <PrimaryButton
