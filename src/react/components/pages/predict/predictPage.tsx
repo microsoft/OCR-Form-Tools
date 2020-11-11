@@ -42,7 +42,7 @@ import PredictResult, { IAnalyzeModelInfo, ITableResultItem } from "./predictRes
 import RecentModelsView from "./recentModelsView";
 import { UploadToTrainingSetView } from "./uploadToTrainingSetView";
 import { CanvasCommandBar } from "../editorPage/canvasCommandBar";
-// import table_output2 from "./table_prediction.json"
+import table_output2 from "./table_prediction.json"
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -90,6 +90,8 @@ export interface IPredictPageState {
     viewTable?: boolean;
     tableToView?: any;
     tableTagColor?: string;
+    highlightedTableCellRowKey?: string;
+    highlightedTableCellColumnKey?: string;
 }
 
 export interface IModel {
@@ -150,6 +152,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         imageAngle: 0,
         viewTable: false,
         tableToView: null,
+        tableTagColor: null,
+        highlightedTableCellRowKey: null,
+        highlightedTableCellColumnKey: null,
     };
 
     private selectionHandler: ISelection;
@@ -213,6 +218,11 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
             if (prevState.highlightedField !== this.state.highlightedField) {
                 this.setPredictedFieldHighlightStatus(this.state.highlightedField);
+            }
+
+            if (prevState.highlightedTableCellColumnKey !== this.state.highlightedTableCellColumnKey ||
+                prevState.highlightedTableCellRowKey !== this.state.highlightedTableCellRowKey) {
+                this.setPredictedFieldTableCellHighlightStatus(this.state.highlightedTableCellRowKey, this.state.highlightedTableCellColumnKey)
             }
         }
     }
@@ -730,45 +740,45 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
     private handleClick = () => {
         this.setState({ predictionLoaded: false, isPredicting: true });
-        this.getPrediction()
-            .then((result) => {
-                this.setState({
-                    analyzeResult: result,
-                    predictionLoaded: true,
-                    predictRun: true,
-                    isPredicting: false,
-                }, () => {
-                    this.drawPredictionResult();
-                });
-            })
-            .catch((error) => {
-                let alertMessage = "";
-                if (error.response) {
-                    alertMessage = error.response.data;
-                } else if (error.errorCode === ErrorCode.PredictWithoutTrainForbidden) {
-                    alertMessage = strings.errors.predictWithoutTrainForbidden.message;
-                } else if (error.errorCode === ErrorCode.ModelNotFound) {
-                    alertMessage = error.message;
-                } else {
-                    alertMessage = interpolate(strings.errors.endpointConnectionError.message, { endpoint: "form recognizer backend URL" });
-                }
-                this.setState({
-                    shouldShowAlert: true,
-                    alertTitle: "Prediction Failed",
-                    alertMessage,
-                    isPredicting: false,
-                });
-            });
+        // this.getPrediction()
+        //     .then((result) => {
+        //         this.setState({
+        //             analyzeResult: result,
+        //             predictionLoaded: true,
+        //             predictRun: true,
+        //             isPredicting: false,
+        //         }, () => {
+        //             this.drawPredictionResult();
+        //         });
+        //     })
+        //     .catch((error) => {
+        //         let alertMessage = "";
+        //         if (error.response) {
+        //             alertMessage = error.response.data;
+        //         } else if (error.errorCode === ErrorCode.PredictWithoutTrainForbidden) {
+        //             alertMessage = strings.errors.predictWithoutTrainForbidden.message;
+        //         } else if (error.errorCode === ErrorCode.ModelNotFound) {
+        //             alertMessage = error.message;
+        //         } else {
+        //             alertMessage = interpolate(strings.errors.endpointConnectionError.message, { endpoint: "form recognizer backend URL" });
+        //         }
+        //         this.setState({
+        //             shouldShowAlert: true,
+        //             alertTitle: "Prediction Failed",
+        //             alertMessage,
+        //             isPredicting: false,
+        //         });
+        //     });
 
             //  uncomment this and comment out all above for testing analyze results
-            // this.setState({
-            //     analyzeResult: table_output2,
-            //     predictionLoaded: true,
-            //     predictRun: true,
-            //     isPredicting: false,
-            // }, () => {
-            //     this.drawPredictionResult();
-            // });
+            this.setState({
+                analyzeResult: table_output2,
+                predictionLoaded: true,
+                predictRun: true,
+                isPredicting: false,
+            }, () => {
+                this.drawPredictionResult();
+            });
 
         if (this.appInsights) {
             this.appInsights.trackEvent({ name: "ANALYZE_EVENT" });
@@ -1028,6 +1038,39 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         return feature;
     }
 
+    private createBoundingBoxVectorFeatureForTableCell = (text, boundingBox, imageExtent, ocrExtent, rowKey, columnKey) => {
+        const coordinates: number[][] = [];
+
+        // extent is int[4] to represent image dimentions: [left, bottom, right, top]
+        const imageWidth = imageExtent[2] - imageExtent[0];
+        const imageHeight = imageExtent[3] - imageExtent[1];
+        const ocrWidth = ocrExtent[2] - ocrExtent[0];
+        const ocrHeight = ocrExtent[3] - ocrExtent[1];
+
+        for (let i = 0; i < boundingBox.length; i += 2) {
+            coordinates.push([
+                Math.round((boundingBox[i] / ocrWidth) * imageWidth),
+                Math.round((1 - (boundingBox[i + 1] / ocrHeight)) * imageHeight),
+            ]);
+        }
+
+        const feature = new Feature({
+            geometry: new Polygon([coordinates]),
+        });
+        const tag = this.props.project.tags.find((tag) => tag.name.toLocaleLowerCase() === text.toLocaleLowerCase());
+        const isHighlighted = (text.toLocaleLowerCase() === this.state.highlightedField.toLocaleLowerCase() ||
+            (this.state.highlightedTableCellRowKey === rowKey && this.state.highlightedTableCellColumnKey === columnKey));
+        feature.setProperties({
+            color: _.get(tag, "color", "#333333"),
+            fieldName: text,
+            isHighlighted,
+            rowKey,
+            columnKey,
+        });
+
+        return feature;
+    }
+
     private featureStyler = (feature) => {
         return new Style({
             stroke: new Stroke({
@@ -1052,6 +1095,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         for (const fieldName of Object.keys(predictions)) {
             const field: IField = predictions[fieldName];
             if (predictions[fieldName]?.type === FieldFormat.Fixed || predictions[fieldName]?.type === FieldFormat.RowDynamic) {
+                console.log(predictions[fieldName])
                 const rows = predictions[fieldName].values;
                 for (const rowName of Object.keys(rows)) {
                     const columns = rows[rowName];
@@ -1061,7 +1105,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                         {
                             const text = fieldName;
                             const boundingbox = _.get(field, "boundingBox", []);
-                            const feature = this.createBoundingBoxVectorFeature(text, boundingbox, imageExtent, ocrExtent);
+                            const feature = this.createBoundingBoxVectorFeatureForTableCell(text, boundingbox, imageExtent, ocrExtent, rowName, cellName);
                             features.push(feature);
                         }
                     }
@@ -1225,7 +1269,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     } else {
                         const tableCell = Table?.[rowName]?.[columnName];
                         tableRow.push(
-                            <td className={"table-cell"} key={j}>
+                            <td
+                                className={"table-cell"}
+                                key={j}
+                                onMouseEnter={() => { console.log(rows[i-1], columns[j-1]); this.setState({highlightedTableCellRowKey: rows[i-1], highlightedTableCellColumnKey: columns[j-1]})}}
+                                onMouseLeave={() => { console.log(rows[i-1], columns[j-1]); this.setState({highlightedTableCellRowKey: null, highlightedTableCellColumnKey: null})}}
+                            >
                                 {tableCell ? tableCell.valueString : null }
                             </td>
                         );
@@ -1269,6 +1318,19 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             }
         }
     }
+
+    private setPredictedFieldTableCellHighlightStatus = (highlightedTableCellRowKey: string, highlightedTableCellColumnKey: string) => {
+        const features = this.imageMap.getAllFeatures();
+        for (const feature of features) {
+            if (highlightedTableCellRowKey && highlightedTableCellColumnKey && feature.get("rowKey")?.toLocaleLowerCase() === highlightedTableCellRowKey?.toLocaleLowerCase() &&
+                feature.get("columnKey")?.toLocaleLowerCase() === highlightedTableCellColumnKey?.toLocaleLowerCase()) {
+                feature.set("isHighlighted", true);
+            } else {
+                feature.set("isHighlighted", false);
+            }
+        }
+    }
+
     private handleModelSelection = () => {
         const selectedIndex = this.getSelectedIndex();
         if (selectedIndex !== this.state.selectionIndexTracker) {

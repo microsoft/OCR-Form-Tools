@@ -112,7 +112,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
 
             return (
                 <div key={key}
-                    onClick={() => this.onTablePredictionClick(item, this.getTagColor(item.fieldName))}
+                    onClick={() => { this.onTablePredictionClick(item, this.getTagColor(item.fieldName)); this.onPredictionMouseLeave(item)}}
                     onMouseEnter={() => this.onPredictionMouseEnter(item)}
                     onMouseLeave={() => this.onPredictionMouseLeave(item)}>
                     <li className="predictiontag-item" style={style}>
