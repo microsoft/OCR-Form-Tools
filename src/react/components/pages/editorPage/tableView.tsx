@@ -24,7 +24,6 @@ export const TableView: React.FunctionComponent<ITableViewProps> = (props) => {
 
     function getTableBody() {
         const table = props.tableToView;
-        console.log(table)
         let tableBody = null;
         if (table !== null) {
             tableBody = [];
@@ -38,9 +37,7 @@ export const TableView: React.FunctionComponent<ITableViewProps> = (props) => {
                 const rowIndex = cell["rowIndex"];
                 const columnIndex = cell["columnIndex"];
                 const rowSpan = cell["rowSpan"];
-                const colSpan = cell["columnSpan"]
-                console.log(cell);
-                console.log(tableBody[rowIndex]["props"]["children"]);
+                const colSpan = cell["columnSpan"];
                 tableBody[rowIndex]["props"]["children"][columnIndex] =
                     <td key={columnIndex} colSpan={colSpan} rowSpan={rowSpan}>
                         {cell["text"]}
