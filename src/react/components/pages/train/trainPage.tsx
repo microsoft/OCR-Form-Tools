@@ -329,7 +329,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                     newAssets[asset.id] = newMeta.asset;
                 }
                 else {
-                    newAssets[asset.id]=newAsset;
+                    newAssets[asset.id] = newAsset;
                 }
             }
             await this.props.actions.saveProject({...this.props.project, assets: newAssets},false,false);
@@ -421,7 +421,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
     private async cleanLabelData() {
         const allAssets = { ...this.props.project.assets };
-        const assetValues=Object.values(allAssets).filter(asset => asset.labelingState !== AssetLabelingState.Trained)
+        const assetValues = Object.values(allAssets).filter(asset => asset.labelingState !== AssetLabelingState.Trained)
         for (const asset of assetValues) {
             const assetMetadata: IAssetMetadata = _.cloneDeep(await this.props.actions.loadAssetMetadata(this.props.project, asset));
             let isUpdated = false;
