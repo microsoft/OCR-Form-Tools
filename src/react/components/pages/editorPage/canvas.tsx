@@ -1463,6 +1463,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 });
             }
         }
+        const findOldLableBasedOnRegion = (labels, region): ILabel => {
+            const boundingBox = region.id.split(",").map(parseFloat);
+            return labels?.find(item =>
+                item.value?.findIndex(v => v.boundingBoxes?.findIndex(b =>
+                    _.isEqual(b, boundingBox)) >= 0 && v.page === region.pageNumber) >= 0);
+        }
         regions.sort(this.compareRegionOrder);
         regions.forEach((region) => {
             const labelType = this.getLabelType(region.category);
@@ -1483,9 +1489,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         }
                     }
                     if (region.changed) {
-                        const boundingBox = region.id.split(",").map(parseFloat);
-                        const oldLabel: ILabel = this.props.selectedAsset?.labelData?.labels?.find(item => item.value?.findIndex(v => v.boundingBoxes?.findIndex(b => _.isEqual(b, boundingBox)) >= 0 && v.page === region.pageNumber) >= 0)
-                        if (oldLabel && oldLabel.confidence) {
+                        const oldLabel: ILabel = findOldLableBasedOnRegion(this.props.selectedAsset.labelData?.labels, region);
+                        if (oldLabel?.confidence) {
                             const relatedOldLabel = labels.find(l => l.label === oldLabel.label);
                             relatedOldLabel.revised = true;
                             if (!relatedOldLabel.originValue) {
