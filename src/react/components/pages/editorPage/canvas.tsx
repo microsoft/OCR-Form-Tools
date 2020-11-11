@@ -1482,6 +1482,17 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                             label.originValue = [...originLabel.value];
                         }
                     }
+                    if (region.changed) {
+                        const boundingBox = region.id.split(",").map(parseFloat);
+                        const oldLabel: ILabel = this.props.selectedAsset.labelData.labels.find(item => item.value.findIndex(v => v.boundingBoxes.findIndex(b => _.isEqual(b, boundingBox)) >= 0 && v.page === region.pageNumber) >= 0)
+                        if (oldLabel && oldLabel.confidence) {
+                            const relatedOldLabel = labels.find(l => l.label === oldLabel.label);
+                            relatedOldLabel.revised = true;
+                            if (!relatedOldLabel.originValue) {
+                                relatedOldLabel.originValue = [...oldLabel.value];
+                            }
+                        }
+                    }
                     if (originLabel && region.changed && label.labelType !== labelType) {
                         label.labelType = labelType;
                     }
