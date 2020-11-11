@@ -31,15 +31,17 @@ export const TableView: React.FunctionComponent<ITableViewProps> = (props) => {
             const columns = table["columns"];
             for (let i = 0; i < rows; i++) {
                 const tableRow = [];
-                for (let j = 0; j < columns; j++) {
-                    tableRow.push(<td key={j}></td>);
-                }
                 tableBody.push(<tr key={i}>{tableRow}</tr>);
             }
             table["cells"].forEach((cell) => {
                 const rowIndex = cell["rowIndex"];
                 const columnIndex = cell["columnIndex"];
-                tableBody[rowIndex]["props"]["children"][columnIndex] = <td key={columnIndex}>{cell["text"]}</td>;
+                const rowSpan = cell["rowSpan"];
+                const colSpan = cell["columnSpan"];
+                tableBody[rowIndex]["props"]["children"][columnIndex] =
+                    <td key={columnIndex} colSpan={colSpan} rowSpan={rowSpan}>
+                        {cell["text"]}
+                    </td>;
             });
         }
         return tableBody;
