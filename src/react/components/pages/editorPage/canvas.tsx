@@ -403,7 +403,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         } catch(err){
             this.setState({
                 isError: true,
-                errorMessage: `${err.message}, code ${err.code}`
+                errorTitle: err.title,
+                errorMessage: err.message
             });
         }
         // catch(error){
