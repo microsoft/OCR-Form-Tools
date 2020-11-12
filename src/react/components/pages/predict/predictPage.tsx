@@ -153,6 +153,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         tableToViewId: null,
     };
 
+    private analyzeResults: any;
     private selectionHandler: ISelection;
     private imageMap: ImageMap;
     private uploadToTrainingSetView: React.RefObject<UploadToTrainingSetView> = React.createRef();
@@ -194,6 +195,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         if (this.state.file) {
             if (this.state.fileChanged && !this.state.isFetching) {
                 this.loadFile(this.state.file);
+                this.analyzeResults = undefined;
             } else if (prevState.currentPage !== this.state.currentPage) {
 
                 this.fileHelper.loadPage(this.state.currentPage).then((res: any) => {
@@ -349,7 +351,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                             {Object.keys(predictions).length > 0 && this.props.project &&
                                                 <PredictResult
                                                     predictions={predictions}
-                                                    analyzeResult={this.state.analyzeResult}
+                                                    analyzeResult={this.analyzeResults}
                                                     page={this.state.currentPage}
                                                     tags={this.props.project.tags}
                                                     downloadResultLabel={this.state.fileLabel}
@@ -622,6 +624,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         this.setState({predictionLoaded: false, isPredicting: true});
         this.getPrediction()
             .then((result) => {
+                this.analyzeResults = _.cloneDeep(result?.analyzeResult);
                 this.tableHelper.setAnalyzeResult(result?.analyzeResult);
                 this.setState({
                     predictionResult: result,
