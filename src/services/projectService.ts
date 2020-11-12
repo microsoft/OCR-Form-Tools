@@ -209,7 +209,7 @@ export default class ProjectService implements IProjectService {
                         columnKey.documentCount += columnDocumentCountDifference[tag.name][columnKey.fieldKey];
                     }
                 });
-                (tag as ITableTag).rowKeys.forEach((rowKey) => {
+                (tag as ITableTag).rowKeys?.forEach((rowKey) => {
                     if (rowDocumentCountDifference?.[tag.name]?.[rowKey.fieldKey]) {
                         rowKey.documentCount += rowDocumentCountDifference[tag.name][rowKey.fieldKey]
                     }
