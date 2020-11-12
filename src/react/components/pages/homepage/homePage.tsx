@@ -87,7 +87,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                         <li>
                             <a id="home_prebuilt"
                                 onClick={this.onPrebuiltClicked}
-                                className="p-2"
+                                className="primary-link"
                                 role="button">
                                 <FontIcon iconName="ContactCard" className="icon-7x" />
                                 <div className="title">{strings.homePage.prebuiltPredict.title}</div>
@@ -101,7 +101,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                         </li>
                         <li>
                             <a onClick={this.onUseLayoutToGetTextAndTAblesClicked}
-                                className="p-2"
+                                className="primary-link"
                                 role="button">
                                 <FontIcon iconName="KeyPhraseExtraction" className="icon-7x" />
                                 <div className="title">{strings.homePage.layoutPredict.title}</div>
@@ -117,7 +117,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                         </li>
                         <li>
                             <a onClick={this.onTrainAndUseAModelWithLables}
-                                className="p-2"
+                                className="primary-link"
                                 role="button">
                                 <FontIcon iconName="AddTo" className="icon-7x" />
                                 <div className="title">{strings.homePage.trainWithLabels.title}</div>
