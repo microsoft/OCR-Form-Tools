@@ -98,13 +98,23 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                         {this.getPredictionTagContent(item)}
                     </div>
                 </li>
-                <li className={postProcessedValue ? "predictiontag-item-label mt-0" : "predictiontag-item-label mt-0 mb-1"}>
-                    {postProcessedValue ? "text: " + item.text : item.text}
-                </li>
-                {postProcessedValue &&
-                    <li className="predictiontag-item-label mb-1">
-                        {postProcessedValue}
-                    </li>
+                {item.text === null ?
+                        <>
+                            <li className={postProcessedValue ? "predictiontag-item-label-null mt-0" : "predictiontag-item-label-null mt-0 mb-1"}>
+                                {postProcessedValue ? "text: NULL": "NULL"}
+                            </li>
+                        </>
+                    :
+                        <>
+                            <li className={postProcessedValue ? "predictiontag-item-label mt-0" : "predictiontag-item-label mt-0 mb-1"}>
+                                {postProcessedValue ? "text: " + item.text : item.text}
+                            </li>
+                            {postProcessedValue &&
+                                <li className="predictiontag-item-label mb-1">
+                                    {postProcessedValue}
+                                </li>
+                            }
+                        </>
                 }
             </div>
         );
