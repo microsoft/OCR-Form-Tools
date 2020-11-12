@@ -68,8 +68,6 @@ export interface IPrebuiltPredictPageState extends ILoadFileResult, ITableState 
     currentPrebuiltType: IPrebuiltTypes;
 }
 
-
-
 function mapStateToProps(state: IApplicationState) {
     return {
         prebuiltSettings: state.prebuiltSettings
