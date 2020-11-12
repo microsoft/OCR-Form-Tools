@@ -8,7 +8,6 @@ import {connect} from "react-redux";
 import {RouteComponentProps} from "react-router-dom";
 import {bindActionCreators} from "redux";
 import url from "url";
-import {IAsset} from "vott-react";
 import {constants} from "../../../../common/constants";
 import {isElectron} from "../../../../common/hostProcess";
 import {interpolate, strings} from "../../../../common/strings";
@@ -104,7 +103,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     public async componentDidMount() {
         const projectId = this.props.match.params["projectId"];
         if (projectId) {
-            const project = this.props.recentProjects.find((project) => project.id === projectId);
+            const project = {...this.props.recentProjects.find((project) => project.id === projectId)};
             await this.props.actions.loadProject(project);
 
             this.props.appTitleActions.setTitle(project.name);
@@ -329,6 +328,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                     const newMeta = await assetService.save({ ...metadata });
                     newAssets[asset.id] = newMeta.asset;
                 }
+                else {
+                    newAssets[asset.id] = newAsset;
+                }
             }
             await this.props.actions.saveProject({...this.props.project, assets: newAssets},false,false);
             this.setState((prevState, props) => ({
@@ -419,42 +421,45 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
     private async cleanLabelData() {
         const allAssets = { ...this.props.project.assets };
-        await Object.values(allAssets)
-            .filter(asset => asset.labelingState !== AssetLabelingState.Trained)
-            .forEachAsync(async (asset) => {
-                const assetMetadata: IAssetMetadata = { ...await this.props.actions.loadAssetMetadata(this.props.project, asset) };
-                let isUpdated=false;
-                assetMetadata.labelData?.labels?.forEach((label,index)=>{
-                    if(label.value?.length===0){
-                        assetMetadata.labelData.labels.splice(index,1);
-                        isUpdated=true;
-                    }
-                });
-                if (!isUpdated&&assetMetadata.asset.labelingState === AssetLabelingState.ManuallyLabeled
-                    && assetMetadata.labelData?.labels?.findIndex(label => label.confidence
-                        || label.originValue
-                        || label.revised
-                        || label.value?.findIndex(item => item["confidence"]) < 0) < 0
-                ) {
-                    return;
+        const assetValues = Object.values(allAssets).filter(asset => asset.labelingState !== AssetLabelingState.Trained)
+        for (const asset of assetValues) {
+            const assetMetadata: IAssetMetadata = _.cloneDeep(await this.props.actions.loadAssetMetadata(this.props.project, asset));
+            let isUpdated = false;
+            assetMetadata.labelData?.labels?.forEach((label, index) => {
+                if (label.value?.length === 0) {
+                    assetMetadata.labelData.labels.splice(index, 1);
+                    isUpdated = true;
                 }
-                if(assetMetadata.labelData?.labels?.findIndex(label=>label.value?.length>0)>=0){
-                    assetMetadata.asset.labelingState = AssetLabelingState.ManuallyLabeled;
-                    if (assetMetadata.labelData) {
-                        assetMetadata.labelData.labelingState = AssetLabelingState.ManuallyLabeled;
-                    }
-                }
-
-                assetMetadata.labelData?.labels?.forEach((label) => {
-                    delete label.confidence;
-                    delete label.originValue;
-                    delete label.revised;
-                    label.value?.forEach(item => {
-                        delete item["confidence"];
-                    });
-                });
-                await this.props.actions.saveAssetMetadataAndCleanEmptyLabel(this.props.project,assetMetadata);
             });
+            if (!isUpdated && assetMetadata.asset.labelingState === AssetLabelingState.ManuallyLabeled
+                && assetMetadata.labelData?.labels?.findIndex(label => label.confidence
+                    || label.originValue
+                    || label.revised
+                    || label.value?.findIndex(item => item["confidence"]) < 0) < 0
+            ) {
+                return;
+            }
+            if (assetMetadata.labelData?.labels?.findIndex(label => label.value?.length > 0) >= 0) {
+                assetMetadata.asset.labelingState = AssetLabelingState.ManuallyLabeled;
+                if (assetMetadata.labelData) {
+                    assetMetadata.labelData.labelingState = AssetLabelingState.ManuallyLabeled;
+                }
+                isUpdated = true;
+            }
+
+            assetMetadata.labelData?.labels?.forEach((label) => {
+                delete label.confidence;
+                delete label.originValue;
+                delete label.revised;
+                label.value?.forEach(item => {
+                    delete item["confidence"];
+                });
+                isUpdated = true;
+            });
+            if (isUpdated) {
+                await this.props.actions.saveAssetMetadataAndCleanEmptyLabel(this.props.project, assetMetadata);
+            }
+        }
     }
 
     private async getTrainStatus(operationLocation: string): Promise<any> {
