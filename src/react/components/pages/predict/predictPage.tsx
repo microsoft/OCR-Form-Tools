@@ -42,7 +42,7 @@ import PredictResult, { IAnalyzeModelInfo, ITableResultItem } from "./predictRes
 import RecentModelsView from "./recentModelsView";
 import { UploadToTrainingSetView } from "./uploadToTrainingSetView";
 import { CanvasCommandBar } from "../editorPage/canvasCommandBar";
-import table_output2 from "./table_prediction.json"
+// import table_output2 from "./table_prediction.json"
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -740,45 +740,45 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
     private handleClick = () => {
         this.setState({ predictionLoaded: false, isPredicting: true });
-        // this.getPrediction()
-        //     .then((result) => {
-        //         this.setState({
-        //             analyzeResult: result,
-        //             predictionLoaded: true,
-        //             predictRun: true,
-        //             isPredicting: false,
-        //         }, () => {
-        //             this.drawPredictionResult();
-        //         });
-        //     })
-        //     .catch((error) => {
-        //         let alertMessage = "";
-        //         if (error.response) {
-        //             alertMessage = error.response.data;
-        //         } else if (error.errorCode === ErrorCode.PredictWithoutTrainForbidden) {
-        //             alertMessage = strings.errors.predictWithoutTrainForbidden.message;
-        //         } else if (error.errorCode === ErrorCode.ModelNotFound) {
-        //             alertMessage = error.message;
-        //         } else {
-        //             alertMessage = interpolate(strings.errors.endpointConnectionError.message, { endpoint: "form recognizer backend URL" });
-        //         }
-        //         this.setState({
-        //             shouldShowAlert: true,
-        //             alertTitle: "Prediction Failed",
-        //             alertMessage,
-        //             isPredicting: false,
-        //         });
-        //     });
-
-            //  uncomment this and comment out all above for testing analyze results
-            this.setState({
-                analyzeResult: table_output2,
-                predictionLoaded: true,
-                predictRun: true,
-                isPredicting: false,
-            }, () => {
-                this.drawPredictionResult();
+        this.getPrediction()
+            .then((result) => {
+                this.setState({
+                    analyzeResult: result,
+                    predictionLoaded: true,
+                    predictRun: true,
+                    isPredicting: false,
+                }, () => {
+                    this.drawPredictionResult();
+                });
+            })
+            .catch((error) => {
+                let alertMessage = "";
+                if (error.response) {
+                    alertMessage = error.response.data;
+                } else if (error.errorCode === ErrorCode.PredictWithoutTrainForbidden) {
+                    alertMessage = strings.errors.predictWithoutTrainForbidden.message;
+                } else if (error.errorCode === ErrorCode.ModelNotFound) {
+                    alertMessage = error.message;
+                } else {
+                    alertMessage = interpolate(strings.errors.endpointConnectionError.message, { endpoint: "form recognizer backend URL" });
+                }
+                this.setState({
+                    shouldShowAlert: true,
+                    alertTitle: "Prediction Failed",
+                    alertMessage,
+                    isPredicting: false,
+                });
             });
+
+            ////  uncomment this and comment out all above for testing analyze results
+            // this.setState({
+            //     analyzeResult: table_output2,
+            //     predictionLoaded: true,
+            //     predictRun: true,
+            //     isPredicting: false,
+            // }, () => {
+            //     this.drawPredictionResult();
+            // });
 
         if (this.appInsights) {
             this.appInsights.trackEvent({ name: "ANALYZE_EVENT" });
