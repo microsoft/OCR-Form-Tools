@@ -10,9 +10,10 @@ import { strings } from "../common/strings";
 import { getAPIVersion } from "../common/utils";
 
 export enum OcrStatus {
-    loadingFromAzureBlob="loadingFromAzureBlob",
-    runningOCR="runningOCR",
-    done="done",
+    loadingFromAzureBlob = "loadingFromAzureBlob",
+    runningOCR = "runningOCR",
+    done = "done",
+    failed = "failed",
 }
 
 /**
@@ -55,7 +56,12 @@ export class OCRService {
             notifyStatusChanged(OcrStatus.runningOCR);
             ocrJson = await this.fetchOcrUriResult(filePath, fileName, ocrFileName, mimeType);
         } finally {
-            notifyStatusChanged(OcrStatus.done);
+            if (ocrJson) {
+                notifyStatusChanged(OcrStatus.done);
+            }
+            else {
+                notifyStatusChanged(OcrStatus.failed);
+            }
         }
         return ocrJson;
     }
