@@ -104,16 +104,16 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
         };
         commandBarItems = [
             layerItem,
-            {
-                key: "drawRegion",
-                text: strings.editorPage.canvas.canvasCommandBar.items.drawRegion,
-                iconProps: {iconName: "FieldNotChanged"},
-                toggle: true,
-                checked: props.drawRegionMode,
-                className: !props.layers["drawnRegions"] ? "disabled" : "",
-                onClick: () => props.handleToggleDrawRegionMode(),
-                disabled: !props.layers["drawnRegions"],
-            }
+            // {
+            //     key: "drawRegion",
+            //     text: strings.editorPage.canvas.canvasCommandBar.items.drawRegion,
+            //     iconProps: {iconName: "FieldNotChanged"},
+            //     toggle: true,
+            //     checked: props.drawRegionMode,
+            //     className: !props.layers["drawnRegions"] ? "disabled" : "",
+            //     onClick: () => props.handleToggleDrawRegionMode(),
+            //     disabled: !props.layers["drawnRegions"],
+            // }
         ];
         if (!props.enableDrawRegion) {
             layerItem.subMenuProps.items = layerItem.subMenuProps.items.filter(item => item.key !== "DrawnRegions");
