@@ -705,7 +705,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      * This can either be a parent or child asset
      */
     private onAssetMetadataChanged = async (assetMetadata: IAssetMetadata): Promise<void> => {
-        console.log("EditorPage -> assetMetadata", assetMetadata)
         // Comment out below code as we allow regions without tags, it would make labeler's work easier.
         assetMetadata = _.cloneDeep(assetMetadata);
         const initialState = assetMetadata.asset.state;
@@ -716,16 +715,12 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         if (this.isTaggableAssetType(asset)) {
             const hasLabels = _.get(assetMetadata, "labelData.labels.length", 0) > 0;
             const hasTableLabels = _.get(assetMetadata, "labelData.tableLabels.length", 0) > 0;
-            asset.state = hasLabels || hasTableLabels ? AssetState.Tagged :
-                AssetState.Visited;
-        }
-        else if (this.isTaggableAssetType(asset)
-            && asset.labelingState !== AssetLabelingState.AutoLabeled
-            && asset.labelingState !== AssetLabelingState.AutoLabeledAndAdjusted) {
-            asset.state = _.get(assetMetadata, "labelData.labels.length", 0) > 0
-                && assetMetadata.labelData.labels.findIndex(item => item.value?.length > 0) >= 0 ?
-                AssetState.Tagged :
-                AssetState.Visited;
+
+            if ((hasLabels || hasTableLabels) && asset.labelingState !== AssetLabelingState.AutoLabeled && asset.labelingState !== AssetLabelingState.AutoLabeledAndAdjusted) {
+                asset.state = (hasLabels && assetMetadata.labelData.labels.findIndex(item => item.value?.length > 0) >= 0) ||
+                    (hasLabels && assetMetadata.labelData.labels.findIndex(item => item.value?.length > 0) >= 0) ?
+                    AssetState.Tagged : AssetState.Visited;
+            }
         } else if (asset.state === AssetState.NotVisited) {
             asset.state = AssetState.Visited;
         }
@@ -735,7 +730,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             if (assetMetadata.labelData?.labels?.toString() !== this.state.selectedAsset.labelData?.labels?.toString()) {
                 await this.updatedAssetMetadata(assetMetadata);
             }
-
             assetMetadata.asset = asset;
             const newMeta = await this.props.actions.saveAssetMetadata(this.props.project, assetMetadata);
             if (this.props.project.lastVisitedAssetId === asset.id) {
@@ -747,7 +741,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         // This forces the root assets that are displayed in the sidebar to
         // accurately show their correct state (not-visited, visited or tagged)
         const assets = [...this.state.assets];
-        // const asset = { ...assetMetadata.asset };
         const assetIndex = assets.findIndex((a) => a.id === asset.id);
         if (assetIndex > -1) {
             assets[assetIndex] = {
