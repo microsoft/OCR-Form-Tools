@@ -20,6 +20,13 @@ input[type=file] {
 ::-webkit-scrollbar {
     width: 8px;
 }
+::-webkit-scrollbar:horizontal {
+    height: 8px;
+}
+
+::-webkit-scrollbar-corner {
+    background-color: $darker-1;
+}
 
 /* Track */
 ::-webkit-scrollbar-track {
@@ -104,4 +111,4 @@ input[type=file] {
         z-index: 100;
     }
   }
-  
+
