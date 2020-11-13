@@ -30,7 +30,7 @@ import "./editorPage.scss";
 import EditorSideBar from "./editorSideBar";
 import Alert from "../../common/alert/alert";
 import Confirm from "../../common/confirm/confirm";
-import { OCRService } from "../../../../services/ocrService";
+import { OCRService, OcrStatus } from "../../../../services/ocrService";
 import { throttle } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
@@ -184,7 +184,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     public render() {
         const { project } = this.props;
-        const { assets, selectedAsset, isRunningOCRs, isCanvasRunningOCR, isCanvasRunningAutoLabeling } = this.state;
+        const { assets, selectedAsset, isRunningOCRs, isCanvasRunningOCR, isCanvasRunningAutoLabeling, isRunningAutoLabelings } = this.state;
 
         const labels = (selectedAsset &&
             selectedAsset.labelData &&
@@ -366,7 +366,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                     message={strings.editorPage.warningMessage.PreventLeavingWhileRunningOCR}
                 />
                 <PreventLeaving
-                    when={isCanvasRunningAutoLabeling}
+                    when={isCanvasRunningAutoLabeling||isRunningAutoLabelings}
                     message={strings.editorPage.warningMessage.PreventLeavingRunningAutoLabeling} />
             </div>
         );
@@ -554,14 +554,13 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const asset = { ...assetMetadata.asset };
 
         if (this.isTaggableAssetType(asset)
-           && asset.labelingState !== AssetLabelingState.AutoLabeled
-           && asset.labelingState !== AssetLabelingState.AutoLabeledAndAdjusted) {
+            && asset.state !== AssetState.NotVisited
+            && asset.labelingState !== AssetLabelingState.AutoLabeled
+            && asset.labelingState !== AssetLabelingState.AutoLabeledAndAdjusted) {
             asset.state = _.get(assetMetadata, "labelData.labels.length", 0) > 0
-            && assetMetadata.labelData.labels.findIndex(item=>item.value?.length>0)>=0 ?
+                && assetMetadata.labelData.labels.findIndex(item => item.value?.length > 0) >= 0 ?
                 AssetState.Tagged :
                 AssetState.Visited;
-        } else if (asset.state === AssetState.NotVisited) {
-            asset.state = AssetState.Visited;
         }
 
         // Only update asset metadata if state changes or is different
@@ -681,8 +680,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             tableToViewId: null,
             selectedAsset: assetMetadata,
         }, async () => {
-            await this.onAssetMetadataChanged(assetMetadata);
-            await this.props.actions.saveProject(this.props.project, false, false);
+                await this.onAssetMetadataChanged(assetMetadata);
+                await this.props.actions.saveProject(this.props.project, false, false);
         });
     }
 
@@ -915,8 +914,16 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         this.setState({ hoveredLabel: null });
     }
 
-    private onCanvasRunningOCRStatusChanged = (isCanvasRunningOCR: boolean) => {
-        this.setState({ isCanvasRunningOCR });
+    private onCanvasRunningOCRStatusChanged = (ocrStatus: OcrStatus) => {
+        if (ocrStatus === OcrStatus.done && this.state.selectedAsset?.asset?.state === AssetState.NotVisited) {
+            const allAssets: {[index: string]: IAsset} = _.cloneDeep(this.props.project.assets);
+            const asset = Object.values(allAssets).find(item => item.id === this.state.selectedAsset?.asset?.id);
+            if (asset) {
+                asset.state = AssetState.Visited;
+                Promise.all([this.props.actions.saveProject({...this.props.project, assets: allAssets}, false, false)]);
+            }
+        }
+        this.setState({isCanvasRunningOCR: ocrStatus === OcrStatus.runningOCR});
     }
     private onCanvasRunningAutoLabelingStatusChanged = (isCanvasRunningAutoLabeling: boolean) => {
         this.setState({ isCanvasRunningAutoLabeling });

@@ -405,7 +405,7 @@ export function poll(func, timeout, interval): Promise<any> {
  * @param prefix
  */
 export function downloadAsJsonFile(data: any, fileName: string, prefix?: string): void {
-    const predictionData = JSON.stringify(data, null, 2);
+    const predictionData = JSON.stringify(data);
     const fileURL = window.URL.createObjectURL(new Blob([predictionData]));
     const fileLink = document.createElement("a");
     const fileBaseName = fileName.split(".")[0];
