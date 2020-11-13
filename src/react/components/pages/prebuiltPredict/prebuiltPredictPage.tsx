@@ -683,15 +683,10 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 }
 
                 if (field.valueArray) {
-                    if (field.valueArray.length === 1) {
-                        updateFieldValueToResult(field.valueArray[0], key);
-                    }
-                    else {
-                        field.valueArray.forEach((item, index) => {
-                            const itemName = `${key} ${index + 1}`;
-                            updateFieldValueToResult(item, itemName);
-                        });
-                    }
+                    field.valueArray.forEach((item, index) => {
+                        const itemName = field.valueArray.length === 1 ? key : `${key} ${index + 1}`;
+                        updateFieldValueToResult(item, itemName);
+                    });
                 }
                 else {
                     updateFieldValueToResult(field, key);
