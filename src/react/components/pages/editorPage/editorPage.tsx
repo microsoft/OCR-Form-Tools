@@ -145,6 +145,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private deleteTagConfirm: React.RefObject<Confirm> = React.createRef();
     private deleteDocumentConfirm: React.RefObject<Confirm> = React.createRef();
     private isUnmount: boolean = false;
+    private isOCROrAutoLabelingBatchRunning = false;
 
     constructor(props) {
         super(props);
@@ -155,6 +156,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         window.addEventListener("focus", this.onFocused);
 
         this.isUnmount = false;
+        this.isOCROrAutoLabelingBatchRunning = false;
         const projectId = this.props.match.params["projectId"];
         if (this.props.project) {
             await this.loadProjectAssets();
@@ -598,15 +600,16 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private onAssetLoaded = (asset: IAsset, contentSource: ContentSource) => {
-        const assets = [...this.state.assets];
-        const assetIndex = assets.findIndex((item) => item.id === asset.id);
-        if (assetIndex > -1) {
-            const assets = [...this.state.assets];
-            const item = { ...assets[assetIndex] };
-            item.cachedImage = (contentSource as HTMLImageElement).src;
-            assets[assetIndex] = item;
-            this.setState({ assets });
-        }
+        this.setState((preState) => {
+            const assets: IAsset[] = [...preState.assets];
+            const assetIndex = assets.findIndex((item) => item.id === asset.id);
+            if (assetIndex > -1) {
+                const item = {...assets[assetIndex]};
+                item.cachedImage = (contentSource as HTMLImageElement).src;
+                assets[assetIndex] = item;
+                return {assets};
+            }
+        });
     }
 
     /**
@@ -694,13 +697,20 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
 
         this.loadingProjectAssets = true;
-
+        const replacer = (key, value) => {
+            if (key === "cachedImage") {
+                return undefined;
+            }
+            else{
+                return value;
+            }
+        }
         try {
             const assets = _(await this.props.actions.loadAssets(this.props.project))
                 .uniqBy((asset) => asset.id)
                 .value();
             if (this.state.assets.length === assets.length
-                && JSON.stringify(this.state.assets) === JSON.stringify(assets)) {
+                && JSON.stringify(this.state.assets, replacer) === JSON.stringify(assets)) {
                 this.loadingProjectAssets = false;
                 this.setState({ tagsLoaded: true });
                 return;
@@ -735,6 +745,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         if (this.state.assets) {
             this.setState({ isRunningOCRs: true });
             try {
+                this.isOCROrAutoLabelingBatchRunning = true;
                 await throttle(
                     constants.maxConcurrentServiceRequests,
                     this.state.assets
@@ -764,6 +775,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 );
             } finally {
                 this.setState({ isRunningOCRs: false });
+                this.isOCROrAutoLabelingBatchRunning = false;
             }
         }
     }
@@ -786,6 +798,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             }
             const allAssets = _.cloneDeep(this.props.project.assets);
             try {
+                this.isOCROrAutoLabelingBatchRunning = true;
                 await throttle(constants.maxConcurrentServiceRequests,
                     unlabeledAssetsBatch,
                     async (asset) => {
@@ -811,6 +824,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             } finally {
                 await this.props.actions.saveProject({...this.props.project, assets: allAssets}, true, false);
                 this.setState({ isRunningAutoLabelings: false });
+                this.isOCROrAutoLabelingBatchRunning = false;
             }
         }
     }
@@ -933,7 +947,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         this.setState({ isCanvasRunningAutoLabeling });
     }
     private onFocused = () => {
-        this.loadProjectAssets();
+        if(!this.isOCROrAutoLabelingBatchRunning){
+            this.loadProjectAssets();
+        }
     }
 
     private onAssetDeleted = () => {
