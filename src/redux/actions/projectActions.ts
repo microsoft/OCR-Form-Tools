@@ -354,7 +354,7 @@ export function reconfigureTableTag(project: IProject, originalTagName: string, 
                 ...currentProject,
                 tags: currentProject.tags.reduce((result, tag) => {
                     if (tag.name === originalTagName) {
-                        (tag as ITableTag).rowKeys = newRows.map((newRow) => {
+                        (tag as ITableTag).rowKeys = newRows?.map((newRow) => {
                             return {
                                 fieldKey: newRow.name,
                                 fieldType: newRow.type,

@@ -511,12 +511,12 @@ export class AssetService {
                         labels: tableLabel.labels.reduce((result, label) => {
                             console.log("transformer", result, label)
                             console.log("transformer", newColumns)
-                            const hasDeletedRowOrKey = deletedColumns.find((deletedColumn) => deletedColumn.originalName === label.columnKey) || deletedRows.find((deletedRow) => deletedRow.originalName === label.rowKey);
+                            const hasDeletedRowOrKey = deletedColumns.find((deletedColumn) => deletedColumn.originalName === label.columnKey) || deletedRows?.find((deletedRow) => deletedRow.originalName === label.rowKey);
                             if (hasDeletedRowOrKey) {
                                 return result
                             }
                             const columnRenamed = newColumns.find((newColumn) => newColumn.originalName === label.columnKey && newColumn.originalName !== newColumn.name)
-                            const rowRenamed = newRows.find((newRow) => newRow.originalName === label.rowKey && newRow.originalName !== newRow.name)
+                            const rowRenamed = newRows?.find((newRow) => newRow.originalName === label.rowKey && newRow.originalName !== newRow.name)
                             console.log("transformer column renamed", columnRenamed)
                             const newLabel = {
                                 value: label.value,
