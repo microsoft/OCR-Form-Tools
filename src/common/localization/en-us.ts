@@ -59,18 +59,18 @@ export const english: IAppStrings = {
             deleteSuccess: "Successfully deleted ${project.name}",
         },
         homeProjectView: {
-            title: "Train and use a model with labels"
+            title: "Use Custom to train a model with labels and get key value pairs"
         },
         prebuiltPredict: {
             title: "Use prebuilt model to get data",
             description: "Start with a pre-built model to extract data from your forms – Invoices, Receipts, Business cards and more. Submit your data and get results right away."
         },
         layoutPredict:{
-            title:"Use Layout to get text and tables",
+            title:"Use Layout to get text, tables and selection marks",
             description:"Try out the Form Recognizer Layout service to extract text, tables, selection marks and the structure of your document."
         },
         trainWithLabels:{
-            title:"Train and use a model with labels",
+            title:"Use Custom to train a model with labels and get key value pairs",
             description:"You provide your own training data and do the learning. The model you create can train to your industry-specific forms."
         },
         quickStartGuide:"Quick start guide",
