@@ -671,37 +671,25 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
             const extendPredictionItem = (key, field) => {
                 const result = {};
-                if (field.valueArray) {
-                    if (field.valueArray.length === 1) {
-                        const item = field.valueArray[0];
-                        const itemName = `${key}`;
-                        if (item.valueObject) {
-                            result[itemName] = item.valueObject.Name;
-                            if (item.valueObject.TotalPrice) {
-                                result[itemName + " price"] = item.valueObject.TotalPrice;
-                            }
-                        }
-                        else {
-                            result[itemName] = item;
-                        }
-                    }
-                    else {
-                        field.valueArray.forEach((item, index) => {
-                            const itemName = `${key} ${index + 1}`;
-                            if (item.valueObject) {
-                                result[itemName] = item.valueObject.Name;
-                                if (item.valueObject.TotalPrice) {
-                                    result[itemName + " price"] = item.valueObject.TotalPrice;
-                                }
-                            }
-                            else {
-                                result[itemName] = item;
-                            }
+                const updateFieldValueToResult = (item, itemName) => {
+                    if (item.valueObject) {
+                        Object.keys(item.valueObject).forEach(key => {
+                            result[`${itemName}: ${key}`] = item.valueObject[key];
                         });
                     }
+                    else {
+                        result[itemName] = item;
+                    }
+                }
+
+                if (field.valueArray) {
+                    field.valueArray.forEach((item, index) => {
+                        const itemName = field.valueArray.length === 1 ? key : `${key} ${index + 1}`;
+                        updateFieldValueToResult(item, itemName);
+                    });
                 }
                 else {
-                    result[key] = field;
+                    updateFieldValueToResult(field, key);
                 }
                 return result;
             };
