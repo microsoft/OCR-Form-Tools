@@ -624,7 +624,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         this.setState({predictionLoaded: false, isPredicting: true});
         this.getPrediction()
             .then((result) => {
-                this.analyzeResults = _.cloneDeep(result?.analyzeResult);
+                this.analyzeResults = _.cloneDeep(result);
                 this.tableHelper.setAnalyzeResult(result?.analyzeResult);
                 this.setState({
                     predictionResult: result,

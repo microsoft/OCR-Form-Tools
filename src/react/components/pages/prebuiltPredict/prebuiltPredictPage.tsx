@@ -527,7 +527,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         this.setState({predictionLoaded: false, isPredicting: true});
         this.getPrediction()
             .then((result) => {
-                this.analyzeResults = _.cloneDeep(result?.analyzeResult);
+                this.analyzeResults = _.cloneDeep(result);
                 this.tableHelper.setAnalyzeResult(result?.analyzeResult);
                 const tags = this.getTagsForPredictResults(this.getPredictionsFromAnalyzeResult(result?.analyzeResult));
                 this.setState({
