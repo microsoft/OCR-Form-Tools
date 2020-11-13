@@ -676,10 +676,9 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                         const item = field.valueArray[0];
                         const itemName = `${key}`;
                         if (item.valueObject) {
-                            result[itemName] = item.valueObject.Name;
-                            if (item.valueObject.TotalPrice) {
-                                result[itemName + " price"] = item.valueObject.TotalPrice;
-                            }
+                            Object.keys(item.valueObject).forEach(key => {
+                                result[`${itemName}: ${key}`] = item.valueObject[key];
+                            });
                         }
                         else {
                             result[itemName] = item;
@@ -689,10 +688,9 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                         field.valueArray.forEach((item, index) => {
                             const itemName = `${key} ${index + 1}`;
                             if (item.valueObject) {
-                                result[itemName] = item.valueObject.Name;
-                                if (item.valueObject.TotalPrice) {
-                                    result[itemName + " price"] = item.valueObject.TotalPrice;
-                                }
+                                Object.keys(item.valueObject).forEach(key => {
+                                    result[`${itemName}: ${key}`] = item.valueObject[key];
+                                });
                             }
                             else {
                                 result[itemName] = item;
