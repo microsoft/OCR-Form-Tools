@@ -84,6 +84,8 @@ export function registerIcons() {
             TableBrandedColumn: "\uE3F1",
             TableBrandedRow: "\uE3EE",
             UpdateRestore: "\uE777",
+            TableFirstColumn: "\uE3EF",
+            TableHeaderRow: "\uE3EC",
         },
     });
 }
