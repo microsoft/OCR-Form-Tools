@@ -68,7 +68,7 @@ export class AssetService {
     private getOcrFromAnalyzeResult(analyzeResult: any) {
         return _.get(analyzeResult, "analyzeResult.readResults", []);
     }
-    getAssetPredictMetadata(asset: IAsset, predictResults: any) {
+    getAssetPredictMetadata(asset: IAsset, predictResults: any): IAssetMetadata {
         asset = _.cloneDeep(asset);
         const getBoundingBox = (pageIndex, arr: number[]) => {
             const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(predictResults)[pageIndex - 1];
@@ -85,9 +85,9 @@ export class AssetService {
             return result;
         };
         const getLabelValues = (field: any) => {
-            return field.elements?.map((path: string):IFormRegion => {
+            return field.elements?.map((path: string): IFormRegion => {
                 const pathArr = path.split('/').slice(1);
-                const word = pathArr.reduce((obj: any, key: string) => obj[key], { ...predictResults.analyzeResult });
+                const word = pathArr.reduce((obj: any, key: string) => obj[key], {...predictResults.analyzeResult});
                 return {
                     page: field.page,
                     text: word.text || word.state,
@@ -107,25 +107,24 @@ export class AssetService {
                             value: getLabelValues(result.fields[key])
                         }))).flat(2);
 
+        const fileName = decodeURIComponent(asset.name).split('/').pop();
+        const labelData: ILabelData = {
+            document: fileName,
+            labels: []
+        };
+        const metadata: IAssetMetadata = {
+            asset: {...asset},
+            regions: [],
+            version: appInfo.version,
+            labelData,
+        }
         if (labels.length > 0) {
-            const fileName = decodeURIComponent(asset.name).split('/').pop();
-            const labelData: ILabelData = {
-                document: fileName,
-                labelingState: AssetLabelingState.AutoLabeled,
-                labels
-            };
-            const metadata: IAssetMetadata = {
-                asset: { ...asset, labelingState: AssetLabelingState.AutoLabeled },
-                regions: [],
-                version: appInfo.version,
-                labelData,
-            };
+            labelData.labelingState = AssetLabelingState.AutoLabeled;
+            labelData.labels = labels;
+            metadata.asset.labelingState = AssetLabelingState.AutoLabeled;
             metadata.asset.state = AssetState.Tagged;
-            return metadata;
         }
-        else {
-            return null;
-        }
+        return metadata;
     }
     async uploadPredictResultAsOrcResult(asset: IAsset, predictResults: any): Promise<void> {
         const ocrData = _.cloneDeep(predictResults);
