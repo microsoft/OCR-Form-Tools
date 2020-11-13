@@ -59,18 +59,18 @@ export const spanish: IAppStrings = {
             deleteSuccess: "${project.name} eliminado correctamente",
         },
         homeProjectView: {
-            title: "Entrene y use un modelo con etiquetas"
+            title: "Utilice Personalizado para entrenar un modelo con etiquetas y obtener pares clave-valor"
         },
         prebuiltPredict: {
             title: "Utilice un modelo prediseñado para obtener datos",
             description: "Comience con un modelo preconstruidos para extraer datos de sus formularios: facturas, recibos, tarjetas de visita y mucho más. Envíe sus datos y obtenga resultados de inmediato."
         },
         layoutPredict:{
-            title:"Use Layout para obtener texto y tablas",
+            title:"Utilice Layout para obtener texto, tablas y marcas de selección",
             description:"Pruebe el servicio Diseño del reconocedor de formularios para extraer texto, tablas, marcas de selección y la estructura del documento."
         },
         trainWithLabels:{
-            title:"Entrene y use un modelo con etiquetas",
+            title:"Utilice Personalizado para entrenar un modelo con etiquetas y obtener pares clave-valor",
             description:"Tú proporcionas tus propios datos de entrenamiento y haces el aprendizaje. El modelo que cree puede adaptarse a los formularios específicos de su industria."
         },
         quickStartGuide:"Quick start guide",
