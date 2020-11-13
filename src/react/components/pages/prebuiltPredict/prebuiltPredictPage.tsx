@@ -127,6 +127,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         tableToViewId: null,
     };
 
+    private analyzeResults: any;
     private fileHelper: ILoadFileHelper = new LoadFileHelper();
 
     private tableHelper: ITableHelper = new TableHelper(this);
@@ -144,6 +145,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         if (this.state.file) {
             if (this.state.fileChanged && !this.state.isFetching) {
                 this.loadFile(this.state.file);
+                this.analyzeResults = undefined;
             } else if (prevState.currentPage !== this.state.currentPage) {
                 this.fileHelper.loadPage(this.state.currentPage).then((res: any) => {
                     if (res) {
@@ -261,7 +263,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                             {Object.keys(predictions).length > 0 &&
                                 <PredictResult
                                     predictions={predictions}
-                                    analyzeResult={this.state.analyzeResult}
+                                    analyzeResult={this.analyzeResults}
                                     page={this.state.currentPage}
                                     tags={this.state.tags}
                                     downloadPrefix={this.state.currentPrebuiltType.name}
@@ -525,6 +527,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         this.setState({predictionLoaded: false, isPredicting: true});
         this.getPrediction()
             .then((result) => {
+                this.analyzeResults = _.cloneDeep(result);
                 this.tableHelper.setAnalyzeResult(result?.analyzeResult);
                 const tags = this.getTagsForPredictResults(this.getPredictionsFromAnalyzeResult(result?.analyzeResult));
                 this.setState({
