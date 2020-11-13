@@ -573,21 +573,24 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             if (this.props.project.lastVisitedAssetId === asset.id) {
                 this.setState({ selectedAsset: newMeta });
             }
+            if (this.compareAssetLabelsWithProjectTags(assetMetadata.labelData?.labels, this.props.project.tags)) {
+                await this.props.actions.updateProjectTagsFromFiles(this.props.project, assetMetadata.asset.name);
+            }
         }
 
         // Find and update the root asset in the internal state
         // This forces the root assets that are displayed in the sidebar to
         // accurately show their correct state (not-visited, visited or tagged)
-        const assets = [...this.state.assets];
-        const assetIndex = assets.findIndex((a) => a.id === asset.id);
-        if (assetIndex > -1) {
-            assets[assetIndex] = {
-                ...asset,
-            };
-        }
-
-        this.setState({ assets, isValid: true });
-
+        this.setState((state) => {
+            const assets = [...state.assets];
+            const assetIndex = assets.findIndex((a) => a.id === asset.id);
+            if (assetIndex > -1) {
+                assets[assetIndex] = {
+                    ...asset,
+                };
+            }
+            return {assets, isValid: true};
+        });
         // Workaround for if component is unmounted
         if (!this.isUnmount) {
             this.props.appTitleActions.setTitle(`${this.props.project.name} - [ ${asset.name} ]`);
@@ -742,12 +745,14 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                         const asset = this.state.assets.find((asset) => asset.id === assetId);
                         if (asset && (asset.state === AssetState.NotVisited || runForAll)) {
                             try {
-                                this.updateAssetState({ id: asset.id, isRunningOCR: true });
-                                await ocrService.getRecognizedText(asset.path, asset.name, asset.mimeType, undefined, runForAll);
-                                this.props.actions.refreshAsset(this.props.project, asset.name);
-                                this.updateAssetState({ id: asset.id, isRunningOCR: false, assetState: AssetState.Visited });
+                                this.updateAssetOCRAndAutoLabelingState({id: asset.id, isRunningOCR: true });
+                                const ocrResult = await ocrService.getRecognizedText(asset.path, asset.name, asset.mimeType, undefined, runForAll);
+                                if (ocrResult) {
+                                    this.updateAssetOCRAndAutoLabelingState({id: asset.id, isRunningOCR: false});
+                                    await this.props.actions.refreshAsset(this.props.project, asset.name);
+                                }
                             } catch (err) {
-                                this.updateAssetState({ id: asset.id, isRunningOCR: false });
+                                this.updateAssetOCRAndAutoLabelingState({ id: asset.id, isRunningOCR: false });
                                 this.setState({
                                     isError: true,
                                     errorTitle: err.title,
@@ -779,24 +784,22 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                     unlabeledAssetsBatch.push(asset);
                 }
             }
+            const allAssets = _.cloneDeep(this.props.project.assets);
             try {
                 await throttle(constants.maxConcurrentServiceRequests,
                     unlabeledAssetsBatch,
                     async (asset) => {
                         try {
-                            this.updateAssetState({ id: asset.id, isRunningAutoLabeling: true });
+                            this.updateAssetOCRAndAutoLabelingState({id: asset.id, isRunningAutoLabeling: true});
                             const predictResult = await predictService.getPrediction(asset.path);
                             const assetMetadata = await assetService.getAssetPredictMetadata(asset, predictResult);
                             await assetService.uploadPredictResultAsOrcResult(asset, predictResult);
-                            this.onAssetMetadataChanged(assetMetadata);
-                            this.updateAssetState({
-                                id: asset.id, isRunningAutoLabeling: false,
-                                assetState: AssetState.Tagged,
-                                labelingState: AssetLabelingState.AutoLabeled,
-                            });
-                            this.props.actions.updatedAssetMetadata(this.props.project, assetMetadata);
+                            assetMetadata.asset.isRunningAutoLabeling = false;
+                            await this.onAssetMetadataChanged(assetMetadata);
+                            allAssets[asset.id] = assetMetadata.asset;
+                            await this.props.actions.updatedAssetMetadata(this.props.project, assetMetadata);
                         } catch (err) {
-                            this.updateAssetState({ id: asset.id, isRunningOCR: false, isRunningAutoLabeling: false });
+                            this.updateAssetOCRAndAutoLabelingState({id: asset.id, isRunningOCR: false, isRunningAutoLabeling: false});
                             this.setState({
                                 isError: true,
                                 errorTitle: err.title,
@@ -805,52 +808,53 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                         }
                     }
                 );
-
             } finally {
+                await this.props.actions.saveProject({...this.props.project, assets: allAssets}, true, false);
                 this.setState({ isRunningAutoLabelings: false });
             }
         }
     }
+    private compareAssetLabelsWithProjectTags = (labels: ILabel[], tags: ITag[]): boolean => {
+        if (!labels || labels.length === 0) {
+            return false;
+        }
+        const intersectionTags = _.intersectionWith(labels, tags, (l, t) => l.label === t.name);
+        return intersectionTags?.length < labels.length;
+    }
 
-    private updateAssetState = (newState: {
+    private updateAssetOCRAndAutoLabelingState = (newState: {
         id: string,
         isRunningOCR?: boolean,
         isRunningAutoLabeling?: boolean,
-        assetState?: AssetState,
-        labelingState?: AssetLabelingState
     }) => {
-        const assets = this.state.assets.map((asset) => {
-            if (asset.id === newState.id) {
-                const updatedAsset = { ...asset, isRunningOCR: newState.isRunningOCR || false };
-                if (newState.assetState !== undefined && asset.state === AssetState.NotVisited) {
-                    updatedAsset.state = newState.assetState;
+        this.setState((state) => {
+            const assets = state.assets.map((asset) => {
+                if (asset.id === newState.id) {
+                    const updatedAsset = {...asset, isRunningOCR: newState.isRunningOCR || false};
+                    if (newState.isRunningAutoLabeling !== undefined) {
+                        updatedAsset.isRunningAutoLabeling = newState.isRunningAutoLabeling;
+                    }
+                    return updatedAsset;
+                } else {
+                    return asset;
                 }
-                if (newState.labelingState) {
-                    updatedAsset.labelingState = newState.labelingState;
-                }
-                if (newState.isRunningAutoLabeling !== undefined) {
-                    updatedAsset.isRunningAutoLabeling = newState.isRunningAutoLabeling;
-                }
-                return updatedAsset;
-            } else {
-                return asset;
+            });
+            return {
+                assets
             }
-        });
-        this.setState((state) => ({
-            assets
-        }), () => {
-            if (this.state.selectedAsset?.asset?.id === newState.id) {
-                const asset = this.state.assets.find((asset) => asset.id === newState.id);
-                if (this.state.selectedAsset && newState.id === this.state.selectedAsset.asset.id) {
-                    if (asset) {
-                        this.setState({
-                            selectedAsset: { ...this.state.selectedAsset, asset: { ...asset } },
-                        });
+        }, () => {
+                if (this.state.selectedAsset?.asset?.id === newState.id) {
+                    const asset = this.state.assets.find((asset) => asset.id === newState.id);
+                    if (this.state.selectedAsset && newState.id === this.state.selectedAsset.asset.id) {
+                        if (asset) {
+                            this.setState({
+                                selectedAsset: { ...this.state.selectedAsset, asset: { ...asset } },
+                            });
+                        }
                     }
                 }
-            }
 
-        });
+            });
     }
 
     /**
