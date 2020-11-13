@@ -847,9 +847,13 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const assetUpdates = await this.props.actions.reconfigureTableTag(this.props.project, originalTagName, tagName, tagType, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
         const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
         if (selectedAsset) {
-            this.setState({ selectedAsset });
+            this.setState({ selectedAsset,
+                selectedTableTagToLabel: null,
+                selectedTableTagBody: null, }, () => {
+                    this.canvas.current.temp();
+                });
         }
-        this.updateAssetsState();
+        // this.updateAssetsState();
         this.reconfigTableConfirm.current.close();
         this.setState({tagInputMode: TagInputMode.Basic}, () => this.resizeCanvas());
         this.resizeCanvas();

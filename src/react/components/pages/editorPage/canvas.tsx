@@ -220,6 +220,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
     }
 
+    public temp = () => {
+        const newRegions = this.convertLabelDataToRegions(this.props.selectedAsset.labelData);
+        this.updateAssetRegions(newRegions);
+        this.redrawAllFeatures();
+    }
+
     public render = () => {
         const hostStyles: Partial<ITooltipHostStyles> = {
             root: {
