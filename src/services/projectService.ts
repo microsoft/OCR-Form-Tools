@@ -198,7 +198,7 @@ export default class ProjectService implements IProjectService {
         rowDocumentCountDifference: any): Promise<IProject> {
         console.log("final sol", assetDocumentCountDifference, columnDocumentCountDifference, rowDocumentCountDifference)
         const updatedProject = clone()(project);
-        updatedProject.tags.forEach((tag: ITag) => {
+        updatedProject.tags?.forEach((tag: ITag) => {
             const diff = assetDocumentCountDifference?.[tag.name];
             if (diff) {
                 tag.documentCount += diff;
