@@ -671,35 +671,30 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
             const extendPredictionItem = (key, field) => {
                 const result = {};
+                const updateFieldValueToResult = (item, itemName) => {
+                    if (item.valueObject) {
+                        Object.keys(item.valueObject).forEach(key => {
+                            result[`${itemName}: ${key}`] = item.valueObject[key];
+                        });
+                    }
+                    else {
+                        result[itemName] = item;
+                    }
+                }
+
                 if (field.valueArray) {
                     if (field.valueArray.length === 1) {
-                        const item = field.valueArray[0];
-                        const itemName = `${key}`;
-                        if (item.valueObject) {
-                            Object.keys(item.valueObject).forEach(key => {
-                                result[`${itemName}: ${key}`] = item.valueObject[key];
-                            });
-                        }
-                        else {
-                            result[itemName] = item;
-                        }
+                        updateFieldValueToResult(field.valueArray[0], key);
                     }
                     else {
                         field.valueArray.forEach((item, index) => {
                             const itemName = `${key} ${index + 1}`;
-                            if (item.valueObject) {
-                                Object.keys(item.valueObject).forEach(key => {
-                                    result[`${itemName}: ${key}`] = item.valueObject[key];
-                                });
-                            }
-                            else {
-                                result[itemName] = item;
-                            }
+                            updateFieldValueToResult(item, itemName);
                         });
                     }
                 }
                 else {
-                    result[key] = field;
+                    updateFieldValueToResult(field, key);
                 }
                 return result;
             };
