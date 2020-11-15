@@ -84,7 +84,6 @@
         ]
     },
     "devDependencies": {
-        "@fortawesome/fontawesome-free": "^5.12.0",
         "@types/axios": "^0.14.0",
         "@types/enzyme": "^3.10.4",
         "@types/history": "^4.7.3",
