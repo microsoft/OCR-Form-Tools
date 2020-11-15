@@ -3,7 +3,7 @@
 
 import {
     app, ipcMain, BrowserWindow, BrowserWindowConstructorOptions,
-    Menu, MenuItemConstructorOptions,
+    Menu, MenuItemConstructorOptions, shell
 } from "electron";
 import { IpcMainProxy } from "./common/ipcMainProxy";
 import LocalFileSystem from "./providers/storage/localFileSystem";
@@ -50,6 +50,15 @@ async function createWindow() {
 
     mainWindow.once("ready-to-show", () => {
         mainWindow.show();
+    });
+
+    mainWindow.webContents.on("new-window", (event: Event, url: string) => {
+        if (/^http(s)?:\/\//.test(url)) {
+            // Do not open a new Electron browser window, instead open in the user's default browser
+            event.preventDefault();
+            shell.openExternal(url, { activate: true });
+        }
+        // Normal behaviour
     });
 
     ipcMainProxy = new IpcMainProxy(ipcMain, mainWindow);
