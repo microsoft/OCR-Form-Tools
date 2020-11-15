@@ -28,7 +28,7 @@ export const TableView: React.FunctionComponent<ITableViewProps> = (props) => {
         if (table !== null) {
             tableBody = [];
             const rows = table["rows"];
-            const columns = table["columns"];
+            // const columns = table["columns"];
             for (let i = 0; i < rows; i++) {
                 const tableRow = [];
                 tableBody.push(<tr key={i}>{tableRow}</tr>);
