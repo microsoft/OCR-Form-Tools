@@ -42,7 +42,6 @@
         "reactstrap": "^8.2.0",
         "redux": "^4.0.4",
         "redux-thunk": "^2.3.0",
-        "rimraf": "^3.0.2",
         "shortid": "^2.2.15",
         "utif": "^3.1.0",
         "vott-react": "^0.2.12"
@@ -113,6 +112,7 @@
         "redux-immutable-state-invariant": "^2.1.0",
         "redux-logger": "^3.0.6",
         "redux-mock-store": "^1.5.4",
+        "rimraf": "^3.0.2",
         "ts-loader": "^7.0.1",
         "tslint": "^6.1.1",
         "typescript": "^3.9.5",
