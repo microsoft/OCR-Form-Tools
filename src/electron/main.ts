@@ -82,11 +82,11 @@ function registerContextMenu(browserWindow: BrowserWindow): void {
     const inputMenu = Menu.buildFromTemplate([
         { role: "undo", accelerator: "CmdOrCtrl+Z" },
         { role: "redo", accelerator: "CmdOrCtrl+Shift+Z" },
-        { type: "separator", label: "separator1"},
+        { type: "separator", label: "separator1" },
         { role: "cut", accelerator: "CmdOrCtrl+X" },
         { role: "copy", accelerator: "CmdOrCtrl+C" },
         { role: "paste", accelerator: "CmdOrCtrl+V" },
-        { type: "separator", label: "separator2"},
+        { type: "separator", label: "separator2" },
         { role: "selectAll", accelerator: "CmdOrCtrl+A" },
     ]);
 
@@ -104,36 +104,13 @@ function registerContextMenu(browserWindow: BrowserWindow): void {
     });
 
     const menuItems: MenuItemConstructorOptions[] = [
-        {
-            label: "File", submenu: [
-                isMac ? { role: "close" } : { role: "quit" }
-            ],
-        },
+        (isMac ? {
+            role: "appMenu",
+        } : {}),
+        { role: "fileMenu" },
         { role: "editMenu" },
-        {
-            label: "View", submenu: [
-                { role: "reload" },
-                { type: "separator", label: "separator1" },
-                { role: "toggleDevTools" },
-                { role: "togglefullscreen" },
-                { type: "separator", label: "separator2" },
-                { role: "resetZoom", label: "Reset Zoom" },
-                { role: "zoomIn", accelerator:  "CmdOrCtrl+="},
-                { role: "zoomOut" },
-            ],
-        },
-        {
-            label: "Window", submenu:
-                (isMac ? [
-                    { role: "minimize" },
-                    { role: "front" },
-                    { type: "separator" },
-                    { role: "window" }
-                ] : [
-                    { role: "minimize" },
-                    { role: "close" }
-                ])
-        },
+        { role: "viewMenu" },
+        { role: "windowMenu" },
     ];
     const menu = Menu.buildFromTemplate(menuItems);
     Menu.setApplicationMenu(menu);
