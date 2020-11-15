@@ -23,7 +23,7 @@ async function createWindow() {
         minWidth: 450,
         minHeight: 100,
         frame: isLinux,
-        titleBarStyle: "hidden",
+        titleBarStyle: "hiddenInset",
         backgroundColor: "#272B30",
         show: false,
         icon: "app-icons/icon.png"
@@ -107,10 +107,68 @@ function registerContextMenu(browserWindow: BrowserWindow): void {
         (isMac ? {
             role: "appMenu",
         } : {}),
-        { role: "fileMenu" },
+        {
+            label: 'File',
+            submenu: [
+                {
+                    label: 'New Project',
+                    accelerator: 'CmdOrCtrl+N',
+                    click: async () => {
+                        console.log('New project')
+                    }
+                },
+                {
+                    label: 'Open Cloud Project',
+                    accelerator: 'CmdOrCtrl+O',
+                    click: async () => {
+                        console.log('Open cloud project')
+                    }
+                },
+                {
+                    label: 'Open Local Project',
+                    accelerator: 'CmdOrCtrl+Shift+O',
+                    click: async () => {
+                        console.log('Open local project')
+                    }
+                },
+                { type: 'separator' },
+                {
+                    label: 'Application Settings',
+                    accelerator: 'CmdOrCtrl+,',
+                    click: async () => {
+                        console.log('Open settings')
+                    }
+                },
+                isMac ? { role: 'close' } : { role: 'quit' },
+            ]
+        },
         { role: "editMenu" },
         { role: "viewMenu" },
         { role: "windowMenu" },
+        {
+            role: "help",
+            submenu: [
+                {
+                    label: 'Documentation',
+                    click: async () => {
+                        await shell.openExternal('https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/quickstarts/label-tool?tabs=v2-0                        ')
+                    }
+                },
+                {
+                    label: 'Form OCR Testing Tool on GitHub',
+                    click: async () => {
+                        await shell.openExternal('https://github.com/Microsoft/ocr-form-tools')
+                    }
+                },
+                { type: 'separator' },
+                {
+                    label: 'Report an Issue',
+                    click: async () => {
+                        await shell.openExternal('https://github.com/microsoft/OCR-Form-Tools/issues/new/choose')
+                    }
+                }
+            ]
+        }
     ];
     const menu = Menu.buildFromTemplate(menuItems);
     Menu.setApplicationMenu(menu);
