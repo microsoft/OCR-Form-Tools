@@ -30,8 +30,8 @@ async function createWindow() {
     };
     windowOptions.webPreferences = {
         nodeIntegration: true,
-        webSecurity: false,
-        enableRemoteModule: true
+        enableRemoteModule: true,
+        webSecurity: true
     };
 
     const staticUrl = process.env.ELECTRON_START_URL || `file:///${__dirname}/index.html`;
