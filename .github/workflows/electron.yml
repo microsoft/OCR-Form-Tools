@@ -1,0 +1,46 @@
+name: CI (Electron)
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build_electron_app:
+    name: "Build app for"
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        node: [12.14]
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@master
+        with:
+          node-version: ${{ matrix.node }}
+      - uses: actions/cache@v2
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}     
+      - name: Install dependencies
+        run: yarn install --network-timeout 1000000 # Change default network timeout to fix Windows-latest issues
+      - name: Build production Electron app
+        run: yarn release      
+        env:
+          CI: false # required since Yarn will fail on warnings in CI environments
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v2.2.1
+        with:
+          name: "binaries"
+          path: |
+            releases/**/*.dmg
+            releases/**/*.snap
+            releases/**/*-win32.exe
+
