@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import {ActionTypes} from "../actions/actionTypes";
-import {AssetLabelingState, AssetState, IProject, ITag} from "../../models/applicationState";
+import {IProject, ITag} from "../../models/applicationState";
 import {AnyAction} from "../actions/actionCreators";
 import _ from "lodash";
 // tslint:disable-next-line:no-var-requires
@@ -43,7 +43,6 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
                 ...state,
                 assets:{...state.assets, [action.payload.id]: action.payload},
             };
-            break;
         case ActionTypes.DELETE_PROJECT_ASSET_SUCCESS:
         case ActionTypes.LOAD_PROJECT_ASSETS_SUCCESS:
             let assets = {};

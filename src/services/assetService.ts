@@ -58,7 +58,7 @@ const imageMimes: IMime[] = [
     },
 ];
 // We can expand this list @see https://mimesniff.spec.whatwg.org/#matching-an-image-type-pattern
-const mimeBytesNeeded: number = (Math.max(...imageMimes.map((m) => m.pattern.length)) - 1);
+// const mimeBytesNeeded: number = (Math.max(...imageMimes.map((m) => m.pattern.length)) - 1);
 
 /**
  * @name - Asset Service
