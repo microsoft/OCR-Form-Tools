@@ -191,6 +191,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.selectedRegionIds = [];
             this.imageMap.removeAllFeatures();
             this.imageMap.resetAllLayerVisibility();
+            if (this.state.pdfFile) {
+                await this.state.pdfFile.destroy();
+            }
 
             this.setState({
                 currentAsset: this.props.selectedAsset,
