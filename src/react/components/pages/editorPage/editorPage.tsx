@@ -349,6 +349,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     />
                                 <Confirm
                                     title={strings.editorPage.tags.rename.title}
+                                    loadMessage={"Renaming..."}
                                     ref={this.renameTagConfirm}
                                     message={strings.editorPage.tags.rename.confirmation}
                                     confirmButtonTheme={getPrimaryRedTheme()}
@@ -588,14 +589,27 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      */
     private onTagRenamed = async (tag: ITag, newTag: ITag): Promise<void> => {
         this.renameCanceled = null;
-        const assetUpdates = await this.props.actions.updateProjectTag(this.props.project, tag, newTag);
-        const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
-
-        if (selectedAsset) {
+        if (tag.type === FieldType.Table) {
+            const assetUpdates = await this.props.actions.reconfigureTableTag(this.props.project, tag.name, newTag.name, newTag.type, newTag.format, undefined, undefined, undefined, undefined);
+            const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
             if (selectedAsset) {
-                this.setState({ selectedAsset });
+                this.setState({ selectedAsset,
+                    selectedTableTagToLabel: null,
+                    selectedTableTagBody: null, }, () => {
+                        this.canvas.current.temp();
+                    });
+            }
+        } else {
+            const assetUpdates = await this.props.actions.updateProjectTag(this.props.project, tag, newTag);
+            const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
+
+            if (selectedAsset) {
+                if (selectedAsset) {
+                    this.setState({ selectedAsset });
+                }
             }
         }
+        this.renameTagConfirm.current.close();
     }
 
     private onTagRenameCanceled = () => {
@@ -847,7 +861,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const assetUpdates = await this.props.actions.reconfigureTableTag(this.props.project, originalTagName, tagName, tagType, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
         const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
         if (selectedAsset) {
-            this.setState({ selectedAsset,
+            this.setState({ 
+                selectedAsset,
                 selectedTableTagToLabel: null,
                 selectedTableTagBody: null, }, () => {
                     this.canvas.current.temp();
@@ -855,7 +870,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
         // this.updateAssetsState();
         this.reconfigTableConfirm.current.close();
-        this.setState({tagInputMode: TagInputMode.Basic}, () => this.resizeCanvas());
+        this.setState({tagInputMode: TagInputMode.Basic, reconfigureTableConfirm: false}, () => this.resizeCanvas());
         this.resizeCanvas();
     }
 

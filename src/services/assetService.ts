@@ -476,23 +476,23 @@ export class AssetService {
         return await this.getUpdatedAssets(tagName, tagType, tagFormat, transformer, labelTransformer);
     }
 
-    public async refactorTableTag(tagName: string, tagType: FieldType, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]): Promise<IAssetMetadata[]> {
+    public async refactorTableTag(originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]): Promise<IAssetMetadata[]> {
         console.log(tagName, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
         const transformer = (tagNames, columnKey, rowKey) => {
             console.log("transformer", tagNames, columnKey, rowKey)
             let newTags = tagNames;
             let newColumnKey = columnKey;
             let newRowKey = rowKey;
-            if (tagNames[0] === tagName) {
-                const hasDeletedRowOrKey = deletedColumns.find((deletedColumn) => deletedColumn.originalName === columnKey) || deletedRows.find((deletedRow) => deletedRow.originalName === rowKey);
+            if (tagNames[0] === originalTagName) {
+                const hasDeletedRowOrKey = deletedColumns?.find((deletedColumn) => deletedColumn.originalName === columnKey) || deletedRows?.find((deletedRow) => deletedRow.originalName === rowKey);
                 if (hasDeletedRowOrKey) {
                     newTags = [];
                     newColumnKey = undefined;
                     newRowKey = undefined
                     return {newTags, newColumnKey, newRowKey}
                 }
-                const columnRenamed = newColumns.find((newColumn) => newColumn.originalName === columnKey && newColumn.originalName !== newColumn.name)
-                const rowRenamed = newRows.find((newRow) => newRow.originalName === rowKey && newRow.originalName !== newRow.name)
+                const columnRenamed = newColumns?.find((newColumn) => newColumn.originalName === columnKey && newColumn.originalName !== newColumn.name)
+                const rowRenamed = newRows?.find((newRow) => newRow.originalName === rowKey && newRow.originalName !== newRow.name)
                 if (columnRenamed) {
                     console.log("transformer column renamed", columnRenamed)
                     newColumnKey = columnRenamed.name;
@@ -504,18 +504,18 @@ export class AssetService {
             return {newTags, newColumnKey, newRowKey}
         }
         const labelTransformer = (labelData: ILabelData) => {
-            labelData.tableLabels = labelData.tableLabels.map((tableLabel) => {
-                if (tableLabel.tableKey === tagName) {
+            labelData.tableLabels = labelData?.tableLabels?.map((tableLabel) => {
+                if (tableLabel.tableKey === originalTagName) {
                     const zz = {
-                        tableKey: tableLabel.tableKey,
+                        tableKey: tagName,
                         labels: tableLabel.labels.reduce((result, label) => {
                             console.log("transformer", result, label)
                             console.log("transformer", newColumns)
-                            const hasDeletedRowOrKey = deletedColumns.find((deletedColumn) => deletedColumn.originalName === label.columnKey) || deletedRows?.find((deletedRow) => deletedRow.originalName === label.rowKey);
+                            const hasDeletedRowOrKey = deletedColumns?.find((deletedColumn) => deletedColumn.originalName === label.columnKey) || deletedRows?.find((deletedRow) => deletedRow.originalName === label.rowKey);
                             if (hasDeletedRowOrKey) {
                                 return result
                             }
-                            const columnRenamed = newColumns.find((newColumn) => newColumn.originalName === label.columnKey && newColumn.originalName !== newColumn.name)
+                            const columnRenamed = newColumns?.find((newColumn) => newColumn.originalName === label.columnKey && newColumn.originalName !== newColumn.name)
                             const rowRenamed = newRows?.find((newRow) => newRow.originalName === label.rowKey && newRow.originalName !== newRow.name)
                             console.log("transformer column renamed", columnRenamed)
                             const newLabel = {
@@ -535,7 +535,7 @@ export class AssetService {
             });
             return labelData;
         };
-        return await this.getUpdatedAssetsAfterReconfigure(tagName, tagType, tagFormat, transformer, labelTransformer);
+        return await this.getUpdatedAssetsAfterReconfigure(originalTagName, tagName, tagType, tagFormat, transformer, labelTransformer);
     }
 
     /**
@@ -578,6 +578,7 @@ export class AssetService {
     }
 
     private async getUpdatedAssetsAfterReconfigure(
+        originalTagName: string,
         tagName: string,
         tagType: FieldType,
         tagFormat: FieldFormat,
@@ -587,7 +588,7 @@ export class AssetService {
         // Loop over assets and update if necessary
         const updates = await _.values(this.project.assets).mapAsync(async (asset) => {
             const assetMetadata = await this.getAssetMetadata(asset);
-            const isUpdated = this.reconfigureTableTagInAssetMetadata(assetMetadata, tagName, tagType, tagFormat, transformer, labelTransformer);
+            const isUpdated = this.reconfigureTableTagInAssetMetadata(assetMetadata, originalTagName, tagName, tagType, tagFormat, transformer, labelTransformer);
 
             return isUpdated ? assetMetadata : null;
         });
@@ -649,6 +650,7 @@ export class AssetService {
 
     private reconfigureTableTagInAssetMetadata (
         assetMetadata: IAssetMetadata,
+        originalTagName: string,
         tagName: string,
         tagType: FieldType,
         tagFormat: FieldFormat,
@@ -659,7 +661,7 @@ export class AssetService {
         console.log(assetMetadata);
         console.log("before regions", assetMetadata.regions)
         for (const region of assetMetadata.regions) {
-            if (region.tags.find((t) => t === tagName)) {
+            if (region.tags.find((t) => t === originalTagName)) {
                 foundTag = true;
                 const {newTags, newColumnKey, newRowKey} = transformer((region as ITableRegion).tags, (region as ITableRegion).columnKey, (region as ITableRegion).rowKey);
                 region.tags = newTags;
@@ -671,7 +673,7 @@ export class AssetService {
         console.log("assetMetaData before label transformer", assetMetadata.labelData);
 
             if (assetMetadata.labelData && assetMetadata.labelData.tableLabels) {
-                const field = assetMetadata.labelData.tableLabels.find((field) => field.tableKey === tagName);
+                const field = assetMetadata.labelData.tableLabels.find((field) => field.tableKey === originalTagName);
                 if (field) {
                     foundTag = true;
                     assetMetadata.labelData = labelTransformer(assetMetadata.labelData);
