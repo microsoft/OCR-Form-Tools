@@ -232,7 +232,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                                     onChange={this.onPrebuiltTypeChange}></Dropdown>
                             </div>
                             <div className="locales-section" style={{display: this.state.currentPrebuiltType.useLocale ? "block" : "none"}}>
-                                <div style={{marginBottom: "3px"}}>locales</div>
+                                <div style={{marginBottom: "3px"}}>Locale</div>
                                 <Dropdown
                                     disabled={this.state.isPredicting}
                                     className="prebuilt-type-dropdown"
