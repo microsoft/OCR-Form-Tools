@@ -38,10 +38,12 @@ import "../predict/predictPage.scss";
 import PredictResult from "../predict/predictResult";
 import {ILoadFileHelper, ILoadFileResult, LoadFileHelper} from "./LoadFileHelper";
 import {ITableHelper, ITableState, TableHelper} from "./tableHelper";
+import "./prebuiltPredictPage.scss";
 
 interface IPrebuiltTypes {
     name: string;
     servicePath: string;
+    useLocale?: boolean;
 }
 
 export interface IPrebuiltPredictPageProps extends RouteComponentProps {
@@ -66,6 +68,7 @@ export interface IPrebuiltPredictPageState extends ILoadFileResult, ITableState 
     highlightedField?: string;
     imageAngle: number;
     currentPrebuiltType: IPrebuiltTypes;
+    currentLocale: string;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -87,7 +90,8 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     prebuiltTypes: IPrebuiltTypes[] = [
         {
             name: "Receipt",
-            servicePath: "/prebuilt/receipt/analyze"
+            servicePath: "/prebuilt/receipt/analyze",
+            useLocale:true,
         },
         {
             name: "Invoice",
@@ -95,9 +99,12 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         },
         {
             name: "Business card",
-            servicePath: "/prebuilt/businessCard/analyze"
+            servicePath: "/prebuilt/businessCard/analyze",
+            useLocale:true,
         },
     ];
+
+    locales: string[] = ["en-AU", "en-CA", "en-GB", "en-IN", "en-US"];
 
     state: IPrebuiltPredictPageState = {
         imageUri: null,
@@ -125,6 +132,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         hoveringFeature: null,
         tableToView: null,
         tableToViewId: null,
+        currentLocale: "en-US",
     };
 
     private analyzeResults: any;
@@ -214,13 +222,24 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                             actions={this.props.actions}
                         />
                         <div className="p-3" style={{marginTop: "-3rem"}}>
-                            <div style={{marginBottom: "3px"}}>Form type</div>
-                            <Dropdown
-                                disabled={this.state.isPredicting}
-                                className="prebuilt-type-dropdown"
-                                options={this.prebuiltTypes.map(type => ({key: type.name, text: type.name}))}
-                                defaultSelectedKey={this.state.currentPrebuiltType.name}
-                                onChange={this.onPrebuiltTypeChange}></Dropdown>
+                            <div className="formtype-section">
+                                <div style={{marginBottom: "3px"}}>Form type</div>
+                                <Dropdown
+                                    disabled={this.state.isPredicting}
+                                    className="prebuilt-type-dropdown"
+                                    options={this.prebuiltTypes.map(type => ({key: type.name, text: type.name}))}
+                                    defaultSelectedKey={this.state.currentPrebuiltType.name}
+                                    onChange={this.onPrebuiltTypeChange}></Dropdown>
+                            </div>
+                            <div className="locales-section" style={{display: this.state.currentPrebuiltType.useLocale ? "block" : "none"}}>
+                                <div style={{marginBottom: "3px"}}>Locale</div>
+                                <Dropdown
+                                    disabled={this.state.isPredicting}
+                                    className="prebuilt-type-dropdown"
+                                    options={this.locales.map(type => ({key: type, text: type}))}
+                                    defaultSelectedKey={this.state.currentLocale}
+                                    onChange={this.onLocaleChange}></Dropdown>
+                            </div>
                         </div>
                         <div className="p-3" style={{marginTop: "8px"}}>
                             <h5>Upload file and run analysis</h5>
@@ -349,6 +368,11 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             });
         }
     }
+    private onLocaleChange = (_e, option: IDropdownOption) => {
+        const currentLocale: string = option.key as string;
+        this.setState({currentLocale});
+    }
+
     private prevPage = () => {
         this.setState((prevState) => ({
             currentPage: Math.max(1, prevState.currentPage - 1),
@@ -579,10 +603,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private async getPrediction(): Promise<any> {
-        const endpointURL = url.resolve(
-            this.props.prebuiltSettings.serviceURI,
-            `/formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`,
-        );
+        const endpointURL = this.getPredictionEndpointUrl();
         const apiKey = this.props.prebuiltSettings.apiKey;
 
         const headers = {"Content-Type": this.state.file ? this.state.file.type : "application/json", "cache-control": "no-cache"};
@@ -599,6 +620,14 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
         // Make the second REST API call and get the response.
         return poll(() => ServiceHelper.getWithAutoRetry(operationLocation, {headers}, apiKey as string), 120000, 500);
+    }
+
+    getPredictionEndpointUrl = (): string => {
+        const endpointUrl = url.resolve(
+            this.props.prebuiltSettings.serviceURI,
+            `/formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`
+        );
+        return endpointUrl + (this.state.currentPrebuiltType.useLocale ? `&locale=${this.state.currentLocale}` : "");
     }
 
     private createBoundingBoxVectorFeature = (text, boundingBox, imageExtent, ocrExtent) => {
