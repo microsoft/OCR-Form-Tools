@@ -49,10 +49,10 @@ export default class ServiceHelper {
                     "Error");
             }
         } else if (err.endpoint) {
-            toast.warn(interpolate(strings.errors.endpointConnectionError.message, err), {autoClose: 10000})
+            toast.warn(interpolate(strings.errors.endpointConnectionError.message,  {endpoint: "form recognizer backend URL"}), {autoClose: 10000})
             throw new AppError(
                 ErrorCode.HttpStatusNotFound,
-                interpolate(strings.errors.endpointConnectionError.message, err),
+                interpolate(strings.errors.endpointConnectionError.message,  {endpoint: "form recognizer backend URL"}),
                 strings.errors.endpointConnectionError.title);
         } else {
             // Network Error
