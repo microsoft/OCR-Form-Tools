@@ -26,11 +26,9 @@
     max-width: 20em;
 }
 
-.train-accuracytable-container {
+.train-accuracy-table-container {
     height: 100%;
-    width: 100%;
-    max-width: 400px;
-    .accuracytable {
+    .accuracy-table {
         width: 100%;
         th, td {
             border-top: #999 1px solid;
@@ -40,6 +38,11 @@
         }
         &:last-child {
             border-bottom: #999 2px solid;
+        }
+        .tag-name {
+            max-width: calc(100vw - 550px);
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     }
 }
