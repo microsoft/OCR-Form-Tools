@@ -10,7 +10,11 @@ import { strings, interpolate } from "../../../../common/strings";
 import { getDarkTheme, getPrimaryRedTheme } from "../../../../common/themes";
 import { AlignPortal } from "../align/alignPortal";
 import { filterFormat, getNextColor } from "../../../../common/utils";
-import { IRegion, ITag, ILabel, FieldType, FieldFormat, IField, TagInputMode, FeatureCategory, ITableTag, ITableRegion, ITableConfigItem, ITableField, ITableKeyField } from "../../../../models/applicationState";
+import {
+    IRegion, ITag, ILabel, FieldType, FieldFormat,
+    TagInputMode, FeatureCategory, ITableTag, ITableRegion,
+    ITableConfigItem, ITableKeyField, ITableLabel
+} from "../../../../models/applicationState";
 import { ColorPicker } from "../colorPicker";
 import "./tagInput.scss";
 import debounce from 'lodash/debounce';
@@ -51,6 +55,8 @@ export interface ITagInputProps {
     selectedRegions?: IRegion[];
     /** The labels in the canvas */
     labels: ILabel[];
+     /** The tableLabels in the canvas */
+     tableLabels?: ITableLabel[];
     /** The doc current page number */
     pageNumber: number;
     /** Tags that are currently locked for editing experience */
@@ -458,12 +464,12 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         const selectedRegionTagSet = this.getSelectedRegionTagSet();
 
         if (onlyCurrentPageTags) {
+            const labels = this.props.labels.filter(item => item.value[0]?.page === this.props.pageNumber).map(item => item.label);
+            const tableLabels = this.props.tableLabels.filter(item => item.labels[0]?.value[0]?.page === this.props.pageNumber).map(item => item.tableKey);
+            const labeledTags = [...labels, ...tableLabels];
 
-            const labels = this.props.labels.filter(item => item.value[0]?.page === this.props.pageNumber)
-                .map(item => item.label);
-            if (labels.length) {
-
-                return tags.filter(tag => labels.find(a => a === tag.name))
+            if (labeledTags.length) {
+                return tags.filter(tag => labeledTags.find(a => a === tag.name))
                     .map<ITagInputItemProps>(tag => {
                         return {
                             tag,

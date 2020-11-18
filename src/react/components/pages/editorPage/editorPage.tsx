@@ -203,6 +203,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const labels = (selectedAsset &&
             selectedAsset.labelData &&
             selectedAsset.labelData.labels) || [];
+        const tableLabels = (selectedAsset &&
+            selectedAsset.labelData &&
+            selectedAsset.labelData.tableLabels) || [];
 
         const needRunOCRButton = assets.some((asset) => asset.state === AssetState.NotVisited);
 
@@ -333,6 +336,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     lockedTags={this.state.lockedTags}
                                     selectedRegions={this.state.selectedRegions}
                                     labels={labels}
+                                    tableLabels={tableLabels}
                                     pageNumber={this.state.pageNumber}
                                     onChange={this.onTagsChanged}
                                     onLockedTagsChange={this.onLockedTagsChanged}
