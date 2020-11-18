@@ -1,31 +1,27 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { KeyboardEvent } from "react";
 import {
-    ContextualMenu,
-    ContextualMenuItemType,
-    Customizer,
-    FontIcon,
-    IContextualMenuItem,
-    ICustomizations,
-    Spinner,
-    SpinnerSize,
-    ChoiceGroup,
-    IChoiceGroupOption,
+    ContextualMenu, ContextualMenuItemType, Customizer,
+    FontIcon, IContextualMenuItem, ICustomizations,
+    Spinner, SpinnerSize, ChoiceGroup, IChoiceGroupOption
 } from "@fluentui/react";
 import { strings, interpolate } from "../../../../common/strings";
-import { getDarkTheme } from "../../../../common/themes";
+import { getDarkTheme, getPrimaryRedTheme } from "../../../../common/themes";
 import { AlignPortal } from "../align/alignPortal";
 import { filterFormat, getNextColor } from "../../../../common/utils";
 import { IRegion, ITag, ILabel, FieldType, FieldFormat, IField, TagInputMode, FeatureCategory, ITableTag, ITableRegion, ITableConfigItem, ITableField, ITableKeyField } from "../../../../models/applicationState";
 import { ColorPicker } from "../colorPicker";
 import "./tagInput.scss";
+import debounce from 'lodash/debounce';
+import React, { KeyboardEvent } from "react";
+import { constants } from "../../../../common/constants";
+import Confirm from "../../common/confirm/confirm";
 import "../condensedList/condensedList.scss";
-import TagInputItem, { ITagInputItemProps, ITagClickProps } from "./tagInputItem";
+import "./tagInput.scss";
+import TagInputItem, { ITagClickProps, ITagInputItemProps } from "./tagInputItem";
 import TagInputToolbar from "./tagInputToolbar";
 import { toast } from "react-toastify";
-import debounce from 'lodash/debounce';
 import TableTagConfig from "./tableTagConfig"
 import TableTagLabeling from "./tableTagLabeling";
 // tslint:disable-next-line:no-var-requires
@@ -55,6 +51,8 @@ export interface ITagInputProps {
     selectedRegions?: IRegion[];
     /** The labels in the canvas */
     labels: ILabel[];
+    /** The doc current page number */
+    pageNumber: number;
     /** Tags that are currently locked for editing experience */
     lockedTags?: string[];
     /** Updates to locked tags */
@@ -97,6 +95,8 @@ export interface ITagInputState {
     tags: ITag[];
     tagOperation: TagOperationMode;
     addTags: boolean;
+    onlyCurrentPageTags: boolean;
+    showOriginLabels: boolean;
     searchTags: boolean;
     searchQuery: string;
     selectedTag: ITag;
@@ -120,12 +120,14 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         searchTags: this.props.showSearchBox,
         searchQuery: "",
         selectedTag: null,
+        onlyCurrentPageTags: false,
+        showOriginLabels: constants.showOriginLabelsByDefault,
     };
 
     private tagItemRefs: Map<string, TagInputItem> = new Map<string, TagInputItem>();
     private headerRef = React.createRef<HTMLDivElement>();
     private inputRef = React.createRef<HTMLInputElement>();
-
+    private replaceConfirmRef = React.createRef<Confirm>();
     public componentDidUpdate(prevProps: ITagInputProps) {
         if (prevProps.tags !== this.props.tags) {
             let selectedTag = this.state.selectedTag;
@@ -145,7 +147,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             });
         }
     }
-
     public render() {
         const dark: ICustomizations = {
             settings: {
@@ -202,8 +203,9 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                         <span className="tag-input-title">{strings.tags.title}</span>
                         <TagInputToolbar
                             selectedTag={this.state.selectedTag}
-                            setTagInputMode={this.props.setTagInputMode}
                             onAddTags={() => this.setState({ addTags: !this.state.addTags })}
+                            onOnlyCurrentPageTags={() => this.setState({ onlyCurrentPageTags: !this.state.onlyCurrentPageTags })}
+                            onShowOriginLabels={(showOriginLabels: boolean) => this.setState({ showOriginLabels })}
                             onSearchTags={() => this.setState({
                                 searchTags: !this.state.searchTags,
                                 searchQuery: "",
@@ -213,10 +215,10 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                             onLockTag={this.onLockTag}
                             onDelete={this.onDeleteTag}
                             onReorder={this.onReOrder}
+                            setTagInputMode={this.props.setTagInputMode}
                         />
                     </div>
-                    {
-                        this.props.tagsLoaded ?
+                    {this.props.tagsLoaded ?
                         <div className="tag-input-body-container">
                             <div className="tag-input-body">
                                 {
@@ -228,8 +230,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                                             onKeyDown={this.onSearchKeyDown}
                                             onChange={(e) => this.setState({ searchQuery: e.target.value })}
                                             placeholder="Search tags"
-                                                autoFocus={true}
-                                                onFocus={() => this.setState({ selectedTag: null, tagOperation: TagOperationMode.Rename })}
+                                            autoFocus={true}
+                                            onFocus={() => this.setState({ selectedTag: null, tagOperation: TagOperationMode.Rename })}
                                         />
                                         <FontIcon iconName="Search" />
                                     </div>
@@ -248,7 +250,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                                         }
                                     </Customizer>
                                     {this.getColorPickerPortal()}
-
                                 </div>
                                 {
                                     this.state.addTags &&
@@ -268,21 +269,26 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                                 }
                             </div>
                         </div>
+
                         :
-                        <Spinner className="loading-tag" size={SpinnerSize.large}/>
+                        <Spinner className="loading-tag" size={SpinnerSize.large} />
                     }
+                    <Confirm
+                        title={strings.tags.warnings.replaceAllExitingLabelsTitle}
+                        ref={this.replaceConfirmRef}
+                        message={strings.tags.warnings.replaceAllExitingLabels}
+                        confirmButtonTheme={getPrimaryRedTheme()}
+                        onConfirm={this.onReplaceConfirm}
+                    />
                 </div>
             );
         }
     }
-
-
     public triggerNewTagBlur() {
         if (this.inputRef.current) {
             this.inputRef.current.blur();
         }
     }
-
     private onRenameTag = (tag: ITag) => {
         const tagOperation = this.state.tagOperation === TagOperationMode.Rename
             ? TagOperationMode.None : TagOperationMode.Rename;
@@ -428,6 +434,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 {...prop}
                 key={prop.tag.name}
                 labels={this.setTagLabels(prop.tag.name)}
+                showOriginLabels={this.state.showOriginLabels}
                 ref={(item) => this.setTagItemRef(item, prop.tag)}
                 onLabelEnter={this.props.onLabelEnter}
                 onLabelLeave={this.props.onLabelLeave}
@@ -447,8 +454,33 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     private createTagItemProps = (): ITagInputItemProps[] => {
-        const { tags, selectedTag, tagOperation } = this.state;
+        const { tags, selectedTag, tagOperation, onlyCurrentPageTags } = this.state;
         const selectedRegionTagSet = this.getSelectedRegionTagSet();
+
+        if (onlyCurrentPageTags) {
+
+            const labels = this.props.labels.filter(item => item.value[0]?.page === this.props.pageNumber)
+                .map(item => item.label);
+            if (labels.length) {
+
+                return tags.filter(tag => labels.find(a => a === tag.name))
+                    .map<ITagInputItemProps>(tag => {
+                        return {
+                            tag,
+                            index: tags.findIndex((t) => isNameEqual(t.name, tag.name)),
+                            isLocked: this.props.lockedTags
+                                && this.props.lockedTags.findIndex((str) => isNameEqual(tag.name, str)) > -1,
+                            isRenaming: selectedTag && isNameEqual(selectedTag.name, tag.name)
+                                && tagOperation === TagOperationMode.Rename,
+                            isSelected: selectedTag && isNameEqual(selectedTag.name, tag.name),
+                            appliedToSelectedRegions: selectedRegionTagSet.has(tag.name),
+                            onClick: this.onTagItemClick,
+                            onRename: this.onTagRename,
+                        } as ITagInputItemProps;
+                    });
+            }
+            return [];
+        }
 
         return tags.map((tag) => (
             {
@@ -479,7 +511,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     private onTagItemClick = (tag: ITag, props: ITagClickProps) => {
-    console.log("TagInput -> privateonTagItemClick -> tag", tag);
+        console.log("TagInput -> privateonTagItemClick -> tag", tag);
         if (props.ctrlKey && this.props.onCtrlTagClick) { // Lock tags
             this.props.onCtrlTagClick(tag);
         } else if (props.altKey) { // Edit tag
@@ -523,18 +555,24 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     this.props.handleLabelTable(TagInputMode.LabelTable, tag)
                     deselect = false;
                 } else if (labelAssigned && ((category === FeatureCategory.DrawnRegion) !== isTagLabelTypeDrawnRegion)) {
-                    if (isTagLabelTypeDrawnRegion) {
-                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, { otherCatagory: category}));
+                    if (category === FeatureCategory.Checkbox && isTagLabelTypeDrawnRegion) {
+                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, { otherCatagory: FeatureCategory.Checkbox }));
+                    } else if (isTagLabelTypeDrawnRegion) {
+                        this.replaceConfirmRef.current.open(tag, props);
                     } else if (tagCategory === FeatureCategory.Checkbox) {
-                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, { otherCatagory:  FeatureCategory.Checkbox}));
+                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, { otherCatagory: FeatureCategory.Checkbox }));
                     } else {
-                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, { otherCatagory: FeatureCategory.Text}));
+                        this.replaceConfirmRef.current.open(tag, props);
                     }
                     return;
                 } else if (tagCategory === category || category === FeatureCategory.DrawnRegion ||
                     (documentCount === 0 && type === FieldType.String && format === FieldFormat.NotSpecified)) {
                     if (tagCategory === FeatureCategory.Checkbox && labelAssigned) {
                         toast.warn(strings.tags.warnings.checkboxPerTagLimit);
+                        return;
+                    }
+                    if (tagCategory === FeatureCategory.Checkbox && category !== FeatureCategory.Checkbox) {
+                        toast.warn(strings.tags.warnings.notCompatibleTagType);
                         return;
                     }
                     onTagClick(tag);
@@ -549,6 +587,19 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             });
         }
     }
+
+    private onReplaceConfirm = (tag: ITag, props: ITagClickProps) => {
+        const {onTagClick} = this.props;
+        const {selectedTag, tagOperation: oldTagOperation} = this.state;
+        const selected = selectedTag && isNameEqual(selectedTag.name, tag.name);
+        const tagOperation = selected ? oldTagOperation : TagOperationMode.None;
+        const deselect = selected && oldTagOperation === TagOperationMode.None;
+        onTagClick(tag);
+        this.setState({
+            selectedTag: deselect ? null : tag,
+            tagOperation,
+        });
+    }
     focusTag(tag: string) {
         const tagItemRef = this.tagItemRefs.get(tag)?.getTagNameRef();
         if (tagItemRef) {
@@ -560,7 +611,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         }
     }
     public labelAssigned = (labels: ILabel[], name): boolean => {
-        const label = labels.find((label) => label.label === name ? true : false);
+        const label = labels?.find((label) => label.label === name ? true : false);
         if (!label) {
             return false;
         } else {
@@ -569,7 +620,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     public labelAssignedDrawnRegion = (labels: ILabel[], name): boolean => {
-        const label = labels.find((label) => label.label === name ? true : false);
+        const label = labels?.find((label) => label.label === name ? true : false);
         if (label?.labelType === FeatureCategory.DrawnRegion) {
             return true;
         } else {
@@ -644,7 +695,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             format: tableConfig.format,
             documentCount: 0,
             columnKeys: tableConfig.columns.map((column) => {
-                return({
+                return ({
                     fieldKey: column.name,
                     fieldType: column.type,
                     fieldFormat: column.format,
@@ -700,7 +751,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     items: this.getTypeSubMenuItems()
                 },
                 submenuIconProps: {
-                    iconName: tag.type !== FieldType.Table  ? "ChevronRight": ""
+                    iconName: tag.type !== FieldType.Table ? "ChevronRight" : ""
                 }
             },
             {
@@ -713,7 +764,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     items: this.getFormatSubMenuItems(),
                 },
                 submenuIconProps: {
-                    iconName: tag.type !== FieldType.Table  ? "ChevronRight": ""
+                    iconName: tag.type !== FieldType.Table ? "ChevronRight" : ""
                 }
 
             },

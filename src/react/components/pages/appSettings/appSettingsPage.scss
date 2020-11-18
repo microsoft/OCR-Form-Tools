@@ -3,7 +3,7 @@
     flex-direction: row;
     flex-grow: 1;
     min-height: fit-content;
-
+    overflow-y: auto;
     &-form {
         flex-grow: 1;
     }

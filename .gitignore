@@ -38,3 +38,4 @@ secrets.sh
 es6-src/
 report/
 debug.log
+src/git-commit-info.txt

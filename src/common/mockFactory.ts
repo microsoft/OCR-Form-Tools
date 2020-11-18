@@ -319,6 +319,7 @@ export default class MockFactory {
             createContainer: jest.fn(),
             deleteContainer: jest.fn(),
             getAssets: jest.fn(),
+            getAsset: jest.fn(),
             isFileExists: jest.fn(),
         };
     }
@@ -343,6 +344,9 @@ export default class MockFactory {
             getAssets(folderPath?: string, folderName?: string): Promise<IAsset[]> {
                 throw new Error("Method not implemented.");
             },
+            getAsset(folderPath: string, assetName: string): Promise<IAsset> {
+                throw new Error("Method not implemented.");
+            }
         };
     }
 
@@ -480,7 +484,9 @@ export default class MockFactory {
             deleteAsset: jest.fn(() => Promise.resolve()),
             loadAssets: jest.fn(() => Promise.resolve()),
             loadAssetMetadata: jest.fn(() => Promise.resolve()),
+            refreshAsset: jest.fn(() => Promise.resolve()),
             saveAssetMetadata: jest.fn(() => Promise.resolve()),
+            saveAssetMetadataAndCleanEmptyLabel: jest.fn(()=> Promise.resolve()),
             updateProjectTag: jest.fn(() => Promise.resolve()),
             deleteProjectTag: jest.fn(() => Promise.resolve()),
             reconfigureTableTag: jest.fn(() => Promise.resolve()),

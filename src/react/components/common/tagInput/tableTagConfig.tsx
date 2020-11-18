@@ -2,7 +2,12 @@
 // Licensed under the MIT license.
 import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, SelectionMode, DetailsListLayoutMode, FontIcon, CheckboxVisibility, IContextualMenuItem, CommandBar, Selection, Separator, IObjectWithKey, Link, ActionButton } from "@fluentui/react";
+import {
+    Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption,
+    PrimaryButton, DetailsList, IColumn, TextField, Dropdown, SelectionMode,
+    DetailsListLayoutMode, FontIcon, CheckboxVisibility, IContextualMenuItem,
+    CommandBar, Selection, Separator, IObjectWithKey, ActionButton
+} from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme, getDefaultTheme } from '../../../../common/themes';
 import { FieldFormat, FieldType, IApplicationState, ITableRegion, ITableTag, ITag, TableElements, TagInputMode } from '../../../../models/applicationState';
 import { filterFormat, useDebounce } from "../../../../common/utils";

@@ -13,6 +13,7 @@ import { ITrainRecordProps } from "../react/components/pages/train/trainRecord";
  * @member appError - error in the app if any
  */
 export interface IApplicationState {
+    prebuiltSettings?: IPrebuiltSettings;
     appSettings: IAppSettings,
     connections: IConnection[],
     recentProjects: IProject[],
@@ -181,6 +182,11 @@ export interface IAsset {
     mimeType?: string,
 }
 
+export interface IPrebuiltSettings{
+    serviceURI: string;
+    apiKey: string;
+}
+
 /**
  * @name - Asset Metadata
  * @description - Format to store asset metadata for each asset within a project
@@ -230,6 +236,7 @@ export interface IRegion {
 export interface ITableRegion extends IRegion {
     rowKey: string,
     columnKey: string,
+    changed?: boolean,
 }
 
 /**
@@ -251,8 +258,10 @@ export interface ILabel {
     label: string,
     key?: IFormRegion[],
     value: IFormRegion[],
+    originValue?: IFormRegion[],
     labelType?: string,
     confidence?: number,
+    revised?: boolean;
 }
 
 export interface ITableLabel {
@@ -264,6 +273,7 @@ export interface ITableCellLabel {
     rowKey: string,
     columnKey: string,
     value: IFormRegion[],
+    revised?: boolean;
 }
 
 /**

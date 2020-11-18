@@ -194,8 +194,8 @@ export default class ProjectService implements IProjectService {
         }
     }
 
-    public async updatedAssetMetadata(project: IProject,  assetDocumentCountDifference: any, columnDocumentCountDifference: any,
-        rowDocumentCountDifference: any): Promise<IProject> {
+    public async updatedAssetMetadata(project: IProject,  assetDocumentCountDifference: any, columnDocumentCountDifference?: any,
+        rowDocumentCountDifference?: any): Promise<IProject> {
         console.log("final sol", assetDocumentCountDifference, columnDocumentCountDifference, rowDocumentCountDifference)
         const updatedProject = clone()(project);
         updatedProject.tags?.forEach((tag: ITag) => {

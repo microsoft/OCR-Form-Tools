@@ -1,5 +1,5 @@
-commit 8785f08f8fd966a474665d4e4d236e0d4426e621
-Author: Alex Chen <v-yongbc@microsoft.com>
-Date:   Thu Oct 22 21:19:39 2020 +0800
+commit 1d895e4f009ecf598673fc3756c9047edf298766
+Author: Robert Stewart (eXcell <v-stewro@microsoft.com>
+Date:   Fri Nov 13 11:02:14 2020 -0800
 
-    tslint check
+    refactor: hardcode to preview.3 api

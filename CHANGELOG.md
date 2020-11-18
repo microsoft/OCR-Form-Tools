@@ -1,4 +1,4 @@
-# FoTT Changelog 
+# FoTT Changelog
 ## What's new in Form Recognizer?
 Click [here](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/whats-new) to see what's new in Form Recognizer.
 
@@ -6,8 +6,86 @@ Click [here](https://docs.microsoft.com/en-us/azure/cognitive-services/form-reco
 2.1-Preview's released container image, tracked by the `latest-preview` image tag in our [docker hub repository](https://hub.docker.com/_/microsoft-azure-cognitive-services-custom-form-labeltool), currently references **2.1-preview.1-1f33130 (10-09-2020)**
 
 ## Commit history
+### 2.1-preview.1-2e50498 (11-09-2020)
+* fix: enable api version selection ([#736](https://github.com/microsoft/OCR-Form-Tools/commit/2e5049883bd1550ba80210edca7db4233d7a15fa))
+* fix: labeling doesn't work via shortcuts on the new project or empty tags ([#677](https://github.com/microsoft/OCR-Form-Tools/commit/f11291940b776ceb8ba7708e6f58dc2572f7b01b))
+* fix: remove setting project state in project form on change ([#732](https://github.com/microsoft/OCR-Form-Tools/commit/25eb59bfa85b755cd877b02ffda71d0cec70a106))
+* handle training state logical ([#731](https://github.com/microsoft/OCR-Form-Tools/commit/569adf161ad89106ab1fbf51429841c5955e0e4b))
+* fix issue of "After running Layout an all documents FoTT sometimes does not ends" ([#723](https://github.com/microsoft/OCR-Form-Tools/commit/6203e2cd814c95e2bef165f3fb518a566166c26d))
+* set includeTextDetails=true in prebuilt predict ([#722](https://github.com/microsoft/OCR-Form-Tools/commit/ba04cebb63a5b05a369ba954a99dfdc7c9bb9b41))
+* fix issue of "Auto-labeling while switching assets in asset preview causes an error" ([#721](https://github.com/microsoft/OCR-Form-Tools/commit/59fe4e2778a644335da9766fd1382d56086220c1))
+* feat: support api version config ([#717](https://github.com/microsoft/OCR-Form-Tools/commit/c81b2323aaa2b26b0bc0f7922de1e12445fbb627))
+* update homepage style ([#724](https://github.com/microsoft/OCR-Form-Tools/commit/fc769f41c169083098f9250c9ce18ca4881cc336))
+* issuefix: update getBoundingBox ([#730](https://github.com/microsoft/OCR-Form-Tools/commit/f0cb5db337364b2f0355928616d1f7d9637a454a))
+* clone with lodash cloneDeep ([#728](https://github.com/microsoft/OCR-Form-Tools/commit/d6bca5fcf2262a467ede781916a01f50d805b30f))
+* remain auto label state while no label data ([#727](https://github.com/microsoft/OCR-Form-Tools/commit/a79d556a3935e387b0798ecfda8de9c8b1538250))
+* deep copy asset metadata ([#725](https://github.com/microsoft/OCR-Form-Tools/commit/ba8c1100e9adf517e35ec50fd513383d9e84d630))
+* Yongbing chen/receipt predicting ([#626](https://github.com/microsoft/OCR-Form-Tools/commit/e638cd8e3be8926e966a5afc86fb53ac0f092977))
+
+### 2.1-preview.1-32cfaea (11-06-2020)
+* Starain chen/clean autolabel data while training ([#712](https://github.com/microsoft/OCR-Form-Tools/commit/32cfaea023e96c8aa00560a3f30134683ee25757))
+* fix issue of deleting tag ([#703](https://github.com/microsoft/OCR-Form-Tools/commit/282d55700ea9fdf4cac2b0f20901e8ff6115819e))
+
+### 2.1-preview.1-c7ed086 (11-04-2020)
+* Update README.md([#??](https://github.com/microsoft/OCR-Form-Tools/commit/c7ed08612876af8bb619a080f6740fceabb4e67c))
+* Update README.md([#??](https://github.com/microsoft/OCR-Form-Tools/commit/d696b8a25438590fb44c5159b3142b17178f25d2))
+* fix: use constant if no api version specified ([#684](https://github.com/microsoft/OCR-Form-Tools/commit/8ccdab83f079d976f6521bc08c50d917900483c0))
+* auto labeled tag design & replacing between text with draw region ([#670](https://github.com/microsoft/OCR-Form-Tools/commit/757e0dd85b3c69c6642674e48e9d3549807fecbd))
+
+### 2.1-preview.1-aab6938 (11-03-2020)
+* Fix the issue that git-commit-info.txt could be override ([#683](https://github.com/microsoft/OCR-Form-Tools/commit/aab69380a8e1f7f113011a7c6b6ed406c4329555))
+* fix: use existing git hash when not in git repository ([#682](https://github.com/microsoft/OCR-Form-Tools/commit/586fbb0ce51c27ae42ca857a372e8e8d5dea21d1))
+* Stew ro/use api version selected in project settings ([#678](https://github.com/microsoft/OCR-Form-Tools/commit/bed69a3f64b0da7590ca3c54e8de369844c6bcd9))
+* refactor: change drawn region icon ([#675](https://github.com/microsoft/OCR-Form-Tools/commit/5614da2681bb8fadf9d3db3ff95aa62362d00175))
+
+### 2.1-preview.1-3485d33 (10-30-2020)
+* feat: add bmp support for analyze page ([#672](https://github.com/microsoft/OCR-Form-Tools/commit/3485d33eca96321cf667c5c8eba22cc60af42e23))
+* Alex krasn/bugfix on hotkeys when canvas not loaded yet ([#664](https://github.com/microsoft/OCR-Form-Tools/commit/b0404c6276f8fe55292c929e2ca431ed31ef6442))
+
+### 2.1-preview.1-7166cda (10-29-2020)
+* fix: use node to update status bar with latest git commit ([#671](https://github.com/microsoft/OCR-Form-Tools/commit/7166cdae5763a93feee52842af8e2246fedbf818))
+* change OCR to Layout in UI (Actions) ([#666](https://github.com/microsoft/OCR-Form-Tools/commit/ac604b6bd43eb4c3ba8929a97b308c833d0e6c13))
+* Yongbing chen/hitl update notify message ([#651](https://github.com/microsoft/OCR-Form-Tools/commit/0fa559a4b28c6648eaa17ec047ebb9caabbdc9c7))
+
+### 2.1-preview.1-6d775ae (10-27-2020)
+* Yongbing chen/ui adjustment with designers feedback ([#662](https://github.com/microsoft/OCR-Form-Tools/commit/6d775ae8d4495ca31d110e500b86d3c0eed6a954))
+
+### 2.1-preview.1-c86b6de (10-23-2020)
+* Fix the issue that git-commit-info.txt could be override ([#668](https://github.com/microsoft/OCR-Form-Tools/commit/c86b6de35ecd5d004dfb64f8f857d06f0557a00d))
+* Xinxl/fix hash ([#667](https://github.com/microsoft/OCR-Form-Tools/commit/cb27cbd74ff890dc7e13865d89ca5e16b0807fbb))
+
+### 2.1-preview.1-0aae169 (10-22-2020)
+* Alex krasn/fix confidence level bar styles ([#657](https://github.com/microsoft/OCR-Form-Tools/commit/0aae1690351f3de27114e6cbebd2c077be8e9016))
+
+### 2.1-preview.1-d644459 (10-21-2020)
+* refactor: change error styling and wording for project sharing ([#653](https://github.com/microsoft/OCR-Form-Tools/commit/d644459e4c9b1f82b1ed2d5b537960b0f16184da))
+* fix: sort models after loading next page in model compose ([#659](https://github.com/microsoft/OCR-Form-Tools/commit/9818d6301ef613155951381598f9ad4cf8ff6e3c))
+* Alex krasn/serialize javascript vulnerability ([#612](https://github.com/microsoft/OCR-Form-Tools/commit/66b03303b1325634371ebdb3923acaa6722be89f))
+* update asset labelingState when load local project ([#660](https://github.com/microsoft/OCR-Form-Tools/commit/1aa3daaeeb1c8a4773e7b6236fc6462335e410f9))
+
+### 2.1-preview.1-28c54fc (10-20-2020)
+* fix: check for local connections ([#654](https://github.com/microsoft/OCR-Form-Tools/commit/28c54fcc31defe1c4ebcf685675768b99c8e00c8))
+* get last commit hash code in current branch and show on status bar ([#642](https://github.com/microsoft/OCR-Form-Tools/commit/88c547995d31f945177da70141f997e441b3259c))
+* new feature: tags in current page ([#640](https://github.com/microsoft/OCR-Form-Tools/commit/af5396fe8e63b88b90d16953e17ce2006afe782e))
+
+### 2.1-preview.1-6c1ee2b (10-16-2020)
+* adjust editor view offset ([#646](https://github.com/microsoft/OCR-Form-Tools/commit/6c1ee2b6b4f1bcf28b1c9081b21f0a8783518c80))
+
+### 2.1-preview.1-b92e4b3 (10-15-2020)
+* reword asset states ([#644](https://github.com/microsoft/OCR-Form-Tools/commit/b92e4b3d5a786a852c319c05697eea331c147cee))
+
+### 2.1-preview.1-4544e52 (10-14-2020)
+* feat: support apiVersion selection from project settings ([#641](https://github.com/microsoft/OCR-Form-Tools/commit/4544e5255cf2356a4ddf353f7a63994c1a0865da))
+
+### 2.1-preview.1-94f12bb (10-13-2020)
+* new feature: highlight current tag ([#628](https://github.com/microsoft/OCR-Form-Tools/commit/94f12bb4e925a86fdfba8e25d8b0346169daea1e))
+* new feature: human in the loop auto labeling ([#571](https://github.com/microsoft/OCR-Form-Tools/commit/c1f227daa3decd52320f58d151755b206280cedd))
+
+### 2.1-preview.1-7d1f871 (10-10-2020)
+* Update CHANGELOG.md([#??](https://github.com/microsoft/OCR-Form-Tools/commit/7d1f87193b3917f2140ab9bcce04c64e7aceb823))
+
 ### 2.1-preview.1-1f33130 (10-09-2020)
-* fix: support image map interactions for container releases([#639](https://github.com/microsoft/OCR-Form-Tools/commit/1f33130e3b6ad8a876f18fc1c05f82c4a14d36fa))
+* fix: support image map interactions for container releases([#639](https://github.com/microsoft/OCR-Form-Tools/commit/e015973aee152b8a8b22fc2fe32ce80bdd2b46ea))
 
 ### 2.1-preview.1-6d4e93b (10-07-2020)
 * Fix: use file type library for mime type validation ([#636](https://github.com/microsoft/OCR-Form-Tools/commit/6d4e93bca8a4e3d677c765ed5596bde502766e2e))
@@ -91,7 +169,7 @@ Click [here](https://docs.microsoft.com/en-us/azure/cognitive-services/form-reco
 
 ### 2.1-preview.1-530545c (08-28-2020)
 * fix: remove existing bounding boxes from document on analyze ([#523](https://github.com/microsoft/OCR-Form-Tools/commit/6a1aedfb89b0499a0f4782e16ccbd8a06887841d))
-* feat: enable download JSON of trained model ([#513](https://github.com/microsoft/OCR-Form-Tools/commits/master)) 
+* feat: enable download JSON of trained model ([#513](https://github.com/microsoft/OCR-Form-Tools/commits/master))
 
 ### 2.1-preview.1-529a0e8 (08-27-2020)
 * fix: show loading indicator while loading model info ([#514](https://github.com/microsoft/OCR-Form-Tools/commit/529a0e819f4cb405e290f34d18d15c487a7bcfad))
@@ -198,7 +276,7 @@ Click [here](https://docs.microsoft.com/en-us/azure/cognitive-services/form-reco
 ### 2.1-preview.1-a334cfc (07-07-2020)
 * fix: hide extra scrollbars for model compose view ([#380](https://github.com/microsoft/OCR-Form-Tools/commit/a334cfc45fc5ab137682ad2b48dd0ec1585055dc))
 * fix: handle version change state mutation error ([#382](https://github.com/microsoft/OCR-Form-Tools/commit/8991cc0c92f2f5cbd226f7e1c5c0825b7af8937c))
-* fix: handle pdf worker terminated error ([#381](https://github.com/microsoft/OCR-Form-Tools/commit/adc0498c31bfd5ba57ab98c373e73575589ab1e1)) 
+* fix: handle pdf worker terminated error ([#381](https://github.com/microsoft/OCR-Form-Tools/commit/adc0498c31bfd5ba57ab98c373e73575589ab1e1))
 
 ### 2.1-preview.1-7192170 (07-02-2020)
 * feat: support release ([#361](https://github.com/microsoft/OCR-Form-Tools/commit/7192170d73d24a43e7fff18cd2c6bae7f208f1b0))

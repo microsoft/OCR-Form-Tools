@@ -10,9 +10,10 @@ import IProjectActions, * as projectActions from "../../../../redux/actions/proj
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import {
-    IApplicationState, IConnection, IProject, IAppSettings, FieldType, IRecentModel, AssetLabelingState,
+    IApplicationState, IConnection, IProject, IAppSettings, FieldType, IRecentModel, AssetLabelingState, IAssetMetadata,
 } from "../../../../models/applicationState";
 import TrainChart from "./trainChart";
+import "./trainPage.scss";
 import TrainPanel from "./trainPanel";
 import TrainTable from "./trainTable";
 import { ITrainRecordProps } from "./trainRecord";
@@ -30,6 +31,7 @@ import { AssetService } from "../../../../services/assetService";
 import Confirm from "../../common/confirm/confirm";
 import UseLocalStorage from '../../../../services/useLocalStorage';
 import { isElectron } from "../../../../common/hostProcess";
+import { getAPIVersion } from "../../../../common/utils";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -105,7 +107,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     public async componentDidMount() {
         const projectId = this.props.match.params["projectId"];
         if (projectId) {
-            const project = this.props.recentProjects.find((project) => project.id === projectId);
+            const project = {...this.props.recentProjects.find((project) => project.id === projectId)};
             await this.props.actions.loadProject(project);
 
             this.props.appTitleActions.setTitle(project.name);
@@ -316,23 +318,31 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         });
 
         this.trainProcess().then(async (trainResult) => {
+            const assets = Object.values(this.props.project.assets);
+            const assetService = new AssetService(this.props.project);
+
+            const newAssets = {};
+            for (const asset of assets) {
+                const newAsset = _.cloneDeep(asset);
+
+                const metadata = await assetService.getAssetMetadata(newAsset);
+                if (metadata.labelData && metadata.labelData.labels?.findIndex(label=>label.value?.length>0)>=0 && metadata.labelData.labelingState !== AssetLabelingState.Trained) {
+                    metadata.labelData.labelingState = AssetLabelingState.Trained;
+                    metadata.asset.labelingState=AssetLabelingState.Trained;
+                    const newMeta = await assetService.save({ ...metadata });
+                    newAssets[asset.id] = newMeta.asset;
+                }
+                else {
+                    newAssets[asset.id] = newAsset;
+                }
+            }
+            await this.props.actions.saveProject({...this.props.project, assets: newAssets},false,false);
             this.setState((prevState, props) => ({
                 isTraining: false,
                 trainMessage: this.getTrainMessage(trainResult),
                 currTrainRecord: this.getProjectTrainRecord(),
                 modelName: "",
             }));
-            const assets = Object.values(this.props.project.assets);
-            const assetService = new AssetService(this.props.project);
-            for (const asset of assets) {
-                const newAsset = JSON.parse(JSON.stringify(asset));
-                newAsset.labelingState = AssetLabelingState.Trained;
-                const metadata = await assetService.getAssetMetadata(newAsset);
-                if (metadata.labelData && metadata.labelData.labelingState !== AssetLabelingState.Trained) {
-                    metadata.labelData.labelingState = AssetLabelingState.Trained;
-                    await assetService.save({ ...metadata });
-                }
-            }
             // reset localStorage successful train process
             localStorage.setItem("trainPage_inputs", "{}");
         }).catch((err) => {
@@ -367,15 +377,17 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 showTrainingFailedWarning: true,
                 trainingFailedMessage: isOnPrem ? interpolate(strings.train.errors.electron.cantAccessFiles, { folderUri: this.state.inputtedLabelFolderURL }) :
                     error?.message !== undefined
-                    ? error.message : error,
+                        ? error.message : error,
             });
+            throw error;
         }
     }
 
     private async train(): Promise<any> {
+        const apiVersion = getAPIVersion(this.props.project?.apiVersion);
         const baseURL = url.resolve(
             this.props.project.apiUriBase,
-            interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) }),
+            interpolate(constants.apiModelsPath, {apiVersion}),
         );
         const provider = this.props.project.sourceConnection.providerOptions as any;
         let trainSourceURL;
@@ -388,6 +400,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             trainSourceURL = provider.sas;
             trainPrefix = this.props.project.folderPath ? this.props.project.folderPath : "";
         }
+        await this.cleanLabelData();
         const payload = {
             source: trainSourceURL,
             sourceFilter: {
@@ -407,7 +420,51 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             this.setState({ modelUrl: result.headers.location });
             return result;
         } catch (err) {
-            ServiceHelper.handleServiceError(err);
+            ServiceHelper.handleServiceError({...err, endpoint: baseURL});
+        }
+    }
+    private async cleanLabelData() {
+
+        const allAssets = { ...this.props.project.assets };
+        const assetValues = Object.values(allAssets).filter(asset => asset.labelingState !== AssetLabelingState.Trained)
+        for (const asset of assetValues) {
+            const assetMetadata: IAssetMetadata = _.cloneDeep(await this.props.actions.loadAssetMetadata(this.props.project, asset));
+            let isUpdated = false;
+            assetMetadata.labelData?.labels?.forEach((label, index) => {
+                if (label.value?.length === 0) {
+                    assetMetadata.labelData.labels.splice(index, 1);
+                    isUpdated = true;
+                }
+            });
+            if (!isUpdated && assetMetadata.asset.labelingState === AssetLabelingState.ManuallyLabeled
+                && assetMetadata.labelData?.labels?.findIndex(label => label.confidence
+                    || label.originValue
+                    || label.revised
+                    || label.value?.findIndex(item => item["confidence"]) < 0) < 0
+            ) {
+                return;
+            }
+            if (assetMetadata.labelData?.labels?.findIndex(label => label.value?.length > 0) >= 0) {
+                assetMetadata.asset.labelingState = AssetLabelingState.ManuallyLabeled;
+                if (assetMetadata.labelData) {
+                    assetMetadata.labelData.labelingState = AssetLabelingState.ManuallyLabeled;
+                }
+                isUpdated = true;
+            }
+
+            assetMetadata.labelData?.labels?.forEach((label) => {
+                delete label.confidence;
+                delete label.originValue;
+                delete label.revised;
+                label.value?.forEach(item => {
+                    delete item["confidence"];
+                });
+                isUpdated = true;
+            });
+
+            if (isUpdated) {
+                await this.props.actions.saveAssetMetadataAndCleanEmptyLabel(this.props.project, assetMetadata);
+            }
         }
     }
 
@@ -524,7 +581,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private async triggerJsonDownload(): Promise<any> {
-        const currModelUrl = this.props.project.apiUriBase + interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) }) + "/" + this.state.currTrainRecord.modelInfo.modelId;
+        const apiVersion = getAPIVersion(this.props.project?.apiVersion);
+        const currModelUrl = this.props.project.apiUriBase + interpolate(constants.apiModelsPath, {apiVersion}) + "/" + this.state.currTrainRecord.modelInfo.modelId;
         const modelUrl = this.state.modelUrl.length ? this.state.modelUrl : currModelUrl;
         const modelJSON = await this.getModelsJson(this.props.project, modelUrl);
 
@@ -558,7 +616,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 project.apiKey as string,
             ).then(res => res.request.response);
         } catch (error) {
-            ServiceHelper.handleServiceError(error);
+            ServiceHelper.handleServiceError({...error, endpoint: baseURL});
         }
     }
 }
