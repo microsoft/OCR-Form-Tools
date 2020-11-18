@@ -133,7 +133,7 @@ export interface ITableTag extends ITag {
 
 export enum TableHeaderTypeAndFormat {
     Rows = "rows",
-    Columns = "columns"
+    Columns = "columns",
 }
 
 /**

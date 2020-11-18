@@ -12,7 +12,7 @@ import {
     PrimaryButton,
     DefaultButton,
     SpinnerSize,
-    Spinner
+    Spinner, IChoiceGroupOption, ChoiceGroup
 } from "@fluentui/react";
 import { MessageFormatHandler } from "../messageBox/messageBox";
 import { getDarkTheme, getDefaultDarkTheme } from "../../../../common/themes";
@@ -30,6 +30,7 @@ export interface IConfirmProps {
     title?: string;
     message: string | ReactElement<any> | MessageFormatHandler;
     loadMessage?: string;
+    choiceGroup?: IChoiceGroupOption[];
     confirmButtonText?: string;
     cancelButtonText?: string;
     confirmButtonTheme?: ITheme;
@@ -45,6 +46,7 @@ export interface IConfirmState {
     params: any[];
     hideDialog: boolean;
     loading: boolean;
+    option: IChoiceGroupOption;
 }
 
 /**
@@ -60,6 +62,7 @@ export default class Confirm extends React.Component<IConfirmProps, IConfirmStat
             params: null,
             hideDialog: true,
             loading: false,
+            option: undefined,
         };
 
         this.open = this.open.bind(this);
@@ -78,7 +81,7 @@ export default class Confirm extends React.Component<IConfirmProps, IConfirmStat
         };
 
         const { confirmButtonTheme } = this.props;
-        const { hideDialog, loading } = this.state;
+        const { hideDialog, loading, option } = this.state;
 
         return (
             <Customizer {...dark}>
@@ -95,15 +98,28 @@ export default class Confirm extends React.Component<IConfirmProps, IConfirmStat
                             isBlocking: true,
                         }}
                     >
-                    {loading && this.props.loadMessage &&
-                        <div className="spinner-container">
+                        {loading && this.props.loadMessage &&
+                            <div className="spinner-container">
                                     <Spinner
-                                    label={this.props.loadMessage}
-                                    labelPosition="right"
-                                    theme={getDefaultDarkTheme()}
-                                    size={SpinnerSize.large}
+                                        label={this.props.loadMessage}
+                                        labelPosition="right"
+                                        theme={getDefaultDarkTheme()}
+                                        size={SpinnerSize.large}
+                                    />
+                            </div>
+
+                        }
+                        {this.props.choiceGroup &&
+                            <>
+                                <h5 className="mt-4" >Configure type and format for:</h5>
+                                <ChoiceGroup
+                                    className="ml-12px type-format"
+                                    defaultSelectedKey={this.props.choiceGroup[0].key}
+                                    options={this.props.choiceGroup}
+                                    onChange={this.handleOptionChange}
+                                    required={true}
                                 />
-                        </div>
+                            </>
 
                         }
                         <DialogFooter>
@@ -141,7 +157,11 @@ export default class Confirm extends React.Component<IConfirmProps, IConfirmStat
     }
 
     private onConfirmClick() {
-        this.props.onConfirm.apply(null, this.state.params);
+        if (this.props.choiceGroup) {
+            this.props.onConfirm(this.state.option.key);
+        } else {
+            this.props.onConfirm.apply(null, this.state.params);
+        }
         if (this.props.loadMessage) {
             this.load();
         } else {
@@ -162,5 +182,9 @@ export default class Confirm extends React.Component<IConfirmProps, IConfirmStat
         } else {
             return message;
         }
+    }
+
+    private handleOptionChange = (e, option: IChoiceGroupOption) => {
+        this.setState({option})
     }
 }

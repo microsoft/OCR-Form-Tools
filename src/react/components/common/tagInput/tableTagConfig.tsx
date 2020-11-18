@@ -121,7 +121,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 format: FieldFormat.Fixed,
                 rows: props.tableTag.rowKeys?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat, originalName: row.fieldKey, originalFormat: row.fieldFormat, originalType: row.fieldType })),
                 columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType })),
-                headerTypeAndFormat: TableElements.columns,
+                headerTypeAndFormat: props.tableTag.tableTypeAndFormatFor,
                 deletedColumns: [],
                 deletedRows: [],
             }
@@ -152,7 +152,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     const [columns, setColumns] = useState(table.columns);
     const [rows, setRows] = useState<ITableConfigItem[]>(table.rows);
     const [notUniqueNames, setNotUniqueNames] = useState<{ columns: [], rows: [], tags: boolean }>({ columns: [], rows: [], tags: false });
-    const [headersFormatAndType, setHeadersFormatAndType] = useState<string>(TableElements.columns);
+    const [headersFormatAndType, setHeadersFormatAndType] = useState<string>(table.headerTypeAndFormat);
     const [selectedColumn, setSelectedColumn] = useState<IObjectWithKey>(undefined);
     const [selectedRow, setSelectedRow] = useState<IObjectWithKey>(undefined);
     const [deletedColumns, setDeletedColumns] = useState(table.deletedColumns);

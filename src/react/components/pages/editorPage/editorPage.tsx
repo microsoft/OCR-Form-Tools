@@ -13,7 +13,7 @@ import { strings, interpolate } from "../../../../common/strings";
 import {
     AssetState, AssetType, EditorMode, FieldType,
     IApplicationState, IAppSettings, IAsset, IAssetMetadata,
-    ILabel, IProject, IRegion, ISize, ITag, FeatureCategory, TagInputMode, FieldFormat, ITableTag, ITableRegion, AssetLabelingState, ITableConfigItem
+    ILabel, IProject, IRegion, ISize, ITag, FeatureCategory, TagInputMode, FieldFormat, ITableTag, ITableRegion, AssetLabelingState, ITableConfigItem, TableHeaderTypeAndFormat, TableElements
 } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -152,6 +152,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private deleteTagConfirm: React.RefObject<Confirm> = React.createRef();
     private deleteDocumentConfirm: React.RefObject<Confirm> = React.createRef();
     private reconfigTableConfirm: React.RefObject<Confirm> = React.createRef();
+    private configureHeaderTypeAndFormatConfirm: React.RefObject<Confirm> = React.createRef();
 
     private isUnmount: boolean = false;
     public initialRightSplitPaneWidth: number;
@@ -383,6 +384,25 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                         confirmButtonTheme={getPrimaryBlueTheme()}
                                         onConfirm={this.reconfigureTable}
                                     />
+                                    <Confirm
+                                        title={""}
+                                        choiceGroup={[
+                                            {
+                                                key: TableElements.columns,
+                                                text: 'Column fields',
+                                                iconProps: { iconName: 'TableHeaderRow' }
+                                            },
+                                            {
+                                                key: TableElements.rows,
+                                                text: 'Row\n fields',
+                                                iconProps: { iconName: 'TableFirstColumn' }
+                                            },
+                                        ]}
+                                        ref={this.configureHeaderTypeAndFormatConfirm}
+                                        message={""}
+                                        confirmButtonTheme={getPrimaryBlueTheme()}
+                                        onConfirm={this.handleConfigureHeaderTypeAndFormatConfirm}
+                                    />
 
                             </div>
                         </SplitPane>
@@ -429,16 +449,49 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     private setTagInputMode = (tagInputMode: TagInputMode, selectedTableTagToLabel: ITableTag = this.state.selectedTableTagToLabel, selectedTableTagBody: ITableRegion[][][] = this.state.selectedTableTagBody) => {        // this.resizeCanvas();
         // this.resizeCanvas();
+        const selectedTableTagToLabelCopy: ITableTag = _.cloneDeep(selectedTableTagToLabel)
+        if (selectedTableTagToLabel && tagInputMode === TagInputMode.ConfigureTable) {
+            selectedTableTagToLabelCopy.tableTypeAndFormatFor =  this.getTableHeaderTypeAndFormat(selectedTableTagToLabel)
+            if (!selectedTableTagToLabelCopy.tableTypeAndFormatFor) {
+                this.configureHeaderTypeAndFormatConfirm.current.open();
+                this.setState({
+                    selectedTableTagBody,
+                    selectedTableTagToLabel: selectedTableTagToLabelCopy,
+                })
+                return;
+            }
+        }
 
-            this.setState({
-                selectedTableTagBody,
-                selectedTableTagToLabel,
-                tagInputMode,
-            }, () => {
-                this.resizeCanvas();
-                console.log("EditorPage -> privatesetTagInputMode -> resizeCanvas")
-            });
+        this.setState({
+            selectedTableTagBody,
+            selectedTableTagToLabel: selectedTableTagToLabelCopy,
+            tagInputMode,
+        }, () => {
+            this.resizeCanvas();
+            console.log("EditorPage -> privatesetTagInputMode -> resizeCanvas")
+        });
 
+    }
+
+    private getTableHeaderTypeAndFormat = (selectedTableTagToLabel: ITableTag): TableHeaderTypeAndFormat => {
+        if (selectedTableTagToLabel.format === FieldFormat.RowDynamic) {
+            return TableHeaderTypeAndFormat.Columns;
+        } else {
+            if (selectedTableTagToLabel.columnKeys?.find((columnKey) => columnKey.fieldType !== FieldType.String || columnKey.fieldFormat !== FieldFormat.NotSpecified)) {
+                return TableHeaderTypeAndFormat.Columns;
+            } else if (selectedTableTagToLabel.rowKeys?.find((rowKey) => rowKey.fieldType !== FieldType.String || rowKey.fieldFormat !== FieldFormat.NotSpecified)) {
+                return TableHeaderTypeAndFormat.Rows;
+            } else {
+                return undefined;
+            }
+        }
+    }
+
+    private handleConfigureHeaderTypeAndFormatConfirm = (key) => {
+        console.log(key)
+        const selectedTableTagToLabelCopy: ITableTag = _.cloneDeep(this.state.selectedTableTagToLabel);
+        selectedTableTagToLabelCopy.tableTypeAndFormatFor = key;
+        this.setState({selectedTableTagToLabel: selectedTableTagToLabelCopy, tagInputMode: TagInputMode.ConfigureTable});
     }
 
     private handleLabelTable = (tagInputMode: TagInputMode = this.state.tagInputMode, selectedTableTagToLabel: ITableTag = this.state.selectedTableTagToLabel) => {
