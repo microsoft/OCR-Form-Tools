@@ -1,5 +1,5 @@
-commit 1d895e4f009ecf598673fc3756c9047edf298766
-Author: Robert Stewart (eXcell <v-stewro@microsoft.com>
-Date:   Fri Nov 13 11:02:14 2020 -0800
+commit 2f9f67749cb73af28eaded2d7f49d41d546986f9
+Author: alex-krasn <v-alexkr@microsoft.com>
+Date:   Wed Nov 18 10:08:36 2020 -0800
 
-    refactor: hardcode to preview.3 api
+    feat: enable table support for labeledTags filter

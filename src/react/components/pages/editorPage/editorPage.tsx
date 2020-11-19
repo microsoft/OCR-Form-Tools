@@ -771,6 +771,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 };
             }
             return {assets, isValid: true};
+        }, () => {
+            this.handleLabelTable();
         });
         // Workaround for if component is unmounted
         if (!this.isUnmount) {
@@ -1113,6 +1115,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         } catch (err) {
             console.warn("Error computing asset size");
         }
+        assetMetadata.regions = [...this.state.selectedAsset.regions];
         this.setState({
             tableToView: null,
             tableToViewId: null,

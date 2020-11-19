@@ -728,20 +728,18 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
 
         if (currentAsset.labelData?.labelingState !== AssetLabelingState.AutoLabeledAndAdjusted) {
-            if (!currentAsset.labelData || (currentAsset.labelData.labels?.findIndex(label => label.value.length > 0) < 0 && currentAsset.labelData.tableLabels.findIndex(label => label.labels.length > 0) < 0)) {
-                // delete currentAsset.labelData?.labelingState;
-                // delete currentAsset.asset.labelingState;
+            if (!currentAsset.labelData ||
+                (currentAsset.labelData.labels?.findIndex(label => label.value.length > 0) < 0
+                    && currentAsset.labelData.tableLabels.findIndex(label => label.labels.length > 0) < 0)) {
+                delete currentAsset.labelData?.labelingState;
+                delete currentAsset.asset.labelingState;
             }
         }
-
-
-        const isLabelChanged = this.compareLabelChanged(_.get(currentAsset, "labelData.labels", []) as ILabel[], _.get(this.state.currentAsset, "labelData.labels", []) as ILabel[]);
 
         this.setState({
             currentAsset,
         }, () => {
             this.props.onAssetMetadataChanged(currentAsset);
-            this.props.handleLabelTable();
         });
     }
 
