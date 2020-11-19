@@ -15,8 +15,8 @@ export default class TrainTable
 
     public render() {
         return (
-            <div className="train-accuracytable-container">
-                {!this.props.accuracies && <table className="accuracytable">
+            <div className="train-accuracy-table-container">
+                {!this.props.accuracies && <table className="accuracy-table">
                     <tbody>
                         <tr>
                             <th> Train message </th>
@@ -25,10 +25,10 @@ export default class TrainTable
                     </tbody>
                 </table>}
                 {this.props.accuracies &&
-                    <table className="accuracytable table-sm">
+                    <table className="accuracy-table table-sm">
                         <tbody>
                             <tr>
-                                <th>
+                                <th className="tag-name">
                                     Tag
                                 </th>
                                 <th className="text-right">
@@ -38,7 +38,7 @@ export default class TrainTable
                             {
                                 Object.entries(this.props.accuracies).map((entry) =>
                                     <tr key={entry[0]}>
-                                        <td>{entry[0]}</td>
+                                        <td className="tag-name">{entry[0]}</td>
                                         <td className="text-right">{(entry[1] * 100).toFixed(2) + "%"}</td>
                                     </tr>)
                             }

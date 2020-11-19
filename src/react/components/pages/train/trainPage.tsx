@@ -127,6 +127,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         const trainDisabled: boolean = localFileSystemProvider && (this.state.inputtedLabelFolderURL.length === 0 ||
             this.state.inputtedLabelFolderURL === strings.train.defaultLabelFolderURL);
 
+
         return (
             <div className="train-page skipToMainContent" id="pageTrain">
                 <main className="train-page-main">
