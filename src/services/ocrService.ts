@@ -7,11 +7,13 @@ import { IStorageProvider, StorageProviderFactory } from "../providers/storage/s
 import { constants } from "../common/constants";
 import ServiceHelper from "./serviceHelper";
 import { strings } from "../common/strings";
+import { getAPIVersion } from "../common/utils";
 
 export enum OcrStatus {
-    loadingFromAzureBlob="loadingFromAzureBlob",
-    runningOCR="runningOCR",
-    done="done",
+    loadingFromAzureBlob = "loadingFromAzureBlob",
+    runningOCR = "runningOCR",
+    done = "done",
+    failed = "failed",
 }
 
 /**
@@ -54,7 +56,12 @@ export class OCRService {
             notifyStatusChanged(OcrStatus.runningOCR);
             ocrJson = await this.fetchOcrUriResult(filePath, fileName, ocrFileName, mimeType);
         } finally {
-            notifyStatusChanged(OcrStatus.done);
+            if (ocrJson) {
+                notifyStatusChanged(OcrStatus.done);
+            }
+            else {
+                notifyStatusChanged(OcrStatus.failed);
+            }
         }
         return ocrJson;
     }
@@ -99,8 +106,9 @@ export class OCRService {
                 body = { url: filePath };
                 headers = { "Content-Type": "application/json" };
             }
+            const apiVersion = getAPIVersion(this.project?.apiVersion);
             const response = await ServiceHelper.postWithAutoRetry(
-                this.project.apiUriBase + `/formrecognizer/${ (this.project.apiVersion || constants.apiVersion) }/layout/analyze`,
+                this.project.apiUriBase + `/formrecognizer/${apiVersion}/layout/analyze`,
                 body,
                 { headers },
                 this.project.apiKey as string,

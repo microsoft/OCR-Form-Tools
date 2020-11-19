@@ -38,6 +38,7 @@ export const english: IAppStrings = {
         newProject: "New Project",
         openLocalProject: {
             title: "Open Local Project",
+            description: "Open Local Project",
         },
         openCloudProject: {
             title: "Open Cloud Project",
@@ -57,6 +58,22 @@ export const english: IAppStrings = {
         messages: {
             deleteSuccess: "Successfully deleted ${project.name}",
         },
+        homeProjectView: {
+            title: "Use Custom to train a model with labels and get key value pairs"
+        },
+        prebuiltPredict: {
+            title: "Use prebuilt model to get data",
+            description: "Start with a pre-built model to extract data from your forms – Invoices, Receipts, Business cards and more. Submit your data and get results right away."
+        },
+        layoutPredict:{
+            title:"Use Layout to get text, tables and selection marks",
+            description:"Try out the Form Recognizer Layout service to extract text, tables, selection marks and the structure of your document."
+        },
+        trainWithLabels:{
+            title:"Use Custom to train a model with labels and get key value pairs",
+            description:"You provide your own training data and do the learning. The model you create can train to your industry-specific forms."
+        },
+        quickStartGuide:"Quick start guide",
     },
     appSettings: {
         title: "Application Settings",
@@ -219,6 +236,18 @@ export const english: IAppStrings = {
             title: "Asset name exists",
             message: "Asset with name '${name}' exists in project, override?"
         }
+    },
+    prebuiltPredict: {
+        title: "Prebuilt analyze",
+        defaultLocalFileInput: "Browse for a file...",
+        defaultURLInput: "Paste or type URL...",
+        uploadFile: "Choose an image to analyze with",
+        inProgress: "Analysis in progress...",
+        anlayWithPrebuiltModels: "Analyze ${name} (preview)",
+    },
+    layoutPredict:{
+        title: "Layout analyze",
+        inProgress: "Analysis in progress...",
     },
     recentModelsView: {
         header: "Select a model to analyze with",

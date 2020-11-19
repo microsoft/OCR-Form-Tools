@@ -6,7 +6,6 @@ import { ITag } from "../../../../models/applicationState";
 import "./predictResult.scss";
 import { getPrimaryGreenTheme } from "../../../../common/themes";
 import { PrimaryButton } from "@fluentui/react";
-import PredictModelInfo from './predictModelInfo';
 import { strings } from "../../../../common/strings";
 
 export interface IAnalyzeModelInfo {
@@ -18,7 +17,7 @@ export interface IAnalyzeModelInfo {
 export interface IPredictResultProps {
     predictions: { [key: string]: any };
     analyzeResult: {};
-    analyzeModelInfo: IAnalyzeModelInfo;
+    downloadPrefix?: string;
     page: number;
     tags: ITag[];
     downloadResultLabel: string;
@@ -32,7 +31,7 @@ export interface IPredictResultState { }
 
 export default class PredictResult extends React.Component<IPredictResultProps, IPredictResultState> {
     public render() {
-        const { tags, predictions, analyzeModelInfo } = this.props;
+        const { tags, predictions } = this.props;
         const tagsDisplayOrder = tags.map((tag) => tag.name);
         for (const name of Object.keys(predictions)) {
             const prediction = predictions[name];
@@ -51,10 +50,13 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
 
                 </div>
                 <div className="container-items-center container-space-between">
-                    <PrimaryButton
-                        theme={getPrimaryGreenTheme()}
-                        onClick={this.onAddAssetToProject}
-                        text={strings.predict.editAndUploadToTrainingSet} />
+                    {this.props.onAddAssetToProject ?
+                        <PrimaryButton
+                            theme={getPrimaryGreenTheme()}
+                            onClick={this.onAddAssetToProject}
+                            text={strings.predict.editAndUploadToTrainingSet} />
+                        :<span></span>
+                    }
                     <PrimaryButton
                         className="align-self-end keep-button-80px"
                         theme={getPrimaryGreenTheme()}
@@ -64,8 +66,8 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                         onClick={this.triggerDownload}
                     />
                 </div>
-                <PredictModelInfo modelInfo={analyzeModelInfo} />
-                <div className="prediction-field-header">
+                {this.props.children}
+                <div className="prediction-field-header" style={{marginTop: 28}}>
                     <h6 className="prediction-field-header-field"> Page # / Field name / Value</h6>
                     <h6 className="prediction-field-header-confidence"> Confidence</h6>
                 </div>
@@ -98,13 +100,23 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                         {this.getPredictionTagContent(item)}
                     </div>
                 </li>
-                <li className={postProcessedValue ? "predictiontag-item-label mt-0" : "predictiontag-item-label mt-0 mb-1"}>
-                    {postProcessedValue ? "text: " + item.text : item.text}
-                </li>
-                {postProcessedValue &&
-                    <li className="predictiontag-item-label mb-1">
-                        {postProcessedValue}
-                    </li>
+                {item.text === null ?
+                        <>
+                            <li className={postProcessedValue ? "predictiontag-item-label-null mt-0" : "predictiontag-item-label-null mt-0 mb-1"}>
+                                {postProcessedValue ? "text: NULL": "NULL"}
+                            </li>
+                        </>
+                    :
+                        <>
+                            <li className={postProcessedValue ? "predictiontag-item-label mt-0" : "predictiontag-item-label mt-0 mb-1"}>
+                                {postProcessedValue ? "text: " + item.text : item.text}
+                            </li>
+                            {postProcessedValue &&
+                                <li className="predictiontag-item-label mb-1">
+                                    {postProcessedValue}
+                                </li>
+                            }
+                        </>
                 }
             </div>
         );
@@ -135,24 +147,6 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         );
     }
 
-    // Helper: Sanitizes the results of prediction in order to align it with API from the service
-    private sanitizeData = (data: any): void => {
-        if (data.hasOwnProperty("analyzeResult")) {
-            const fields: {} = data.analyzeResult.documentResults[0].fields;
-            for (const key in fields) {
-                if (fields[key] !== null) {
-                    if (fields[key].hasOwnProperty("displayOrder")) {
-                        delete fields[key].displayOrder;
-                    }
-                    if (fields[key].hasOwnProperty("fieldName")) {
-                        delete fields[key].fieldName;
-                    }
-                }
-            }
-        }
-        return data;
-    }
-
     private onAddAssetToProject = async () => {
         if (this.props.onAddAssetToProject) {
             this.props.onAddAssetToProject();
@@ -160,11 +154,11 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
     }
     private triggerDownload = (): void => {
         const { analyzeResult } = this.props;
-        const predictionData = JSON.stringify(this.sanitizeData(analyzeResult));
+        const predictionData = JSON.stringify(analyzeResult);
         const fileURL = window.URL.createObjectURL(new Blob([predictionData]));
         const fileLink = document.createElement("a");
         const fileBaseName = this.props.downloadResultLabel.split(".")[0];
-        const downloadFileName = "Result-" + fileBaseName + ".json";
+        const downloadFileName = this.props.downloadPrefix + "Result-" + fileBaseName + ".json";
 
         fileLink.href = fileURL;
         fileLink.setAttribute("download", downloadFileName);

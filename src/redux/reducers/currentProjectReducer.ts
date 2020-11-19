@@ -4,6 +4,7 @@
 import {ActionTypes} from "../actions/actionTypes";
 import {IProject, ITag} from "../../models/applicationState";
 import {AnyAction} from "../actions/actionCreators";
+import _ from "lodash";
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../../react/components/common/tagColors.json");
 
@@ -42,7 +43,6 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
                 ...state,
                 assets:{...state.assets, [action.payload.id]: action.payload},
             };
-            break;
         case ActionTypes.DELETE_PROJECT_ASSET_SUCCESS:
         case ActionTypes.LOAD_PROJECT_ASSETS_SUCCESS:
             let assets = {};
@@ -60,7 +60,7 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
             }
 
             const updatedAssets = {...state.assets} || {};
-            updatedAssets[action.payload.asset.id] = {...action.payload.asset};
+            updatedAssets[action.payload.asset.id] = _.cloneDeep(action.payload.asset);
 
             const assetTags = new Set();
             action.payload.regions.forEach((region) => region.tags.forEach((tag) => assetTags.add(tag)));

@@ -1,35 +1,34 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import {FontIcon, PrimaryButton, Spinner, SpinnerSize, TextField} from "@fluentui/react";
+import _ from "lodash";
 import React from "react";
-import { connect } from "react-redux";
-import { RouteComponentProps } from "react-router-dom";
-import { bindActionCreators } from "redux";
-import { FontIcon, PrimaryButton, Spinner, SpinnerSize, TextField } from "@fluentui/react";
-import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
+import {connect} from "react-redux";
+import {RouteComponentProps} from "react-router-dom";
+import {bindActionCreators} from "redux";
+import url from "url";
+import {constants} from "../../../../common/constants";
+import {isElectron} from "../../../../common/hostProcess";
+import {interpolate, strings} from "../../../../common/strings";
+import {getGreenWithWhiteBackgroundTheme, getPrimaryGreenTheme} from "../../../../common/themes";
+import {AssetLabelingState, FieldType, IApplicationState, IAppSettings, IAssetMetadata, IConnection, IProject, IRecentModel} from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
-import {
-    IApplicationState, IConnection, IProject, IAppSettings, FieldType, IRecentModel, AssetLabelingState, IAssetMetadata,
-} from "../../../../models/applicationState";
-import TrainChart from "./trainChart";
-import TrainPanel from "./trainPanel";
-import TrainTable from "./trainTable";
-import { ITrainRecordProps } from "./trainRecord";
-import "./trainPage.scss";
-import { strings, interpolate } from "../../../../common/strings";
-import { constants } from "../../../../common/constants";
-import _ from "lodash";
-import Alert from "../../common/alert/alert";
-import url from "url";
-import PreventLeaving from "../../common/preventLeaving/preventLeaving";
+import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
+import {AssetService} from "../../../../services/assetService";
 import ServiceHelper from "../../../../services/serviceHelper";
-import { getPrimaryGreenTheme, getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
-import { getAppInsights } from '../../../../services/telemetryService';
-import { AssetService } from "../../../../services/assetService";
-import Confirm from "../../common/confirm/confirm";
+import {getAppInsights} from '../../../../services/telemetryService';
 import UseLocalStorage from '../../../../services/useLocalStorage';
-import { isElectron } from "../../../../common/hostProcess";
+import Alert from "../../common/alert/alert";
+import Confirm from "../../common/confirm/confirm";
+import PreventLeaving from "../../common/preventLeaving/preventLeaving";
+import TrainChart from "./trainChart";
+import "./trainPage.scss";
+import TrainPanel from "./trainPanel";
+import {ITrainRecordProps} from "./trainRecord";
+import TrainTable from "./trainTable";
+import { getAPIVersion } from "../../../../common/utils";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -104,7 +103,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     public async componentDidMount() {
         const projectId = this.props.match.params["projectId"];
         if (projectId) {
-            const project = this.props.recentProjects.find((project) => project.id === projectId);
+            const project = {...this.props.recentProjects.find((project) => project.id === projectId)};
             await this.props.actions.loadProject(project);
 
             this.props.appTitleActions.setTitle(project.name);
@@ -127,6 +126,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             this.props.project.sourceConnection.providerType === "localFileSystemProxy";
         const trainDisabled: boolean = localFileSystemProvider && (this.state.inputtedLabelFolderURL.length === 0 ||
             this.state.inputtedLabelFolderURL === strings.train.defaultLabelFolderURL);
+
 
         return (
             <div className="train-page skipToMainContent" id="pageTrain">
@@ -317,15 +317,23 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         this.trainProcess().then(async (trainResult) => {
             const assets = Object.values(this.props.project.assets);
             const assetService = new AssetService(this.props.project);
+
+            const newAssets = {};
             for (const asset of assets) {
-                const newAsset = JSON.parse(JSON.stringify(asset));
-                newAsset.labelingState = AssetLabelingState.Trained;
+                const newAsset = _.cloneDeep(asset);
+
                 const metadata = await assetService.getAssetMetadata(newAsset);
-                if (metadata.labelData && metadata.labelData.labelingState !== AssetLabelingState.Trained) {
+                if (metadata.labelData && metadata.labelData.labels?.findIndex(label=>label.value?.length>0)>=0 && metadata.labelData.labelingState !== AssetLabelingState.Trained) {
                     metadata.labelData.labelingState = AssetLabelingState.Trained;
-                    await assetService.save({ ...metadata });
+                    metadata.asset.labelingState=AssetLabelingState.Trained;
+                    const newMeta = await assetService.save({ ...metadata });
+                    newAssets[asset.id] = newMeta.asset;
+                }
+                else {
+                    newAssets[asset.id] = newAsset;
                 }
             }
+            await this.props.actions.saveProject({...this.props.project, assets: newAssets},false,false);
             this.setState((prevState, props) => ({
                 isTraining: false,
                 trainMessage: this.getTrainMessage(trainResult),
@@ -368,11 +376,12 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                     error?.message !== undefined
                         ? error.message : error,
             });
+            throw error;
         }
     }
 
     private async train(): Promise<any> {
-        const apiVersion = (this.props.project?.apiVersion || constants.apiVersion);
+        const apiVersion = getAPIVersion(this.props.project?.apiVersion);
         const baseURL = url.resolve(
             this.props.project.apiUriBase,
             interpolate(constants.apiModelsPath, {apiVersion}),
@@ -408,38 +417,50 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             this.setState({ modelUrl: result.headers.location });
             return result;
         } catch (err) {
-            ServiceHelper.handleServiceError(err);
+            ServiceHelper.handleServiceError({...err, endpoint: baseURL});
         }
     }
     private async cleanLabelData() {
         const allAssets = { ...this.props.project.assets };
-        await Object.values(allAssets)
-            .filter(asset => asset.labelingState !== AssetLabelingState.Trained)
-            .forEachAsync(async (asset) => {
-                const assetMetadata: IAssetMetadata = { ...await this.props.actions.loadAssetMetadata(this.props.project, asset) };
-                if (assetMetadata.asset.labelingState === AssetLabelingState.ManuallyLabeled
-                    && assetMetadata.labelData?.labels?.findIndex(label => label.confidence
-                        || label.originValue
-                        || label.revised
-                        || label.value?.findIndex(item => item["confidence"]) < 0) < 0
-                ) {
-                    return;
+        const assetValues = Object.values(allAssets).filter(asset => asset.labelingState !== AssetLabelingState.Trained)
+        for (const asset of assetValues) {
+            const assetMetadata: IAssetMetadata = _.cloneDeep(await this.props.actions.loadAssetMetadata(this.props.project, asset));
+            let isUpdated = false;
+            assetMetadata.labelData?.labels?.forEach((label, index) => {
+                if (label.value?.length === 0) {
+                    assetMetadata.labelData.labels.splice(index, 1);
+                    isUpdated = true;
                 }
+            });
+            if (!isUpdated && assetMetadata.asset.labelingState === AssetLabelingState.ManuallyLabeled
+                && assetMetadata.labelData?.labels?.findIndex(label => label.confidence
+                    || label.originValue
+                    || label.revised
+                    || label.value?.findIndex(item => item["confidence"]) < 0) < 0
+            ) {
+                return;
+            }
+            if (assetMetadata.labelData?.labels?.findIndex(label => label.value?.length > 0) >= 0) {
                 assetMetadata.asset.labelingState = AssetLabelingState.ManuallyLabeled;
                 if (assetMetadata.labelData) {
                     assetMetadata.labelData.labelingState = AssetLabelingState.ManuallyLabeled;
                 }
+                isUpdated = true;
+            }
 
-                assetMetadata.labelData?.labels?.forEach((label) => {
-                    delete label.confidence;
-                    delete label.originValue;
-                    delete label.revised;
-                    label.value?.forEach(item => {
-                        delete item["confidence"];
-                    });
+            assetMetadata.labelData?.labels?.forEach((label) => {
+                delete label.confidence;
+                delete label.originValue;
+                delete label.revised;
+                label.value?.forEach(item => {
+                    delete item["confidence"];
                 });
-                await this.props.actions.saveAssetMetadata(this.props.project,assetMetadata);
+                isUpdated = true;
             });
+            if (isUpdated) {
+                await this.props.actions.saveAssetMetadataAndCleanEmptyLabel(this.props.project, assetMetadata);
+            }
+        }
     }
 
     private async getTrainStatus(operationLocation: string): Promise<any> {
@@ -555,7 +576,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private async triggerJsonDownload(): Promise<any> {
-        const apiVersion = (this.props.project?.apiVersion || constants.apiVersion);
+        const apiVersion = getAPIVersion(this.props.project?.apiVersion);
         const currModelUrl = this.props.project.apiUriBase + interpolate(constants.apiModelsPath, {apiVersion}) + "/" + this.state.currTrainRecord.modelInfo.modelId;
         const modelUrl = this.state.modelUrl.length ? this.state.modelUrl : currModelUrl;
         const modelJSON = await this.getModelsJson(this.props.project, modelUrl);
@@ -590,7 +611,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 project.apiKey as string,
             ).then(res => res.request.response);
         } catch (error) {
-            ServiceHelper.handleServiceError(error);
+            ServiceHelper.handleServiceError({...error, endpoint: baseURL});
         }
     }
 }

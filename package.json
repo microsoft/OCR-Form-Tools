@@ -42,12 +42,9 @@
         "reactstrap": "^8.2.0",
         "redux": "^4.0.4",
         "redux-thunk": "^2.3.0",
-        "rimraf": "^3.0.2",
-        "serialize-javascript": "^5.0.1",
         "shortid": "^2.2.15",
         "utif": "^3.1.0",
-        "vott-react": "^0.2.12",
-        "yarn": "^1.22.4"
+        "vott-react": "^0.2.12"
     },
     "scripts": {
         "start": "env-cmd -f .env.electron nf start -p 3000",
@@ -84,11 +81,11 @@
         ]
     },
     "devDependencies": {
-        "@fortawesome/fontawesome-free": "^5.12.0",
         "@types/axios": "^0.14.0",
         "@types/enzyme": "^3.10.4",
         "@types/history": "^4.7.3",
         "@types/jest": "23.3.9",
+        "@types/lodash": "4.14.108",
         "@types/react": "^16.9.15",
         "@types/react-dom": "^16.9.4",
         "@types/react-jsonschema-form": "^1.6.6",
@@ -98,14 +95,13 @@
         "@types/reactstrap": "^8.2.0",
         "@types/redux-logger": "^3.0.7",
         "acorn": "^7.1.1",
-        "electron": "8.3.0",
-        "electron-builder": "^22.6.1",
+        "electron": "10.1.5",
+        "electron-builder": "^22.9.1",
         "env-cmd": "^10.1.0",
         "enzyme": "^3.10.0",
         "enzyme-adapter-react-16": "^1.15.1",
         "eslint-utils": "^1.4.3",
         "foreman": "^3.0.1",
-        "jquery": "^3.5.0",
         "kind-of": "^6.0.3",
         "mime": "^2.4.6",
         "minimist": "^1.2.2",
@@ -116,11 +112,13 @@
         "redux-immutable-state-invariant": "^2.1.0",
         "redux-logger": "^3.0.6",
         "redux-mock-store": "^1.5.4",
+        "rimraf": "^3.0.2",
         "ts-loader": "^7.0.1",
         "tslint": "^6.1.1",
         "typescript": "^3.9.5",
         "webpack-cli": "^3.3.11",
-        "webpack-merge": "^4.2.2"
+        "webpack-merge": "^4.2.2",
+        "yarn": "^1.22.10"
     },
     "engines": {
         "node": ">=12.13.1",

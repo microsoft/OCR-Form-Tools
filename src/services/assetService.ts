@@ -58,7 +58,7 @@ const imageMimes: IMime[] = [
     },
 ];
 // We can expand this list @see https://mimesniff.spec.whatwg.org/#matching-an-image-type-pattern
-const mimeBytesNeeded: number = (Math.max(...imageMimes.map((m) => m.pattern.length)) - 1);
+// const mimeBytesNeeded: number = (Math.max(...imageMimes.map((m) => m.pattern.length)) - 1);
 
 /**
  * @name - Asset Service
@@ -68,8 +68,8 @@ export class AssetService {
     private getOcrFromAnalyzeResult(analyzeResult: any) {
         return _.get(analyzeResult, "analyzeResult.readResults", []);
     }
-    getAssetPredictMetadata(asset: IAsset, predictResults: any) {
-        asset = JSON.parse(JSON.stringify(asset));
+    getAssetPredictMetadata(asset: IAsset, predictResults: any): IAssetMetadata {
+        asset = _.cloneDeep(asset);
         const getBoundingBox = (pageIndex, arr: number[]) => {
             const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(predictResults)[pageIndex - 1];
             const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
@@ -77,7 +77,7 @@ export class AssetService {
             const ocrHeight = ocrExtent[3] - ocrExtent[1];
             const result = [];
             for (let i = 0; i < arr.length; i += 2) {
-                result.push([
+                result.push(...[
                     (arr[i] / ocrWidth),
                     (arr[i + 1] / ocrHeight),
                 ]);
@@ -85,9 +85,9 @@ export class AssetService {
             return result;
         };
         const getLabelValues = (field: any) => {
-            return field.elements.map((path: string):IFormRegion => {
+            return field.elements?.map((path: string): IFormRegion => {
                 const pathArr = path.split('/').slice(1);
-                const word = pathArr.reduce((obj: any, key: string) => obj[key], { ...predictResults.analyzeResult });
+                const word = pathArr.reduce((obj: any, key: string) => obj[key], {...predictResults.analyzeResult});
                 return {
                     page: field.page,
                     text: word.text || word.state,
@@ -107,28 +107,27 @@ export class AssetService {
                             value: getLabelValues(result.fields[key])
                         }))).flat(2);
 
+        const fileName = decodeURIComponent(asset.name).split('/').pop();
+        const labelData: ILabelData = {
+            document: fileName,
+            labels: []
+        };
+        const metadata: IAssetMetadata = {
+            asset: {...asset},
+            regions: [],
+            version: appInfo.version,
+            labelData,
+        }
         if (labels.length > 0) {
-            const fileName = decodeURIComponent(asset.name).split('/').pop();
-            const labelData: ILabelData = {
-                document: fileName,
-                labelingState: AssetLabelingState.AutoLabeled,
-                labels
-            };
-            const metadata: IAssetMetadata = {
-                asset: { ...asset, labelingState: AssetLabelingState.AutoLabeled },
-                regions: [],
-                version: appInfo.version,
-                labelData,
-            };
+            labelData.labelingState = AssetLabelingState.AutoLabeled;
+            labelData.labels = labels;
+            metadata.asset.labelingState = AssetLabelingState.AutoLabeled;
             metadata.asset.state = AssetState.Tagged;
-            return metadata;
         }
-        else {
-            return null;
-        }
+        return metadata;
     }
     async uploadPredictResultAsOrcResult(asset: IAsset, predictResults: any): Promise<void> {
-        const ocrData = JSON.parse(JSON.stringify(predictResults));
+        const ocrData = _.cloneDeep(predictResults);
         delete ocrData.analyzeResult.documentResults;
         if (ocrData.analyzeResult.errors) {
             delete ocrData.analyzeResult.errors;
@@ -139,7 +138,7 @@ export class AssetService {
 
     async syncAssetPredictResult(asset: IAsset, predictResults: any): Promise<IAssetMetadata> {
         const assetMeatadata = this.getAssetPredictMetadata(asset, predictResults);
-        const ocrData = JSON.parse(JSON.stringify(predictResults));
+        const ocrData = _.cloneDeep(predictResults);
         delete ocrData.analyzeResult.documentResults;
         if (ocrData.analyzeResult.errors) {
             delete ocrData.analyzeResult.errors;
@@ -363,15 +362,18 @@ export class AssetService {
      * Save metadata for asset
      * @param metadata - Metadata for asset
      */
-    public async save(metadata: IAssetMetadata): Promise<IAssetMetadata> {
+    public async save(metadata: IAssetMetadata, needCleanEmptyLabel: boolean=false): Promise<IAssetMetadata> {
         Guard.null(metadata);
 
         const labelFileName = decodeURIComponent(`${metadata.asset.name}${constants.labelFileExtension}`);
         if (metadata.labelData) {
             await this.storageProvider.writeText(labelFileName, JSON.stringify(metadata.labelData, null, 4));
         }
-
-        if (metadata.asset.state !== AssetState.Tagged) {
+        let cleanLabel: boolean=false;
+        if (needCleanEmptyLabel && !metadata.labelData?.labels?.find(label => label?.value?.length !== 0)) {
+            cleanLabel = true;
+        }
+        if (cleanLabel || metadata.asset.state !== AssetState.Tagged) {
             // If the asset is no longer tagged, then it doesn't contain any regions
             // and the file is not required.
             try {
@@ -380,7 +382,7 @@ export class AssetService {
                 // The file may not exist - that's OK.
             }
         }
-        return JSON.parse(JSON.stringify(metadata));
+        return _.cloneDeep(metadata);
     }
 
     /**
@@ -389,14 +391,14 @@ export class AssetService {
      */
     public async getAssetMetadata(asset: IAsset): Promise<IAssetMetadata> {
         Guard.null(asset);
-
-        const labelFileName = decodeURIComponent(`${asset.name}${constants.labelFileExtension}`);
+        const newAsset=_.cloneDeep(asset);
+        const labelFileName = decodeURIComponent(`${newAsset.name}${constants.labelFileExtension}`);
         try {
             const json = await this.storageProvider.readText(labelFileName, true);
             const labelData = JSON.parse(json) as ILabelData;
             if (labelData) {
                 labelData.labelingState = labelData.labelingState || AssetLabelingState.ManuallyLabeled;
-                asset.labelingState = labelData.labelingState;
+                newAsset.labelingState = labelData.labelingState;
             }
             if (!labelData.document || !labelData.labels) {
                 const reason = interpolate(strings.errors.missingRequiredFieldInLabelFile.message, { labelFileName });
@@ -442,7 +444,7 @@ export class AssetService {
             }
             toast.dismiss();
             return {
-                asset: { ...asset, labelingState: labelData.labelingState },
+                asset: { ...newAsset, labelingState: labelData.labelingState },
                 regions: [],
                 version: appInfo.version,
                 labelData,
@@ -453,7 +455,7 @@ export class AssetService {
                 toast.error(reason, { autoClose: false });
             }
             return {
-                asset: { ...asset },
+                asset: { ...newAsset },
                 regions: [],
                 version: appInfo.version,
                 labelData: null,
