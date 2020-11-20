@@ -115,7 +115,10 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
 
             return (
                 <div key={key}
-                    onClick={() => { this.onTablePredictionClick(item, this.getTagColor(item.fieldName)); this.onPredictionMouseLeave(item)}}
+                    onClick={() => {
+                        this.onTablePredictionClick(item, this.getTagColor(item.fieldName));
+                        this.onPredictionMouseLeave(item)
+                    }}
                     onMouseEnter={() => this.onPredictionMouseEnter(item)}
                     onMouseLeave={() => this.onPredictionMouseLeave(item)}>
                     <li className="predictiontag-item" style={style}>
@@ -123,14 +126,15 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                             <span>{pageNumber}</span>
                         </div>
                         <div className={"predictiontag-content"}>
-                        {this.getPredictionTagContent(item)}
+                            {this.getPredictionTagContent(item)}
                         </div>
                     </li>
                     <li className="predictiontag-item-label mt-0 mb-1">
                         <FontIcon className="pr-1 pl-1" iconName="Table" />
-                        <span style={{color: "rgba(255, 255, 255, 0.75)"}}>Click to view analyzed table</span>
-                </li>
-                </div>)
+                        <span style={{ color: "rgba(255, 255, 255, 0.75)" }}>Click to view analyzed table</span>
+                    </li>
+                </div>
+            )
         } else {
             return (
                 <div key={key}

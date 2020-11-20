@@ -86,6 +86,8 @@ export interface IPredictPageState extends ILoadFileResult, ITableState {
     confirmDuplicatedAssetNameMessage?: string;
     imageAngle: number;
     viewTable?: boolean;
+    viewRegionalTable?: boolean;
+    regionalTableToView?: any;
     tableToView?: any;
     tableTagColor?: string;
     highlightedTableCellRowKey?: string;
@@ -153,13 +155,15 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         modelOption: "",
         imageAngle: 0,
         viewTable: false,
-        tableToView: null,
+        viewRegionalTable: false,
+        regionalTableToView: null,
         tableTagColor: null,
         highlightedTableCellRowKey: null,
         highlightedTableCellColumnKey: null,
 
         tableIconTooltip: {display: "none", width: 0, height: 0, top: 0, left: 0},
         hoveringFeature: null,
+        tableToView: null,
         tableToViewId: null,
     };
 
@@ -241,12 +245,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const modelInfo: IAnalyzeModelInfo = this.getAnalyzeModelInfo(this.state.analyzeResult);
 
         const onPredictionPath: boolean = this.props.match.path.includes("predict");
-        const sidebarWidth = this.state.viewTable ? 650 : 400;
+        const sidebarWidth = this.state.viewRegionalTable ? 650 : 400;
 
         let tagViewMode: AnalyzedTagsMode;
         if (this.state.loadingRecentModel) {
             tagViewMode = AnalyzedTagsMode.LoadingRecentModel;
-        } else if (this.state.viewTable) {
+        } else if (this.state.viewRegionalTable) {
             tagViewMode = AnalyzedTagsMode.ViewTable;
         } else {
             tagViewMode = AnalyzedTagsMode.default;
@@ -263,7 +267,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     {this.renderNextPageButton()}
                     {this.renderPageIndicator()}
                 </div>
-                <div className={`predict-sidebar bg-lighter-1`}  style={{width: sidebarWidth, minWidth: sidebarWidth }}>
+                <div className={"predict-sidebar bg-lighter-1"}  style={{width: sidebarWidth, minWidth: sidebarWidth }}>
                     <div className="condensed-list">
                         <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
                             <FontIcon className="mr-1" iconName="Insights" />
@@ -414,14 +418,14 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                         {tagViewMode === AnalyzedTagsMode.LoadingRecentModel &&
                             <Spinner className="loading-tag" size={SpinnerSize.large} />
                         }
-                        {this.state.viewTable &&
+                        {this.state.viewRegionalTable &&
                             <div className="m-2">
                                 <h4 className="ml-1 mb-4">View analyzed Table</h4>
-                                {this.displayTable(this.state.tableToView)}
+                                {this.displayRegionalTable(this.state.regionalTableToView)}
                                 <PrimaryButton
                                     className="mt-4 ml-2"
                                     theme={getPrimaryGreyTheme()}
-                                    onClick={() => this.setState({ viewTable: false })}>Back</PrimaryButton>
+                                    onClick={() => this.setState({ viewRegionalTable: false })}>Back</PrimaryButton>
                             </div>
                         }
                     </div>
@@ -611,7 +615,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                         onClick={this.handleTableIconFeatureSelect}
                     />
                 </TooltipHost>
-                {this.state.tableToView !== null &&
+                {this.state.tableToView &&
                     <TableView
                         handleTableViewClose={this.handleTableViewClose}
                         tableToView={this.state.tableToView}
@@ -909,7 +913,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         for (const fieldName of Object.keys(predictions)) {
             const field: IField = predictions[fieldName];
             if (predictions[fieldName]?.type === FieldFormat.Fixed || predictions[fieldName]?.type === FieldFormat.RowDynamic) {
-                console.log(predictions[fieldName])
                 const rows = predictions[fieldName].values;
                 for (const rowName of Object.keys(rows)) {
                     const columns = rows[rowName];
@@ -972,8 +975,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private getPredictionsFromAnalyzeResult(analyzeResult: any) {
-        const fields = _.get(analyzeResult, "analyzeResult.documentResults[0].fields", {});
-        const tables = _.get(analyzeResult, "analyzeResult.documentResults[0].tables", {});
+        const fields = _.get(analyzeResult?.analyzeResult ? analyzeResult?.analyzeResult : analyzeResult, "documentResults[0].fields", {});
+        const tables = _.get(analyzeResult?.analyzeResult ? analyzeResult?.analyzeResult : analyzeResult, "documentResults[0].tables", {}) || _.get(analyzeResult, "documentResults[0].tables", {});
+
         return _.merge({}, fields, tables);
     }
 
@@ -983,7 +987,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private getOcrFromAnalyzeResult(analyzeResult: any) {
-        return _.get(analyzeResult, "readResults", []);
+        return _.get(analyzeResult?.analyzeResult ? analyzeResult?.analyzeResult : analyzeResult , "readResults", []);
     }
 
     private noOp = () => {
@@ -1035,18 +1039,18 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         }
     }
     private onTablePredictionClick = (predictedItem: ITableResultItem, tagColor: string) => {
-        this.setState({ viewTable: true, tableToView: predictedItem, tableTagColor: tagColor });
+        this.setState({ viewRegionalTable: true, regionalTableToView: predictedItem, tableTagColor: tagColor });
     }
 
-    private displayTable = (tableToView: ITableResultItem) => {
+    private displayRegionalTable = (regionalTableToView: ITableResultItem) => {
         let rows;
-        if (tableToView.type === FieldFormat.RowDynamic) {
-            rows = Object.keys(tableToView.values);
+        if (regionalTableToView.type === FieldFormat.RowDynamic) {
+            rows = Object.keys(regionalTableToView.values);
         } else {
-            rows = tableToView.rowKeys;
+            rows = regionalTableToView.rowKeys;
         }
-        const columns= tableToView.columnKeys;
-        const Table = tableToView.values;
+        const columns= regionalTableToView.columnKeys;
+        const Table = regionalTableToView.values;
 
         let tableBody = null;
         let rowName;
@@ -1070,13 +1074,13 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                         );
                     } else if (j === 0 && i !== 0) {
                         tableRow.push(
-                            <th key={j} className={`row_header ${ tableToView.type === FieldFormat.RowDynamic ? "hidden" : ""}`}>
+                            <th key={j} className={`row_header ${ regionalTableToView.type === FieldFormat.RowDynamic ? "hidden" : ""}`}>
                                 {rows[i - 1]}
                             </th>
                         );
                     } else if (j === 0 && i === 0) {
                         tableRow.push(
-                            <th key={j} className={`empty_header  ${tableToView.type === FieldFormat.RowDynamic ? "hidden" : ""}`}/>
+                            <th key={j} className={`empty_header  ${regionalTableToView.type === FieldFormat.RowDynamic ? "hidden" : ""}`}/>
                         );
                     } else {
                         const tableCell = Table?.[rowName]?.[columnName];
@@ -1084,8 +1088,14 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             <td
                                 className={"table-cell"}
                                 key={j}
-                                onMouseEnter={() => { console.log(rows[i-1], columns[j-1]); this.setState({highlightedTableCellRowKey: rows[i-1], highlightedTableCellColumnKey: columns[j-1]})}}
-                                onMouseLeave={() => { console.log(rows[i-1], columns[j-1]); this.setState({highlightedTableCellRowKey: null, highlightedTableCellColumnKey: null})}}
+                                onMouseEnter={() => {
+                                    console.log(rows[i - 1], columns[j - 1]);
+                                    this.setState({ highlightedTableCellRowKey: rows[i - 1], highlightedTableCellColumnKey: columns[j - 1] })
+                                }}
+                                onMouseLeave={() => {
+                                    console.log(rows[i - 1], columns[j - 1]);
+                                    this.setState({ highlightedTableCellRowKey: null, highlightedTableCellColumnKey: null })
+                                }}
                             >
                                 {tableCell ? tableCell.valueString : null }
                             </td>
@@ -1099,7 +1109,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         return (
             <div>
                 <h5 className="mb-4 ml-2 mt-2 pb-1">
-                    <span style={{ borderBottom: `4px solid ${this.state.tableTagColor}`}}>Table name: {tableToView.fieldName}</span>
+                    <span style={{ borderBottom: `4px solid ${this.state.tableTagColor}`}}>Table name: {regionalTableToView.fieldName}</span>
                 </h5>
                 <div className="table-view-container">
                     {tableBody}
