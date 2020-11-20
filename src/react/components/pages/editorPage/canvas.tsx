@@ -726,7 +726,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 currentAsset.labelData.labelingState = this.state.currentAsset.labelData.labelingState;
             }
         }
-
+        currentAsset.asset.labelingState = currentAsset.labelData?.labelingState;
         if (currentAsset.labelData?.labelingState !== AssetLabelingState.AutoLabeledAndAdjusted) {
             if (!currentAsset.labelData ||
                 (currentAsset.labelData.labels?.findIndex(label => label.value.length > 0) < 0
