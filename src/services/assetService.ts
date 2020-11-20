@@ -119,7 +119,7 @@ export class AssetService {
             version: appInfo.version,
             labelData,
         }
-        //? here ( no tableLabels)
+        // ? here ( no tableLabels)
         if (labels.length > 0) {
             labelData.labelingState = AssetLabelingState.AutoLabeled;
             labelData.labels = labels;
@@ -677,7 +677,7 @@ export class AssetService {
                 (region as ITableRegion).columnKey = newColumnKey;
                 (region as ITableRegion).rowKey = newRowKey;
                 assetMetadata.labelData = labelTransformer(assetMetadata.labelData);
-                //? here
+                // ? here
                 if (assetMetadata.labelData.labels.length === 0 && assetMetadata.labelData.tableLabels.length === 0 ) {
                     delete assetMetadata.labelData.labelingState;
                     delete assetMetadata.asset.labelingState;
