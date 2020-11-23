@@ -72,8 +72,10 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                     <h6 className="prediction-field-header-confidence"> Confidence</h6>
                 </div>
                 <div className="prediction-header-clear"></div>
+                <div className="items-list-container">
+                    {items.map((item: any, key) => this.renderItem(item, key))}
+                </div>
 
-                {items.map((item: any, key) => this.renderItem(item, key))}
             </div>
         );
     }
