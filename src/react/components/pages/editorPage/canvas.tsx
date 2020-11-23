@@ -2389,8 +2389,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     async focusOnLabel(label: ILabel) {
-        const { page } = label.value[ 0 ];
-        if (this.state.currentPage !== page) {
+        const page = label.value[ 0 ]?.page;
+        if (page && this.state.currentPage !== page) {
             await this.goToPage(page);
         }
     }
