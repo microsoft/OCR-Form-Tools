@@ -20,7 +20,7 @@
 }
 
 .predict-sidebar {
-  height: 100%;
+  height: calc(100vh - 58px);
   width: 400px;
   min-width: 400px;
   .prebuilt-type-dropdown {
