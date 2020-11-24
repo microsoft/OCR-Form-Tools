@@ -365,7 +365,7 @@ export function reconfigureTableTag(project: IProject, originalTagName: string, 
             console.log(project, tagName, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
             // Find tags to rename
             const assetService = new AssetService(project);
-            const assetUpdates = await assetService.refactorTableTag(tagName, tagType, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
+            const assetUpdates = await assetService.refactorTableTag(originalTagName, tagName, tagType, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
 
             // Save updated assets
             await assetUpdates.forEachAsync(async (assetMetadata) => {
@@ -377,20 +377,20 @@ export function reconfigureTableTag(project: IProject, originalTagName: string, 
                 ...currentProject,
                 tags: currentProject.tags.reduce((result, tag) => {
                     if (tag.name === originalTagName) {
-                        (tag as ITableTag).rowKeys = newRows?.map((newRow) => {
+                        (tag as ITableTag).rowKeys = newRows ? newRows.map((newRow) => {
                             return {
                                 fieldKey: newRow.name,
                                 fieldType: newRow.type,
                                 fieldFormat: newRow.format
                             } as ITableKeyField
-                        });
-                        (tag as ITableTag).columnKeys = newColumns.map((newColumn) => {
+                        }) : (tag as ITableTag).rowKeys;
+                        (tag as ITableTag).columnKeys = newColumns ? newColumns.map((newColumn) => {
                             return {
                                 fieldKey: newColumn.name,
                                 fieldType: newColumn.type,
                                 fieldFormat: newColumn.format
                             } as ITableKeyField
-                        });
+                        }) : (tag as ITableTag).columnKeys;
                         (tag as ITag).name = tagName;
                         result.push(tag);
                         return result;
