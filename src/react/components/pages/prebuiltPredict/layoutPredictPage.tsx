@@ -8,7 +8,8 @@ import {
     PrimaryButton,
     Spinner,
     SpinnerSize,
-    TooltipHost
+    TooltipHost,
+    Separator
 } from "@fluentui/react";
 import Fill from "ol/style/Fill";
 import Stroke from "ol/style/Stroke";
@@ -40,6 +41,7 @@ import {TableView} from "../editorPage/tableView";
 import {ILayoutHelper, LayoutHelper} from "./layoutHelper";
 import {ILoadFileHelper, LoadFileHelper} from "./LoadFileHelper";
 import {ITableHelper, ITableState, TableHelper} from "./tableHelper";
+import axios from "axios";
 
 interface ILayoutPredictPageProps extends RouteComponentProps {
     prebuiltSettings: IPrebuiltSettings;
@@ -184,7 +186,21 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
                                 disabled={this.state.isFetching || this.state.isAnalyzing}
                                 actions={this.props.actions}
                             />
-                            <div className="p-3" style={{marginTop: "8px"}}>
+                            <div className="p-3" style={{marginTop: "0px"}}>
+                                <div style={{display: "flex", justifyContent: "space-between"}}>
+                                    <h5>
+                                        {strings.predict.downloadScript}
+                                    </h5>
+                                    <PrimaryButton
+                                        className="keep-button-80px"
+                                        theme={getPrimaryGreenTheme()}
+                                        text="Download"
+                                        allowDisabledFocus
+                                        autoFocus={true}
+                                        onClick={this.handleDownloadClick}
+                                    />
+                                </div>
+                                <Separator className="separator-right-pane-main">or</Separator>
                                 <h5>Upload file and run layout</h5>
                                 <DocumentFilePicker
                                     disabled={this.state.isFetching || this.state.isAnalyzing}
@@ -555,4 +571,56 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
             ServiceHelper.handleServiceError({...err, endpoint: endpointURL});
         }
     }
+    private handleDownloadClick = () => {
+        this.triggerDownload();
+    }
+
+    private async triggerDownload(): Promise<any> {
+        axios.get("/layout-analyze.py").then((response) => {
+            
+            const endpointURL = this.props.prebuiltSettings.serviceURI as string;
+            const apiKey = this.props.prebuiltSettings.apiKey as string;
+            const analyzeScript = response.data.replace(/<endpoint>|<subscription_key>|<API_version>/gi,
+                (matched: string) => {
+                    switch (matched) {
+                        case "<endpoint>":
+                            return endpointURL;
+                        case "<subscription_key>":
+                            return apiKey;
+                        case "<API_version>":
+                            return constants.prebuiltServiceVersion;
+
+                    }
+                });
+            const fileURL = window.URL.createObjectURL(
+                new Blob([analyzeScript]));
+            const fileLink = document.createElement("a");
+            const fileBaseName = "layout-analyze";
+            const downloadFileName = fileBaseName + ".py";
+
+            fileLink.href = fileURL;
+            fileLink.setAttribute("download", downloadFileName);
+            document.body.appendChild(fileLink);
+            fileLink.click();
+
+        }).catch((error) => {
+            let alertMessage = "";
+            if (error.response) {
+                alertMessage = error.response.data;
+            } else if (error.errorCode === ErrorCode.PredictWithoutTrainForbidden) {
+                alertMessage = strings.errors.predictWithoutTrainForbidden.message;
+            } else if (error.errorCode === ErrorCode.ModelNotFound) {
+                alertMessage = error.message;
+            } else {
+                alertMessage = interpolate(strings.errors.endpointConnectionError.message, {endpoint: "form recognizer backend URL"});
+            }
+            this.setState({
+                shouldShowAlert: true,
+                alertTitle: "Download failed",
+                alertMessage,
+                isAnalyzing: false,
+            });
+        });
+    }
+
 }
