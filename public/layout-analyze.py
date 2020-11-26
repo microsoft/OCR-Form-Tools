@@ -136,9 +136,6 @@ def getArguments(argv):
         if opt == '-o':
             output_dir = arg
 
-    # if not file_type:   
-    #     file_type = inferrType(input_file)
-
     return (input_dir, output_dir, file_type)
 def isSupportedFile(input_file, file_type):
     if (file_type == 'application/pdf' and input_file.endswith('.pdf')):
