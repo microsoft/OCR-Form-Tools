@@ -577,7 +577,6 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
 
     private async triggerDownload(): Promise<any> {
         axios.get("/layout-analyze.py").then((response) => {
-            
             const endpointURL = this.props.prebuiltSettings.serviceURI as string;
             const apiKey = this.props.prebuiltSettings.apiKey as string;
             const analyzeScript = response.data.replace(/<endpoint>|<subscription_key>|<API_version>/gi,
