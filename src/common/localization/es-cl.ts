@@ -65,15 +65,15 @@ export const spanish: IAppStrings = {
             title: "Utilice un modelo prediseñado para obtener datos",
             description: "Comience con un modelo preconstruidos para extraer datos de sus formularios: facturas, recibos, tarjetas de visita y mucho más. Envíe sus datos y obtenga resultados de inmediato."
         },
-        layoutPredict:{
-            title:"Utilice Layout para obtener texto, tablas y marcas de selección",
-            description:"Pruebe el servicio Diseño del reconocedor de formularios para extraer texto, tablas, marcas de selección y la estructura del documento."
+        layoutPredict: {
+            title: "Utilice Layout para obtener texto, tablas y marcas de selección",
+            description: "Pruebe el servicio Diseño del reconocedor de formularios para extraer texto, tablas, marcas de selección y la estructura del documento."
         },
-        trainWithLabels:{
-            title:"Utilice Personalizado para entrenar un modelo con etiquetas y obtener pares clave-valor",
-            description:"Tú proporcionas tus propios datos de entrenamiento y haces el aprendizaje. El modelo que cree puede adaptarse a los formularios específicos de su industria."
+        trainWithLabels: {
+            title: "Utilice Personalizado para entrenar un modelo con etiquetas y obtener pares clave-valor",
+            description: "Tú proporcionas tus propios datos de entrenamiento y haces el aprendizaje. El modelo que cree puede adaptarse a los formularios específicos de su industria."
         },
-        quickStartGuide:"Quick start guide",
+        quickStartGuide: "Quick start guide",
     },
     appSettings: {
         title: "Configuración de Aplicación",
@@ -231,10 +231,16 @@ export const spanish: IAppStrings = {
         editAndUploadToTrainingSetNotify: "Al hacer clic en este botón, este formulario se agregará al Blob de Azure Storage para este proyecto, donde puede editar estas etiquetas.",
         editAndUploadToTrainingSetNotify2: "Estamos agregando este archivo a su conjunto de entrenamiento, donde puede editar las etiquetas y volver a entrenar el modelo.",
         uploadInPrgoress: "carga en curso...",
+        analysis: "Análisis",
+        runAnalysis: "Ejecutar análisis",
         confirmDuplicatedAssetName: {
             title: "El nombre del activo existe",
             message: "El activo con el nombre '${name}' existe en el proyecto, ¿anularlo?"
         }
+    },
+    pageRange: {
+        title: "Rango de páginas:",
+        tooltip: "Especifique el número de página o el rango de números de página para procesar, por ejemplo: 1, 5, 7, 9-10"
     },
     prebuiltPredict: {
         title: "Análisis preconstruido",
@@ -243,10 +249,32 @@ export const spanish: IAppStrings = {
         uploadFile: "Elija una imagen para analizar con",
         inProgress: "Análisis en curso...",
         anlayWithPrebuiltModels: "Análisis ${name} (versión preliminar)",
+        locale: "Lugar",
+        formTypeTitle: "Tipo de formulario",
+        selectFileAndRunAnalysis: "Seleccionar archivo y ejecutar análisis",
+        analysis: "Análisis",
+        runAnalysis: "Ejecutar análisis",
+        noFieldCanBeExtracted: "No se puede extraer ningún campo."
     },
-    layoutPredict:{
+    prebuiltSetting: {
+        serviceConfigurationTitle: "Configuración del servicio",
+        serviceEndpointTitle: "Punto final del servicio del reconocedor de formularios",
+        apiKeyTitle: "Clave API",
+    },
+    documentFilePicker: {
+        source: "Fuente",
+        localFile: "Archivo local",
+        url: "URL"
+    },
+    layoutPredict: {
+        layout: "Diseño",
         title: "Análisis de diseño",
         inProgress: "Análisis en curso...",
+        selectFileAndRunLayout: "Seleccionar archivo y ejecutar diseño",
+        analysis: "Análisis",
+        runLayout: "Ejecutar diseño",
+        download: "Descargar",
+        layoutResults: "Resultados de diseño"
     },
     recentModelsView: {
         header: "Seleccionar modelo para analizar con",
@@ -297,12 +325,12 @@ export const spanish: IAppStrings = {
             notCompatibleTagType: "El tipo de etiqueta no es compatible con esta función. Si desea cambiar el tipo de esta etiqueta, elimine o reasigne todas las etiquetas que utilizan esta etiqueta en su proyecto.",
             checkboxPerTagLimit: "No se puede asignar más de una casilla de verificación por etiqueta",
             notCompatibleWithDrawnRegionTag: "Los valores de drawnRegion y $ {otherCatagory} no pueden asignarse a la misma etiqueta del documento",
-            replaceAllExitingLabels:"¿Está seguro de que desea reemplazar las etiquetas de la etiqueta seleccionada?",
-            replaceAllExitingLabelsTitle:"Reemplazar las etiquetas de la etiqueta",
+            replaceAllExitingLabels: "¿Está seguro de que desea reemplazar las etiquetas de la etiqueta seleccionada?",
+            replaceAllExitingLabelsTitle: "Reemplazar las etiquetas de la etiqueta",
         },
-        preText:{
-            autoLabel:"Auto-etiquetado: ",
-            revised:"Revisado: ",
+        preText: {
+            autoLabel: "Auto-etiquetado: ",
+            revised: "Revisado: ",
         },
         toolbar: {
             add: "Agregar nueva etiqueta",

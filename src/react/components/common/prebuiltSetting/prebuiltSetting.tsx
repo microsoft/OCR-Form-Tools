@@ -1,5 +1,6 @@
 import {DefaultButton, FontIcon, TextField} from '@fluentui/react';
 import React from 'react';
+import {strings} from '../../../../common/strings';
 import {getGreenWithWhiteBackgroundTheme, getPrimaryGreyTheme} from '../../../../common/themes';
 import {IPrebuiltSettings} from '../../../../models/applicationState';
 import IAppPrebuiltSettingsActions from '../../../../redux/actions/prebuiltSettingsActions';
@@ -24,8 +25,8 @@ export class PrebuiltSetting extends React.Component<IPrebuiltSettingProps, IPre
         const {disabled} = this.props;
         return <>
             <div className="p-3 prebuilt-setting" style={{marginTop: "8px"}}>
-                <h5>Service configuration</h5>
-                <div style={{marginBottom: "3px"}}>Form recognizer service endpoint</div>
+                <h5>{strings.prebuiltSetting.serviceConfigurationTitle}</h5>
+                <div style={{marginBottom: "3px"}}>{strings.prebuiltSetting.serviceEndpointTitle}</div>
                 <TextField
                     className="mb-1"
                     theme={getGreenWithWhiteBackgroundTheme()}
@@ -33,7 +34,7 @@ export class PrebuiltSetting extends React.Component<IPrebuiltSettingProps, IPre
                     onChange={this.setInputedServiceURI}
                     disabled={disabled}
                 />
-                <div style={{marginBottom: "3px"}}>API key</div>
+                <div style={{marginBottom: "3px"}}>{strings.prebuiltSetting.apiKeyTitle}</div>
                 <div className="apikeyContainer">
                     <TextField
                         className="apikey"
@@ -54,7 +55,6 @@ export class PrebuiltSetting extends React.Component<IPrebuiltSettingProps, IPre
                     </DefaultButton>
                 </div>
             </div>
-
         </>
     }
 
