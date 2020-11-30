@@ -664,51 +664,51 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private handleClick = () => {
-        // this.setState({predictionLoaded: false, isPredicting: true});
-        // this.getPrediction()
-        //     .then((result) => {
-        //         this.analyzeResults = _.cloneDeep(result);
-        //         this.tableHelper.setAnalyzeResult(result?.analyzeResult);
-        //         this.setState({
-        //             predictionResult: result,
-        //             analyzeResult: result?.analyzeResult,
-        //             predictionLoaded: true,
-        //             predictRun: true,
-        //             isPredicting: false,
-        //         }, () => {
-        //             this.drawPredictionResult();
-        //         });
-        //     })
-        //     .catch((error) => {
-        //         let alertMessage = "";
-        //         if (error.response) {
-        //             alertMessage = error.response.data;
-        //         } else if (error.errorCode === ErrorCode.PredictWithoutTrainForbidden) {
-        //             alertMessage = strings.errors.predictWithoutTrainForbidden.message;
-        //         } else if (error.errorCode === ErrorCode.ModelNotFound) {
-        //             alertMessage = error.message;
-        //         } else if (error.code) {
-        //             alertMessage = `${error.message}, code ${error.code}`;
-        //         } else {
-        //             alertMessage = interpolate(strings.errors.endpointConnectionError.message, {endpoint: "form recognizer backend URL"});
-        //         }
-        //         this.setState({
-        //             shouldShowAlert: true,
-        //             alertTitle: "Prediction Failed",
-        //             alertMessage,
-        //             isPredicting: false,
-        //         });
-        //     });
+        this.setState({predictionLoaded: false, isPredicting: true});
+        this.getPrediction()
+            .then((result) => {
+                this.analyzeResults = _.cloneDeep(result);
+                this.tableHelper.setAnalyzeResult(result?.analyzeResult);
+                this.setState({
+                    predictionResult: result,
+                    analyzeResult: result?.analyzeResult,
+                    predictionLoaded: true,
+                    predictRun: true,
+                    isPredicting: false,
+                }, () => {
+                    this.drawPredictionResult();
+                });
+            })
+            .catch((error) => {
+                let alertMessage = "";
+                if (error.response) {
+                    alertMessage = error.response.data;
+                } else if (error.errorCode === ErrorCode.PredictWithoutTrainForbidden) {
+                    alertMessage = strings.errors.predictWithoutTrainForbidden.message;
+                } else if (error.errorCode === ErrorCode.ModelNotFound) {
+                    alertMessage = error.message;
+                } else if (error.code) {
+                    alertMessage = `${error.message}, code ${error.code}`;
+                } else {
+                    alertMessage = interpolate(strings.errors.endpointConnectionError.message, {endpoint: "form recognizer backend URL"});
+                }
+                this.setState({
+                    shouldShowAlert: true,
+                    alertTitle: "Prediction Failed",
+                    alertMessage,
+                    isPredicting: false,
+                });
+            });
 
             //  uncomment this and comment out all above for testing analyze results
-            this.setState({
-                analyzeResult: table_output2,
-                predictionLoaded: true,
-                predictRun: true,
-                isPredicting: false,
-            }, () => {
-                this.drawPredictionResult();
-            });
+            // this.setState({
+            //     analyzeResult: table_output2,
+            //     predictionLoaded: true,
+            //     predictRun: true,
+            //     isPredicting: false,
+            // }, () => {
+            //     this.drawPredictionResult();
+            // });
 
         if (this.appInsights) {
             this.appInsights.trackEvent({name: "ANALYZE_EVENT"});
@@ -933,7 +933,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                         if (tableCell?.page === this.state.currentPage) {
                             const text = fieldName;
                             const boundingbox = _.get(tableCell, "boundingBox", []);
-                            const feature = this.createBoundingBoxVectorFeatureForTableCell(text, boundingbox, imageExtent, ocrExtent, "#1" + rowIndex, columnName);
+                            const feature = this.createBoundingBoxVectorFeatureForTableCell(text, boundingbox, imageExtent, ocrExtent, "#" + (rowIndex + 1), columnName);
                             features.push(feature);
                         }
                     })
@@ -948,31 +948,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 }
             }
         });
-
-        //     const rows = tables[fieldName].values;
-        //     for (const rowName of Object.keys(rows)) {
-        //         const columns = rows[rowName];
-        //         for (const cellName of Object.keys(columns)) {
-        //             const field = columns[cellName];
-        //             if (_.get(field, "page", null) === this.state.currentPage)
-        //             {
-        //                 const text = fieldName;
-        //                 const boundingbox = _.get(field, "boundingBox", []);
-        //                 const feature = this.createBoundingBoxVectorFeatureForTableCell(text, boundingbox, imageExtent, ocrExtent, rowName, cellName);
-        //                 features.push(feature);
-        //             }
-        //         }
-        //     }
-        // }
-        // for (const fieldName of Object.keys(fields)) {
-        //     const field: IField = fields[fieldName];
-        //     if (_.get(field, "page", null) === this.state.currentPage) {
-        //         const text = fieldName;
-        //         const boundingbox = _.get(field, "boundingBox", []);
-        //         const feature = this.createBoundingBoxVectorFeature(text, boundingbox, imageExtent, ocrExtent);
-        //         features.push(feature);
-        //     }
-        // }
         this.imageMap?.addFeatures(features);
         this.tableHelper.drawTables(this.state.currentPage);
     }
@@ -1077,75 +1052,154 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         this.setState({ viewRegionalTable: true, regionalTableToView: predictedItem, tableTagColor: tagColor });
     }
 
-    private displayRegionalTable = (regionalTableToView: ITableResultItem) => {
+    private displayRegionalTable = (regionalTableToView) => {
+        console.log(regionalTableToView);
 
-        if (regionalTableToView.type === "array") {
-            return;
-        }  else {
-            return;
-        }
-        let rows;
-        if (regionalTableToView.type === FieldFormat.RowDynamic) {
-            rows = Object.keys(regionalTableToView.values);
-        } else {
-            rows = regionalTableToView.rowKeys;
-        }
-        const columns= regionalTableToView.columnKeys;
-        const Table = regionalTableToView.values;
-
-        let tableBody = null;
-        let rowName;
-        let columnName;
-        if (rows?.length > 0 && columns?.length > 0) {
-            tableBody = [];
-            for (let i = 0; i < rows.length + 1; i++) {
-                if (i > 0) {
-                    rowName = rows[i-1];
+        const tableBody = [];
+        if (regionalTableToView?.type === "array") {
+            const columnHeaderRow = [];
+            const colKeys = Object.keys(regionalTableToView?.valueArray?.[0].valueObject);
+            for (let i = 0; i < colKeys.length + 1; i++) {
+                if (i === 0) {
+                    columnHeaderRow.push(
+                        <th key={i} className={"empty_header hidden"}/>
+                    );
+                } else {
+                    columnHeaderRow.push(
+                        <th key={i} className={"column_header"}>
+                            {colKeys[i - 1]}
+                        </th>
+                    );
                 }
-                const tableRow = [];
-                for (let j = 0; j < columns.length + 1; j++) {
-                    if (j > 0) {
-                        columnName = columns[j-1];
-                    }
-                    if (i === 0 && j !== 0) {
-                        tableRow.push(
-                            <th key={j} className={"column_header"}>
-                                {columns[j - 1]}
-                            </th>
-                        );
-                    } else if (j === 0 && i !== 0) {
-                        tableRow.push(
-                            <th key={j} className={`row_header ${ regionalTableToView.type === FieldFormat.RowDynamic ? "hidden" : ""}`}>
-                                {rows[i - 1]}
-                            </th>
-                        );
-                    } else if (j === 0 && i === 0) {
-                        tableRow.push(
-                            <th key={j} className={`empty_header  ${regionalTableToView.type === FieldFormat.RowDynamic ? "hidden" : ""}`}/>
-                        );
-                    } else {
-                        const tableCell = Table?.[rowName]?.[columnName];
-                        tableRow.push(
-                            <td
-                                className={"table-cell"}
-                                key={j}
-                                onMouseEnter={() => {
-                                    console.log(rows[i - 1], columns[j - 1]);
-                                    this.setState({ highlightedTableCellRowKey: rows[i - 1], highlightedTableCellColumnKey: columns[j - 1] })
-                                }}
-                                onMouseLeave={() => {
-                                    console.log(rows[i - 1], columns[j - 1]);
-                                    this.setState({ highlightedTableCellRowKey: null, highlightedTableCellColumnKey: null })
-                                }}
-                            >
-                                {tableCell ? tableCell.valueString : null }
-                            </td>
-                        );
-                    }
-                }
-                tableBody.push(<tr key={i}>{tableRow}</tr>);
             }
+            regionalTableToView?.valueArray?.forEach((row, rowIndex) => {
+                const tableRow = [];
+                tableRow.push(
+                    <th key={0} className={"row_header hidden"}>
+                        {"#" + (rowIndex + 1)}
+                    </th>
+                );
+                Object.keys(row?.valueObject).forEach((columnName, columnIndex) => {
+                    const tableCell = row?.valueObject?.[columnName];
+                    tableRow.push(
+                        <td
+                            className={"table-cell"}
+                            key={columnIndex + 1}
+                            onMouseEnter={() => {
+                                this.setState({ highlightedTableCellRowKey: "#" + (rowIndex + 1), highlightedTableCellColumnKey: columnName })
+                            }}
+                            onMouseLeave={() => {
+                                this.setState({ highlightedTableCellRowKey: null, highlightedTableCellColumnKey: null })
+                            }}
+                        >
+                            {tableCell ? tableCell.text : null }
+                        </td>
+                    );
+                })
+                tableBody.push(<tr key={rowIndex}>{tableRow}</tr>);
+            })
+        }  else {
+            const columnHeaderRow = [];
+            const colKeys = Object.keys(regionalTableToView?.valueObject?.[Object.keys(regionalTableToView?.valueObject)?.[0]]);
+            for (let i = 0; i < colKeys.length + 1; i++) {
+                if (i === 0) {
+                    columnHeaderRow.push(
+                        <th key={i} className={"empty_header hidden"}/>
+                    );
+                } else {
+                    columnHeaderRow.push(
+                        <th key={i} className={"column_header"}>
+                            {colKeys[i - 1]}
+                        </th>
+                    );
+                }
+            }
+            Object.keys(regionalTableToView?.valueObject).forEach((rowName, index) => {
+                const tableRow = [];
+                tableRow.push(
+                    <th key={0} className={"row_header"}>
+                        {rowName}
+                    </th>
+                );
+                Object.keys(regionalTableToView?.valueObject?.[rowName]?.valueObject)?.forEach((columnName, index) => {
+                    const tableCell = regionalTableToView?.valueObject?.[rowName]?.valueObject?.[columnName];
+                    tableRow.push(
+                        <td
+                            className={"table-cell"}
+                            key={index + 1}
+                            onMouseEnter={() => {
+                                this.setState({ highlightedTableCellRowKey: rowName, highlightedTableCellColumnKey: columnName })
+                            }}
+                            onMouseLeave={() => {
+                                this.setState({ highlightedTableCellRowKey: null, highlightedTableCellColumnKey: null })
+                            }}
+                        >
+                            {tableCell ? tableCell.text : null }
+                        </td>
+                    );
+                });
+                tableBody.push(<tr key={index}>{tableRow}</tr>);
+            });
         }
+        // let rows;
+        // if (regionalTableToView.type === FieldFormat.RowDynamic) {
+        //     rows = Object.keys(regionalTableToView.values);
+        // } else {
+        //     rows = regionalTableToView.rowKeys;
+        // }
+        // const columns= regionalTableToView.columnKeys;
+        // const Table = regionalTableToView.values;
+
+        // if (rows?.length > 0 && columns?.length > 0) {
+        //     tableBody = [];
+        //     for (let i = 0; i < rows.length + 1; i++) {
+        //         if (i > 0) {
+        //             rowName = rows[i-1];
+        //         }
+        //         const tableRow = [];
+        //         for (let j = 0; j < columns.length + 1; j++) {
+        //             if (j > 0) {
+        //                 columnName = columns[j-1];
+        //             }
+        //             if (i === 0 && j !== 0) {
+        //                 tableRow.push(
+        //                     <th key={j} className={"column_header"}>
+        //                         {columns[j - 1]}
+        //                     </th>
+        //                 );
+        //             } else if (j === 0 && i !== 0) {
+        //                 tableRow.push(
+        //                     <th key={j} className={`row_header ${ regionalTableToView.type === FieldFormat.RowDynamic ? "hidden" : ""}`}>
+        //                         {rows[i - 1]}
+        //                     </th>
+        //                 );
+        //             } else if (j === 0 && i === 0) {
+        //                 tableRow.push(
+        //                     <th key={j} className={`empty_header  ${regionalTableToView.type === FieldFormat.RowDynamic ? "hidden" : ""}`}/>
+        //                 );
+        //             } else {
+        //                 const tableCell = Table?.[rowName]?.[columnName];
+        //                 tableRow.push(
+        //                     <td
+        //                         className={"table-cell"}
+        //                         key={j}
+        //                         onMouseEnter={() => {
+        //                             console.log(rows[i - 1], columns[j - 1]);
+        //                             this.setState({ highlightedTableCellRowKey: rows[i - 1], highlightedTableCellColumnKey: columns[j - 1] })
+        //                         }}
+        //                         onMouseLeave={() => {
+        //                             console.log(rows[i - 1], columns[j - 1]);
+        //                             this.setState({ highlightedTableCellRowKey: null, highlightedTableCellColumnKey: null })
+        //                         }}
+        //                     >
+        //                         {tableCell ? tableCell.valueString : null }
+        //                     </td>
+        //                 );
+        //             }
+        //         }
+        //         tableBody.push(<tr key={i}>{tableRow}</tr>);
+        //     }
+        // }
 
         return (
             <div>
