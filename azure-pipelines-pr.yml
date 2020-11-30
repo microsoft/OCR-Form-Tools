@@ -1,0 +1,32 @@
+# Node.js with React
+# Build a Node.js project that uses React.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '12.x'
+  displayName: 'Install Node.js'
+
+- script: |
+    yarn install
+    yarn tslint
+    if [ $? -ne 0 ]; then
+        exit 1
+    fi
+    yarn compile
+    if [ $? -ne 0 ]; then
+        exit 1
+    fi
+    yarn build
+    if [ $? -ne 0 ]; then
+        exit 1
+    fi
+  displayName: 'yarn install and build'
