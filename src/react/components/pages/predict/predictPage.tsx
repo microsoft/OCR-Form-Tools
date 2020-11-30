@@ -46,7 +46,7 @@ import PredictResult, { IAnalyzeModelInfo, ITableResultItem } from "./predictRes
 import RecentModelsView from "./recentModelsView";
 import { UploadToTrainingSetView } from "./uploadToTrainingSetView";
 import { CanvasCommandBar } from "../editorPage/canvasCommandBar";
-// import table_output2 from "./table_prediction.json"
+ import table_output2 from "./new_prediction_response (1).json"
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 
@@ -664,51 +664,51 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private handleClick = () => {
-        this.setState({predictionLoaded: false, isPredicting: true});
-        this.getPrediction()
-            .then((result) => {
-                this.analyzeResults = _.cloneDeep(result);
-                this.tableHelper.setAnalyzeResult(result?.analyzeResult);
-                this.setState({
-                    predictionResult: result,
-                    analyzeResult: result?.analyzeResult,
-                    predictionLoaded: true,
-                    predictRun: true,
-                    isPredicting: false,
-                }, () => {
-                    this.drawPredictionResult();
-                });
-            })
-            .catch((error) => {
-                let alertMessage = "";
-                if (error.response) {
-                    alertMessage = error.response.data;
-                } else if (error.errorCode === ErrorCode.PredictWithoutTrainForbidden) {
-                    alertMessage = strings.errors.predictWithoutTrainForbidden.message;
-                } else if (error.errorCode === ErrorCode.ModelNotFound) {
-                    alertMessage = error.message;
-                } else if (error.code) {
-                    alertMessage = `${error.message}, code ${error.code}`;
-                } else {
-                    alertMessage = interpolate(strings.errors.endpointConnectionError.message, {endpoint: "form recognizer backend URL"});
-                }
-                this.setState({
-                    shouldShowAlert: true,
-                    alertTitle: "Prediction Failed",
-                    alertMessage,
-                    isPredicting: false,
-                });
-            });
+        // this.setState({predictionLoaded: false, isPredicting: true});
+        // this.getPrediction()
+        //     .then((result) => {
+        //         this.analyzeResults = _.cloneDeep(result);
+        //         this.tableHelper.setAnalyzeResult(result?.analyzeResult);
+        //         this.setState({
+        //             predictionResult: result,
+        //             analyzeResult: result?.analyzeResult,
+        //             predictionLoaded: true,
+        //             predictRun: true,
+        //             isPredicting: false,
+        //         }, () => {
+        //             this.drawPredictionResult();
+        //         });
+        //     })
+        //     .catch((error) => {
+        //         let alertMessage = "";
+        //         if (error.response) {
+        //             alertMessage = error.response.data;
+        //         } else if (error.errorCode === ErrorCode.PredictWithoutTrainForbidden) {
+        //             alertMessage = strings.errors.predictWithoutTrainForbidden.message;
+        //         } else if (error.errorCode === ErrorCode.ModelNotFound) {
+        //             alertMessage = error.message;
+        //         } else if (error.code) {
+        //             alertMessage = `${error.message}, code ${error.code}`;
+        //         } else {
+        //             alertMessage = interpolate(strings.errors.endpointConnectionError.message, {endpoint: "form recognizer backend URL"});
+        //         }
+        //         this.setState({
+        //             shouldShowAlert: true,
+        //             alertTitle: "Prediction Failed",
+        //             alertMessage,
+        //             isPredicting: false,
+        //         });
+        //     });
 
-            ////  uncomment this and comment out all above for testing analyze results
-            // this.setState({
-            //     analyzeResult: table_output2,
-            //     predictionLoaded: true,
-            //     predictRun: true,
-            //     isPredicting: false,
-            // }, () => {
-            //     this.drawPredictionResult();
-            // });
+            //  uncomment this and comment out all above for testing analyze results
+            this.setState({
+                analyzeResult: table_output2,
+                predictionLoaded: true,
+                predictRun: true,
+                isPredicting: false,
+            }, () => {
+                this.drawPredictionResult();
+            });
 
         if (this.appInsights) {
             this.appInsights.trackEvent({name: "ANALYZE_EVENT"});
@@ -908,26 +908,38 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const imageExtent = [0, 0, this.state.imageWidth, this.state.imageHeight];
         const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[this.state.currentPage - 1];
         const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
-        const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
+        const fields = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
 
-        for (const fieldName of Object.keys(predictions)) {
-            const field: IField = predictions[fieldName];
-            if (predictions[fieldName]?.type === FieldFormat.Fixed || predictions[fieldName]?.type === FieldFormat.RowDynamic) {
-                const rows = predictions[fieldName].values;
-                for (const rowName of Object.keys(rows)) {
-                    const columns = rows[rowName];
-                    for (const cellName of Object.keys(columns)) {
-                        const field = columns[cellName];
-                        if (_.get(field, "page", null) === this.state.currentPage)
-                        {
+        Object.keys(fields).forEach((fieldName) => {
+            const field = fields[fieldName];
+            if (field.type === "object") {
+                Object.keys(field?.valueObject).forEach((rowName, rowIndex) => {
+                    Object.keys(field?.valueObject?.[rowName]?.valueObject).forEach((columnName, colIndex) => {
+                        console.log(rowName, columnName, field)
+                        const tableCell = field?.valueObject?.[rowName]?.valueObject?.[columnName];
+                        if (tableCell?.page === this.state.currentPage) {
                             const text = fieldName;
-                            const boundingbox = _.get(field, "boundingBox", []);
-                            const feature = this.createBoundingBoxVectorFeatureForTableCell(text, boundingbox, imageExtent, ocrExtent, rowName, cellName);
+                            const boundingbox = _.get(tableCell, "boundingBox", []);
+                            const feature = this.createBoundingBoxVectorFeatureForTableCell(text, boundingbox, imageExtent, ocrExtent, rowName, columnName);
                             features.push(feature);
                         }
-                    }
-                }
-            } else {
+                    })
+                })
+            }
+            else if (field.type === "array") {
+                field?.valueArray.forEach((row, rowIndex) => {
+                    Object.keys(row?.valueObject).forEach((columnName, colIndex) => {
+                        const tableCell = field?.valueArray?.[rowIndex]?.valueObject?.[columnName];
+                        if (tableCell?.page === this.state.currentPage) {
+                            const text = fieldName;
+                            const boundingbox = _.get(tableCell, "boundingBox", []);
+                            const feature = this.createBoundingBoxVectorFeatureForTableCell(text, boundingbox, imageExtent, ocrExtent, "#1" + rowIndex, columnName);
+                            features.push(feature);
+                        }
+                    })
+                })
+            }
+            else {
                 if (_.get(field, "page", null) === this.state.currentPage) {
                     const text = fieldName;
                     const boundingbox = _.get(field, "boundingBox", []);
@@ -935,7 +947,32 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     features.push(feature);
                 }
             }
-        }
+        });
+
+        //     const rows = tables[fieldName].values;
+        //     for (const rowName of Object.keys(rows)) {
+        //         const columns = rows[rowName];
+        //         for (const cellName of Object.keys(columns)) {
+        //             const field = columns[cellName];
+        //             if (_.get(field, "page", null) === this.state.currentPage)
+        //             {
+        //                 const text = fieldName;
+        //                 const boundingbox = _.get(field, "boundingBox", []);
+        //                 const feature = this.createBoundingBoxVectorFeatureForTableCell(text, boundingbox, imageExtent, ocrExtent, rowName, cellName);
+        //                 features.push(feature);
+        //             }
+        //         }
+        //     }
+        // }
+        // for (const fieldName of Object.keys(fields)) {
+        //     const field: IField = fields[fieldName];
+        //     if (_.get(field, "page", null) === this.state.currentPage) {
+        //         const text = fieldName;
+        //         const boundingbox = _.get(field, "boundingBox", []);
+        //         const feature = this.createBoundingBoxVectorFeature(text, boundingbox, imageExtent, ocrExtent);
+        //         features.push(feature);
+        //     }
+        // }
         this.imageMap?.addFeatures(features);
         this.tableHelper.drawTables(this.state.currentPage);
     }
@@ -976,9 +1013,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
     private getPredictionsFromAnalyzeResult(analyzeResult: any) {
         const fields = _.get(analyzeResult?.analyzeResult ? analyzeResult?.analyzeResult : analyzeResult, "documentResults[0].fields", {});
-        const tables = _.get(analyzeResult?.analyzeResult ? analyzeResult?.analyzeResult : analyzeResult, "documentResults[0].tables", {}) || _.get(analyzeResult, "documentResults[0].tables", {});
-
-        return _.merge({}, fields, tables);
+        return fields;
     }
 
     private getAnalyzeModelInfo(analyzeResult) {
@@ -1043,6 +1078,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private displayRegionalTable = (regionalTableToView: ITableResultItem) => {
+
+        if (regionalTableToView.type === "array") {
+            return;
+        }  else {
+            return;
+        }
         let rows;
         if (regionalTableToView.type === FieldFormat.RowDynamic) {
             rows = Object.keys(regionalTableToView.values);

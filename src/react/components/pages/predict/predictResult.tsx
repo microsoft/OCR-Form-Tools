@@ -108,10 +108,22 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
             marginRight: "0px",
             background: this.getTagColor(item.fieldName),
         };
+        console.log("test yoo", item)
 
-        if (this.isTableTag(item)) {
-            const firstRow = item.values[Object.keys(item.values)[0]];
-            const pageNumber = firstRow[Object.keys(firstRow)[0]].page;
+        if (item?.type === "array") {
+            let pageNumber;
+            item?.valueArray?.find((row) => {
+                return Object.keys(row?.valueObject).find((columnName) => {
+                    if (row?.valueObject?.[columnName]?.["page"]) {
+                        pageNumber = row?.valueObject?.[columnName]?.["page"];
+                        return true;
+                    } else {
+                        return false;
+                    }
+                })
+            })
+            console.log("page number", pageNumber, item)
+
 
             return (
                 <div key={key}
@@ -135,7 +147,44 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                     </li>
                 </div>
             )
-        } else {
+        } else if (item?.type === "object") {
+            let pageNumber;
+            Object.keys(item?.valueObject).find((rowName) => {
+                return Object.keys(item?.valueObject?.[rowName]?.valueObject).find((columnName) => {
+                    if (item?.valueObject?.[rowName]?.valueObject?.[columnName]?.["page"]) {
+                        pageNumber = item?.valueObject?.[rowName]?.valueObject?.[columnName]?.["page"]
+                        return true;
+                    } else {
+                        return false;
+                    }
+                })
+            })
+            console.log("page number", pageNumber, item)
+
+            return (
+                <div key={key}
+                    onClick={() => {
+                        this.onTablePredictionClick(item, this.getTagColor(item.fieldName));
+                        this.onPredictionMouseLeave(item)
+                    }}
+                    onMouseEnter={() => this.onPredictionMouseEnter(item)}
+                    onMouseLeave={() => this.onPredictionMouseLeave(item)}>
+                    <li className="predictiontag-item" style={style}>
+                        <div className={"predictiontag-color"}>
+                            <span>{pageNumber}</span>
+                        </div>
+                        <div className={"predictiontag-content"}>
+                            {this.getPredictionTagContent(item)}
+                        </div>
+                    </li>
+                    <li className="predictiontag-item-label mt-0 mb-1">
+                        <FontIcon className="pr-1 pl-1" iconName="Table" />
+                        <span style={{ color: "rgba(255, 255, 255, 0.75)" }}>Click to view analyzed table</span>
+                    </li>
+                </div>
+            )
+        }
+        else {
             return (
                 <div key={key}
                 onClick={() => this.onPredictionClick(item)}
@@ -181,7 +230,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
     }
 
     private isTableTag(item) : boolean{
-        return (item.type === FieldFormat.RowDynamic || item.type === FieldFormat.Fixed);
+        return (item.type === "array" || item.type === "object");
     }
 
     private getPredictionTagContent = (item: any) => {
