@@ -5,7 +5,7 @@ import { FontIcon, IconButton } from "@fluentui/react";
 import _ from "lodash";
 import React, { Fragment, MouseEvent } from "react";
 import { strings } from "../../../../common/strings";
-import { FieldFormat, FieldType, ILabel, ITag, TagInputMode } from "../../../../models/applicationState";
+import { FieldFormat, FieldType, ILabel, ITableLabel, ITag, TagInputMode } from "../../../../models/applicationState";
 import { tagIndexKeys } from "./tagIndexKeys";
 import TagInputItemLabel from "./tagInputItemLabel";
 
@@ -41,7 +41,7 @@ export interface ITagInputItemProps {
     onClick: (tag: ITag, props: ITagClickProps) => void;
     /** Apply new name to tag */
     onRename: (oldTag: ITag, newName: string, cancelCallback: () => void) => void;
-    onLabelEnter: (label: ILabel) => void;
+    onLabelEnter: (label: ILabel|ITableLabel) => void;
     onLabelLeave: (label: ILabel) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
     handleLabelTable: (tagInputMode: TagInputMode, selectedTableTagToLabel) => void;
@@ -212,12 +212,16 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
     }
 
     private renderTagDetail = () => {
-        // console.log("## tag:", this.props.tag)
         if (this.props.tag.type === FieldType.Table) {
             return (
                 <div
                     className={"tag-item-label px-2"}
-                    onClick={() => this.props.handleLabelTable(TagInputMode.LabelTable, this.props.tag)}
+                    onClick={() => {
+                        this.props.handleLabelTable(TagInputMode.LabelTable, this.props.tag);
+                        this.props.onLabelLeave(this.props.labels[0]);
+                    }}
+                    onMouseEnter={() => this.props.onLabelEnter(this.props.labels[0])}
+                    onMouseLeave={() => this.props.onLabelLeave(this.props.labels[0])}
                 >
                     <FontIcon
                         className="pr-1 pl-1" iconName="Table"
@@ -252,19 +256,17 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                                     label={label}
                                     isOrigin={true}
                                     value={label.originValue}
-                                    prefixText={strings.tags.preText.autoLabel}
-                                    handleLabelTable={this.props.handleLabelTable}
-                                />
+                                    prefixText={strings.tags.preText.autoLabel}/>
                             }
-                            {(label.originValue?.length > 0 || label.value?.length > 0) && <TagInputItemLabel
-                                label={label}
-                                value={label.value}
-                                isOrigin={false}
-                                onLabelEnter={this.props.onLabelEnter}
-                                onLabelLeave={this.props.onLabelLeave}
-                                handleLabelTable={this.props.handleLabelTable}
-                                prefixText={revised ? strings.tags.preText.revised : undefined}
-                            />}
+                            {(label.originValue?.length > 0 || label.value?.length > 0) &&
+                                <TagInputItemLabel
+                                    label={label}
+                                    value={label.value}
+                                    isOrigin={false}
+                                    onLabelEnter={this.props.onLabelEnter}
+                                    onLabelLeave={this.props.onLabelLeave}
+                                    prefixText={revised ? strings.tags.preText.revised : undefined}/>
+                            }
                         </div>
                     </div>
                 </Fragment>);

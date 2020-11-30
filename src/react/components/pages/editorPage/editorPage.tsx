@@ -103,6 +103,7 @@ export interface IEditorPageState {
     rightSplitPaneWidth?: number;
     reconfigureTableConfirm?: boolean;
     pageNumber: number;
+    highlightedTableCellRegions: ITableRegion[];
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -142,7 +143,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         tagInputMode: TagInputMode.Basic,
         selectedTableTagToLabel: null,
         selectedTableTagBody: [[]],
-        pageNumber: 1
+        pageNumber: 1,
+        highlightedTableCellRegions: null,
     };
 
     private tagInputRef: RefObject<TagInput>;
@@ -320,6 +322,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                             runAutoLabelingOnNextBatch={this.runAutoLabelingOnNextBatch}
                                             appSettings={this.props.appSettings}
                                             handleLabelTable={this.handleLabelTable}
+                                            highlightedTableCell={this.state.highlightedTableCellRegions}
                                         >
                                             <AssetPreview
                                                 controlsEnabled={this.state.isValid}
@@ -353,6 +356,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     handleLabelTable={this.handleLabelTable}
                                     selectedTableTagToLabel={this.state.selectedTableTagToLabel}
                                     handleTableCellClick={this.handleTableCellClick}
+                                    handleTableCellMouseEnter={this.handleTableCellMouseEnter}
+                                    handleTableCellMouseLeave={this.handleTableCellMouseLeave}
                                     selectedTableTagBody={this.state.selectedTableTagBody}
                                     splitPaneWidth={this.state.rightSplitPaneWidth}
                                     reconfigureTableConfirm={this.reconfigureTableConfirm}
@@ -521,6 +526,14 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         // }
         // console.log("EditorPage -> privatehandleTableCellClick -> selectedTableTagBody", selectedTableTagBody)
         this.onTableTagClicked(this.state.selectedTableTagToLabel, rowIndex, columnIndex);
+    }
+
+    private handleTableCellMouseEnter = (regions) => {
+        this.setState({ highlightedTableCellRegions: regions });
+    }
+
+    private handleTableCellMouseLeave = () => {
+        this.setState({ highlightedTableCellRegions: null });
     }
 
     // private resetTableBody = () => {
@@ -895,7 +908,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const assetUpdates = await this.props.actions.reconfigureTableTag(this.props.project, originalTagName, tagName, tagType, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
         const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
         if (selectedAsset) {
-            this.setState({ 
+            this.setState({
                 selectedAsset,
                 selectedTableTagToLabel: null,
                 selectedTableTagBody: null, }, () => {

@@ -2,13 +2,12 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { ILabel, IFormRegion, ITag, FieldType, TagInputMode } from "../../../../models/applicationState";
+import { ILabel, IFormRegion, ITag } from "../../../../models/applicationState";
 import { FontIcon } from "@fluentui/react";
 
 export interface ITagInputItemLabelProps {
     label: ILabel;
     tag?: ITag;
-    handleLabelTable: (tagInputMode: TagInputMode, selectedTableTagToLabel) => void;
     value: IFormRegion[];
     isOrigin: boolean;
     onLabelEnter?: (label: ILabel) => void;
@@ -42,21 +41,6 @@ export default function TagInputItemLabel(props: ITagInputItemLabelProps) {
             onLabelLeave(label);
         }
     };
-
-    if (tag?.type === FieldType.Table) {
-        return (
-            <div
-                className={"tag-item-label px-2"}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-            >
-                <FontIcon
-                    onClick={() => props.handleLabelTable(TagInputMode.LabelTable, tag)}
-                    className="pr-1 pl-1" iconName="Table"
-                />
-            </div>
-        );
-    }
         return (
             <div
                 onMouseEnter={handleMouseEnter}

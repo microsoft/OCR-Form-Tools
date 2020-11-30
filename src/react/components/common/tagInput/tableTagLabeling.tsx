@@ -15,6 +15,8 @@ interface ITableTagLabelingProps {
     onTagClick?: (tag: ITableTag) => void;
     selectedTableTagBody: ITableRegion[][][];
     handleTableCellClick: (iTableCellIndex: number, jTableCellIndex: number) => void;
+    handleTableCellMouseEnter: (regions: IRegion[]) => void
+    handleTableCellMouseLeave: () => void
     addRowToDynamicTable: () => void;
     splitPaneWidth?: number;
 }
@@ -131,7 +133,12 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                         tableRow.push(<th key={j} className={`empty_header  ${isRowDynamic ? "hidden" : ""}`} />);
                     } else {
                         tableRow.push(
-                            <td className={"table-cell"} onClick={() => this.handleCellClick(i - 1, j - 1)} key={j}>
+                            <td
+                                className={"table-cell"}
+                                onClick={() => this.handleCellClick(i - 1, j - 1)} key={j}
+                                onMouseEnter={() => this.handleTableCellMouseEnter(selectedTableTagBody[i - 1][j - 1])}
+                                onMouseLeave={() => this.handleTableCellMouseLeave()}
+                            >
                                 {selectedTableTagBody[i - 1][j - 1]?.find((tableRegion) => tableRegion.value === "") && <FontIcon className="pr-1 pl-1" iconName="RectangleShape" />}
                                 {selectedTableTagBody[i - 1][j - 1]?.map((tableRegion) => tableRegion.value).join(" ")}
                             </td>);
@@ -150,5 +157,11 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
 
     private handleCellClick = (iToChange: number, jToChange: number) => {
         this.props.handleTableCellClick(iToChange, jToChange)
+    }
+    private handleTableCellMouseEnter = (regions: IRegion[]) => {
+        this.props.handleTableCellMouseEnter(regions)
+    }
+    private handleTableCellMouseLeave = () => {
+        this.props.handleTableCellMouseLeave();
     }
 }

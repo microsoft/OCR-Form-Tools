@@ -38,6 +38,8 @@ describe("Tag Input Component", () => {
             handleTableCellClick: null,
             selectedTableTagBody: null,
             splitPaneWidth: null,
+            handleTableCellMouseEnter: null,
+            handleTableCellMouseLeave: null
         };
     }
 

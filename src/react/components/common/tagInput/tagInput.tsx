@@ -93,6 +93,8 @@ export interface ITagInputProps {
     reconfigureTableConfirm: (originalTagName: string, tagName: string, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => void;
     handleTableCellClick: (iTableCellIndex, jTableCellIndex) => void;
     selectedTableTagBody: ITableRegion[][][];
+    handleTableCellMouseEnter: (regions) => void;
+    handleTableCellMouseLeave: () => void;
     splitPaneWidth: number;
     onTagDoubleClick?: (label: ILabel) => void;
 }
@@ -196,6 +198,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                         setTagInputMode={this.props.setTagInputMode}
                         selectedTag={this.props.selectedTableTagToLabel as ITableTag}
                         handleTableCellClick={this.props.handleTableCellClick}
+                        handleTableCellMouseEnter={this.props.handleTableCellMouseEnter}
+                        handleTableCellMouseLeave={this.props.handleTableCellMouseLeave}
                         selectedTableTagBody={this.props.selectedTableTagBody}
                         splitPaneWidth={this.props.splitPaneWidth}
                         addRowToDynamicTable={this.props.addRowToDynamicTable}
@@ -455,8 +459,10 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         return item;
     }
 
-    private setTagLabels = (key: string): ILabel[] => {
-        return this.props.labels.filter((label) => label.label === key);
+    private setTagLabels = (key: string): any[] => {
+        const labels = this.props.labels.filter((label) => label.label === key);
+        const tableLables = this.props.tableLabels.filter((label) => label.tableKey === key);
+        return [...labels, ...tableLables]
     }
 
     private createTagItemProps = (): ITagInputItemProps[] => {

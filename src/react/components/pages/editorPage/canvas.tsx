@@ -52,7 +52,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     editorMode: EditorMode;
     project: IProject;
     lockedTags: string[];
-    hoveredLabel: ILabel;
+    hoveredLabel: ILabel|any;
     isRunningOCRs?: boolean;
     children?: ReactElement<AssetPreview>;
     setTableToView?: (tableToView: object, tableToViewId: string) => void;
@@ -69,6 +69,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     runAutoLabelingOnNextBatch?: (batchSize: number) => Promise<void>;
     onAssetDeleted?: () => void;
     onPageLoaded?: (pageNumber: number) => void;
+    highlightedTableCell: any;
 }
 
 export interface ICanvasState {
@@ -129,6 +130,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         project: null,
         lockedTags: [],
         hoveredLabel: null,
+        highlightedTableCell: null,
         appSettings: null,
     };
 
@@ -229,7 +231,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             });
         }
 
-        if (this.props.hoveredLabel !== prevProps.hoveredLabel) {
+        if (this.props.hoveredLabel !== prevProps.hoveredLabel || this.props.highlightedTableCell !== prevProps.highlightedTableCell) {
             this.imageMap.getAllLabelFeatures().map(this.updateHighlightStatus);
             this.imageMap.getAllDrawnLabelFeatures().map(this.updateHighlightStatus);
         }
@@ -252,6 +254,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 display: this.state.tableIconTooltip.display,
             },
         };
+
         return (
             <div style={{ width: "100%", height: "100%" }}>
                 <KeyboardBinding
@@ -782,7 +785,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
      */
     private updateRegions = (updates: IRegion[]) => {
         const regions = this.state.currentAsset.regions;
-        // console.log(regions)
         const updatedRegions = [].concat(regions);
         for (const update of updates) {
             const region = regions.find((r) => r.id === update.id);
@@ -792,7 +794,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 updatedRegions.push(update);
             }
         }
-        // console.log("Canvas -> privateupdateRegions -> updatedRegions", updatedRegions)
         updatedRegions.sort(this.compareRegionOrder);
         this.updateAssetRegions(updatedRegions, true);
     }
@@ -1117,14 +1118,26 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private updateHighlightStatus = (feature: any): void => {
-        if (this.props.hoveredLabel) {
-            const label = this.props.hoveredLabel;
+        if (this.props.hoveredLabel || this.props.highlightedTableCell) {
+            let label = this.props.hoveredLabel
             const id = feature.get("id");
-            if (label.value?.find((region) =>
-                id === this.createRegionIdFromBoundingBox(region.boundingBoxes[0], region.page))) {
-                this.setFeatureProperty(feature, "highlighted", true);
+            if (label?.tableKey) {
+                const tableLableValues = [];
+                 label.labels.forEach((i: { value: ITableLabel[]; })=> {
+                     i.value.forEach((i: ITableLabel) => tableLableValues.push(i))
+                 });
+                label = { label: label.tableKey, value: tableLableValues };
             }
-        } else if (feature.get("highlighted")) {
+
+            if (label?.value?.find((region: { boundingBoxes: number[][]; page: number; }) =>
+                id === this.createRegionIdFromBoundingBox(region.boundingBoxes[0], region.page)) 
+                || this.props.highlightedTableCell?.find(i => i.id === id)) {
+                this.setFeatureProperty(feature, "highlighted", true);
+            } else {
+                this.setFeatureProperty(feature, "highlighted", false);
+            }
+        }
+        else if (feature.get("highlighted")) {
             this.setFeatureProperty(feature, "highlighted", false);
         }
     }
@@ -1915,7 +1928,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (asset.id === this.state.currentAsset.asset.id &&
             this.state.currentAsset.labelData != null) {
             const regionsFromLabelData = this.convertLabelDataToRegions(this.state.currentAsset.labelData);
-            // console.log("privateloadLabelData -> regionsFromLabelData", regionsFromLabelData)
             if (regionsFromLabelData.length > 0) {
                 this.addRegionsToAsset(regionsFromLabelData);
             }
