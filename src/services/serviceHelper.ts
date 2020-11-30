@@ -17,7 +17,7 @@ export default class ServiceHelper {
             } else if (err.response?.status === 404) {
                 throw new AppError(
                     ErrorCode.HttpStatusNotFound,
-                    "Please make sure the service endpoint is correct.",
+                    `Please make sure the service endpoint - "${err.apiUriBase}" is correct.`,
                     "Endpoint not found");
             } else if (err.response.status === 429) {
                 const response = err.response;
@@ -49,17 +49,17 @@ export default class ServiceHelper {
                     "Error");
             }
         } else if (err.endpoint) {
-            toast.warn(interpolate(strings.errors.endpointConnectionError.message,  {endpoint: "form recognizer backend URL"}), {autoClose: 10000})
+            toast.warn(interpolate(strings.errors.endpointConnectionError.message,  {endpoint: "form recognizer backend URL", apiUriBase: err.apiUriBase}), {autoClose: 10000})
             throw new AppError(
                 ErrorCode.HttpStatusNotFound,
-                interpolate(strings.errors.endpointConnectionError.message,  {endpoint: "form recognizer backend URL"}),
+                interpolate(strings.errors.endpointConnectionError.message,  {endpoint: "form recognizer backend URL", apiUriBase: err.apiUriBase}),
                 strings.errors.endpointConnectionError.title);
         } else {
             // Network Error
             toast.warn("Over rate limitation, please try again later",{autoClose: 10000})
             throw new AppError(
                 ErrorCode.HttpStatusNotFound,
-                "Cannot resolve the host name. Please make sure the service endpoint is correct.",
+                "Cannot resolve the host name. Please make sure the service endpoint -  is correct.",
                 "Endpoint not found");
         }
     }

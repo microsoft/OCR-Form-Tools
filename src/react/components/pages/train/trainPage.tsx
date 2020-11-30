@@ -417,7 +417,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             this.setState({ modelUrl: result.headers.location });
             return result;
         } catch (err) {
-            ServiceHelper.handleServiceError({...err, endpoint: baseURL});
+            ServiceHelper.handleServiceError({...err, endpoint: baseURL, apiUriBase: this.props.project.apiUriBase});
         }
     }
     private async cleanLabelData() {
@@ -611,7 +611,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 project.apiKey as string,
             ).then(res => res.request.response);
         } catch (error) {
-            ServiceHelper.handleServiceError({...error, endpoint: baseURL});
+            ServiceHelper.handleServiceError({...error, endpoint: baseURL, apiUriBase: project.apiUriBase});
         }
     }
 }
