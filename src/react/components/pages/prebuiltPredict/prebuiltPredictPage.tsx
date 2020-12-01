@@ -102,6 +102,10 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             servicePath: "/prebuilt/businessCard/analyze",
             useLocale:true,
         },
+        {
+            name: "ID",
+            servicePath: "/prebuilt/idDocument/analyze"
+        }
     ];
 
     locales: string[] = ["en-AU", "en-CA", "en-GB", "en-IN", "en-US"];
