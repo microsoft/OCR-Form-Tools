@@ -708,7 +708,7 @@ export const english: IAppStrings = {
         },
         endpointConnectionError: {
             title: "Error connecting to endpoint",
-            message: "Cannot connect to ${endpoint} - \"${apiUriBase}\". Please make sure the network connection is good and specified endpoint is correct.",
+            message: "Cannot connect to ${endpoint} \"${apiUriBase}\". Please make sure the network connection is good and specified endpoint is correct.",
         },
         tooManyRequests: {
             title: "Too many requests",
