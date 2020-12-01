@@ -89,13 +89,13 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     private appInsights: any = null;
     prebuiltTypes: IPrebuiltTypes[] = [
         {
+            name: "Invoice",
+            servicePath: "/prebuilt/invoice/analyze"
+        },
+        {
             name: "Receipt",
             servicePath: "/prebuilt/receipt/analyze",
             useLocale:true,
-        },
-        {
-            name: "Invoice",
-            servicePath: "/prebuilt/invoice/analyze"
         },
         {
             name: "Business card",
