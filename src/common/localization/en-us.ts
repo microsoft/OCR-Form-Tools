@@ -261,13 +261,17 @@ export const english: IAppStrings = {
         serviceConfigurationTitle: "Service configuration",
         serviceEndpointTitle: "Form recognizer service endpoint",
         apiKeyTitle: "API key",
+        endpointTooltip: "e.g: https://xxx.cognitiveservices.azure.com/",
+        endpointPlaceholder: "need endpoint",
+        apiKeyTooltip: "get key info from Azure Subscription Resource Keys & Endpoint page",
+        apiKeyPlaceholder: "need apikey",
     },
     documentFilePicker: {
         source: "Source",
         localFile: "Local file",
         url: "URL",
     },
-    layoutPredict: {
+    layoutPredict:{
         layout: "Layout",
         title: "Layout analyze",
         inProgress: "Analysis in progress...",

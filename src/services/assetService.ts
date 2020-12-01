@@ -29,37 +29,6 @@ interface IMime {
     pattern: (number | undefined)[];
 }
 
-// tslint:disable number-literal-format
-// tslint:disable no-magic-numbers
-const imageMimes: IMime[] = [
-    {
-        types: ["bmp"],
-        pattern: [0x42, 0x4d],
-    },
-    {
-        types: ["png"],
-        pattern: [0x89, 0x50, 0x4e, 0x47],
-    },
-    {
-        types: ["jpeg", "jpg"],
-        pattern: [0xff, 0xd8, 0xff],
-    },
-    {
-        types: ["tif"],
-        pattern: [0x49, 0x49, 0x2a, 0x00],
-    },
-    {
-        types: ["tiff"],
-        pattern: [0x4d, 0x4d, 0x00, 0x2a],
-    },
-    {
-        types: ["pdf"],
-        pattern: [0x25, 0x50, 0x44, 0x46, 0x2d],
-    },
-];
-// We can expand this list @see https://mimesniff.spec.whatwg.org/#matching-an-image-type-pattern
-// const mimeBytesNeeded: number = (Math.max(...imageMimes.map((m) => m.pattern.length)) - 1);
-
 /**
  * @name - Asset Service
  * @description - Functions for dealing with project assets

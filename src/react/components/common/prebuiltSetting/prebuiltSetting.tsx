@@ -1,4 +1,4 @@
-import {DefaultButton, FontIcon, TextField} from '@fluentui/react';
+import {DefaultButton, FontIcon, TextField, TooltipHost} from '@fluentui/react';
 import React from 'react';
 import {strings} from '../../../../common/strings';
 import {getGreenWithWhiteBackgroundTheme, getPrimaryGreyTheme} from '../../../../common/themes';
@@ -25,25 +25,36 @@ export class PrebuiltSetting extends React.Component<IPrebuiltSettingProps, IPre
         const {disabled} = this.props;
         return <>
             <div className="p-3 prebuilt-setting" style={{marginTop: "8px"}}>
+
                 <h5>{strings.prebuiltSetting.serviceConfigurationTitle}</h5>
                 <div style={{marginBottom: "3px"}}>{strings.prebuiltSetting.serviceEndpointTitle}</div>
-                <TextField
-                    className="mb-1"
-                    theme={getGreenWithWhiteBackgroundTheme()}
-                    value={this.props.prebuiltSettings?.serviceURI}
-                    onChange={this.setInputedServiceURI}
-                    disabled={disabled}
-                />
-                <div style={{marginBottom: "3px"}}>{strings.prebuiltSetting.apiKeyTitle}</div>
-                <div className="apikeyContainer">
+                <TooltipHost
+                    content={strings.prebuiltSetting.endpointTooltip}>
                     <TextField
-                        className="apikey"
+                        className="mb-1"
+                        name="endpointUrl"
+                        placeholder={strings.prebuiltSetting.endpointPlaceholder}
                         theme={getGreenWithWhiteBackgroundTheme()}
-                        type={this.state.showInputedAPIKey ? "text" : "password"}
-                        value={this.props.prebuiltSettings?.apiKey}
-                        onChange={this.setInputedAPIKey}
+                        value={this.props.prebuiltSettings?.serviceURI}
+                        onChange={this.setInputedServiceURI}
                         disabled={disabled}
                     />
+                </TooltipHost>
+                <div style={{marginBottom: "3px"}}>{strings.prebuiltSetting.apiKeyTitle}</div>
+                <div className="apikeyContainer">
+                    <TooltipHost
+                        content={strings.prebuiltSetting.apiKeyTooltip}>
+                        <TextField
+                            className="apikey"
+                            name="apikey"
+                            placeholder={strings.prebuiltSetting.apiKeyPlaceholder}
+                            theme={getGreenWithWhiteBackgroundTheme()}
+                            type={this.state.showInputedAPIKey ? "text" : "password"}
+                            value={this.props.prebuiltSettings?.apiKey}
+                            onChange={this.setInputedAPIKey}
+                            disabled={disabled}
+                        />
+                    </TooltipHost>
                     <DefaultButton
                         className="portected-input-margin"
                         theme={getPrimaryGreyTheme()}

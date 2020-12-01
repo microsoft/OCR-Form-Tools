@@ -256,15 +256,19 @@ export const spanish: IAppStrings = {
         runAnalysis: "Ejecutar análisis",
         noFieldCanBeExtracted: "No se puede extraer ningún campo."
     },
-    prebuiltSetting: {
-        serviceConfigurationTitle: "Configuración del servicio",
-        serviceEndpointTitle: "Punto final del servicio del reconocedor de formularios",
-        apiKeyTitle: "Clave API",
-    },
     documentFilePicker: {
         source: "Fuente",
         localFile: "Archivo local",
         url: "URL"
+    },
+    prebuiltSetting: {
+        serviceConfigurationTitle: "Configuración del servicio",
+        serviceEndpointTitle: "Punto final del servicio del reconocedor de formularios",
+        apiKeyTitle: "Clave API",
+        endpointTooltip: "Establecer el punto final eg: https://xxx.cognitiveservices.azure.com/",
+        endpointPlaceholder: "necesita punto final",
+        apiKeyTooltip: "Obtener información clave de la página de claves de recursos y terminales de suscripción de Azure",
+        apiKeyPlaceholder: "necesita apiKey"
     },
     layoutPredict: {
         layout: "Diseño",

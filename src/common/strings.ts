@@ -259,12 +259,16 @@ export interface IAppStrings {
         serviceConfigurationTitle: string;
         serviceEndpointTitle: string;
         apiKeyTitle: string;
-    },
+        endpointTooltip: string;
+        endpointPlaceholder: string;
+        apiKeyTooltip: string;
+        apiKeyPlaceholder: string;
+    };
     documentFilePicker: {
         source: string;
         localFile: string;
         url: string;
-    },
+    };
     layoutPredict: {
         layout: string;
         title: string;
