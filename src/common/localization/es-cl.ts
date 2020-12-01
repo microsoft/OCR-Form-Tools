@@ -708,8 +708,8 @@ export const spanish: IAppStrings = {
             message: "",
         },
         endpointConnectionError: {
-            title: "",
-            message: "",
+            title: "Error al conectarse al punto final",
+            message: "No se puede conectar a $ {endpoint} \"${apiUriBase}\". Asegúrese de que la conexión de red sea buena y que el punto final especificado sea correcto.",
         },
         tooManyRequests: {
             title: "",

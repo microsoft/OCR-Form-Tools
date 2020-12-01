@@ -65,15 +65,15 @@ export const english: IAppStrings = {
             title: "Use prebuilt model to get data",
             description: "Start with a pre-built model to extract data from your forms – Invoices, Receipts, Business cards and more. Submit your data and get results right away."
         },
-        layoutPredict:{
-            title:"Use Layout to get text, tables and selection marks",
-            description:"Try out the Form Recognizer Layout service to extract text, tables, selection marks and the structure of your document."
+        layoutPredict: {
+            title: "Use Layout to get text, tables and selection marks",
+            description: "Try out the Form Recognizer Layout service to extract text, tables, selection marks and the structure of your document."
         },
-        trainWithLabels:{
-            title:"Use Custom to train a model with labels and get key value pairs",
-            description:"You provide your own training data and do the learning. The model you create can train to your industry-specific forms."
+        trainWithLabels: {
+            title: "Use Custom to train a model with labels and get key value pairs",
+            description: "You provide your own training data and do the learning. The model you create can train to your industry-specific forms."
         },
-        quickStartGuide:"Quick start guide",
+        quickStartGuide: "Quick start guide",
     },
     appSettings: {
         title: "Application Settings",
@@ -245,7 +245,7 @@ export const english: IAppStrings = {
         inProgress: "Analysis in progress...",
         anlayWithPrebuiltModels: "Analyze ${name} (preview)",
     },
-    layoutPredict:{
+    layoutPredict: {
         title: "Layout analyze",
         inProgress: "Analysis in progress...",
     },
@@ -298,19 +298,19 @@ export const english: IAppStrings = {
             notCompatibleTagType: "Tag type is not compatible with this feature. If you want to change type of this tag, please remove or reassign all labels which using this tag in your project.",
             checkboxPerTagLimit: "Cannot assign more than one checkbox per tag",
             notCompatibleWithDrawnRegionTag: "Drawn regions and ${otherCatagory} values cannot both be assigned to the same document's tag",
-            replaceAllExitingLabels:"Are you sure you want to replace selected tag's labels?",
-            replaceAllExitingLabelsTitle:"Replace tag's labels",
+            replaceAllExitingLabels: "Are you sure you want to replace selected tag's labels?",
+            replaceAllExitingLabelsTitle: "Replace tag's labels",
         },
-        preText:{
-            autoLabel:"Auto-labeled: ",
-            revised:"Revised: ",
+        preText: {
+            autoLabel: "Auto-labeled: ",
+            revised: "Revised: ",
         },
         toolbar: {
             add: "Add new tag",
             onlyShowCurrentPageTags: "Only show tags used in current page",
             showAllTags: "Show all tags",
-            showOriginLabels:"Show origin labels",
-            hideOriginLabels:"Hide origin labels",
+            showOriginLabels: "Show origin labels",
+            hideOriginLabels: "Hide origin labels",
             contextualMenu: "Contextual Menu",
             delete: "Delete tag",
             edit: "Edit tag",
@@ -708,7 +708,7 @@ export const english: IAppStrings = {
         },
         endpointConnectionError: {
             title: "Error connecting to endpoint",
-            message: "Cannot connect to ${endpoint}. Please make sure the network connection is good and specified endpoint is correct.",
+            message: "Cannot connect to ${endpoint} \"${apiUriBase}\". Please make sure the network connection is good and specified endpoint is correct.",
         },
         tooManyRequests: {
             title: "Too many requests",
