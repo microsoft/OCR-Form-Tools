@@ -95,12 +95,12 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         {
             name: "Receipt",
             servicePath: "/prebuilt/receipt/analyze",
-            useLocale:true,
+            useLocale: true,
         },
         {
             name: "Business card",
             servicePath: "/prebuilt/businessCard/analyze",
-            useLocale:true,
+            useLocale: true,
         },
         {
             name: "ID",
@@ -698,7 +698,8 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
     private getPredictionsFromAnalyzeResult(analyzeResult: any) {
         if (analyzeResult) {
-            const predictions = _.get(analyzeResult, "documentResults[0].fields", {});
+            const predictions = analyzeResult?.documentResults?.map(item => item.fields)
+                .reduce((val, item) => Object.assign(val, item), ({})) ?? {};
             const predictionsCopy = Object.assign({}, predictions);
             delete predictionsCopy.ReceiptType;
 
@@ -709,6 +710,9 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                         Object.keys(item.valueObject).forEach(key => {
                             result[`${itemName}: ${key}`] = item.valueObject[key];
                         });
+                        if (item.text) {
+                            result[itemName] = item;
+                        }
                     }
                     else {
                         result[itemName] = item;
@@ -737,7 +741,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             }
             return predictionResult;
         } else {
-            return _.get(analyzeResult, "documentResults[0].fields", {});
+            return {};
         }
     }
 

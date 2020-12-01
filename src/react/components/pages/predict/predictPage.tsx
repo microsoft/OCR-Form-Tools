@@ -25,8 +25,8 @@ import {
     getPrimaryGreenTheme, getPrimaryWhiteTheme,
     getRightPaneDefaultButtonTheme
 } from "../../../../common/themes";
-import { getAPIVersion } from "../../../../common/utils";
-import { AppError, ErrorCode, IApplicationState, IAppSettings, IConnection, IProject, IRecentModel } from "../../../../models/applicationState";
+import {getAPIVersion} from "../../../../common/utils";
+import {AppError, ErrorCode, IApplicationState, IAppSettings, IConnection, IProject, IRecentModel} from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -870,7 +870,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private getPredictionsFromAnalyzeResult(analyzeResult: any) {
-        return _.get(analyzeResult, "documentResults[0].fields", {});
+        return analyzeResult?.documentResults?.map(item => item.fields)
+            .reduce((val, item) => Object.assign(val, item), ({})) ?? {};
     }
 
     private getAnalyzeModelInfo(analyzeResult) {
