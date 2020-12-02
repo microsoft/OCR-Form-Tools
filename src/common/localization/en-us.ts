@@ -316,6 +316,7 @@ export const english: IAppStrings = {
                     emptyTagName: "Please assign name for your table tag.",
                     emptyName: "Name cannot be empty",
                     notUniqueName: "Name should be unique",
+                    notCompatibleTableColOrRowType: "\${kind}\ type is not compatible with this type. If you want to change type of this \${kind}\, please remove or assign all labels which using this \${kind}\ in your project.",
                 }
             },
             tableLabeling: {

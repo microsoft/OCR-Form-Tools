@@ -475,3 +475,15 @@ export function downloadAsJsonFile(data: any, fileName: string, prefix?: string)
     document.body.appendChild(fileLink);
     fileLink.click();
 }
+
+export function  getTagCategory (tagType: string) {
+    switch (tagType) {
+        case FieldType.SelectionMark:
+        case "checkbox":
+            return "checkbox";
+        case FieldType.Table:
+            return FieldType.Table;
+        default:
+            return "text";
+    }
+}

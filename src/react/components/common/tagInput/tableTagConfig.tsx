@@ -10,10 +10,10 @@ import {
 } from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme, getDefaultTheme } from '../../../../common/themes';
 import { FieldFormat, FieldType, IApplicationState, ITableRegion, ITableTag, ITag, TableElements, TagInputMode } from '../../../../models/applicationState';
-import { filterFormat, useDebounce } from "../../../../common/utils";
+import { filterFormat, getTagCategory, useDebounce } from "../../../../common/utils";
 import { toast } from "react-toastify";
 import "./tableTagConfig.scss";
-import { strings } from "../../../../common/strings";
+import { interpolate, strings } from "../../../../common/strings";
 import _ from "lodash";
 
 interface ITableTagConfigProps {
@@ -45,6 +45,7 @@ interface ITableConfigItem {
     originalName?: string;
     originalFormat?: string,
     originalType?: string;
+    documentCount?: number
 }
 
 const tableFormatOptions: IChoiceGroupOption[] = [
@@ -106,6 +107,8 @@ const typeOptions = () => {
     return options;
 };
 
+const defaultRowOrColumn = { name: "", type: FieldType.String, format: FieldFormat.NotSpecified, documentCount: 0 };
+
 /**
  * @name - Table tag configuration
  * @description - Configures table tag (assigns row's/column's headers and their respective data types and formats)
@@ -124,8 +127,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             table = {
                 name: {tableName: props.tableTag.name, originalTableName: props.tableTag.name},
                 format: FieldFormat.Fixed,
-                rows: props.tableTag.rowKeys?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat, originalName: row.fieldKey, originalFormat: row.fieldFormat, originalType: row.fieldType })),
-                columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType })),
+                rows: props.tableTag.rowKeys?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat, originalName: row.fieldKey, originalFormat: row.fieldFormat, originalType: row.fieldType, documentCount: row.documentCount })),
+                columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType, documentCount: col.documentCount })),
                 headerTypeAndFormat: TableElements.columns,
                 deletedColumns: [],
                 deletedRows: [],
@@ -134,8 +137,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             table = {
                 name: { tableName: props.tableTag.name, originalTableName: props.tableTag.name },
                 format: FieldFormat.RowDynamic,
-                rows: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
-                columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType })),
+                rows: [defaultRowOrColumn],
+                columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType, documentCount: col.documentCount  })),
                 headerTypeAndFormat: TableElements.columns,
                 deletedColumns: [],
             }
@@ -145,8 +148,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         table = {
             name: {tableName: ""},
             format: FieldFormat.Fixed,
-            rows: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
-            columns: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
+            rows: [defaultRowOrColumn],
+            columns: [defaultRowOrColumn],
             headerTypeAndFormat: TableElements.columns,
         };
     }
@@ -165,17 +168,43 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     // const [headerTypeAndFormat, setHeaderTypeAndFormat] = useState<string>(table.headerTypeAndFormat);
     const [shouldAutoFocus, setShouldAutoFocus] = useState(null);
 
-    function selectColumnType(idx: number, type: string) {
-        setColumns(columns.map((col, currIdx) => idx === currIdx ? { ...col, type, format: FieldFormat.NotSpecified } : col
-        ));
+
+    const isCompatibleWithType = (documentCount: number, type: string, newType: string) => {
+        return documentCount  <= 0 ? true : getTagCategory(type) === getTagCategory(newType);
+    }
+
+    function selectColumnType(idx: number, type: string, docCount: number) {
+        setColumns(columns.map((col, currIdx) => {
+            if (idx === currIdx) {
+                if (isCompatibleWithType(docCount, col.originalType, type))
+                    return { ...col, type, format: FieldFormat.NotSpecified }
+                else {
+                    toast.warn(_.capitalize(interpolate(strings.tags.regionTableTags.configureTag.errors.notCompatibleTableColOrRowType, { kind: "column" })));
+                    return col;
+                }
+            } else {
+                return col
+            }
+        }));
+    }
+
+    function selectRowType(idx: number, type: string, docCount: number) {
+        setRows(rows.map((row, currIdx) => {
+            if (idx === currIdx) {
+                if (isCompatibleWithType(docCount, row.originalType, type))
+                    return { ...row, type, format: FieldFormat.NotSpecified }
+                else {
+                    toast.warn(_.capitalize(interpolate(strings.tags.regionTableTags.configureTag.errors.notCompatibleTableColOrRowType, { kind: "row" })));
+                    return row;
+                }
+            } else {
+                return row
+            }
+        }));
     }
 
     function selectColumnFormat(idx: number, format: string) {
         setColumns(columns.map((col, currIdx) => idx === currIdx ? { ...col, format } : col
-        ));
-    }
-    function selectRowType(idx: number, type: string) {
-        setRows(rows.map((row, currIdx) => idx === currIdx ? { ...row, type, format: FieldFormat.NotSpecified } : row
         ));
     }
 
@@ -232,9 +261,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         defaultSelectedKey={FieldType.String}
                         options={typeOptions()}
                         theme={getGreenWithWhiteBackgroundTheme()}
-                        onChange={(e, val) => {
-                            selectColumnType(index, val.text);
-                        }}
+                        onChange={(e, val) => selectColumnType(index, val.text, row.documentCount)}
                     />
                 </Customizer>
                 : <></>
@@ -305,9 +332,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         defaultSelectedKey={FieldType.String}
                         options={typeOptions()}
                         theme={getGreenWithWhiteBackgroundTheme()}
-                        onChange={(e, val) => {
-                            selectRowType(index, val.text);
-                        }}
+                        onChange={(e, val) => selectRowType(index, val.text, row.documentCount)}
                     />
                 </Customizer>
                 : <></>
@@ -338,12 +363,12 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
 
     function addColumn() {
-        setColumns([...columns, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified }]);
+        setColumns([...columns, defaultRowOrColumn]);
         setShouldAutoFocus(TableElements.column);
     }
 
     function addRow() {
-        setRows([...rows, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified }]);
+        setRows([...rows, defaultRowOrColumn]);
         setShouldAutoFocus(TableElements.row);
     }
 

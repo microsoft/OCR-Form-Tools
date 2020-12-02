@@ -333,6 +333,7 @@ export interface IAppStrings {
                     emptyTagName: string,
                     emptyName: string,
                     notUniqueName: string,
+                    notCompatibleTableColOrRowType: string;
                 },
             },
             tableLabeling: {

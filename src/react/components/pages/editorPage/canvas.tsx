@@ -1469,8 +1469,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                             formRegion.boundingBoxes.forEach((boundingBox, boundingBoxIndex) => {
                                 const text = this.getBoundingBoxTextFromRegion(formRegion, boundingBoxIndex);
                                 const tx = {...this.createRegion(boundingBox, text, tableLabel.tableKey, formRegion.page, undefined), rowKey: tableCell.rowKey, columnKey: tableCell.columnKey, isTableRegion: true} as ITableRegion;
-                                console.log("tx", tx)
-
+                                // console.log("tx", tx)
                                 regions.push(tx);
                             });
                         }

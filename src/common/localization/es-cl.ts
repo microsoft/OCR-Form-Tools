@@ -315,6 +315,7 @@ export const spanish: IAppStrings = {
                     emptyTagName: "Asigne un nombre para la etiqueta de su mesa.",
                     emptyName: "El nombre no puede estar vacío",
                     notUniqueName: "El nombre debe ser único",
+                    notCompatibleTableColOrRowType: "El tipo $ {kind} no es compatible con este tipo. Si desea cambiar el tipo de este $ {kind}, elimine o asigne todas las etiquetas que usan este $ {kind} en su proyecto."
                 }
             },
             tableLabeling: {

@@ -9,7 +9,7 @@ import {
 import { strings, interpolate } from "../../../../common/strings";
 import { getDarkTheme, getPrimaryRedTheme } from "../../../../common/themes";
 import { AlignPortal } from "../align/alignPortal";
-import { filterFormat, getNextColor } from "../../../../common/utils";
+import { filterFormat, getNextColor, getTagCategory } from "../../../../common/utils";
 import {
     IRegion, ITag, ILabel, FieldType, FieldFormat,
     TagInputMode, FeatureCategory, ITableTag, ITableRegion,
@@ -559,7 +559,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             if (selectedRegions && selectedRegions.length && onTagClick) {
                 const { category } = selectedRegions[0];
                 const { format, type, documentCount, name } = tag;
-                const tagCategory = this.getTagCategory(type);
+                const tagCategory = getTagCategory(type);
                 const isTagLabelTypeDrawnRegion = this.labelAssignedDrawnRegion(labels, tag.name);
                 const labelAssigned = this.labelAssigned(labels, name);
 
@@ -637,18 +637,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             return true;
         } else {
             return false;
-        }
-    }
-
-    public getTagCategory = (tagType: string) => {
-        switch (tagType) {
-            case FieldType.SelectionMark:
-            case "checkbox":
-                return "checkbox";
-            case FieldType.Table:
-                return FieldType.Table;
-            default:
-                return "text";
         }
     }
 
@@ -836,8 +824,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         if (tag && tag.documentCount <= 0 && tag.type !== FieldType.Table) {
             return true;
         }
-        const tagType = this.getTagCategory(tag.type);
-        const menuItemType = this.getTagCategory(type);
+        const tagType = getTagCategory(tag.type);
+        const menuItemType = getTagCategory(type);
         return tagType === menuItemType;
     }
     // here

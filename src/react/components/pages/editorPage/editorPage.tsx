@@ -31,7 +31,7 @@ import EditorSideBar from "./editorSideBar";
 import Alert from "../../common/alert/alert";
 import Confirm from "../../common/confirm/confirm";
 import { OCRService, OcrStatus } from "../../../../services/ocrService";
-import { throttle } from "../../../../common/utils";
+import { getTagCategory, throttle } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
@@ -703,7 +703,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         if (tag && selection.length) {
             const { format, type, documentCount, name } = tag;
-            const tagCategory = this.tagInputRef.current.getTagCategory(tag.type);
+            const tagCategory = getTagCategory(tag.type);
             const category = selection[0].category;
             const labels = this.state.selectedAsset.labelData?.labels;
             const isTagLabelTypeDrawnRegion = this.tagInputRef.current.labelAssignedDrawnRegion(labels, tag.name);
