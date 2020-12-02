@@ -242,7 +242,13 @@ export interface IAppStrings {
         uploadFile: string;
         inProgress: string;
         anlayWithPrebuiltModels: string;
-    }
+    };
+    prebuiltSetting:{
+        endpointTooltip: string;
+        endpointPlaceholder: string;
+        apiKeyTooltip: string;
+        apiKeyPlaceholder: string;
+    };
     layoutPredict:{
         title:string;
         inProgress: string;
