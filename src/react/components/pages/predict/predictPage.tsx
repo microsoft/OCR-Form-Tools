@@ -46,7 +46,7 @@ import PredictResult, { IAnalyzeModelInfo, ITableResultItem } from "./predictRes
 import RecentModelsView from "./recentModelsView";
 import { UploadToTrainingSetView } from "./uploadToTrainingSetView";
 import { CanvasCommandBar } from "../editorPage/canvasCommandBar";
- import table_output2 from "./new_prediction_response (1).json"
+ import table_output2 from "./response-one-table-only.json"
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 
@@ -914,16 +914,17 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             const field = fields[fieldName];
             if (field.type === "object") {
                 Object.keys(field?.valueObject).forEach((rowName, rowIndex) => {
-                    Object.keys(field?.valueObject?.[rowName]?.valueObject).forEach((columnName, colIndex) => {
-                        console.log(rowName, columnName, field)
-                        const tableCell = field?.valueObject?.[rowName]?.valueObject?.[columnName];
-                        if (tableCell?.page === this.state.currentPage) {
-                            const text = fieldName;
-                            const boundingbox = _.get(tableCell, "boundingBox", []);
-                            const feature = this.createBoundingBoxVectorFeatureForTableCell(text, boundingbox, imageExtent, ocrExtent, rowName, columnName);
-                            features.push(feature);
-                        }
-                    })
+                    if (field?.valueObject?.[rowName]) {
+                        Object.keys(field?.valueObject?.[rowName]?.valueObject).forEach((columnName, colIndex) => {
+                            const tableCell = field?.valueObject?.[rowName]?.valueObject?.[columnName];
+                            if (tableCell?.page === this.state.currentPage) {
+                                const text = fieldName;
+                                const boundingbox = _.get(tableCell, "boundingBox", []);
+                                const feature = this.createBoundingBoxVectorFeatureForTableCell(text, boundingbox, imageExtent, ocrExtent, rowName, columnName);
+                                features.push(feature);
+                            }
+                        })
+                    }
                 })
             }
             else if (field.type === "array") {
@@ -1123,23 +1124,36 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                         {rowName}
                     </th>
                 );
-                Object.keys(regionalTableToView?.valueObject?.[rowName]?.valueObject)?.forEach((columnName, index) => {
-                    const tableCell = regionalTableToView?.valueObject?.[rowName]?.valueObject?.[columnName];
-                    tableRow.push(
-                        <td
-                            className={"table-cell"}
-                            key={index + 1}
-                            onMouseEnter={() => {
-                                this.setState({ highlightedTableCellRowKey: rowName, highlightedTableCellColumnKey: columnName })
-                            }}
-                            onMouseLeave={() => {
-                                this.setState({ highlightedTableCellRowKey: null, highlightedTableCellColumnKey: null })
-                            }}
-                        >
-                            {tableCell ? tableCell.text : null }
-                        </td>
-                    );
-                });
+                if (regionalTableToView?.valueObject?.[rowName]) {
+                    Object.keys(regionalTableToView?.valueObject?.[rowName]?.valueObject)?.forEach((columnName, index) => {
+                        const tableCell = regionalTableToView?.valueObject?.[rowName]?.valueObject?.[columnName];
+                        tableRow.push(
+                            <td
+                                className={"table-cell"}
+                                key={index + 1}
+                                onMouseEnter={() => {
+                                    this.setState({ highlightedTableCellRowKey: rowName, highlightedTableCellColumnKey: columnName })
+                                }}
+                                onMouseLeave={() => {
+                                    this.setState({ highlightedTableCellRowKey: null, highlightedTableCellColumnKey: null })
+                                }}
+                            >
+                                {tableCell ? tableCell.text : null }
+                            </td>
+                        );
+                    });
+                } else {
+                    colKeys.forEach((columnName, index) => {
+                        tableRow.push(
+                            <td
+                                className={"table-cell"}
+                                key={index + 1}
+                            >
+                                {null }
+                            </td>
+                        );
+                    })
+                }
                 tableBody.push(<tr key={index + 1}>{tableRow}</tr>);
             });
         }
