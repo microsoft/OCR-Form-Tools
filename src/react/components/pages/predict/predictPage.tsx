@@ -1072,6 +1072,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     );
                 }
             }
+            tableBody.push(<tr key={0}>{columnHeaderRow}</tr>);
             regionalTableToView?.valueArray?.forEach((row, rowIndex) => {
                 const tableRow = [];
                 tableRow.push(
@@ -1096,11 +1097,11 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                         </td>
                     );
                 })
-                tableBody.push(<tr key={rowIndex}>{tableRow}</tr>);
+                tableBody.push(<tr key={(rowIndex + 1)}>{tableRow}</tr>);
             })
         }  else {
             const columnHeaderRow = [];
-            const colKeys = Object.keys(regionalTableToView?.valueObject?.[Object.keys(regionalTableToView?.valueObject)?.[0]]);
+            const colKeys = Object.keys(regionalTableToView?.valueObject?.[Object.keys(regionalTableToView?.valueObject)?.[0]].valueObject);
             for (let i = 0; i < colKeys.length + 1; i++) {
                 if (i === 0) {
                     columnHeaderRow.push(
@@ -1114,6 +1115,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     );
                 }
             }
+            tableBody.push(<tr key={0}>{columnHeaderRow}</tr>);
             Object.keys(regionalTableToView?.valueObject).forEach((rowName, index) => {
                 const tableRow = [];
                 tableRow.push(
@@ -1138,68 +1140,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                         </td>
                     );
                 });
-                tableBody.push(<tr key={index}>{tableRow}</tr>);
+                tableBody.push(<tr key={index + 1}>{tableRow}</tr>);
             });
         }
-        // let rows;
-        // if (regionalTableToView.type === FieldFormat.RowDynamic) {
-        //     rows = Object.keys(regionalTableToView.values);
-        // } else {
-        //     rows = regionalTableToView.rowKeys;
-        // }
-        // const columns= regionalTableToView.columnKeys;
-        // const Table = regionalTableToView.values;
-
-        // if (rows?.length > 0 && columns?.length > 0) {
-        //     tableBody = [];
-        //     for (let i = 0; i < rows.length + 1; i++) {
-        //         if (i > 0) {
-        //             rowName = rows[i-1];
-        //         }
-        //         const tableRow = [];
-        //         for (let j = 0; j < columns.length + 1; j++) {
-        //             if (j > 0) {
-        //                 columnName = columns[j-1];
-        //             }
-        //             if (i === 0 && j !== 0) {
-        //                 tableRow.push(
-        //                     <th key={j} className={"column_header"}>
-        //                         {columns[j - 1]}
-        //                     </th>
-        //                 );
-        //             } else if (j === 0 && i !== 0) {
-        //                 tableRow.push(
-        //                     <th key={j} className={`row_header ${ regionalTableToView.type === FieldFormat.RowDynamic ? "hidden" : ""}`}>
-        //                         {rows[i - 1]}
-        //                     </th>
-        //                 );
-        //             } else if (j === 0 && i === 0) {
-        //                 tableRow.push(
-        //                     <th key={j} className={`empty_header  ${regionalTableToView.type === FieldFormat.RowDynamic ? "hidden" : ""}`}/>
-        //                 );
-        //             } else {
-        //                 const tableCell = Table?.[rowName]?.[columnName];
-        //                 tableRow.push(
-        //                     <td
-        //                         className={"table-cell"}
-        //                         key={j}
-        //                         onMouseEnter={() => {
-        //                             console.log(rows[i - 1], columns[j - 1]);
-        //                             this.setState({ highlightedTableCellRowKey: rows[i - 1], highlightedTableCellColumnKey: columns[j - 1] })
-        //                         }}
-        //                         onMouseLeave={() => {
-        //                             console.log(rows[i - 1], columns[j - 1]);
-        //                             this.setState({ highlightedTableCellRowKey: null, highlightedTableCellColumnKey: null })
-        //                         }}
-        //                     >
-        //                         {tableCell ? tableCell.valueString : null }
-        //                     </td>
-        //                 );
-        //             }
-        //         }
-        //         tableBody.push(<tr key={i}>{tableRow}</tr>);
-        //     }
-        // }
 
         return (
             <div>
@@ -1207,7 +1150,11 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     <span style={{ borderBottom: `4px solid ${this.state.tableTagColor}`}}>Table name: {regionalTableToView.fieldName}</span>
                 </h5>
                 <div className="table-view-container">
-                    {tableBody}
+                    <table>
+                        <tbody>
+                            {tableBody}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         );
