@@ -1502,7 +1502,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         if (labelType) {
                             label.labelType = labelType;
                         } else {
-                            delete label.labelType
+                            delete label.labelType;
                         }
                     }
                     label.value.push(formRegion);
