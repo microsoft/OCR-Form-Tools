@@ -6,6 +6,7 @@ import {
     IconButton,
     ITooltipHostStyles,
     PrimaryButton,
+    Separator,
     Spinner,
     SpinnerSize,
     TooltipHost
@@ -33,6 +34,7 @@ import ServiceHelper from "../../../../services/serviceHelper";
 import Alert from "../../common/alert/alert";
 import {DocumentFilePicker} from "../../common/documentFilePicker/documentFilePicker";
 import {ImageMap} from "../../common/imageMap/imageMap";
+import {PageRange} from "../../common/pageRange/pageRange";
 import {PrebuiltSetting} from "../../common/prebuiltSetting/prebuiltSetting";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import {CanvasCommandBar} from "../editorPage/canvasCommandBar";
@@ -71,6 +73,10 @@ interface ILayoutPredictPageState extends ITableState {
     fetchedFileURL: string;
     layoutData: any;
     imageAngle: number;
+
+    withPageRange: boolean;
+    pageRange: string;
+    pageRangeIsValid?: boolean;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -116,6 +122,9 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
         hoveringFeature: null,
         tableToView: null,
         tableToViewId: null,
+
+        withPageRange: false,
+        pageRange: ""
     };
 
     private imageMap: ImageMap;
@@ -153,14 +162,18 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
             });
     }
 
-    render() {
-
-        const analyzeDisabled: boolean = this.state.isFetching || !this.state.file
+    getAnalyzeDisabled = () => {
+        return this.state.isFetching || !this.state.file
             || this.state.invalidFileFormat ||
             !this.state.fileLoaded ||
             this.state.isAnalyzing ||
             !this.props.prebuiltSettings?.apiKey ||
-            !this.props.prebuiltSettings?.serviceURI;
+            !this.props.prebuiltSettings?.serviceURI ||
+            (this.state.withPageRange && !this.state.pageRangeIsValid);
+    }
+
+    render() {
+        const analyzeDisabled: boolean = this.getAnalyzeDisabled();
 
         return (
             <>
@@ -178,24 +191,34 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
                         <div className="condensed-list">
                             <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
                                 <FontIcon className="mr-1" iconName="KeyPhraseExtraction" />
-                                <span>Layout</span>
+                                <span>{strings.layoutPredict.layout}</span>
                             </h6>
                             <PrebuiltSetting prebuiltSettings={this.props.prebuiltSettings}
                                 disabled={this.state.isFetching || this.state.isAnalyzing}
                                 actions={this.props.actions}
                             />
-                            <div className="p-3" style={{marginTop: "8px"}}>
-                                <h5>Upload file and run layout</h5>
+                            <div className="p-3">
+                                <h5>{strings.layoutPredict.selectFileAndRunLayout}</h5>
                                 <DocumentFilePicker
                                     disabled={this.state.isFetching || this.state.isAnalyzing}
                                     onFileChange={(data) => this.onFileChange(data)}
                                     onSelectSourceChange={() => this.onSelectSourceChange()}
                                     onError={(err) => this.onFileLoadError(err)} />
+                                <div className="page-range-section">
+                                    <PageRange
+                                        disabled={this.state.isFetching || this.state.isAnalyzing}
+                                        withPageRange={this.state.withPageRange}
+                                        pageRange={this.state.pageRange}
+                                        onPageRangeChange={this.onPageRangeChange} />
+                                </div>
+                            </div>
+                            <Separator className="separator-right-pane-main">{strings.layoutPredict.analysis}</Separator>
+                            <div className="p-3" style={{marginTop: "8px"}}>
                                 <div className="container-items-end predict-button">
                                     <PrimaryButton
                                         theme={getPrimaryWhiteTheme()}
                                         iconProps={{iconName: "KeyPhraseExtraction"}}
-                                        text="Run Layout"
+                                        text={strings.layoutPredict.runLayout}
                                         aria-label={!this.state.analyzationLoaded ? strings.layoutPredict.inProgress : ""}
                                         allowDisabledFocus
                                         disabled={analyzeDisabled}
@@ -224,11 +247,11 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
                                 }
                                 {this.state.layoutData && !this.state.isAnalyzing &&
                                     <div className="container-items-center container-space-between results-container">
-                                        <h5 className="results-header">Layout results</h5>
+                                        <h5 className="results-header">{strings.layoutPredict.layoutResults}</h5>
                                         <PrimaryButton
                                             className="align-self-end keep-button-80px"
                                             theme={getPrimaryGreenTheme()}
-                                            text="Download"
+                                            text={strings.layoutPredict.download}
                                             allowDisabledFocus
                                             autoFocus={true}
                                             onClick={this.onDownloadClick}
@@ -256,6 +279,10 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
                 </div>
             </>
         )
+    }
+
+    onPageRangeChange = (withPageRange: boolean, pageRange: string, pageRangeIsValid: boolean) => {
+        this.setState({withPageRange, pageRange, pageRangeIsValid});
     }
 
     onDownloadClick = () => {
@@ -531,10 +558,13 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
     }
 
     private async getAnalzation(): Promise<any> {
-        const endpointURL = url.resolve(
+        let endpointURL = url.resolve(
             this.props.prebuiltSettings.serviceURI,
             `/formrecognizer/${constants.prebuiltServiceVersion}/layout/analyze`,
         );
+        if (this.state.withPageRange && this.state.pageRangeIsValid) {
+            endpointURL += `?pageRange=${this.state.pageRange}`;
+        }
         const apiKey = this.props.prebuiltSettings.apiKey;
 
         const headers = {

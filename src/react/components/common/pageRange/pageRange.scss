@@ -1,0 +1,25 @@
+.page-range {
+    display: flex;
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+
+    margin-bottom: 10px;
+    .page-range-text {
+        flex: 1;
+        input[name="pagerange"] {
+            width: 100%;
+        }
+        .page-range-alert {
+            border: 1px solid red;
+        }
+    }
+    .ms-Checkbox {
+        height: 32px;
+        display: flex;
+        align-items: center;
+        label {
+            margin: auto;
+        }
+    }
+}
