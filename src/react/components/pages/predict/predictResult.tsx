@@ -2,11 +2,11 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { ITag } from "../../../../models/applicationState";
+import {ITag} from "../../../../models/applicationState";
 import "./predictResult.scss";
-import { getPrimaryGreenTheme } from "../../../../common/themes";
-import { PrimaryButton } from "@fluentui/react";
-import { strings } from "../../../../common/strings";
+import {getPrimaryGreenTheme} from "../../../../common/themes";
+import {PrimaryButton} from "@fluentui/react";
+import {strings} from "../../../../common/strings";
 
 export interface IAnalyzeModelInfo {
     docType: string,
@@ -15,7 +15,7 @@ export interface IAnalyzeModelInfo {
 }
 
 export interface IPredictResultProps {
-    predictions: { [key: string]: any };
+    predictions: {[key: string]: any};
     analyzeResult: {};
     downloadPrefix?: string;
     page: number;
@@ -31,7 +31,7 @@ export interface IPredictResultState { }
 
 export default class PredictResult extends React.Component<IPredictResultProps, IPredictResultState> {
     public render() {
-        const { tags, predictions } = this.props;
+        const {tags, predictions} = this.props;
         const tagsDisplayOrder = tags.map((tag) => tag.name);
         for (const name of Object.keys(predictions)) {
             const prediction = predictions[name];
@@ -99,22 +99,22 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                     </div>
                 </li>
                 {item.text === null ?
-                        <>
-                            <li className={postProcessedValue ? "predictiontag-item-label-null mt-0" : "predictiontag-item-label-null mt-0 mb-1"}>
-                                {postProcessedValue ? "text: NULL": "NULL"}
-                            </li>
-                        </>
+                    <>
+                        <li className={postProcessedValue ? "predictiontag-item-label-null mt-0" : "predictiontag-item-label-null mt-0 mb-1"}>
+                            {postProcessedValue ? "text: NULL": "NULL"}
+                        </li>
+                    </>
                     :
-                        <>
-                            <li className={postProcessedValue ? "predictiontag-item-label mt-0" : "predictiontag-item-label mt-0 mb-1"}>
-                                {postProcessedValue ? "text: " + item.text : item.text}
+                    <>
+                        <li className={postProcessedValue ? "predictiontag-item-label mt-0" : "predictiontag-item-label mt-0 mb-1"}>
+                            {postProcessedValue ? "text: " + item.text : item.text}
+                        </li>
+                        {postProcessedValue &&
+                            <li className="predictiontag-item-label mb-1">
+                                {postProcessedValue}
                             </li>
-                            {postProcessedValue &&
-                                <li className="predictiontag-item-label mb-1">
-                                    {postProcessedValue}
-                                </li>
-                            }
-                        </>
+                        }
+                    </>
                 }
             </div>
         );
@@ -139,7 +139,8 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                     }
                 </div>
                 <div className={"predictiontag-confidence"}>
-                    <span>{(item.confidence * 100).toFixed(2)+"%" }</span>
+                    {isNaN(item.confidence) ? <span>NaN</span> :
+                        <span>{(item.confidence * 100).toFixed(2) + "%"}</span>}
                 </div>
             </div>
         );
@@ -151,7 +152,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         }
     }
     private triggerDownload = (): void => {
-        const { analyzeResult } = this.props;
+        const {analyzeResult} = this.props;
         const predictionData = JSON.stringify(analyzeResult);
         const fileURL = window.URL.createObjectURL(new Blob([predictionData]));
         const fileLink = document.createElement("a");
