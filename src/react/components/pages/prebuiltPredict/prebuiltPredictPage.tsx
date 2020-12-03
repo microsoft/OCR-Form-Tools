@@ -108,6 +108,10 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             servicePath: "/prebuilt/businessCard/analyze",
             useLocale: true,
         },
+        {
+            name: "ID",
+            servicePath: "/prebuilt/idDocument/analyze"
+        }
     ];
 
     locales: string[] = ["en-AU", "en-CA", "en-GB", "en-IN", "en-US"];
@@ -738,6 +742,9 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                         Object.keys(item.valueObject).forEach(key => {
                             result[`${itemName}: ${key}`] = item.valueObject[key];
                         });
+                        if (item.text) {
+                            result[itemName] = item;
+                        }
                     }
                     else {
                         result[itemName] = item;
