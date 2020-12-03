@@ -5,6 +5,7 @@ import {
     Dropdown, FontIcon, IconButton, IDropdownOption,
     ITooltipHostStyles,
     PrimaryButton,
+    Separator,
     Spinner, SpinnerSize, TooltipHost
 } from "@fluentui/react";
 import _ from "lodash";
@@ -30,6 +31,7 @@ import {getAppInsights} from "../../../../services/telemetryService";
 import Alert from "../../common/alert/alert";
 import {DocumentFilePicker} from "../../common/documentFilePicker/documentFilePicker";
 import {ImageMap} from "../../common/imageMap/imageMap";
+import {PageRange} from "../../common/pageRange/pageRange";
 import {PrebuiltSetting} from "../../common/prebuiltSetting/prebuiltSetting";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import {CanvasCommandBar} from "../editorPage/canvasCommandBar";
@@ -37,8 +39,8 @@ import {TableView} from "../editorPage/tableView";
 import "../predict/predictPage.scss";
 import PredictResult from "../predict/predictResult";
 import {ILoadFileHelper, ILoadFileResult, LoadFileHelper} from "./LoadFileHelper";
-import {ITableHelper, ITableState, TableHelper} from "./tableHelper";
 import "./prebuiltPredictPage.scss";
+import {ITableHelper, ITableState, TableHelper} from "./tableHelper";
 
 interface IPrebuiltTypes {
     name: string;
@@ -69,6 +71,10 @@ export interface IPrebuiltPredictPageState extends ILoadFileResult, ITableState 
     imageAngle: number;
     currentPrebuiltType: IPrebuiltTypes;
     currentLocale: string;
+
+    withPageRange: boolean;
+    pageRange: string;
+    pageRangeIsValid?: boolean;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -95,12 +101,12 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         {
             name: "Receipt",
             servicePath: "/prebuilt/receipt/analyze",
-            useLocale:true,
+            useLocale: true,
         },
         {
             name: "Business card",
             servicePath: "/prebuilt/businessCard/analyze",
-            useLocale:true,
+            useLocale: true,
         },
     ];
 
@@ -133,6 +139,9 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         tableToView: null,
         tableToViewId: null,
         currentLocale: "en-US",
+
+        withPageRange: false,
+        pageRange: "",
     };
 
     private analyzeResults: any;
@@ -188,12 +197,17 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         });
     }
 
-    public render() {
-        const predictDisabled: boolean = this.state.isPredicting || !this.state.file
+    getPredictDisabled = (): boolean => {
+        return this.state.isPredicting || !this.state.file
             || this.state.invalidFileFormat ||
             !this.state.fileLoaded ||
             !this.props.prebuiltSettings?.apiKey ||
-            !this.props.prebuiltSettings?.serviceURI;
+            !this.props.prebuiltSettings?.serviceURI ||
+            (this.state.withPageRange && !this.state.pageRangeIsValid);
+    }
+
+    public render() {
+        const predictDisabled: boolean = this.getPredictDisabled();
 
         const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
 
@@ -223,7 +237,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                         />
                         <div className="p-3" style={{marginTop: "-3rem"}}>
                             <div className="formtype-section">
-                                <div style={{marginBottom: "3px"}}>Form type</div>
+                                <div style={{marginBottom: "3px"}}>{strings.prebuiltPredict.formTypeTitle}</div>
                                 <Dropdown
                                     disabled={this.state.isPredicting}
                                     className="prebuilt-type-dropdown"
@@ -232,7 +246,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                                     onChange={this.onPrebuiltTypeChange}></Dropdown>
                             </div>
                             <div className="locales-section" style={{display: this.state.currentPrebuiltType.useLocale ? "block" : "none"}}>
-                                <div style={{marginBottom: "3px"}}>Locale</div>
+                                <div style={{marginBottom: "3px"}}>{strings.prebuiltPredict.locale}</div>
                                 <Dropdown
                                     disabled={this.state.isPredicting}
                                     className="prebuilt-type-dropdown"
@@ -242,17 +256,27 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                             </div>
                         </div>
                         <div className="p-3" style={{marginTop: "8px"}}>
-                            <h5>Upload file and run analysis</h5>
+                            <h5>{strings.prebuiltPredict.selectFileAndRunAnalysis}</h5>
                             <DocumentFilePicker
                                 disabled={this.state.isPredicting || this.state.isFetching}
                                 onFileChange={(data) => this.onFileChange(data)}
                                 onSelectSourceChange={() => this.onSelectSourceChange()}
                                 onError={(err) => this.onFileLoadError(err)} />
+                            <div className="page-range-section">
+                                <PageRange
+                                    disabled={this.state.isPredicting || this.state.isFetching}
+                                    withPageRange={this.state.withPageRange}
+                                    pageRange={this.state.pageRange}
+                                    onPageRangeChange={this.onPageRangeChange} />
+                            </div>
+                        </div>
+                        <Separator className="separator-right-pane-main">{strings.prebuiltPredict.analysis}</Separator>
+                        <div className="p-3" style={{marginTop: "8px"}}>
                             <div className="container-items-end predict-button">
                                 <PrimaryButton
                                     theme={getPrimaryWhiteTheme()}
                                     iconProps={{iconName: "ContactCard"}}
-                                    text="Run analysis"
+                                    text={strings.prebuiltPredict.runAnalysis}
                                     aria-label={!this.state.isPredicting ? strings.prebuiltPredict.inProgress : ""}
                                     allowDisabledFocus
                                     disabled={predictDisabled}
@@ -294,7 +318,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                             }
                             {
                                 (Object.keys(predictions).length === 0 && this.state.predictionLoaded) &&
-                                <div>No field can be extracted.</div>
+                                <div>{strings.prebuiltPredict.noFieldCanBeExtracted}</div>
                             }
                         </div>
 
@@ -319,6 +343,11 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             </div>
         );
     }
+
+    onPageRangeChange = (withPageRange: boolean, pageRange: string, pageRangeIsValid: boolean) => {
+        this.setState({withPageRange, pageRange, pageRangeIsValid});
+    }
+
     onSelectSourceChange(): void {
         this.setState({
             file: undefined,
@@ -623,10 +652,13 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     getPredictionEndpointUrl = (): string => {
-        const endpointUrl = url.resolve(
+        let endpointUrl = url.resolve(
             this.props.prebuiltSettings.serviceURI,
             `/formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`
         );
+        if (this.state.withPageRange && this.state.pageRangeIsValid) {
+            endpointUrl += `&pageRange=${this.state.pageRange}`;
+        }
         return endpointUrl + (this.state.currentPrebuiltType.useLocale ? `&locale=${this.state.currentLocale}` : "");
     }
 
@@ -694,7 +726,8 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
     private getPredictionsFromAnalyzeResult(analyzeResult: any) {
         if (analyzeResult) {
-            const predictions = _.get(analyzeResult, "documentResults[0].fields", {});
+            const predictions = analyzeResult?.documentResults?.map(item => item.fields)
+                .reduce((val, item) => Object.assign(val, item), ({})) ?? {};
             const predictionsCopy = Object.assign({}, predictions);
             delete predictionsCopy.ReceiptType;
 
@@ -733,7 +766,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             }
             return predictionResult;
         } else {
-            return _.get(analyzeResult, "documentResults[0].fields", {});
+            return {};
         }
     }
 

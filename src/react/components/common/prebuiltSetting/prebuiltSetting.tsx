@@ -25,8 +25,9 @@ export class PrebuiltSetting extends React.Component<IPrebuiltSettingProps, IPre
         const {disabled} = this.props;
         return <>
             <div className="p-3 prebuilt-setting" style={{marginTop: "8px"}}>
-                <h5>Service configuration</h5>
-                <div style={{marginBottom: "3px"}}>Form recognizer service endpoint</div>
+
+                <h5>{strings.prebuiltSetting.serviceConfigurationTitle}</h5>
+                <div style={{marginBottom: "3px"}}>{strings.prebuiltSetting.serviceEndpointTitle}</div>
                 <TooltipHost
                     content={strings.prebuiltSetting.endpointTooltip}>
                     <TextField
@@ -39,7 +40,7 @@ export class PrebuiltSetting extends React.Component<IPrebuiltSettingProps, IPre
                         disabled={disabled}
                     />
                 </TooltipHost>
-                <div style={{marginBottom: "3px"}}>API key</div>
+                <div style={{marginBottom: "3px"}}>{strings.prebuiltSetting.apiKeyTitle}</div>
                 <div className="apikeyContainer">
                     <TooltipHost
                         content={strings.prebuiltSetting.apiKeyTooltip}>
@@ -65,7 +66,6 @@ export class PrebuiltSetting extends React.Component<IPrebuiltSettingProps, IPre
                     </DefaultButton>
                 </div>
             </div>
-
         </>
     }
 
