@@ -245,6 +245,12 @@ export const english: IAppStrings = {
         inProgress: "Analysis in progress...",
         anlayWithPrebuiltModels: "Analyze ${name} (preview)",
     },
+    prebuiltSetting:{
+        endpointTooltip: "e.g: https://xxx.cognitiveservices.azure.com/",
+        endpointPlaceholder: "need endpoint",
+        apiKeyTooltip: "get key info from Azure Subscription Resource Keys & Endpoint page",
+        apiKeyPlaceholder: "need apikey",
+    },
     layoutPredict:{
         title: "Layout analyze",
         inProgress: "Analysis in progress...",
