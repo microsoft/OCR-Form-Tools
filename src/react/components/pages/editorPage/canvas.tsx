@@ -1499,9 +1499,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         }
                     }
                     if (originLabel && region.changed) {
-                        if (label.labelType && !labelType) {
+                        if (!labelType) {
                             delete label.labelType
-                        } else if (labelType && !label.labelType ) {
+                        } else if (labelType) {
                             label.labelType = labelType;
                         }
                     }
