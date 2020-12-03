@@ -24,7 +24,7 @@
         "chart.js": "^2.9.3",
         "exif-js": "^2.3.0",
         "file-type": "^14.6.2",
-        "lodash": "^4.17.19",
+        "lodash": "^4.17.20",
         "ol": "^5.3.3",
         "promise.allsettled": "^1.0.2",
         "rc-align": "^2.4.5",
