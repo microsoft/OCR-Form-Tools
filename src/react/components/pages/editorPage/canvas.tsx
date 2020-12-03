@@ -1442,9 +1442,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private convertRegionsToLabelData = (regions: IRegion[], assetName: string) => {
-        const labels = (this?.props?.selectedAsset?.labelData?.labels?.map(label => ({
+        const labels = this.props.selectedAsset?.labelData?.labels?.map(label => ({
             ...label, value: []
-        }))) || [];
+        })) || [];
         const selectedRegions = this.getSelectedRegions();
         if (selectedRegions.length > 0) {
             const intersectionResult = _.intersection(selectedRegions, regions);
