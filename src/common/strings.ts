@@ -230,10 +230,16 @@ export interface IAppStrings {
         editAndUploadToTrainingSetNotify: string,
         editAndUploadToTrainingSetNotify2: string,
         uploadInPrgoress: string,
+        analysis: string;
+        runAnalysis: string;
         confirmDuplicatedAssetName: {
             title: string,
             message: string
         },
+    };
+    pageRange: {
+        title: string;
+        tooltip: string;
     };
     prebuiltPredict: {
         title: string;
@@ -242,22 +248,42 @@ export interface IAppStrings {
         uploadFile: string;
         inProgress: string;
         anlayWithPrebuiltModels: string;
+        locale: string;
+        formTypeTitle: string;
+        selectFileAndRunAnalysis: string;
+        analysis: string;
+        runAnalysis: string;
+        noFieldCanBeExtracted: string;
     };
-    prebuiltSetting:{
+    prebuiltSetting: {
+        serviceConfigurationTitle: string;
+        serviceEndpointTitle: string;
+        apiKeyTitle: string;
         endpointTooltip: string;
         endpointPlaceholder: string;
         apiKeyTooltip: string;
         apiKeyPlaceholder: string;
     };
-    layoutPredict:{
-        title:string;
+    documentFilePicker: {
+        source: string;
+        localFile: string;
+        url: string;
+    };
+    layoutPredict: {
+        layout: string;
+        title: string;
         inProgress: string;
-    },
+        selectFileAndRunLayout: string;
+        analysis: string;
+        runLayout: string;
+        download: string;
+        layoutResults: string;
+    };
     recentModelsView: {
         header: string;
         checkboxAriaLabel: string;
         addToRecentModels: string;
-    }
+    };
     projectMetrics: {
         title: string,
         assetsSectionTitle: string,
@@ -281,8 +307,8 @@ export interface IAppStrings {
         }
         toolbar: {
             add: string,
-            onlyShowCurrentPageTags:string,
-            showAllTags:string,
+            onlyShowCurrentPageTags: string,
+            showAllTags: string,
             showOriginLabels: string
             hideOriginLabels: string,
             contextualMenu: string,
@@ -320,12 +346,12 @@ export interface IAppStrings {
             notCompatibleTagType: string,
             checkboxPerTagLimit: string,
             notCompatibleWithDrawnRegionTag: string,
-            replaceAllExitingLabels:string,
-            replaceAllExitingLabelsTitle:string,
+            replaceAllExitingLabels: string,
+            replaceAllExitingLabelsTitle: string,
         },
-        preText:{
-            autoLabel:string,
-            revised:string,
+        preText: {
+            autoLabel: string,
+            revised: string,
         }
     };
     connections: {
@@ -651,7 +677,7 @@ interface IErrorMetadata {
     message: string,
 }
 
-interface IStrings extends LocalizedStringsMethods, IAppStrings {}
+interface IStrings extends LocalizedStringsMethods, IAppStrings { }
 
 export const strings: IStrings = new LocalizedStrings({
     en: english,

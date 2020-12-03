@@ -1,4 +1,4 @@
-@import '../../../../assets/sass/theme.scss';
+@import "../../../../assets/sass/theme.scss";
 
 .model-select {
   margin: 5px 0 5px 0;
@@ -58,7 +58,7 @@
 }
 
 .seperator:before {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 0;
@@ -70,7 +70,6 @@
 
 .sourceDropdown {
   width: 95px;
-  margin-bottom: 10px;
 }
 
 .predict-button {
@@ -111,4 +110,8 @@
   font-size: 12px;
   color: #d1d1d1;
   float: left;
+}
+.p-3 + .separator-right-pane-main,
+.separator-right-pane-main + .p-3 {
+  margin-top: -15px !important;
 }
