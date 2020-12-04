@@ -3,7 +3,7 @@
 Click [here](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/whats-new) to see what's new in Form Recognizer.
 
 ## Released conatiner's currently referenced commit
-2.1-Preview's released container image, tracked by the `latest-preview` image tag in our [docker hub repository](https://hub.docker.com/_/microsoft-azure-cognitive-services-custom-form-labeltool), currently references **2.1-preview.1-1f33130 (10-09-2020)**
+2.1-Preview's released container image, tracked by the `latest-preview` image tag in our [docker hub repository](https://hub.docker.com/_/microsoft-azure-cognitive-services-custom-form-labeltool), currently references **2.1-preview.1-1f33130 (10-09-2020)**  
 
 ## Commit history
 ### 2.1-preview.1-2e50498 (11-09-2020)

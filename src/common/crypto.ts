@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { AppError, ErrorCode } from "../models/applicationState";
 import Guard from "./guard";
 
 const ALGO = "AES-CBC";
@@ -42,7 +43,11 @@ export async function encrypt(message: string, secret: string): Promise<string> 
         const bytes = encodeUtf8(JSON.stringify(json));
         return encodeBase64(bytes);
     } catch (e) {
-        throw new Error(`Error encrypting data - ${e.message}`);
+        throw new AppError(
+            ErrorCode.Unknown,
+            "Error encrypting data. Please host FOTT over HTTPS to encrypt your protected information",
+            "Encryption error"
+        );
     }
 }
 
@@ -83,7 +88,11 @@ export async function decrypt(encodedMessage: string, secret: string) {
 
         return decodeUtf8(decrypted);
     } catch (e) {
-        throw new Error(`Error decrypting data - ${e.message}`);
+        throw new AppError(
+            ErrorCode.Unknown,
+            "Error encrypting data. Please host FOTT over HTTPS to encrypt your protected information",
+            "Encryption error"
+        );
     }
 }
 /**
