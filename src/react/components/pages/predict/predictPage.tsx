@@ -919,7 +919,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     private onAddAssetToProjectClick = async () => {
         if (this.state.file) {
             const fileName = `${this.props.project.folderPath}/${decodeURIComponent(this.state.file.name)}`;
-            const asset = Object.values(this.props.project.assets).find(asset => asset.name === fileName);
+            const asset = Object.values(this.props.project.assets??[]).find(asset => asset.name === fileName);
             if (asset) {
                 const confirmDuplicatedAssetNameMessage = interpolate(strings.predict.confirmDuplicatedAssetName.message, {name: decodeURI(this.state.file.name)});
                 this.setState({
