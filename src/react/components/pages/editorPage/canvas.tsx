@@ -488,9 +488,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             selectedRegion.tags = transformer(selectedRegion.tags, tag);
         }
 
-        if (inputTag[0].type === FieldType.Table) {
+        if (inputTag[0].type === FieldType.Array || inputTag[0].type === FieldType.Object) {
             for (const selectedRegion of selectedRegions as ITableRegion[]) {
-                if (inputTag[0].format === FieldFormat.RowDynamic) {
+                if (inputTag[0].type === FieldType.Array) {
                     selectedRegion.rowKey = "#" + (rowIndex + 1);
                 } else {
                     selectedRegion.rowKey = (inputTag as ITableTag[])[0].rowKeys[rowIndex].fieldKey;
@@ -508,7 +508,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
 
         if (selectedRegions.length === 1 && selectedRegions[0].category === FeatureCategory.Checkbox) {
-            if (inputTag[0].type === FieldType.Table) {
+            if (inputTag[0].type === FieldType.Object || inputTag[0].type === FieldType.Array) {
                 // selection mark logic placeholder
             } else {
                 this.setTagType(inputTag[0], FieldType.SelectionMark);

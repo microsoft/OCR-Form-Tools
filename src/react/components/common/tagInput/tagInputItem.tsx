@@ -212,7 +212,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
     }
 
     private renderTagDetail = () => {
-        if (this.props.tag.type === FieldType.Table) {
+        if (this.props.tag.type === FieldType.Object || this.props.tag.type === FieldType.Array) {
             return (
                 <div
                     className={"tag-item-label px-2"}

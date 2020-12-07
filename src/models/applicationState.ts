@@ -127,14 +127,19 @@ export interface ITag {
 }
 
 export interface ITableTag extends ITag {
-    columnKeys: ITableKeyField[];
-    rowKeys?: ITableKeyField[];
-    tableTypeAndFormatFor?: TableHeaderTypeAndFormat,
+    rowKeys: ITableKeyField[];
+    columnKeys?: ITableKeyField[];
+    visualizationHint?: TableVisualizationHint,
 }
 
 export enum TableHeaderTypeAndFormat {
     Rows = "rows",
     Columns = "columns"
+}
+
+export enum TableVisualizationHint {
+    Horizontal = "horizontal",
+    Vertical = "vertical",
 }
 
 /**
@@ -236,7 +241,6 @@ export interface IRegion {
 export interface ITableRegion extends IRegion {
     rowKey: string,
     columnKey: string,
-    changed?: boolean,
 }
 
 /**
@@ -334,6 +338,9 @@ export interface ITableKeyField extends IField {
 export interface ITableField extends IField {
     columnKeys: ITableKeyField[];
     rowKeys?: ITableKeyField[];
+    itemType?: string;
+    fields?: any;
+    visualizationHint?: TableVisualizationHint;
     tableTypeAndFormatFor?: TableHeaderTypeAndFormat;
 }
 
@@ -485,7 +492,8 @@ export enum FieldType {
     Time = "time",
     Integer = "integer",
     SelectionMark = "selectionMark",
-    Table = "table",
+    Array = "array",
+    Object = "object",
 }
 
 export enum LabelType {
@@ -509,8 +517,6 @@ export enum FieldFormat {
     DMY = "dmy",
     MDY = "mdy",
     YMD = "ymd",
-    Fixed = "fixed-sized",
-    RowDynamic = "row-dynamic",
 }
 
 export enum FeatureCategory {

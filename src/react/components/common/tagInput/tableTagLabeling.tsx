@@ -41,7 +41,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
     };
 
     public componentDidMount = async () => {
-        if (this.props.selectedTag.format === FieldFormat.RowDynamic) {
+        if (this.props.selectedTag.type === FieldType.Array) {
             const rows = [{ fieldKey: "#1", fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified }]
             for (let i = 1; i < this.props.selectedTableTagBody.length; i++) {
                 rows.push({ fieldKey: "#" + (i + 1), fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified });
@@ -81,7 +81,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                             </tbody>
                         </table>
                     </div>
-                    {this.props.selectedTag.format === FieldFormat.RowDynamic && <div className="add-row-button_container">
+                    {this.props.selectedTag.type === FieldType.Array && <div className="add-row-button_container">
                         <PrimaryButton
                             theme={getPrimaryBlueTheme()}
                             className="add_button ml-6"
@@ -115,7 +115,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
     public getTableBody = () => {
         const table = { rows: this.state.rows, columns: this.state.columns };
         const selectedTableTagBody = this.props.selectedTableTagBody;
-        const isRowDynamic = this.props.selectedTag.format === FieldFormat.RowDynamic;
+        const isRowDynamic = this.props.selectedTag.type === FieldType.Array;
 
         let tableBody = null;
         if (table.rows && table.rows?.length !== 0 && table.columns.length !== 0) {

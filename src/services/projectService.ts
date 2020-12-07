@@ -203,7 +203,7 @@ export default class ProjectService implements IProjectService {
             if (diff) {
                 tag.documentCount += diff;
             }
-            if (tag.type === FieldType.Table) {
+            if (tag.type === FieldType.Object || tag.type === FieldType.Array) {
                 (tag as ITableTag).columnKeys?.forEach((columnKey) => {
                     if (columnDocumentCountDifference?.[tag.name]?.[columnKey.fieldKey]) {
                         columnKey.documentCount += columnDocumentCountDifference[tag.name][columnKey.fieldKey];
@@ -318,7 +318,7 @@ export default class ProjectService implements IProjectService {
             const fieldInfo = JSON.parse(json) as IFieldInfo;
             const tags: ITag[] = [];
             fieldInfo.fields.forEach((field, index) => {
-                if (field.fieldType === FieldType.Table) {
+                if (field.fieldType === FieldType.Object || field.fieldType === FieldType.Array) {
                     tags.push({
                         name: field.fieldKey,
                         color: tagColors[index],
@@ -403,7 +403,7 @@ export default class ProjectService implements IProjectService {
 
         const fieldInfo = {
             fields: project.tags.map((tag ) => {
-                if (tag.type === FieldType.Table) {
+                if (tag.type === FieldType.Object || tag.type === FieldType.Array) {
                     return ({
                         fieldKey: tag.name,
                         fieldType: tag.type ? tag.type : FieldType.String,

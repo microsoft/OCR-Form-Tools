@@ -477,7 +477,7 @@ export class AssetService {
     public async deleteTag(tagName: string, tagType: FieldType, tagFormat: FieldFormat): Promise<IAssetMetadata[]> {
         const transformer = (tagNames) => tagNames.filter((t) => t !== tagName);
         const labelTransformer = (labelData: ILabelData) => {
-            if (tagType === FieldType.Table) {
+            if (tagType === FieldType.Object || tagType === FieldType.Array) {
                 labelData.tableLabels = labelData.tableLabels.filter((tableLabel) => tableLabel.tableKey !== tagName)
             } else {
                 labelData.labels = labelData.labels.filter((label) => label.label !== tagName);
@@ -631,7 +631,7 @@ export class AssetService {
             }
         }
         console.log("update tag in asset metadata",assetMetadata, tagType );
-        if (tagType === FieldType.Table) {
+        if (tagType === FieldType.Array || tagType === FieldType.Object) {
             if (assetMetadata.labelData && assetMetadata.labelData.tableLabels) {
                 const field = assetMetadata.labelData.tableLabels.find((field) => field.tableKey === tagName);
                 if (field) {

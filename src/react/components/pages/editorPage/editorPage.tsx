@@ -465,7 +465,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
 
         const selectedTableTagBody = new Array(selectedTableTagToLabel.rowKeys?.length || 1);
-        if (this.state.selectedTableTagToLabel?.name === selectedTableTagToLabel?.name && selectedTableTagToLabel.format === FieldFormat.RowDynamic) {
+        if (this.state.selectedTableTagToLabel?.name === selectedTableTagToLabel?.name && selectedTableTagToLabel.type === FieldType.Array) {
             for (let i = 1; i < this.state.selectedTableTagBody.length; i++) {
                 selectedTableTagBody.push(undefined)
             }
@@ -477,7 +477,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const tagAssets = clone()(this.state.selectedAsset.regions).filter((region) => region.tags[0] === selectedTableTagToLabel.name) as ITableRegion[];
         tagAssets.forEach((region => {
             let rowIndex: number;
-            if (selectedTableTagToLabel.format === FieldFormat.RowDynamic) {
+            if (selectedTableTagToLabel.type === FieldType.Array) {
                 rowIndex = Number(region.rowKey.slice(1)) - 1;
             } else {
                 rowIndex = selectedTableTagToLabel.rowKeys.findIndex(rowKey => rowKey.fieldKey === region.rowKey)
@@ -619,7 +619,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      */
     private onTagRenamed = async (tag: ITag, newTag: ITag): Promise<void> => {
         this.renameCanceled = null;
-        if (tag.type === FieldType.Table) {
+        if (tag.type === FieldType.Object || tag.type === FieldType.Array) {
             const assetUpdates = await this.props.actions.reconfigureTableTag(this.props.project, tag.name, newTag.name, newTag.type, newTag.format, undefined, undefined, undefined, undefined);
             const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
             if (selectedAsset) {
@@ -899,9 +899,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         });
     }
 
-    private reconfigureTableConfirm = (originalTagName: string, tagName: string, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => {
+    private reconfigureTableConfirm = (originalTagName: string, tagName: string, tagType: FieldType.Array | FieldType.Object, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => {
         this.setState({ reconfigureTableConfirm: true });
-        this.reconfigTableConfirm.current.open(originalTagName, tagName, FieldType.Table, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
+        this.reconfigTableConfirm.current.open(originalTagName, tagName, tagType, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
     }
 
     private reconfigureTable = async (originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => {
