@@ -192,7 +192,7 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
     private onFormSubmit = async (project: IProject) => {
         const isNew = !(!!project.id);
         try {
-            this.setState({ isCommiting: true });
+            this.setState({ isCommiting: true, project });
             const projectService = new ProjectService();
             if (!(await projectService.isValidProjectConnection(project))) {
                 return;
