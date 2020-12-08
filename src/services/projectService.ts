@@ -416,7 +416,7 @@ export default class ProjectService implements IProjectService {
                         fields: (tag as ITableTag).fields,
                         itemType: (tag as ITableTag).itemType,
                     } as ITableField;
-                    definitions[(tag as ITableTag).definition.fieldKey] = (tag as ITableTag).definition;
+                    definitions[(tag as ITableTag).definition?.fieldKey] = (tag as ITableTag).definition;
                     console.log("yoba", tableField)
                     return tableField;
                 } else {
