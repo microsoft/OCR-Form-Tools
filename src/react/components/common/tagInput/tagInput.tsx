@@ -842,4 +842,10 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 break;
         }
     }
+
+    public triggerRenameTagBlur() {
+        if (this.state.selectedTag && this.tagItemRefs.get(this.state.selectedTag.name)) {
+            this.tagItemRefs.get(this.state.selectedTag.name).onInputBlur();
+        }
+    }
 }
