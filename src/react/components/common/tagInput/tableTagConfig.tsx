@@ -605,12 +605,20 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     }
 
     function save(cleanTableName: string, cleanRows: ITableConfigItem[], cleanColumns: ITableConfigItem[]) {
+        const [ firstLayerFieldsInput, secondLayerFieldsInput ] = getFieldsLayersInput(headersFormatAndType, cleanRows, cleanColumns);
+        const definition = getDefinitionLayer(cleanTableName, secondLayerFieldsInput);
+        const fieldsLayer = getFieldsLayer(cleanTableName, firstLayerFieldsInput);
+        const itemType = getItemType(cleanTableName);
+        const visualizationHint = getVisualizationHint(headersFormatAndType);
         const tableTagToAdd = {
             name: cleanTableName,
             type,
             columns: cleanColumns,
-            format,
-            headersFormatAndType
+            format : FieldFormat.NotSpecified,
+            itemType,
+            fields: fieldsLayer,
+            definition,
+            visualizationHint,
         }
         if (type === FieldType.Object) {
             tableTagToAdd[TableElements.rows] = cleanRows;
@@ -618,6 +626,72 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         addTableTag(tableTagToAdd);
         setTagInputMode(TagInputMode.Basic, null, null);
         toast.success(`Successfully ${props.tableTag ? "reconfigured" : "saved"} "${tableTagName.tableName}" table tag.`, { autoClose: 8000 });
+    }
+
+    function getItemType(cleanTableName) {
+        if (type === FieldType.Object) {
+            return null;
+        } else {
+            return cleanTableName + "_object";
+        }
+    }
+
+    function getFieldsLayersInput(headersFormatAndType, cleanRows, cleanColumns) {
+        if (type === FieldType.Object) {
+            if (headersFormatAndType === TableElements.columns) {
+                return [ cleanRows, cleanColumns ];
+            } else {
+                return [ cleanColumns, cleanRows ];
+            }
+        } else {
+            return [ cleanRows, cleanColumns ];
+        }
+    }
+
+    function getDefinitionLayer(cleanTableName, secondLayerFieldsInput) {
+        return {
+            fieldKey: cleanTableName + "_object",
+            fieldType: FieldType.Object,
+            fieldFormat: FieldFormat.NotSpecified,
+            itemType: null,
+            fields: secondLayerFieldsInput.map((field) => {
+                return {
+                    fieldKey: field.name,
+                    fieldType: field.type,
+                    fieldFormat: field.format,
+                    itemType: null,
+                    fields: null,
+                }
+            })
+        }
+    }
+
+    function getVisualizationHint(headersFormatAndType) {
+        if (type === FieldType.Object) {
+            if (headersFormatAndType === TableElements.columns) {
+                return TableVisualizationHint.Horizontal;
+            } else {
+                return TableVisualizationHint.Vertical;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    function getFieldsLayer(cleanTableName, firstLayerFieldsInput) {
+        if (type === FieldType.Object) {
+            return firstLayerFieldsInput.map((field) => {
+                return {
+                    fieldKey: field.name,
+                    fieldType:  cleanTableName + "_object",
+                    fieldFormat: FieldFormat.NotSpecified,
+                    itemType: null,
+                    fields: null,
+                }
+            });
+        } else {
+            return null;
+        }
     }
 
     function hasEmptyNames(array: ITableConfigItem[]) {

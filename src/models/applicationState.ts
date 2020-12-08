@@ -129,6 +129,9 @@ export interface ITag {
 export interface ITableTag extends ITag {
     rowKeys: ITableKeyField[];
     columnKeys?: ITableKeyField[];
+    fields?: ITableField[];
+    itemType?: string;
+    definition?: ITableDefinition,
     visualizationHint?: TableVisualizationHint,
 }
 
@@ -336,12 +339,16 @@ export interface ITableKeyField extends IField {
 }
 
 export interface ITableField extends IField {
-    columnKeys: ITableKeyField[];
+    columnKeys?: ITableKeyField[];
     rowKeys?: ITableKeyField[];
     itemType?: string;
-    fields?: any;
+    fields?: ITableField[];
     visualizationHint?: TableVisualizationHint;
-    tableTypeAndFormatFor?: TableHeaderTypeAndFormat;
+}
+
+export interface ITableDefinition extends IField {
+    itemType?: string;
+    fields?: ITableField[];
 }
 
 export interface ITableConfigItem {

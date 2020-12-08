@@ -1,5 +1,5 @@
-commit b8ea554351e3d6b1125fbf105e25fec3763e6a97
+commit d4debd76b0daa17e49e1a1b73afe2e963b32c267
 Author: Robert Stewart (eXcell <v-stewro@microsoft.com>
-Date:   Wed Dec 2 03:00:50 2020 -0800
+Date:   Mon Dec 7 03:30:40 2020 -0800
 
-    handle empty rows after schema change predict
+    use fieldType Object and Array for new schema

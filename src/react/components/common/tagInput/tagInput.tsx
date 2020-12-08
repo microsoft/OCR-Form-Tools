@@ -687,6 +687,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     private addTableTag = (tableConfig: any) => {
+        console.log(tableConfig);
         // console.log("TagInput -> privateaddTableTag -> tableConfig", tableConfig)
         const newTag: ITableTag = {
             name: tableConfig.name,
@@ -710,8 +711,12 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     documentCount: 0,
                 } as ITableKeyField)
             }),
-            visualizationHint: tableConfig.headersFormatAndType === TableElements.columns ? TableVisualizationHint.Horizontal : TableVisualizationHint.Vertical,
+            itemType: tableConfig.itemType,
+            fields: tableConfig.fields,
+            definition: tableConfig.definition,
+            visualizationHint: tableConfig.visualizationHint,
         };
+        console.log("yoba", newTag)
         this.addTag(newTag);
     }
 

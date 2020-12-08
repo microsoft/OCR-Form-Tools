@@ -10,7 +10,7 @@ import {
     FieldFormat,
     IField,
     IFieldInfo,
-    ITableTag, ITableField, TableHeaderTypeAndFormat, ITableLabel, ILabelData
+    ITableTag, ITableField, TableHeaderTypeAndFormat, ITableLabel, ILabelData, TableVisualizationHint
 } from "../models/applicationState";
 import Guard from "../common/guard";
 import { constants } from "../common/constants";
@@ -401,17 +401,24 @@ export default class ProjectService implements IProjectService {
         Guard.null(project);
         Guard.null(project.tags);
 
+        const definitions = {};
         const fieldInfo = {
             fields: project.tags.map((tag ) => {
                 if (tag.type === FieldType.Object || tag.type === FieldType.Array) {
-                    return ({
+                    console.log("yoba", tag)
+                    const tableField = {
                         fieldKey: tag.name,
                         fieldType: tag.type ? tag.type : FieldType.String,
                         fieldFormat: tag.format ? tag.format : FieldFormat.NotSpecified,
                         columnKeys: (tag as ITableTag).columnKeys,
                         rowKeys: (tag as ITableTag).rowKeys,
-                        // tableTypeAndFormatFor: TableHeaderTypeAndFormat.Columns,
-                    } as ITableField)
+                        visualizationHint: (tag as ITableTag).visualizationHint,
+                        fields: (tag as ITableTag).fields,
+                        itemType: (tag as ITableTag).itemType,
+                    } as ITableField;
+                    definitions[(tag as ITableTag).definition.fieldKey] = (tag as ITableTag).definition;
+                    console.log("yoba", tableField)
+                    return tableField;
                 } else {
                     return ({
                         fieldKey: tag.name,
@@ -421,6 +428,8 @@ export default class ProjectService implements IProjectService {
                 }
             }),
         };
+        fieldInfo["definitions"] = definitions;
+        console.log("yoba", fieldInfo)
 
         const fieldFilePath = joinPath("/", project.folderPath, constants.fieldsFileName);
         await storageProvider.writeText(fieldFilePath, JSON.stringify(fieldInfo, null, 4));
