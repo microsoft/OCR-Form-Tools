@@ -5,7 +5,7 @@ import React from "react";
 import {ITag} from "../../../../models/applicationState";
 import "./predictResult.scss";
 import {getPrimaryGreenTheme} from "../../../../common/themes";
-import {PrimaryButton} from "@fluentui/react";
+import {PrimaryButton, ContextualMenu, IContextualMenuProps, IIconProps} from "@fluentui/react";
 import {strings} from "../../../../common/strings";
 
 export interface IAnalyzeModelInfo {
@@ -42,7 +42,26 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         }
         // not sure if we decide to filter item by the page
         const items = Object.values(predictions).filter(Boolean).sort((p1, p2) => p1.displayOrder - p2.displayOrder);
-
+        const menuProps: IContextualMenuProps = {
+            className: "keep-button-120px",
+            items: [
+                {
+                    key: 'JSON',
+                    text: 'JSON',
+                    onClick: () => this.triggerJSONDownload()
+                },
+                {
+                    key: 'CSV',
+                    text: 'CSV',
+                    onClick: () => this.triggerCSVDownload()
+                },
+                {
+                    key: 'Table',
+                    text: 'Table',
+                    onClick: () => this.triggerTableDonwload()
+                }
+            ]
+        }
         return (
             <div>
                 <div className="container-items-center container-space-between results-container">
@@ -57,14 +76,17 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                             text={strings.predict.editAndUploadToTrainingSet} />
                         :<span></span>
                     }
-                    <PrimaryButton
-                        className="align-self-end keep-button-80px"
-                        theme={getPrimaryGreenTheme()}
-                        text="Download"
-                        allowDisabledFocus
-                        autoFocus={true}
-                        onClick={this.triggerDownload}
-                    />
+                    {
+                        <PrimaryButton
+                            className="align-self-end keep-button-120px"
+                            theme={getPrimaryGreenTheme()}
+                            text="Download"
+                            allowDisabledFocus
+                            autoFocus={true}
+                            menuProps={menuProps}
+                            menuAs={this._getMenu}
+                        />
+                    }
                 </div>
                 {this.props.children}
                 <div className="prediction-field-header" style={{marginTop: 28}}>
@@ -76,6 +98,9 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                 {items.map((item: any, key) => this.renderItem(item, key))}
             </div>
         );
+    }
+    private _getMenu(props: IContextualMenuProps): JSX.Element {
+        return <ContextualMenu {...props} />;
     }
 
     private renderItem = (item: any, key: any) => {
@@ -151,7 +176,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
             this.props.onAddAssetToProject();
         }
     }
-    private triggerDownload = (): void => {
+    private triggerJSONDownload = (): void => {
         const {analyzeResult} = this.props;
         const predictionData = JSON.stringify(analyzeResult);
         const fileURL = window.URL.createObjectURL(new Blob([predictionData]));
@@ -163,6 +188,55 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         fileLink.setAttribute("download", downloadFileName);
         document.body.appendChild(fileLink);
         fileLink.click();
+    }
+    private getItems() {
+        const {tags, predictions} = this.props;
+        const tagsDisplayOrder = tags.map((tag) => tag.name);
+        for (const name of Object.keys(predictions)) {
+            const prediction = predictions[name];
+            if (prediction != null) {
+                prediction.fieldName = name;
+                prediction.displayOrder = tagsDisplayOrder.indexOf(name);
+            }
+        }
+        // not sure if we decide to filter item by the page
+        const items = Object.values(predictions).filter(Boolean).sort((p1, p2) => p1.displayOrder - p2.displayOrder);
+        return items;
+    }
+    private triggerCSVDownload = (): void => {
+        const items = this.getItems();
+        let csvContent: string = "key,value";
+        items.forEach(item => {
+            csvContent += `\n${item.fieldName},"${item.text ?? ""}"`;
+        });
+        const csvFileURL = window.URL.createObjectURL(new Blob([csvContent]));
+        const csvFileLink = document.createElement("a");
+        const fileBaseName = this.props.downloadResultLabel.split(".")[0];
+        const csvDownloadFileName = this.props.downloadPrefix + "Result-" + fileBaseName + "-keyvalues.csv";
+        csvFileLink.href = csvFileURL;
+        csvFileLink.setAttribute("download", csvDownloadFileName);
+        document.body.appendChild(csvFileLink);
+        csvFileLink.click();
+    }
+
+    private triggerTableDonwload = (): void => {
+        const items = this.getItems();
+        let tableContent: string = "";
+        items.forEach(item => {
+            tableContent += `"${item.fieldName}",`;
+        });
+        tableContent += "\n";
+        items.forEach(item => {
+            tableContent += `"${item.text ?? ""}",`
+        });
+        const tableFileURL = window.URL.createObjectURL(new Blob([tableContent]));
+        const tableFileLink = document.createElement("a");
+        const fileBaseName = this.props.downloadResultLabel.split(".")[0];
+        const tableDownloadFileName = this.props.downloadPrefix + "Result-" + fileBaseName + "-table.csv";
+        tableFileLink.href = tableFileURL;
+        tableFileLink.setAttribute("download", tableDownloadFileName);
+        document.body.appendChild(tableFileLink);
+        tableFileLink.click();
     }
 
     private toPercentage = (x: number): string => {

@@ -373,6 +373,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                             }
                                             {Object.keys(predictions).length > 0 && this.props.project &&
                                                 <PredictResult
+                                                    downloadPrefix="Analyze"
                                                     predictions={predictions}
                                                     analyzeResult={this.analyzeResults}
                                                     page={this.state.currentPage}
