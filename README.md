@@ -1,6 +1,8 @@
 
 # Form OCR Testing Tool
 
+Help us improve Form Recognizer. [Take our survey!](https://microsoft.qualtrics.com/jfe/form/SV_40zWLBFYILTkRWl?Kind=FormRecognizer&From=fott)
+
 ## Features Preview
 
 [![Build Status](https://dev.azure.com/msazure/Cognitive%20Services/_apis/build/status/microsoft.OCR-Form-Tools?branchName=master)](https://dev.azure.com/msazure/Cognitive%20Services/_build/latest?definitionId=118293&branchName=master)

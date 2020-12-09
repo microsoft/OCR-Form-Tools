@@ -9,7 +9,7 @@ import {
     EditorMode, IAssetMetadata,
     IProject, IRegion, RegionType,
     AssetType, ILabelData, ILabel,
-    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, LabelType, AssetLabelingState, APIVersionPatches
+    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, LabelType, AssetLabelingState, APIVersionPatches, AssetState
 } from "../../../../models/applicationState";
 import CanvasHelpers from "./canvasHelpers";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
@@ -1270,7 +1270,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private loadOcr = async (force?: boolean) => {
-        const asset = this.state.currentAsset.asset;
+        const asset = {...this.state.currentAsset.asset};
 
         if (asset.isRunningOCR) {
             // Skip loading OCR this time since it's running. This will be triggered again once it's finished.
@@ -1280,7 +1280,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const ocr = await this.ocrService.getRecognizedText(asset.path, asset.name, asset.mimeType, this.setOCRStatus, force);
             if (asset.id === this.state.currentAsset.asset.id) {
                 // since get OCR is async, we only set currentAsset's OCR
+                const newAsset={};
+                if(asset.state===AssetState.NotVisited){
+                    asset.state=AssetState.Visited;
+                    newAsset["currentAsset"]={...this.state.currentAsset, asset};
+                }
                 this.setState({
+                    ...newAsset,
                     ocr,
                     ocrForCurrentPage: this.getOcrResultForCurrentPage(ocr),
                 }, () => {
