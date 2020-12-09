@@ -36,7 +36,7 @@ export class AppSettingsForm extends React.Component<IAppSettingsFormProps, IApp
     private fields = {
         securityToken: CustomField(ProtectedInput, (props) => ({
             id: props.idSchema.$id,
-            value: props.formData || generateKey(),
+            value: props.formData ?? generateKey(),
             onChange: props.onChange,
         })),
     };
