@@ -1603,8 +1603,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                                 }
                             }
                         }
-                        if (originLabel && region.changed && label.labelType !== labelType) {
-                            label.labelType = labelType;
+                        if (originLabel && region.changed) {
+                            if (labelType) {
+                                label.labelType = labelType;
+                            } else {
+                                delete label.labelType;
+                            }
                         }
                         label.value.push(formRegion);
                     } else {
