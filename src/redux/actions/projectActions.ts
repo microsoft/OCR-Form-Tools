@@ -16,7 +16,8 @@ import {
     ISecurityToken,
     FieldType,
     FieldFormat, ITableConfigItem, ITableTag, IField, ITableField, ITableKeyField,
-    AssetLabelingState
+    AssetLabelingState,
+    TableVisualizationHint
 } from "../../models/applicationState";
 import { createAction, createPayloadAction, IPayloadAction } from "./actionCreators";
 import { appInfo } from "../../common/appInfo";
@@ -45,7 +46,7 @@ export default interface IProjectActions {
     deleteProjectTag(project: IProject, tagName: string, tagType: FieldType, tagFormat: FieldFormat): Promise<IAssetMetadata[]>;
     updateProjectTagsFromFiles(project: IProject, asset?: string): Promise<void>;
     updatedAssetMetadata(project: IProject, assetDocumentCountDifference: any, columnDocumentCountDifference?: any, rowDocumentCountDifference?: any): Promise<void>;
-    reconfigureTableTag?(project: IProject, originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]): Promise<IAssetMetadata[]>;
+    reconfigureTableTag?(project: IProject, originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, visualizationHint: TableVisualizationHint, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]): Promise<IAssetMetadata[]>;
 }
 
 /**
@@ -359,7 +360,7 @@ export function deleteProjectTag(project: IProject, tagName: string, tagType: Fi
     };
 }
 
-export function reconfigureTableTag(project: IProject, originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[])
+export function reconfigureTableTag(project: IProject, originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, visualizationHint: TableVisualizationHint, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[])
     : (dispatch: Dispatch, getState: () => IApplicationState) => Promise<IAssetMetadata[]> {
         return async (dispatch: Dispatch, getState: () => IApplicationState) => {
             console.log(project, tagName, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
@@ -373,25 +374,48 @@ export function reconfigureTableTag(project: IProject, originalTagName: string, 
             });
 
             const currentProject = clone()(getState().currentProject);
+
+            // temp fix for new schema change
+            let newFields;
+            let newDefinitionFields
+            if (tagType === FieldType.Object) {
+                if (visualizationHint === TableVisualizationHint.Horizontal) {
+                    newFields = newRows;
+                    newDefinitionFields = newColumns;
+                } else {
+                    newFields = newColumns;
+                    newDefinitionFields = newRows;
+                }
+            } else {
+                newFields = null;
+                newDefinitionFields = newColumns;
+            }
+            newFields =  newFields?.map((field) => {
+                return {
+                    fieldKey: field.name,
+                    fieldType: tagName + "_object",
+                    fieldFormat: FieldFormat.NotSpecified,
+                    itemType: null,
+                    fields: null,
+                } as ITableField
+            });
+            newDefinitionFields = newDefinitionFields?.map((definitionField) => {
+                return {
+                    fieldKey: definitionField.name,
+                    fieldType: definitionField.type,
+                    fieldFormat: definitionField.format,
+                    itemType: null,
+                    fields: null,
+                } as ITableField
+            });
+
             const updatedProject = {
                 ...currentProject,
                 tags: currentProject.tags.reduce((result, tag) => {
                     if (tag.name === originalTagName) {
-                        (tag as ITableTag).rowKeys = newRows ? newRows.map((newRow) => {
-                            return {
-                                fieldKey: newRow.name,
-                                fieldType: newRow.type,
-                                fieldFormat: newRow.format
-                            } as ITableKeyField
-                        }) : (tag as ITableTag).rowKeys;
-                        (tag as ITableTag).columnKeys = newColumns ? newColumns.map((newColumn) => {
-                            return {
-                                fieldKey: newColumn.name,
-                                fieldType: newColumn.type,
-                                fieldFormat: newColumn.format
-                            } as ITableKeyField
-                        }) : (tag as ITableTag).columnKeys;
                         (tag as ITag).name = tagName;
+                        (tag as ITableTag).definition.fields = newDefinitionFields;
+                        (tag as ITableTag).fields = newFields;
                         result.push(tag);
                         return result;
                     } else {

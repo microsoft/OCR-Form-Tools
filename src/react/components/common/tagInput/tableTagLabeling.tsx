@@ -2,7 +2,7 @@ import React from 'react';
 import "./tableTagConfig.scss";
 import { PrimaryButton, FontIcon, DefaultButton } from "@fluentui/react";
 import { getPrimaryGreenTheme, getPrimaryBlueTheme } from '../../../../common/themes';
-import { FieldFormat, FieldType, TagInputMode, IRegion, ITableTag, ITableRegion, IField, TableElements, ITableField, ITableKeyField } from '../../../../models/applicationState';
+import { FieldFormat, FieldType, TagInputMode, IRegion, ITableTag, ITableRegion, IField, TableElements, ITableField, ITableKeyField, TableVisualizationHint } from '../../../../models/applicationState';
 import "./tableTagLabeling.scss";
 
 import { strings } from "../../../../common/strings";
@@ -35,8 +35,8 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
     public state: ITableTagLabelingState = {
         selectedRowIndex: null,
         selectedColumnIndex: null,
-        rows: this.props.selectedTag.rowKeys,
-        columns: this.props.selectedTag.columnKeys,
+        rows: this.props.selectedTag.type === FieldType.Array || this.props.selectedTag?.visualizationHint === TableVisualizationHint.Horizontal ? this.props.selectedTag.fields : this.props.selectedTag.definition.fields,
+        columns: this.props.selectedTag.type === FieldType.Array || this.props.selectedTag.visualizationHint === TableVisualizationHint.Horizontal ?  this.props.selectedTag.definition.fields : this.props.selectedTag.fields,
         selectedTableTagBody: this.props.selectedTableTagBody,
     };
 
@@ -118,6 +118,8 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
         const isRowDynamic = this.props.selectedTag.type === FieldType.Array;
 
         let tableBody = null;
+        console.log(table);
+        console.log(selectedTableTagBody);
         if (table.rows && table.rows?.length !== 0 && table.columns.length !== 0) {
             tableBody = [];
             const rows = table[TableElements.rows];

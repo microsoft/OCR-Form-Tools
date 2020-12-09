@@ -204,16 +204,16 @@ export default class ProjectService implements IProjectService {
                 tag.documentCount += diff;
             }
             if (tag.type === FieldType.Object || tag.type === FieldType.Array) {
-                (tag as ITableTag).columnKeys?.forEach((columnKey) => {
-                    if (columnDocumentCountDifference?.[tag.name]?.[columnKey.fieldKey]) {
-                        columnKey.documentCount += columnDocumentCountDifference[tag.name][columnKey.fieldKey];
-                    }
-                });
-                (tag as ITableTag).rowKeys?.forEach((rowKey) => {
-                    if (rowDocumentCountDifference?.[tag.name]?.[rowKey.fieldKey]) {
-                        rowKey.documentCount += rowDocumentCountDifference[tag.name][rowKey.fieldKey]
-                    }
-                });
+                // (tag as ITableTag).columnKeys?.forEach((columnKey) => {
+                //     if (columnDocumentCountDifference?.[tag.name]?.[columnKey.fieldKey]) {
+                //         columnKey.documentCount += columnDocumentCountDifference[tag.name][columnKey.fieldKey];
+                //     }
+                // });
+                // (tag as ITableTag).rowKeys?.forEach((rowKey) => {
+                //     if (rowDocumentCountDifference?.[tag.name]?.[rowKey.fieldKey]) {
+                //         rowKey.documentCount += rowDocumentCountDifference[tag.name][rowKey.fieldKey]
+                //     }
+                // });
             }
         });
         console.log("final sol", updatedProject.tags)
@@ -319,16 +319,37 @@ export default class ProjectService implements IProjectService {
             const tags: ITag[] = [];
             fieldInfo.fields.forEach((field, index) => {
                 if (field.fieldType === FieldType.Object || field.fieldType === FieldType.Array) {
-                    tags.push({
-                        name: field.fieldKey,
-                        color: tagColors[index],
-                        type: normalizeFieldType(field.fieldType),
-                        format: field.fieldFormat,
-                        documentCount: 0,
-                        rowKeys: (field as ITableField).rowKeys,
-                        columnKeys: (field as ITableField).columnKeys,
-                        // tableTypeAndFormatFor: TableHeaderTypeAndFormat.Columns,
-                    } as ITableTag);
+                    const tableDefinition = fieldInfo?.definitions?.[field.fieldKey + "_object"];
+                    if (!tableDefinition) {
+                        toast.info("Table field " + field.fieldKey + " has no definition.")
+                        return;
+                    }
+                    if (field.fieldType === FieldType.Object) {
+                        tags.push({
+                            name: field.fieldKey,
+                            color: tagColors[index],
+                            type: normalizeFieldType(field.fieldType),
+                            format: field.fieldFormat,
+                            documentCount: 0,
+                            itemType: (field as ITableField).itemType,
+                            fields: (field as ITableField).fields,
+                            definition: tableDefinition,
+                            visualizationHint: (field as ITableField).visualizationHint || TableVisualizationHint.Horizontal
+                        } as ITableTag);
+                    } else {
+                        tags.push({
+                            name: field.fieldKey,
+                            color: tagColors[index],
+                            type: normalizeFieldType(field.fieldType),
+                            format: field.fieldFormat,
+                            documentCount: 0,
+                            itemType: (field as ITableField).itemType,
+                            fields: (field as ITableField).fields,
+                            definition: tableDefinition,
+                            visualizationHint: null,
+                        } as ITableTag);
+                    }
+
                 } else {
                     tags.push({
                         name: field.fieldKey,
@@ -339,6 +360,7 @@ export default class ProjectService implements IProjectService {
                     } as ITag);
                 }
             });
+            console.log("yoba", tags);
             if (project.tags) {
                 project.tags = patch(project.tags, tags, "name", ["type", "format"]);
                 await this.addMissingTagsAndUpdateDocumentCount(project, tags);
@@ -402,20 +424,22 @@ export default class ProjectService implements IProjectService {
         Guard.null(project.tags);
 
         const definitions = {};
-        const fieldInfo = {
-            fields: project.tags.map((tag ) => {
+        const fieldInfo = {};
+        fieldInfo["$schema"] = "http://www.azure.com/schema/formrecognizer/fields.json"
+        fieldInfo["fields"] =
+            project.tags.map((tag ) => {
                 if (tag.type === FieldType.Object || tag.type === FieldType.Array) {
                     console.log("yoba", tag)
                     const tableField = {
                         fieldKey: tag.name,
                         fieldType: tag.type ? tag.type : FieldType.String,
                         fieldFormat: tag.format ? tag.format : FieldFormat.NotSpecified,
-                        columnKeys: (tag as ITableTag).columnKeys,
-                        rowKeys: (tag as ITableTag).rowKeys,
-                        visualizationHint: (tag as ITableTag).visualizationHint,
-                        fields: (tag as ITableTag).fields,
                         itemType: (tag as ITableTag).itemType,
+                        fields: (tag as ITableTag).fields,
                     } as ITableField;
+                    if (tag.type === FieldType.Object) {
+                        tableField.visualizationHint = (tag as ITableTag).visualizationHint
+                    }
                     definitions[(tag as ITableTag).definition.fieldKey] = (tag as ITableTag).definition;
                     console.log("yoba", tableField)
                     return tableField;
@@ -426,10 +450,8 @@ export default class ProjectService implements IProjectService {
                         fieldFormat: tag.format ? tag.format : FieldFormat.NotSpecified,
                     } as IField)
                 }
-            }),
-        };
+            })
         fieldInfo["definitions"] = definitions;
-        console.log("yoba", fieldInfo)
 
         const fieldFilePath = joinPath("/", project.folderPath, constants.fieldsFileName);
         await storageProvider.writeText(fieldFilePath, JSON.stringify(fieldInfo, null, 4));

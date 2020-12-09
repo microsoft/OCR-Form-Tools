@@ -13,7 +13,7 @@ import { strings, interpolate } from "../../../../common/strings";
 import {
     AssetState, AssetType, EditorMode, FieldType,
     IApplicationState, IAppSettings, IAsset, IAssetMetadata,
-    ILabel, IProject, IRegion, ISize, ITag, FeatureCategory, TagInputMode, FieldFormat, ITableTag, ITableRegion, AssetLabelingState, ITableConfigItem
+    ILabel, IProject, IRegion, ISize, ITag, FeatureCategory, TagInputMode, FieldFormat, ITableTag, ITableRegion, AssetLabelingState, ITableConfigItem, TableVisualizationHint
 } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -464,14 +464,30 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             return;
         }
 
-        const selectedTableTagBody = new Array(selectedTableTagToLabel.rowKeys?.length || 1);
+        let rowKeys;
+        let columnKeys;
+        if (selectedTableTagToLabel.type === FieldType.Object) {
+            if (selectedTableTagToLabel.visualizationHint === TableVisualizationHint.Horizontal) {
+                columnKeys = selectedTableTagToLabel.definition.fields;
+                rowKeys = selectedTableTagToLabel.fields;
+            } else {
+                columnKeys = selectedTableTagToLabel.fields;
+                rowKeys = selectedTableTagToLabel.definition.fields;
+
+            }
+        } else {
+            rowKeys = null;
+            columnKeys = selectedTableTagToLabel.definition.fields;
+        }
+
+        const selectedTableTagBody = new Array(rowKeys?.length || 1);
         if (this.state.selectedTableTagToLabel?.name === selectedTableTagToLabel?.name && selectedTableTagToLabel.type === FieldType.Array) {
             for (let i = 1; i < this.state.selectedTableTagBody.length; i++) {
                 selectedTableTagBody.push(undefined)
             }
         }
         for (let i = 0; i < selectedTableTagBody.length; i++) {
-            selectedTableTagBody[i] = new Array(selectedTableTagToLabel.columnKeys.length);
+            selectedTableTagBody[i] = new Array(columnKeys.length);
         }
 
         const tagAssets = clone()(this.state.selectedAsset.regions).filter((region) => region.tags[0] === selectedTableTagToLabel.name) as ITableRegion[];
@@ -480,12 +496,12 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             if (selectedTableTagToLabel.type === FieldType.Array) {
                 rowIndex = Number(region.rowKey.slice(1)) - 1;
             } else {
-                rowIndex = selectedTableTagToLabel.rowKeys.findIndex(rowKey => rowKey.fieldKey === region.rowKey)
+                rowIndex = rowKeys.findIndex(rowKey => rowKey.fieldKey === region.rowKey)
             }
             for (let i = selectedTableTagBody.length; i <= rowIndex; i++) {
-                selectedTableTagBody.push(new Array(selectedTableTagToLabel.columnKeys.length));
+                selectedTableTagBody.push(new Array(columnKeys.length));
             }
-            const colIndex = selectedTableTagToLabel.columnKeys.findIndex(colKey => colKey.fieldKey === region.columnKey)
+            const colIndex = columnKeys.findIndex(colKey => colKey.fieldKey === region.columnKey)
             if (selectedTableTagBody[rowIndex][colIndex] != null) {
                 selectedTableTagBody[rowIndex][colIndex].push(region)
             } else {
@@ -505,26 +521,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     private addRowToDynamicTable = () => {
         const selectedTableTagBody = clone()(this.state.selectedTableTagBody)
-        selectedTableTagBody.push(Array(this.state.selectedTableTagToLabel.columnKeys.length));
+        selectedTableTagBody.push(Array(this.state.selectedTableTagToLabel.definition.fields.length));
         this.setState({selectedTableTagBody});
     }
 
     private handleTableCellClick = (rowIndex: number, columnIndex: number) => {
-        // const inputTag = this.state.selectedTableTagToLabel as ITableTag;
-        // console.log("EditorPage -> privatehandleTableCellClick -> this.props.project.tags", this.props.project.tags)
-        // console.log("EditorPage -> privatehandleTableCellClick -> this.state.selectedTag", this.state.selectedTag)
-        // console.log(inputTag, rowIndex, columnIndex);
-        // if (inputTag.rowKeys[rowIndex].fieldType === FieldType.SelectionMark || inputTag.columnKeys[columnIndex].fieldType === FieldType.SelectionMark) {
-        //     toast.warn("selection mark support for semantic tables is still a work in progress");
-        //     return;
-        // }
-        // const selectedTableTagBody = clone()(this.state.selectedTableTagBody);
-        // if (selectedTableTagBody[rowIndex][columnIndex] != null) {
-        //     selectedTableTagBody[rowIndex][columnIndex].concat(clone()(this.state.selectedRegions));
-        // } else {
-        //     selectedTableTagBody[rowIndex][columnIndex] = clone()(this.state.selectedRegions);
-        // }
-        // console.log("EditorPage -> privatehandleTableCellClick -> selectedTableTagBody", selectedTableTagBody)
         this.onTableTagClicked(this.state.selectedTableTagToLabel, rowIndex, columnIndex);
     }
 
@@ -536,29 +537,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         this.setState({ highlightedTableCellRegions: null });
     }
 
-    // private resetTableBody = () => {
-    //     const selectedTableTagToLabel = this.state.selectedTableTagToLabel as ITableTag;
-    //     const selectedTableTagBody = new Array(selectedTableTagToLabel.rowKeys.length);
-    //     const tagAssets = this.state.selectedAsset.regions.filter((region) => region.tags[0] === selectedTableTagToLabel.name) as ITableRegion[];
-    //     console.log("EditorPage -> privatehandleLabelTable -> tagAssets", tagAssets)
-    //     for (let i = 0; i < selectedTableTagBody.length; i++) {
-    //         selectedTableTagBody[i] = new Array(selectedTableTagToLabel.columnKeys.length);
-    //     }
-    //     tagAssets.forEach((region => {
-    //         const rowIndex = selectedTableTagToLabel.rowKeys.findIndex(rowKey => rowKey.fieldKey === region.rowKey)
-    //         const colIndex = selectedTableTagToLabel.columnKeys.findIndex(colKey => colKey.fieldKey === region.columnKey)
-    //         if (selectedTableTagBody[rowIndex][colIndex]) {
-    //             selectedTableTagBody[rowIndex][colIndex] += " " + region.value
-    //         } else {
-    //             selectedTableTagBody[rowIndex][colIndex] = region.value
-
-    //         }
-    //     }))
-    //     console.log("EditorPage -> privatehandleLabelTable -> selectedTableTagBody", selectedTableTagBody)
-    //     this.setState({
-    //         selectedTableTagBody,
-    //     })
-    // }
 
     /**
      * Called when the asset side bar is resized
@@ -620,7 +598,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private onTagRenamed = async (tag: ITag, newTag: ITag): Promise<void> => {
         this.renameCanceled = null;
         if (tag.type === FieldType.Object || tag.type === FieldType.Array) {
-            const assetUpdates = await this.props.actions.reconfigureTableTag(this.props.project, tag.name, newTag.name, newTag.type, newTag.format, undefined, undefined, undefined, undefined);
+            const assetUpdates = await this.props.actions.reconfigureTableTag(this.props.project, tag.name, newTag.name, newTag.type, newTag.format, (newTag as ITableTag).visualizationHint, undefined, undefined, undefined, undefined);
             const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
             if (selectedAsset) {
                 this.setState({ selectedAsset,
@@ -899,13 +877,13 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         });
     }
 
-    private reconfigureTableConfirm = (originalTagName: string, tagName: string, tagType: FieldType.Array | FieldType.Object, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => {
+    private reconfigureTableConfirm = (originalTagName: string, tagName: string, tagType: FieldType.Array | FieldType.Object, tagFormat: FieldFormat, visualizationHint: TableVisualizationHint, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => {
         this.setState({ reconfigureTableConfirm: true });
-        this.reconfigTableConfirm.current.open(originalTagName, tagName, tagType, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
+        this.reconfigTableConfirm.current.open(originalTagName, tagName, tagType, tagFormat, visualizationHint, deletedColumns, deletedRows, newRows, newColumns);
     }
 
-    private reconfigureTable = async (originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => {
-        const assetUpdates = await this.props.actions.reconfigureTableTag(this.props.project, originalTagName, tagName, tagType, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
+    private reconfigureTable = async (originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, visualizationHint: TableVisualizationHint, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => {
+        const assetUpdates = await this.props.actions.reconfigureTableTag(this.props.project, originalTagName, tagName, tagType, tagFormat, visualizationHint, deletedColumns, deletedRows, newRows, newColumns);
         const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
         if (selectedAsset) {
           this.setState({

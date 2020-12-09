@@ -21,7 +21,7 @@ interface ITableTagConfigProps {
     addTableTag: (table: any) => void;
     splitPaneWidth: number;
     tableTag?: ITableTag;
-    reconfigureTableConfirm?: (originalTagName: string, tagName: string, tagType: FieldType.Array | FieldType.Object, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => void;
+    reconfigureTableConfirm?: (originalTagName: string, tagName: string, tagType: FieldType.Array | FieldType.Object, tagFormat: FieldFormat, visualizationHint: TableVisualizationHint, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => void;
     selectedTableBody: ITableRegion[][][];
 }
 
@@ -34,7 +34,7 @@ interface ITableTagConfigState {
     },
     type: FieldType.Object | FieldType.Array,
     format: FieldFormat.NotSpecified,
-    headerTypeAndFormat: string;
+    headerTypeAndFormat: TableElements.columns | TableElements.rows;
     originalName?: string;
     deletedRows?: ITableConfigItem[],
     deletedColumns?: ITableConfigItem[],
@@ -130,8 +130,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     name: {tableName: props.tableTag.name, originalTableName: props.tableTag.name},
                     type: FieldType.Object,
                     format: FieldFormat.NotSpecified,
-                    rows: props.tableTag.rowKeys?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat, originalName: row.fieldKey, originalFormat: row.fieldFormat, originalType: row.fieldType, documentCount: row.documentCount })),
-                    columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType, documentCount: col.documentCount })),
+                    rows: props.tableTag.fields?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat, originalName: row.fieldKey, originalFormat: row.fieldFormat, originalType: row.fieldType })),
+                    columns: props.tableTag.definition.fields.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType })),
                     headerTypeAndFormat: TableElements.columns,
                     deletedColumns: [],
                     deletedRows: [],
@@ -142,9 +142,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     name: {tableName: props.tableTag.name, originalTableName: props.tableTag.name},
                     type: FieldType.Object,
                     format: FieldFormat.NotSpecified,
-                    rows: props.tableTag.rowKeys?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat, originalName: row.fieldKey, originalFormat: row.fieldFormat, originalType: row.fieldType, documentCount: row.documentCount })),
-                    columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType, documentCount: col.documentCount })),
-                    headerTypeAndFormat: TableElements.columns,
+                    rows: props.tableTag.definition.fields?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat, originalName: row.fieldKey, originalFormat: row.fieldFormat, originalType: row.fieldType })),
+                    columns: props.tableTag.fields.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType })),
+                    headerTypeAndFormat: TableElements.rows,
                     deletedColumns: [],
                     deletedRows: [],
                 }
@@ -155,7 +155,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 type: FieldType.Array,
                 format: FieldFormat.NotSpecified,
                 rows: null,
-                columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType, documentCount: col.documentCount  })),
+                columns: props.tableTag.definition.fields.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType  })),
                 headerTypeAndFormat: TableElements.columns,
                 deletedColumns: [],
             }
@@ -179,7 +179,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     const [columns, setColumns] = useState(table.columns);
     const [rows, setRows] = useState<ITableConfigItem[]>(table.rows);
     const [notUniqueNames, setNotUniqueNames] = useState<{ columns: [], rows: [], tags: boolean }>({ columns: [], rows: [], tags: false });
-    const [headersFormatAndType, setHeadersFormatAndType] = useState<TableElements.columns | TableElements.rows>(TableElements.columns);
+    const [headersFormatAndType, setHeadersFormatAndType] = useState<TableElements.columns | TableElements.rows>(table.headerTypeAndFormat);
     const [selectedColumn, setSelectedColumn] = useState<IObjectWithKey>(undefined);
     const [selectedRow, setSelectedRow] = useState<IObjectWithKey>(undefined);
     const [deletedColumns, setDeletedColumns] = useState(table.deletedColumns);
@@ -1129,7 +1129,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                                         name: cleanTableName,
                                         columns: cleanColumns,
                                         deletedColumns,
-                                        headersFormatAndType
+                                        headersFormatAndType,
+                                        visualizationHint: props.tableTag.visualizationHint,
                                     }
                                     if (type === FieldType.Object) {
                                         tableTagToReconfigure[TableElements.rows] = cleanRows;
@@ -1140,7 +1141,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                                         tableTagToReconfigure["deletedRows"] = null;
                                         tableTagToReconfigure["type"] = FieldType.Array;
                                     }
-                                    props.reconfigureTableConfirm(tableTagName?.originalTableName?.trim(), tableTagName?.tableName?.trim(), tableTagToReconfigure["type"], tableTagToReconfigure["format"], deletedColumns, deletedRows, tableTagToReconfigure["rows"], tableTagToReconfigure.columns);
+                                    props.reconfigureTableConfirm(tableTagName?.originalTableName?.trim(), tableTagName?.tableName?.trim(), tableTagToReconfigure["type"], tableTagToReconfigure["format"], tableTagToReconfigure.visualizationHint, deletedColumns, deletedRows, tableTagToReconfigure["rows"], tableTagToReconfigure.columns);
                                 } else {
                                     save(cleanTableName, cleanRows, cleanColumns);
                                 }

@@ -90,7 +90,7 @@ export interface ITagInputProps {
     selectedTableTagToLabel: ITableTag;
     handleLabelTable: (tagInputMode: TagInputMode, selectedTableTagToLabel) => void;
     addRowToDynamicTable: () => void;
-    reconfigureTableConfirm: (originalTagName: string, tagName: string, tagType: FieldType.Array | FieldType.Object, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => void;
+    reconfigureTableConfirm: (originalTagName: string, tagName: string, tagType: FieldType.Array | FieldType.Object, tagFormat: FieldFormat, visualizationHint: TableVisualizationHint, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => void;
     handleTableCellClick: (iTableCellIndex, jTableCellIndex) => void;
     selectedTableTagBody: ITableRegion[][][];
     handleTableCellMouseEnter: (regions) => void;
@@ -695,22 +695,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             type: tableConfig.type,
             format: tableConfig.format,
             documentCount: 0,
-            columnKeys: tableConfig.columns.map((column) => {
-                return ({
-                    fieldKey: column.name,
-                    fieldType: column.type,
-                    fieldFormat: column.format,
-                    documentCount: 0,
-                } as ITableKeyField)
-            }),
-            rowKeys: tableConfig.rows?.map((row) => {
-                return ({
-                    fieldKey: row.name,
-                    fieldType: row.type,
-                    fieldFormat: row.format,
-                    documentCount: 0,
-                } as ITableKeyField)
-            }),
             itemType: tableConfig.itemType,
             fields: tableConfig.fields,
             definition: tableConfig.definition,

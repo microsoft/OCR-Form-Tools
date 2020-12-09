@@ -9,7 +9,7 @@ import {
     EditorMode, IAssetMetadata,
     IProject, IRegion, RegionType,
     AssetType, ILabelData, ILabel,
-    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, ImageMapParent, LabelType, ITableRegion, ITableTag, ITableLabel, ITableCellLabel, AssetLabelingState, APIVersionPatches
+    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, ImageMapParent, LabelType, ITableRegion, ITableTag, ITableLabel, ITableCellLabel, AssetLabelingState, APIVersionPatches, TableVisualizationHint
 } from "../../../../models/applicationState";
 import CanvasHelpers from "./canvasHelpers";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
@@ -492,10 +492,16 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             for (const selectedRegion of selectedRegions as ITableRegion[]) {
                 if (inputTag[0].type === FieldType.Array) {
                     selectedRegion.rowKey = "#" + (rowIndex + 1);
+                    selectedRegion.columnKey = (inputTag as ITableTag[])[0].definition.fields[columnIndex].fieldKey;
                 } else {
-                    selectedRegion.rowKey = (inputTag as ITableTag[])[0].rowKeys[rowIndex].fieldKey;
+                    if ((inputTag as ITableTag[])[0].visualizationHint === TableVisualizationHint.Horizontal) {
+                        selectedRegion.rowKey = (inputTag as ITableTag[])[0].fields[rowIndex].fieldKey;
+                        selectedRegion.columnKey = (inputTag as ITableTag[])[0].definition.fields[columnIndex].fieldKey;
+                    } else {
+                        selectedRegion.rowKey = (inputTag as ITableTag[])[0].definition.fields[rowIndex].fieldKey;
+                        selectedRegion.columnKey = (inputTag as ITableTag[])[0].fields[columnIndex].fieldKey;
+                    }
                 }
-                selectedRegion.columnKey = (inputTag as ITableTag[])[0].columnKeys[columnIndex].fieldKey;
                 selectedRegion.isTableRegion = true;
             }
         }

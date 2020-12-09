@@ -127,8 +127,6 @@ export interface ITag {
 }
 
 export interface ITableTag extends ITag {
-    rowKeys: ITableKeyField[];
-    columnKeys?: ITableKeyField[];
     fields?: ITableField[];
     itemType?: string;
     definition?: ITableDefinition,
@@ -339,8 +337,6 @@ export interface ITableKeyField extends IField {
 }
 
 export interface ITableField extends IField {
-    columnKeys?: ITableKeyField[];
-    rowKeys?: ITableKeyField[];
     itemType?: string;
     fields?: ITableField[];
     visualizationHint?: TableVisualizationHint;
@@ -361,7 +357,9 @@ export interface ITableConfigItem {
 }
 
 export interface IFieldInfo {
+    schema?: string,
     fields: IField[],
+    definitions?: any,
 }
 
 export interface IRecentModel {
