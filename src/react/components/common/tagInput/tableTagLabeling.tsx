@@ -35,8 +35,8 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
     public state: ITableTagLabelingState = {
         selectedRowIndex: null,
         selectedColumnIndex: null,
-        rows: this.props.selectedTag.type === FieldType.Array || this.props.selectedTag?.visualizationHint === TableVisualizationHint.Horizontal ? this.props.selectedTag.fields : this.props.selectedTag.definition.fields,
-        columns: this.props.selectedTag.type === FieldType.Array || this.props.selectedTag.visualizationHint === TableVisualizationHint.Horizontal ?  this.props.selectedTag.definition.fields : this.props.selectedTag.fields,
+        rows: this.props.selectedTag.type === FieldType.Array || this.props.selectedTag?.visualizationHint === TableVisualizationHint.Vertical ? this.props.selectedTag.fields : this.props.selectedTag.definition.fields,
+        columns: this.props.selectedTag.type === FieldType.Array || this.props.selectedTag.visualizationHint === TableVisualizationHint.Vertical ?  this.props.selectedTag.definition.fields : this.props.selectedTag.fields,
         selectedTableTagBody: this.props.selectedTableTagBody,
     };
 
@@ -74,13 +74,17 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                     <h5 className="mb-4 table-name">
                         <span style={{ borderBottom: `4px solid ${this.props.selectedTag.color}` }}>{`${strings.tags.regionTableTags.tableLabeling.tableName}: ${this.props.selectedTag.name}`}</span>
                     </h5>
+                    { (this.props.selectedTag.type === FieldType.Object && this.props.selectedTag.fields && this.props.selectedTag.definition.fields) || this.props.selectedTag.definition.fields ?
                     <div className="table-view-container">
-                        <table className="viewed-table">
-                            <tbody>
-                                {this.getTableBody()}
-                            </tbody>
-                        </table>
-                    </div>
+                    <table className="viewed-table">
+                        <tbody>
+                            {this.getTableBody()}
+                        </tbody>
+                    </table>
+                </div>
+                :
+                <div>Missing fields. Please Reconfigure table.</div>
+                    }
                     {this.props.selectedTag.type === FieldType.Array && <div className="add-row-button_container">
                         <PrimaryButton
                             theme={getPrimaryBlueTheme()}

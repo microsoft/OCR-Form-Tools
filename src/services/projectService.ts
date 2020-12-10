@@ -334,7 +334,7 @@ export default class ProjectService implements IProjectService {
                             itemType: (field as ITableField).itemType,
                             fields: (field as ITableField).fields,
                             definition: tableDefinition,
-                            visualizationHint: (field as ITableField).visualizationHint || TableVisualizationHint.Horizontal
+                            visualizationHint: (field as ITableField).visualizationHint || TableVisualizationHint.Vertical
                         } as ITableTag);
                     } else {
                         tags.push({

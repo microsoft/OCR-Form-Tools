@@ -125,7 +125,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     let table: ITableTagConfigState;
     if (props.tableTag) {
         if (props.tableTag?.type === FieldType.Object) {
-            if (props.tableTag.visualizationHint === TableVisualizationHint.Horizontal) {
+            if (props.tableTag.visualizationHint === TableVisualizationHint.Vertical) {
                 table = {
                     name: {tableName: props.tableTag.name, originalTableName: props.tableTag.name},
                     type: FieldType.Object,
@@ -154,7 +154,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 name: { tableName: props.tableTag.name, originalTableName: props.tableTag.name },
                 type: FieldType.Array,
                 format: FieldFormat.NotSpecified,
-                rows: null,
+                rows: [defaultRowOrColumn],
                 columns: props.tableTag?.definition?.fields?.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType  })),
                 headerTypeAndFormat: TableElements.columns,
                 deletedColumns: [],
@@ -669,9 +669,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     function getVisualizationHint(headersFormatAndType) {
         if (type === FieldType.Object) {
             if (headersFormatAndType === TableElements.columns) {
-                return TableVisualizationHint.Horizontal;
-            } else {
                 return TableVisualizationHint.Vertical;
+            } else {
+                return TableVisualizationHint.Horizontal;
             }
         } else {
             return null;
@@ -956,7 +956,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                             className="ml-12px"
                             onChange={(event, option) => {
                                 if (option.key === FieldType.Object) {
-                                    setType(FieldType.Object)
+                                    setType(FieldType.Object);
                                 } else {
                                     setType(FieldType.Array)
                                     setHeadersFormatAndType(TableElements.columns);

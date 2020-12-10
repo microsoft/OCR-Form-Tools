@@ -377,20 +377,23 @@ export function reconfigureTableTag(project: IProject, originalTagName: string, 
 
             // temp fix for new schema change
             let newFields;
-            let newDefinitionFields
+            let newDefinitionFields;
+            let itemType;
             if (tagType === FieldType.Object) {
-                if (visualizationHint === TableVisualizationHint.Horizontal) {
+                if (visualizationHint === TableVisualizationHint.Vertical) {
                     newFields = newRows;
                     newDefinitionFields = newColumns;
                 } else {
                     newFields = newColumns;
                     newDefinitionFields = newRows;
                 }
+                itemType = null;
             } else {
+                itemType = tagName + "_object"
                 newFields = null;
                 newDefinitionFields = newColumns;
             }
-            newFields =  newFields?.map((field) => {
+            newFields =  newFields ? newFields.map((field) => {
                 return {
                     fieldKey: field.name,
                     fieldType: tagName + "_object",
@@ -398,7 +401,7 @@ export function reconfigureTableTag(project: IProject, originalTagName: string, 
                     itemType: null,
                     fields: null,
                 } as ITableField
-            });
+            }) : null;
             newDefinitionFields = newDefinitionFields?.map((definitionField) => {
                 return {
                     fieldKey: definitionField.name,
@@ -414,8 +417,10 @@ export function reconfigureTableTag(project: IProject, originalTagName: string, 
                 tags: currentProject.tags.reduce((result, tag) => {
                     if (tag.name === originalTagName) {
                         (tag as ITag).name = tagName;
+                        (tag as ITableTag).definition.fieldKey = tagName + "_object";
                         (tag as ITableTag).definition.fields = newDefinitionFields;
                         (tag as ITableTag).fields = newFields;
+                        (tag as ITableTag).itemType = itemType;
                         result.push(tag);
                         return result;
                     } else {

@@ -467,7 +467,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         let rowKeys;
         let columnKeys;
         if (selectedTableTagToLabel.type === FieldType.Object) {
-            if (selectedTableTagToLabel.visualizationHint === TableVisualizationHint.Horizontal) {
+            if (selectedTableTagToLabel.visualizationHint === TableVisualizationHint.Vertical) {
                 columnKeys = selectedTableTagToLabel.definition.fields;
                 rowKeys = selectedTableTagToLabel.fields;
             } else {
@@ -492,6 +492,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         const tagAssets = clone()(this.state.selectedAsset.regions).filter((region) => region.tags[0] === selectedTableTagToLabel.name) as ITableRegion[];
         tagAssets.forEach((region => {
+            console.log("yoba", region)
+            console.log(rowKeys);
+            console.log(columnKeys)
             let rowIndex: number;
             if (selectedTableTagToLabel.type === FieldType.Array) {
                 rowIndex = Number(region.rowKey.slice(1)) - 1;
@@ -735,7 +738,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             const hasLabels = _.get(assetMetadata, "labelData.labels.length", 0) > 0;
             const hasTableLabels = _.get(assetMetadata, "labelData.tableLabels.length", 0) > 0;
 
-            if (hasLabels && assetMetadata.labelData.labels.findIndex(item => item.value?.length > 0) >= 0) {
+            if (hasLabels && assetMetadata.labelData.labels.findIndex(item => item?.value?.length > 0) >= 0) {
                 asset.state = AssetState.Tagged
             } else if (hasTableLabels && assetMetadata.labelData.tableLabels.findIndex(item => item.labels?.length > 0) >= 0) {
                 asset.state = AssetState.Tagged
