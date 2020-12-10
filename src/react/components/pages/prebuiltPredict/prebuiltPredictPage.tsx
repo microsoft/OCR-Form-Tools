@@ -5,8 +5,8 @@ import {
     Dropdown, FontIcon, IconButton, IDropdownOption,
     ITooltipHostStyles,
     PrimaryButton,
-    Separator,
-    Spinner, SpinnerSize, TooltipHost
+
+    Spinner, SpinnerSize, TooltipHost, Separator
 } from "@fluentui/react";
 import _ from "lodash";
 import {Feature} from "ol";
@@ -21,7 +21,7 @@ import {bindActionCreators} from "redux";
 import url from "url";
 import {constants} from "../../../../common/constants";
 import {interpolate, strings} from "../../../../common/strings";
-import {getPrimaryWhiteTheme} from "../../../../common/themes";
+import {getPrimaryWhiteTheme, getPrimaryGreenTheme} from "../../../../common/themes";
 import {poll} from "../../../../common/utils";
 import {ErrorCode, FieldFormat, FieldType, IApplicationState, IPrebuiltSettings, ITag} from "../../../../models/applicationState";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
@@ -40,6 +40,7 @@ import "../predict/predictPage.scss";
 import PredictResult from "../predict/predictResult";
 import {ILoadFileHelper, ILoadFileResult, LoadFileHelper} from "./LoadFileHelper";
 import "./prebuiltPredictPage.scss";
+import axios from "axios";
 import {ITableHelper, ITableState, TableHelper} from "./tableHelper";
 
 interface IPrebuiltTypes {
@@ -259,6 +260,22 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                                     onChange={this.onLocaleChange}></Dropdown>
                             </div>
                         </div>
+                        <div className="p-3" style={{marginTop: "0rem"}}>
+                            <div style={{display: "flex", justifyContent: "space-between"}}>
+                                <h5>
+                                    {strings.predict.downloadScript}
+                                </h5>
+                                <PrimaryButton
+                                    className="keep-button-80px"
+                                    theme={getPrimaryGreenTheme()}
+                                    text="Download"
+                                    allowDisabledFocus
+                                    autoFocus={true}
+                                    onClick={this.handleDownloadClick}
+                                />
+                            </div>
+                        </div>
+                        <Separator className="separator-right-pane-main">or</Separator>
                         <div className="p-3" style={{marginTop: "8px"}}>
                             <h5>{strings.prebuiltPredict.selectFileAndRunAnalysis}</h5>
                             <DocumentFilePicker
@@ -815,5 +832,58 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 feature.set("isHighlighted", false);
             }
         }
+    }
+    private handleDownloadClick = () => {
+        this.triggerDownload();
+    }
+
+    private async triggerDownload(): Promise<any> {
+        axios.get("/prebuild-analyze.py").then((response) => {
+            const servicePath=this.state.currentPrebuiltType.servicePath
+            const endpointURL = this.props.prebuiltSettings.serviceURI;
+            const apiKey = this.props.prebuiltSettings.apiKey;
+            const analyzeScript = response.data.replace(/<endpoint>|<subscription_key>|<service_path>|<API_version>/gi,
+                (matched: string) => {
+                    switch (matched) {
+                        case "<endpoint>":
+                            return endpointURL;
+                        case "<subscription_key>":
+                            return apiKey;
+                        case "<service_path>":
+                            return servicePath;
+                        case "<API_version>":
+                            return constants.prebuiltServiceVersion;
+
+                    }
+                });
+            const fileURL = window.URL.createObjectURL(
+                new Blob([analyzeScript]));
+            const fileLink = document.createElement("a");
+            const fileBaseName = "prebuild-analyze";
+            const downloadFileName = fileBaseName + "-" + this.state.currentPrebuiltType.name + ".py";
+
+            fileLink.href = fileURL;
+            fileLink.setAttribute("download", downloadFileName);
+            document.body.appendChild(fileLink);
+            fileLink.click();
+
+        }).catch((error) => {
+            let alertMessage = "";
+            if (error.response) {
+                alertMessage = error.response.data;
+            } else if (error.errorCode === ErrorCode.PredictWithoutTrainForbidden) {
+                alertMessage = strings.errors.predictWithoutTrainForbidden.message;
+            } else if (error.errorCode === ErrorCode.ModelNotFound) {
+                alertMessage = error.message;
+            } else {
+                alertMessage = interpolate(strings.errors.endpointConnectionError.message, {endpoint: "form recognizer backend URL"});
+            }
+            this.setState({
+                shouldShowAlert: true,
+                alertTitle: "Download failed",
+                alertMessage,
+                isPredicting: false,
+            });
+        });
     }
 }

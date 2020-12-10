@@ -31,16 +31,16 @@ async def main(argv):
         printCommandDescription(2)
 
 async def runAnalysis(input_dir,input_file, output_dir, file_type):
-    # Endpoint URL
-    endpoint = r"<endpoint>"
+        # Endpoint URL
+    endpoint = "<endpoint>"
     # Subscription Key
     apim_key = "<subscription_key>"
     # Model ID
-    model_id = "<model_id>"
+    service_path = "<service_path>"
     # API version
     API_version = "<API_version>"
 
-    post_url = endpoint + "/formrecognizer/%s/custom/models/%s/analyze" % (API_version, model_id)
+    post_url = endpoint + "/formrecognizer/%s%s" % (API_version, service_path)
     params = {
         "includeTextDetails": "True"
     }
