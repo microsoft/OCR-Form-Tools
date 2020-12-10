@@ -10,7 +10,6 @@ import {
     Spinner,
     SpinnerSize,
     TooltipHost,
-    Separator
 } from "@fluentui/react";
 import Fill from "ol/style/Fill";
 import Stroke from "ol/style/Stroke";
@@ -295,6 +294,7 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
                         when={this.state.isAnalyzing}
                         message={"A prediction operation is currently in progress, are you sure you want to leave?"}
                     />
+                </div>
                 </div>
             </>
         )
