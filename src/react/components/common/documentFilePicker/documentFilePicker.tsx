@@ -36,8 +36,8 @@ export class DocumentFilePicker extends React.Component<IDocumentFilePickerProps
 
     render() {
         const sourceOptions: IDropdownOption[] = [
-            {key: "localFile", text: "Local file"},
-            {key: "url", text: "URL"},
+            {key: "localFile", text: strings.documentFilePicker.localFile},
+            {key: "url", text: strings.documentFilePicker.url},
         ];
 
         let {disabled} = this.props;
@@ -51,76 +51,65 @@ export class DocumentFilePicker extends React.Component<IDocumentFilePickerProps
 
         return <>
             <div
-                className="document-file-picker"
-                style={{marginBottom: "3px"}}>Image source</div>
-            <div className="container-space-between">
-                <Dropdown
-                    className="sourceDropdown"
-                    selectedKey={this.state.sourceOption}
-                    options={sourceOptions}
-                    disabled={disabled}
-                    onChange={this.onSelectSourceChange}
-                />
-                {this.state.sourceOption === "localFile" &&
-                    <input
-                        aria-hidden="true"
-                        type="file"
-                        accept="application/pdf, image/jpeg, image/png, image/tiff"
-                        id="hiddenInputFile"
-                        ref={this.fileInput}
-                        onChange={this.handleFileChange}
+                className="document-file-picker">
+                <div className="title mr-2">{strings.documentFilePicker.source}:</div>
+                <div className="container-space-between">
+                    <Dropdown
+                        className="sourceDropdown"
+                        selectedKey={this.state.sourceOption}
+                        options={sourceOptions}
                         disabled={disabled}
+                        onChange={this.onSelectSourceChange}
                     />
-                }
-                {this.state.sourceOption === "localFile" &&
-                    <TextField
-                        className="mr-2 ml-2"
-                        theme={getGreenWithWhiteBackgroundTheme()}
-                        style={{cursor: (disabled ? "default" : "pointer")}}
-                        onClick={this.handleDummyInputClick}
-                        readOnly={true}
-                        aria-label={strings.prebuiltPredict.uploadFile}
-                        value={this.state.inputedLocalFile}
-                        placeholder={strings.predict.uploadFile}
-                        disabled={disabled}
-                    />
-                }
-                {this.state.sourceOption === "localFile" &&
-                    <PrimaryButton
-                        className="keep-button-80px"
-                        theme={getPrimaryGreenTheme()}
-                        text="Browse"
-                        allowDisabledFocus
-                        disabled={disabled}
-                        autoFocus={true}
-                        onClick={this.handleDummyInputClick}
-                    />
-                }
-                {this.state.sourceOption === "url" &&
-                    <>
-                        <TextField
-                            className="mr-2 ml-2"
-                            theme={getGreenWithWhiteBackgroundTheme()}
-                            onFocus={this.removeDefaultInputedFileURL}
-                            onChange={this.setInputedFileURL}
-                            aria-label={strings.prebuiltPredict.uploadFile}
-                            value={this.state.inputedFileURL}
-                            disabled={urlInputDisabled}
-                            placeholder={strings.predict.defaultURLInput}
-                        />
-                        <PrimaryButton
-                            theme={getPrimaryGreenTheme()}
-                            className="keep-button-80px"
-                            text="Fetch"
-                            allowDisabledFocus
-                            disabled={fetchDisabled}
-                            autoFocus={true}
-                            onClick={this.getFileFromURL}
-                        />
-                    </>
-                }
+                    {this.state.sourceOption === "localFile" &&
+                        <>
+                            <input
+                                aria-hidden="true"
+                                type="file"
+                                accept="application/pdf, image/jpeg, image/png, image/tiff"
+                                id="hiddenInputFile"
+                                ref={this.fileInput}
+                                onChange={this.handleFileChange}
+                                disabled={disabled}
+                            />
+                            <TextField
+                                className="ml-2 local-file"
+                                theme={getGreenWithWhiteBackgroundTheme()}
+                                style={{cursor: (disabled ? "default" : "pointer")}}
+                                onClick={this.handleDummyInputClick}
+                                readOnly={true}
+                                aria-label={strings.prebuiltPredict.uploadFile}
+                                value={this.state.inputedLocalFile}
+                                placeholder={strings.predict.uploadFile}
+                                disabled={disabled}
+                            />
+                        </>
+                    }
+                    {this.state.sourceOption === "url" &&
+                        <>
+                            <TextField
+                                className="mr-2 ml-2"
+                                theme={getGreenWithWhiteBackgroundTheme()}
+                                onFocus={this.removeDefaultInputedFileURL}
+                                onChange={this.setInputedFileURL}
+                                aria-label={strings.prebuiltPredict.uploadFile}
+                                value={this.state.inputedFileURL}
+                                disabled={urlInputDisabled}
+                                placeholder={strings.predict.defaultURLInput}
+                            />
+                            <PrimaryButton
+                                theme={getPrimaryGreenTheme()}
+                                className="keep-button-80px"
+                                text="Fetch"
+                                allowDisabledFocus
+                                disabled={fetchDisabled}
+                                autoFocus={true}
+                                onClick={this.getFileFromURL}
+                            />
+                        </>
+                    }
+                </div>
             </div>
-
         </>
     }
 

@@ -25,8 +25,8 @@ import {
     getPrimaryGreenTheme, getPrimaryWhiteTheme,
     getRightPaneDefaultButtonTheme
 } from "../../../../common/themes";
-import { getAPIVersion } from "../../../../common/utils";
-import { AppError, ErrorCode, IApplicationState, IAppSettings, IConnection, IProject, IRecentModel } from "../../../../models/applicationState";
+import {getAPIVersion} from "../../../../common/utils";
+import {AppError, ErrorCode, IApplicationState, IAppSettings, IConnection, IProject, IRecentModel} from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -36,6 +36,7 @@ import Alert from "../../common/alert/alert";
 import Confirm from "../../common/confirm/confirm";
 import {DocumentFilePicker} from "../../common/documentFilePicker/documentFilePicker";
 import {ImageMap} from "../../common/imageMap/imageMap";
+import {PageRange} from "../../common/pageRange/pageRange";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import {CanvasCommandBar} from "../editorPage/canvasCommandBar";
 import {TableView} from "../editorPage/tableView";
@@ -84,6 +85,10 @@ export interface IPredictPageState extends ILoadFileResult, ITableState {
     modelOption: string;
     confirmDuplicatedAssetNameMessage?: string;
     imageAngle: number;
+
+    withPageRange: boolean;
+    pageRange: string;
+    pageRangeIsValid?: boolean;
 }
 
 export interface IModel {
@@ -151,6 +156,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         hoveringFeature: null,
         tableToView: null,
         tableToViewId: null,
+
+        withPageRange: false,
+        pageRange: ""
     };
 
     private analyzeResults: any;
@@ -215,12 +223,17 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         }
     }
 
+    getPredictDisabled = () => {
+        return this.state.isPredicting || !this.state.file ||
+            this.state.invalidFileFormat ||
+            !this.state.fileLoaded ||
+            (this.state.withPageRange && !this.state.pageRangeIsValid);
+    }
+
     public render() {
         const mostRecentModel = this.props.project?.recentModelRecords?.[this.state.selectedRecentModelIndex];
         const browseFileDisabled: boolean = !this.state.predictionLoaded;
-        const predictDisabled: boolean = this.state.isPredicting || !this.state.file ||
-            this.state.invalidFileFormat ||
-            !this.state.fileLoaded;
+        const predictDisabled: boolean = this.getPredictDisabled();
 
         const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
         const modelInfo: IAnalyzeModelInfo = this.getAnalyzeModelInfo(this.state.analyzeResult);
@@ -242,7 +255,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     <div className="condensed-list">
                         <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
                             <FontIcon className="mr-1" iconName="Insights" />
-                            <span>Analyze</span>
+                            <span>{strings.predict.title}</span>
                         </h6>
                         {!this.state.loadingRecentModel ?
                             <>
@@ -316,12 +329,22 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                 onFileChange={(data) => this.onFileChange(data)}
                                                 onSelectSourceChange={() => this.onSelectSourceChange()}
                                                 onError={(err) => this.onFileLoadError(err)} />
-
+                                            {this.props.project.apiVersion === constants.prebuiltServiceVersion &&
+                                                <div className="page-range-section">
+                                                    <PageRange
+                                                        disabled={this.state.isFetching || this.state.isPredicting}
+                                                        withPageRange={this.state.withPageRange}
+                                                        pageRange={this.state.pageRange}
+                                                        onPageRangeChange={this.onPageRangeChange} />
+                                                </div>}
+                                        </div>
+                                        <Separator className="separator-right-pane-main">{strings.predict.analysis}</Separator>
+                                        <div className="p-3" style={{marginTop: "8px"}}>
                                             <div className="container-items-end predict-button">
                                                 <PrimaryButton
                                                     theme={getPrimaryWhiteTheme()}
                                                     iconProps={{iconName: "Insights"}}
-                                                    text="Run analysis"
+                                                    text={strings.predict.runAnalysis}
                                                     aria-label={!this.state.predictionLoaded ? strings.predict.inProgress : ""}
                                                     allowDisabledFocus
                                                     disabled={predictDisabled}
@@ -413,6 +436,10 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 }
             </div>
         );
+    }
+
+    onPageRangeChange = (withPageRange: boolean, pageRange: string) => {
+        this.setState({withPageRange, pageRange});
     }
 
     onFileChange(data: {
@@ -729,10 +756,13 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 strings.errors.predictWithoutTrainForbidden.title);
         }
         const apiVersion = getAPIVersion(this.props.project?.apiVersion);
-        const endpointURL = url.resolve(
+        let endpointURL = url.resolve(
             this.props.project.apiUriBase,
             `${interpolate(constants.apiModelsPath, {apiVersion})}/${modelID}/analyze?includeTextDetails=true`,
         );
+        if (this.state.withPageRange && this.state.pageRangeIsValid) {
+            endpointURL += `&pageRange=${this.state.pageRange}`;
+        }
         const headers = {"Content-Type": this.state.file ? this.state.file.type : "application/json", "cache-control": "no-cache"};
         const body = this.state.file ?? {source: this.state.fetchedFileURL};
         let response;
@@ -870,7 +900,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private getPredictionsFromAnalyzeResult(analyzeResult: any) {
-        return _.get(analyzeResult, "documentResults[0].fields", {});
+        return analyzeResult?.documentResults?.map(item => item.fields)
+            .reduce((val, item) => Object.assign(val, item), ({})) ?? {};
     }
 
     private getAnalyzeModelInfo(analyzeResult) {

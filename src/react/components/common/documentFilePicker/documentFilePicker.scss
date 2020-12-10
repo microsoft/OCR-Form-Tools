@@ -1,6 +1,21 @@
 .document-file-picker {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 10px;
+    .title {
+        height: 32px;
+        line-height: 32px;
+    }
+
+    .container-space-between {
+        flex: 1;
+    }
     .sourceDropdown {
         width: 95px;
-        margin-bottom: 10px;
+    }
+    .local-file {
+        float: right;
+        flex: 1;
     }
 }
