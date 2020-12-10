@@ -54,11 +54,6 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                     key: 'CSV',
                     text: 'CSV',
                     onClick: () => this.triggerCSVDownload()
-                },
-                {
-                    key: 'Table',
-                    text: 'Table',
-                    onClick: () => this.triggerTableDonwload()
                 }
             ]
         }
@@ -205,9 +200,22 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
     }
     private triggerCSVDownload = (): void => {
         const items = this.getItems();
-        let csvContent: string = "key,value";
+        const cols:string=",,,,,,"
+        let csvContent: string = `key,value${cols}`;
+        items.forEach(item => {
+            csvContent += `"${item.fieldName}",`;
+        });
+        let tableContent: string = cols;
+        items.forEach(item => {
+            tableContent += `"${item.text ?? ""}",`
+        });
+        let addedToTable=false;
         items.forEach(item => {
             csvContent += `\n${item.fieldName},"${item.text ?? ""}"`;
+            if(!addedToTable){
+                csvContent += tableContent;
+                addedToTable=true;
+            }
         });
         const csvFileURL = window.URL.createObjectURL(new Blob([csvContent]));
         const csvFileLink = document.createElement("a");
@@ -217,26 +225,6 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         csvFileLink.setAttribute("download", csvDownloadFileName);
         document.body.appendChild(csvFileLink);
         csvFileLink.click();
-    }
-
-    private triggerTableDonwload = (): void => {
-        const items = this.getItems();
-        let tableContent: string = "";
-        items.forEach(item => {
-            tableContent += `"${item.fieldName}",`;
-        });
-        tableContent += "\n";
-        items.forEach(item => {
-            tableContent += `"${item.text ?? ""}",`
-        });
-        const tableFileURL = window.URL.createObjectURL(new Blob([tableContent]));
-        const tableFileLink = document.createElement("a");
-        const fileBaseName = this.props.downloadResultLabel.split(".")[0];
-        const tableDownloadFileName = this.props.downloadPrefix + "Result-" + fileBaseName + "-table.csv";
-        tableFileLink.href = tableFileURL;
-        tableFileLink.setAttribute("download", tableDownloadFileName);
-        document.body.appendChild(tableFileLink);
-        tableFileLink.click();
     }
 
     private toPercentage = (x: number): string => {
