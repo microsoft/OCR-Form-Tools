@@ -253,6 +253,7 @@ export interface ILabelData {
     labelingState?: AssetLabelingState;
     labels: ILabel[],
     tableLabels?: ITableLabel[],
+    $schema?: string,
 }
 
 /**

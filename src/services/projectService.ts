@@ -251,19 +251,21 @@ export default class ProjectService implements IProjectService {
                         if (!assetLabel || assetLabel === blob) {
                             const content = JSON.parse(await storageProvider.readText(blob)) as ILabelData;
                             content.labels.forEach((label) => {
-                                tagNameSet.add(label.label);
-                                if (tagDocumentCount[label.label]) {
-                                    tagDocumentCount[label.label] += 1;
-                                } else {
-                                    tagDocumentCount[label.label] = 1;
+                                console.log("yoba2", label)
+                                if (label.label.split("/").length > 1) {
+                                    return;
                                 }
-                            });
-                            content.tableLabels.forEach((tableLabel) => {
-                                tagNameSet.add(tableLabel.tableKey);
-                                if (tagDocumentCount[tableLabel.tableKey]) {
-                                    tagDocumentCount[tableLabel.tableKey] += 1;
+                                let labelName;
+                                if (content.$schema === constants.labelsSchema) {
+                                    labelName = label.label.replace("~1", "/").replace("~", "~0")
                                 } else {
-                                    tagDocumentCount[tableLabel.tableKey] = 1;
+                                    labelName = label.label
+                                }
+                                tagNameSet.add(labelName);
+                                if (tagDocumentCount[labelName]) {
+                                    tagDocumentCount[labelName] += 1;
+                                } else {
+                                    tagDocumentCount[labelName] = 1;
                                 }
                             });
                         }
