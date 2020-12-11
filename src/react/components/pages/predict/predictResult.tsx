@@ -7,6 +7,7 @@ import "./predictResult.scss";
 import {getPrimaryGreenTheme} from "../../../../common/themes";
 import {PrimaryButton, ContextualMenu, IContextualMenuProps, IIconProps} from "@fluentui/react";
 import {strings} from "../../../../common/strings";
+import {tagIndexKeys} from "../../common/tagInput/tagIndexKeys";
 
 export interface IAnalyzeModelInfo {
     docType: string,
@@ -54,6 +55,11 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                     key: 'CSV',
                     text: 'CSV',
                     onClick: () => this.triggerCSVDownload()
+                },
+                {
+                    key: 'Table',
+                    text: 'Table',
+                    onClick: () => this.triggerTableDownload()
                 }
             ]
         }
@@ -71,17 +77,15 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                             text={strings.predict.editAndUploadToTrainingSet} />
                         :<span></span>
                     }
-                    {
-                        <PrimaryButton
-                            className="align-self-end keep-button-120px"
-                            theme={getPrimaryGreenTheme()}
-                            text="Download"
-                            allowDisabledFocus
-                            autoFocus={true}
-                            menuProps={menuProps}
-                            menuAs={this._getMenu}
-                        />
-                    }
+                    <PrimaryButton
+                        className="align-self-end keep-button-120px"
+                        theme={getPrimaryGreenTheme()}
+                        text="Download"
+                        allowDisabledFocus
+                        autoFocus={true}
+                        menuProps={menuProps}
+                        menuAs={this.getMenu}
+                    />
                 </div>
                 {this.props.children}
                 <div className="prediction-field-header" style={{marginTop: 28}}>
@@ -94,7 +98,8 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
             </div>
         );
     }
-    private _getMenu(props: IContextualMenuProps): JSX.Element {
+
+    private getMenu(props: IContextualMenuProps): JSX.Element {
         return <ContextualMenu {...props} />;
     }
 
@@ -171,19 +176,63 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
             this.props.onAddAssetToProject();
         }
     }
-    private triggerJSONDownload = (): void => {
-        const {analyzeResult} = this.props;
-        const predictionData = JSON.stringify(analyzeResult);
-        const fileURL = window.URL.createObjectURL(new Blob([predictionData]));
-        const fileLink = document.createElement("a");
-        const fileBaseName = this.props.downloadResultLabel.split(".")[0];
-        const downloadFileName = this.props.downloadPrefix + "Result-" + fileBaseName + ".json";
 
+    private processDownload(data:string,fileName:string){
+        const fileURL = window.URL.createObjectURL(new Blob([data]));
+        const fileLink = document.createElement("a");
         fileLink.href = fileURL;
+        const fileBaseName = this.props.downloadResultLabel.split(".")[0];
+        const downloadFileName = this.props.downloadPrefix + "Result-" + fileBaseName + fileName;
         fileLink.setAttribute("download", downloadFileName);
         document.body.appendChild(fileLink);
         fileLink.click();
     }
+
+    private triggerJSONDownload = (): void => {
+        const {analyzeResult} = this.props;
+        const predictionData = JSON.stringify(analyzeResult);
+        this.processDownload(predictionData,".json");
+    }
+
+    private triggerCSVDownload = (): void => {
+        const items = this.getItems();
+        let csvContent: string = `Key,Value,Confidence,Page,Bounding Box`;
+        items.forEach(item => {
+            csvContent += `\n"${item.fieldName}","${item.text ?? ""}",${isNaN(item.confidence)? "NaN":(item.confidence * 100).toFixed(2) + "%"},${item.page},"[${item.boundingBox}]"`;
+        });
+        this.processDownload(csvContent,"-keyvalues.csv")
+    }
+
+    private triggerTableDownload = (): void => {
+        const items = this.getItems();
+        let tableContent: string = "";
+        const itemNames=["fieldName","text","confidence","page","boundingBox"];
+        const getValue=(item:any, fieldName:string)=>{
+            switch(fieldName){
+                case "fieldName":
+                    return `"${item[fieldName]}"`;
+                case "text":
+                    return `"${item[fieldName]}"`;
+                case "confidence":
+                    return isNaN(item.confidence)? "NaN":(item.confidence * 100).toFixed(2) + "%";
+                case "page":
+                    return item[fieldName];
+                case "boundingBox":
+                    return `"[${item.boundingBox}]"`;
+                default:
+                    return "";
+            }
+        }
+        itemNames.forEach(name=>{
+            tableContent+=(name+",");
+            items.forEach(item=>{
+                tableContent+=(getValue(item,name)+",");
+            })
+            tableContent+="\n";
+        })
+        this.processDownload(tableContent, "-table.csv");
+    }
+
     private getItems() {
         const {tags, predictions} = this.props;
         const tagsDisplayOrder = tags.map((tag) => tag.name);
@@ -197,34 +246,6 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         // not sure if we decide to filter item by the page
         const items = Object.values(predictions).filter(Boolean).sort((p1, p2) => p1.displayOrder - p2.displayOrder);
         return items;
-    }
-    private triggerCSVDownload = (): void => {
-        const items = this.getItems();
-        const cols:string=",,,,,,"
-        let csvContent: string = `key,value${cols}`;
-        items.forEach(item => {
-            csvContent += `"${item.fieldName}",`;
-        });
-        let tableContent: string = cols;
-        items.forEach(item => {
-            tableContent += `"${item.text ?? ""}",`
-        });
-        let addedToTable=false;
-        items.forEach(item => {
-            csvContent += `\n${item.fieldName},"${item.text ?? ""}"`;
-            if(!addedToTable){
-                csvContent += tableContent;
-                addedToTable=true;
-            }
-        });
-        const csvFileURL = window.URL.createObjectURL(new Blob([csvContent]));
-        const csvFileLink = document.createElement("a");
-        const fileBaseName = this.props.downloadResultLabel.split(".")[0];
-        const csvDownloadFileName = this.props.downloadPrefix + "Result-" + fileBaseName + "-keyvalues.csv";
-        csvFileLink.href = csvFileURL;
-        csvFileLink.setAttribute("download", csvDownloadFileName);
-        document.body.appendChild(csvFileLink);
-        csvFileLink.click();
     }
 
     private toPercentage = (x: number): string => {
