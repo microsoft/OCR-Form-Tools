@@ -1496,11 +1496,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private encodeLabelString = (labelString: string): string => {
-        return labelString.replace("~", "~0").replace("/", "~1");
+        return labelString.replace(/\~/g, "~0").replace(/\//g, "~1")
     }
 
     private decodeLabelString = (labelString: string): string => {
-        return labelString.replace("~1", "/").replace("~", "~0")
+        return labelString.replace(/\~1/g, "/").replace(/\~0/g, "~")
     }
 
     private encodeLabelLayers = (layers: string[]): string[] => {

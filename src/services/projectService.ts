@@ -257,7 +257,7 @@ export default class ProjectService implements IProjectService {
                                 }
                                 let labelName;
                                 if (content.$schema === constants.labelsSchema) {
-                                    labelName = label.label.replace("~1", "/").replace("~", "~0")
+                                    labelName = label.label.replace(/\~1/g, "/").replace(/\~0/g, "~");
                                 } else {
                                     labelName = label.label
                                 }

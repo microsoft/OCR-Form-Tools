@@ -460,7 +460,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     private setTagLabels = (key: string): any[] => {
-        const labels = this.props.labels.filter((label) => label.label === key.replace("~", "~0").replace("/", "~1"));
+        const labels = this.props.labels.filter((label) => label.label === key.replace(/\~/g, "~0").replace(/\//g, "~1"));
         const tableLables = this.props.tableLabels.filter((label) => label.tableKey === key);
         return [...labels, ...tableLables]
     }
