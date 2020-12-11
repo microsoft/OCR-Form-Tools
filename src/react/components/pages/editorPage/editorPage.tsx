@@ -13,7 +13,7 @@ import { strings, interpolate } from "../../../../common/strings";
 import {
     AssetState, AssetType, EditorMode, FieldType,
     IApplicationState, IAppSettings, IAsset, IAssetMetadata,
-    ILabel, IProject, IRegion, ISize, ITag, FeatureCategory, TagInputMode, FieldFormat, ITableTag, ITableRegion, AssetLabelingState, ITableConfigItem
+    ILabel, IProject, IRegion, ISize, ITag, FeatureCategory, TagInputMode, FieldFormat, ITableTag, ITableRegion, AssetLabelingState, ITableConfigItem, TableHeaderTypeAndFormat
 } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -510,14 +510,65 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private handleTableCellClick = (rowIndex: number, columnIndex: number) => {
-        // const inputTag = this.state.selectedTableTagToLabel as ITableTag;
-        // console.log("EditorPage -> privatehandleTableCellClick -> this.props.project.tags", this.props.project.tags)
-        // console.log("EditorPage -> privatehandleTableCellClick -> this.state.selectedTag", this.state.selectedTag)
-        // console.log(inputTag, rowIndex, columnIndex);
-        // if (inputTag.rowKeys[rowIndex].fieldType === FieldType.SelectionMark || inputTag.columnKeys[columnIndex].fieldType === FieldType.SelectionMark) {
-        //     toast.warn("selection mark support for semantic tables is still a work in progress");
-        //     return;
-        // }
+        const inputTag = this.state.selectedTableTagToLabel as ITableTag;
+        // console.log("🚀 ~ file: editorPage.tsx ~ line 514 ~ EditorPage ~ inputTag:", inputTag);
+        // console.log("~ EditorPage -> handleTableCellClick -> this.props.project.tags:", this.props.project.tags.find(tag => inputTag.name === tag.name))
+        // console.log("~ inputTag, rowIndex, columnIndex:", inputTag, rowIndex, columnIndex);
+        // if (this.state.selectedRegions) console.log("🚀 ~~ file: editorPage.tsx ~ line 525 ~ EditorPage ~ this.state.selectedRegions[0].category", this.state.selectedRegions[0]?.category);
+        if (!this.state.selectedRegions || !inputTag) {
+            return;
+        }
+        if (inputTag.format === FieldFormat.Fixed) {
+            if ((inputTag.rowKeys[rowIndex]?.fieldType === FieldType.SelectionMark || inputTag?.columnKeys[columnIndex]?.fieldType === FieldType.SelectionMark)) {
+                if (this.state.selectedRegions[0]?.category !== FeatureCategory.Checkbox) {
+                    console.log("! tag:", inputTag, inputTag.tableTypeAndFormatFor)
+                    toast.warn("This cell has selectionMark type!");
+                    // toast.warn(`This ${inputTag.tableTypeAndFormatFor === TableHeaderTypeAndFormat.Rows ? "row" : "column"} has selectionMark type!`);
+                    return;
+                }
+                if (this.state.selectedRegions[0].category === FeatureCategory.Checkbox) {
+                    const selectionMarkCellHasValue = this.state.selectedAsset?.labelData?.tableLabels
+                        ?.find(tag => tag.tableKey === inputTag.name)?.labels
+                        ?.find(label => (label.rowKey === inputTag.rowKeys[rowIndex].fieldKey && label.columnKey === inputTag.columnKeys[columnIndex].fieldKey))
+                        ?.value.length > 0;
+                    if (selectionMarkCellHasValue) {
+                        toast.warn("Only one selectionMark permited per cell!");
+                        return;
+                    }
+                }
+            }
+            else if (this.state.selectedRegions[0].category === FeatureCategory.Checkbox
+                && (inputTag?.rowKeys[rowIndex].fieldType !== FieldType.SelectionMark || inputTag?.columnKeys[columnIndex].fieldType !== FieldType.SelectionMark)) {
+                toast.warn(`Cannot apply selectionMark to this field.`);
+                // toast.warn(`This ${inputTag.tableTypeAndFormatFor === TableHeaderTypeAndFormat.Rows ? "row" : "column"} has selectionMark type!`);
+                return;
+            }
+        } else {
+            if (inputTag?.columnKeys[columnIndex]?.fieldType === FieldType.SelectionMark) {
+                if (this.state.selectedRegions[0]?.category !== FeatureCategory.Checkbox) {
+                    console.log("! tag:", inputTag, inputTag.tableTypeAndFormatFor)
+                    toast.warn("This column has selectionMark type!");
+                    return;
+                }
+                if (this.state.selectedRegions[0].category === FeatureCategory.Checkbox) {
+                    const selectionMarkCellHasValue = this.state.selectedAsset?.labelData?.tableLabels
+                        ?.find(tag => tag.tableKey === inputTag.name)?.labels
+                        ?.find(label => (label.rowKey === (`#${rowIndex + 1}`) && label.columnKey === inputTag.columnKeys[columnIndex].fieldKey))
+                        ?.value.length > 0;
+                    if (selectionMarkCellHasValue) {
+                        toast.warn("Only one selectionMark permited per cell!");
+                        return;
+                    }
+                }
+            }
+            else if (this.state.selectedRegions[0].category === FeatureCategory.Checkbox
+                && (inputTag?.columnKeys[columnIndex].fieldType !== FieldType.SelectionMark)) {
+                toast.warn(`Cannot apply selectionMark to this field.`);
+                // toast.warn(`This ${inputTag.tableTypeAndFormatFor === TableHeaderTypeAndFormat.Rows ? "row" : "column"} has selectionMark type!`);
+                return;
+            }
+
+        }
         // const selectedTableTagBody = clone()(this.state.selectedTableTagBody);
         // if (selectedTableTagBody[rowIndex][columnIndex] != null) {
         //     selectedTableTagBody[rowIndex][columnIndex].concat(clone()(this.state.selectedRegions));
@@ -770,7 +821,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         // Only update asset metadata if state changes or is different
         if (initialState !== asset.state || this.state.selectedAsset !== assetMetadata) {
-            if (JSON.stringify(assetMetadata.labelData) !== JSON.stringify(this.state.selectedAsset.labelData)) {
+            console.log("# update!", assetMetadata)
+            if (JSON.stringify(assetMetadata) !== JSON.stringify(this.state.selectedAsset)) {
                 await this.updatedAssetMetadata(assetMetadata);
             }
 
