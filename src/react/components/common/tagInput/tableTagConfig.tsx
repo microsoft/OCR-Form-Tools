@@ -6,14 +6,14 @@ import {
     Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption,
     PrimaryButton, DetailsList, IColumn, TextField, Dropdown, SelectionMode,
     DetailsListLayoutMode, FontIcon, CheckboxVisibility, IContextualMenuItem,
-    CommandBar, Selection, Separator, IObjectWithKey, ActionButton
+    CommandBar, Selection, Separator, IObjectWithKey, ActionButton, IDropdownOption
 } from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme, getDefaultTheme } from '../../../../common/themes';
-import { FieldFormat, FieldType, IApplicationState, ITableRegion, ITableTag, ITag, TableElements, TagInputMode } from '../../../../models/applicationState';
+import { FieldFormat, FieldType, IApplicationState, ITableField, ITableKeyField, ITableRegion, ITableTag, ITag, TableElements, TagInputMode } from '../../../../models/applicationState';
 import { filterFormat, getTagCategory, useDebounce } from "../../../../common/utils";
 import { toast } from "react-toastify";
 import "./tableTagConfig.scss";
-import { interpolate, strings } from "../../../../common/strings";
+import { strings } from "../../../../common/strings";
 import _ from "lodash";
 
 interface ITableTagConfigProps {
@@ -97,8 +97,10 @@ const formatOptions = (type = FieldType.String) => {
     return options;
 };
 
-const typeOptions = () => {
-    const options = [];
+const isCompatibleWithType = (documentCount: number, type: string, newType: string) => documentCount  <= 0 ? true : getTagCategory(type) === getTagCategory(newType);
+
+const getTypeOptions = () => {
+    const options: IDropdownOption[] = [];
     Object.entries(FieldType).forEach(([key, value]) => {
         if (value !== FieldType.Table) {
             options.push({ key, text: value });
@@ -169,38 +171,17 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     const [shouldAutoFocus, setShouldAutoFocus] = useState(null);
 
 
-    const isCompatibleWithType = (documentCount: number, type: string, newType: string) => {
-        return documentCount  <= 0 ? true : getTagCategory(type) === getTagCategory(newType);
+
+    function setFieldTypeOptions(docCount: number, currType: string) {        
+        return getTypeOptions().map(option => ({ ...option, disabled: !isCompatibleWithType(docCount, currType, option.text)}))
     }
 
-    function selectColumnType(idx: number, type: string, docCount: number) {
-        setColumns(columns.map((col, currIdx) => {
-            if (idx === currIdx) {
-                if (isCompatibleWithType(docCount, col.originalType, type))
-                    return { ...col, type, format: FieldFormat.NotSpecified }
-                else {
-                    toast.warn(_.capitalize(interpolate(strings.tags.regionTableTags.configureTag.errors.notCompatibleTableColOrRowType, { kind: "column" })));
-                    return col;
-                }
-            } else {
-                return col
-            }
-        }));
+    function selectColumnType(idx: number, type: string) {
+        setColumns(columns.map((col, currIdx) => idx === currIdx ? { ...col, type, format: FieldFormat.NotSpecified } : col));
     }
 
-    function selectRowType(idx: number, type: string, docCount: number) {
-        setRows(rows.map((row, currIdx) => {
-            if (idx === currIdx) {
-                if (isCompatibleWithType(docCount, row.originalType, type))
-                    return { ...row, type, format: FieldFormat.NotSpecified }
-                else {
-                    toast.warn(_.capitalize(interpolate(strings.tags.regionTableTags.configureTag.errors.notCompatibleTableColOrRowType, { kind: "row" })));
-                    return row;
-                }
-            } else {
-                return row
-            }
-        }));
+    function selectRowType(idx: number, type: string) {
+        setRows(rows.map((row, currIdx) => idx === currIdx ? { ...row, type, format: FieldFormat.NotSpecified } : row));
     }
 
     function selectColumnFormat(idx: number, format: string) {
@@ -259,9 +240,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         className="type_dropdown"
                         placeholder={row.type}
                         defaultSelectedKey={FieldType.String}
-                        options={typeOptions()}
+                        options={setFieldTypeOptions(row.documentCount, row.type)}
                         theme={getGreenWithWhiteBackgroundTheme()}
-                        onChange={(e, val) => selectColumnType(index, val.text, row.documentCount)}
+                        onChange={(e, val) => selectColumnType(index, val.text)}
                     />
                 </Customizer>
                 : <></>
@@ -330,9 +311,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         style={{ marginTop: 16 }}
                         placeholder={row.type}
                         defaultSelectedKey={FieldType.String}
-                        options={typeOptions()}
+                        options={setFieldTypeOptions(row.documentCount, row.type)}
                         theme={getGreenWithWhiteBackgroundTheme()}
-                        onChange={(e, val) => selectRowType(index, val.text, row.documentCount)}
+                        onChange={(e, val) => selectRowType(index, val.text)}
                     />
                 </Customizer>
                 : <></>
