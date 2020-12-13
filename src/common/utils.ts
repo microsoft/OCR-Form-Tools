@@ -476,11 +476,13 @@ export function downloadAsJsonFile(data: any, fileName: string, prefix?: string)
     fileLink.click();
 }
 
-export function  getTagCategory (tagType: string) {
+export function getTagCategory(tagType: string) {    
     switch (tagType) {
         case FieldType.SelectionMark:
         case "checkbox":
             return "checkbox";
+        case FieldType.DrawnRegion:
+            return "region";
         case FieldType.Table:
             return FieldType.Table;
         default:

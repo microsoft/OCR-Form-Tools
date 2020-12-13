@@ -745,6 +745,8 @@ export class ImageMap extends React.Component<IImageMapProps> {
             eventPixel,
             this.drawnLabelVectorLayerFilter);
         if (isPointerOnDrawnLabelFeature) {
+        console.log("🚀 ## file: imageMap.tsx ~ line 748 ~ ImageMap ~ isPointerOnDrawnLabelFeature", isPointerOnDrawnLabelFeature);
+            
             return {
                 layerfilter: this.drawnLabelVectorLayerFilter,
                 category: FeatureCategory.DrawnRegion,

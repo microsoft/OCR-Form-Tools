@@ -463,6 +463,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
         let regions: IRegion[] = [];
         if (selectedRegions.length > 0) {
+            console.log("🚀 ## file: canvas.tsx ~ line 466 ~ Canvas ~ selectedRegions", selectedRegions[0].category);
             const labelsData = this.state.currentAsset.labelData;
             if (labelsData) {
                 const relatedLabel = labelsData.labels.find((label) => label.label === tag);
@@ -509,11 +510,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
         if (selectedRegions.length === 1 && selectedRegions[0].category === FeatureCategory.Checkbox) {
             if (inputTag[0].type === FieldType.Table) {
-                // selection mark logic placeholder
+                // selection mark logic placeholder (conversion)
             } else {
                 this.setTagType(inputTag[0], FieldType.SelectionMark);
             }
         } else if (selectedRegions[0].category === FeatureCategory.DrawnRegion) {
+        console.log("🚀 ~ file: canvas.tsx ~ line 517 ~ Canvas ~ selectedRegions[0].category", selectedRegions[0].category);
+            
             selectedRegions.forEach((selectedRegion) => {
                 this.imageMap.removeDrawnRegionFeature(this.imageMap.getDrawnRegionFeatureByID(selectedRegion.id));
             });

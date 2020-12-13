@@ -181,6 +181,7 @@ export default class ProjectService implements IProjectService {
     };
 
     public async updateProjectTagsFromFiles(project: IProject, asset?: string): Promise<IProject> {
+        console.log("# asset:", asset)
         const updatedProject = Object.assign({}, project);
         updatedProject.tags = [];
         const storageProvider = StorageProviderFactory.createFromConnection(project.sourceConnection);
@@ -284,6 +285,8 @@ export default class ProjectService implements IProjectService {
                 throw new Error("Invalid label file");
             }
             tagNameArray.forEach((name, index) => {
+            console.log("🚀 ## file: projectService.ts ~ line 291 ~ ProjectService ~ tagNameArray.forEach ~ name", name, "docCount:", tagDocumentCount[name]);
+                
                 tags.push({
                     name,
                     color: tagColors[index],

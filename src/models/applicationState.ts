@@ -486,6 +486,7 @@ export enum FieldType {
     Integer = "integer",
     SelectionMark = "selectionMark",
     Table = "table",
+    DrawnRegion = "region"
 }
 
 export enum LabelType {

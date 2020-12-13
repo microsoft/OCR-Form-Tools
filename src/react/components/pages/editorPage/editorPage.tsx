@@ -515,31 +515,46 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         // console.log("~ EditorPage -> handleTableCellClick -> this.props.project.tags:", this.props.project.tags.find(tag => inputTag.name === tag.name))
         // console.log("~ inputTag, rowIndex, columnIndex:", inputTag, rowIndex, columnIndex);
         // if (this.state.selectedRegions) console.log("🚀 ~~ file: editorPage.tsx ~ line 525 ~ EditorPage ~ this.state.selectedRegions[0].category", this.state.selectedRegions[0]?.category);
-        if (!this.state.selectedRegions || !inputTag) {
+        // console.log("## Table cell:",this.state.selectedAsset?.labelData?.tableLabels?.find(tag => tag.tableKey === inputTag.name)?.labels
+        //     ?.find(label => (label.rowKey === inputTag.rowKeys[rowIndex].fieldKey && label.columnKey === inputTag.columnKeys[columnIndex].fieldKey)));
+        
+        
+        if (!this.state.selectedRegions?.length || !inputTag) {
             return;
         }
+        
+        const selectedRegionCategory = this.state.selectedRegions[0]?.category;
+        console.log("🚀 ## file: editorPage.tsx ~ line 525 ~ EditorPage ~ selectedRegionCategory", selectedRegionCategory);
+        console.log("## inputTag:", inputTag);
+
+
         if (inputTag.format === FieldFormat.Fixed) {
-            if ((inputTag.rowKeys[rowIndex]?.fieldType === FieldType.SelectionMark || inputTag?.columnKeys[columnIndex]?.fieldType === FieldType.SelectionMark)) {
-                if (this.state.selectedRegions[0]?.category !== FeatureCategory.Checkbox) {
-                    console.log("! tag:", inputTag, inputTag.tableTypeAndFormatFor)
-                    toast.warn("This cell has selectionMark type!");
+            const rowCategory = getTagCategory(inputTag.rowKeys[rowIndex]?.fieldType);
+            const columntCategory = getTagCategory(inputTag?.columnKeys[columnIndex]?.fieldType);
+            if ((rowCategory !== FeatureCategory.Text || columntCategory !== FeatureCategory.Text)) {
+                if (selectedRegionCategory !== columntCategory
+                    // || selectedRegionCategory !== rowCategory
+                ) {
+                    toast.warn(`Cannot apply ${selectedRegionCategory} to cell with ${inputTag.rowKeys[rowIndex]?.fieldType + "/"+ inputTag.columnKeys[columnIndex]?.fieldType} type!`);
                     // toast.warn(`This ${inputTag.tableTypeAndFormatFor === TableHeaderTypeAndFormat.Rows ? "row" : "column"} has selectionMark type!`);
                     return;
                 }
-                if (this.state.selectedRegions[0].category === FeatureCategory.Checkbox) {
-                    const selectionMarkCellHasValue = this.state.selectedAsset?.labelData?.tableLabels
+
+                // if (this.state.selectedRegions[0].category === FeatureCategory.Checkbox) {
+                    const tablCellHasValue = this.state.selectedAsset?.labelData?.tableLabels
                         ?.find(tag => tag.tableKey === inputTag.name)?.labels
                         ?.find(label => (label.rowKey === inputTag.rowKeys[rowIndex].fieldKey && label.columnKey === inputTag.columnKeys[columnIndex].fieldKey))
                         ?.value.length > 0;
-                    if (selectionMarkCellHasValue) {
-                        toast.warn("Only one selectionMark permited per cell!");
+                    if (tablCellHasValue) {
+                        toast.warn(`Only one ${inputTag.rowKeys[rowIndex]?.fieldType + "/"+ inputTag.columnKeys[columnIndex]?.fieldType} permited per cell!`);
                         return;
                     }
-                }
+                // }
             }
-            else if (this.state.selectedRegions[0].category === FeatureCategory.Checkbox
+            else if (selectedRegionCategory !== FeatureCategory.Text
                 && (inputTag?.rowKeys[rowIndex].fieldType !== FieldType.SelectionMark || inputTag?.columnKeys[columnIndex].fieldType !== FieldType.SelectionMark)) {
-                toast.warn(`Cannot apply selectionMark to this field.`);
+                // need documnent count here
+                toast.warn(`Cannot apply ${selectedRegionCategory} to this field.`);
                 // toast.warn(`This ${inputTag.tableTypeAndFormatFor === TableHeaderTypeAndFormat.Rows ? "row" : "column"} has selectionMark type!`);
                 return;
             }
@@ -551,11 +566,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                     return;
                 }
                 if (this.state.selectedRegions[0].category === FeatureCategory.Checkbox) {
-                    const selectionMarkCellHasValue = this.state.selectedAsset?.labelData?.tableLabels
+                    const tablCellHasValue = this.state.selectedAsset?.labelData?.tableLabels
                         ?.find(tag => tag.tableKey === inputTag.name)?.labels
                         ?.find(label => (label.rowKey === (`#${rowIndex + 1}`) && label.columnKey === inputTag.columnKeys[columnIndex].fieldKey))
                         ?.value.length > 0;
-                    if (selectionMarkCellHasValue) {
+                    if (tablCellHasValue) {
                         toast.warn("Only one selectionMark permited per cell!");
                         return;
                     }
@@ -563,7 +578,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             }
             else if (this.state.selectedRegions[0].category === FeatureCategory.Checkbox
                 && (inputTag?.columnKeys[columnIndex].fieldType !== FieldType.SelectionMark)) {
-                toast.warn(`Cannot apply selectionMark to this field.`);
+                toast.warn(`Cannot apply ${this.state.selectedRegions[0].category} to this field.!!!`);
                 // toast.warn(`This ${inputTag.tableTypeAndFormatFor === TableHeaderTypeAndFormat.Rows ? "row" : "column"} has selectionMark type!`);
                 return;
             }
@@ -756,6 +771,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             const { format, type, documentCount, name } = tag;
             const tagCategory = getTagCategory(tag.type);
             const category = selection[0].category;
+            console.log("🚀 ## file: editorPage.tsx ~ line 768 ~ EditorPage ~ category", category);
             const labels = this.state.selectedAsset.labelData?.labels;
             const isTagLabelTypeDrawnRegion = this.tagInputRef.current.labelAssignedDrawnRegion(labels, tag.name);
             const labelAssigned = this.tagInputRef.current.labelAssigned(labels, name);
