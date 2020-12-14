@@ -197,7 +197,6 @@ export default class ProjectService implements IProjectService {
 
     public async updatedAssetMetadata(project: IProject,  assetDocumentCountDifference: any, columnDocumentCountDifference?: any,
         rowDocumentCountDifference?: any): Promise<IProject> {
-        console.log("final sol", assetDocumentCountDifference, columnDocumentCountDifference, rowDocumentCountDifference)
         const updatedProject = clone()(project);
         updatedProject.tags?.forEach((tag: ITag) => {
             const diff = assetDocumentCountDifference?.[tag.name];
@@ -217,7 +216,6 @@ export default class ProjectService implements IProjectService {
                 // });
             }
         });
-        console.log("final sol", updatedProject.tags)
         if (JSON.stringify(updatedProject.tags) === JSON.stringify(project.tags)) {
             return project;
         } else {
@@ -252,8 +250,7 @@ export default class ProjectService implements IProjectService {
                         if (!assetLabel || assetLabel === blob) {
                             const content = JSON.parse(await storageProvider.readText(blob)) as ILabelData;
                             content.labels.forEach((label) => {
-                                console.log("yoba2", label)
-                                if (label.label.split("/").length > 1) {
+                                if (content.$schema === constants.labelsSchema && label.label.split("/").length > 1) {
                                     return;
                                 }
                                 let labelName;
@@ -365,7 +362,6 @@ export default class ProjectService implements IProjectService {
                     } as ITag);
                 }
             });
-            console.log("yoba", tags);
             if (project.tags) {
                 project.tags = patch(project.tags, tags, "name", ["type", "format"]);
                 await this.addMissingTagsAndUpdateDocumentCount(project, tags);
@@ -434,7 +430,6 @@ export default class ProjectService implements IProjectService {
         fieldInfo["fields"] =
             project.tags.map((tag ) => {
                 if (tag.type === FieldType.Object || tag.type === FieldType.Array) {
-                    console.log("yoba", tag)
                     const tableField = {
                         fieldKey: tag.name,
                         fieldType: tag.type ? tag.type : FieldType.String,
@@ -446,7 +441,6 @@ export default class ProjectService implements IProjectService {
                         tableField.visualizationHint = (tag as ITableTag).visualizationHint
                     }
                     definitions[(tag as ITableTag).definition.fieldKey] = (tag as ITableTag).definition;
-                    console.log("yoba", tableField)
                     return tableField;
                 } else {
                     return ({

@@ -67,16 +67,20 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
     private getToolbarItems = (): ITagInputToolbarItemProps[] => {
         return [
             {
+                displayName: strings.tags.toolbar.add,
+                icon: "Add",
+                category: Categories.General,
+                handler: this.handleAdd,
+            },
+            {
                 displayName: strings.tags.toolbar.addTable,
                 icon: "AddTable",
                 category: Categories.General,
                 handler: this.handleAddTable,
             },
             {
-                displayName: strings.tags.toolbar.add,
-                icon: "AddTo",
-                category: Categories.General,
-                handler: this.handleAdd,
+                displayName: strings.tags.toolbar.vertiline,
+                category: Categories.Separator,
             },
             {
                 displayName: this.state.tagFilterToggled ? strings.tags.toolbar.showAllTags : strings.tags.toolbar.onlyShowCurrentPageTags,

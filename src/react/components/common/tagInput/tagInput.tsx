@@ -55,6 +55,7 @@ export interface ITagInputProps {
     selectedRegions?: IRegion[];
     /** The labels in the canvas */
     labels: ILabel[];
+    encoded?: boolean;
      /** The tableLabels in the canvas */
      tableLabels?: ITableLabel[];
     /** The doc current page number */
@@ -460,7 +461,13 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     private setTagLabels = (key: string): any[] => {
-        const labels = this.props.labels.filter((label) => label.label === key.replace(/\~/g, "~0").replace(/\//g, "~1"));
+        const labels = this.props.labels.filter((label) => {
+            if (this.props.encoded) {
+                return label.label.replace(/\~1/g, "/").replace(/\~0/g, "~") === key;
+            } else {
+                return label.label === key;
+            }
+        })
         const tableLables = this.props.tableLabels.filter((label) => label.tableKey === key);
         return [...labels, ...tableLables]
     }
@@ -523,7 +530,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     private onTagItemClick = (tag: ITag, props: ITagClickProps) => {
-        console.log("TagInput -> privateonTagItemClick -> tag", tag);
         if (props.ctrlKey && this.props.onCtrlTagClick) { // Lock tags
             this.props.onCtrlTagClick(tag);
         } else if (props.altKey) { // Edit tag
@@ -687,8 +693,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     private addTableTag = (tableConfig: any) => {
-        console.log(tableConfig);
-        // console.log("TagInput -> privateaddTableTag -> tableConfig", tableConfig)
         const newTag: ITableTag = {
             name: tableConfig.name,
             color: getNextColor(this.state.tags),
@@ -700,7 +704,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             definition: tableConfig.definition,
             visualizationHint: tableConfig.visualizationHint,
         };
-        console.log("yoba", newTag)
         this.addTag(newTag);
     }
 

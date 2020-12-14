@@ -122,8 +122,6 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
         const isRowDynamic = this.props.selectedTag.type === FieldType.Array;
 
         let tableBody = null;
-        console.log(table);
-        console.log(selectedTableTagBody);
         if (table.rows && table.rows?.length !== 0 && table.columns.length !== 0) {
             tableBody = [];
             const rows = table[TableElements.rows];

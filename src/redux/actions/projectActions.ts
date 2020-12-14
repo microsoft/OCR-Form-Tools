@@ -363,7 +363,6 @@ export function deleteProjectTag(project: IProject, tagName: string, tagType: Fi
 export function reconfigureTableTag(project: IProject, originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, visualizationHint: TableVisualizationHint, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[])
     : (dispatch: Dispatch, getState: () => IApplicationState) => Promise<IAssetMetadata[]> {
         return async (dispatch: Dispatch, getState: () => IApplicationState) => {
-            console.log(project, tagName, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
             // Find tags to rename
             const assetService = new AssetService(project);
             const assetUpdates = await assetService.refactorTableTag(originalTagName, tagName, tagType, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
@@ -430,7 +429,6 @@ export function reconfigureTableTag(project: IProject, originalTagName: string, 
                 }, [])
             };
 
-            console.log(updatedProject);
 
             // Save updated project tags
             await saveProject(updatedProject, true, false)(dispatch, getState);
