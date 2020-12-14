@@ -108,7 +108,6 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
             marginRight: "0px",
             background: this.getTagColor(item.fieldName),
         };
-        console.log("test yoo", item)
 
         if (item?.type === "array") {
             let pageNumber;
@@ -122,7 +121,6 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                     }
                 })
             })
-            console.log("page number", pageNumber, item)
 
 
             return (
@@ -159,7 +157,6 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                     }
                 })
             })
-            console.log("page number", pageNumber, item)
 
             return (
                 <div key={key}

@@ -339,6 +339,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     lockedTags={this.state.lockedTags}
                                     selectedRegions={this.state.selectedRegions}
                                     labels={labels}
+                                    encoded={selectedAsset?.labelData?.$schema === constants.labelsSchema}
                                     tableLabels={tableLabels}
                                     pageNumber={this.state.pageNumber}
                                     onChange={this.onTagsChanged}
@@ -458,7 +459,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private handleLabelTable = (tagInputMode: TagInputMode = this.state.tagInputMode, selectedTableTagToLabel: ITableTag = this.state.selectedTableTagToLabel) => {
-    // console.log("#: EditorPage -> selectedTableTagToLabel", selectedTableTagToLabel);
 
         if (selectedTableTagToLabel == null || !this.state.selectedAsset) {
             return;
@@ -492,9 +492,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         const tagAssets = clone()(this.state.selectedAsset.regions).filter((region) => region.tags[0] === selectedTableTagToLabel.name) as ITableRegion[];
         tagAssets.forEach((region => {
-            console.log("yoba", region)
-            console.log(rowKeys);
-            console.log(columnKeys)
             let rowIndex: number;
             if (selectedTableTagToLabel.type === FieldType.Array) {
                 rowIndex = Number(region.rowKey.slice(1)) - 1;
@@ -668,7 +665,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private getTagFromKeyboardEvent = (event: KeyboardEvent): ITag => {
         const index = tagIndexKeys.indexOf(event.key);
         const tags = this.props.project.tags;
-        if (index >= 0 && index < tags.length) {
+        if (index >= 0 && index < tags.length && (tags[index].type !== FieldType.Array || tags[index].type !== FieldType.Object)) {
             return tags[index];
         }
         return null;
@@ -1240,12 +1237,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             })
         });
 
-        console.log(currentRowLabels, updatedRowLabels, currentColumnLabels, updatedColumnLabels);
 
         Object.keys(currentColumnLabels).forEach((table) => {
-            console.log(table)
             Object.keys(currentColumnLabels[table]).forEach((columnKey) => {
-                console.log(columnKey)
                 if (!updatedColumnLabels?.[table]?.[columnKey]) {
                     if (!(table in columnDocumentCountDifference)) {
                         columnDocumentCountDifference[table] = {};

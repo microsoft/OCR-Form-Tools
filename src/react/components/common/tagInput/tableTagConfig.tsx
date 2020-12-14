@@ -806,11 +806,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         let deletedFields;
         switch (fieldType) {
             case TableElements.row:
-                console.log("deleted rows");
                 deletedFields = deletedRows;
                 break;
             case TableElements.column:
-                console.log("deleted columns");
                 deletedFields = deletedColumns;
                 break;
         }
@@ -985,7 +983,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         }
                     </>
                 }
-                <div className="columns_container ml-12px">
+                <div className="columns_container mb-4 ml-12px">
                     <h5 className="mt-3">Column fields</h5>
                     <div className="columns-list_container">
                         <DetailsList
@@ -1026,7 +1024,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 }
                 </div>
                 {((props.tableTag?.type === FieldType.Object) || type === FieldType.Object) &&
-                    <div className="rows_container ml-12px">
+                    <div className="rows_container mb-4 ml-12px">
                         <h5 className="">Row fields</h5>
                         <div className="rows-list_container">
                             <DetailsList

@@ -912,7 +912,10 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
         Object.keys(fields).forEach((fieldName) => {
             const field = fields[fieldName];
-            if (field.type === "object") {
+            if (!field) {
+                return;
+            }
+            if (field?.type === "object") {
                 Object.keys(field?.valueObject).forEach((rowName, rowIndex) => {
                     if (field?.valueObject?.[rowName]) {
                         Object.keys(field?.valueObject?.[rowName]?.valueObject).forEach((columnName, colIndex) => {
@@ -1054,7 +1057,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private displayRegionalTable = (regionalTableToView) => {
-        console.log(regionalTableToView);
 
         const tableBody = [];
         if (regionalTableToView?.type === "array") {

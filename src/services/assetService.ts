@@ -488,9 +488,7 @@ export class AssetService {
     }
 
     public async refactorTableTag(originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]): Promise<IAssetMetadata[]> {
-        console.log(tagName, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
         const transformer = (tagNames, columnKey, rowKey) => {
-            console.log("transformer", tagNames, columnKey, rowKey)
             let newTags = tagNames;
             let newColumnKey = columnKey;
             let newRowKey = rowKey;
@@ -505,7 +503,6 @@ export class AssetService {
                 const columnRenamed = newColumns?.find((newColumn) => newColumn.originalName === columnKey && newColumn.originalName !== newColumn.name)
                 const rowRenamed = newRows?.find((newRow) => newRow.originalName === rowKey && newRow.originalName !== newRow.name)
                 if (columnRenamed) {
-                    console.log("transformer column renamed", columnRenamed)
                     newColumnKey = columnRenamed.name;
                 }
                 if (rowRenamed) {
@@ -520,15 +517,12 @@ export class AssetService {
                     const zz = {
                         tableKey: tagName,
                         labels: tableLabel.labels.reduce((result, label) => {
-                            console.log("transformer", result, label)
-                            console.log("transformer", newColumns)
                             const hasDeletedRowOrKey = deletedColumns?.find((deletedColumn) => deletedColumn.originalName === label.columnKey) || deletedRows?.find((deletedRow) => deletedRow.originalName === label.rowKey);
                             if (hasDeletedRowOrKey) {
                                 return result
                             }
                             const columnRenamed = newColumns?.find((newColumn) => newColumn.originalName === label.columnKey && newColumn.originalName !== newColumn.name)
                             const rowRenamed = newRows?.find((newRow) => newRow.originalName === label.rowKey && newRow.originalName !== newRow.name)
-                            console.log("transformer column renamed", columnRenamed)
                             const newLabel = {
                                 value: label.value,
                                 columnKey: columnRenamed?.name || label.columnKey,
@@ -538,7 +532,6 @@ export class AssetService {
                             return result;
                         }, [])
                     }
-                    console.log(zz)
                     return zz
                 } else {
                     return tableLabel;
@@ -603,7 +596,6 @@ export class AssetService {
 
             return isUpdated ? assetMetadata : null;
         });
-        console.log(updates);
 
         return updates.filter((assetMetadata) => !!assetMetadata);
     }
@@ -630,7 +622,6 @@ export class AssetService {
                 region.tags = transformer(region.tags);
             }
         }
-        console.log("update tag in asset metadata",assetMetadata, tagType );
         if (tagType === FieldType.Array || tagType === FieldType.Object) {
             if (assetMetadata.labelData && assetMetadata.labelData.tableLabels) {
                 const field = assetMetadata.labelData.tableLabels.find((field) => field.tableKey === tagName);
@@ -668,9 +659,6 @@ export class AssetService {
         transformer: any,
         labelTransformer: (labelData: ILabelData) => ILabelData): boolean {
         let foundTag = false;
-        console.log("start of asset service refactor")
-        console.log(assetMetadata);
-        console.log("before regions", assetMetadata.regions)
         for (const region of assetMetadata.regions) {
             if (region.tags.find((t) => t === originalTagName)) {
                 foundTag = true;
@@ -686,19 +674,15 @@ export class AssetService {
                 }
             }
         }
-        console.log("after regions", assetMetadata.regions)
-        console.log("assetMetaData before label transformer", assetMetadata.labelData);
 
             if (assetMetadata.labelData && assetMetadata.labelData.tableLabels) {
                 const field = assetMetadata.labelData.tableLabels.find((field) => field.tableKey === originalTagName);
                 if (field) {
                     foundTag = true;
                     assetMetadata.labelData = labelTransformer(assetMetadata.labelData);
-                    console.log("assetMetaData after label transformer", assetMetadata.labelData);
                 }
             }
 
-        console.log("final asset metadata", assetMetadata)
 
         if (foundTag) {
             assetMetadata.regions = assetMetadata.regions.filter((region) => region.tags.length > 0);
