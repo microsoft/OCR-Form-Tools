@@ -387,10 +387,10 @@ export function filterFormat(type: FieldType | string): any[] {
                 FieldFormat.MDY,
                 FieldFormat.YMD,
             ];
-        case FieldType.Table:
+        case FieldType.Object:
+        case FieldType.Array:
             return [
-                FieldFormat.Fixed,
-                FieldFormat.RowDynamic
+                FieldFormat.NotSpecified,
             ];
         default:
             return [ FieldFormat.NotSpecified ];
@@ -483,8 +483,10 @@ export function getTagCategory(tagType: string) {
             return "checkbox";
         case FieldType.DrawnRegion:
             return "region";
-        case FieldType.Table:
-            return FieldType.Table;
+            case FieldType.Object:
+                return FieldType.Object;
+            case FieldType.Array:
+                return FieldType.Array;
         default:
             return "text";
     }

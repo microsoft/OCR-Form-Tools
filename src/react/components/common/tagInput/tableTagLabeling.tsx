@@ -2,7 +2,7 @@ import React from 'react';
 import "./tableTagConfig.scss";
 import { PrimaryButton, FontIcon, DefaultButton } from "@fluentui/react";
 import { getPrimaryGreenTheme, getPrimaryBlueTheme } from '../../../../common/themes';
-import { FieldFormat, FieldType, TagInputMode, IRegion, ITableTag, ITableRegion, IField, TableElements, ITableField, ITableKeyField } from '../../../../models/applicationState';
+import { FieldFormat, FieldType, TagInputMode, IRegion, ITableTag, ITableRegion, IField, TableElements, ITableField, ITableKeyField, TableVisualizationHint } from '../../../../models/applicationState';
 import "./tableTagLabeling.scss";
 
 import { strings } from "../../../../common/strings";
@@ -35,13 +35,13 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
     public state: ITableTagLabelingState = {
         selectedRowIndex: null,
         selectedColumnIndex: null,
-        rows: this.props.selectedTag.rowKeys,
-        columns: this.props.selectedTag.columnKeys,
+        rows: this.props.selectedTag.type === FieldType.Array || this.props.selectedTag?.visualizationHint === TableVisualizationHint.Vertical ? this.props.selectedTag.fields : this.props.selectedTag.definition.fields,
+        columns: this.props.selectedTag.type === FieldType.Array || this.props.selectedTag.visualizationHint === TableVisualizationHint.Vertical ?  this.props.selectedTag.definition.fields : this.props.selectedTag.fields,
         selectedTableTagBody: this.props.selectedTableTagBody,
     };
 
     public componentDidMount = async () => {
-        if (this.props.selectedTag.format === FieldFormat.RowDynamic) {
+        if (this.props.selectedTag.type === FieldType.Array) {
             const rows = [{ fieldKey: "#1", fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified }]
             for (let i = 1; i < this.props.selectedTableTagBody.length; i++) {
                 rows.push({ fieldKey: "#" + (i + 1), fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified });
@@ -74,14 +74,18 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                     <h5 className="mb-4 table-name">
                         <span style={{ borderBottom: `4px solid ${this.props.selectedTag.color}` }}>{`${strings.tags.regionTableTags.tableLabeling.tableName}: ${this.props.selectedTag.name}`}</span>
                     </h5>
+                    { (this.props.selectedTag.type === FieldType.Object && this.props.selectedTag.fields && this.props.selectedTag.definition.fields) || this.props.selectedTag.definition.fields ?
                     <div className="table-view-container">
-                        <table className="viewed-table">
-                            <tbody>
-                                {this.getTableBody()}
-                            </tbody>
-                        </table>
-                    </div>
-                    {this.props.selectedTag.format === FieldFormat.RowDynamic && <div className="add-row-button_container">
+                    <table className="viewed-table">
+                        <tbody>
+                            {this.getTableBody()}
+                        </tbody>
+                    </table>
+                </div>
+                :
+                <div>Missing fields. Please Reconfigure table.</div>
+                    }
+                    {this.props.selectedTag.type === FieldType.Array && <div className="add-row-button_container">
                         <PrimaryButton
                             theme={getPrimaryBlueTheme()}
                             className="add_button ml-6"
@@ -115,9 +119,11 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
     public getTableBody = () => {
         const table = { rows: this.state.rows, columns: this.state.columns };
         const selectedTableTagBody = this.props.selectedTableTagBody;
-        const isRowDynamic = this.props.selectedTag.format === FieldFormat.RowDynamic;
+        const isRowDynamic = this.props.selectedTag.type === FieldType.Array;
 
         let tableBody = null;
+        console.log(table);
+        console.log(selectedTableTagBody);
         if (table.rows && table.rows?.length !== 0 && table.columns.length !== 0) {
             tableBody = [];
             const rows = table[TableElements.rows];

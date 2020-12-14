@@ -13,7 +13,7 @@ import { filterFormat, getNextColor, getTagCategory } from "../../../../common/u
 import {
     IRegion, ITag, ILabel, FieldType, FieldFormat,
     TagInputMode, FeatureCategory, ITableTag, ITableRegion,
-    ITableConfigItem, ITableKeyField, ITableLabel
+    ITableConfigItem, ITableKeyField, ITableLabel, TableElements, TableVisualizationHint
 } from "../../../../models/applicationState";
 import { ColorPicker } from "../colorPicker";
 import "./tagInput.scss";
@@ -90,7 +90,7 @@ export interface ITagInputProps {
     selectedTableTagToLabel: ITableTag;
     handleLabelTable: (tagInputMode: TagInputMode, selectedTableTagToLabel) => void;
     addRowToDynamicTable: () => void;
-    reconfigureTableConfirm: (originalTagName: string, tagName: string, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => void;
+    reconfigureTableConfirm: (originalTagName: string, tagName: string, tagType: FieldType.Array | FieldType.Object, tagFormat: FieldFormat, visualizationHint: TableVisualizationHint, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => void;
     handleTableCellClick: (iTableCellIndex, jTableCellIndex) => void;
     selectedTableTagBody: ITableRegion[][][];
     handleTableCellMouseEnter: (regions) => void;
@@ -460,7 +460,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     private setTagLabels = (key: string): any[] => {
-        const labels = this.props.labels.filter((label) => label.label === key);
+        const labels = this.props.labels.filter((label) => label.label === key.replace(/\~/g, "~0").replace(/\//g, "~1"));
         const tableLables = this.props.tableLabels.filter((label) => label.tableKey === key);
         return [...labels, ...tableLables]
     }
@@ -563,7 +563,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 const isTagLabelTypeDrawnRegion = this.labelAssignedDrawnRegion(labels, tag.name);
                 const labelAssigned = this.labelAssigned(labels, name);
 
-                if (tag.type === FieldType.Table && this.props.selectedRegions?.length) {
+                if ((tag.type === FieldType.Object || tag.type === FieldType.Array) && this.props.selectedRegions?.length) {
                     this.props.handleLabelTable(TagInputMode.LabelTable, tag)
                     deselect = false;
                 } else if (labelAssigned && ((category === FeatureCategory.DrawnRegion) !== isTagLabelTypeDrawnRegion)) {
@@ -687,31 +687,20 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     }
 
     private addTableTag = (tableConfig: any) => {
+        console.log(tableConfig);
         // console.log("TagInput -> privateaddTableTag -> tableConfig", tableConfig)
         const newTag: ITableTag = {
             name: tableConfig.name,
             color: getNextColor(this.state.tags),
-            type: FieldType.Table,
+            type: tableConfig.type,
             format: tableConfig.format,
             documentCount: 0,
-            columnKeys: tableConfig.columns.map((column) => {
-                return ({
-                    fieldKey: column.name,
-                    fieldType: column.type,
-                    fieldFormat: column.format,
-                    documentCount: 0,
-                } as ITableKeyField)
-            }),
-            rowKeys: tableConfig.rows?.map((row) => {
-                return ({
-                    fieldKey: row.name,
-                    fieldType: row.type,
-                    fieldFormat: row.format,
-                    documentCount: 0,
-                } as ITableKeyField)
-            }),
-            tableTypeAndFormatFor: tableConfig.headersFormatAndType
+            itemType: tableConfig.itemType,
+            fields: tableConfig.fields,
+            definition: tableConfig.definition,
+            visualizationHint: tableConfig.visualizationHint,
         };
+        console.log("yoba", newTag)
         this.addTag(newTag);
     }
 
@@ -751,7 +740,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     items: this.getTypeSubMenuItems()
                 },
                 submenuIconProps: {
-                    iconName: tag.type !== FieldType.Table ? "ChevronRight" : ""
+                    iconName: tag.type !== FieldType.Object ? "ChevronRight" : ""
                 }
             },
             {
@@ -764,7 +753,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     items: this.getFormatSubMenuItems(),
                 },
                 submenuIconProps: {
-                    iconName: tag.type !== FieldType.Table ? "ChevronRight" : ""
+                    iconName: tag.type !== FieldType.Object && tag.type !== FieldType.Array ? "ChevronRight" : ""
                 }
 
             },
@@ -815,13 +804,13 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 onClick: this.onMenuItemClick,
             },
         ];
-        return tag.type === FieldType.Table ? menuItems : menuItems.filter((item) => (item.key !== "reconfigureTable"));
+        return tag.type === FieldType.Object || tag.type === FieldType.Array ? menuItems : menuItems.filter((item) => (item.key !== "reconfigureTable"));
         // return menuItems;
     }
 
     private isTypeCompatibleWithTag = (tag, type) => {
         // If free tag we can assign any type
-        if (tag && tag.documentCount <= 0 && tag.type !== FieldType.Table) {
+        if (tag && tag.documentCount <= 0 && tag.type !== FieldType.Object && tag.type !== FieldType.Array) {
             return true;
         }
         const tagType = getTagCategory(tag.type);
@@ -832,10 +821,10 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     private getTypeSubMenuItems = (): IContextualMenuItem[] => {
         const tag = this.state.selectedTag;
         let types = Object.values(FieldType);
-        if (tag.type === FieldType.Table) {
+        if (tag.type === FieldType.Object || tag.type === FieldType.Array) {
             return []
         } else {
-            types = types.filter((i) => i !== FieldType.Table)
+            types = types.filter((i) => i !== FieldType.Array && i !== FieldType.Object)
         }
         return types.map((type) => {
             const isCompatible = this.isTypeCompatibleWithTag(tag, type);
@@ -853,7 +842,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     private getFormatSubMenuItems = (): IContextualMenuItem[] => {
         const tag = this.state.selectedTag;
         const formats = filterFormat(tag.type);
-        if (tag.type === FieldType.Table) {
+        if (tag.type === FieldType.Object || tag.type === FieldType.Array) {
             return []
         }
 

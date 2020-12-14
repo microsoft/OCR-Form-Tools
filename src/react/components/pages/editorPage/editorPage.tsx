@@ -13,7 +13,7 @@ import { strings, interpolate } from "../../../../common/strings";
 import {
     AssetState, AssetType, EditorMode, FieldType,
     IApplicationState, IAppSettings, IAsset, IAssetMetadata,
-    ILabel, IProject, IRegion, ISize, ITag, FeatureCategory, TagInputMode, FieldFormat, ITableTag, ITableRegion, AssetLabelingState, ITableConfigItem, TableHeaderTypeAndFormat
+    ILabel, IProject, IRegion, ISize, ITag, FeatureCategory, TagInputMode, FieldFormat, ITableTag, ITableRegion, AssetLabelingState, ITableConfigItem, TableVisualizationHint
 } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -464,29 +464,50 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             return;
         }
 
-        const selectedTableTagBody = new Array(selectedTableTagToLabel.rowKeys?.length || 1);
-        if (this.state.selectedTableTagToLabel?.name === selectedTableTagToLabel?.name && selectedTableTagToLabel.format === FieldFormat.RowDynamic) {
+        let rowKeys;
+        let columnKeys;
+        if (selectedTableTagToLabel.type === FieldType.Object) {
+            if (selectedTableTagToLabel.visualizationHint === TableVisualizationHint.Vertical) {
+                columnKeys = selectedTableTagToLabel.definition.fields;
+                rowKeys = selectedTableTagToLabel.fields;
+            } else {
+                columnKeys = selectedTableTagToLabel.fields;
+                rowKeys = selectedTableTagToLabel.definition.fields;
+
+            }
+        } else {
+            rowKeys = null;
+            columnKeys = selectedTableTagToLabel.definition.fields;
+        }
+
+        const selectedTableTagBody = new Array(rowKeys?.length || 1);
+        if (this.state.selectedTableTagToLabel?.name === selectedTableTagToLabel?.name && selectedTableTagToLabel.type === FieldType.Array) {
             for (let i = 1; i < this.state.selectedTableTagBody.length; i++) {
                 selectedTableTagBody.push(undefined)
             }
         }
         for (let i = 0; i < selectedTableTagBody.length; i++) {
-            selectedTableTagBody[i] = new Array(selectedTableTagToLabel.columnKeys.length);
+            selectedTableTagBody[i] = new Array(columnKeys.length);
         }
 
         const tagAssets = clone()(this.state.selectedAsset.regions).filter((region) => region.tags[0] === selectedTableTagToLabel.name) as ITableRegion[];
         tagAssets.forEach((region => {
+            console.log("~~~ yoba", region)
+            console.log("~~~ rowKeys" ,rowKeys);
+            console.log("~~~ columnKeys", columnKeys)
             let rowIndex: number;
-            if (selectedTableTagToLabel.format === FieldFormat.RowDynamic) {
+            if (selectedTableTagToLabel.type === FieldType.Array) {
                 rowIndex = Number(region.rowKey.slice(1)) - 1;
             } else {
-                rowIndex = selectedTableTagToLabel.rowKeys.findIndex(rowKey => rowKey.fieldKey === region.rowKey)
+                rowIndex = rowKeys.findIndex(rowKey => rowKey.fieldKey === region.rowKey)
             }
             for (let i = selectedTableTagBody.length; i <= rowIndex; i++) {
-                selectedTableTagBody.push(new Array(selectedTableTagToLabel.columnKeys.length));
+                selectedTableTagBody.push(new Array(columnKeys.length));
             }
-            const colIndex = selectedTableTagToLabel.columnKeys.findIndex(colKey => colKey.fieldKey === region.columnKey)
+            const colIndex = columnKeys.findIndex(colKey => colKey.fieldKey === region.columnKey)
             if (selectedTableTagBody[rowIndex][colIndex] != null) {
+                console.log("🚀 ~~~ file: editorPage.tsx ~ line 517 ~ EditorPage ~ selectedTableTagBody[rowIndex][colIndex]", selectedTableTagBody[rowIndex][colIndex]);
+
                 selectedTableTagBody[rowIndex][colIndex].push(region)
             } else {
                 selectedTableTagBody[rowIndex][colIndex] = [region]
@@ -505,7 +526,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     private addRowToDynamicTable = () => {
         const selectedTableTagBody = clone()(this.state.selectedTableTagBody)
-        selectedTableTagBody.push(Array(this.state.selectedTableTagToLabel.columnKeys.length));
+        selectedTableTagBody.push(Array(this.state.selectedTableTagToLabel.definition.fields.length));
         this.setState({selectedTableTagBody});
     }
 
@@ -514,83 +535,69 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         // console.log("🚀 ~ file: editorPage.tsx ~ line 514 ~ EditorPage ~ inputTag:", inputTag);
         // console.log("~ EditorPage -> handleTableCellClick -> this.props.project.tags:", this.props.project.tags.find(tag => inputTag.name === tag.name))
         // console.log("~ inputTag, rowIndex, columnIndex:", inputTag, rowIndex, columnIndex);
-        // if (this.state.selectedRegions) console.log("🚀 ~~ file: editorPage.tsx ~ line 525 ~ EditorPage ~ this.state.selectedRegions[0].category", this.state.selectedRegions[0]?.category);
-        // console.log("## Table cell:",this.state.selectedAsset?.labelData?.tableLabels?.find(tag => tag.tableKey === inputTag.name)?.labels
-        //     ?.find(label => (label.rowKey === inputTag.rowKeys[rowIndex].fieldKey && label.columnKey === inputTag.columnKeys[columnIndex].fieldKey)));
-        
+        if (this.state.selectedRegions) console.log("🚀 ~## file: editorPage.tsx ~ line 525 ~ EditorPage ~ this.state.selectedRegions[0].category", this.state.selectedRegions);
         
         if (!this.state.selectedRegions?.length || !inputTag) {
             return;
         }
         
         const selectedRegionCategory = this.state.selectedRegions[0]?.category;
-        console.log("🚀 ## file: editorPage.tsx ~ line 525 ~ EditorPage ~ selectedRegionCategory", selectedRegionCategory);
-        console.log("## inputTag:", inputTag);
+        console.log("🚀 ~## file: editorPage.tsx ~ line 545 ~ EditorPage ~ selectedRegionCategory", selectedRegionCategory);
 
+        // fixed
+        if (inputTag.type === FieldType.Object) {
+            const isVertical = inputTag.visualizationHint === TableVisualizationHint.Vertical;
+            const rows = isVertical ? inputTag.fields : inputTag.definition.fields;
+            const columns = isVertical ? inputTag.definition.fields : inputTag.fields;
+            const rowCategory = getTagCategory(rows[rowIndex]?.fieldType);
+            const columnCategory = getTagCategory(columns[columnIndex]?.fieldType);
+            const docCount = 1;
 
-        if (inputTag.format === FieldFormat.Fixed) {
-            const rowCategory = getTagCategory(inputTag.rowKeys[rowIndex]?.fieldType);
-            const columntCategory = getTagCategory(inputTag?.columnKeys[columnIndex]?.fieldType);
-            if ((rowCategory !== FeatureCategory.Text || columntCategory !== FeatureCategory.Text)) {
-                if (selectedRegionCategory !== columntCategory
-                    // || selectedRegionCategory !== rowCategory
-                ) {
-                    toast.warn(`Cannot apply ${selectedRegionCategory} to cell with ${inputTag.rowKeys[rowIndex]?.fieldType + "/"+ inputTag.columnKeys[columnIndex]?.fieldType} type!`);
-                    // toast.warn(`This ${inputTag.tableTypeAndFormatFor === TableHeaderTypeAndFormat.Rows ? "row" : "column"} has selectionMark type!`);
+            if (isVertical) {
+                if (columnCategory !== selectedRegionCategory && docCount > 0) {
+                    toast.warn(`This column has already been labeled as "${columns[columnIndex].fieldType}" type, if you want reconfigure this column type, please delete all values assigned to this column in all documents.`);
                     return;
                 }
+            } else {
+                if (rowCategory !== selectedRegionCategory && docCount > 0) {
+                    toast.warn(`This row has already been labeled as "${rows[rowIndex].fieldType}" type, if you want reconfigure this column type, please delete all values assigned to this column in all documents.`);
+                    return;
+                }
+            }
 
-                // if (this.state.selectedRegions[0].category === FeatureCategory.Checkbox) {
-                    const tablCellHasValue = this.state.selectedAsset?.labelData?.tableLabels
-                        ?.find(tag => tag.tableKey === inputTag.name)?.labels
-                        ?.find(label => (label.rowKey === inputTag.rowKeys[rowIndex].fieldKey && label.columnKey === inputTag.columnKeys[columnIndex].fieldKey))
-                        ?.value.length > 0;
+            if ((rowCategory !== FeatureCategory.Text && !isVertical || columnCategory !== FeatureCategory.Text && isVertical)) {                
+                    const tablCellHasValue = this.state.selectedAsset.regions
+                    .filter(r => (r.tags[0] === inputTag.name))
+                    .filter((t: ITableRegion) => (t.columnKey === columns[columnIndex].fieldKey && t.rowKey === rows[rowIndex].fieldKey)).length > 0;
+                
                     if (tablCellHasValue) {
-                        toast.warn(`Only one ${inputTag.rowKeys[rowIndex]?.fieldType + "/"+ inputTag.columnKeys[columnIndex]?.fieldType} permited per cell!`);
+                        toast.warn(`Only one ${selectedRegionCategory} permited per cell!`);
                         return;
                     }
-                // }
-            }
-            else if (selectedRegionCategory !== FeatureCategory.Text
-                && (inputTag?.rowKeys[rowIndex].fieldType !== FieldType.SelectionMark || inputTag?.columnKeys[columnIndex].fieldType !== FieldType.SelectionMark)) {
-                // need documnent count here
-                toast.warn(`Cannot apply ${selectedRegionCategory} to this field.`);
-                // toast.warn(`This ${inputTag.tableTypeAndFormatFor === TableHeaderTypeAndFormat.Rows ? "row" : "column"} has selectionMark type!`);
-                return;
             }
         } else {
-            if (inputTag?.columnKeys[columnIndex]?.fieldType === FieldType.SelectionMark) {
-                if (this.state.selectedRegions[0]?.category !== FeatureCategory.Checkbox) {
-                    console.log("! tag:", inputTag, inputTag.tableTypeAndFormatFor)
-                    toast.warn("This column has selectionMark type!");
+            // row dynamyc
+            const docCount = 1;
+            const columns = inputTag.definition?.fields
+            const columnCategory = getTagCategory(columns[columnIndex]?.fieldType);
+
+            if (columnCategory !== selectedRegionCategory && docCount > 0) {
+                toast.warn(`This column has already been labeled as "${columns[columnIndex].fieldType}" type, if you want reconfigure this column type, please delete all values assigned to this column in all documents.`);
+                return;
+            }
+
+            if (columnCategory !== FeatureCategory.Text) {
+                const tablCellHasValue = this.state.selectedAsset.regions
+                    .filter(r => (r.tags[0] === inputTag.name))
+                    .filter((t: ITableRegion) => (t.columnKey === columns[columnIndex].fieldKey && t.rowKey === `#${rowIndex + 1}`)).length > 0;
+
+                if (tablCellHasValue) {
+                    toast.warn(`Only one ${selectedRegionCategory} permited per cell!`);
                     return;
                 }
-                if (this.state.selectedRegions[0].category === FeatureCategory.Checkbox) {
-                    const tablCellHasValue = this.state.selectedAsset?.labelData?.tableLabels
-                        ?.find(tag => tag.tableKey === inputTag.name)?.labels
-                        ?.find(label => (label.rowKey === (`#${rowIndex + 1}`) && label.columnKey === inputTag.columnKeys[columnIndex].fieldKey))
-                        ?.value.length > 0;
-                    if (tablCellHasValue) {
-                        toast.warn("Only one selectionMark permited per cell!");
-                        return;
-                    }
-                }
-            }
-            else if (this.state.selectedRegions[0].category === FeatureCategory.Checkbox
-                && (inputTag?.columnKeys[columnIndex].fieldType !== FieldType.SelectionMark)) {
-                toast.warn(`Cannot apply ${this.state.selectedRegions[0].category} to this field.!!!`);
-                // toast.warn(`This ${inputTag.tableTypeAndFormatFor === TableHeaderTypeAndFormat.Rows ? "row" : "column"} has selectionMark type!`);
-                return;
             }
 
         }
-        // const selectedTableTagBody = clone()(this.state.selectedTableTagBody);
-        // if (selectedTableTagBody[rowIndex][columnIndex] != null) {
-        //     selectedTableTagBody[rowIndex][columnIndex].concat(clone()(this.state.selectedRegions));
-        // } else {
-        //     selectedTableTagBody[rowIndex][columnIndex] = clone()(this.state.selectedRegions);
-        // }
-        // console.log("EditorPage -> privatehandleTableCellClick -> selectedTableTagBody", selectedTableTagBody)
         this.onTableTagClicked(this.state.selectedTableTagToLabel, rowIndex, columnIndex);
     }
 
@@ -602,29 +609,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         this.setState({ highlightedTableCellRegions: null });
     }
 
-    // private resetTableBody = () => {
-    //     const selectedTableTagToLabel = this.state.selectedTableTagToLabel as ITableTag;
-    //     const selectedTableTagBody = new Array(selectedTableTagToLabel.rowKeys.length);
-    //     const tagAssets = this.state.selectedAsset.regions.filter((region) => region.tags[0] === selectedTableTagToLabel.name) as ITableRegion[];
-    //     console.log("EditorPage -> privatehandleLabelTable -> tagAssets", tagAssets)
-    //     for (let i = 0; i < selectedTableTagBody.length; i++) {
-    //         selectedTableTagBody[i] = new Array(selectedTableTagToLabel.columnKeys.length);
-    //     }
-    //     tagAssets.forEach((region => {
-    //         const rowIndex = selectedTableTagToLabel.rowKeys.findIndex(rowKey => rowKey.fieldKey === region.rowKey)
-    //         const colIndex = selectedTableTagToLabel.columnKeys.findIndex(colKey => colKey.fieldKey === region.columnKey)
-    //         if (selectedTableTagBody[rowIndex][colIndex]) {
-    //             selectedTableTagBody[rowIndex][colIndex] += " " + region.value
-    //         } else {
-    //             selectedTableTagBody[rowIndex][colIndex] = region.value
-
-    //         }
-    //     }))
-    //     console.log("EditorPage -> privatehandleLabelTable -> selectedTableTagBody", selectedTableTagBody)
-    //     this.setState({
-    //         selectedTableTagBody,
-    //     })
-    // }
 
     /**
      * Called when the asset side bar is resized
@@ -685,8 +669,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      */
     private onTagRenamed = async (tag: ITag, newTag: ITag): Promise<void> => {
         this.renameCanceled = null;
-        if (tag.type === FieldType.Table) {
-            const assetUpdates = await this.props.actions.reconfigureTableTag(this.props.project, tag.name, newTag.name, newTag.type, newTag.format, undefined, undefined, undefined, undefined);
+        if (tag.type === FieldType.Object || tag.type === FieldType.Array) {
+            const assetUpdates = await this.props.actions.reconfigureTableTag(this.props.project, tag.name, newTag.name, newTag.type, newTag.format, (newTag as ITableTag).visualizationHint, undefined, undefined, undefined, undefined);
             const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
             if (selectedAsset) {
                 this.setState({ selectedAsset,
@@ -824,7 +808,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             const hasLabels = _.get(assetMetadata, "labelData.labels.length", 0) > 0;
             const hasTableLabels = _.get(assetMetadata, "labelData.tableLabels.length", 0) > 0;
 
-            if (hasLabels && assetMetadata.labelData.labels.findIndex(item => item.value?.length > 0) >= 0) {
+            if (hasLabels && assetMetadata.labelData.labels.findIndex(item => item?.value?.length > 0) >= 0) {
                 asset.state = AssetState.Tagged
             } else if (hasTableLabels && assetMetadata.labelData.tableLabels.findIndex(item => item.labels?.length > 0) >= 0) {
                 asset.state = AssetState.Tagged
@@ -967,13 +951,13 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         });
     }
 
-    private reconfigureTableConfirm = (originalTagName: string, tagName: string, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => {
+    private reconfigureTableConfirm = (originalTagName: string, tagName: string, tagType: FieldType.Array | FieldType.Object, tagFormat: FieldFormat, visualizationHint: TableVisualizationHint, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => {
         this.setState({ reconfigureTableConfirm: true });
-        this.reconfigTableConfirm.current.open(originalTagName, tagName, FieldType.Table, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
+        this.reconfigTableConfirm.current.open(originalTagName, tagName, tagType, tagFormat, visualizationHint, deletedColumns, deletedRows, newRows, newColumns);
     }
 
-    private reconfigureTable = async (originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => {
-        const assetUpdates = await this.props.actions.reconfigureTableTag(this.props.project, originalTagName, tagName, tagType, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
+    private reconfigureTable = async (originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, visualizationHint: TableVisualizationHint, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => {
+        const assetUpdates = await this.props.actions.reconfigureTableTag(this.props.project, originalTagName, tagName, tagType, tagFormat, visualizationHint, deletedColumns, deletedRows, newRows, newColumns);
         const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
         if (selectedAsset) {
           this.setState({

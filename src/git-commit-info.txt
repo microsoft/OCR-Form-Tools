@@ -1,5 +1,5 @@
-commit 2f9f67749cb73af28eaded2d7f49d41d546986f9
-Author: alex-krasn <v-alexkr@microsoft.com>
-Date:   Wed Nov 18 10:08:36 2020 -0800
+commit 08f5199c73c8246a807413a96b23af749ac63674
+Author: Robert Stewart (eXcell <v-stewro@microsoft.com>
+Date:   Wed Dec 9 05:17:49 2020 -0800
 
-    feat: enable table support for labeledTags filter
+    fix: use default rows and columns if field is null

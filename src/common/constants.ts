@@ -42,6 +42,8 @@ export const constants = {
     autoLabelBatchSizeMax: 10,
     autoLabelBatchSizeMin: 3,
     showOriginLabelsByDefault: true,
+    fieldsSchema: "http://www.azure.com/schema/formrecognizer/fields.json",
+    labelsSchema: "http://www.azure.com/schema/formrecognizer/labels.json",
 
     pdfjsWorkerSrc(version: string) {
         return `https://fotts.azureedge.net/npm/pdfjs-dist/${version}/pdf.worker.js`;
