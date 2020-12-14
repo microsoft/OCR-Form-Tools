@@ -128,7 +128,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     let table: ITableTagConfigState;
     if (props.tableTag) {
         if (props.tableTag?.type === FieldType.Object) {
+            // fixed
             if (props.tableTag.visualizationHint === TableVisualizationHint.Vertical) {
+                // column headers
                 table = {
                     name: {tableName: props.tableTag.name, originalTableName: props.tableTag.name},
                     type: FieldType.Object,
@@ -141,6 +143,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 }
 
             } else {
+                // row header
                 table = {
                     name: {tableName: props.tableTag.name, originalTableName: props.tableTag.name},
                     type: FieldType.Object,
@@ -153,6 +156,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 }
             }
         } else {
+            // row dynamic
             table = {
                 name: { tableName: props.tableTag.name, originalTableName: props.tableTag.name },
                 type: FieldType.Array,
@@ -165,6 +169,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         }
 
     } else {
+        // initial
         table = {
             name: {tableName: ""},
             type: FieldType.Object,

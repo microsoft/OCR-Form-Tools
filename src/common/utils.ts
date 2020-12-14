@@ -198,7 +198,7 @@ export async function throttle<T>(max: number, arr: T[], worker: (payload: T) =>
 }
 
 export function delay(ms: number) {
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
         setTimeout(() => {
             resolve();
         }, ms);

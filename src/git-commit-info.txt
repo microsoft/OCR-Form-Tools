@@ -1,5 +1,5 @@
-commit 08f5199c73c8246a807413a96b23af749ac63674
-Author: Robert Stewart (eXcell <v-stewro@microsoft.com>
-Date:   Wed Dec 9 05:17:49 2020 -0800
+commit 44f693e82c878e575cd42bce56a44addcc4e7e46
+Author: --local <v-alexkr@microsoft.com>
+Date:   Sun Dec 13 15:02:06 2020 -0800
 
-    fix: use default rows and columns if field is null
+    selectionMark/Drawn region rules (old schema)
