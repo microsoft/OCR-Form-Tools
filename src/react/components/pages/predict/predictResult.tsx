@@ -8,6 +8,7 @@ import {getPrimaryGreenTheme} from "../../../../common/themes";
 import {PrimaryButton, ContextualMenu, IContextualMenuProps, IIconProps} from "@fluentui/react";
 import {strings} from "../../../../common/strings";
 import {tagIndexKeys} from "../../common/tagInput/tagIndexKeys";
+import {downloadFile, downloadZipFile, zipData} from "../../../../common/utils";
 
 export interface IAnalyzeModelInfo {
     docType: string,
@@ -55,11 +56,6 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                     key: 'CSV',
                     text: 'CSV',
                     onClick: () => this.triggerCSVDownload()
-                },
-                {
-                    key: 'Table',
-                    text: 'Table',
-                    onClick: () => this.triggerTableDownload()
                 }
             ]
         }
@@ -177,34 +173,24 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         }
     }
 
-    private processDownload(data:string,fileName:string){
-        const fileURL = window.URL.createObjectURL(new Blob([data]));
-        const fileLink = document.createElement("a");
-        fileLink.href = fileURL;
-        const fileBaseName = this.props.downloadResultLabel.split(".")[0];
-        const downloadFileName = this.props.downloadPrefix + "Result-" + fileBaseName + fileName;
-        fileLink.setAttribute("download", downloadFileName);
-        document.body.appendChild(fileLink);
-        fileLink.click();
-    }
-
     private triggerJSONDownload = (): void => {
         const {analyzeResult} = this.props;
         const predictionData = JSON.stringify(analyzeResult);
-        this.processDownload(predictionData,".json");
+        downloadFile(predictionData, this.props.downloadResultLabel + ".json", this.props.downloadPrefix);
     }
 
     private triggerCSVDownload = (): void => {
+        const data: zipData[] = [];
         const items = this.getItems();
         let csvContent: string = `Key,Value,Confidence,Page,Bounding Box`;
         items.forEach(item => {
             csvContent += `\n"${item.fieldName}","${item.text ?? ""}",${isNaN(item.confidence)? "NaN":(item.confidence * 100).toFixed(2) + "%"},${item.page},"[${item.boundingBox}]"`;
         });
-        this.processDownload(csvContent,"-keyvalues.csv")
-    }
+        data.push({
+            fileName: `${this.props.downloadPrefix}${this.props.downloadResultLabel}-keyvalues.csv`,
+            data: csvContent
+        });
 
-    private triggerTableDownload = (): void => {
-        const items = this.getItems();
         let tableContent: string = "";
         const itemNames=["fieldName","text","confidence","page","boundingBox"];
         const getValue=(item:any, fieldName:string)=>{
@@ -230,7 +216,11 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
             })
             tableContent+="\n";
         })
-        this.processDownload(tableContent, "-table.csv");
+        data.push({
+            fileName: `${this.props.downloadPrefix}${this.props.downloadResultLabel}-table.csv`,
+            data: tableContent
+        });
+        downloadZipFile(data, this.props.downloadResultLabel);
     }
 
     private getItems() {
