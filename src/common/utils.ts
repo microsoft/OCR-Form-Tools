@@ -481,8 +481,6 @@ export function getTagCategory(tagType: string) {
         case FieldType.SelectionMark:
         case "checkbox":
             return "checkbox";
-        case FieldType.DrawnRegion:
-            return "region";
             case FieldType.Object:
                 return FieldType.Object;
             case FieldType.Array:

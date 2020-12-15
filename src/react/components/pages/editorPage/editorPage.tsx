@@ -542,7 +542,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
         
         const selectedRegionCategory = this.state.selectedRegions[0]?.category;
-        console.log("🚀 ~## file: editorPage.tsx ~ line 545 ~ EditorPage ~ selectedRegionCategory", selectedRegionCategory);
+        console.log("🚀 ~## file: editorPage.tsx ~ line 545 ~ EditorPage ~ selectedRegionCategory", selectedRegionCategory, inputTag.type);
 
         // fixed
         if (inputTag.type === FieldType.Object) {
@@ -554,45 +554,50 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             const docCount = 1;
 
             if (isVertical) {
-                if (columnCategory !== selectedRegionCategory && docCount > 0) {
+                if (columnCategory !== selectedRegionCategory && docCount > 0 && selectedRegionCategory !== FeatureCategory.DrawnRegion) {
                     toast.warn(`This column has already been labeled as "${columns[columnIndex].fieldType}" type, if you want reconfigure this column type, please delete all values assigned to this column in all documents.`);
                     return;
                 }
             } else {
-                if (rowCategory !== selectedRegionCategory && docCount > 0) {
+                if (rowCategory !== selectedRegionCategory && docCount > 0 && selectedRegionCategory !== FeatureCategory.DrawnRegion) {
                     toast.warn(`This row has already been labeled as "${rows[rowIndex].fieldType}" type, if you want reconfigure this column type, please delete all values assigned to this column in all documents.`);
                     return;
                 }
             }
 
-            if ((rowCategory !== FeatureCategory.Text && !isVertical || columnCategory !== FeatureCategory.Text && isVertical)) {                
-                    const tablCellHasValue = this.state.selectedAsset.regions
+            if (selectedRegionCategory === FeatureCategory.DrawnRegion || selectedRegionCategory === FeatureCategory.Checkbox) {
+                const tablCellHasValue = this.state.selectedAsset.regions
                     .filter(r => (r.tags[0] === inputTag.name))
                     .filter((t: ITableRegion) => (t.columnKey === columns[columnIndex].fieldKey && t.rowKey === rows[rowIndex].fieldKey)).length > 0;
-                
-                    if (tablCellHasValue) {
-                        toast.warn(`Only one ${selectedRegionCategory} permited per cell!`);
+                if (tablCellHasValue) {
+                    if (selectedRegionCategory === FeatureCategory.DrawnRegion) {
+                        toast.warn(`${FeatureCategory.DrawnRegion.toUpperCase()} can be apply only to empty cell!`);
                         return;
                     }
-            }
+                    if (rowCategory !== FeatureCategory.Text && !isVertical || columnCategory !== FeatureCategory.Text && isVertical) {
+                            toast.warn(`Only one ${selectedRegionCategory} permited per cell!`);
+                            return;
+                    }
+                }
+            }    
         } else {
             // row dynamyc
             const docCount = 1;
             const columns = inputTag.definition?.fields
             const columnCategory = getTagCategory(columns[columnIndex]?.fieldType);
 
-            if (columnCategory !== selectedRegionCategory && docCount > 0) {
+            if (columnCategory !== selectedRegionCategory && docCount > 0 && selectedRegionCategory !== FeatureCategory.DrawnRegion) {
                 toast.warn(`This column has already been labeled as "${columns[columnIndex].fieldType}" type, if you want reconfigure this column type, please delete all values assigned to this column in all documents.`);
                 return;
             }
 
-            if (columnCategory !== FeatureCategory.Text) {
+            if (columnCategory === FeatureCategory.Checkbox) {
                 const tablCellHasValue = this.state.selectedAsset.regions
                     .filter(r => (r.tags[0] === inputTag.name))
                     .filter((t: ITableRegion) => (t.columnKey === columns[columnIndex].fieldKey && t.rowKey === `#${rowIndex + 1}`)).length > 0;
 
                 if (tablCellHasValue) {
-                    toast.warn(`Only one ${selectedRegionCategory} permited per cell!`);
+                    toast.warn(`Only one ${FieldType.SelectionMark} permited per cell!`);
                     return;
                 }
             }

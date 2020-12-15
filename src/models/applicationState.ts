@@ -498,7 +498,6 @@ export enum FieldType {
     Time = "time",
     Integer = "integer",
     SelectionMark = "selectionMark",
-    DrawnRegion = "region",
     Array = "array",
     Object = "object",
 }
