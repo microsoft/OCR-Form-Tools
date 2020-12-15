@@ -512,7 +512,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     let nextPageList = nextPage.nextList;
                     nextPageList = nextPageList.filter((model) => recentModelIds.indexOf(model.modelId) === -1);
                     const appendedList = currentList.concat(nextPageList);
-                    const currerntlySortedColumn: IColumn = this.state.columns.find((column) => column.isSorted);
+                    const currerntlySortedColumn: IColumn = this.state.columns.find((column) => column.isSorted !== undefined);
                     const appendedAndSortedList = this.copyAndSort(appendedList, currerntlySortedColumn.fieldName!, currerntlySortedColumn.isSortedDescending);
                     this.allModels = appendedAndSortedList;
                     this.setState({
