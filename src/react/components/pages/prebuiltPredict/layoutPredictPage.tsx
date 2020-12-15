@@ -312,30 +312,30 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
     }
     onCSVDownloadClick = () => {
         const {layoutData} = this.state;
-        if(layoutData){
-            const analyzeResult=layoutData.analyzeResult;
+        if (layoutData) {
+            const analyzeResult = layoutData.analyzeResult;
             const ocrPageResults = analyzeResult["pageResults"];
-            const data:zipData[]=[];
-            for(let i=0;i<ocrPageResults.length;i++){
-                const currentPageResult=ocrPageResults[i];
-                if(currentPageResult?.tables){
-                    currentPageResult.tables.forEach((table,index) => {
+            const data: zipData[] = [];
+            for (let i = 0; i < ocrPageResults.length; i++) {
+                const currentPageResult = ocrPageResults[i];
+                if (currentPageResult?.tables) {
+                    currentPageResult.tables.forEach((table, index) => {
                         if (table.cells && table.columns && table.rows) {
-                            let tableContent="";
-                            let rowIndex=0;
-                            table.cells.forEach(cell=>{
-                                if(cell.rowIndex===rowIndex){
-                                    tableContent+=`"${cell.text}"${cell.columnSpan?_.repeat(',',cell.columnSpan):','}`;
+                            let tableContent = "";
+                            let rowIndex = 0;
+                            table.cells.forEach(cell => {
+                                if (cell.rowIndex === rowIndex) {
+                                    tableContent += `"${cell.text}"${cell.columnSpan ? _.repeat(',', cell.columnSpan) : ','}`;
                                 }
-                                else{
-                                    tableContent+="\n";
-                                    tableContent+=`"${cell.text}"${cell.columnSpan?_.repeat(',',cell.columnSpan):','}`;
-                                    rowIndex=cell.rowIndex;
+                                else {
+                                    tableContent += "\n";
+                                    tableContent += `"${cell.text}"${cell.columnSpan ? _.repeat(',', cell.columnSpan) : ','}`;
+                                    rowIndex = cell.rowIndex;
                                 }
                             });
-                            if(tableContent.length>0){
+                            if (tableContent.length > 0) {
                                 data.push({
-                                    fileName:`Layout-page-${i+1}-table-${index+1}.csv`,
+                                    fileName: `Layout-page-${i + 1}-table-${index + 1}.csv`,
                                     data: tableContent
                                 });
                             }
@@ -343,8 +343,8 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
                     });
                 }
             }
-            if(data.length>0){
-                downloadZipFile(data,this.state.fileLabel+"tables");
+            if (data.length > 0) {
+                downloadZipFile(data, this.state.fileLabel + "tables");
             }
         }
     }
