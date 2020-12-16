@@ -3,10 +3,10 @@
 Click [here](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/whats-new) to see what's new in Form Recognizer.
 
 ## Released conatiner's currently referenced commit
-2.1-Preview's released container image, tracked by the `latest-preview` image tag in our [docker hub repository](https://hub.docker.com/_/microsoft-azure-cognitive-services-custom-form-labeltool), currently references **2.1-preview.2-b6b9a2f (12-15-2020)**
+2.1-Preview's released container image, tracked by the `latest-preview` image tag in our [docker hub repository](https://hub.docker.com/_/microsoft-azure-cognitive-services-custom-form-labeltool), currently references **2.1-preview.2-b6b9a2f (12-10-2020)**
 
 ## Commit history
-### 2.1-preview.2-b6b9a2f (12-15-2020)
+### 2.1-preview.2-b6b9a2f (12-10-2020)
 * update appVersion to 2.1.2 ([#808](https://github.com/microsoft/OCR-Form-Tools/commit/b6b9a2f131485d08541a1e85f6af59ebfbeca773))
 * add locale in prebuiltPredictPage ([#772](https://github.com/microsoft/OCR-Form-Tools/commit/06d9c16a7c1fe64a95d835878dcb8dabb8c7e485)) ([#776](https://github.com/microsoft/OCR-Form-Tools/commit/06d9c16a7c1fe64a95d835878dcb8dabb8c7e485))
 * Stew ro/cherry pick 347e21e 2b6ead7 ([#766](https://github.com/microsoft/OCR-Form-Tools/commit/ca59cee26587e1aee49507abd75c0683d67f541f))
