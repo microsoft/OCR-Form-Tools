@@ -42,9 +42,9 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
 
     public componentDidMount = async () => {
         if (this.props.selectedTag.type === FieldType.Array) {
-            const rows = [{ fieldKey: "#1", fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified }]
+            const rows = [{ fieldKey: "#0", fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified }]
             for (let i = 1; i < this.props.selectedTableTagBody.length; i++) {
-                rows.push({ fieldKey: "#" + (i + 1), fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified });
+                rows.push({ fieldKey: "#" + i, fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified });
             }
             this.setState({ rows });
         }
@@ -52,9 +52,9 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
 
     public componentDidUpdate = async (prevProps: Readonly<ITableTagLabelingProps>, prevState: Readonly<ITableTagLabelingState>) => {
         if (this.props.selectedTableTagBody.length !== prevProps.selectedTableTagBody.length) {
-            const rows = [{ fieldKey: "#1", fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified }]
+            const rows = [{ fieldKey: "#0", fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified }]
             for (let i = 1; i < this.props.selectedTableTagBody.length; i++) {
-                rows.push({ fieldKey: "#" + (i + 1), fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified });
+                rows.push({ fieldKey: "#" + i, fieldType: FieldType.String, fieldFormat: FieldFormat.NotSpecified });
             }
             this.setState({ rows });
         }

@@ -937,7 +937,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                         if (tableCell?.page === this.state.currentPage) {
                             const text = fieldName;
                             const boundingbox = _.get(tableCell, "boundingBox", []);
-                            const feature = this.createBoundingBoxVectorFeatureForTableCell(text, boundingbox, imageExtent, ocrExtent, "#" + (rowIndex + 1), columnName);
+                            const feature = this.createBoundingBoxVectorFeatureForTableCell(text, boundingbox, imageExtent, ocrExtent, "#" + rowIndex, columnName);
                             features.push(feature);
                         }
                     })
@@ -1080,7 +1080,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 const tableRow = [];
                 tableRow.push(
                     <th key={0} className={"row_header hidden"}>
-                        {"#" + (rowIndex + 1)}
+                        {"#" + rowIndex}
                     </th>
                 );
                 Object.keys(row?.valueObject).forEach((columnName, columnIndex) => {
@@ -1090,7 +1090,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             className={"table-cell"}
                             key={columnIndex + 1}
                             onMouseEnter={() => {
-                                this.setState({ highlightedTableCellRowKey: "#" + (rowIndex + 1), highlightedTableCellColumnKey: columnName })
+                                this.setState({ highlightedTableCellRowKey: "#" + rowIndex, highlightedTableCellColumnKey: columnName })
                             }}
                             onMouseLeave={() => {
                                 this.setState({ highlightedTableCellRowKey: null, highlightedTableCellColumnKey: null })

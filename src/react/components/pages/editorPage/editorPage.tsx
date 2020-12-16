@@ -494,7 +494,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         tagAssets.forEach((region => {
             let rowIndex: number;
             if (selectedTableTagToLabel.type === FieldType.Array) {
-                rowIndex = Number(region.rowKey.slice(1)) - 1;
+                rowIndex = Number(region.rowKey.slice(1));
             } else {
                 rowIndex = rowKeys.findIndex(rowKey => rowKey.fieldKey === region.rowKey)
             }

@@ -493,7 +493,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (inputTag[0].type === FieldType.Array || inputTag[0].type === FieldType.Object) {
             for (const selectedRegion of selectedRegions as ITableRegion[]) {
                 if (inputTag[0].type === FieldType.Array) {
-                    selectedRegion.rowKey = "#" + (rowIndex + 1);
+                    selectedRegion.rowKey = "#" + (rowIndex);
                     selectedRegion.columnKey = (inputTag as ITableTag[])[0].definition.fields[columnIndex].fieldKey;
                 } else {
                     if ((inputTag as ITableTag[])[0].visualizationHint === TableVisualizationHint.Vertical) {
