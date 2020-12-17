@@ -126,6 +126,12 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         this.props.onClick(this.props.tag, {clickedDropDown});
     }
 
+    private handleContextMenu = (e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>) => {
+        e.preventDefault();
+        const clickedDropDown = true;
+        this.props.onClick(this.props.tag, {clickedDropDown});
+    }
+
     private onColorClick = (e: MouseEvent) => {
         e.stopPropagation();
 
@@ -166,6 +172,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         const displayIndex = this.getDisplayIndex();
         return (
             <div className={"tag-name-container"}
+                onContextMenu={this.handleContextMenu}
                 onMouseEnter={this.handleMouseEnter}
                 onMouseLeave={this.handleMouseLeave}>
                 {
