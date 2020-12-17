@@ -6,14 +6,15 @@ import {
     Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption,
     PrimaryButton, DetailsList, IColumn, TextField, Dropdown, SelectionMode,
     DetailsListLayoutMode, FontIcon, CheckboxVisibility, IContextualMenuItem,
-    CommandBar, Selection, Separator, IObjectWithKey, ActionButton
+    CommandBar, Selection, Separator, IObjectWithKey, ActionButton, IDropdownOption
 } from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme, getDefaultTheme } from '../../../../common/themes';
+import { ITableField, ITableKeyField } from '../../../../models/applicationState';
 import { FieldFormat, FieldType, IApplicationState, ITableRegion, ITableTag, ITag, TableElements, TagInputMode, TableVisualizationHint } from '../../../../models/applicationState';
 import { filterFormat, getTagCategory, useDebounce } from "../../../../common/utils";
 import { toast } from "react-toastify";
 import "./tableTagConfig.scss";
-import { interpolate, strings } from "../../../../common/strings";
+import { strings } from "../../../../common/strings";
 import _ from "lodash";
 
 interface ITableTagConfigProps {
@@ -98,8 +99,10 @@ const formatOptions = (type = FieldType.String) => {
     return options;
 };
 
-const typeOptions = () => {
-    const options = [];
+const isCompatibleWithType = (documentCount: number, type: string, newType: string) => documentCount  <= 0 ||  !documentCount ? true : getTagCategory(type) === getTagCategory(newType);
+
+const getTypeOptions = () => {
+    const options: IDropdownOption[] = [];
     Object.entries(FieldType).forEach(([key, value]) => {
         if (value !== FieldType.Object && value !== FieldType.Array) {
             options.push({ key, text: value });
@@ -123,45 +126,49 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     const lastRowInputRef = useRef(null);
     // Initial state
     let table: ITableTagConfigState;
-    if (props.tableTag) {
+    if (props.tableTag) {        
         if (props.tableTag?.type === FieldType.Object) {
+            // fixed
             if (props.tableTag.visualizationHint === TableVisualizationHint.Vertical) {
+                // column headers
                 table = {
                     name: {tableName: props.tableTag.name, originalTableName: props.tableTag.name},
                     type: FieldType.Object,
                     format: FieldFormat.NotSpecified,
-                    rows: props.tableTag.fields?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat, originalName: row.fieldKey, originalFormat: row.fieldFormat, originalType: row.fieldType })) || [defaultRowOrColumn],
-                    columns: props.tableTag?.definition?.fields?.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType })) || [defaultRowOrColumn],
+                    rows: props.tableTag.fields?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat, originalName: row.fieldKey, originalFormat: row.fieldFormat, originalType: row.fieldType, documentCount: row.documentCount })) || [defaultRowOrColumn],
+                    columns: props.tableTag?.definition?.fields?.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType, documentCount: col.documentCount })) || [defaultRowOrColumn],
                     headerTypeAndFormat: TableElements.columns,
                     deletedColumns: [],
                     deletedRows: [],
                 }
 
             } else {
+                // row header
                 table = {
                     name: {tableName: props.tableTag.name, originalTableName: props.tableTag.name},
                     type: FieldType.Object,
                     format: FieldFormat.NotSpecified,
-                    rows: props.tableTag?.definition?.fields?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat, originalName: row.fieldKey, originalFormat: row.fieldFormat, originalType: row.fieldType })) || [defaultRowOrColumn],
-                    columns: props.tableTag?.fields?.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType })) || [defaultRowOrColumn],
+                    rows: props.tableTag?.definition?.fields?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat, originalName: row.fieldKey, originalFormat: row.fieldFormat, originalType: row.fieldType, documentCount: row.documentCount })) || [defaultRowOrColumn],
+                    columns: props.tableTag?.fields?.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType, documentCount: col.documentCount })) || [defaultRowOrColumn],
                     headerTypeAndFormat: TableElements.rows,
                     deletedColumns: [],
                     deletedRows: [],
                 }
             }
         } else {
+            // row dynamic
             table = {
                 name: { tableName: props.tableTag.name, originalTableName: props.tableTag.name },
                 type: FieldType.Array,
                 format: FieldFormat.NotSpecified,
                 rows: [defaultRowOrColumn],
-                columns: props.tableTag?.definition?.fields?.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType  })),
+                columns: props.tableTag?.definition?.fields?.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType, documentCount: col.documentCount  })),
                 headerTypeAndFormat: TableElements.columns,
                 deletedColumns: [],
             }
         }
-
     } else {
+        // initial
         table = {
             name: {tableName: ""},
             type: FieldType.Object,
@@ -188,38 +195,19 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     const [shouldAutoFocus, setShouldAutoFocus] = useState(null);
 
 
-    const isCompatibleWithType = (documentCount: number, type: string, newType: string) => {
-        return documentCount  <= 0 ? true : getTagCategory(type) === getTagCategory(newType);
+
+    function setFieldTypeOptions(docCount: number, currType: string) { 
+        console.log("🚀 ~### file: props.tableTag", props.tableTag);
+        console.log("$$$ docCount:", docCount);
+        return getTypeOptions().map(option => ({ ...option, disabled: !isCompatibleWithType(docCount, currType, option.text)}))
     }
 
-    function selectColumnType(idx: number, type: string, docCount: number) {
-        setColumns(columns.map((col, currIdx) => {
-            if (idx === currIdx) {
-                if (isCompatibleWithType(docCount, col.originalType, type))
-                    return { ...col, type, format: FieldFormat.NotSpecified }
-                else {
-                    toast.warn(_.capitalize(interpolate(strings.tags.regionTableTags.configureTag.errors.notCompatibleTableColOrRowType, { kind: "column" })));
-                    return col;
-                }
-            } else {
-                return col
-            }
-        }));
+    function selectColumnType(idx: number, type: string) {
+        setColumns(columns.map((col, currIdx) => idx === currIdx ? { ...col, type, format: FieldFormat.NotSpecified } : col));
     }
 
-    function selectRowType(idx: number, type: string, docCount: number) {
-        setRows(rows.map((row, currIdx) => {
-            if (idx === currIdx) {
-                if (isCompatibleWithType(docCount, row.originalType, type))
-                    return { ...row, type, format: FieldFormat.NotSpecified }
-                else {
-                    toast.warn(_.capitalize(interpolate(strings.tags.regionTableTags.configureTag.errors.notCompatibleTableColOrRowType, { kind: "row" })));
-                    return row;
-                }
-            } else {
-                return row
-            }
-        }));
+    function selectRowType(idx: number, type: string) {
+        setRows(rows.map((row, currIdx) => idx === currIdx ? { ...row, type, format: FieldFormat.NotSpecified } : row));
     }
 
     function selectColumnFormat(idx: number, format: string) {
@@ -278,9 +266,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         className="type_dropdown"
                         placeholder={row.type}
                         defaultSelectedKey={FieldType.String}
-                        options={typeOptions()}
+                        options={setFieldTypeOptions(row.documentCount, row.type)}
                         theme={getGreenWithWhiteBackgroundTheme()}
-                        onChange={(e, val) => selectColumnType(index, val.text, row.documentCount)}
+                        onChange={(e, val) => selectColumnType(index, val.text)}
                     />
                 </Customizer>
                 : <></>
@@ -349,9 +337,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         style={{ marginTop: 16 }}
                         placeholder={row.type}
                         defaultSelectedKey={FieldType.String}
-                        options={typeOptions()}
+                        options={setFieldTypeOptions(row.documentCount, row.type)}
                         theme={getGreenWithWhiteBackgroundTheme()}
-                        onChange={(e, val) => selectRowType(index, val.text, row.documentCount)}
+                        onChange={(e, val) => selectRowType(index, val.text)}
                     />
                 </Customizer>
                 : <></>

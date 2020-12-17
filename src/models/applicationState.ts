@@ -341,6 +341,7 @@ export interface ITableField extends IField {
     itemType?: string;
     fields?: ITableField[];
     visualizationHint?: TableVisualizationHint;
+    documentCount: number;
 }
 
 export interface ITableDefinition extends IField {

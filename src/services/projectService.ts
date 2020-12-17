@@ -19,6 +19,7 @@ import packageJson from "../../package.json";
 import { strings, interpolate } from "../common/strings";
 import { toast } from "react-toastify";
 import clone from "rfdc";
+import _ from "lodash";
 
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../react/components/common/tagColors.json");
@@ -185,8 +186,10 @@ export default class ProjectService implements IProjectService {
         updatedProject.tags = [];
         const storageProvider = StorageProviderFactory.createFromConnection(project.sourceConnection);
         await this.getTagsFromPreExistingFieldFile(updatedProject, storageProvider);
+        console.log("🚀 ~ file: projectService.ts ~ line 189 ~ ProjectService ~ updateProjectTagsFromFiles ~ updatedProject", updatedProject);
         await this.getTagsFromPreExistingLabelFiles(updatedProject, storageProvider, asset);
         await this.setColorsForUpdatedTags(project, updatedProject);
+
         if (JSON.stringify(updatedProject.tags) === JSON.stringify(project.tags)) {
             return project;
         } else {
@@ -195,25 +198,52 @@ export default class ProjectService implements IProjectService {
     }
 
     public async updatedAssetMetadata(project: IProject,  assetDocumentCountDifference: any, columnDocumentCountDifference?: any,
-        rowDocumentCountDifference?: any): Promise<IProject> {
-        const updatedProject = clone()(project);
+        rowDocumentCountDifference?: any): Promise<IProject> {        
+        const updatedProject: IProject = clone()(project);
+        const difference = Object.entries(assetDocumentCountDifference);
+
         updatedProject.tags?.forEach((tag: ITag) => {
-            const diff = assetDocumentCountDifference?.[tag.name];
-            if (diff) {
-                tag.documentCount += diff;
-            }
-            if (tag.type === FieldType.Object || tag.type === FieldType.Array) {
-                // (tag as ITableTag).columnKeys?.forEach((columnKey) => {
-                //     if (columnDocumentCountDifference?.[tag.name]?.[columnKey.fieldKey]) {
-                //         columnKey.documentCount += columnDocumentCountDifference[tag.name][columnKey.fieldKey];
-                //     }
-                // });
-                // (tag as ITableTag).rowKeys?.forEach((rowKey) => {
-                //     if (rowDocumentCountDifference?.[tag.name]?.[rowKey.fieldKey]) {
-                //         rowKey.documentCount += rowDocumentCountDifference[tag.name][rowKey.fieldKey]
-                //     }
-                // });
-            }
+            difference.forEach(diff => {
+                const diffCount = diff[1] as number;
+                const diffInfo = diff[0]?.split("/");
+                if (diffInfo && diffInfo[0] === tag.name) {
+                    tag.documentCount += diffCount;
+                }
+
+                if (tag.name === diffInfo[0] && (tag.type === FieldType.Object || tag.type === FieldType.Array)) {
+                    const tableTag = tag as ITableTag;
+                    if (tag.type === FieldType.Object) {
+                        // fixed table
+                        tableTag.definition.fields.forEach(field => {
+                            if (field.fieldKey === diffInfo[2]) {
+                                if (!field?.documentCount) {
+                                    field.documentCount = 0;
+                                }
+                                field.documentCount += diffCount;
+                            }
+                        });
+                        tableTag.fields.forEach(field => {
+                            if (field.fieldKey === diffInfo[1]) {
+                                if (!field?.documentCount) {
+                                    field.documentCount = 0;
+                                }
+                                field.documentCount += diffCount;
+                            }
+                        })
+                    } else {
+                        //dynamic table
+                        tableTag.definition.fields.forEach(field => {
+                            if (field.fieldKey === diffInfo[2]) {
+                                if (!field?.documentCount) {
+                                    field.documentCount = 0;
+                                }
+                                field.documentCount += diffCount;
+                            }
+                        });
+                    }
+                }
+            });
+            // console.log("🚀 ~## file: TAG", tag.documentCount, tag.name, tag);
         });
         if (JSON.stringify(updatedProject.tags) === JSON.stringify(project.tags)) {
             return project;
@@ -235,6 +265,7 @@ export default class ProjectService implements IProjectService {
         storageProvider: IStorageProvider,
         asset?: string) {
         const tags: ITag[] = [];
+        const tableLabels = [];
         const tagNameSet = new Set<string>();
         const tagDocumentCount = {};
         try {
@@ -249,10 +280,15 @@ export default class ProjectService implements IProjectService {
                         if (!assetLabel || assetLabel === blob) {
                             const content = JSON.parse(await storageProvider.readText(blob)) as ILabelData;
                             content.labels.forEach((label) => {
+                                /// 
+                                let labelName;
+
                                 if (content.$schema === constants.labelsSchema && label.label.split("/").length > 1) {
+                                    // label.label = label.label.split("/")[0];
+                                    tableLabels.push(label)
+                                    console.log("### tableLabel",label)
                                     return;
                                 }
-                                let labelName;
                                 if (content.$schema === constants.labelsSchema) {
                                     labelName = label.label.replace(/\~1/g, "/").replace(/\~0/g, "~");
                                 } else {
@@ -283,6 +319,7 @@ export default class ProjectService implements IProjectService {
                 throw new Error("Invalid label file");
             }
             tagNameArray.forEach((name, index) => {
+
                 tags.push({
                     name,
                     color: tagColors[index],
@@ -293,7 +330,53 @@ export default class ProjectService implements IProjectService {
                 } as ITag);
             });
             if (project.tags) {
-                await this.addMissingTagsAndUpdateDocumentCount(project, tags, tagDocumentCount);
+                console.log("🚀 ###  ~ tableLabels", tableLabels);
+                tableLabels.forEach(label => {
+                    const labelData = label.label.split("/");
+                    const labelName = labelData[0];
+                    const existingTableTag = project.tags.find(tag => tag.name === labelName) as ITableTag;
+                    if (existingTableTag) {
+                        console.log("### THIS TAG:", existingTableTag, label);
+                              
+                                if (existingTableTag.documentCount <= 0) {
+                                    existingTableTag.documentCount += 1;
+                                }
+                                if (existingTableTag.type === FieldType.Object || existingTableTag.type === FieldType.Array) {
+                                    if (existingTableTag.type === FieldType.Object) {
+                                        // fixed table
+                                        existingTableTag.definition.fields.forEach(field => {
+                                            if (field.fieldKey === labelData[2]) {
+                                                if (!field?.documentCount) {
+                                                    field.documentCount = 0;
+                                                }
+                                                field.documentCount += 1;
+                                            }
+                                        });
+                                        existingTableTag.fields.forEach(field => {
+                                            if (field.fieldKey === labelData[1]) {
+                                                if (!field?.documentCount) {
+                                                    field.documentCount = 0;
+                                                }
+                                                field.documentCount += 1;
+                                            }
+                                        })
+                                    } else {
+                                        //dynamic table
+                                        existingTableTag.definition.fields.forEach(field => {
+                                            if (field.fieldKey === labelData[2]) {
+                                                if (!field?.documentCount) {
+                                                    field.documentCount = 0;
+                                                }
+                                                field.documentCount += 1;
+                                            }
+                                        });
+                                    }
+                                }
+                            console.log("🚀 ~## file: TAG", existingTableTag.documentCount, existingTableTag.name, existingTableTag);
+                    
+                    }
+                });
+                await this.addMissingTagsAndUpdateDocumentCount(project, tags, tagDocumentCount,);
             } else {
                 project.tags = tags;
             }

@@ -447,7 +447,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     private setTagInputMode = (tagInputMode: TagInputMode, selectedTableTagToLabel: ITableTag = this.state.selectedTableTagToLabel, selectedTableTagBody: ITableRegion[][][] = this.state.selectedTableTagBody) => {
         // this.resizeCanvas();
-
             this.setState({
                 selectedTableTagBody,
                 selectedTableTagToLabel,
@@ -492,6 +491,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         const tagAssets = clone()(this.state.selectedAsset.regions).filter((region) => region.tags[0] === selectedTableTagToLabel.name) as ITableRegion[];
         tagAssets.forEach((region => {
+            // console.log("~~~ yoba", region)
+            // console.log("~~~ rowKeys" ,rowKeys);
+            // console.log("~~~ columnKeys", columnKeys)
             let rowIndex: number;
             if (selectedTableTagToLabel.type === FieldType.Array) {
                 rowIndex = Number(region.rowKey.slice(1));
@@ -526,6 +528,77 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private handleTableCellClick = (rowIndex: number, columnIndex: number) => {
+        const inputTag = this.state.selectedTableTagToLabel as ITableTag;
+        // console.log("🚀 ~ file: editorPage.tsx ~ line 514 ~ EditorPage ~ inputTag:", inputTag);
+        // console.log("~ EditorPage -> handleTableCellClick -> this.props.project.tags:", this.props.project.tags.find(tag => inputTag.name === tag.name))
+        // console.log("~ inputTag, rowIndex, columnIndex:", inputTag, rowIndex, columnIndex);
+        // if (this.state.selectedRegions) console.log("🚀 ~## file: editorPage.tsx ~ line 525 ~ EditorPage ~ this.state.selectedRegions[0].category", this.state.selectedRegions);
+        
+        if (!this.state.selectedRegions?.length || !inputTag) {
+            return;
+        }
+        
+        const selectedRegionCategory = this.state.selectedRegions[0]?.category;
+        // console.log("🚀 ~## file: editorPage.tsx ~ line 545 ~ EditorPage ~ selectedRegionCategory", selectedRegionCategory, inputTag.type);
+
+        // fixed
+        if (inputTag?.documentCount > 0) {
+            if (inputTag.type === FieldType.Object) {
+                const isVertical = inputTag.visualizationHint === TableVisualizationHint.Vertical;
+                const rows = isVertical ? inputTag.fields : inputTag.definition.fields;
+                const columns = isVertical ? inputTag.definition.fields : inputTag.fields;
+                const rowCategory = getTagCategory(rows[rowIndex]?.fieldType);
+                const columnCategory = getTagCategory(columns[columnIndex]?.fieldType);
+                // console.log("@@@ column: ", columns[columnIndex].documentCount);
+                // console.log("@@@ row: ", rows[rowIndex].documentCount);
+
+                if (isVertical) {
+                    if (columnCategory !== selectedRegionCategory && columns[columnIndex]?.documentCount > 0 && selectedRegionCategory !== FeatureCategory.DrawnRegion) {
+                        toast.warn(`This column has already been labeled as "${columns[columnIndex].fieldType}" type, if you want reconfigure this column type, please delete all values assigned to this column in all documents.`);
+                        return;
+                    }
+                } else {
+                    if (rowCategory !== selectedRegionCategory && rows[rowIndex]?.documentCount > 0 && selectedRegionCategory !== FeatureCategory.DrawnRegion) {
+                        toast.warn(`This row has already been labeled as "${rows[rowIndex].fieldType}" type, if you want reconfigure this column type, please delete all values assigned to this column in all documents.`);
+                        return;
+                    }
+                }
+
+                if (selectedRegionCategory === FeatureCategory.DrawnRegion || selectedRegionCategory === FeatureCategory.Checkbox) {
+                    const tablCellHasValue = this.state.selectedAsset.regions
+                        .filter(r => (r.tags[0] === inputTag.name))
+                        .filter((t: ITableRegion) => (t.columnKey === columns[columnIndex].fieldKey && t.rowKey === rows[rowIndex].fieldKey)).length > 0;
+                    if (tablCellHasValue) {
+                        if (selectedRegionCategory === FeatureCategory.DrawnRegion) {
+                            toast.warn(`${FeatureCategory.DrawnRegion.toUpperCase()} can be applid only to empty cell!`);
+                            return;
+                        }
+                        if (rowCategory !== FeatureCategory.Text && !isVertical || columnCategory !== FeatureCategory.Text && isVertical) {
+                            toast.warn(`Only one ${selectedRegionCategory} permited per cell!`);
+                            return;
+                        }
+                    }
+                }
+            } else {
+                // row dynamyc
+                const columns = inputTag.definition?.fields
+                const columnCategory = getTagCategory(columns[columnIndex]?.fieldType);
+                    if (columnCategory !== selectedRegionCategory && columns[columnIndex]?.documentCount > 0 && selectedRegionCategory !== FeatureCategory.DrawnRegion) {
+                        toast.warn(`This column has already been labeled as "${columns[columnIndex].fieldType}" type, if you want reconfigure this column type, please delete all values assigned to this column in all documents.`);
+                        return;
+                    }
+                if (columnCategory === FeatureCategory.Checkbox) {
+                    const tablCellHasValue = this.state.selectedAsset.regions
+                        .filter(r => (r.tags[0] === inputTag.name))
+                        .filter((t: ITableRegion) => (t.columnKey === columns[columnIndex].fieldKey && t.rowKey === `#${rowIndex + 1}`)).length > 0;
+
+                    if (tablCellHasValue) {
+                        toast.warn(`Only one ${FieldType.SelectionMark} permited per cell!`);
+                        return;
+                    }
+                }
+            }
+        }
         this.onTableTagClicked(this.state.selectedTableTagToLabel, rowIndex, columnIndex);
     }
 
@@ -683,6 +756,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             const { format, type, documentCount, name } = tag;
             const tagCategory = getTagCategory(tag.type);
             const category = selection[0].category;
+            console.log("🚀 ## file: editorPage.tsx ~ line 768 ~ EditorPage ~ category", category);
             const labels = this.state.selectedAsset.labelData?.labels;
             const isTagLabelTypeDrawnRegion = this.tagInputRef.current.labelAssignedDrawnRegion(labels, tag.name);
             const labelAssigned = this.tagInputRef.current.labelAssigned(labels, name);
@@ -1219,68 +1293,68 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const columnDocumentCountDifference = {};
         const updatedColumnLabels = {};
         const currentColumnLabels = {};
-        assetMetadata?.labelData?.tableLabels?.forEach((table) => {
-            updatedRowLabels[table.tableKey] = {};
-            updatedColumnLabels[table.tableKey] = {};
-            table.labels.forEach((label) => {
-                updatedRowLabels[table.tableKey][label.rowKey] = true;
-                updatedColumnLabels[table.tableKey][label.columnKey] = true;
-            })
-        });
+        // assetMetadata?.labelData?.tableLabels?.forEach((table) => {
+        //     updatedRowLabels[table.tableKey] = {};
+        //     updatedColumnLabels[table.tableKey] = {};
+        //     table.labels.forEach((label) => {
+        //         updatedRowLabels[table.tableKey][label.rowKey] = true;
+        //         updatedColumnLabels[table.tableKey][label.columnKey] = true;
+        //     })
+        // });
 
-        this.state.selectedAsset?.labelData?.tableLabels?.forEach((table) => {
-            currentRowLabels[table.tableKey] = {};
-            currentColumnLabels[table.tableKey] = {};
-            table.labels.forEach((label) => {
-                currentRowLabels[table.tableKey][label.rowKey] = true;
-                currentColumnLabels[table.tableKey][label.columnKey] = true;
-            })
-        });
+        // this.state.selectedAsset?.labelData?.tableLabels?.forEach((table) => {
+        //     currentRowLabels[table.tableKey] = {};
+        //     currentColumnLabels[table.tableKey] = {};
+        //     table.labels.forEach((label) => {
+        //         currentRowLabels[table.tableKey][label.rowKey] = true;
+        //         currentColumnLabels[table.tableKey][label.columnKey] = true;
+        //     })
+        // });
 
 
-        Object.keys(currentColumnLabels).forEach((table) => {
-            Object.keys(currentColumnLabels[table]).forEach((columnKey) => {
-                if (!updatedColumnLabels?.[table]?.[columnKey]) {
-                    if (!(table in columnDocumentCountDifference)) {
-                        columnDocumentCountDifference[table] = {};
-                    }
-                    columnDocumentCountDifference[table][columnKey] = -1;
-                }
-            });
-        });
+        // Object.keys(currentColumnLabels).forEach((table) => {
+        //     Object.keys(currentColumnLabels[table]).forEach((columnKey) => {
+        //         if (!updatedColumnLabels?.[table]?.[columnKey]) {
+        //             if (!(table in columnDocumentCountDifference)) {
+        //                 columnDocumentCountDifference[table] = {};
+        //             }
+        //             columnDocumentCountDifference[table][columnKey] = -1;
+        //         }
+        //     });
+        // });
 
-        Object.keys(updatedColumnLabels).forEach((table) => {
-            Object.keys(updatedColumnLabels[table]).forEach((columnKey) => {
-                if (!currentColumnLabels?.[table]?.[columnKey]) {
-                    if (!(table in columnDocumentCountDifference)) {
-                        columnDocumentCountDifference[table] = {};
-                    }
-                    columnDocumentCountDifference[table][columnKey] = 1;
-                }
-            });
-        });
+        // Object.keys(updatedColumnLabels).forEach((table) => {
+        //     Object.keys(updatedColumnLabels[table]).forEach((columnKey) => {
+        //         if (!currentColumnLabels?.[table]?.[columnKey]) {
+        //             if (!(table in columnDocumentCountDifference)) {
+        //                 columnDocumentCountDifference[table] = {};
+        //             }
+        //             columnDocumentCountDifference[table][columnKey] = 1;
+        //         }
+        //     });
+        // });
 
-        Object.keys(currentRowLabels).forEach((table) => {
-            Object.keys(currentRowLabels[table]).forEach((rowKey) => {
-                if (!updatedRowLabels?.[table]?.[rowKey]) {
-                    if (!(table in rowDocumentCountDifference)) {
-                        rowDocumentCountDifference[table] = {};
-                    }
-                    rowDocumentCountDifference[table][rowKey] = -1;
-                }
-            });
-        });
+        // Object.keys(currentRowLabels).forEach((table) => {
+        //     Object.keys(currentRowLabels[table]).forEach((rowKey) => {
+        //         if (!updatedRowLabels?.[table]?.[rowKey]) {
+        //             if (!(table in rowDocumentCountDifference)) {
+        //                 rowDocumentCountDifference[table] = {};
+        //             }
+        //             rowDocumentCountDifference[table][rowKey] = -1;
+        //         }
+        //     });
+        // });
 
-        Object.keys(updatedRowLabels).forEach((table) => {
-            Object.keys(updatedRowLabels[table]).forEach((rowKey) => {
-                if (!currentRowLabels?.[table]?.[rowKey]) {
-                    if (!(table in rowDocumentCountDifference)) {
-                        rowDocumentCountDifference[table] = {};
-                    }
-                    rowDocumentCountDifference[table][rowKey] = 1;
-                }
-            });
-        });
+        // Object.keys(updatedRowLabels).forEach((table) => {
+        //     Object.keys(updatedRowLabels[table]).forEach((rowKey) => {
+        //         if (!currentRowLabels?.[table]?.[rowKey]) {
+        //             if (!(table in rowDocumentCountDifference)) {
+        //                 rowDocumentCountDifference[table] = {};
+        //             }
+        //             rowDocumentCountDifference[table][rowKey] = 1;
+        //         }
+        //     });
+        // });
 
         const assetDocumentCountDifference = {};
         const updatedAssetLabels = {};

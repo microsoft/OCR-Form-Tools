@@ -463,6 +463,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
         let regions: IRegion[] = [];
         if (selectedRegions.length > 0) {
+            console.log("🚀 ## file: canvas.tsx ~ line 466 ~ Canvas ~ selectedRegions", selectedRegions[0].category);
             const labelsData = this.state.currentAsset.labelData;
             if (labelsData) {
                 const relatedLabel = labelsData.labels.find((label) => label.label === tag);
@@ -515,13 +516,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.props.onSelectedRegionsChanged([]);
         }
 
-        if (selectedRegions.length === 1 && selectedRegions[0].category === FeatureCategory.Checkbox) {
+        if (selectedRegions.length === 1 && selectedRegions[0].category === FeatureCategory.Checkbox ) {
             if (inputTag[0].type === FieldType.Object || inputTag[0].type === FieldType.Array) {
-                // selection mark logic placeholder
+                this.setRowOrColumnType(inputTag[0], FieldType.SelectionMark, columnIndex, rowIndex);
             } else {
                 this.setTagType(inputTag[0], FieldType.SelectionMark);
             }
-        } else if (selectedRegions[0].category === FeatureCategory.DrawnRegion) {
+        } else if (selectedRegions[0].category === FeatureCategory.DrawnRegion) {            
             selectedRegions.forEach((selectedRegion) => {
                 this.imageMap.removeDrawnRegionFeature(this.imageMap.getDrawnRegionFeatureByID(selectedRegion.id));
             });
@@ -542,6 +543,23 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             type: fieldType,
             format: FieldFormat.NotSpecified,
         } as ITag;
+        this.props.onTagChanged(tag, newTag);
+    }
+    private setRowOrColumnType = (tag: ITableTag, fieldType: FieldType, columnIndex,rowIndex) => {
+        const newTag = _.cloneDeep(tag);
+            // fixed table
+        if (newTag?.visualizationHint === TableVisualizationHint.Vertical || newTag.type === FieldType.Array) {
+            newTag.definition.fields[columnIndex].fieldType = fieldType
+            newTag.definition.fields[columnIndex].fieldFormat = FieldFormat.NotSpecified
+            newTag.definition.fields[columnIndex].documentCount = 1
+            newTag.documentCount = 1
+            } else {
+                newTag.fields[columnIndex].fieldType = fieldType
+                newTag.fields[columnIndex].fieldFormat = FieldFormat.NotSpecified
+                newTag.fields[columnIndex].documentCount = 1
+                newTag.documentCount = 1
+            }
+
         this.props.onTagChanged(tag, newTag);
     }
 
