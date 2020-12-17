@@ -99,7 +99,7 @@ const formatOptions = (type = FieldType.String) => {
     return options;
 };
 
-const isCompatibleWithType = (documentCount: number, type: string, newType: string) => documentCount  <= 0 ? true : getTagCategory(type) === getTagCategory(newType);
+const isCompatibleWithType = (documentCount: number, type: string, newType: string) => documentCount  <= 0 ||  !documentCount ? true : getTagCategory(type) === getTagCategory(newType);
 
 const getTypeOptions = () => {
     const options: IDropdownOption[] = [];
@@ -126,7 +126,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     const lastRowInputRef = useRef(null);
     // Initial state
     let table: ITableTagConfigState;
-    if (props.tableTag) {
+    if (props.tableTag) {        
         if (props.tableTag?.type === FieldType.Object) {
             // fixed
             if (props.tableTag.visualizationHint === TableVisualizationHint.Vertical) {
@@ -135,8 +135,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     name: {tableName: props.tableTag.name, originalTableName: props.tableTag.name},
                     type: FieldType.Object,
                     format: FieldFormat.NotSpecified,
-                    rows: props.tableTag.fields?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat, originalName: row.fieldKey, originalFormat: row.fieldFormat, originalType: row.fieldType })) || [defaultRowOrColumn],
-                    columns: props.tableTag?.definition?.fields?.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType })) || [defaultRowOrColumn],
+                    rows: props.tableTag.fields?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat, originalName: row.fieldKey, originalFormat: row.fieldFormat, originalType: row.fieldType, documentCount: row.documentCount })) || [defaultRowOrColumn],
+                    columns: props.tableTag?.definition?.fields?.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType, documentCount: col.documentCount })) || [defaultRowOrColumn],
                     headerTypeAndFormat: TableElements.columns,
                     deletedColumns: [],
                     deletedRows: [],
@@ -148,8 +148,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     name: {tableName: props.tableTag.name, originalTableName: props.tableTag.name},
                     type: FieldType.Object,
                     format: FieldFormat.NotSpecified,
-                    rows: props.tableTag?.definition?.fields?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat, originalName: row.fieldKey, originalFormat: row.fieldFormat, originalType: row.fieldType })) || [defaultRowOrColumn],
-                    columns: props.tableTag?.fields?.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType })) || [defaultRowOrColumn],
+                    rows: props.tableTag?.definition?.fields?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat, originalName: row.fieldKey, originalFormat: row.fieldFormat, originalType: row.fieldType, documentCount: row.documentCount })) || [defaultRowOrColumn],
+                    columns: props.tableTag?.fields?.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType, documentCount: col.documentCount })) || [defaultRowOrColumn],
                     headerTypeAndFormat: TableElements.rows,
                     deletedColumns: [],
                     deletedRows: [],
@@ -162,12 +162,11 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 type: FieldType.Array,
                 format: FieldFormat.NotSpecified,
                 rows: [defaultRowOrColumn],
-                columns: props.tableTag?.definition?.fields?.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType  })),
+                columns: props.tableTag?.definition?.fields?.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType, documentCount: col.documentCount  })),
                 headerTypeAndFormat: TableElements.columns,
                 deletedColumns: [],
             }
         }
-
     } else {
         // initial
         table = {
@@ -197,7 +196,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
 
 
-    function setFieldTypeOptions(docCount: number, currType: string) {        
+    function setFieldTypeOptions(docCount: number, currType: string) { 
+        console.log("🚀 ~### file: props.tableTag", props.tableTag);
+        console.log("$$$ docCount:", docCount);
         return getTypeOptions().map(option => ({ ...option, disabled: !isCompatibleWithType(docCount, currType, option.text)}))
     }
 
