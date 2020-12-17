@@ -5,8 +5,10 @@ import React from "react";
 import {ITag} from "../../../../models/applicationState";
 import "./predictResult.scss";
 import {getPrimaryGreenTheme} from "../../../../common/themes";
-import {PrimaryButton} from "@fluentui/react";
+import {PrimaryButton, ContextualMenu, IContextualMenuProps, IIconProps} from "@fluentui/react";
 import {strings} from "../../../../common/strings";
+import {tagIndexKeys} from "../../common/tagInput/tagIndexKeys";
+import {downloadFile, downloadZipFile, zipData} from "../../../../common/utils";
 
 export interface IAnalyzeModelInfo {
     docType: string,
@@ -42,7 +44,21 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         }
         // not sure if we decide to filter item by the page
         const items = Object.values(predictions).filter(Boolean).sort((p1, p2) => p1.displayOrder - p2.displayOrder);
-
+        const menuProps: IContextualMenuProps = {
+            className: "keep-button-120px",
+            items: [
+                {
+                    key: 'JSON',
+                    text: 'JSON',
+                    onClick: () => this.triggerJSONDownload()
+                },
+                {
+                    key: 'CSV',
+                    text: 'CSV',
+                    onClick: () => this.triggerCSVDownload()
+                }
+            ]
+        }
         return (
             <div>
                 <div className="container-items-center container-space-between results-container">
@@ -58,12 +74,13 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                         :<span></span>
                     }
                     <PrimaryButton
-                        className="align-self-end keep-button-80px"
+                        className="align-self-end keep-button-120px"
                         theme={getPrimaryGreenTheme()}
                         text="Download"
                         allowDisabledFocus
                         autoFocus={true}
-                        onClick={this.triggerDownload}
+                        menuProps={menuProps}
+                        menuAs={this.getMenu}
                     />
                 </div>
                 {this.props.children}
@@ -76,6 +93,10 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                 {items.map((item: any, key) => this.renderItem(item, key))}
             </div>
         );
+    }
+
+    private getMenu(props: IContextualMenuProps): JSX.Element {
+        return <ContextualMenu {...props} />;
     }
 
     private renderItem = (item: any, key: any) => {
@@ -151,18 +172,70 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
             this.props.onAddAssetToProject();
         }
     }
-    private triggerDownload = (): void => {
+
+    private triggerJSONDownload = (): void => {
         const {analyzeResult} = this.props;
         const predictionData = JSON.stringify(analyzeResult);
-        const fileURL = window.URL.createObjectURL(new Blob([predictionData]));
-        const fileLink = document.createElement("a");
-        const fileBaseName = this.props.downloadResultLabel.split(".")[0];
-        const downloadFileName = this.props.downloadPrefix + "Result-" + fileBaseName + ".json";
+        downloadFile(predictionData, this.props.downloadResultLabel + ".json", this.props.downloadPrefix);
+    }
 
-        fileLink.href = fileURL;
-        fileLink.setAttribute("download", downloadFileName);
-        document.body.appendChild(fileLink);
-        fileLink.click();
+    private triggerCSVDownload = (): void => {
+        const data: zipData[] = [];
+        const items = this.getItems();
+        let csvContent: string = `Key,Value,Confidence,Page,Bounding Box`;
+        items.forEach(item => {
+            csvContent += `\n"${item.fieldName}","${item.text ?? ""}",${isNaN(item.confidence)? "NaN":(item.confidence * 100).toFixed(2) + "%"},${item.page},"[${item.boundingBox}]"`;
+        });
+        data.push({
+            fileName: `${this.props.downloadPrefix}${this.props.downloadResultLabel}-keyvalues.csv`,
+            data: csvContent
+        });
+
+        let tableContent: string = "";
+        const itemNames=["fieldName","text","confidence","page","boundingBox"];
+        const getValue=(item:any, fieldName:string)=>{
+            switch(fieldName){
+                case "fieldName":
+                    return `"${item[fieldName]}"`;
+                case "text":
+                    return `"${item[fieldName]}"`;
+                case "confidence":
+                    return isNaN(item.confidence)? "NaN":(item.confidence * 100).toFixed(2) + "%";
+                case "page":
+                    return item[fieldName];
+                case "boundingBox":
+                    return `"[${item.boundingBox}]"`;
+                default:
+                    return "";
+            }
+        }
+        itemNames.forEach(name=>{
+            tableContent+=(name+",");
+            items.forEach(item=>{
+                tableContent+=(getValue(item,name)+",");
+            })
+            tableContent+="\n";
+        })
+        data.push({
+            fileName: `${this.props.downloadPrefix}${this.props.downloadResultLabel}-table.csv`,
+            data: tableContent
+        });
+        downloadZipFile(data, this.props.downloadResultLabel);
+    }
+
+    private getItems() {
+        const {tags, predictions} = this.props;
+        const tagsDisplayOrder = tags.map((tag) => tag.name);
+        for (const name of Object.keys(predictions)) {
+            const prediction = predictions[name];
+            if (prediction != null) {
+                prediction.fieldName = name;
+                prediction.displayOrder = tagsDisplayOrder.indexOf(name);
+            }
+        }
+        // not sure if we decide to filter item by the page
+        const items = Object.values(predictions).filter(Boolean).sort((p1, p2) => p1.displayOrder - p2.displayOrder);
+        return items;
     }
 
     private toPercentage = (x: number): string => {
