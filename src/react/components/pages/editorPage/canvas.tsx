@@ -1448,12 +1448,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private convertRegionsToLabelData = (regions: IRegion[], assetName: string) => {
-        const labels = (this.props.selectedAsset
-            && this.props.selectedAsset.labelData
-            && this.props.selectedAsset.labelData.labels
-            && this.props.selectedAsset.labelData.labels.map(label => ({
-                ...label, value: []
-            }))) || [];
+        const labels = this.props.selectedAsset?.labelData?.labels?.map(label => ({
+            ...label, value: []
+        })) || [];
         const selectedRegions = this.getSelectedRegions();
         if (selectedRegions.length > 0) {
             const intersectionResult = _.intersection(selectedRegions, regions);
@@ -1507,8 +1504,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                             }
                         }
                     }
-                    if (originLabel && region.changed && label.labelType !== labelType) {
-                        label.labelType = labelType;
+                    if (originLabel && region.changed) {
+                        if (labelType) {
+                            label.labelType = labelType;
+                        } else {
+                            delete label.labelType;
+                        }
                     }
                     label.value.push(formRegion);
                 } else {
