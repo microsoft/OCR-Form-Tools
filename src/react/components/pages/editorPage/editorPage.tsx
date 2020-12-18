@@ -379,6 +379,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         // workaround: tagInput will not lost focus with olmap,
         // so we fire the blur event manually here
         this.tagInputRef.current.triggerNewTagBlur();
+        this.tagInputRef.current.triggerRenameTagBlur();
     }
 
     // tslint:disable-next-line:no-empty
