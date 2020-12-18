@@ -9,7 +9,9 @@ import {
     Separator,
     Spinner,
     SpinnerSize,
-    TooltipHost
+    TooltipHost,
+    ContextualMenu,
+    IContextualMenuProps
 } from "@fluentui/react";
 import Fill from "ol/style/Fill";
 import Stroke from "ol/style/Stroke";
@@ -22,7 +24,7 @@ import url from "url";
 import {constants} from "../../../../common/constants";
 import {interpolate, strings} from "../../../../common/strings";
 import {getPrimaryGreenTheme, getPrimaryWhiteTheme} from "../../../../common/themes";
-import {downloadAsJsonFile, poll} from "../../../../common/utils";
+import {downloadFile, poll, zipData, downloadZipFile} from "../../../../common/utils";
 import {
     ErrorCode,
     IApplicationState,
@@ -42,6 +44,7 @@ import {TableView} from "../editorPage/tableView";
 import {ILayoutHelper, LayoutHelper} from "./layoutHelper";
 import {ILoadFileHelper, LoadFileHelper} from "./LoadFileHelper";
 import {ITableHelper, ITableState, TableHelper} from "./tableHelper";
+import _ from "lodash";
 
 interface ILayoutPredictPageProps extends RouteComponentProps {
     prebuiltSettings: IPrebuiltSettings;
@@ -174,7 +177,21 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
 
     render() {
         const analyzeDisabled: boolean = this.getAnalyzeDisabled();
-
+        const menuProps: IContextualMenuProps = {
+            className: "keep-button-120px",
+            items: [
+                {
+                    key: 'JSON',
+                    text: 'JSON',
+                    onClick: () => this.onJsonDownloadClick()
+                },
+                {
+                    key: 'Table',
+                    text: 'Table',
+                    onClick: () => this.onCSVDownloadClick()
+                }
+            ]
+        }
         return (
             <>
                 <div
@@ -249,12 +266,14 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
                                     <div className="container-items-center container-space-between results-container">
                                         <h5 className="results-header">{strings.layoutPredict.layoutResults}</h5>
                                         <PrimaryButton
-                                            className="align-self-end keep-button-80px"
+                                            className="align-self-end keep-button-120px"
                                             theme={getPrimaryGreenTheme()}
                                             text={strings.layoutPredict.download}
                                             allowDisabledFocus
                                             autoFocus={true}
-                                            onClick={this.onDownloadClick}
+                                            onClick={this.onJsonDownloadClick}
+                                            menuProps={menuProps}
+                                            menuAs={this.getMenu}
                                         />
                                     </div>
                                 }
@@ -285,10 +304,48 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
         this.setState({withPageRange, pageRange, pageRangeIsValid});
     }
 
-    onDownloadClick = () => {
+    onJsonDownloadClick = () => {
         const {layoutData} = this.state;
         if (layoutData) {
-            downloadAsJsonFile(layoutData, this.state.fileLabel, "Layout-");
+            downloadFile(JSON.stringify(layoutData), this.state.fileLabel+".json", "Layout-");
+        }
+    }
+    onCSVDownloadClick = () => {
+        const {layoutData} = this.state;
+        if (layoutData) {
+            const analyzeResult = layoutData.analyzeResult;
+            const ocrPageResults = analyzeResult["pageResults"];
+            const data: zipData[] = [];
+            for (let i = 0; i < ocrPageResults.length; i++) {
+                const currentPageResult = ocrPageResults[i];
+                if (currentPageResult?.tables) {
+                    currentPageResult.tables.forEach((table, index) => {
+                        if (table.cells && table.columns && table.rows) {
+                            let tableContent = "";
+                            let rowIndex = 0;
+                            table.cells.forEach(cell => {
+                                if (cell.rowIndex === rowIndex) {
+                                    tableContent += `"${cell.text}"${cell.columnSpan ? _.repeat(',', cell.columnSpan) : ','}`;
+                                }
+                                else {
+                                    tableContent += "\n";
+                                    tableContent += `"${cell.text}"${cell.columnSpan ? _.repeat(',', cell.columnSpan) : ','}`;
+                                    rowIndex = cell.rowIndex;
+                                }
+                            });
+                            if (tableContent.length > 0) {
+                                data.push({
+                                    fileName: `Layout-page-${i + 1}-table-${index + 1}.csv`,
+                                    data: tableContent
+                                });
+                            }
+                        }
+                    });
+                }
+            }
+            if (data.length > 0) {
+                downloadZipFile(data, this.state.fileLabel + "tables");
+            }
         }
     }
 
@@ -584,5 +641,9 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
         } catch (err) {
             ServiceHelper.handleServiceError({...err, endpoint: endpointURL});
         }
+    }
+
+    private getMenu(props: IContextualMenuProps): JSX.Element {
+        return <ContextualMenu {...props} />;
     }
 }
