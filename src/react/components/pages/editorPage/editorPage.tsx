@@ -146,7 +146,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private deleteDocumentConfirm: React.RefObject<Confirm> = React.createRef();
     private isUnmount: boolean = false;
     private isOCROrAutoLabelingBatchRunning = false;
-
+    private tryLoaded = false;
     constructor(props) {
         super(props);
         this.tagInputRef = React.createRef();
@@ -171,8 +171,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     public async componentDidUpdate(prevProps: Readonly<IEditorPageProps>) {
         if (this.props.project) {
-            if (this.state.assets.length === 0) {
+            if (this.state.assets.length === 0 && !this.tryLoaded) {
                 await this.loadProjectAssets();
+                this.tryLoaded = true;
             } else {
                 this.updateAssetsState();
             }
