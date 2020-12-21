@@ -69,6 +69,10 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         if (prevProps.isRenaming !== this.props.isRenaming) {
             this.setState({
                 isRenaming: this.props.isRenaming,
+            }, () => {
+                if (this.props.isRenaming) {
+                    this.inputElement.focus();
+                }
             });
         }
 
@@ -170,6 +174,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
 
     private getTagContent = () => {
         const displayIndex = this.getDisplayIndex();
+        const spanValue =  this.inputElement?.value ?? "";
         return (
             <div className={"tag-name-container"}
                 onContextMenu={this.handleContextMenu}
@@ -180,23 +185,20 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                     <FontIcon iconName="Link" className="pl-1" />
                 }
                 <div className="tag-name-body">
-                    {
-                        this.state.isRenaming
-                            ?
-                            <input
-                                ref={this.onInputRef}
-                                className={`tag-name-editor ${this.getContentClassName()}`}
-                                type="text"
-                                defaultValue={this.props.tag.name}
-                                onKeyDown={(e) => this.onInputKeyDown(e)}
-                                onBlur={this.onInputBlur}
-                                autoFocus={true}
-                            />
-                            :
-                            <span title={this.props.tag.name} className={this.getContentClassName()}>
-                                {this.props.tag.name}
-                            </span>
-                    }
+                    <input
+                        ref={this.onInputRef}
+                        style={{display: this.state.isRenaming ? "block" : "none"}}
+                        className={`tag-name-editor ${this.getContentClassName()}`}
+                        type="text"
+                        defaultValue={this.props.tag.name}
+                        onKeyDown={(e) => this.onInputKeyDown(e)}
+                        onBlur={this.onInputBlur}
+                        autoFocus={true}
+                    />
+
+                    {!this.state.isRenaming && <span title={spanValue} className={this.getContentClassName()}>
+                        {spanValue}
+                    </span>}
                 </div>
                 <div className={"tag-icons-container"}>
                     {(displayIndex !== null)
@@ -265,7 +267,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         }
     }
 
-    private onInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    onInputBlur = () => {
         this.onRenameTag();
     }
 
@@ -286,6 +288,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         const tag = this.props.tag;
         const name = this.inputElement.value.trim();
         this.props.onRename(tag, name, () => {
+            this.inputElement.value = this.props.tag.name;
             this.setState({
                 isRenaming: false,
             });
