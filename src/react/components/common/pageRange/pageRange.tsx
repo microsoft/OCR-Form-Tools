@@ -62,13 +62,13 @@ export class PageRange extends React.Component<Partial<IPageRangeProps>, IPageRa
 
     onPageRangeValueChange = (e: ChangeEvent<HTMLInputElement>) => {
         const pageRange = e.target.value;
-        if (!pageRange || /^\d+-?(\d+)?$/.test(pageRange)) {
-            this.props.onPageRangeChange(this.props.withPageRange, pageRange, pageRangeIsValid(pageRange));
-        }
+        this.props.onPageRangeChange(this.props.withPageRange, pageRange, pageRangeIsValid(pageRange));
     }
-
-
 }
+
 const pageRangeIsValid = (pageRange: string): boolean => {
-    return /^\d+(-\d+)?$/.test(pageRange);
+    // It must be a valid page range format, e.g. 1,2,3-5,7 
+    // The user can only type digit, dot, and dash.
+    // Must start and end with digit.
+    return /^\d+(?:-\d+)?(?:,\d+(?:-\d+)?)*$/.test(pageRange);
 }

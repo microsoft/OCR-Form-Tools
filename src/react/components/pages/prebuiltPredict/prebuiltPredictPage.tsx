@@ -6,7 +6,8 @@ import {
     ITooltipHostStyles,
     PrimaryButton,
     Separator,
-    Spinner, SpinnerSize, TooltipHost
+    Spinner, SpinnerSize, TooltipHost,
+    TextField,
 } from "@fluentui/react";
 import _ from "lodash";
 import {Feature} from "ol";
@@ -21,7 +22,7 @@ import {bindActionCreators} from "redux";
 import url from "url";
 import {constants} from "../../../../common/constants";
 import {interpolate, strings} from "../../../../common/strings";
-import {getPrimaryWhiteTheme} from "../../../../common/themes";
+import {getPrimaryWhiteTheme, getGreenWithWhiteBackgroundTheme} from "../../../../common/themes";
 import {poll} from "../../../../common/utils";
 import {ErrorCode, FieldFormat, FieldType, IApplicationState, IPrebuiltSettings, ITag} from "../../../../models/applicationState";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
@@ -75,6 +76,7 @@ export interface IPrebuiltPredictPageState extends ILoadFileResult, ITableState 
     withPageRange: boolean;
     pageRange: string;
     pageRangeIsValid?: boolean;
+    predictionEndpointUrl: string;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -146,6 +148,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
         withPageRange: false,
         pageRange: "",
+        predictionEndpointUrl: "",
     };
 
     private analyzeResults: any;
@@ -160,6 +163,12 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         this.appInsights = getAppInsights();
         document.title = strings.prebuiltPredict.title + " - " + strings.appName;
         this.props.appTitleActions.setTitle(`${strings.prebuiltPredict.title}`);
+        if (this.props.prebuiltSettings.serviceURI){
+            this.setState({
+                predictionEndpointUrl: this.props.prebuiltSettings.serviceURI
+                +`/formrecognizer${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`
+            });
+        }
     }
 
     componentDidUpdate(_prevProps: IPrebuiltPredictPageProps, prevState: IPrebuiltPredictPageState) {
@@ -185,6 +194,10 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             if (prevState.highlightedField !== this.state.highlightedField) {
                 this.setPredictedFieldHighlightStatus(this.state.highlightedField);
             }
+        }
+
+        if (_prevProps.prebuiltSettings !== this.props.prebuiltSettings) {
+            this.handleUpdateRequestURI();
         }
     }
 
@@ -234,7 +247,18 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                             <FontIcon className="mr-1" iconName="ContactCard" />
                             <span>{interpolate(strings.prebuiltPredict.anlayWithPrebuiltModels, this.state.currentPrebuiltType)}</span>
                         </h6>
-
+                        <div className="p-3 prebuilt-setting" style={{marginTop: "8px"}}>
+                            <h5>{strings.prebuiltSetting.serviceConfigurationTitle}</h5>
+                            <div style={{marginBottom: "3px"}}>{"Request URI"}</div>
+                            <TextField
+                                className="mb-1"
+                                name="endpointUrl"
+                                theme={getGreenWithWhiteBackgroundTheme()}
+                                value={this.state.predictionEndpointUrl}
+                                onChange={this.setRequestURI}
+                                disabled={this.state.isPredicting}
+                            />
+                        </div>
                         <PrebuiltSetting prebuiltSettings={this.props.prebuiltSettings}
                             disabled={this.state.isPredicting}
                             actions={this.props.actions}
@@ -349,7 +373,9 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     onPageRangeChange = (withPageRange: boolean, pageRange: string, pageRangeIsValid: boolean) => {
-        this.setState({withPageRange, pageRange, pageRangeIsValid});
+        this.setState({withPageRange, pageRange, pageRangeIsValid}, () => {
+            this.handleUpdateRequestURI();
+        });
     }
 
     onSelectSourceChange(): void {
@@ -398,12 +424,15 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 analyzeResult: {}
             }, () => {
                 this.imageMap?.removeAllFeatures();
+                this.handleUpdateRequestURI();
             });
         }
     }
     private onLocaleChange = (_e, option: IDropdownOption) => {
         const currentLocale: string = option.key as string;
-        this.setState({currentLocale});
+        this.setState({currentLocale}, () => {
+            this.handleUpdateRequestURI();
+        });
     }
 
     private prevPage = () => {
@@ -636,7 +665,8 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private async getPrediction(): Promise<any> {
-        const endpointURL = this.getPredictionEndpointUrl();
+        // const endpointURL = this.getPredictionEndpointUrl();
+        const endpointURL = this.state.predictionEndpointUrl;
         const apiKey = this.props.prebuiltSettings.apiKey;
 
         const headers = {"Content-Type": this.state.file ? this.state.file.type : "application/json", "cache-control": "no-cache"};
@@ -815,5 +845,58 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 feature.set("isHighlighted", false);
             }
         }
+    }
+
+    private handleUpdateRequestURI = () => {
+        const {currentPrebuiltType, predictionEndpointUrl} = this.state;
+        console.log("handleUpdateRequestURI");
+        console.log(predictionEndpointUrl);
+        if (predictionEndpointUrl.includes("?")){
+            var additionalUrl = predictionEndpointUrl.split("?")[1];
+            if (this.props.prebuiltSettings.serviceURI === "") {
+                this.setState({predictionEndpointUrl: ""});
+            } else {
+                var parameterArray = additionalUrl.includes("&")? additionalUrl.split("&"): [additionalUrl];
+                var newAdditionalUrl = "";
+                var connector = "";
+                for (const parameter of parameterArray) {
+                    var name = parameter.split("=")[0];
+                    if (name !== "locale" && name !== "pageRange") {
+                        newAdditionalUrl += connector;
+                        newAdditionalUrl += parameter;
+                    }
+                    connector = "&";
+                }
+                if (this.state.withPageRange && this.state.pageRangeIsValid) {
+                    newAdditionalUrl += `&pageRange=${this.state.pageRange}`;
+                } 
+                if (this.state.currentPrebuiltType.useLocale){
+                    newAdditionalUrl += `&locale=${this.state.currentLocale}`;
+                }
+                this.setState({
+                    predictionEndpointUrl: 
+                        this.props.prebuiltSettings.serviceURI +
+                        `/formrecognizer${constants.prebuiltServiceVersion}${currentPrebuiltType.servicePath}?`  
+                        + newAdditionalUrl
+                });
+            }
+        } else {
+            if (this.props.prebuiltSettings.serviceURI){
+                let endpointUrl = this.props.prebuiltSettings.serviceURI +
+                    `/formrecognizer${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`;
+                if (this.state.withPageRange && this.state.pageRangeIsValid) {
+                    endpointUrl += `&pageRange=${this.state.pageRange}`;
+                }
+                this.setState({
+                    predictionEndpointUrl: endpointUrl + (this.state.currentPrebuiltType.useLocale ? `&locale=${this.state.currentLocale}` : "")
+                });
+            }
+        }
+    }
+
+    private setRequestURI = (e, newValue?) => {
+        this.setState({
+            predictionEndpointUrl: newValue
+        });
     }
 }
