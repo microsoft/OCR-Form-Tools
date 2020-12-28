@@ -365,7 +365,7 @@ export function reconfigureTableTag(project: IProject, originalTagName: string, 
         return async (dispatch: Dispatch, getState: () => IApplicationState) => {
             // Find tags to rename
             const assetService = new AssetService(project);
-            const assetUpdates = await assetService.refactorTableTag(originalTagName, tagName, tagType, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
+            const assetUpdates = await assetService.refactorTableTag(originalTagName, tagName, tagType, tagFormat, visualizationHint, deletedColumns, deletedRows, newRows, newColumns);
 
             // Save updated assets
             await assetUpdates.forEachAsync(async (assetMetadata) => {

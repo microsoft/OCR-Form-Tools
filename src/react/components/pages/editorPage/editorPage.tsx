@@ -889,11 +889,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
           this.setState({
                 selectedAsset,
                 selectedTableTagToLabel: null,
-                selectedTableTagBody: null, }, () => {
-                    this.canvas.current.temp();
-                });
+                selectedTableTagBody: null,
+            }, () => {
+                this.canvas.current.temp();
+            });
         }
-        // this.updateAssetsState();
         this.reconfigTableConfirm.current.close();
         this.setState({tagInputMode: TagInputMode.Basic, reconfigureTableConfirm: false}, () => this.resizeCanvas());
         this.resizeCanvas();

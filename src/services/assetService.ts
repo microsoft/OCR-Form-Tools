@@ -5,7 +5,7 @@ import _ from "lodash";
 import Guard from "../common/guard";
 import {
     IAsset, AssetType, IProject, IAssetMetadata, AssetState,
-    ILabelData, ILabel, AssetLabelingState, FieldType, FieldFormat, ITableConfigItem, ITableRegion, ITableCellLabel, IFormRegion, ITableLabel
+    ILabelData, ILabel, AssetLabelingState, FieldType, FieldFormat, ITableConfigItem, ITableRegion, ITableCellLabel, IFormRegion, ITableLabel, TableVisualizationHint
 } from "../models/applicationState";
 import { AssetProviderFactory, IAssetProvider } from "../providers/storage/assetProviderFactory";
 import { StorageProviderFactory, IStorageProvider } from "../providers/storage/storageProviderFactory";
@@ -410,7 +410,7 @@ export class AssetService {
             //     toast.error(reason, { autoClose: false });
             //     throw new Error("Invalid label file");
             // }
-            // if (labelData.labels.length === 0 && labelData.tableLabels.length === 0) {
+            // if (labelData.labels.length === 0) {
             //     const reason = interpolate(strings.errors.noLabelInLabelFile.message, { labelFileName });
             //     toast.info(reason);
             //     throw new Error("Empty label file");
@@ -487,7 +487,7 @@ export class AssetService {
         return await this.getUpdatedAssets(tagName, tagType, tagFormat, transformer, labelTransformer);
     }
 
-    public async refactorTableTag(originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]): Promise<IAssetMetadata[]> {
+    public async refactorTableTag(originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, visualizationHint: TableVisualizationHint, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]): Promise<IAssetMetadata[]> {
         const transformer = (tagNames, columnKey, rowKey) => {
             let newTags = tagNames;
             let newColumnKey = columnKey;
@@ -512,33 +512,63 @@ export class AssetService {
             return {newTags, newColumnKey, newRowKey}
         }
         const labelTransformer = (labelData: ILabelData) => {
-            labelData.tableLabels = labelData?.tableLabels?.map((tableLabel) => {
-                if (tableLabel.tableKey === originalTagName) {
-                    const zz = {
-                        tableKey: tagName,
-                        labels: tableLabel.labels.reduce((result, label) => {
-                            const hasDeletedRowOrKey = deletedColumns?.find((deletedColumn) => deletedColumn.originalName === label.columnKey) || deletedRows?.find((deletedRow) => deletedRow.originalName === label.rowKey);
-                            if (hasDeletedRowOrKey) {
-                                return result
-                            }
-                            const columnRenamed = newColumns?.find((newColumn) => newColumn.originalName === label.columnKey && newColumn.originalName !== newColumn.name)
-                            const rowRenamed = newRows?.find((newRow) => newRow.originalName === label.rowKey && newRow.originalName !== newRow.name)
-                            const newLabel = {
-                                value: label.value,
-                                columnKey: columnRenamed?.name || label.columnKey,
-                                rowKey: rowRenamed?.name|| label.rowKey
-                            } as ITableCellLabel;
-                            result.push(newLabel);
-                            return result;
-                        }, [])
+            labelData.labels = labelData?.labels?.reduce((result, label) => {
+                const labelString = label.label.split("/"); 
+                if (labelString.length > 1) {
+                    const labelTagName = labelString[0];
+                    if (labelTagName !== originalTagName) {
+                        result.push(label);
+                        return result; 
                     }
-                    return zz
+                    let columnKey;
+                    let rowKey;
+                    if (tagType === FieldType.Object) {
+                        if (visualizationHint === TableVisualizationHint.Vertical) {
+                            rowKey = labelString[1]
+                            columnKey = labelString[2];
+                        } else {
+                            columnKey = labelString[1]
+                            rowKey = labelString[2];
+                        }
+                        if (deletedRows.find((deletedRow) => deletedRow.originalName === rowKey) || deletedColumns.find((deletedColumn) => deletedColumn.originalName === columnKey)) {
+                            return result;
+                        }
+                        const column = newColumns.find((newColumn) => newColumn.originalName === columnKey)
+                        const row = newRows.find((newRow) => newRow.originalName === rowKey)
+                        if (visualizationHint === TableVisualizationHint.Vertical) {
+                            result.push({
+                                ...label,
+                                label: tagName + "/" + row.name + "/" + column.name,
+                            })
+                        } else {
+                            result.push({
+                                ...label,
+                                label: tagName + "/" + column.name + "/" + row.name,
+                            })
+                        }
+
+                    } else {
+                        rowKey = labelString[1]
+                        columnKey = labelString[2];
+                        if (deletedColumns.find((deletedColumn) => deletedColumn.originalName === columnKey)) {
+                            return result;
+                        }
+                        const column = newColumns.find((newColumn) => newColumn.originalName === columnKey)
+                        result.push({
+                            ...label,
+                            label: tagName + "/" + rowKey + "/" + column.name,
+                        })
+                    }
+                    return result;
+
                 } else {
-                    return tableLabel;
+                    result.push(label);
+                    return result;   
                 }
-            });
+            }, [])
             return labelData;
-        };
+        }
+
         return await this.getUpdatedAssetsAfterReconfigure(originalTagName, tagName, tagType, tagFormat, transformer, labelTransformer);
     }
 
@@ -593,7 +623,6 @@ export class AssetService {
         const updates = await _.values(this.project.assets).mapAsync(async (asset) => {
             const assetMetadata = await this.getAssetMetadata(asset);
             const isUpdated = this.reconfigureTableTagInAssetMetadata(assetMetadata, originalTagName, tagName, tagType, tagFormat, transformer, labelTransformer);
-
             return isUpdated ? assetMetadata : null;
         });
 
@@ -624,7 +653,7 @@ export class AssetService {
         }
         if (tagType === FieldType.Array || tagType === FieldType.Object) {
             if (assetMetadata.labelData && assetMetadata.labelData.tableLabels) {
-                const field = assetMetadata.labelData.tableLabels.find((field) => field.tableKey === tagName);
+                const field = assetMetadata.labelData.labels.find((field) => field.label.split("/")[0] === tagName);
                 if (field) {
                     foundTag = true;
                     assetMetadata.labelData = labelTransformer(assetMetadata.labelData);
@@ -635,12 +664,12 @@ export class AssetService {
                 const field = assetMetadata.labelData.labels.find((field) => field.label === tagName);
                 if (field) {
                     foundTag = true;
-                    assetMetadata.labelData = labelTransformer(assetMetadata.labelData);
                 }
             }
         }
 
         if (foundTag) {
+            assetMetadata.labelData = labelTransformer(assetMetadata.labelData);
             assetMetadata.regions = assetMetadata.regions.filter((region) => region.tags.length > 0);
             assetMetadata.asset.state = _.get(assetMetadata, "labelData.labels.length") ||  _.get(assetMetadata, "labelData.tableLabels.length")
                 ? AssetState.Tagged : AssetState.Visited;
@@ -666,25 +695,22 @@ export class AssetService {
                 region.tags = newTags;
                 (region as ITableRegion).columnKey = newColumnKey;
                 (region as ITableRegion).rowKey = newRowKey;
-                assetMetadata.labelData = labelTransformer(assetMetadata.labelData);
-                // ? here
-                if (assetMetadata.labelData.labels.length === 0 && assetMetadata.labelData.tableLabels.length === 0 ) {
-                    delete assetMetadata.labelData.labelingState;
-                    delete assetMetadata.asset.labelingState;
-                }
+
+            }
+        }
+        if (tagType === FieldType.Array || tagType === FieldType.Object) {
+            const field = assetMetadata?.labelData?.labels?.find((field) => field.label.split("/")[0] === originalTagName);
+            if (field) {
+                foundTag = true;
             }
         }
 
-            if (assetMetadata.labelData && assetMetadata.labelData.tableLabels) {
-                const field = assetMetadata.labelData.tableLabels.find((field) => field.tableKey === originalTagName);
-                if (field) {
-                    foundTag = true;
-                    assetMetadata.labelData = labelTransformer(assetMetadata.labelData);
-                }
+        if (foundTag) {                
+            assetMetadata.labelData = labelTransformer(assetMetadata.labelData);
+            if (assetMetadata.labelData.labels.length === 0) {
+                delete assetMetadata.labelData.labelingState;
+                delete assetMetadata.asset.labelingState;
             }
-
-
-        if (foundTag) {
             assetMetadata.regions = assetMetadata.regions.filter((region) => region.tags.length > 0);
             assetMetadata.asset.state = _.get(assetMetadata, "labelData.labels.length") ||  _.get(assetMetadata, "labelData.tableLabels.length")
                 ? AssetState.Tagged : AssetState.Visited;
