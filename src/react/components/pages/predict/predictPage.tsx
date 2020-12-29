@@ -1061,7 +1061,23 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const tableBody = [];
         if (regionalTableToView?.type === "array") {
             const columnHeaderRow = [];
-            const colKeys = Object.keys(regionalTableToView?.valueArray?.[0].valueObject);
+            const colKeys = Object.keys(regionalTableToView?.valueArray?.[0]?.valueObject);
+            if (!colKeys) {
+                return (
+                    <div>
+                        <h5 className="mb-4 ml-2 mt-2 pb-1">
+                            <span style={{ borderBottom: `4px solid ${this.state.tableTagColor}`}}>Table name: {regionalTableToView.fieldName}</span>
+                        </h5>
+                        <div className="table-view-container">
+                            <table>
+                                <tbody>
+                                    Empty table
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                );
+            }
             for (let i = 0; i < colKeys.length + 1; i++) {
                 if (i === 0) {
                     columnHeaderRow.push(
@@ -1104,7 +1120,23 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             })
         }  else {
             const columnHeaderRow = [];
-            const colKeys = Object.keys(regionalTableToView?.valueObject?.[Object.keys(regionalTableToView?.valueObject)?.[0]].valueObject);
+            const colKeys = Object.keys(regionalTableToView?.valueObject?.[Object.keys(regionalTableToView?.valueObject)?.[0]]?.valueObject);
+            if (!colKeys) {
+                return (
+                    <div>
+                        <h5 className="mb-4 ml-2 mt-2 pb-1">
+                            <span style={{ borderBottom: `4px solid ${this.state.tableTagColor}`}}>Table name: {regionalTableToView.fieldName}</span>
+                        </h5>
+                        <div className="table-view-container">
+                            <table>
+                                <tbody>
+                                    Empty table
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                );
+            }
             for (let i = 0; i < colKeys.length + 1; i++) {
                 if (i === 0) {
                     columnHeaderRow.push(
