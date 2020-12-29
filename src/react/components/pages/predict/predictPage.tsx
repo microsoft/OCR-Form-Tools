@@ -46,7 +46,6 @@ import PredictResult, { IAnalyzeModelInfo, ITableResultItem } from "./predictRes
 import RecentModelsView from "./recentModelsView";
 import { UploadToTrainingSetView } from "./uploadToTrainingSetView";
 import { CanvasCommandBar } from "../editorPage/canvasCommandBar";
- import table_output2 from "./response-one-table-only.json"
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 
@@ -700,16 +699,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 });
             });
 
-            //  uncomment this and comment out all above for testing analyze results
-            // this.setState({
-            //     analyzeResult: table_output2,
-            //     predictionLoaded: true,
-            //     predictRun: true,
-            //     isPredicting: false,
-            // }, () => {
-            //     this.drawPredictionResult();
-            // });
-
         if (this.appInsights) {
             this.appInsights.trackEvent({name: "ANALYZE_EVENT"});
         }
@@ -1061,8 +1050,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const tableBody = [];
         if (regionalTableToView?.type === "array") {
             const columnHeaderRow = [];
-            const colKeys = Object.keys(regionalTableToView?.valueArray?.[0]?.valueObject);
-            if (!colKeys) {
+            const colKeys = Object.keys(regionalTableToView?.valueArray?.[0]?.valueObject || {});
+            if (colKeys.length === 0) {
                 return (
                     <div>
                         <h5 className="mb-4 ml-2 mt-2 pb-1">
@@ -1120,8 +1109,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             })
         }  else {
             const columnHeaderRow = [];
-            const colKeys = Object.keys(regionalTableToView?.valueObject?.[Object.keys(regionalTableToView?.valueObject)?.[0]]?.valueObject);
-            if (!colKeys) {
+            const colKeys = Object.keys(regionalTableToView?.valueObject?.[Object.keys(regionalTableToView?.valueObject)?.[0]]?.valueObject || {});
+            if (colKeys.length === 0) {
                 return (
                     <div>
                         <h5 className="mb-4 ml-2 mt-2 pb-1">

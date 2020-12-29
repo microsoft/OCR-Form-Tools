@@ -1,5 +1,0 @@
-commit 08f5199c73c8246a807413a96b23af749ac63674
-Author: Robert Stewart (eXcell <v-stewro@microsoft.com>
-Date:   Wed Dec 9 05:17:49 2020 -0800
-
-    fix: use default rows and columns if field is null
