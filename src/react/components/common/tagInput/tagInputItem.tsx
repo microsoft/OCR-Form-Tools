@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { MouseEvent } from "react";
 import { FontIcon, IconButton } from "@fluentui/react";
-import { ITag, ILabel, FieldType, FieldFormat, TagInputMode } from "../../../../models/applicationState";
-import { strings } from "../../../../common/strings";
-import TagInputItemLabel from "./tagInputItemLabel";
-import { tagIndexKeys } from "./tagIndexKeys";
 import _ from "lodash";
+import React, { Fragment, MouseEvent } from "react";
+import { strings } from "../../../../common/strings";
+import { FieldFormat, FieldType, ILabel, ITableLabel, ITag, TagInputMode } from "../../../../models/applicationState";
+import { tagIndexKeys } from "./tagIndexKeys";
+import TagInputItemLabel from "./tagInputItemLabel";
 
 export interface ITagClickProps {
     ctrlKey?: boolean;
@@ -27,6 +27,8 @@ export interface ITagInputItemProps {
     index: number;
     /** Labels owned by the tag */
     labels: ILabel[];
+    /** show Origin Labels or not */
+    showOriginLabels: boolean;
     /** Tag is currently renaming */
     isRenaming: boolean;
     /** Tag is currently locked for application */
@@ -39,12 +41,12 @@ export interface ITagInputItemProps {
     onClick: (tag: ITag, props: ITagClickProps) => void;
     /** Apply new name to tag */
     onRename: (oldTag: ITag, newName: string, cancelCallback: () => void) => void;
-    onLabelEnter: (label: ILabel) => void;
+    onLabelEnter: (label: ILabel|ITableLabel) => void;
     onLabelLeave: (label: ILabel) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
     handleLabelTable: (tagInputMode: TagInputMode, selectedTableTagToLabel) => void;
     addRowToDynamicTable: () => void;
-    onTagDoubleClick?: (label:ILabel) => void;
+    onTagDoubleClick?: (label: ILabel) => void;
 }
 
 export interface ITagInputItemState {
@@ -83,14 +85,8 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         const style: any = {
             background: this.props.tag.color,
         };
-        const confidence = _.get(this.props, "labels[0].confidence", null);
         return (
             <div className={"tag-item-block"}>
-                {confidence &&
-                    <div className="tag-item-confidence">
-                        {confidence}
-                    </div>
-                }
                 <div
                     className={"tag-color"}
                     style={style}
@@ -149,7 +145,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         this.props.onClick(this.props.tag, { ctrlKey, altKey });
     }
 
-    private onNameDoubleClick = (e:MouseEvent) => {
+    private onNameDoubleClick = (e: MouseEvent) => {
         e.stopPropagation();
         const { labels } = this.props;
         if (labels.length > 0) {
@@ -216,29 +212,65 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
     }
 
     private renderTagDetail = () => {
-            // console.log("# tag:", tag)
-    if (this.props.tag.type === FieldType.Table) {
-        return (
-            <div
-                className={"tag-item-label px-2"}
-                onClick={() => this.props.handleLabelTable(TagInputMode.LabelTable, this.props.tag)}
-            >
-                <FontIcon
-                    className="pr-1 pl-1" iconName="Table"
-                />
+        if (this.props.tag.type === FieldType.Object || this.props.tag.type === FieldType.Array) {
+            return (
+                <div
+                    className={"tag-item-label px-2"}
+                    onClick={() => {
+                        this.props.handleLabelTable(TagInputMode.LabelTable, this.props.tag);
+                        this.props.onLabelLeave(this.props.labels[0]);
+                    }}
+                    onMouseEnter={() => this.props.onLabelEnter(this.props.labels[0])}
+                    onMouseLeave={() => this.props.onLabelLeave(this.props.labels[0])}
+                >
+                    <FontIcon
+                        className="pr-1 pl-1" iconName="Table"
+                    />
                 Click to assign labels
-            </div>
-        );
-    }
-        return this.props.labels.map((label, idx) =>
-            <TagInputItemLabel
-                tag={this.props.tag}
-                key={idx}
-                label={label}
-                onLabelEnter={this.props.onLabelEnter}
-                onLabelLeave={this.props.onLabelLeave}
-                handleLabelTable={this.props.handleLabelTable}
-            />);
+                </div>
+            );
+        } else {
+            let confidence = _.get(this.props, "labels[0].confidence", null);
+            if (confidence > .995) {
+                confidence = 0.995;
+            }
+            const revised = _.get(this.props, "labels[0].revised", false);
+            return this.props.labels.map((label, idx) =>
+                <Fragment key={idx}>
+                    <div className="tag-item-label-container">
+                        {(confidence || revised) &&
+                            <div className="tag-item-label-container-item1">
+                                {!revised && confidence &&
+                                    <div className="tag-item-confidence">
+                                        {confidence}
+                                    </div>
+                                }
+                                {revised &&
+                                    <FontIcon iconName="StatusCircleCheckmark" className="ms-Icon-25px" />
+                                }
+                            </div>
+                        }
+                        <div className="tag-item-label-container-item2">
+                            {this.props.showOriginLabels && label.originValue &&
+                                <TagInputItemLabel
+                                    label={label}
+                                    isOrigin={true}
+                                    value={label.originValue}
+                                    prefixText={strings.tags.preText.autoLabel}/>
+                            }
+                            {(label.originValue?.length > 0 || label.value?.length > 0) &&
+                                <TagInputItemLabel
+                                    label={label}
+                                    value={label.value}
+                                    isOrigin={false}
+                                    onLabelEnter={this.props.onLabelEnter}
+                                    onLabelLeave={this.props.onLabelLeave}
+                                    prefixText={revised ? strings.tags.preText.revised : undefined}/>
+                            }
+                        </div>
+                    </div>
+                </Fragment>);
+        }
     }
 
     private onInputRef = (element: HTMLInputElement) => {

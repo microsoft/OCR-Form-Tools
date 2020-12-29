@@ -8,7 +8,8 @@ const appVersionArr = appVersionRaw.split(".");
 appVersionArr[1] = appVersionArr[1] + "-preview";
 const appVersion = appVersionArr.join(".");
 
-const apiVersion = "v2.1-preview.3";
+const enableAPIVersionSelection = appInfo.enableAPIVersionSelection;
+const apiVersion = "v2.1-preview.2";
 
 /**
  * Constants used throughout application
@@ -18,6 +19,7 @@ export const constants = {
     appVersionRaw,
     appVersion,
     apiVersion,
+    enableAPIVersionSelection,
     projectFormTempKey: "projectForm",
     projectFileExtensionOld: ".vott",
     projectFileExtension: ".fott",
@@ -36,8 +38,12 @@ export const constants = {
     convertedImageQuality: 0.7,
     convertedThumbnailQuality: 0.2,
     recentModelRecordsCount: 5,
-    apiModelsPath: `/formrecognizer/${apiVersion}/custom/models`,
-    autoLabelBatchSize: 10,
+    apiModelsPath: "/formrecognizer/${apiVersion}/custom/models",
+    autoLabelBatchSizeMax: 10,
+    autoLabelBatchSizeMin: 3,
+    showOriginLabelsByDefault: true,
+    fieldsSchema: "http://www.azure.com/schema/formrecognizer/fields.json",
+    labelsSchema: "http://www.azure.com/schema/formrecognizer/labels.json",
 
     pdfjsWorkerSrc(version: string) {
         return `https://fotts.azureedge.net/npm/pdfjs-dist/${version}/pdf.worker.js`;
@@ -47,4 +53,5 @@ export const constants = {
         return `https://fotts.azureedge.net/npm/pdfjs-dist/${version}/cmaps/`;
     },
     insightsKey: "",
+    prebuiltServiceVersion: "v2.1-preview.2"
 };

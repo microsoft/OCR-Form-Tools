@@ -43,6 +43,7 @@ describe("Editor Canvas", () => {
             lockedTags: [],
             hoveredLabel: null,
             appSettings: null,
+            highlightedTableCell: null,
         };
 
         const assetPreviewProps: IAssetPreviewProps = {

@@ -1,37 +1,93 @@
-@import '../../../../assets/sass/theme.scss';
+@import "../../../../assets/sass/theme.scss";
+
+$lighter-6: rgba(255,255,255,0.5);
+$lighter-7: rgba(255,255,255,0.55);
+$lighter-8: rgba(255,255,255,0.60);
 
 .app-homepage {
     flex-grow: 1;
     display: flex;
     flex-direction: row;
     min-height: fit-content;
+    overflow-y: auto;
 
     &-main {
         display: flex;
         flex-grow: 1;
+        overflow-y: auto;
 
         ul {
             display: flex;
             flex-direction: row;
-            align-items: center;
-            justify-content: center;
+            align-items: stretch;
+            justify-content: space-around;
             margin: auto;
-            flex-wrap: wrap;
 
             padding: 0;
 
             li {
+                flex: 1;
                 list-style-type: none;
                 text-align: center;
+                margin: 1rem;
+                border-radius: 2px;
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                &:hover {
+                    background-color: $lighter-2;
+                }
+                &:first-child {
+                    margin-left: 2rem;
+                }
+                &:last-child {
+                    margin-right: 2rem;
+                }
 
                 a {
                     display: inline-block;
-
-                    &.active, &:hover {
-                        color: #fff;
-                        background-color: $lighter-2;
-                        text-decoration: none;
+                    &.primary-link {
+                        flex: 1;
+                        padding: 1rem;
                     }
+                    .ms-Icon {
+                        color: $lighter-7;
+                    }
+                    .title {
+                        max-width: 12em;
+                        margin: auto;
+                        font-size: 1.3em;
+                        font-weight: bold;
+                        color: $lighter-8;
+                        text-align: center;
+                        margin-bottom: 1em;
+                    }
+
+                    &.active,
+                    &:hover {
+                        color: #fff;
+                        text-decoration: none;
+                        flex-wrap: wrap;
+                        .ms-Icon {
+                            color: #fff;
+                        }
+                        .title {
+                            color: #fff;
+                        }
+                    }
+                    &.quickstart {
+                        color: $lighter-7;
+                        &:hover {
+                            color: #fff;
+                        }
+                        .ms-Icon {
+                            margin: 5px;
+                        }
+                    }
+                }
+                .description {
+                    font-size: 1em;
+                    color: $lighter-6;
                 }
             }
         }
@@ -41,5 +97,105 @@
         flex-basis: 20vw;
         min-width: 250px;
         max-width: 300px;
+        display: flex;
+        flex-direction: column;
+    }
+    &-open-cloud-project {
+        display: flex;
+        align-items: center;
+        margin: 10px 0;
+        background-color: $lighter-1;
+        &:hover {
+            color: #fff;
+            background-color: $lighter-3;
+            text-decoration: none;
+        }
+        .icon {
+            margin: 10px;
+            font-size: 2.5em;
+        }
+        .title {
+            font-size: 1.2em;
+            margin: 10px;
+        }
+    }
+}
+
+.homepage-modal {
+    z-index: 10 !important;
+    .modal-container {
+        height: 90vh !important;
+        width: calc(100% - 32px) !important;
+        max-width: calc(100% - 32px) !important;
+        display: flex;
+        padding: 0 !important;
+
+        .modal-content {
+            flex: 1;
+            display: flex;
+            .header {
+                display: flex;
+                .title {
+                    margin-left: 1em;
+                    flex: 1;
+                }
+
+                .close-button {
+                    color: "white";
+                }
+            }
+            .body {
+                flex: 1;
+                overflow-y: hidden;
+                display: flex;
+                .modal-left {
+                    flex: 1;
+                    display: flex;
+                    ul {
+                        display: flex;
+                        flex-direction: row;
+                        align-items: stretch;
+                        justify-content: space-around;
+                        margin: auto;
+                        padding: 0;
+                        li {
+                            list-style-type: none;
+                            text-align: center;
+                            min-width: 24%;
+                            border-radius: 2px;
+                            a {
+                                display: inline-block;
+                                .title {
+                                    max-width: 12em;
+                                    margin: auto;
+                                    font-size: 1.3em;
+                                    font-weight: bold;
+                                    color: white;
+                                    text-align: center;
+                                    margin-bottom: 1em;
+                                }
+                                &.active,
+                                &:hover {
+                                    color: #fff;
+                                    background-color: $lighter-2;
+                                    text-decoration: none;
+                                    flex-wrap: wrap;
+                                }
+                            }
+                            .description {
+                                font-size: 1em;
+                                color: $lighter-5;
+                            }
+                        }
+                    }
+                }
+                .modal-right {
+                    flex-basis: 20vw;
+                    min-width: 250px;
+                    max-width: 300px;
+                    overflow-y: auto;
+                }
+            }
+        }
     }
 }

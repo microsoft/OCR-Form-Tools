@@ -2,50 +2,52 @@
 // Licensed under the MIT license.
 
 import {
-    DefaultButton, Dropdown, FontIcon, IconButton, IDropdownOption,
-    ISelection, PrimaryButton, Selection,
-    SelectionMode, Separator, Spinner, SpinnerSize, TextField
+    DefaultButton, FontIcon, IconButton,
+    ISelection, ITooltipHostStyles, PrimaryButton, Selection,
+    SelectionMode, Separator, Spinner, SpinnerSize, TooltipHost
 } from "@fluentui/react";
 import axios from "axios";
 import _ from "lodash";
-import { Feature } from "ol";
+import {Feature} from "ol";
 import Polygon from "ol/geom/Polygon";
 import Fill from "ol/style/Fill";
 import Stroke from "ol/style/Stroke";
 import Style from "ol/style/Style";
 import pdfjsLib from "pdfjs-dist";
 import React from "react";
-import { connect } from "react-redux";
-import { RouteComponentProps } from "react-router-dom";
-import { bindActionCreators } from "redux";
+import {connect} from "react-redux";
+import {RouteComponentProps} from "react-router-dom";
+import {bindActionCreators} from "redux";
 import url from "url";
-import { constants } from "../../../../common/constants";
-import HtmlFileReader from "../../../../common/htmlFileReader";
-import { interpolate, strings } from "../../../../common/strings";
+import {constants} from "../../../../common/constants";
+import {interpolate, strings} from "../../../../common/strings";
 import {
-    getGreenWithWhiteBackgroundTheme, getPrimaryGreenTheme, getPrimaryGreyTheme, getPrimaryWhiteTheme,
-    getRightPaneDefaultButtonTheme
+    getGreenWithWhiteBackgroundTheme, getPrimaryGreenTheme, getPrimaryGreyTheme, getPrimaryWhiteTheme, getRightPaneDefaultButtonTheme,
 } from "../../../../common/themes";
 import { loadImageToCanvas, parseTiffData, renderTiffToCanvas } from "../../../../common/utils";
 import { AppError, ErrorCode, FieldFormat, IApplicationState, IAppSettings, IConnection, ImageMapParent, IProject, IRecentModel, IField, AnalyzedTagsMode } from "../../../../models/applicationState";
+import { getAPIVersion } from "../../../../common/utils";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import ServiceHelper from "../../../../services/serviceHelper";
-import { getAppInsights } from '../../../../services/telemetryService';
+import {getAppInsights} from '../../../../services/telemetryService';
 import Alert from "../../common/alert/alert";
 import Confirm from "../../common/confirm/confirm";
-import { ImageMap } from "../../common/imageMap/imageMap";
+import {DocumentFilePicker} from "../../common/documentFilePicker/documentFilePicker";
+import {ImageMap} from "../../common/imageMap/imageMap";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
+import { TableView } from "../editorPage/tableView";
+import {ILoadFileHelper, ILoadFileResult, LoadFileHelper} from "../prebuiltPredict/LoadFileHelper";
+import {ITableHelper, ITableState, TableHelper} from "../prebuiltPredict/tableHelper";
+import PredictModelInfo from './predictModelInfo';
 import "./predictPage.scss";
 import PredictResult, { IAnalyzeModelInfo, ITableResultItem } from "./predictResult";
 import RecentModelsView from "./recentModelsView";
 import { UploadToTrainingSetView } from "./uploadToTrainingSetView";
 import { CanvasCommandBar } from "../editorPage/canvasCommandBar";
-// import table_output2 from "./table_prediction.json"
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
-const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
 
 export interface IPredictPageProps extends RouteComponentProps, React.Props<PredictPage> {
     recentProjects: IProject[];
@@ -57,7 +59,7 @@ export interface IPredictPageProps extends RouteComponentProps, React.Props<Pred
     appTitleActions: IAppTitleActions;
 }
 
-export interface IPredictPageState {
+export interface IPredictPageState extends ILoadFileResult, ITableState {
     couldNotGetRecentModel: boolean;
     selectionIndexTracker: number;
     selectedRecentModelIndex: number;
@@ -68,26 +70,23 @@ export interface IPredictPageState {
     isFetching: boolean;
     fetchedFileURL: string;
     inputedFileURL: string;
-    analyzeResult: {};
+    predictionResult: any;
+    analyzeResult: any;
     fileLabel: string;
     predictionLoaded: boolean;
-    currPage: number;
-    imageUri: string;
-    imageWidth: number;
-    imageHeight: number;
-    shouldShowAlert: boolean;
-    alertTitle: string;
-    alertMessage: string;
     fileChanged: boolean;
     predictRun: boolean;
     isPredicting: boolean;
     file?: File;
+    fileLoaded?: boolean;
     highlightedField: string;
     modelList: IModel[];
     modelOption: string;
     confirmDuplicatedAssetNameMessage?: string;
     imageAngle: number;
     viewTable?: boolean;
+    viewRegionalTable?: boolean;
+    regionalTableToView?: any;
     tableToView?: any;
     tableTagColor?: string;
     highlightedTableCellRowKey?: string;
@@ -121,6 +120,8 @@ function mapDispatchToProps(dispatch) {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class PredictPage extends React.Component<IPredictPageProps, IPredictPageState> {
     private appInsights: any = null;
+    private tableHelper: ITableHelper = new TableHelper(this);
+    private fileHelper: ILoadFileHelper = new LoadFileHelper();
 
     public state: IPredictPageState = {
         couldNotGetRecentModel: false,
@@ -133,10 +134,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         fetchedFileURL: "",
         inputedFileURL: strings.predict.defaultURLInput,
         inputedLocalFile: strings.predict.defaultLocalFileInput,
+        predictionResult: {},
         analyzeResult: {},
         fileLabel: "",
         predictionLoaded: true,
-        currPage: undefined,
+        currentPage: 1,
+        numPages: 1,
         imageUri: null,
         imageWidth: 0,
         imageHeight: 0,
@@ -151,16 +154,20 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         modelOption: "",
         imageAngle: 0,
         viewTable: false,
-        tableToView: null,
+        viewRegionalTable: false,
+        regionalTableToView: null,
         tableTagColor: null,
         highlightedTableCellRowKey: null,
         highlightedTableCellColumnKey: null,
+
+        tableIconTooltip: {display: "none", width: 0, height: 0, top: 0, left: 0},
+        hoveringFeature: null,
+        tableToView: null,
+        tableToViewId: null,
     };
 
+    private analyzeResults: any;
     private selectionHandler: ISelection;
-    private fileInput: React.RefObject<HTMLInputElement> = React.createRef();
-    private currPdf: any;
-    private tiffImages: any[];
     private imageMap: ImageMap;
     private uploadToTrainingSetView: React.RefObject<UploadToTrainingSetView> = React.createRef();
     private duplicateAssetNameConfirm: React.RefObject<Confirm> = React.createRef();
@@ -174,7 +181,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         document.title = strings.predict.title + " - " + strings.appName;
     }
 
-    public async componentDidUpdate(prevProps, prevState) {
+    public async componentDidUpdate(_prevProps: IPredictPageProps, prevState: IPredictPageState) {
         const onPredictPage = (new RegExp("predict$")).test(this.props.match.url)
         if (!onPredictPage) {
             return; // don't update if not on the predict page
@@ -195,24 +202,23 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             this.state.selectedRecentModelIndex === -1) {
             this.updateRecentModelsViewer(this.props.project);
         } else if (this.state.loadingRecentModel) {
-            this.setState({ loadingRecentModel: false });
+            this.setState({loadingRecentModel: false});
         }
 
         if (this.state.file) {
-            if (this.state.fileChanged) {
-                this.currPdf = null;
-                this.tiffImages = [];
+            if (this.state.fileChanged && !this.state.isFetching) {
                 this.loadFile(this.state.file);
-                this.setState({ fileChanged: false });
-            } else if (prevState.currPage !== this.state.currPage) {
-                if (this.currPdf !== null) {
-                    this.loadPdfPage(this.currPdf, this.state.currPage);
-                } else if (this.tiffImages.length !== 0) {
-                    this.loadTiffPage(this.tiffImages, this.state.currPage);
-                }
-            } else if (this.getOcrFromAnalyzeResult(this.state.analyzeResult).length > 0 &&
+                this.analyzeResults = undefined;
+            } else if (prevState.currentPage !== this.state.currentPage) {
+
+                this.fileHelper.loadPage(this.state.currentPage).then((res: any) => {
+                    if (res) {
+                        this.setState({...res});
+                    }
+                });
+            }
+            if (this.getOcrFromAnalyzeResult(this.state.analyzeResult).length > 0 &&
                 prevState.imageUri !== this.state.imageUri) {
-                this.imageMap.removeAllFeatures();
                 this.drawPredictionResult();
             }
 
@@ -230,28 +236,20 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     public render() {
         const mostRecentModel = this.props.project?.recentModelRecords?.[this.state.selectedRecentModelIndex];
         const browseFileDisabled: boolean = !this.state.predictionLoaded;
-        const urlInputDisabled: boolean = !this.state.predictionLoaded || this.state.isFetching;
-        const predictDisabled: boolean = !this.state.predictionLoaded || !this.state.file;
+        const predictDisabled: boolean = this.state.isPredicting || !this.state.file ||
+            this.state.invalidFileFormat ||
+            !this.state.fileLoaded;
+
         const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
         const modelInfo: IAnalyzeModelInfo = this.getAnalyzeModelInfo(this.state.analyzeResult);
-        const fetchDisabled: boolean =
-            !this.state.predictionLoaded ||
-            this.state.isFetching ||
-            this.state.inputedFileURL.length === 0 ||
-            this.state.inputedFileURL === strings.predict.defaultURLInput;
-
-        const sourceOptions: IDropdownOption[] = [
-            { key: "localFile", text: "Local file" },
-            { key: "url", text: "URL" },
-        ];
 
         const onPredictionPath: boolean = this.props.match.path.includes("predict");
-        const sidebarWidth = this.state.viewTable ? 650 : 400;
+        const sidebarWidth = this.state.viewRegionalTable ? 650 : 400;
 
         let tagViewMode: AnalyzedTagsMode;
         if (this.state.loadingRecentModel) {
             tagViewMode = AnalyzedTagsMode.LoadingRecentModel;
-        } else if (this.state.viewTable) {
+        } else if (this.state.viewRegionalTable) {
             tagViewMode = AnalyzedTagsMode.ViewTable;
         } else {
             tagViewMode = AnalyzedTagsMode.default;
@@ -261,13 +259,14 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             <div
                 className={`predict skipToMainContent ${onPredictionPath ? "" : "hidden"} `}
                 id="pagePredict"
-                style={{ display: `${onPredictionPath ? "flex" : "none"}` }} >
+                style={{display: `${onPredictionPath ? "flex" : "none"}`}} >
                 <div className="predict-main">
                     {this.state.file && this.state.imageUri && this.renderImageMap()}
                     {this.renderPrevPageButton()}
                     {this.renderNextPageButton()}
+                    {this.renderPageIndicator()}
                 </div>
-                <div className={`predict-sidebar bg-lighter-1`}  style={{width: sidebarWidth, minWidth: sidebarWidth }}>
+                <div className={"predict-sidebar bg-lighter-1"}  style={{width: sidebarWidth, minWidth: sidebarWidth }}>
                     <div className="condensed-list">
                         <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
                             <FontIcon className="mr-1" iconName="Insights" />
@@ -318,12 +317,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                 className="keep-button-80px"
                                                 theme={getRightPaneDefaultButtonTheme()}
                                                 text="Change"
-                                                onClick={() => { this.setState({ showRecentModelsView: true }) }}
+                                                onClick={() => {this.setState({showRecentModelsView: true})}}
                                                 disabled={!mostRecentModel || browseFileDisabled}
                                             />
                                         </div>
-                                        <div className="p-3" style={{ marginTop: "8px" }}>
-                                            <div style={{ display: "flex", justifyContent: "space-between" }}>
+                                        <div className="p-3" style={{marginTop: "8px"}}>
+                                            <div style={{display: "flex", justifyContent: "space-between"}}>
                                                 <h5>
                                                     {strings.predict.downloadScript}
                                                 </h5>
@@ -340,76 +339,16 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                             <h5>
                                                 {strings.predict.uploadFile}
                                             </h5>
-                                            <div style={{ marginBottom: "3px" }}>Image source</div>
-                                            <div className="container-space-between">
-                                                <Dropdown
-                                                    className="sourceDropdown"
-                                                    selectedKey={this.state.sourceOption}
-                                                    options={sourceOptions}
-                                                    disabled={this.state.isPredicting || this.state.isFetching}
-                                                    onChange={this.selectSource}
-                                                />
-                                                {this.state.sourceOption === "localFile" &&
-                                                    <input
-                                                        aria-hidden="true"
-                                                        type="file"
-                                                        accept="application/pdf, image/jpeg, image/png, image/tiff"
-                                                        id="hiddenInputFile"
-                                                        ref={this.fileInput}
-                                                        onChange={this.handleFileChange}
-                                                        disabled={browseFileDisabled}
-                                                    />
-                                                }
-                                                {this.state.sourceOption === "localFile" &&
-                                                    <TextField
-                                                        className="mr-2 ml-2"
-                                                        theme={getGreenWithWhiteBackgroundTheme()}
-                                                        style={{ cursor: (browseFileDisabled ? "default" : "pointer") }}
-                                                        onClick={this.handleDummyInputClick}
-                                                        readOnly={true}
-                                                        aria-label={strings.predict.uploadFile}
-                                                        value={this.state.inputedLocalFile}
-                                                        disabled={browseFileDisabled}
-                                                    />
-                                                }
-                                                {this.state.sourceOption === "localFile" &&
-                                                    <PrimaryButton
-                                                        className="keep-button-80px"
-                                                        theme={getPrimaryGreenTheme()}
-                                                        text="Browse"
-                                                        allowDisabledFocus
-                                                        disabled={browseFileDisabled}
-                                                        autoFocus={true}
-                                                        onClick={this.handleDummyInputClick}
-                                                    />
-                                                }
-                                                {this.state.sourceOption === "url" &&
-                                                    <TextField
-                                                        className="mr-2 ml-2"
-                                                        theme={getGreenWithWhiteBackgroundTheme()}
-                                                        onFocus={this.removeDefaultInputedFileURL}
-                                                        onChange={this.setInputedFileURL}
-                                                        aria-label={strings.predict.uploadFile}
-                                                        value={this.state.inputedFileURL}
-                                                        disabled={urlInputDisabled}
-                                                    />
-                                                }
-                                                {this.state.sourceOption === "url" &&
-                                                    <PrimaryButton
-                                                        theme={getPrimaryGreenTheme()}
-                                                        className="keep-button-80px"
-                                                        text="Fetch"
-                                                        allowDisabledFocus
-                                                        disabled={fetchDisabled}
-                                                        autoFocus={true}
-                                                        onClick={this.getFileFromURL}
-                                                    />
-                                                }
-                                            </div>
+                                            <DocumentFilePicker
+                                                disabled={this.state.isFetching || this.state.isPredicting}
+                                                onFileChange={(data) => this.onFileChange(data)}
+                                                onSelectSourceChange={() => this.onSelectSourceChange()}
+                                                onError={(err) => this.onFileLoadError(err)} />
+
                                             <div className="container-items-end predict-button">
                                                 <PrimaryButton
                                                     theme={getPrimaryWhiteTheme()}
-                                                    iconProps={{ iconName: "Insights" }}
+                                                    iconProps={{iconName: "Insights"}}
                                                     text="Run analysis"
                                                     aria-label={!this.state.predictionLoaded ? strings.predict.inProgress : ""}
                                                     allowDisabledFocus
@@ -427,7 +366,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                     />
                                                 </div>
                                             }
-                                            {!this.state.predictionLoaded &&
+                                            {this.state.isPredicting &&
                                                 <div className="loading-container">
                                                     <Spinner
                                                         label={strings.predict.inProgress}
@@ -440,9 +379,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                             {Object.keys(predictions).length > 0 && this.props.project &&
                                                 <PredictResult
                                                     predictions={predictions}
-                                                    analyzeResult={this.state.analyzeResult}
-                                                    analyzeModelInfo={modelInfo}
-                                                    page={this.state.currPage}
+                                                    analyzeResult={this.analyzeResults}
+                                                    page={this.state.currentPage}
                                                     tags={this.props.project.tags}
                                                     downloadResultLabel={this.state.fileLabel}
                                                     onAddAssetToProject={this.onAddAssetToProjectClick}
@@ -450,7 +388,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                     onPredictionMouseEnter={this.onPredictionMouseEnter}
                                                     onPredictionMouseLeave={this.onPredictionMouseLeave}
                                                     onTablePredictionClick={this.onTablePredictionClick}
-                                                />
+                                                >
+                                                    <PredictModelInfo modelInfo={modelInfo} />
+                                                </PredictResult>
                                             }
                                             <UploadToTrainingSetView
                                                 showOption={!this.props.appSettings.hideUploadingOption}
@@ -477,14 +417,14 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                         {tagViewMode === AnalyzedTagsMode.LoadingRecentModel &&
                             <Spinner className="loading-tag" size={SpinnerSize.large} />
                         }
-                        {this.state.viewTable &&
+                        {this.state.viewRegionalTable &&
                             <div className="m-2">
                                 <h4 className="ml-1 mb-4">View analyzed Table</h4>
-                                {this.displayTable(this.state.tableToView)}
+                                {this.displayRegionalTable(this.state.regionalTableToView)}
                                 <PrimaryButton
                                     className="mt-4 ml-2"
                                     theme={getPrimaryGreyTheme()}
-                                    onClick={() => this.setState({ viewTable: false })}>Back</PrimaryButton>
+                                    onClick={() => this.setState({ viewRegionalTable: false })}>Back</PrimaryButton>
                             </div>
                         }
                     </div>
@@ -517,133 +457,74 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         );
     }
 
-    private handleDummyInputClick = () => {
-        document.getElementById("hiddenInputFile").click();
+    onFileChange(data: {
+        file: File,
+        fileLabel: string,
+        fetchedFileURL: string
+    }): void {
+        this.setState({
+            currentPage: 1,
+            ...data,
+            analyzeResult: null,
+            predictionLoaded: false,
+            fileLoaded: false,
+            fileChanged: true,
+        }, () => {
+            this.imageMap?.removeAllFeatures();
+        });
     }
 
-    private removeDefaultInputedFileURL = () => {
-        if (this.state.inputedFileURL === strings.predict.defaultURLInput) {
-            this.setState({ inputedFileURL: "" });
-        }
+
+    onSelectSourceChange(): void {
+        this.setState({
+            inputedFileURL: strings.predict.defaultURLInput,
+            inputedLocalFile: strings.predict.defaultLocalFileInput,
+            fileLabel: "",
+            currentPage: undefined,
+            analyzeResult: {},
+            fileChanged: true,
+            file: undefined,
+            predictRun: false,
+            isFetching: false,
+            fetchedFileURL: "",
+            predictionLoaded: true,
+            imageUri: null,
+            imageWidth: 0,
+            imageHeight: 0,
+            shouldShowAlert: false,
+            alertTitle: "",
+            alertMessage: "",
+            isPredicting: false,
+            highlightedField: "",
+        }, () => {
+            this.imageMap?.removeAllFeatures();
+        });
+
     }
 
-    private setInputedFileURL = (event) => {
-        this.setState({ inputedFileURL: event.target.value });
-    }
-
-    private getFileFromURL = () => {
-        this.setState({ isFetching: true });
-        fetch(this.state.inputedFileURL, { headers: { Accept: "application/pdf, image/jpeg, image/png, image/tiff" } })
-            .then((response) => {
-                if (!response.ok) {
-                    this.setState({
-                        isFetching: false,
-                        shouldShowAlert: true,
-                        alertTitle: "Failed to fetch",
-                        alertMessage: response.status.toString() + " " + response.statusText,
-                        isPredicting: false,
-                    });
-                    return;
-                }
-                const contentType = response.headers.get("Content-Type");
-                if (!["application/pdf", "image/jpeg", "image/png", "image/tiff"].includes(contentType)) {
-                    this.setState({
-                        isFetching: false,
-                        shouldShowAlert: true,
-                        alertTitle: "Content-Type not supported",
-                        alertMessage: "Content-Type " + contentType + " not supported",
-                        isPredicting: false,
-                    });
-                    return;
-                }
-                response.blob().then((blob) => {
-                    const fileAsURL = new URL(this.state.inputedFileURL);
-                    const fileName = fileAsURL.pathname.split("/").pop();
-                    const file = new File([blob], fileName, { type: contentType });
-                    this.setState({
-                        fetchedFileURL: this.state.inputedFileURL,
-                        isFetching: false,
-                        fileLabel: fileName,
-                        currPage: 1,
-                        analyzeResult: {},
-                        fileChanged: true,
-                        file,
-                        predictRun: false,
-                    }, () => {
-                        if (this.imageMap) {
-                            this.imageMap.removeAllFeatures();
-                        }
-                    });
-                }).catch((error) => {
-                    this.setState({
-                        isFetching: false,
-                        shouldShowAlert: true,
-                        alertTitle: "Invalid data",
-                        alertMessage: error,
-                        isPredicting: false,
-                    });
-                    return;
-                });
-            }).catch(() => {
-                this.setState({
-                    isFetching: false,
-                    shouldShowAlert: true,
-                    alertTitle: "Fetch failed",
-                    alertMessage: "Network error or Cross-Origin Resource Sharing (CORS) is not configured server-side",
-                });
-                return;
-            });
-    }
-
-    private selectSource = (event, option) => {
-        if (option.key !== this.state.sourceOption) {
-            this.setState({
-                sourceOption: option.key,
-                inputedFileURL: strings.predict.defaultURLInput,
-                inputedLocalFile: strings.predict.defaultLocalFileInput,
-                fileLabel: "",
-                currPage: undefined,
-                analyzeResult: {},
-                fileChanged: true,
-                file: undefined,
-                predictRun: false,
-                isFetching: false,
-                fetchedFileURL: "",
-                predictionLoaded: true,
-                imageUri: null,
-                imageWidth: 0,
-                imageHeight: 0,
-                shouldShowAlert: false,
-                alertTitle: "",
-                alertMessage: "",
-                isPredicting: false,
-                highlightedField: "",
-            }, () => {
-                if (this.imageMap) {
-                    this.imageMap.removeAllFeatures();
-                }
-            });
-        }
+    onFileLoadError(err: {alertTitle: string; alertMessage: string;}): void {
+        this.setState({
+            ...err,
+            shouldShowAlert: true,
+            predictionLoaded: false,
+        });
     }
 
     private renderPrevPageButton = () => {
-        if (!_.get(this, "fileInput.current.files[0]", null)) {
-            return <div></div>;
-        }
         const prevPage = () => {
             this.setState((prevState) => ({
-                currPage: Math.max(1, prevState.currPage - 1),
+                currentPage: Math.max(1, prevState.currentPage - 1),
             }), () => {
-                this.imageMap.removeAllFeatures();
+                this.imageMap?.removeAllFeatures();
             });
         };
 
-        if (this.state.currPage > 1) {
+        if (this.state.currentPage > 1) {
             return (
                 <IconButton
                     className="toolbar-btn prev"
                     title="Previous"
-                    iconProps={{ iconName: "ChevronLeft" }}
+                    iconProps={{iconName: "ChevronLeft"}}
                     onClick={prevPage}
                 />
             );
@@ -653,56 +534,120 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private renderNextPageButton = () => {
-        if (!_.get(this, "fileInput.current.files[0]", null)) {
-            return <div></div>;
-        }
-
-        const numPages = this.getPageCount();
+        const {currentPage, numPages} = this.state;
         const nextPage = () => {
             this.setState((prevState) => ({
-                currPage: Math.min(prevState.currPage + 1, numPages),
+                currentPage: Math.min(prevState.currentPage + 1, numPages),
             }), () => {
-                this.imageMap.removeAllFeatures();
+                this.imageMap?.removeAllFeatures();
             });
         };
 
-        if (this.state.currPage < numPages) {
+        if (currentPage < numPages) {
             return (
                 <IconButton
                     className="toolbar-btn next"
                     title="Next"
                     onClick={nextPage}
-                    iconProps={{ iconName: "ChevronRight" }}
+                    iconProps={{iconName: "ChevronRight"}}
                 />
             );
         } else {
             return <div></div>;
         }
     }
+    private renderPageIndicator = () => {
+        const {numPages} = this.state;
+        return numPages > 1 ?
+            <p className="page-number">
+                Page {this.state.currentPage} of {numPages}
+            </p> : <div></div>;
+    }
 
     private renderImageMap = () => {
+        const hostStyles: Partial<ITooltipHostStyles> = {
+            root: {
+                position: "absolute",
+                top: this.state.tableIconTooltip.top,
+                left: this.state.tableIconTooltip.left,
+                width: this.state.tableIconTooltip.width,
+                height: this.state.tableIconTooltip.height,
+                display: this.state.tableIconTooltip.display,
+            },
+        };
         return (
-            <div style={{ width: "100%", height: "100%" }}>
+            <div style={{width: "100%", height: "100%"}}>
                 <CanvasCommandBar
                     handleZoomIn={this.handleCanvasZoomIn}
                     handleZoomOut={this.handleCanvasZoomOut}
                     handleRotateImage={this.handleRotateCanvas}
                     project={this.props.project}
-                    parentPage={"predict"}
+                    showActionMenu={false}
                     layers={{}}
                 />
                 <ImageMap
-                    parentPage={ImageMapParent.Predict}
-                    ref={(ref) => this.imageMap = ref}
+                    initEditorMap={true}
+                    ref={(ref) => {
+                        this.imageMap = ref;
+                        this.tableHelper.setImageMap(ref);
+                    }}
                     imageUri={this.state.imageUri || ""}
                     imageWidth={this.state.imageWidth}
                     imageHeight={this.state.imageHeight}
                     imageAngle={this.state.imageAngle}
                     featureStyler={this.featureStyler}
                     onMapReady={this.noOp}
+                    tableBorderFeatureStyler={this.tableHelper.tableBorderFeatureStyler}
+                    tableIconFeatureStyler={this.tableHelper.tableIconFeatureStyler}
+                    tableIconBorderFeatureStyler={this.tableHelper.tableIconBorderFeatureStyler}
+                    handleTableToolTipChange={this.tableHelper.handleTableToolTipChange}
                 />
+                <TooltipHost
+                    content={"rows: " + this.state.tableIconTooltip.rows +
+                        " columns: " + this.state.tableIconTooltip.columns}
+                    id="tableInfo"
+                    styles={hostStyles}
+                >
+                    <div
+                        aria-describedby="tableInfo"
+                        className="tooltip-container"
+                        onClick={this.handleTableIconFeatureSelect}
+                    />
+                </TooltipHost>
+                {this.state.tableToView &&
+                    <TableView
+                        handleTableViewClose={this.handleTableViewClose}
+                        tableToView={this.state.tableToView}
+                    />
+                }
             </div>
         );
+    }
+
+    private handleTableIconFeatureSelect = () => {
+        if (this.state.hoveringFeature != null) {
+            const tableState = this.imageMap.getTableBorderFeatureByID(this.state.hoveringFeature).get("state");
+            if (tableState === "hovering" || tableState === "rest") {
+                this.tableHelper.setTableToView(this.tableHelper.getTable(this.state.currentPage, this.state.hoveringFeature),
+                    this.state.hoveringFeature);
+            } else {
+                this.closeTableView("hovering");
+            }
+        }
+    }
+
+    private handleTableViewClose = () => {
+        this.closeTableView("rest");
+    }
+
+    private closeTableView = (state: string) => {
+        if (this.state.tableToView) {
+            this.tableHelper.setTableState(this.state.tableToViewId, state);
+            this.setState({
+                tableToView: null,
+                tableToViewId: null,
+            });
+        }
     }
 
     private handleCanvasZoomIn = () => {
@@ -714,36 +659,18 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private handleRotateCanvas = (degrees: number) => {
-        this.setState({ imageAngle: this.state.imageAngle + degrees });
-    }
-
-    private handleFileChange = () => {
-        if (this.fileInput.current.value !== "") {
-            const fileName = this.fileInput.current.value.split("\\").pop();
-            if (fileName !== "") {
-                this.setState({
-                    inputedLocalFile: fileName,
-                    fileLabel: fileName,
-                    currPage: 1,
-                    analyzeResult: {},
-                    fileChanged: true,
-                    file: this.fileInput.current.files[0],
-                    predictRun: false,
-                }, () => {
-                    if (this.imageMap) {
-                        this.imageMap.removeAllFeatures();
-                    }
-                });
-            }
-        }
+        this.setState({imageAngle: this.state.imageAngle + degrees});
     }
 
     private handleClick = () => {
-        this.setState({ predictionLoaded: false, isPredicting: true });
+        this.setState({predictionLoaded: false, isPredicting: true});
         this.getPrediction()
             .then((result) => {
+                this.analyzeResults = _.cloneDeep(result);
+                this.tableHelper.setAnalyzeResult(result?.analyzeResult);
                 this.setState({
-                    analyzeResult: result,
+                    predictionResult: result,
+                    analyzeResult: result?.analyzeResult,
                     predictionLoaded: true,
                     predictRun: true,
                     isPredicting: false,
@@ -759,8 +686,10 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     alertMessage = strings.errors.predictWithoutTrainForbidden.message;
                 } else if (error.errorCode === ErrorCode.ModelNotFound) {
                     alertMessage = error.message;
+                } else if (error.code) {
+                    alertMessage = `${error.message}, code ${error.code}`;
                 } else {
-                    alertMessage = interpolate(strings.errors.endpointConnectionError.message, { endpoint: "form recognizer backend URL" });
+                    alertMessage = interpolate(strings.errors.endpointConnectionError.message, {endpoint: "form recognizer backend URL"});
                 }
                 this.setState({
                     shouldShowAlert: true,
@@ -770,29 +699,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 });
             });
 
-            ////  uncomment this and comment out all above for testing analyze results
-            // this.setState({
-            //     analyzeResult: table_output2,
-            //     predictionLoaded: true,
-            //     predictRun: true,
-            //     isPredicting: false,
-            // }, () => {
-            //     this.drawPredictionResult();
-            // });
-
         if (this.appInsights) {
-            this.appInsights.trackEvent({ name: "ANALYZE_EVENT" });
+            this.appInsights.trackEvent({name: "ANALYZE_EVENT"});
         }
-    }
-
-    private getPageCount() {
-        if (this.currPdf !== null) {
-            return _.get(this.currPdf, "numPages", 1);
-        } else if (this.tiffImages.length !== 0) {
-            return this.tiffImages.length;
-        }
-
-        return 1;
     }
 
     private handleDownloadClick = () => {
@@ -820,7 +729,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                         case "<model_id>":
                             return modelID;
                         case "<API_version>":
-                            return (this.props.project?.apiVersion || constants.apiVersion);
+                            return getAPIVersion(this.props.project?.apiVersion);
+
                     }
                 });
             const fileURL = window.URL.createObjectURL(
@@ -843,7 +753,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             } else if (error.errorCode === ErrorCode.ModelNotFound) {
                 alertMessage = error.message;
             } else {
-                alertMessage = interpolate(strings.errors.endpointConnectionError.message, { endpoint: "form recognizer backend URL" });
+                alertMessage = interpolate(strings.errors.endpointConnectionError.message, {endpoint: "form recognizer backend URL"});
             }
             this.setState({
                 shouldShowAlert: true,
@@ -862,31 +772,25 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 strings.errors.predictWithoutTrainForbidden.message,
                 strings.errors.predictWithoutTrainForbidden.title);
         }
+        const apiVersion = getAPIVersion(this.props.project?.apiVersion);
         const endpointURL = url.resolve(
             this.props.project.apiUriBase,
-            `${interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) })}/${modelID}/analyze?includeTextDetails=true`,
+            `${interpolate(constants.apiModelsPath, {apiVersion})}/${modelID}/analyze?includeTextDetails=true`,
         );
-        let headers;
-        let body;
-        if (this.state.sourceOption === "localFile") {
-            headers = { "Content-Type": this.state.file.type, "cache-control": "no-cache" };
-            body = this.state.file;
-        } else {
-            headers = { "Content-Type": "application/json", "cache-control": "no-cache" };
-            body = { source: this.state.fetchedFileURL };
-        }
+        const headers = {"Content-Type": this.state.file ? this.state.file.type : "application/json", "cache-control": "no-cache"};
+        const body = this.state.file ?? {source: this.state.fetchedFileURL};
         let response;
         try {
             response = await ServiceHelper.postWithAutoRetry(
-                endpointURL, body, { headers }, this.props.project.apiKey as string);
+                endpointURL, body, {headers}, this.props.project.apiKey as string);
         } catch (err) {
-            if (err.response.status === 404) {
+            if (err.response?.status === 404) {
                 throw new AppError(
                     ErrorCode.ModelNotFound,
-                    interpolate(strings.errors.modelNotFound.message, { modelID })
+                    interpolate(strings.errors.modelNotFound.message, {modelID})
                 );
             } else {
-                ServiceHelper.handleServiceError(err);
+                ServiceHelper.handleServiceError({...err, endpoint: endpointURL});
             }
         }
 
@@ -895,116 +799,19 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         // Make the second REST API call and get the response.
         return this.poll(() =>
             ServiceHelper.getWithAutoRetry(
-                operationLocation, { headers }, this.props.project.apiKey as string), 120000, 500);
+                operationLocation, {headers}, this.props.project.apiKey as string), 120000, 500);
     }
 
     private loadFile = (file: File) => {
-        if (!file) {
-            // no file
-            return;
-        }
-
-        // determine how to load file based on MIME type of the file
-        // https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types
-        switch (file.type) {
-            case "image/jpeg":
-            case "image/png":
-                this.loadImageFile(file);
-                break;
-
-            case "image/tiff":
-                this.loadTiffFile(file);
-                break;
-
-            case "application/pdf":
-                this.loadPdfFile(file);
-                break;
-
-            default:
-                // un-supported file type
+        this.setState({isFetching: true});
+        this.fileHelper.loadFile(file).then((res: ILoadFileResult) => {
+            if (res) {
                 this.setState({
-                    imageUri: "",
-                    shouldShowAlert: true,
-                    alertTitle: "Not supported file type",
-                    alertMessage: "Sorry, we currently only support JPG/PNG/PDF files.",
+                    ...res,
+                    isFetching: false,
+                    fileChanged: false
                 });
-                break;
-        }
-    }
-
-    private loadImageFile = async (file: File) => {
-        const imageUri = this.createObjectURL(file);
-        const canvas = await loadImageToCanvas(imageUri);
-        this.setState({
-            currPage: 1,
-            imageUri: canvas.toDataURL(constants.convertedImageFormat, constants.convertedImageQuality),
-            imageWidth: canvas.width,
-            imageHeight: canvas.height,
-        });
-    }
-
-    private loadTiffFile = async (file) => {
-        const fileArrayBuffer = await HtmlFileReader.readFileAsArrayBuffer(file);
-        this.tiffImages = parseTiffData(fileArrayBuffer);
-        this.loadTiffPage(this.tiffImages, this.state.currPage);
-    }
-
-    private loadTiffPage = (tiffImages: any[], pageNumber: number) => {
-        const tiffImage = tiffImages[pageNumber - 1];
-        const canvas = renderTiffToCanvas(tiffImage);
-        this.setState({
-            currPage: pageNumber,
-            imageUri: canvas.toDataURL(constants.convertedImageFormat, constants.convertedImageQuality),
-            imageWidth: tiffImage.width,
-            imageHeight: tiffImage.height,
-        });
-    }
-
-    private loadPdfFile = (file) => {
-        const fileReader: FileReader = new FileReader();
-
-        fileReader.onload = (e: any) => {
-            const typedArray = new Uint8Array(e.target.result);
-            const loadingTask = pdfjsLib.getDocument({ data: typedArray, cMapUrl, cMapPacked: true });
-            loadingTask.promise.then((pdf) => {
-                this.currPdf = pdf;
-                this.loadPdfPage(pdf, this.state.currPage);
-            }, (reason) => {
-                this.setState({
-                    shouldShowAlert: true,
-                    alertTitle: "Failed loading PDF",
-                    alertMessage: reason.toString(),
-                });
-            });
-        };
-
-        fileReader.readAsArrayBuffer(file);
-    }
-
-    private loadPdfPage = async (pdf, pageNumber) => {
-        const page = await pdf.getPage(pageNumber);
-        const defaultScale = 2;
-        const viewport = page.getViewport({ scale: defaultScale });
-
-        // Prepare canvas using PDF page dimensions
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-
-        // Render PDF page into canvas context
-        const renderContext = {
-            canvasContext: context,
-            viewport,
-        };
-
-        const renderTask = page.render(renderContext);
-        await renderTask.promise;
-        this.setState({
-            currPage: pageNumber,
-            imageUri: canvas.toDataURL(constants.convertedImageFormat, constants.convertedImageQuality),
-            imageWidth: canvas.width,
-            imageHeight: canvas.height,
+            }
         });
     }
 
@@ -1085,41 +892,57 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
     // here
     private drawPredictionResult = (): void => {
-        this.imageMap.removeAllFeatures();
+        this.imageMap?.removeAllFeatures();
         const features = [];
         const imageExtent = [0, 0, this.state.imageWidth, this.state.imageHeight];
-        const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[this.state.currPage - 1];
+        const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[this.state.currentPage - 1];
         const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
-        const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
+        const fields = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
 
-        for (const fieldName of Object.keys(predictions)) {
-            const field: IField = predictions[fieldName];
-            if (predictions[fieldName]?.type === FieldFormat.Fixed || predictions[fieldName]?.type === FieldFormat.RowDynamic) {
-                console.log(predictions[fieldName])
-                const rows = predictions[fieldName].values;
-                for (const rowName of Object.keys(rows)) {
-                    const columns = rows[rowName];
-                    for (const cellName of Object.keys(columns)) {
-                        const field = columns[cellName];
-                        if (_.get(field, "page", null) === this.state.currPage)
-                        {
+        Object.keys(fields).forEach((fieldName) => {
+            const field = fields[fieldName];
+            if (!field) {
+                return;
+            }
+            if (field?.type === "object") {
+                Object.keys(field?.valueObject).forEach((rowName, rowIndex) => {
+                    if (field?.valueObject?.[rowName]) {
+                        Object.keys(field?.valueObject?.[rowName]?.valueObject).forEach((columnName, colIndex) => {
+                            const tableCell = field?.valueObject?.[rowName]?.valueObject?.[columnName];
+                            if (tableCell?.page === this.state.currentPage) {
+                                const text = fieldName;
+                                const boundingbox = _.get(tableCell, "boundingBox", []);
+                                const feature = this.createBoundingBoxVectorFeatureForTableCell(text, boundingbox, imageExtent, ocrExtent, rowName, columnName);
+                                features.push(feature);
+                            }
+                        })
+                    }
+                })
+            }
+            else if (field.type === "array") {
+                field?.valueArray.forEach((row, rowIndex) => {
+                    Object.keys(row?.valueObject).forEach((columnName, colIndex) => {
+                        const tableCell = field?.valueArray?.[rowIndex]?.valueObject?.[columnName];
+                        if (tableCell?.page === this.state.currentPage) {
                             const text = fieldName;
-                            const boundingbox = _.get(field, "boundingBox", []);
-                            const feature = this.createBoundingBoxVectorFeatureForTableCell(text, boundingbox, imageExtent, ocrExtent, rowName, cellName);
+                            const boundingbox = _.get(tableCell, "boundingBox", []);
+                            const feature = this.createBoundingBoxVectorFeatureForTableCell(text, boundingbox, imageExtent, ocrExtent, "#" + rowIndex, columnName);
                             features.push(feature);
                         }
-                    }
-                }
-            } else {
-                if (_.get(field, "page", null) === this.state.currPage) {
+                    })
+                })
+            }
+            else {
+                if (_.get(field, "page", null) === this.state.currentPage) {
                     const text = fieldName;
                     const boundingbox = _.get(field, "boundingBox", []);
                     const feature = this.createBoundingBoxVectorFeature(text, boundingbox, imageExtent, ocrExtent);
                     features.push(feature);
                 }
             }
-        }
-        this.imageMap.addFeatures(features);
+        });
+        this.imageMap?.addFeatures(features);
+        this.tableHelper.drawTables(this.state.currentPage);
     }
 
     /**
@@ -1157,23 +980,17 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private getPredictionsFromAnalyzeResult(analyzeResult: any) {
-        const fields = _.get(analyzeResult, "analyzeResult.documentResults[0].fields", {});
-        const tables = _.get(analyzeResult, "analyzeResult.documentResults[0].tables", {});
-        return _.merge({}, fields, tables);
+        const fields = _.get(analyzeResult?.analyzeResult ? analyzeResult?.analyzeResult : analyzeResult, "documentResults[0].fields", {});
+        return fields;
     }
 
     private getAnalyzeModelInfo(analyzeResult) {
-        const { modelId, docType, docTypeConfidence } = _.get(analyzeResult, "analyzeResult.documentResults[0]", {})
-        return { modelId, docType, docTypeConfidence };
+        const {modelId, docType, docTypeConfidence} = _.get(analyzeResult, "documentResults[0]", {})
+        return {modelId, docType, docTypeConfidence};
     }
 
     private getOcrFromAnalyzeResult(analyzeResult: any) {
-        return _.get(analyzeResult, "analyzeResult.readResults", []);
-    }
-
-    private createObjectURL = (object: File) => {
-        // generate a URL for the object
-        return (window.URL) ? window.URL.createObjectURL(object) : "";
+        return _.get(analyzeResult?.analyzeResult ? analyzeResult?.analyzeResult : analyzeResult , "readResults", []);
     }
 
     private noOp = () => {
@@ -1184,7 +1001,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             const fileName = `${this.props.project.folderPath}/${decodeURIComponent(this.state.file.name)}`;
             const asset = Object.values(this.props.project.assets).find(asset => asset.name === fileName);
             if (asset) {
-                const confirmDuplicatedAssetNameMessage = interpolate(strings.predict.confirmDuplicatedAssetName.message, { name: decodeURI(this.state.file.name) });
+                const confirmDuplicatedAssetNameMessage = interpolate(strings.predict.confirmDuplicatedAssetName.message, {name: decodeURI(this.state.file.name)});
                 this.setState({
                     confirmDuplicatedAssetNameMessage
                 });
@@ -1195,6 +1012,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             }
         }
     }
+
     private onAddAssetToProjectConfirm = async () => {
         if (this.props.appSettings.hideUploadingOption) {
             this.uploadToTrainingSetView.current.open();
@@ -1204,93 +1022,176 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             this.uploadToTrainingSetView.current.open();
         }
     }
+
     private onAddAssetToProject = async () => {
         if (this.state.file) {
-            const fileData = new Buffer(await this.state.file.arrayBuffer());
-            const readResults: any = this.state.analyzeResult;
+            const fileData = Buffer.from(await this.state.file.arrayBuffer());
             const fileName = decodeURIComponent(this.state.file.name).split("/").pop();
-            await this.props.actions.addAssetToProject(this.props.project, fileName, fileData, readResults);
+            await this.props.actions.addAssetToProject(this.props.project, fileName, fileData, this.state.predictionResult);
             this.props.history.push(`/projects/${this.props.project.id}/edit`);
         }
     }
+
     private onPredictionClick = (predictedItem: any) => {
         const targetPage = predictedItem.page;
-        if (Number.isInteger(targetPage) && targetPage !== this.state.currPage) {
+        if (Number.isInteger(targetPage) && targetPage !== this.state.currentPage) {
             this.setState({
-                currPage: targetPage,
+                currentPage: targetPage,
                 highlightedField: predictedItem.fieldName ?? "",
             });
         }
     }
     private onTablePredictionClick = (predictedItem: ITableResultItem, tagColor: string) => {
-        this.setState({ viewTable: true, tableToView: predictedItem, tableTagColor: tagColor });
+        this.setState({ viewRegionalTable: true, regionalTableToView: predictedItem, tableTagColor: tagColor });
     }
 
-    private displayTable = (tableToView: ITableResultItem) => {
-        let rows;
-        if (tableToView.type === FieldFormat.RowDynamic) {
-            rows = Object.keys(tableToView.values);
-        } else {
-            rows = tableToView.rowKeys;
-        }
-        const columns= tableToView.columnKeys;
-        const Table = tableToView.values;
+    private displayRegionalTable = (regionalTableToView) => {
 
-        let tableBody = null;
-        let rowName;
-        let columnName;
-        if (rows?.length > 0 && columns?.length > 0) {
-            tableBody = [];
-            for (let i = 0; i < rows.length + 1; i++) {
-                if (i > 0) {
-                    rowName = rows[i-1];
+        const tableBody = [];
+        if (regionalTableToView?.type === "array") {
+            const columnHeaderRow = [];
+            const colKeys = Object.keys(regionalTableToView?.valueArray?.[0]?.valueObject || {});
+            if (colKeys.length === 0) {
+                return (
+                    <div>
+                        <h5 className="mb-4 ml-2 mt-2 pb-1">
+                            <span style={{ borderBottom: `4px solid ${this.state.tableTagColor}`}}>Table name: {regionalTableToView.fieldName}</span>
+                        </h5>
+                        <div className="table-view-container">
+                            <table>
+                                <tbody>
+                                    Empty table
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                );
+            }
+            for (let i = 0; i < colKeys.length + 1; i++) {
+                if (i === 0) {
+                    columnHeaderRow.push(
+                        <th key={i} className={"empty_header hidden"}/>
+                    );
+                } else {
+                    columnHeaderRow.push(
+                        <th key={i} className={"column_header"}>
+                            {colKeys[i - 1]}
+                        </th>
+                    );
                 }
+            }
+            tableBody.push(<tr key={0}>{columnHeaderRow}</tr>);
+            regionalTableToView?.valueArray?.forEach((row, rowIndex) => {
                 const tableRow = [];
-                for (let j = 0; j < columns.length + 1; j++) {
-                    if (j > 0) {
-                        columnName = columns[j-1];
-                    }
-                    if (i === 0 && j !== 0) {
-                        tableRow.push(
-                            <th key={j} className={"column_header"}>
-                                {columns[j - 1]}
-                            </th>
-                        );
-                    } else if (j === 0 && i !== 0) {
-                        tableRow.push(
-                            <th key={j} className={`row_header ${ tableToView.type === FieldFormat.RowDynamic ? "hidden" : ""}`}>
-                                {rows[i - 1]}
-                            </th>
-                        );
-                    } else if (j === 0 && i === 0) {
-                        tableRow.push(
-                            <th key={j} className={`empty_header  ${tableToView.type === FieldFormat.RowDynamic ? "hidden" : ""}`}/>
-                        );
-                    } else {
-                        const tableCell = Table?.[rowName]?.[columnName];
+                tableRow.push(
+                    <th key={0} className={"row_header hidden"}>
+                        {"#" + rowIndex}
+                    </th>
+                );
+                Object.keys(row?.valueObject).forEach((columnName, columnIndex) => {
+                    const tableCell = row?.valueObject?.[columnName];
+                    tableRow.push(
+                        <td
+                            className={"table-cell"}
+                            key={columnIndex + 1}
+                            onMouseEnter={() => {
+                                this.setState({ highlightedTableCellRowKey: "#" + rowIndex, highlightedTableCellColumnKey: columnName })
+                            }}
+                            onMouseLeave={() => {
+                                this.setState({ highlightedTableCellRowKey: null, highlightedTableCellColumnKey: null })
+                            }}
+                        >
+                            {tableCell ? tableCell.text : null }
+                        </td>
+                    );
+                })
+                tableBody.push(<tr key={(rowIndex + 1)}>{tableRow}</tr>);
+            })
+        }  else {
+            const columnHeaderRow = [];
+            const colKeys = Object.keys(regionalTableToView?.valueObject?.[Object.keys(regionalTableToView?.valueObject)?.[0]]?.valueObject || {});
+            if (colKeys.length === 0) {
+                return (
+                    <div>
+                        <h5 className="mb-4 ml-2 mt-2 pb-1">
+                            <span style={{ borderBottom: `4px solid ${this.state.tableTagColor}`}}>Table name: {regionalTableToView.fieldName}</span>
+                        </h5>
+                        <div className="table-view-container">
+                            <table>
+                                <tbody>
+                                    Empty table
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                );
+            }
+            for (let i = 0; i < colKeys.length + 1; i++) {
+                if (i === 0) {
+                    columnHeaderRow.push(
+                        <th key={i} className={"empty_header hidden"}/>
+                    );
+                } else {
+                    columnHeaderRow.push(
+                        <th key={i} className={"column_header"}>
+                            {colKeys[i - 1]}
+                        </th>
+                    );
+                }
+            }
+            tableBody.push(<tr key={0}>{columnHeaderRow}</tr>);
+            Object.keys(regionalTableToView?.valueObject).forEach((rowName, index) => {
+                const tableRow = [];
+                tableRow.push(
+                    <th key={0} className={"row_header"}>
+                        {rowName}
+                    </th>
+                );
+                if (regionalTableToView?.valueObject?.[rowName]) {
+                    Object.keys(regionalTableToView?.valueObject?.[rowName]?.valueObject)?.forEach((columnName, index) => {
+                        const tableCell = regionalTableToView?.valueObject?.[rowName]?.valueObject?.[columnName];
                         tableRow.push(
                             <td
                                 className={"table-cell"}
-                                key={j}
-                                onMouseEnter={() => { console.log(rows[i-1], columns[j-1]); this.setState({highlightedTableCellRowKey: rows[i-1], highlightedTableCellColumnKey: columns[j-1]})}}
-                                onMouseLeave={() => { console.log(rows[i-1], columns[j-1]); this.setState({highlightedTableCellRowKey: null, highlightedTableCellColumnKey: null})}}
+                                key={index + 1}
+                                onMouseEnter={() => {
+                                    this.setState({ highlightedTableCellRowKey: rowName, highlightedTableCellColumnKey: columnName })
+                                }}
+                                onMouseLeave={() => {
+                                    this.setState({ highlightedTableCellRowKey: null, highlightedTableCellColumnKey: null })
+                                }}
                             >
-                                {tableCell ? tableCell.valueString : null }
+                                {tableCell ? tableCell.text : null }
                             </td>
                         );
-                    }
+                    });
+                } else {
+                    colKeys.forEach((columnName, index) => {
+                        tableRow.push(
+                            <td
+                                className={"table-cell"}
+                                key={index + 1}
+                            >
+                                {null }
+                            </td>
+                        );
+                    })
                 }
-                tableBody.push(<tr key={i}>{tableRow}</tr>);
-            }
+                tableBody.push(<tr key={index + 1}>{tableRow}</tr>);
+            });
         }
 
         return (
             <div>
                 <h5 className="mb-4 ml-2 mt-2 pb-1">
-                    <span style={{ borderBottom: `4px solid ${this.state.tableTagColor}`}}>Table name: {tableToView.fieldName}</span>
+                    <span style={{ borderBottom: `4px solid ${this.state.tableTagColor}`}}>Table name: {regionalTableToView.fieldName}</span>
                 </h5>
                 <div className="table-view-container">
-                    {tableBody}
+                    <table>
+                        <tbody>
+                            {tableBody}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         );
@@ -1334,12 +1235,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     private handleModelSelection = () => {
         const selectedIndex = this.getSelectedIndex();
         if (selectedIndex !== this.state.selectionIndexTracker) {
-            this.setState({ selectionIndexTracker: selectedIndex })
+            this.setState({selectionIndexTracker: selectedIndex})
         }
     }
 
     private handleRecentModelsViewClose = () => {
-        this.setState({ showRecentModelsView: false });
+        this.setState({showRecentModelsView: false});
         const selectedIndex = this.getSelectedIndex();
         if (selectedIndex !== this.state.selectedRecentModelIndex) {
             this.selectionHandler.setIndexSelected(this.state.selectedRecentModelIndex, true, true);
@@ -1356,14 +1257,15 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
     private async getRecentModelFromPredictModelId(): Promise<any> {
         const modelID = this.props.project.predictModelId;
+        const apiVersion = getAPIVersion(this.props.project?.apiVersion);
         const endpointURL = url.resolve(
             this.props.project.apiUriBase,
-            `${interpolate(constants.apiModelsPath, {apiVersion : (constants.apiVersion || constants.appVersion) })}/${modelID}`,
+            `${interpolate(constants.apiModelsPath, {apiVersion})}/${modelID}`,
         );
         let response;
         try {
             response = await axios.get(endpointURL,
-                { headers: { [constants.apiKeyHeader]: this.props.project.apiKey as string } })
+                {headers: {[constants.apiKeyHeader]: this.props.project.apiKey as string}})
                 .catch((err) => {
                     const status = err.response.status;
                     if (status === 401) {
@@ -1417,7 +1319,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             if (model.modelInfo.modelId === project.predictModelId) {
                 predictModelIndex = index
             }
-            recentModelRecordsWithKey[index] = Object.assign({ key: index }, model);
+            recentModelRecordsWithKey[index] = Object.assign({key: index}, model);
         })
         this.selectionHandler.setItems(recentModelRecordsWithKey, false);
         this.selectionHandler.setIndexSelected(predictModelIndex, true, false);

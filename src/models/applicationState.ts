@@ -13,6 +13,7 @@ import { ITrainRecordProps } from "../react/components/pages/train/trainRecord";
  * @member appError - error in the app if any
  */
 export interface IApplicationState {
+    prebuiltSettings?: IPrebuiltSettings;
     appSettings: IAppSettings,
     connections: IConnection[],
     recentProjects: IProject[],
@@ -126,14 +127,20 @@ export interface ITag {
 }
 
 export interface ITableTag extends ITag {
-    columnKeys: ITableKeyField[];
-    rowKeys?: ITableKeyField[];
-    tableTypeAndFormatFor?: TableHeaderTypeAndFormat,
+    fields?: ITableField[];
+    itemType?: string;
+    definition?: ITableDefinition,
+    visualizationHint?: TableVisualizationHint,
 }
 
 export enum TableHeaderTypeAndFormat {
     Rows = "rows",
     Columns = "columns"
+}
+
+export enum TableVisualizationHint {
+    Horizontal = "horizontal",
+    Vertical = "vertical",
 }
 
 /**
@@ -179,6 +186,11 @@ export interface IAsset {
     isRunningAutoLabeling?: boolean,
     cachedImage?: string,
     mimeType?: string,
+}
+
+export interface IPrebuiltSettings{
+    serviceURI: string;
+    apiKey: string;
 }
 
 /**
@@ -241,6 +253,7 @@ export interface ILabelData {
     labelingState?: AssetLabelingState;
     labels: ILabel[],
     tableLabels?: ITableLabel[],
+    $schema?: string,
 }
 
 /**
@@ -251,8 +264,10 @@ export interface ILabel {
     label: string,
     key?: IFormRegion[],
     value: IFormRegion[],
+    originValue?: IFormRegion[],
     labelType?: string,
     confidence?: number,
+    revised?: boolean;
 }
 
 export interface ITableLabel {
@@ -264,6 +279,7 @@ export interface ITableCellLabel {
     rowKey: string,
     columnKey: string,
     value: IFormRegion[],
+    revised?: boolean;
 }
 
 /**
@@ -322,9 +338,14 @@ export interface ITableKeyField extends IField {
 }
 
 export interface ITableField extends IField {
-    columnKeys: ITableKeyField[];
-    rowKeys?: ITableKeyField[];
-    tableTypeAndFormatFor?: TableHeaderTypeAndFormat;
+    itemType?: string;
+    fields?: ITableField[];
+    visualizationHint?: TableVisualizationHint;
+}
+
+export interface ITableDefinition extends IField {
+    itemType?: string;
+    fields?: ITableField[];
 }
 
 export interface ITableConfigItem {
@@ -337,7 +358,9 @@ export interface ITableConfigItem {
 }
 
 export interface IFieldInfo {
+    schema?: string,
     fields: IField[],
+    definitions?: any,
 }
 
 export interface IRecentModel {
@@ -475,7 +498,8 @@ export enum FieldType {
     Time = "time",
     Integer = "integer",
     SelectionMark = "selectionMark",
-    Table = "table",
+    Array = "array",
+    Object = "object",
 }
 
 export enum LabelType {
@@ -499,8 +523,6 @@ export enum FieldFormat {
     DMY = "dmy",
     MDY = "mdy",
     YMD = "ymd",
-    Fixed = "fixed-sized",
-    RowDynamic = "row-dynamic",
 }
 
 export enum FeatureCategory {

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { ReactElement } from "react";
+import React, { ReactElement, RefObject } from "react";
 import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
 import { Label } from "@fluentui/react/lib/Label";
 import { IconButton } from "@fluentui/react/lib/Button";
@@ -9,7 +9,7 @@ import {
     EditorMode, IAssetMetadata,
     IProject, IRegion, RegionType,
     AssetType, ILabelData, ILabel,
-    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, ImageMapParent, LabelType, ITableRegion, ITableTag, ITableLabel, ITableCellLabel, AssetLabelingState, APIVersionPatches
+    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, ImageMapParent, LabelType, ITableRegion, ITableTag, ITableLabel, ITableCellLabel, AssetLabelingState, APIVersionPatches, TableVisualizationHint
 } from "../../../../models/applicationState";
 import CanvasHelpers from "./canvasHelpers";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
@@ -39,6 +39,8 @@ import { AutoLabelingStatus, PredictService } from "../../../../services/predict
 import { AssetService } from "../../../../services/assetService";
 import { interpolate, strings } from "../../../../common/strings";
 import { toast } from "react-toastify";
+import { BatchSizeModal } from "./batchSizeModal";
+import { AssetState } from "vott-react";
 
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
@@ -50,7 +52,8 @@ export interface ICanvasProps extends React.Props<Canvas> {
     editorMode: EditorMode;
     project: IProject;
     lockedTags: string[];
-    hoveredLabel: ILabel;
+    hoveredLabel: ILabel|any;
+    isRunningOCRs?: boolean;
     children?: ReactElement<AssetPreview>;
     setTableToView?: (tableToView: object, tableToViewId: string) => void;
     closeTableView?: (state: string) => void;
@@ -58,13 +61,15 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onSelectedRegionsChanged?: (regions: IRegion[]) => void;
     onRegionDoubleClick?: (region: IRegion) => void;
     onCanvasRendered?: (canvas: HTMLCanvasElement) => void;
-    onRunningOCRStatusChanged?: (isRunning: boolean) => void;
+    onRunningOCRStatusChanged?: (ocrStatus: OcrStatus) => void;
     onRunningAutoLabelingStatusChanged?: (isRunning: boolean) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
     runOcrForAllDocs?: (runForAllDocs: boolean) => void;
-    runAutoLabelingOnNextBatch?: () => Promise<void>;
-    onAssetDeleted?: () => void;
     handleLabelTable?: () => void;
+    runAutoLabelingOnNextBatch?: (batchSize: number) => Promise<void>;
+    onAssetDeleted?: () => void;
+    onPageLoaded?: (pageNumber: number) => void;
+    highlightedTableCell: any;
 }
 
 export interface ICanvasState {
@@ -82,7 +87,7 @@ export interface ICanvasState {
     errorTitle?: string;
     errorMessage: string;
     ocrStatus: OcrStatus;
-    autoLableingStatus: AutoLabelingStatus;
+    autoLabelingStatus: AutoLabelingStatus;
     layers: any;
     tableIconTooltip: any;
     hoveringFeature: string;
@@ -125,6 +130,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         project: null,
         lockedTags: [],
         hoveredLabel: null,
+        highlightedTableCell: null,
         appSettings: null,
     };
 
@@ -142,7 +148,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         isError: false,
         errorMessage: undefined,
         ocrStatus: OcrStatus.done,
-        autoLableingStatus: AutoLabelingStatus.none,
+        autoLabelingStatus: AutoLabelingStatus.none,
         layers: { text: true, tables: true, checkboxes: true, label: true, drawnRegions: true },
         tableIconTooltip: { display: "none", width: 0, height: 0, top: 0, left: 0 },
         hoveringFeature: null,
@@ -173,6 +179,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private tableIDToIndexMap: object;
 
+    autoLabelingBatchSizeModal: RefObject<BatchSizeModal> = React.createRef();
+
     public componentDidMount = async () => {
         this.ocrService = new OCRService(this.props.project);
         const asset = this.state.currentAsset.asset;
@@ -183,13 +191,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     public componentDidUpdate = async (prevProps: Readonly<ICanvasProps>, prevState: Readonly<ICanvasState>) => {
         // Handles asset changing
-        if (this.props.selectedAsset.asset.name !== prevProps.selectedAsset.asset.name ||
-            this.props.selectedAsset.asset.isRunningOCR !== prevProps.selectedAsset.asset.isRunningOCR ||
-            this.props.selectedAsset.asset.labelingState !== prevProps.selectedAsset.asset.labelingState
-        ) {
+        if (this.props.selectedAsset.asset.name !== prevProps.selectedAsset.asset.name) {
             this.selectedRegionIds = [];
             this.imageMap.removeAllFeatures();
             this.imageMap.resetAllLayerVisibility();
+
             this.setState({
                 currentAsset: this.props.selectedAsset,
                 ocr: null,
@@ -206,15 +212,26 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 await this.loadOcr();
                 this.loadLabelData(asset);
             });
-        } else if (this.isLabelDataChanged(this.props, prevProps) || this.isTableLabelDataChanged(this.props, prevProps)
-            || (prevProps.project
-                && this.needUpdateAssetRegionsFromTags(prevProps.project.tags, this.props.project.tags))) {
-            const newRegions = this.convertLabelDataToRegions(this.props.selectedAsset.labelData);
-            this.updateAssetRegions(newRegions);
-            this.redrawAllFeatures();
+        } else if (
+            this.isLabelDataChanged(this.props, prevProps)
+            || this.isTableLabelDataChanged(this.props, prevProps)
+            || (prevProps.project && this.needUpdateAssetRegionsFromTags(prevProps.project.tags, this.props.project.tags))) {
+            this.setState({
+                currentAsset: this.props.selectedAsset
+            }, () => {
+
+                    const newRegions = this.convertLabelDataToRegions(this.props.selectedAsset.labelData);
+                    this.updateAssetRegions(newRegions);
+                    this.redrawAllFeatures();
+            });
+
+        } else if (this.props.selectedAsset.asset.isRunningOCR !== prevProps.selectedAsset.asset.isRunningOCR) {
+            this.setState({
+                currentAsset: this.props.selectedAsset
+            });
         }
 
-        if (this.props.hoveredLabel !== prevProps.hoveredLabel) {
+        if (this.props.hoveredLabel !== prevProps.hoveredLabel || this.props.highlightedTableCell !== prevProps.highlightedTableCell) {
             this.imageMap.getAllLabelFeatures().map(this.updateHighlightStatus);
             this.imageMap.getAllDrawnLabelFeatures().map(this.updateHighlightStatus);
         }
@@ -237,6 +254,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 display: this.state.tableIconTooltip.display,
             },
         };
+
         return (
             <div style={{ width: "100%", height: "100%" }}>
                 <KeyboardBinding
@@ -264,16 +282,18 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleAssetDeleted={this.props.onAssetDeleted}
                     handleRunOcrForAllDocuments={this.runOcrForAllDocuments}
                     handleRunAutoLabelingOnCurrentDocument={this.runAutoLabelingOnCurrentDocument}
-                    handleRunAutoLabelingForRestDocuments={this.runAutoLabelingForRestDocuments}
+                    handleRunAutoLabelingOnMultipleUnlabeledDocuments={this.runAutoLabelingOnMultipleUnlabeledDocuments}
                     handleToggleDrawRegionMode={this.handleToggleDrawRegionMode}
                     connectionType={this.props.project.sourceConnection.providerType}
                     drawRegionMode={this.state.drawRegionMode}
                     project={this.props.project}
                     selectedAsset={this.props.selectedAsset}
-                    parentPage={strings.editorPage.title}
+                    showLayerMenu={true}
+                    showActionMenu={true}
+                    enableDrawRegion={true}
                 />
                 <ImageMap
-                    parentPage={ImageMapParent.Editor}
+                    initEditorMap={true}
                     ref={(ref) => this.imageMap = ref}
                     imageUri={this.state.imageUri}
                     imageWidth={this.state.imageWidth}
@@ -342,15 +362,15 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         Page {this.state.currentPage} of {this.state.numPages}
                     </p>
                 }
-                {this.state.ocrStatus !== OcrStatus.done &&
+                {(this.props.isRunningOCRs || (this.state.ocrStatus !== OcrStatus.done && this.state.ocrStatus !== OcrStatus.failed)) &&
                     <div className="canvas-ocr-loading">
                         <div className="canvas-ocr-loading-spinner">
                             <Label className="p-0" ></Label>
-                            <Spinner size={SpinnerSize.large} label="Running OCR..." ariaLive="assertive" labelPosition="right" />
+                            <Spinner size={SpinnerSize.large} label="Running Layout..." ariaLive="assertive" labelPosition="right" />
                         </div>
                     </div>
                 }
-                {this.state.autoLableingStatus === AutoLabelingStatus.running &&
+                {this.state.autoLabelingStatus === AutoLabelingStatus.running &&
                     <div className="canvas-ocr-loading">
                         <div className="canvas-ocr-loading-spinner">
                             <Label className="p-0" ></Label>
@@ -368,12 +388,15 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         errorMessage: undefined,
                     })}
                 />
+                <BatchSizeModal
+                    ref={this.autoLabelingBatchSizeModal}
+                    onConfirm={this.confirmRunAutoLabelingOnMultipleUnlabeledDocuments}
+                />
             </div>
         );
     }
 
     private runOcrForAllDocuments = () => {
-        this.setState({ ocrStatus: OcrStatus.runningOCR })
         this.props.runOcrForAllDocs(true);
     }
 
@@ -386,16 +409,33 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const result = await predictService.getPrediction(assetPath);
             const assetService = new AssetService(this.props.project);
             const assetMetadata = assetService.getAssetPredictMetadata(asset, result);
-            await this.props.onAssetMetadataChanged(assetMetadata);
+            if(assetMetadata) {
+                await this.props.onAssetMetadataChanged(assetMetadata);
+            }
+        } catch(err){
+            this.setState({
+                isError: true,
+                errorMessage: `${err.message}, code ${err.code}`
+            });
         }
+        // catch(error){
+        //     this.setState({
+        //         isError: true,
+        //         errorTitle: error.title,
+        //         errorMessage: error.message,
+        //     });
+        // }
         finally {
             this.setAutoLabelingStatus(AutoLabelingStatus.done);
         }
     }
-    private runAutoLabelingForRestDocuments = async () => {
-        this.setState({ autoLableingStatus: AutoLabelingStatus.running });
-        await this.props.runAutoLabelingOnNextBatch();
-        this.setState({ autoLableingStatus: AutoLabelingStatus.done });
+    private runAutoLabelingOnMultipleUnlabeledDocuments = async () => {
+        this.autoLabelingBatchSizeModal.current.openModal();
+    }
+    private confirmRunAutoLabelingOnMultipleUnlabeledDocuments = async (batchSize: number) => {
+        this.setState({ autoLabelingStatus: AutoLabelingStatus.running });
+        await this.props.runAutoLabelingOnNextBatch(batchSize);
+        this.setState({ autoLabelingStatus: AutoLabelingStatus.done });
     }
 
     public updateSize() {
@@ -421,27 +461,84 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (this.showMultiPageFieldWarningIfNecessary(tag, selectedRegions)) {
             return;
         }
+        let regions: IRegion[] = [];
+        const inputTag: ITag[] = this.props.project.tags.filter((t) => t.name === tag);
+        if (selectedRegions.length > 0) {
+            const labelsData = this.state.currentAsset.labelData;
+            if (labelsData) {
+                let relatedLabel;
+                if (inputTag[0].type === FieldType.Array || inputTag[0].type === FieldType.Object) {
+                    let rowKey;
+                    let columnKey;
+                    if (inputTag[0].type === FieldType.Array) {
+                        rowKey = rowIndex.toString();
+                        columnKey = (inputTag as ITableTag[])[0].definition.fields[columnIndex].fieldKey;
+                        relatedLabel = labelsData.labels.find((label) => label.label === (this.encodeLabelString(tag) + "/" + this.encodeLabelString(rowKey) + "/" + this.encodeLabelString(columnKey)));
+                    } else {
+                        if ((inputTag as ITableTag[])[0].visualizationHint === TableVisualizationHint.Vertical) {
+                            rowKey = (inputTag as ITableTag[])[0].fields[rowIndex].fieldKey;
+                            columnKey = (inputTag as ITableTag[])[0].definition.fields[columnIndex].fieldKey;    
+                            relatedLabel = labelsData.labels.find((label) => label.label === (this.encodeLabelString(tag) + "/" + this.encodeLabelString(rowKey) + "/" + this.encodeLabelString(columnKey)));
+                        } else {
+                            rowKey = (inputTag as ITableTag[])[0].definition.fields[rowIndex].fieldKey;
+                            columnKey = (inputTag as ITableTag[])[0].fields[columnIndex].fieldKey;
+                            relatedLabel = labelsData.labels.find((label) => label.label === (this.encodeLabelString(tag) + "/" + this.encodeLabelString(columnKey) + "/" + this.encodeLabelString(rowKey)));
+                        }
+                    }
+                } else {
+                    if (labelsData.$schema === constants.labelsSchema) {
+                        relatedLabel = labelsData.labels.find((label) => label.label === this.encodeLabelString(tag));
+                    } else {
+                        relatedLabel = labelsData.labels.find((label) => label.label === tag);
+                    }
+                }
+                if (relatedLabel &&
+                    (((relatedLabel.labelType === null || relatedLabel.labelType === undefined) && (selectedRegions[0].category === FeatureCategory.DrawnRegion))
+                        || (relatedLabel.labelType !== null && relatedLabel.labelType !== undefined && relatedLabel.labelType !== selectedRegions[0].category))) {
+                    regions = this.convertLabelToRegion(relatedLabel, labelsData?.$schema === constants.labelsSchema);
+                    regions.forEach((region) => {
+                        region.tags = [];
+                        if (region.isTableRegion) {
+                            delete (region as ITableRegion).isTableRegion;
+                            delete (region as ITableRegion).columnKey;
+                            delete (region as ITableRegion).rowKey;
+                        }
+                        const regionIndex = this.state.currentAsset.regions.findIndex(r => r.id === region.id);
+                        if (regionIndex !== -1) {
+                            this.state.currentAsset.regions.splice(regionIndex, 1, region);
+                        }
+                    });
+                }
+
+
+            }
+        }
 
         const transformer: (tags: string[], tag: string) => string[] = CanvasHelpers.setSingleTag;
-        const inputTag: ITag[] = this.props.project.tags.filter((t) => t.name === tag);
 
         for (const selectedRegion of selectedRegions) {
             selectedRegion.tags = transformer(selectedRegion.tags, tag);
         }
 
-        if (inputTag[0].type === FieldType.Table) {
+        if (inputTag[0].type === FieldType.Array || inputTag[0].type === FieldType.Object) {
             for (const selectedRegion of selectedRegions as ITableRegion[]) {
-                if (inputTag[0].format === FieldFormat.RowDynamic) {
-                    selectedRegion.rowKey = "#" + (rowIndex + 1);
+                if (inputTag[0].type === FieldType.Array) {
+                    selectedRegion.rowKey = "#" + (rowIndex);
+                    selectedRegion.columnKey = (inputTag as ITableTag[])[0].definition.fields[columnIndex].fieldKey;
                 } else {
-                    selectedRegion.rowKey = (inputTag as ITableTag[])[0].rowKeys[rowIndex].fieldKey;
+                    if ((inputTag as ITableTag[])[0].visualizationHint === TableVisualizationHint.Vertical) {
+                        selectedRegion.rowKey = (inputTag as ITableTag[])[0].fields[rowIndex].fieldKey;
+                        selectedRegion.columnKey = (inputTag as ITableTag[])[0].definition.fields[columnIndex].fieldKey;
+                    } else {
+                        selectedRegion.rowKey = (inputTag as ITableTag[])[0].definition.fields[rowIndex].fieldKey;
+                        selectedRegion.columnKey = (inputTag as ITableTag[])[0].fields[columnIndex].fieldKey;
+                    }
                 }
-                selectedRegion.columnKey = (inputTag as ITableTag[])[0].columnKeys[columnIndex].fieldKey;
                 selectedRegion.isTableRegion = true;
             }
         }
 
-        this.updateRegions(selectedRegions);
+        this.updateRegions([...selectedRegions, ...regions]);
 
         this.selectedRegionIds = [];
         if (this.props.onSelectedRegionsChanged) {
@@ -449,7 +546,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
 
         if (selectedRegions.length === 1 && selectedRegions[0].category === FeatureCategory.Checkbox) {
-            if (inputTag[0].type === FieldType.Table) {
+            if (inputTag[0].type === FieldType.Object || inputTag[0].type === FieldType.Array) {
                 // selection mark logic placeholder
             } else {
                 this.setTagType(inputTag[0], FieldType.SelectionMark);
@@ -560,8 +657,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private deleteRegions = (regions: IRegion[]) => {
-        this.deleteRegionsFromSelectedRegionIds(regions);
         this.deleteRegionsFromAsset(regions);
+        this.deleteRegionsFromSelectedRegionIds(regions);
         this.deleteRegionsFromImageMap(regions);
     }
 
@@ -628,8 +725,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
      * @param selectedRegions
      */
     private updateAssetRegions = (regions: IRegion[], manualOption: boolean = false) => {
+
         const labelData = this.convertRegionsToLabelData(regions, this.state.currentAsset.asset.name);
-        console.log("Canvas -> privateupdateAssetRegions -> labelData", labelData)
         const currentAsset: IAssetMetadata = {
             ...this.state.currentAsset,
             regions,
@@ -670,17 +767,18 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 currentAsset.labelData.labelingState = this.state.currentAsset.labelData.labelingState;
             }
         }
-
-        if (currentAsset.labelData) {
-            currentAsset.asset.labelingState = currentAsset.labelData.labelingState;
-        } else if (currentAsset.asset.labelingState) {
-            delete currentAsset.asset.labelingState;
+        currentAsset.asset.labelingState = currentAsset.labelData?.labelingState;
+        if (currentAsset.labelData?.labelingState !== AssetLabelingState.AutoLabeledAndAdjusted) {
+            if (!currentAsset.labelData ||
+                (currentAsset.labelData.labels?.findIndex(label => label?.value.length > 0) < 0)) {
+                delete currentAsset.labelData?.labelingState;
+                delete currentAsset.asset.labelingState;
+            }
         }
 
         this.setState({
             currentAsset,
         }, () => {
-            this.props.handleLabelTable();
             this.props.onAssetMetadataChanged(currentAsset);
         });
     }
@@ -713,7 +811,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
     private onRegionDoubleClick = (id: string) => {
         if (this.props.onRegionDoubleClick) {
-            const region = this.state.currentAsset.regions.find(region=>region.id === id);
+            const region = this.state.currentAsset.regions.find(region => region.id === id);
             this.props.onRegionDoubleClick(region);
         }
     }
@@ -724,7 +822,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
      */
     private updateRegions = (updates: IRegion[]) => {
         const regions = this.state.currentAsset.regions;
-        console.log(regions)
         const updatedRegions = [].concat(regions);
         for (const update of updates) {
             const region = regions.find((r) => r.id === update.id);
@@ -734,7 +831,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 updatedRegions.push(update);
             }
         }
-        console.log("Canvas -> privateupdateRegions -> updatedRegions", updatedRegions)
         updatedRegions.sort(this.compareRegionOrder);
         this.updateAssetRegions(updatedRegions, true);
     }
@@ -1059,14 +1155,26 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private updateHighlightStatus = (feature: any): void => {
-        if (this.props.hoveredLabel) {
-            const label = this.props.hoveredLabel;
+        if (this.props.hoveredLabel || this.props.highlightedTableCell) {
+            let label = this.props.hoveredLabel
             const id = feature.get("id");
-            if (label.value.find((region) =>
-                id === this.createRegionIdFromBoundingBox(region.boundingBoxes[0], region.page))) {
-                this.setFeatureProperty(feature, "highlighted", true);
+            if (label?.tableKey) {
+                const tableLableValues = [];
+                 label.labels.forEach((i: { value: ITableLabel[]; })=> {
+                     i.value.forEach((i: ITableLabel) => tableLableValues.push(i))
+                 });
+                label = { label: label.tableKey, value: tableLableValues };
             }
-        } else if (feature.get("highlighted")) {
+
+            if (label?.value?.find((region: { boundingBoxes: number[][]; page: number; }) =>
+                id === this.createRegionIdFromBoundingBox(region.boundingBoxes[0], region.page)) 
+                || this.props.highlightedTableCell?.find(i => i.id === id)) {
+                this.setFeatureProperty(feature, "highlighted", true);
+            } else {
+                this.setFeatureProperty(feature, "highlighted", false);
+            }
+        }
+        else if (feature.get("highlighted")) {
             this.setFeatureProperty(feature, "highlighted", false);
         }
     }
@@ -1218,14 +1326,15 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private setOCRStatus = (ocrStatus: OcrStatus) => {
         this.setState({ ocrStatus }, () => {
             if (this.props.onRunningOCRStatusChanged) {
-                this.props.onRunningOCRStatusChanged(ocrStatus === OcrStatus.runningOCR);
+                this.props.onRunningOCRStatusChanged(ocrStatus);
             }
         });
     }
-    private setAutoLabelingStatus = (autoLableingStatus: AutoLabelingStatus) => {
-        this.setState({ autoLableingStatus }, () => {
+
+    private setAutoLabelingStatus = (autoLabelingStatus: AutoLabelingStatus) => {
+        this.setState({ autoLabelingStatus }, () => {
             if (this.props.onRunningAutoLabelingStatusChanged) {
-                this.props.onRunningAutoLabelingStatusChanged(autoLableingStatus === AutoLabelingStatus.running);
+                this.props.onRunningAutoLabelingStatusChanged(autoLabelingStatus === AutoLabelingStatus.running);
             }
         })
     }
@@ -1323,6 +1432,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 currentPage: pageNumber,
                 pdfFile: pdf,
             });
+            if (this.props.onPageLoaded) {
+                this.props.onPageLoaded(pageNumber);
+            }
         }
     }
 
@@ -1368,58 +1480,191 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         });
     }
 
+    private getLabelLayers = (label: string) => {
+        return this.decodeLabelLayers(label?.split("/"));
+    }
+
+    private getRegionCellKeys = (layers: string[], tableTag: ITableTag) => {
+        let rowKey;
+        let columnKey;
+        if (tableTag.type === FieldType.Object) {
+            const firstLayerField = tableTag.fields.find((field) => {
+                return field.fieldKey === layers[1];
+            })?.fieldKey
+
+            const secondLayerField = tableTag.definition.fields.find((field) => {
+                return field.fieldKey === layers[2];
+            })?.fieldKey
+            if (!firstLayerField || !secondLayerField) {
+                return;
+            }
+            if (tableTag.visualizationHint === TableVisualizationHint.Vertical) {
+                rowKey = firstLayerField;
+                columnKey = secondLayerField;
+            } else {
+                rowKey = secondLayerField;
+                columnKey = firstLayerField;
+            }
+
+        } else if (tableTag.type === FieldType.Array) {
+            const firstLayerField = layers[1];
+            const secondLayerField = tableTag.definition.fields.find((field) => {
+                return field.fieldKey === layers[2];
+            })?.fieldKey;
+            if (!secondLayerField) {
+                return;
+            }
+            rowKey = "#" + firstLayerField;
+            columnKey = secondLayerField;
+        } else {
+            return;
+        }
+        return { rowKey, columnKey }
+    }
+
+    private encodeLabelString = (labelString: string): string => {
+        return labelString.replace(/\~/g, "~0").replace(/\//g, "~1")
+    }
+
+    private decodeLabelString = (labelString: string): string => {
+        return labelString.replace(/\~1/g, "/").replace(/\~0/g, "~")
+    }
+
+    private encodeLabelLayers = (layers: string[]): string[] => {
+        return layers.map((layer) => {return this.encodeLabelString(layer)})
+    }
+
+    private decodeLabelLayers = (layers: string[]): string[] => {
+        return layers.map((layer) => {return this.decodeLabelString(layer)})
+    }
+
     private convertLabelDataToRegions = (labelData: ILabelData): IRegion[] => {
-        const regions = [];
+        let regions = [];
+        const encodedSchema = labelData?.$schema === constants.labelsSchema;
 
-        if (labelData && labelData.labels) {
-            labelData.labels.forEach((label) => {
-                if (label.value) {
-                    label.value.forEach((formRegion) => {
-                        if (formRegion.boundingBoxes) {
-                            formRegion.boundingBoxes.forEach((boundingBox, boundingBoxIndex) => {
-                                const text = this.getBoundingBoxTextFromRegion(formRegion, boundingBoxIndex);
-                                regions.push(this.createRegion(boundingBox, text, label.label, formRegion.page, label?.labelType));
-                            });
-                        }
-                    });
-                }
-            });
-        }
+        labelData?.labels?.forEach((label) => {
 
-        if (labelData && labelData.tableLabels) {
-            labelData.tableLabels.forEach((tableLabel) => {
-                tableLabel.labels.forEach((tableCell) => {
-                    tableCell.value.forEach((formRegion) => {
-                        if (formRegion.boundingBoxes) {
-                            formRegion.boundingBoxes.forEach((boundingBox, boundingBoxIndex) => {
-                                const text = this.getBoundingBoxTextFromRegion(formRegion, boundingBoxIndex);
-                                const tx = {...this.createRegion(boundingBox, text, tableLabel.tableKey, formRegion.page, undefined), rowKey: tableCell.rowKey, columnKey: tableCell.columnKey, isTableRegion: true} as ITableRegion;
-                                console.log("tx", tx)
-
-                                regions.push(tx);
-                            });
-                        }
-                    });
-                });
-            });
-        }
-
+            regions = [...regions, ...this.convertLabelToRegion(label, encodedSchema)];
+        });
+    
         return regions;
     }
 
-    private convertRegionsToLabelData = (regions: IRegion[], assetName: string) => {
-        const labels = (this.props.selectedAsset
-            && this.props.selectedAsset.labelData
-            && this.props.selectedAsset.labelData.labels
-            && this.props.selectedAsset.labelData.labels.map(label => ({
-                ...label, value: []
-            }))) || [];
+    private convertLabelToRegion = (label: ILabel, encodedSchema: boolean): IRegion[] => {
+        const labelValue = label?.label
+        let layers;
+        if (encodedSchema) {
+            layers = this.getLabelLayers(labelValue);
+        }
+        const regions = [];
+        if (encodedSchema && layers?.length > 1) {
+            // temp check until nested tables are supported
+            if (layers?.length !== 3) {
+                return;
+            }
+            const labelsTag = this.props.project.tags.find((tag) => {
+                return tag.name === layers[0];
+            })
+            if (labelsTag) {
+                const tableTag = labelsTag as ITableTag;
+                const { rowKey, columnKey } = this.getRegionCellKeys(layers, tableTag);
+                if (!rowKey || !columnKey) {
+                    return
+                }
+                label.value.forEach((formRegion) => {
+                    if (formRegion.boundingBoxes) {
+                        formRegion.boundingBoxes.forEach((boundingBox, boundingBoxIndex) => {
+                            const text = this.getBoundingBoxTextFromRegion(formRegion, boundingBoxIndex);
+                            const tx = {...this.createRegion(boundingBox, text, labelsTag.name, formRegion.page, label?.labelType), rowKey, columnKey, isTableRegion: true} as ITableRegion;
+                            regions.push(tx);
+                        });
+                    }
+                });
+            } else {
+                return;
+            }
+        } else {
+            if (label.value) {
+                label.value.forEach((formRegion) => {
+                    if (formRegion.boundingBoxes) {
+                        formRegion.boundingBoxes.forEach((boundingBox, boundingBoxIndex) => {
+                            const text = this.getBoundingBoxTextFromRegion(formRegion, boundingBoxIndex);
+                            if (encodedSchema) {
+                                regions.push(this.createRegion(boundingBox, text, this.decodeLabelString(label.label), formRegion.page, label?.labelType));
+                            } else {
+                                regions.push(this.createRegion(boundingBox, text, label.label, formRegion.page, label?.labelType));
+                            }
+                        });
+                    }
+                });
+            }
+        }
+        return regions;
+    }
 
+    private getTableLabelFromRegion = (tableTag: ITableTag, tableRegion: ITableRegion) => {
+        const columnKey = this.encodeLabelString(tableRegion.columnKey);
+        const rowKey = this.encodeLabelString(tableRegion.rowKey);
+        const tableName = this.encodeLabelString(tableTag.name);
+        if (tableTag.type === FieldType.Array) {
+            return tableName + "/" + rowKey.slice(1) + "/" + columnKey;
+        } else if (tableTag.visualizationHint === TableVisualizationHint.Vertical) {
+            return tableName + "/" + rowKey + "/" + columnKey;
+        } else {
+            return tableName + "/" + columnKey + "/" + rowKey;
+        }
+    }
+
+    private convertRegionsToLabelData = (regions: IRegion[], assetName: string) => {
         const labelData: ILabelData = {
+            $schema: constants.labelsSchema,
             document: decodeURIComponent(assetName).split("/").pop(),
             labels: [] as ILabel[],
-            tableLabels: [] as ITableLabel[],
         };
+
+        const labels = (this.props?.selectedAsset?.labelData?.labels?.map(label => {
+                if (this.props.selectedAsset.labelData.$schema === constants.labelsSchema) {
+                    return ({
+                        ...label,
+                        value: []
+                    })
+                } else {
+                    return ({
+                        ...label,
+                        label: this.encodeLabelString(label.label),
+                        value: []
+                    })
+                }
+
+            })) || [];
+
+        const selectedRegions = this.getSelectedRegions();
+        if (selectedRegions.length > 0) {
+            const intersectionResult = _.intersection(selectedRegions, regions);
+            if (intersectionResult.length === 0) {
+                const relatedLabels = labels.filter(label => selectedRegions.find(sr => sr.tags.find(t => t === label.label)));
+                relatedLabels?.forEach(relatedLabel => {
+                    if (relatedLabel && relatedLabel.confidence) {
+                        const originLabel = this.props.selectedAsset!.labelData?.labels?.find(a => a.label === relatedLabel.label);
+                        if (originLabel) {
+                            relatedLabel.revised = true;
+                            if (!relatedLabel.originValue) {
+                                relatedLabel.originValue = [...originLabel.value];
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        const findOldLableBasedOnRegion = (labels, region): ILabel => {
+            const boundingBox = region.id.split(",").map(parseFloat);
+            return labels?.find(item =>
+                item.value?.findIndex(v => v.boundingBoxes?.findIndex(b =>
+                    _.isEqual(b, boundingBox)) >= 0 && v.page === region.pageNumber) >= 0);
+        }
+
+        regions.sort(this.compareRegionOrder);
 
         regions.forEach((region) => {
             const labelType = this.getLabelType(region.category);
@@ -1430,68 +1675,73 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 boundingBoxes: [boundingBox],
             } as IFormRegion;
             region.tags.forEach((tag) => {
+                let label;
                 if (region.isTableRegion) {
                     const tableRegion = region as ITableRegion;
-                    const tableLabel: ITableLabel = labelData.tableLabels.find((tableLabel) => tableLabel.tableKey === tag);
-                    if (tableLabel) {
-                        const tableLabelCell = tableLabel.labels.find((tableLabelCell) => tableLabelCell.columnKey === tableRegion.columnKey && tableLabelCell.rowKey === tableRegion.rowKey);
-                        if (tableLabelCell) {
-                            tableLabelCell.value.push(formRegion)
-                        } else {
-                            tableLabel.labels.push({
-                                rowKey: tableRegion.rowKey,
-                                columnKey: tableRegion.columnKey,
-                                value: [formRegion]
-                            });
-                        }
-                    } else {
-                        const tableCellLabel: ITableCellLabel = {
-                            rowKey: tableRegion.rowKey,
-                            columnKey: tableRegion.columnKey,
-                            value: [formRegion]
-                        }
-                        labelData.tableLabels.push({
-                            tableKey: tag,
-                            labels: [tableCellLabel]
-                        })
-                    }
-
+                    const tableTag = this.props.project.tags.find((projectTag) => tag === projectTag.name) as ITableTag;
+                    if (!tableTag) return
+                    label = labels.find(label => label?.label === this.getTableLabelFromRegion(tableTag, tableRegion));
                 } else {
-                    const label = labelData.labels.find((label) => label.label === tag);
-                    if (label) {
-                        if (label.confidence && region.changed) {
-                            delete label.confidence;
-                        }
-                        label.value.push(formRegion);
+                    if (this.props.selectedAsset.labelData.$schema === constants.labelsSchema) {
+                        label = labels.find(label => this.decodeLabelString(label?.label) === tag);
                     } else {
-                        let newLabel;
-                        if (labelType) {
-                            newLabel = {
-                                label: tag,
-                                key: null,
-                                labelType,
-                                value: [formRegion],
-                            } as ILabel;
-                        } else {
-                            newLabel = {
-                                label: tag,
-                                key: null,
-                                value: [formRegion],
-                            } as ILabel;
-                        }
-                        labelData.labels.push(newLabel);
+                        label = labels.find(label => label?.label === tag);
                     }
                 }
+                if (label) {
+                    const originLabel = this.props.selectedAsset!.labelData?.labels?.find(a => a.label === tag);
+                    if (originLabel && label.confidence && region.changed) {
+                        label.revised = true;
+                        if (!label.originValue) {
+                            label.originValue = [...originLabel.value];
+                        }
+                    }
+                    if (region.changed) {
+                        const oldLabel: ILabel = findOldLableBasedOnRegion(this.props.selectedAsset.labelData?.labels, region);
+                        if (oldLabel?.confidence) {
+                            const relatedOldLabel = labels.find(l => l.label === oldLabel.label);
+                            relatedOldLabel.revised = true;
+                            if (!relatedOldLabel.originValue) {
+                                relatedOldLabel.originValue = [...oldLabel.value];
+                            }
+                        }
+                    }
+                    if (labelType) {
+                        label.labelType = labelType;
+                    } else {
+                        delete label.labelType;
+                    }
+                    label.value.push(formRegion);
+                } else {
+                    let newLabel;
+                    let labelName = this.encodeLabelString(tag);
+                    if (region.isTableRegion) {
+                        const tableRegion = region as ITableRegion;
+                        const tableTag = this.props.project.tags.find((projectTag) => tag === projectTag.name) as ITableTag;
+                        if (!tableTag) return
+                        labelName = this.getTableLabelFromRegion(tableTag, tableRegion);
+                    } 
+                    if (labelType) {
+                        newLabel = {
+                            label: labelName,
+                            key: null,
+                            labelType,
+                            value: [formRegion],
+                        } as ILabel;
+                    } else {
+                        newLabel = {
+                            label: labelName,
+                            key: null,
+                            value: [formRegion],
+                        } as ILabel;
+                    } 
+                    labels.push(newLabel);
+                }
+                labelData.labels = [...labels]
             });
         });
-        const newLabels = labelData.labels.filter(label => label.value.length > 0);
-
-        return newLabels.length > 0 || labelData.tableLabels.length > 0 ?
-            {
-                document: decodeURIComponent(assetName).split("/").pop(),
-                labels: newLabels,
-                tableLabels: labelData.tableLabels
-            } as ILabelData : null;
+        labelData.labels = labelData.labels.filter((label) => label.value.length > 0 && !label.revised);
+        return labelData;
     }
 
     private getLabelType = (regionCategory: string) => {
@@ -1729,7 +1979,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private isLabelDataChanged = (newProps: ICanvasProps, prevProps: ICanvasProps): boolean => {
         const newLabels = _.get(newProps, "selectedAsset.labelData.labels", []) as ILabel[];
         const prevLabels = _.get(prevProps, "selectedAsset.labelData.labels", []) as ILabel[];
+        return this.compareLabelChanged(newLabels, prevLabels);
 
+    }
+    private compareLabelChanged(newLabels: ILabel[], prevLabels: ILabel[]): boolean {
         if (newLabels.length !== prevLabels.length) {
             return true;
         } else if (newLabels.length > 0) {
@@ -1737,10 +1990,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const prevFieldNames = prevLabels.map((label) => label.label);
             if (_.isEqual(newFieldNames.sort(), prevFieldNames.sort())) {
                 for (const name of newFieldNames) {
-                    const newValue = newLabels.find(label => label.label === name).value.map(region => region.boundingBoxes).join(",");
-                    const prevValue = prevLabels.find(label => label.label === name).value.map(region => region.boundingBoxes).join(",");
+                    const newValue = newLabels.find(label => label.label === name).value?.map(region => region.boundingBoxes).join(",");
+                    const prevValue = prevLabels.find(label => label.label === name).value?.map(region => region.boundingBoxes).join(",");
                     if (newValue !== prevValue) {
-                        return true;
+                         return true;
                     }
                 }
                 return false;
@@ -1791,7 +2044,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (asset.id === this.state.currentAsset.asset.id &&
             this.state.currentAsset.labelData != null) {
             const regionsFromLabelData = this.convertLabelDataToRegions(this.state.currentAsset.labelData);
-            console.log("privateloadLabelData -> regionsFromLabelData", regionsFromLabelData)
             if (regionsFromLabelData.length > 0) {
                 this.addRegionsToAsset(regionsFromLabelData);
             }
@@ -1884,7 +2136,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const order2 = this.getRegionOrder(r2.id);
 
         if (order1.page === order2.page) {
-            return order1.order > order2.order ? 1 : -1;
+            return order1.order >= order2.order ? 1 : -1;
         } else if (order1.page > order2.page) {
             return 1;
         } else {
@@ -2257,7 +2509,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private handleToggleDrawRegionMode = () => {
         if (!this.state.drawRegionMode && this.props.project.apiVersion !== APIVersionPatches.patch3) {
-            toast.warn(interpolate(strings.editorPage.canvas.canvasCommandBar.warings.drawRegionUnsupportedAPIVersion, { apiVersion: (this.props.project.apiVersion || constants.appVersion ) }), {autoClose: 7000});
+            toast.warn(interpolate(strings.editorPage.canvas.canvasCommandBar.warings.drawRegionUnsupportedAPIVersion, { apiVersion: (this.props.project.apiVersion || constants.appVersion) }), { autoClose: 7000 });
         }
         this.setState({
             drawRegionMode: !this.state.drawRegionMode

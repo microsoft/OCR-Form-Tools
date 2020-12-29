@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { IAppStrings } from "../strings";
+import {IAppStrings} from "../strings";
 
 /*eslint-disable no-template-curly-in-string, no-multi-str*/
 
@@ -38,11 +38,12 @@ export const english: IAppStrings = {
         newProject: "New Project",
         openLocalProject: {
             title: "Open Local Project",
+            description: "Open Local Project",
         },
         openCloudProject: {
             title: "Open Cloud Project",
-            selectConnection: "Select a Connection",
-            pasteSharedUri: "Please paste shared project string here",
+            selectConnection: "Open cloud project",
+            pasteSharedUri: "Paste shared project token here",
         },
         recentProjects: "Recent Projects",
         deleteProject: {
@@ -57,6 +58,22 @@ export const english: IAppStrings = {
         messages: {
             deleteSuccess: "Successfully deleted ${project.name}",
         },
+        homeProjectView: {
+            title: "Use Custom to train a model with labels and get key value pairs"
+        },
+        prebuiltPredict: {
+            title: "Use prebuilt model to get data",
+            description: "Start with a pre-built model to extract data from your forms – Invoices, Receipts, Business cards and more. Submit your data and get results right away."
+        },
+        layoutPredict:{
+            title:"Use Layout to get text, tables and selection marks",
+            description:"Try out the Form Recognizer Layout service to extract text, tables, selection marks and the structure of your document."
+        },
+        trainWithLabels:{
+            title:"Use Custom to train a model with labels and get key value pairs",
+            description:"You provide your own training data and do the learning. The model you create can train to your industry-specific forms."
+        },
+        quickStartGuide:"Quick start guide",
     },
     appSettings: {
         title: "Application Settings",
@@ -131,7 +148,7 @@ export const english: IAppStrings = {
         downloadJson: "Download JSON file",
         trainConfirm: {
             title: "Labels not revised yet",
-            message: "You have label files not yet revised, do you want to train with those files?"
+            message: "There are newly auto-labeled files not yet revised by you, do you want to train with those files?"
         },
         errors: {
             electron: {
@@ -220,6 +237,18 @@ export const english: IAppStrings = {
             message: "Asset with name '${name}' exists in project, override?"
         }
     },
+    prebuiltPredict: {
+        title: "Prebuilt analyze",
+        defaultLocalFileInput: "Browse for a file...",
+        defaultURLInput: "Paste or type URL...",
+        uploadFile: "Choose an image to analyze with",
+        inProgress: "Analysis in progress...",
+        anlayWithPrebuiltModels: "Analyze ${name} (preview)",
+    },
+    layoutPredict:{
+        title: "Layout analyze",
+        inProgress: "Analysis in progress...",
+    },
     recentModelsView: {
         header: "Select a model to analyze with",
         checkboxAriaLabel: "Select model checkbox",
@@ -269,6 +298,12 @@ export const english: IAppStrings = {
             notCompatibleTagType: "Tag type is not compatible with this feature. If you want to change type of this tag, please remove or reassign all labels which using this tag in your project.",
             checkboxPerTagLimit: "Cannot assign more than one checkbox per tag",
             notCompatibleWithDrawnRegionTag: "Drawn regions and ${otherCatagory} values cannot both be assigned to the same document's tag",
+            replaceAllExitingLabels:"Are you sure you want to replace selected tag's labels?",
+            replaceAllExitingLabelsTitle:"Replace tag's labels",
+        },
+        preText:{
+            autoLabel:"Auto-labeled: ",
+            revised:"Revised: ",
         },
         regionTableTags: {
             configureTag: {
@@ -281,6 +316,7 @@ export const english: IAppStrings = {
                     emptyTagName: "Please assign name for your table tag.",
                     emptyName: "Name cannot be empty",
                     notUniqueName: "Name should be unique",
+                    notCompatibleTableColOrRowType: "\${kind}\ type is not compatible with this type. If you want to change type of this \${kind}\, please remove or assign all labels which using this \${kind}\ in your project.",
                 }
             },
             tableLabeling: {
@@ -307,6 +343,10 @@ export const english: IAppStrings = {
         toolbar: {
             addTable: "Add new table tag",
             add: "Add new tag",
+            onlyShowCurrentPageTags: "Only show tags used in current page",
+            showAllTags: "Show all tags",
+            showOriginLabels:"Show origin labels",
+            hideOriginLabels:"Hide origin labels",
             contextualMenu: "Contextual Menu",
             delete: "Delete tag",
             edit: "Edit tag",
@@ -484,11 +524,11 @@ export const english: IAppStrings = {
                     additionalActions: {
                         text: "Additional actions",
                         subIMenuItems: {
-                            runOcrOnCurrentDocument: "Run OCR on current document",
-                            runOcrOnAllDocuments: "Run OCR on all documents",
+                            runOcrOnCurrentDocument: "Run Layout on current document",
+                            runOcrOnAllDocuments: "Run Layout on all documents",
                             runAutoLabelingCurrentDocument: "Auto-label the current document",
-                            runAutoLabelingOnNotLabelingDocuments: "Auto-label next ${batchSize} unlabeled documents",
-                            noPredictModelOnProject: "Predict model not avaliable, please train the model first.",
+                            runAutoLabelingOnMultipleUnlabeledDocuments: "Auto-label multiple unlabeled documents",
+                            noPredictModelOnProject: "Predict model not available, please train the model first.",
                         }
                     }
                 },
@@ -504,6 +544,10 @@ export const english: IAppStrings = {
                     continuing to next asset.",
             },
         },
+        warningMessage: {
+            PreventLeavingWhileRunningOCR: "An Layout operation is currently in progress, are you sure you want to leave?",
+            PreventLeavingRunningAutoLabeling: "Auto-labeling is currently in progress, are you sure you want to leave?",
+        }
     },
     profile: {
         settings: "Profile Settings",
@@ -564,7 +608,7 @@ export const english: IAppStrings = {
         },
         tips: {
             quickLabeling: {
-                name: "Lable with hot keys",
+                name: "Label with hot keys",
                 description: "Hotkeys 1 through 0 and all letters are assigned to first 36 tags. After selecting one or multiple words, press tag's assigned hotkey.",
             },
             renameTag: {
@@ -580,8 +624,8 @@ export const english: IAppStrings = {
                 description: "Select all labels for a tag on document and press 'delete' key"
             },
             groupSelect: {
-                name: "Select multiple words by drawing a bounding box around encompased words",
-                description: "Press and hold the shift key. Then, click and hold left mouse button. Then, drag the pointer to draw the bounding box around encompased words"
+                name: "Select multiple words by drawing a bounding box around encompassed words",
+                description: "Press and hold the shift key. Then, click and hold left mouse button. Then, drag the pointer to draw the bounding box around encompassed words"
             }
         },
         headers: {
@@ -602,7 +646,7 @@ export const english: IAppStrings = {
         },
         genericRenderError: {
             title: "Error Loading Application",
-            message: "An error occured while rendering the application. Please try again",
+            message: "An error occurred while rendering the application. Please try again",
         },
         projectInvalidSecurityToken: {
             title: "Error loading project file",
@@ -731,13 +775,13 @@ export const english: IAppStrings = {
     shareProject: {
         name: "Share Project",
         errors: {
-            cannotDecodeString: "Cannot decode shared string! Please, check if your string has been modified.",
+            cannotDecodeString: "Cannot decode shared token. Check if shared token has been modified.",
             connectionNotFound: "Connection not found. Add shared project's connection to your connections.",
-            noConnections: "Connection is required for project sharing",
+            connectionRequirement: "Shared project's connection must be added before opening it",
             tokenNameExist: "Warning! You already have token with same name as in shared project. Please create a new token, and update the existing project which uses ''${sharedTokenName}'' with new token name."
         },
         copy: {
-            success: "String for sharing your project has been saved to clipboard. In order to use it, paste it in appropriate section of the 'Open Cloud Project' popup.",
+            success: "Project token copied to clipboard and ready to share. Receiver of project token can click 'Open Cloud Project' from the Home page to use shared token.",
         }
     },
 };

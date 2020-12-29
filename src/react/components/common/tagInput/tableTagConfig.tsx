@@ -2,13 +2,18 @@
 // Licensed under the MIT license.
 import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DetailsList, IColumn, TextField, Dropdown, SelectionMode, DetailsListLayoutMode, FontIcon, CheckboxVisibility, IContextualMenuItem, CommandBar, Selection, Separator, IObjectWithKey, Link, ActionButton } from "@fluentui/react";
+import {
+    Customizer, ICustomizations, ChoiceGroup, IChoiceGroupOption,
+    PrimaryButton, DetailsList, IColumn, TextField, Dropdown, SelectionMode,
+    DetailsListLayoutMode, FontIcon, CheckboxVisibility, IContextualMenuItem,
+    CommandBar, Selection, Separator, IObjectWithKey, ActionButton
+} from "@fluentui/react";
 import { getPrimaryGreyTheme, getPrimaryGreenTheme, getRightPaneDefaultButtonTheme, getGreenWithWhiteBackgroundTheme, getPrimaryBlueTheme, getDefaultTheme } from '../../../../common/themes';
-import { FieldFormat, FieldType, IApplicationState, ITableRegion, ITableTag, ITag, TableElements, TagInputMode } from '../../../../models/applicationState';
-import { filterFormat, useDebounce } from "../../../../common/utils";
+import { FieldFormat, FieldType, IApplicationState, ITableRegion, ITableTag, ITag, TableElements, TagInputMode, TableVisualizationHint } from '../../../../models/applicationState';
+import { filterFormat, getTagCategory, useDebounce } from "../../../../common/utils";
 import { toast } from "react-toastify";
 import "./tableTagConfig.scss";
-import { strings } from "../../../../common/strings";
+import { interpolate, strings } from "../../../../common/strings";
 import _ from "lodash";
 
 interface ITableTagConfigProps {
@@ -16,7 +21,7 @@ interface ITableTagConfigProps {
     addTableTag: (table: any) => void;
     splitPaneWidth: number;
     tableTag?: ITableTag;
-    reconfigureTableConfirm?: (originalTagName: string, tagName: string, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => void;
+    reconfigureTableConfirm?: (originalTagName: string, tagName: string, tagType: FieldType.Array | FieldType.Object, tagFormat: FieldFormat, visualizationHint: TableVisualizationHint, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]) => void;
     selectedTableBody: ITableRegion[][][];
 }
 
@@ -27,8 +32,9 @@ interface ITableTagConfigState {
         tableName: string,
         originalTableName?: string;
     },
-    format: string,
-    headerTypeAndFormat: string;
+    type: FieldType.Object | FieldType.Array,
+    format: FieldFormat.NotSpecified,
+    headerTypeAndFormat: TableElements.columns | TableElements.rows;
     originalName?: string;
     deletedRows?: ITableConfigItem[],
     deletedColumns?: ITableConfigItem[],
@@ -40,24 +46,25 @@ interface ITableConfigItem {
     originalName?: string;
     originalFormat?: string,
     originalType?: string;
+    documentCount?: number
 }
 
 const tableFormatOptions: IChoiceGroupOption[] = [
     {
-        key: FieldFormat.Fixed,
-        text: 'fixed-sized',
+        key: FieldType.Object,
+        text: 'Fixed sized',
         iconProps: { iconName: 'Table' }
     },
     {
-        key: FieldFormat.RowDynamic,
-        text: 'row-dynamic',
+        key: FieldType.Array,
+        text: 'Row dynamic',
         iconProps: { iconName: 'InsertRowsBelow' }
     },
 ];
 const headersFormatAndTypeOptions: IChoiceGroupOption[] = [
     {
         key: TableElements.columns,
-        text: 'Column fields',
+        text: 'Column\n fields',
         iconProps: { iconName: 'TableHeaderRow' }
     },
     {
@@ -94,12 +101,14 @@ const formatOptions = (type = FieldType.String) => {
 const typeOptions = () => {
     const options = [];
     Object.entries(FieldType).forEach(([key, value]) => {
-        if (value !== FieldType.Table) {
+        if (value !== FieldType.Object && value !== FieldType.Array) {
             options.push({ key, text: value });
         }
     });
     return options;
 };
+
+const defaultRowOrColumn = { name: "", type: FieldType.String, format: FieldFormat.NotSpecified, documentCount: 0 };
 
 /**
  * @name - Table tag configuration
@@ -115,22 +124,38 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     // Initial state
     let table: ITableTagConfigState;
     if (props.tableTag) {
-        if (props.tableTag.format === FieldFormat.Fixed) {
-            table = {
-                name: {tableName: props.tableTag.name, originalTableName: props.tableTag.name},
-                format: FieldFormat.Fixed,
-                rows: props.tableTag.rowKeys?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat, originalName: row.fieldKey, originalFormat: row.fieldFormat, originalType: row.fieldType })),
-                columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType })),
-                headerTypeAndFormat: TableElements.columns,
-                deletedColumns: [],
-                deletedRows: [],
+        if (props.tableTag?.type === FieldType.Object) {
+            if (props.tableTag.visualizationHint === TableVisualizationHint.Vertical) {
+                table = {
+                    name: {tableName: props.tableTag.name, originalTableName: props.tableTag.name},
+                    type: FieldType.Object,
+                    format: FieldFormat.NotSpecified,
+                    rows: props.tableTag.fields?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat, originalName: row.fieldKey, originalFormat: row.fieldFormat, originalType: row.fieldType })) || [defaultRowOrColumn],
+                    columns: props.tableTag?.definition?.fields?.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType })) || [defaultRowOrColumn],
+                    headerTypeAndFormat: TableElements.columns,
+                    deletedColumns: [],
+                    deletedRows: [],
+                }
+
+            } else {
+                table = {
+                    name: {tableName: props.tableTag.name, originalTableName: props.tableTag.name},
+                    type: FieldType.Object,
+                    format: FieldFormat.NotSpecified,
+                    rows: props.tableTag?.definition?.fields?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat, originalName: row.fieldKey, originalFormat: row.fieldFormat, originalType: row.fieldType })) || [defaultRowOrColumn],
+                    columns: props.tableTag?.fields?.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType })) || [defaultRowOrColumn],
+                    headerTypeAndFormat: TableElements.rows,
+                    deletedColumns: [],
+                    deletedRows: [],
+                }
             }
         } else {
             table = {
                 name: { tableName: props.tableTag.name, originalTableName: props.tableTag.name },
-                format: FieldFormat.RowDynamic,
-                rows: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
-                columns: props.tableTag.columnKeys.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType })),
+                type: FieldType.Array,
+                format: FieldFormat.NotSpecified,
+                rows: [defaultRowOrColumn],
+                columns: props.tableTag?.definition?.fields?.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType  })),
                 headerTypeAndFormat: TableElements.columns,
                 deletedColumns: [],
             }
@@ -139,20 +164,22 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     } else {
         table = {
             name: {tableName: ""},
-            format: FieldFormat.Fixed,
-            rows: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
-            columns: [{ name: "", type: FieldType.String, format: FieldFormat.NotSpecified }],
+            type: FieldType.Object,
+            format: FieldFormat.NotSpecified,
+            rows: [defaultRowOrColumn],
+            columns: [defaultRowOrColumn],
             headerTypeAndFormat: TableElements.columns,
         };
     }
 
     const currentProjectTags = useSelector<ITag[]>((state: IApplicationState) => state.currentProject.tags);
     const [tableTagName, setTableTagName] = useState(table.name);
-    const [format, setFormat] = useState<string>(table.format);
+    const [type, setType] = useState<FieldType.Object | FieldType.Array>(table.type);
+    const [format, setFormat] = useState<FieldFormat.NotSpecified>(table.format);
     const [columns, setColumns] = useState(table.columns);
     const [rows, setRows] = useState<ITableConfigItem[]>(table.rows);
     const [notUniqueNames, setNotUniqueNames] = useState<{ columns: [], rows: [], tags: boolean }>({ columns: [], rows: [], tags: false });
-    const [headersFormatAndType, setHeadersFormatAndType] = useState<string>(TableElements.columns);
+    const [headersFormatAndType, setHeadersFormatAndType] = useState<TableElements.columns | TableElements.rows>(table.headerTypeAndFormat);
     const [selectedColumn, setSelectedColumn] = useState<IObjectWithKey>(undefined);
     const [selectedRow, setSelectedRow] = useState<IObjectWithKey>(undefined);
     const [deletedColumns, setDeletedColumns] = useState(table.deletedColumns);
@@ -160,17 +187,43 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     // const [headerTypeAndFormat, setHeaderTypeAndFormat] = useState<string>(table.headerTypeAndFormat);
     const [shouldAutoFocus, setShouldAutoFocus] = useState(null);
 
-    function selectColumnType(idx: number, type: string) {
-        setColumns(columns.map((col, currIdx) => idx === currIdx ? { ...col, type, format: FieldFormat.NotSpecified } : col
-        ));
+
+    const isCompatibleWithType = (documentCount: number, type: string, newType: string) => {
+        return documentCount  <= 0 ? true : getTagCategory(type) === getTagCategory(newType);
+    }
+
+    function selectColumnType(idx: number, type: string, docCount: number) {
+        setColumns(columns.map((col, currIdx) => {
+            if (idx === currIdx) {
+                if (isCompatibleWithType(docCount, col.originalType, type))
+                    return { ...col, type, format: FieldFormat.NotSpecified }
+                else {
+                    toast.warn(_.capitalize(interpolate(strings.tags.regionTableTags.configureTag.errors.notCompatibleTableColOrRowType, { kind: "column" })));
+                    return col;
+                }
+            } else {
+                return col
+            }
+        }));
+    }
+
+    function selectRowType(idx: number, type: string, docCount: number) {
+        setRows(rows.map((row, currIdx) => {
+            if (idx === currIdx) {
+                if (isCompatibleWithType(docCount, row.originalType, type))
+                    return { ...row, type, format: FieldFormat.NotSpecified }
+                else {
+                    toast.warn(_.capitalize(interpolate(strings.tags.regionTableTags.configureTag.errors.notCompatibleTableColOrRowType, { kind: "row" })));
+                    return row;
+                }
+            } else {
+                return row
+            }
+        }));
     }
 
     function selectColumnFormat(idx: number, format: string) {
         setColumns(columns.map((col, currIdx) => idx === currIdx ? { ...col, format } : col
-        ));
-    }
-    function selectRowType(idx: number, type: string) {
-        setRows(rows.map((row, currIdx) => idx === currIdx ? { ...row, type, format: FieldFormat.NotSpecified } : row
         ));
     }
 
@@ -227,9 +280,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         defaultSelectedKey={FieldType.String}
                         options={typeOptions()}
                         theme={getGreenWithWhiteBackgroundTheme()}
-                        onChange={(e, val) => {
-                            selectColumnType(index, val.text);
-                        }}
+                        onChange={(e, val) => selectColumnType(index, val.text, row.documentCount)}
                     />
                 </Customizer>
                 : <></>
@@ -300,9 +351,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         defaultSelectedKey={FieldType.String}
                         options={typeOptions()}
                         theme={getGreenWithWhiteBackgroundTheme()}
-                        onChange={(e, val) => {
-                            selectRowType(index, val.text);
-                        }}
+                        onChange={(e, val) => selectRowType(index, val.text, row.documentCount)}
                     />
                 </Customizer>
                 : <></>
@@ -333,12 +382,12 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
 
     function addColumn() {
-        setColumns([...columns, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified }]);
+        setColumns([...columns, defaultRowOrColumn]);
         setShouldAutoFocus(TableElements.column);
     }
 
     function addRow() {
-        setRows([...rows, { name: "", type: FieldType.String, format: FieldFormat.NotSpecified }]);
+        setRows([...rows, defaultRowOrColumn]);
         setShouldAutoFocus(TableElements.row);
     }
 
@@ -556,18 +605,93 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     }
 
     function save(cleanTableName: string, cleanRows: ITableConfigItem[], cleanColumns: ITableConfigItem[]) {
+        const [ firstLayerFieldsInput, secondLayerFieldsInput ] = getFieldsLayersInput(headersFormatAndType, cleanRows, cleanColumns);
+        const definition = getDefinitionLayer(cleanTableName, secondLayerFieldsInput);
+        const fieldsLayer = getFieldsLayer(cleanTableName, firstLayerFieldsInput);
+        const itemType = getItemType(cleanTableName);
+        const visualizationHint = getVisualizationHint(headersFormatAndType);
         const tableTagToAdd = {
             name: cleanTableName,
+            type,
             columns: cleanColumns,
-            format,
-            headersFormatAndType
+            format : FieldFormat.NotSpecified,
+            itemType,
+            fields: fieldsLayer,
+            definition,
+            visualizationHint,
         }
-        if (format === FieldFormat.Fixed) {
+        if (type === FieldType.Object) {
             tableTagToAdd[TableElements.rows] = cleanRows;
         }
         addTableTag(tableTagToAdd);
         setTagInputMode(TagInputMode.Basic, null, null);
         toast.success(`Successfully ${props.tableTag ? "reconfigured" : "saved"} "${tableTagName.tableName}" table tag.`, { autoClose: 8000 });
+    }
+
+    function getItemType(cleanTableName) {
+        if (type === FieldType.Object) {
+            return null;
+        } else {
+            return cleanTableName + "_object";
+        }
+    }
+
+    function getFieldsLayersInput(headersFormatAndType, cleanRows, cleanColumns) {
+        if (type === FieldType.Object) {
+            if (headersFormatAndType === TableElements.columns) {
+                return [ cleanRows, cleanColumns ];
+            } else {
+                return [ cleanColumns, cleanRows ];
+            }
+        } else {
+            return [ cleanRows, cleanColumns ];
+        }
+    }
+
+    function getDefinitionLayer(cleanTableName, secondLayerFieldsInput) {
+        return {
+            fieldKey: cleanTableName + "_object",
+            fieldType: FieldType.Object,
+            fieldFormat: FieldFormat.NotSpecified,
+            itemType: null,
+            fields: secondLayerFieldsInput.map((field) => {
+                return {
+                    fieldKey: field.name,
+                    fieldType: field.type,
+                    fieldFormat: field.format,
+                    itemType: null,
+                    fields: null,
+                }
+            })
+        }
+    }
+
+    function getVisualizationHint(headersFormatAndType) {
+        if (type === FieldType.Object) {
+            if (headersFormatAndType === TableElements.columns) {
+                return TableVisualizationHint.Vertical;
+            } else {
+                return TableVisualizationHint.Horizontal;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    function getFieldsLayer(cleanTableName, firstLayerFieldsInput) {
+        if (type === FieldType.Object) {
+            return firstLayerFieldsInput.map((field) => {
+                return {
+                    fieldKey: field.name,
+                    fieldType:  cleanTableName + "_object",
+                    fieldFormat: FieldFormat.NotSpecified,
+                    itemType: null,
+                    fields: null,
+                }
+            });
+        } else {
+            return null;
+        }
     }
 
     function hasEmptyNames(array: ITableConfigItem[]) {
@@ -595,7 +719,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             }));
         }
         cleanColumns = trimFieldNames(columns);
-        if (format === FieldFormat.Fixed) {
+        if (type === FieldType.Object) {
             cleanRows = trimFieldNames(rows);
         }
         const cleanTableName = tableTagName.tableName.trim();
@@ -611,7 +735,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             || (notUniqueNames.tags && !props.tableTag)
             || !tableTagName.tableName.length
             || hasEmptyNames(columns)
-            || (format === FieldFormat.Fixed && hasEmptyNames(rows))
+            || (type === FieldType.Object && hasEmptyNames(rows))
         );
     }
 
@@ -682,11 +806,9 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         let deletedFields;
         switch (fieldType) {
             case TableElements.row:
-                console.log("deleted rows");
                 deletedFields = deletedRows;
                 break;
             case TableElements.column:
-                console.log("deleted columns");
                 deletedFields = deletedColumns;
                 break;
         }
@@ -726,7 +848,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     // Table preview
     function getTableBody() {
         let tableBody = null;
-        const isRowDynamic = format === FieldFormat.RowDynamic;
+        const isRowDynamic = type === FieldType.Array;
         if (table.rows.length !== 0 && table.columns.length !== 0) {
             tableBody = [];
             for (let i = 0; i < (isRowDynamic ? 2 : rows.length + 1); i++) {
@@ -827,32 +949,41 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 />
                 {!props.tableTag &&
                     <>
-                        <h5 className="mt-4">Format</h5>
+                        <h5 className="mt-4">Type</h5>
                         <ChoiceGroup
                             className="ml-12px"
                             onChange={(event, option) => {
-                                setFormat(option.key)
-                                if (option.key === FieldFormat.RowDynamic) {
+                                if (option.key === FieldType.Object) {
+                                    setType(FieldType.Object);
+                                } else {
+                                    setType(FieldType.Array)
                                     setHeadersFormatAndType(TableElements.columns);
                                 }
                             }}
-                            defaultSelectedKey={FieldFormat.Fixed}
+                            defaultSelectedKey={FieldType.Object}
                             options={tableFormatOptions}
                             theme={getRightPaneDefaultButtonTheme()}
                         />
-                        {format === FieldFormat.Fixed && <>
+                        {type === FieldType.Object && <>
                             <h5 className="mt-4" >Configure type and format for:</h5>
                             <ChoiceGroup
                                 className="ml-12px type-format"
                                 defaultSelectedKey={TableElements.columns}
                                 options={headersFormatAndTypeOptions}
-                                onChange={(e, option) => setHeadersFormatAndType(option.key)}
+                                onChange={(e, option) => {
+                                    if (option.key === TableElements.columns) {
+                                        setHeadersFormatAndType(TableElements.columns)
+
+                                    } else {
+                                        setHeadersFormatAndType(TableElements.rows)
+                                    }
+                                }}
                                 required={false} />
                         </>
                         }
                     </>
                 }
-                <div className="columns_container ml-12px">
+                <div className="columns_container mb-4 ml-12px">
                     <h5 className="mt-3">Column fields</h5>
                     <div className="columns-list_container">
                         <DetailsList
@@ -892,8 +1023,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                     </div>
                 }
                 </div>
-                {(format === FieldFormat.Fixed || (props.tableTag && format === FieldFormat.Fixed)) &&
-                    <div className="rows_container ml-12px">
+                {((props.tableTag?.type === FieldType.Object) || type === FieldType.Object) &&
+                    <div className="rows_container mb-4 ml-12px">
                         <h5 className="">Row fields</h5>
                         <div className="rows-list_container">
                             <DetailsList
@@ -953,7 +1084,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                             </>
                         }
                         {
-                            format === FieldFormat.RowDynamic && <div className="rowDynamic_message">The number of rows is specified when labeling each document.</div>
+                            type === FieldType.Array && <div className="rowDynamic_message">The number of rows is specified when labeling each document.</div>
                         }
                         <div className="table_container">
                             <table className="table">
@@ -996,18 +1127,19 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                                         name: cleanTableName,
                                         columns: cleanColumns,
                                         deletedColumns,
-                                        headersFormatAndType
+                                        headersFormatAndType,
+                                        visualizationHint: props.tableTag.visualizationHint,
                                     }
-                                    if (format === FieldFormat.Fixed) {
+                                    if (type === FieldType.Object) {
                                         tableTagToReconfigure[TableElements.rows] = cleanRows;
                                         tableTagToReconfigure["deletedRows"] = deletedRows;
-                                        tableTagToReconfigure["format"] = FieldFormat.Fixed
+                                        tableTagToReconfigure["type"] = FieldType.Object;
                                     } else {
                                         tableTagToReconfigure[TableElements.rows] = null;
                                         tableTagToReconfigure["deletedRows"] = null;
-                                        tableTagToReconfigure["format"] = FieldFormat.RowDynamic
+                                        tableTagToReconfigure["type"] = FieldType.Array;
                                     }
-                                    props.reconfigureTableConfirm(tableTagName?.originalTableName?.trim(), tableTagName?.tableName?.trim(), tableTagToReconfigure["format"], deletedColumns, deletedRows, tableTagToReconfigure["rows"], tableTagToReconfigure.columns);
+                                    props.reconfigureTableConfirm(tableTagName?.originalTableName?.trim(), tableTagName?.tableName?.trim(), tableTagToReconfigure["type"], tableTagToReconfigure["format"], tableTagToReconfigure.visualizationHint, deletedColumns, deletedRows, tableTagToReconfigure["rows"], tableTagToReconfigure.columns);
                                 } else {
                                     save(cleanTableName, cleanRows, cleanColumns);
                                 }

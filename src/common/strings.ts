@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import LocalizedStrings, { LocalizedStringsMethods } from "react-localization";
-import { english } from "./localization/en-us";
-import { spanish } from "./localization/es-cl";
+import LocalizedStrings, {LocalizedStringsMethods} from "react-localization";
+import {english} from "./localization/en-us";
+import {spanish} from "./localization/es-cl";
 
 /**
  * Interface for all required strings in application
@@ -39,6 +39,7 @@ export interface IAppStrings {
         newProject: string,
         openLocalProject: {
             title: string,
+            description: string,
         },
         openCloudProject: {
             title: string,
@@ -57,6 +58,22 @@ export interface IAppStrings {
         messages: {
             deleteSuccess: string,
         },
+        homeProjectView: {
+            title: string,
+        },
+        prebuiltPredict: {
+            title: string;
+            description: string;
+        }
+        layoutPredict: {
+            title: string;
+            description: string;
+        }
+        trainWithLabels: {
+            title: string;
+            description: string;
+        }
+        quickStartGuide: string;
     };
     appSettings: {
         title: string,
@@ -218,6 +235,18 @@ export interface IAppStrings {
             message: string
         },
     };
+    prebuiltPredict: {
+        title: string;
+        defaultLocalFileInput: string;
+        defaultURLInput: string;
+        uploadFile: string;
+        inProgress: string;
+        anlayWithPrebuiltModels: string;
+    }
+    layoutPredict:{
+        title:string;
+        inProgress: string;
+    },
     recentModelsView: {
         header: string;
         checkboxAriaLabel: string;
@@ -258,6 +287,10 @@ export interface IAppStrings {
             search: string;
             type: string;
             vertiline: string;
+            onlyShowCurrentPageTags:string,
+            showAllTags:string,
+            showOriginLabels: string
+            hideOriginLabels: string,
         }
         colors: {
             white: string,
@@ -282,6 +315,12 @@ export interface IAppStrings {
             notCompatibleTagType: string,
             checkboxPerTagLimit: string,
             notCompatibleWithDrawnRegionTag: string,
+            replaceAllExitingLabels:string,
+            replaceAllExitingLabelsTitle:string,
+        },
+        preText:{
+            autoLabel:string,
+            revised:string,
         }
         regionTableTags: {
             configureTag: {
@@ -294,6 +333,7 @@ export interface IAppStrings {
                     emptyTagName: string,
                     emptyName: string,
                     notUniqueName: string,
+                    notCompatibleTableColOrRowType: string;
                 },
             },
             tableLabeling: {
@@ -482,7 +522,7 @@ export interface IAppStrings {
                             runOcrOnCurrentDocument: string,
                             runOcrOnAllDocuments: string,
                             runAutoLabelingCurrentDocument: string,
-                            runAutoLabelingOnNotLabelingDocuments: string,
+                            runAutoLabelingOnMultipleUnlabeledDocuments: string,
                             noPredictModelOnProject: string,
                         }
                     }
@@ -497,6 +537,10 @@ export interface IAppStrings {
                 title: string,
                 description: string,
             },
+        },
+        warningMessage: {
+            PreventLeavingWhileRunningOCR: string,
+            PreventLeavingRunningAutoLabeling: string,
         }
     };
     profile: {
@@ -623,7 +667,7 @@ export interface IAppStrings {
         errors: {
             cannotDecodeString: string,
             connectionNotFound: string,
-            noConnections: string,
+            connectionRequirement: string,
             tokenNameExist: string,
         },
         copy: {
@@ -637,7 +681,7 @@ interface IErrorMetadata {
     message: string,
 }
 
-interface IStrings extends LocalizedStringsMethods, IAppStrings { }
+interface IStrings extends LocalizedStringsMethods, IAppStrings {}
 
 export const strings: IStrings = new LocalizedStrings({
     en: english,
@@ -651,7 +695,7 @@ export const strings: IStrings = new LocalizedStrings({
  * @param json JSON object containing variable placeholders
  */
 export function addLocValues(json: any) {
-    return interpolateJson(json, { strings });
+    return interpolateJson(json, {strings});
 }
 
 /**

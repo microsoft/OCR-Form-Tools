@@ -15,7 +15,9 @@ import {
     ITag,
     ISecurityToken,
     FieldType,
-    FieldFormat, ITableConfigItem, ITableTag, IField, ITableField, ITableKeyField
+    FieldFormat, ITableConfigItem, ITableTag, IField, ITableField, ITableKeyField,
+    AssetLabelingState,
+    TableVisualizationHint
 } from "../../models/applicationState";
 import { createAction, createPayloadAction, IPayloadAction } from "./actionCreators";
 import { appInfo } from "../../common/appInfo";
@@ -23,7 +25,7 @@ import { saveAppSettingsAction } from "./applicationActions";
 import { toast } from 'react-toastify';
 import { strings, interpolate } from "../../common/strings";
 import clone from "rfdc";
-
+import _ from "lodash";
 
 /**
  * Actions to be performed in relation to projects
@@ -36,13 +38,15 @@ export default interface IProjectActions {
     addAssetToProject(project: IProject, fileName: string, buffer: Buffer, analyzeResult: any): Promise<IAsset>;
     deleteAsset(project: IProject, assetMetadata: IAssetMetadata): Promise<void>;
     loadAssets(project: IProject): Promise<IAsset[]>;
+    refreshAsset(project: IProject, assetName: string):Promise<void>;
     loadAssetMetadata(project: IProject, asset: IAsset): Promise<IAssetMetadata>;
     saveAssetMetadata(project: IProject, assetMetadata: IAssetMetadata): Promise<IAssetMetadata>;
+    saveAssetMetadataAndCleanEmptyLabel(project: IProject, assetMetadata: IAssetMetadata): Promise<IAssetMetadata>;
     updateProjectTag(project: IProject, oldTag: ITag, newTag: ITag): Promise<IAssetMetadata[]>;
     deleteProjectTag(project: IProject, tagName: string, tagType: FieldType, tagFormat: FieldFormat): Promise<IAssetMetadata[]>;
     updateProjectTagsFromFiles(project: IProject, asset?: string): Promise<void>;
-    updatedAssetMetadata(project: IProject, assetDocumentCountDifference: any, columnDocumentCountDifference: any, rowDocumentCountDifference: any): Promise<void>;
-    reconfigureTableTag?(project: IProject, originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]): Promise<IAssetMetadata[]>;
+    updatedAssetMetadata(project: IProject, assetDocumentCountDifference: any, columnDocumentCountDifference?: any, rowDocumentCountDifference?: any): Promise<void>;
+    reconfigureTableTag?(project: IProject, originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, visualizationHint: TableVisualizationHint, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]): Promise<IAssetMetadata[]>;
 }
 
 /**
@@ -131,8 +135,8 @@ export function updateProjectTagsFromFiles(project: IProject, asset?: string): (
     };
 }
 
-export function updatedAssetMetadata(project: IProject, assetDocumentCountDifference: any, columnDocumentCountDifference: any,
-    rowDocumentCountDifference: any): (dispatch: Dispatch) => Promise<void> {
+export function updatedAssetMetadata(project: IProject, assetDocumentCountDifference: any, columnDocumentCountDifference?: any,
+    rowDocumentCountDifference?: any): (dispatch: Dispatch) => Promise<void> {
     return async (dispatch: Dispatch) => {
         const projectService = new ProjectService();
         const updatedProject = await projectService.updatedAssetMetadata(project, assetDocumentCountDifference, columnDocumentCountDifference, rowDocumentCountDifference);
@@ -235,6 +239,14 @@ function areAssetsEqual(assets: IAsset[], projectAssets: { [index: string]: IAss
     return JSON.stringify(assetsMap) === JSON.stringify(projectAssets);
 }
 
+export function refreshAsset(project: IProject, assetName:string):(dispatch:Dispatch) => Promise<void> {
+    return async (dispatch:Dispatch) =>{
+        const assetService = new AssetService(project);
+        const asset = await assetService.getAsset( assetName);
+        dispatch(refreshAssetAction( asset));
+    }
+}
+
 /**
  * Load metadata from asset within project
  * @param project - Project from which to load asset metadata
@@ -244,7 +256,7 @@ export function loadAssetMetadata(project: IProject, asset: IAsset): (dispatch: 
     return async (dispatch: Dispatch) => {
         const assetService = new AssetService(project);
         const assetMetadata = await assetService.getAssetMetadata(asset);
-        dispatch(loadAssetMetadataAction(assetMetadata));
+        dispatch(loadAssetMetadataAction(_.cloneDeep(assetMetadata)));
 
         return { ...assetMetadata };
     };
@@ -258,17 +270,29 @@ export function loadAssetMetadata(project: IProject, asset: IAsset): (dispatch: 
 export function saveAssetMetadata(
     project: IProject,
     assetMetadata: IAssetMetadata): (dispatch: Dispatch) => Promise<IAssetMetadata> {
-    const newAssetMetadata = { ...assetMetadata, version: appInfo.version };
-console.log("saveAssetMetadata saving", assetMetadata)
+    const newAssetMetadata = { ...(_.cloneDeep(assetMetadata)), version: appInfo.version };
+
     return async (dispatch: Dispatch) => {
         const assetService = new AssetService(project);
         const savedMetadata = await assetService.save(newAssetMetadata);
+        dispatch(saveAssetMetadataAction(savedMetadata));
+        return { ...savedMetadata };
+    };
+}
+
+export function saveAssetMetadataAndCleanEmptyLabel(
+    project: IProject,
+    assetMetadata: IAssetMetadata): (dispatch: Dispatch) => Promise<IAssetMetadata> {
+    const newAssetMetadata: IAssetMetadata = { ...(_.cloneDeep(assetMetadata)), version: appInfo.version};
+
+    return async (dispatch: Dispatch) => {
+        const assetService = new AssetService(project);
+        const savedMetadata = await assetService.save(newAssetMetadata, true);
         dispatch(saveAssetMetadataAction(savedMetadata));
 
         return { ...savedMetadata };
     };
 }
-
 /**
  * Updates a project and all asset references from oldTagName to newTagName
  * @param project The project to update tags
@@ -318,9 +342,9 @@ export function deleteProjectTag(project: IProject, tagName: string, tagType: Fi
         const assetUpdates = await assetService.deleteTag(tagName, tagType, tagFormat);
 
         // Save updated assets
-        await assetUpdates.forEachAsync(async (assetMetadata) => {
+        for (const assetMetadata of assetUpdates) {
             await saveAssetMetadata(project, assetMetadata)(dispatch);
-        });
+        }
 
         const currentProject = getState().currentProject;
         const updatedProject = {
@@ -336,13 +360,12 @@ export function deleteProjectTag(project: IProject, tagName: string, tagType: Fi
     };
 }
 
-export function reconfigureTableTag(project: IProject, originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[])
+export function reconfigureTableTag(project: IProject, originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, visualizationHint: TableVisualizationHint, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[])
     : (dispatch: Dispatch, getState: () => IApplicationState) => Promise<IAssetMetadata[]> {
         return async (dispatch: Dispatch, getState: () => IApplicationState) => {
-            console.log(project, tagName, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
             // Find tags to rename
             const assetService = new AssetService(project);
-            const assetUpdates = await assetService.refactorTableTag(originalTagName, tagName, tagType, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
+            const assetUpdates = await assetService.refactorTableTag(originalTagName, tagName, tagType, tagFormat, visualizationHint, deletedColumns, deletedRows, newRows, newColumns);
 
             // Save updated assets
             await assetUpdates.forEachAsync(async (assetMetadata) => {
@@ -350,25 +373,53 @@ export function reconfigureTableTag(project: IProject, originalTagName: string, 
             });
 
             const currentProject = clone()(getState().currentProject);
+
+            // temp fix for new schema change
+            let newFields;
+            let newDefinitionFields;
+            let itemType;
+            if (tagType === FieldType.Object) {
+                if (visualizationHint === TableVisualizationHint.Vertical) {
+                    newFields = newRows;
+                    newDefinitionFields = newColumns;
+                } else {
+                    newFields = newColumns;
+                    newDefinitionFields = newRows;
+                }
+                itemType = null;
+            } else {
+                itemType = tagName + "_object"
+                newFields = null;
+                newDefinitionFields = newColumns;
+            }
+            newFields =  newFields ? newFields.map((field) => {
+                return {
+                    fieldKey: field.name,
+                    fieldType: tagName + "_object",
+                    fieldFormat: FieldFormat.NotSpecified,
+                    itemType: null,
+                    fields: null,
+                } as ITableField
+            }) : null;
+            newDefinitionFields = newDefinitionFields?.map((definitionField) => {
+                return {
+                    fieldKey: definitionField.name,
+                    fieldType: definitionField.type,
+                    fieldFormat: definitionField.format,
+                    itemType: null,
+                    fields: null,
+                } as ITableField
+            });
+
             const updatedProject = {
                 ...currentProject,
                 tags: currentProject.tags.reduce((result, tag) => {
                     if (tag.name === originalTagName) {
-                        (tag as ITableTag).rowKeys = newRows ? newRows.map((newRow) => {
-                            return {
-                                fieldKey: newRow.name,
-                                fieldType: newRow.type,
-                                fieldFormat: newRow.format
-                            } as ITableKeyField
-                        }) : (tag as ITableTag).rowKeys;
-                        (tag as ITableTag).columnKeys = newColumns ? newColumns.map((newColumn) => {
-                            return {
-                                fieldKey: newColumn.name,
-                                fieldType: newColumn.type,
-                                fieldFormat: newColumn.format
-                            } as ITableKeyField
-                        }) : (tag as ITableTag).columnKeys;
                         (tag as ITag).name = tagName;
+                        (tag as ITableTag).definition.fieldKey = tagName + "_object";
+                        (tag as ITableTag).definition.fields = newDefinitionFields || (tag as ITableTag).definition.fields;
+                        (tag as ITableTag).fields = newFields || (tag as ITableTag).fields;
+                        (tag as ITableTag).itemType = itemType;
                         result.push(tag);
                         return result;
                     } else {
@@ -378,7 +429,6 @@ export function reconfigureTableTag(project: IProject, originalTagName: string, 
                 }, [])
             };
 
-            console.log(updatedProject);
 
             // Save updated project tags
             await saveProject(updatedProject, true, false)(dispatch, getState);
@@ -444,7 +494,9 @@ export interface ILoadProjectAssetsAction extends IPayloadAction<string, IAsset[
 export interface IDeleteProjectAssetAction extends IPayloadAction<string, IAsset[]> {
     type: ActionTypes.DELETE_PROJECT_ASSET_SUCCESS;
 }
-
+export interface IRefreshAssetAction extends IPayloadAction<string, IAsset> {
+    type: ActionTypes.REFRESH_ASSET_SUCCESS;
+}
 /**
  * Load asset metadata action type
  */
@@ -503,6 +555,9 @@ export const loadProjectAssetsAction =
  */
 export const deleteProjectAssetAction =
     createPayloadAction<IDeleteProjectAssetAction>(ActionTypes.DELETE_PROJECT_ASSET_SUCCESS);
+
+export const refreshAssetAction =
+createPayloadAction<IRefreshAssetAction>(ActionTypes.REFRESH_ASSET_SUCCESS);
 /**
  * Instance of Load Asset Metadata action
  */

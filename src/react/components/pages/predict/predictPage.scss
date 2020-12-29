@@ -27,6 +27,10 @@
   display: flex;
   width: 400px;
   min-width: 400px;
+  .prebuilt-type-dropdown {
+    width: 130px;
+    margin-bottom: 10px;
+  }
 }
 
 .input-disabled {

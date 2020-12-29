@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { IAppStrings } from "../strings";
+import {IAppStrings} from "../strings";
 
 /*eslint-disable no-template-curly-in-string, no-multi-str*/
 
@@ -39,10 +39,11 @@ export const spanish: IAppStrings = {
         recentProjects: "Proyectos Recientes",
         openLocalProject: {
             title: "Abrir Proyecto Local",
+            description: "Abrir Proyecto Local",
         },
         openCloudProject: {
             title: "Abrir Proyecto de la Nube",
-            selectConnection: "Select a Connection",
+            selectConnection: "Proyecto de nube abierta",
             pasteSharedUri: "Pegue la cadena de proyecto compartida aquí",
         },
         deleteProject: {
@@ -57,6 +58,22 @@ export const spanish: IAppStrings = {
         messages: {
             deleteSuccess: "${project.name} eliminado correctamente",
         },
+        homeProjectView: {
+            title: "Utilice Personalizado para entrenar un modelo con etiquetas y obtener pares clave-valor"
+        },
+        prebuiltPredict: {
+            title: "Utilice un modelo prediseñado para obtener datos",
+            description: "Comience con un modelo preconstruidos para extraer datos de sus formularios: facturas, recibos, tarjetas de visita y mucho más. Envíe sus datos y obtenga resultados de inmediato."
+        },
+        layoutPredict:{
+            title:"Utilice Layout para obtener texto, tablas y marcas de selección",
+            description:"Pruebe el servicio Diseño del reconocedor de formularios para extraer texto, tablas, marcas de selección y la estructura del documento."
+        },
+        trainWithLabels:{
+            title:"Utilice Personalizado para entrenar un modelo con etiquetas y obtener pares clave-valor",
+            description:"Tú proporcionas tus propios datos de entrenamiento y haces el aprendizaje. El modelo que cree puede adaptarse a los formularios específicos de su industria."
+        },
+        quickStartGuide:"Quick start guide",
     },
     appSettings: {
         title: "Configuración de Aplicación",
@@ -131,8 +148,8 @@ export const spanish: IAppStrings = {
         addName: "Agregar nombre de modelo ...",
         downloadJson: "Descargar archivo JSON",
         trainConfirm: {
-            title: "Etiquetas no revisadas todavía",
-            message: "Tiene archivos de etiquetas que aún no han sido revisados, ¿desea entrenar con esos archivos?"
+            title: "Etiquetas aún no revisadas",
+            message: "Hay archivos recién etiquetados automáticamente aún no revisados por usted, ¿quieres entrenar con esos archivos?"
         },
         errors: {
             electron: {
@@ -219,6 +236,18 @@ export const spanish: IAppStrings = {
             message: "El activo con el nombre '${name}' existe en el proyecto, ¿anularlo?"
         }
     },
+    prebuiltPredict: {
+        title: "Análisis preconstruido",
+        defaultLocalFileInput: "Busca un archivo...",
+        defaultURLInput: "Pegar o escribir URL...",
+        uploadFile: "Elija una imagen para analizar con",
+        inProgress: "Análisis en curso...",
+        anlayWithPrebuiltModels: "Análisis ${name} (versión preliminar)",
+    },
+    layoutPredict:{
+        title: "Análisis de diseño",
+        inProgress: "Análisis en curso...",
+    },
     recentModelsView: {
         header: "Seleccionar modelo para analizar con",
         checkboxAriaLabel: "Seleccione la casilla de verificación del modelo",
@@ -267,7 +296,13 @@ export const spanish: IAppStrings = {
             unknownTagName: "Desconocido",
             notCompatibleTagType: "El tipo de etiqueta no es compatible con esta función. Si desea cambiar el tipo de esta etiqueta, elimine o reasigne todas las etiquetas que utilizan esta etiqueta en su proyecto.",
             checkboxPerTagLimit: "No se puede asignar más de una casilla de verificación por etiqueta",
-            notCompatibleWithDrawnRegionTag: "Los valores de drawnRegion y $ {otherCategory} no pueden asignarse a la misma etiqueta del documento",
+            notCompatibleWithDrawnRegionTag: "Los valores de drawnRegion y $ {otherCatagory} no pueden asignarse a la misma etiqueta del documento",
+            replaceAllExitingLabels:"¿Está seguro de que desea reemplazar las etiquetas de la etiqueta seleccionada?",
+            replaceAllExitingLabelsTitle:"Reemplazar las etiquetas de la etiqueta",
+        },
+        preText:{
+            autoLabel:"Auto-etiquetado: ",
+            revised:"Revisado: ",
         },
         regionTableTags: {
             configureTag: {
@@ -280,6 +315,7 @@ export const spanish: IAppStrings = {
                     emptyTagName: "Asigne un nombre para la etiqueta de su mesa.",
                     emptyName: "El nombre no puede estar vacío",
                     notUniqueName: "El nombre debe ser único",
+                    notCompatibleTableColOrRowType: "El tipo $ {kind} no es compatible con este tipo. Si desea cambiar el tipo de este $ {kind}, elimine o asigne todas las etiquetas que usan este $ {kind} en su proyecto."
                 }
             },
             tableLabeling: {
@@ -302,10 +338,15 @@ export const spanish: IAppStrings = {
                     message: "¿Está seguro de que desea volver a configurar esta etiqueta?\n Se volverá a configurar para todos los documentos.",
                 }
             }
+
         },
         toolbar: {
             addTable: "Agregar nueva etiqueta",
             add: "Agregar nueva etiqueta",
+            onlyShowCurrentPageTags: "Mostrar solo las etiquetas utilizadas en la página actual",
+            showAllTags: "Mostrar todas las etiquetas",
+            showOriginLabels: "Mostrar etiquetas de origen",
+            hideOriginLabels: "Ocultar etiquetas de origen",
             contextualMenu: "Menú contextual",
             delete: "Borrar etiqueta",
             edit: "Editar etiqueta",
@@ -485,10 +526,10 @@ export const spanish: IAppStrings = {
                     additionalActions: {
                         text: "Acciones adicionales",
                         subIMenuItems: {
-                            runOcrOnCurrentDocument: "Ejecutar OCR en el documento actual",
-                            runOcrOnAllDocuments: "Ejecute OCR en todos los documentos",
+                            runOcrOnCurrentDocument: "Ejecutar Layout en el documento actual",
+                            runOcrOnAllDocuments: "Ejecute Layout en todos los documentos",
                             runAutoLabelingCurrentDocument: "Etiquetar automáticamente el documento actual",
-                            runAutoLabelingOnNotLabelingDocuments: "Etiquetar automáticamente los siguientes ${batchSize} documentos sin etiquetar",
+                            runAutoLabelingOnMultipleUnlabeledDocuments: "Etiquetar automáticamente varios documentos sin etiquetar",
                             noPredictModelOnProject: "Predecir modelo no disponible, entrene el modelo primero.",
                         }
                     }
@@ -505,6 +546,10 @@ export const spanish: IAppStrings = {
                     Por favor, etiquete todas las regiones antes de continuar con el siguiente activo.",
             },
         },
+        warningMessage: {
+            PreventLeavingWhileRunningOCR: "Una operación de diseño está actualmente en curso, ¿está seguro de que desea salir?",
+            PreventLeavingRunningAutoLabeling: "El etiquetado automático está actualmente en curso, ¿está seguro de que desea irse?",
+        }
     },
     profile: {
         settings: "Configuración de Perfíl",
@@ -732,13 +777,13 @@ export const spanish: IAppStrings = {
     shareProject: {
         name: "Compartir proyecto",
         errors: {
-            cannotDecodeString: "¡No se puede decodificar la cadena compartida! Por favor, verifique si su cadena ha sido modificada.",
+            cannotDecodeString: "No se puede decodificar el token compartido. Compruebe si se ha modificado el token compartido.",
             connectionNotFound: "Conexión no encontrada. Agregue la conexión del proyecto compartido a sus conexiones.",
-            noConnections: "Se requiere conexión para compartir proyectos",
+            connectionRequirement: "La conexión del proyecto compartido debe agregarse antes de abrirlo",
             tokenNameExist: "¡Advertencia! Ya tiene token con el mismo nombre que en el proyecto compartido. Cree un nuevo token y actualice el proyecto existente que usa ''${sharedTokenName}'' con el nuevo nombre del token.",
         },
         copy: {
-            success: "La cadena para compartir su proyecto se ha guardado en el portapapeles. Para usarlo, péguelo en la sección correspondiente de la ventana emergente 'Open Cloud Project'.",
+            success: "Token de proyecto copiado al portapapeles y listo para compartir. El receptor del token del proyecto puede hacer clic en 'Abrir proyecto en la nube' desde la página de inicio para usar el token compartido.",
         }
     }
 };

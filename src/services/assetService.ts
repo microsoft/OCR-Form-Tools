@@ -5,7 +5,7 @@ import _ from "lodash";
 import Guard from "../common/guard";
 import {
     IAsset, AssetType, IProject, IAssetMetadata, AssetState,
-    ILabelData, ILabel, AssetLabelingState, FieldType, FieldFormat, ITableConfigItem, ITableRegion, ITableCellLabel
+    ILabelData, ILabel, AssetLabelingState, FieldType, FieldFormat, ITableConfigItem, ITableRegion, ITableCellLabel, IFormRegion, ITableLabel, TableVisualizationHint
 } from "../models/applicationState";
 import { AssetProviderFactory, IAssetProvider } from "../providers/storage/assetProviderFactory";
 import { StorageProviderFactory, IStorageProvider } from "../providers/storage/storageProviderFactory";
@@ -68,8 +68,9 @@ export class AssetService {
     private getOcrFromAnalyzeResult(analyzeResult: any) {
         return _.get(analyzeResult, "analyzeResult.readResults", []);
     }
-    getAssetPredictMetadata(asset: IAsset, predictResults: any) {
-        asset = JSON.parse(JSON.stringify(asset));
+
+    getAssetPredictMetadata(asset: IAsset, predictResults: any): IAssetMetadata {
+        asset = _.cloneDeep(asset);
         const getBoundingBox = (pageIndex, arr: number[]) => {
             const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(predictResults)[pageIndex - 1];
             const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
@@ -77,7 +78,7 @@ export class AssetService {
             const ocrHeight = ocrExtent[3] - ocrExtent[1];
             const result = [];
             for (let i = 0; i < arr.length; i += 2) {
-                result.push([
+                result.push(...[
                     (arr[i] / ocrWidth),
                     (arr[i + 1] / ocrHeight),
                 ]);
@@ -85,13 +86,12 @@ export class AssetService {
             return result;
         };
         const getLabelValues = (field: any) => {
-            return field.elements.map((path: string) => {
+            return field.elements?.map((path: string): IFormRegion => {
                 const pathArr = path.split('/').slice(1);
-                const word = pathArr.reduce((obj: any, key: string) => obj[key], { ...predictResults.analyzeResult });
+                const word = pathArr.reduce((obj: any, key: string) => obj[key], {...predictResults.analyzeResult});
                 return {
                     page: field.page,
                     text: word.text || word.state,
-                    confidence: word.confidence,
                     boundingBoxes: [getBoundingBox(field.page, word.boundingBox)]
                 };
             });
@@ -108,28 +108,29 @@ export class AssetService {
                             value: getLabelValues(result.fields[key])
                         }))).flat(2);
 
+        const fileName = decodeURIComponent(asset.name).split('/').pop();
+        const labelData: ILabelData = {
+            document: fileName,
+            labels: []
+        };
+        const metadata: IAssetMetadata = {
+            asset: {...asset},
+            regions: [],
+            version: appInfo.version,
+            labelData,
+        }
+        // ? here ( no tableLabels)
         if (labels.length > 0) {
-            const fileName = decodeURIComponent(asset.name).split('/').pop();
-            const labelData: ILabelData = {
-                document: fileName,
-                labelingState: AssetLabelingState.AutoLabeled,
-                labels
-            };
-            const metadata: IAssetMetadata = {
-                asset: { ...asset, labelingState: AssetLabelingState.AutoLabeled },
-                regions: [],
-                version: appInfo.version,
-                labelData,
-            };
+            labelData.labelingState = AssetLabelingState.AutoLabeled;
+            labelData.labels = labels;
+            metadata.asset.labelingState = AssetLabelingState.AutoLabeled;
             metadata.asset.state = AssetState.Tagged;
-            return metadata;
         }
-        else {
-            return null;
-        }
+        return metadata;
     }
+
     async uploadPredictResultAsOrcResult(asset: IAsset, predictResults: any): Promise<void> {
-        const ocrData = JSON.parse(JSON.stringify(predictResults));
+        const ocrData = _.cloneDeep(predictResults);
         delete ocrData.analyzeResult.documentResults;
         if (ocrData.analyzeResult.errors) {
             delete ocrData.analyzeResult.errors;
@@ -140,7 +141,7 @@ export class AssetService {
 
     async syncAssetPredictResult(asset: IAsset, predictResults: any): Promise<IAssetMetadata> {
         const assetMeatadata = this.getAssetPredictMetadata(asset, predictResults);
-        const ocrData = JSON.parse(JSON.stringify(predictResults));
+        const ocrData = _.cloneDeep(predictResults);
         delete ocrData.analyzeResult.documentResults;
         if (ocrData.analyzeResult.errors) {
             delete ocrData.analyzeResult.errors;
@@ -316,6 +317,10 @@ export class AssetService {
         return this.filterAssets(assets, folderPath);
     }
 
+    public async getAsset(assetName: string): Promise<IAsset> {
+        return await this.assetProvider.getAsset(this.project.folderPath, assetName);
+    }
+
     private filterAssets = (assets, folderPath) => {
         if (this.project.sourceConnection.providerType === "localFileSystemProxy") {
             return assets.map((asset) => {
@@ -360,15 +365,18 @@ export class AssetService {
      * Save metadata for asset
      * @param metadata - Metadata for asset
      */
-    public async save(metadata: IAssetMetadata): Promise<IAssetMetadata> {
+    public async save(metadata: IAssetMetadata, needCleanEmptyLabel: boolean=false): Promise<IAssetMetadata> {
         Guard.null(metadata);
 
         const labelFileName = decodeURIComponent(`${metadata.asset.name}${constants.labelFileExtension}`);
         if (metadata.labelData) {
             await this.storageProvider.writeText(labelFileName, JSON.stringify(metadata.labelData, null, 4));
         }
-
-        if (metadata.asset.state !== AssetState.Tagged) {
+        let cleanLabel: boolean=false;
+        if (needCleanEmptyLabel && !metadata.labelData?.labels?.find(label => label?.value?.length !== 0)) {
+            cleanLabel = true;
+        }
+        if (cleanLabel || metadata.asset.state !== AssetState.Tagged) {
             // If the asset is no longer tagged, then it doesn't contain any regions
             // and the file is not required.
             try {
@@ -377,7 +385,7 @@ export class AssetService {
                 // The file may not exist - that's OK.
             }
         }
-        return JSON.parse(JSON.stringify(metadata));
+        return _.cloneDeep(metadata);
     }
 
     /**
@@ -386,17 +394,18 @@ export class AssetService {
      */
     public async getAssetMetadata(asset: IAsset): Promise<IAssetMetadata> {
         Guard.null(asset);
-
-        const labelFileName = decodeURIComponent(`${asset.name}${constants.labelFileExtension}`);
+        const newAsset=_.cloneDeep(asset);
+        const labelFileName = decodeURIComponent(`${newAsset.name}${constants.labelFileExtension}`);
         try {
             const json = await this.storageProvider.readText(labelFileName, true);
             const labelData = JSON.parse(json) as ILabelData;
-
             if (labelData) {
                 labelData.labelingState = labelData.labelingState || AssetLabelingState.ManuallyLabeled;
-                asset.labelingState = labelData.labelingState;
+                newAsset.labelingState = labelData.labelingState;
             }
-            // if (!labelData.document || !labelData.labels && !labelData.tableLabels) {
+
+            // to persist table labeling
+            // if (!labelData.document || (!labelData.labels && !labelData.tableLabels)) {
             //     const reason = interpolate(strings.errors.missingRequiredFieldInLabelFile.message, { labelFileName });
             //     toast.error(reason, { autoClose: false });
             //     throw new Error("Invalid label file");
@@ -406,15 +415,16 @@ export class AssetService {
             //     toast.info(reason);
             //     throw new Error("Empty label file");
             // }
-            // if (labelData.labels.find((f) => f.label.trim().length === 0)) {
+            // if (labelData.labels.find((f) => f.label.trim().length === 0) ||labelData.tableLabels.find((f) => f.tableKey.trim().length === 0) ) {
             //     toast.error(strings.tags.warnings.emptyName, { autoClose: false });
             //     throw new Error("Invalid label file");
             // }
-            // if (labelData.labels.containsDuplicates<ILabel>((f) => f.label)) {
+            // if (labelData.labels.containsDuplicates<ILabel>((f) => f.label) || labelData.tableLabels.containsDuplicates<ITableLabel>((f) => f.tableKey)) {
             //     const reason = interpolate(strings.errors.duplicateFieldKeyInLabelsFile.message, { labelFileName });
             //     toast.error(reason, { autoClose: false });
             //     throw new Error("Invalid label file");
             // }
+
             // const labelHash = new Set<string>();
             // for (const label of labelData.labels) {
             //     const pageSet = new Set<number>();
@@ -425,6 +435,7 @@ export class AssetService {
             //             toast.error(reason, { autoClose: false });
             //             throw new Error("Invalid label file");
             //         }
+
             //         pageSet.add(valueObj.page);
             //         for (const box of valueObj.boundingBoxes) {
             //             const hash = [valueObj.page, ...box].join();
@@ -440,7 +451,7 @@ export class AssetService {
             // }
             // toast.dismiss();
             return {
-                asset: { ...asset, labelingState: labelData.labelingState },
+                asset: { ...newAsset, labelingState: labelData.labelingState },
                 regions: [],
                 version: appInfo.version,
                 labelData,
@@ -451,7 +462,7 @@ export class AssetService {
                 toast.error(reason, { autoClose: false });
             }
             return {
-                asset: { ...asset },
+                asset: { ...newAsset },
                 regions: [],
                 version: appInfo.version,
                 labelData: null,
@@ -466,20 +477,22 @@ export class AssetService {
     public async deleteTag(tagName: string, tagType: FieldType, tagFormat: FieldFormat): Promise<IAssetMetadata[]> {
         const transformer = (tagNames) => tagNames.filter((t) => t !== tagName);
         const labelTransformer = (labelData: ILabelData) => {
-            if (tagType === FieldType.Table) {
-                labelData.tableLabels = labelData.tableLabels.filter((tableLabel) => tableLabel.tableKey !== tagName)
+            if (tagType === FieldType.Object || tagType === FieldType.Array) {
+                labelData.labels = labelData.labels.filter((label) => label.label.split("/")[0].replace(/\~1/g, "/").replace(/\~0/g, "~") !== tagName);
             } else {
-                labelData.labels = labelData.labels.filter((label) => label.label !== tagName);
+                if (labelData.$schema === constants.labelsSchema) {
+                    labelData.labels = labelData.labels.filter((label) => label.label.replace(/\~1/g, "/").replace(/\~0/g, "~") !== tagName);
+                } else {
+                    labelData.labels = labelData.labels.filter((label) => label.label !== tagName);
+                }
             }
             return labelData;
         };
         return await this.getUpdatedAssets(tagName, tagType, tagFormat, transformer, labelTransformer);
     }
 
-    public async refactorTableTag(originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]): Promise<IAssetMetadata[]> {
-        console.log(tagName, tagFormat, deletedColumns, deletedRows, newRows, newColumns);
+    public async refactorTableTag(originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, visualizationHint: TableVisualizationHint, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]): Promise<IAssetMetadata[]> {
         const transformer = (tagNames, columnKey, rowKey) => {
-            console.log("transformer", tagNames, columnKey, rowKey)
             let newTags = tagNames;
             let newColumnKey = columnKey;
             let newRowKey = rowKey;
@@ -494,7 +507,6 @@ export class AssetService {
                 const columnRenamed = newColumns?.find((newColumn) => newColumn.originalName === columnKey && newColumn.originalName !== newColumn.name)
                 const rowRenamed = newRows?.find((newRow) => newRow.originalName === rowKey && newRow.originalName !== newRow.name)
                 if (columnRenamed) {
-                    console.log("transformer column renamed", columnRenamed)
                     newColumnKey = columnRenamed.name;
                 }
                 if (rowRenamed) {
@@ -504,37 +516,63 @@ export class AssetService {
             return {newTags, newColumnKey, newRowKey}
         }
         const labelTransformer = (labelData: ILabelData) => {
-            labelData.tableLabels = labelData?.tableLabels?.map((tableLabel) => {
-                if (tableLabel.tableKey === originalTagName) {
-                    const zz = {
-                        tableKey: tagName,
-                        labels: tableLabel.labels.reduce((result, label) => {
-                            console.log("transformer", result, label)
-                            console.log("transformer", newColumns)
-                            const hasDeletedRowOrKey = deletedColumns?.find((deletedColumn) => deletedColumn.originalName === label.columnKey) || deletedRows?.find((deletedRow) => deletedRow.originalName === label.rowKey);
-                            if (hasDeletedRowOrKey) {
-                                return result
-                            }
-                            const columnRenamed = newColumns?.find((newColumn) => newColumn.originalName === label.columnKey && newColumn.originalName !== newColumn.name)
-                            const rowRenamed = newRows?.find((newRow) => newRow.originalName === label.rowKey && newRow.originalName !== newRow.name)
-                            console.log("transformer column renamed", columnRenamed)
-                            const newLabel = {
-                                value: label.value,
-                                columnKey: columnRenamed?.name || label.columnKey,
-                                rowKey: rowRenamed?.name|| label.rowKey
-                            } as ITableCellLabel;
-                            result.push(newLabel);
-                            return result;
-                        }, [])
+            labelData.labels = labelData?.labels?.reduce((result, label) => {
+                const labelString = label.label.split("/").map((layer) => {return layer.replace(/\~1/g, "/").replace(/\~0/g, "~")}); 
+                if (labelString.length > 1) {
+                    const labelTagName = labelString[0];
+                    if (labelTagName !== originalTagName) {
+                        result.push(label);
+                        return result; 
                     }
-                    console.log(zz)
-                    return zz
+                    let columnKey;
+                    let rowKey;
+                    if (tagType === FieldType.Object) {
+                        if (visualizationHint === TableVisualizationHint.Vertical) {
+                            rowKey = labelString[1]
+                            columnKey = labelString[2];
+                        } else {
+                            columnKey = labelString[1]
+                            rowKey = labelString[2];
+                        }
+                        if (deletedRows?.find((deletedRow) => deletedRow.originalName === rowKey) || deletedColumns?.find((deletedColumn) => deletedColumn.originalName === columnKey)) {
+                            return result;
+                        }
+                        const column = newColumns?.find((newColumn) => newColumn.originalName === columnKey)
+                        const row = newRows?.find((newRow) => newRow.originalName === rowKey)
+                        if (visualizationHint === TableVisualizationHint.Vertical) {
+                            result.push({
+                                ...label,
+                                label: tagName.replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + (row?.name || rowKey).replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + (column?.name || columnKey).replace(/\~/g, "~0").replace(/\//g, "~1"),
+                            })
+                        } else {
+                            result.push({
+                                ...label,
+                                label: tagName.replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + (column?.name || columnKey).replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + (row?.name || rowKey).replace(/\~/g, "~0").replace(/\//g, "~1"),
+                            })
+                        }
+
+                    } else {
+                        rowKey = labelString[1]
+                        columnKey = labelString[2];
+                        if (deletedColumns?.find((deletedColumn) => deletedColumn.originalName === columnKey)) {
+                            return result;
+                        }
+                        const column = newColumns?.find((newColumn) => newColumn.originalName === columnKey)
+                        result.push({
+                            ...label,
+                            label: tagName.replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + rowKey.replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + (column?.name || columnKey).replace(/\~/g, "~0").replace(/\//g, "~1"),
+                        })
+                    }
+                    return result;
+
                 } else {
-                    return tableLabel;
+                    result.push(label);
+                    return result;   
                 }
-            });
+            }, [])
             return labelData;
-        };
+        }
+
         return await this.getUpdatedAssetsAfterReconfigure(originalTagName, tagName, tagType, tagFormat, transformer, labelTransformer);
     }
 
@@ -589,10 +627,8 @@ export class AssetService {
         const updates = await _.values(this.project.assets).mapAsync(async (asset) => {
             const assetMetadata = await this.getAssetMetadata(asset);
             const isUpdated = this.reconfigureTableTagInAssetMetadata(assetMetadata, originalTagName, tagName, tagType, tagFormat, transformer, labelTransformer);
-
             return isUpdated ? assetMetadata : null;
         });
-        console.log(updates);
 
         return updates.filter((assetMetadata) => !!assetMetadata);
     }
@@ -619,10 +655,9 @@ export class AssetService {
                 region.tags = transformer(region.tags);
             }
         }
-        console.log("update tag in asset metadata",assetMetadata, tagType );
-        if (tagType === FieldType.Table) {
-            if (assetMetadata.labelData && assetMetadata.labelData.tableLabels) {
-                const field = assetMetadata.labelData.tableLabels.find((field) => field.tableKey === tagName);
+        if (tagType === FieldType.Array || tagType === FieldType.Object) {
+            if (assetMetadata?.labelData?.labels) {
+                const field = assetMetadata.labelData.labels.find((field) => field.label.split("/")[0].replace(/\~1/g, "/").replace(/\~0/g, "~") === tagName);
                 if (field) {
                     foundTag = true;
                     assetMetadata.labelData = labelTransformer(assetMetadata.labelData);
@@ -633,12 +668,12 @@ export class AssetService {
                 const field = assetMetadata.labelData.labels.find((field) => field.label === tagName);
                 if (field) {
                     foundTag = true;
-                    assetMetadata.labelData = labelTransformer(assetMetadata.labelData);
                 }
             }
         }
 
         if (foundTag) {
+            assetMetadata.labelData = labelTransformer(assetMetadata.labelData);
             assetMetadata.regions = assetMetadata.regions.filter((region) => region.tags.length > 0);
             assetMetadata.asset.state = _.get(assetMetadata, "labelData.labels.length") ||  _.get(assetMetadata, "labelData.tableLabels.length")
                 ? AssetState.Tagged : AssetState.Visited;
@@ -657,9 +692,6 @@ export class AssetService {
         transformer: any,
         labelTransformer: (labelData: ILabelData) => ILabelData): boolean {
         let foundTag = false;
-        console.log("start of asset service refactor")
-        console.log(assetMetadata);
-        console.log("before regions", assetMetadata.regions)
         for (const region of assetMetadata.regions) {
             if (region.tags.find((t) => t === originalTagName)) {
                 foundTag = true;
@@ -667,29 +699,27 @@ export class AssetService {
                 region.tags = newTags;
                 (region as ITableRegion).columnKey = newColumnKey;
                 (region as ITableRegion).rowKey = newRowKey;
+
             }
         }
-        console.log("after regions", assetMetadata.regions)
-        console.log("assetMetaData before label transformer", assetMetadata.labelData);
-
-            if (assetMetadata.labelData && assetMetadata.labelData.tableLabels) {
-                const field = assetMetadata.labelData.tableLabels.find((field) => field.tableKey === originalTagName);
-                if (field) {
-                    foundTag = true;
-                    assetMetadata.labelData = labelTransformer(assetMetadata.labelData);
-                    console.log("assetMetaData after label transformer", assetMetadata.labelData);
-                }
+        if (tagType === FieldType.Array || tagType === FieldType.Object) {
+            const field = assetMetadata?.labelData?.labels?.find((field) => field.label.split("/")[0] === originalTagName.replace(/\~/g, "~0").replace(/\//g, "~1"));
+            if (field) {
+                foundTag = true;
             }
+        }
 
-        console.log("final asset metadata", assetMetadata)
-
-        if (foundTag) {
+        if (foundTag) {                
+            assetMetadata.labelData = labelTransformer(assetMetadata.labelData);
+            if (assetMetadata.labelData.labels.length === 0) {
+                delete assetMetadata.labelData.labelingState;
+                delete assetMetadata.asset.labelingState;
+            }
             assetMetadata.regions = assetMetadata.regions.filter((region) => region.tags.length > 0);
             assetMetadata.asset.state = _.get(assetMetadata, "labelData.labels.length") ||  _.get(assetMetadata, "labelData.tableLabels.length")
                 ? AssetState.Tagged : AssetState.Visited;
             return true;
         }
-
         return false;
     }
 
