@@ -478,9 +478,13 @@ export class AssetService {
         const transformer = (tagNames) => tagNames.filter((t) => t !== tagName);
         const labelTransformer = (labelData: ILabelData) => {
             if (tagType === FieldType.Object || tagType === FieldType.Array) {
-                labelData.tableLabels = labelData.tableLabels.filter((tableLabel) => tableLabel.tableKey !== tagName)
+                labelData.labels = labelData.labels.filter((label) => label.label.split("/")[0].replace(/\~1/g, "/").replace(/\~0/g, "~") !== tagName);
             } else {
-                labelData.labels = labelData.labels.filter((label) => label.label !== tagName);
+                if (labelData.$schema === constants.labelsSchema) {
+                    labelData.labels = labelData.labels.filter((label) => label.label.replace(/\~1/g, "/").replace(/\~0/g, "~") !== tagName);
+                } else {
+                    labelData.labels = labelData.labels.filter((label) => label.label !== tagName);
+                }
             }
             return labelData;
         };
@@ -530,33 +534,33 @@ export class AssetService {
                             columnKey = labelString[1]
                             rowKey = labelString[2];
                         }
-                        if (deletedRows.find((deletedRow) => deletedRow.originalName === rowKey) || deletedColumns.find((deletedColumn) => deletedColumn.originalName === columnKey)) {
+                        if (deletedRows?.find((deletedRow) => deletedRow.originalName === rowKey) || deletedColumns?.find((deletedColumn) => deletedColumn.originalName === columnKey)) {
                             return result;
                         }
-                        const column = newColumns.find((newColumn) => newColumn.originalName === columnKey)
-                        const row = newRows.find((newRow) => newRow.originalName === rowKey)
+                        const column = newColumns?.find((newColumn) => newColumn.originalName === columnKey)
+                        const row = newRows?.find((newRow) => newRow.originalName === rowKey)
                         if (visualizationHint === TableVisualizationHint.Vertical) {
                             result.push({
                                 ...label,
-                                label: tagName.replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + row.name.replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + column.name.replace(/\~/g, "~0").replace(/\//g, "~1"),
+                                label: tagName.replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + (row?.name || rowKey).replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + (column?.name || columnKey).replace(/\~/g, "~0").replace(/\//g, "~1"),
                             })
                         } else {
                             result.push({
                                 ...label,
-                                label: tagName.replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + column.name.replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + row.name.replace(/\~/g, "~0").replace(/\//g, "~1"),
+                                label: tagName.replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + (column?.name || columnKey).replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + (row?.name || rowKey).replace(/\~/g, "~0").replace(/\//g, "~1"),
                             })
                         }
 
                     } else {
                         rowKey = labelString[1]
                         columnKey = labelString[2];
-                        if (deletedColumns.find((deletedColumn) => deletedColumn.originalName === columnKey)) {
+                        if (deletedColumns?.find((deletedColumn) => deletedColumn.originalName === columnKey)) {
                             return result;
                         }
-                        const column = newColumns.find((newColumn) => newColumn.originalName === columnKey)
+                        const column = newColumns?.find((newColumn) => newColumn.originalName === columnKey)
                         result.push({
                             ...label,
-                            label: tagName.replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + rowKey.replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + column.name.replace(/\~/g, "~0").replace(/\//g, "~1"),
+                            label: tagName.replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + rowKey.replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + (column?.name || columnKey).replace(/\~/g, "~0").replace(/\//g, "~1"),
                         })
                     }
                     return result;
@@ -652,8 +656,8 @@ export class AssetService {
             }
         }
         if (tagType === FieldType.Array || tagType === FieldType.Object) {
-            if (assetMetadata.labelData && assetMetadata.labelData.tableLabels) {
-                const field = assetMetadata.labelData.labels.find((field) => field.label.split("/")[0] === tagName);
+            if (assetMetadata?.labelData?.labels) {
+                const field = assetMetadata.labelData.labels.find((field) => field.label.split("/")[0].replace(/\~1/g, "/").replace(/\~0/g, "~") === tagName);
                 if (field) {
                     foundTag = true;
                     assetMetadata.labelData = labelTransformer(assetMetadata.labelData);

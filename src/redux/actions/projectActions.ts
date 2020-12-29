@@ -417,8 +417,8 @@ export function reconfigureTableTag(project: IProject, originalTagName: string, 
                     if (tag.name === originalTagName) {
                         (tag as ITag).name = tagName;
                         (tag as ITableTag).definition.fieldKey = tagName + "_object";
-                        (tag as ITableTag).definition.fields = newDefinitionFields;
-                        (tag as ITableTag).fields = newFields;
+                        (tag as ITableTag).definition.fields = newDefinitionFields || (tag as ITableTag).definition.fields;
+                        (tag as ITableTag).fields = newFields || (tag as ITableTag).fields;
                         (tag as ITableTag).itemType = itemType;
                         result.push(tag);
                         return result;
