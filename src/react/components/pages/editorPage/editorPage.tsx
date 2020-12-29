@@ -156,6 +156,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private deleteTagConfirm: React.RefObject<Confirm> = React.createRef();
     private deleteDocumentConfirm: React.RefObject<Confirm> = React.createRef();
     private reconfigTableConfirm: React.RefObject<Confirm> = React.createRef();
+    private replaceConfirmRef = React.createRef<Confirm>();
+
 
     private isUnmount: boolean = false;
     public initialRightSplitPaneWidth: number;
@@ -401,6 +403,13 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                         confirmButtonTheme={getPrimaryBlueTheme()}
                                         onConfirm={this.reconfigureTable}
                                     />
+                                    <Confirm
+                                        title={strings.tags.warnings.replaceAllExitingLabelsTitle}
+                                        ref={this.replaceConfirmRef}
+                                        message={strings.tags.warnings.replaceAllExitingLabels}
+                                        confirmButtonTheme={getPrimaryRedTheme()}
+                                        onConfirm={this.onTableTagClicked}
+                                    />
 
                             </div>
                         </SplitPane>
@@ -423,6 +432,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                         errorMessage: undefined,
                     })}
                 />
+
                 <PreventLeaving
                     when={isRunningOCRs || isCanvasRunningOCR}
                     message={strings.editorPage.warningMessage.PreventLeavingWhileRunningOCR}
@@ -526,6 +536,16 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private handleTableCellClick = (rowIndex: number, columnIndex: number) => {
+        if (this.state?.selectedTableTagBody?.[rowIndex]?.[columnIndex]?.length > 0) {
+            const selectionRegionCatagory = this.state.selectedRegions[0].category;
+            const cellCatagory = this.state.selectedTableTagBody[rowIndex][columnIndex][0].category;
+            if (selectionRegionCatagory !== cellCatagory && (selectionRegionCatagory === FeatureCategory.DrawnRegion || cellCatagory === FeatureCategory.DrawnRegion)) {
+                this.replaceConfirmRef.current.open(this.state.selectedTableTagToLabel, rowIndex, columnIndex);
+                return;
+            }
+    
+        }
+ 
         this.onTableTagClicked(this.state.selectedTableTagToLabel, rowIndex, columnIndex);
     }
 

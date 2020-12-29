@@ -143,7 +143,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
                                 onMouseEnter={() => this.handleTableCellMouseEnter(selectedTableTagBody[i - 1][j - 1])}
                                 onMouseLeave={() => this.handleTableCellMouseLeave()}
                             >
-                                {selectedTableTagBody[i - 1][j - 1]?.find((tableRegion) => tableRegion.value === "") && <FontIcon className="pr-1 pl-1" iconName="RectangleShape" />}
+                                {selectedTableTagBody[i - 1][j - 1]?.find((tableRegion) => tableRegion.value === "") && <FontIcon className="pr-1 pl-1" iconName="FieldNotChanged" />}
                                 {selectedTableTagBody[i - 1][j - 1]?.map((tableRegion) => tableRegion.value).join(" ")}
                             </td>);
                     }
