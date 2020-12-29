@@ -513,7 +513,7 @@ export class AssetService {
         }
         const labelTransformer = (labelData: ILabelData) => {
             labelData.labels = labelData?.labels?.reduce((result, label) => {
-                const labelString = label.label.split("/"); 
+                const labelString = label.label.split("/").map((layer) => {return layer.replace(/\~1/g, "/").replace(/\~0/g, "~")}); 
                 if (labelString.length > 1) {
                     const labelTagName = labelString[0];
                     if (labelTagName !== originalTagName) {
@@ -538,12 +538,12 @@ export class AssetService {
                         if (visualizationHint === TableVisualizationHint.Vertical) {
                             result.push({
                                 ...label,
-                                label: tagName + "/" + row.name + "/" + column.name,
+                                label: tagName.replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + row.name.replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + column.name.replace(/\~/g, "~0").replace(/\//g, "~1"),
                             })
                         } else {
                             result.push({
                                 ...label,
-                                label: tagName + "/" + column.name + "/" + row.name,
+                                label: tagName.replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + column.name.replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + row.name.replace(/\~/g, "~0").replace(/\//g, "~1"),
                             })
                         }
 
@@ -556,7 +556,7 @@ export class AssetService {
                         const column = newColumns.find((newColumn) => newColumn.originalName === columnKey)
                         result.push({
                             ...label,
-                            label: tagName + "/" + rowKey + "/" + column.name,
+                            label: tagName.replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + rowKey.replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + column.name.replace(/\~/g, "~0").replace(/\//g, "~1"),
                         })
                     }
                     return result;
@@ -699,7 +699,7 @@ export class AssetService {
             }
         }
         if (tagType === FieldType.Array || tagType === FieldType.Object) {
-            const field = assetMetadata?.labelData?.labels?.find((field) => field.label.split("/")[0] === originalTagName);
+            const field = assetMetadata?.labelData?.labels?.find((field) => field.label.split("/")[0] === originalTagName.replace(/\~/g, "~0").replace(/\//g, "~1"));
             if (field) {
                 foundTag = true;
             }
