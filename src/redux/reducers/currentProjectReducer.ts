@@ -43,7 +43,6 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
                 ...state,
                 assets:{...state.assets, [action.payload.id]: action.payload},
             };
-            break;
         case ActionTypes.DELETE_PROJECT_ASSET_SUCCESS:
         case ActionTypes.LOAD_PROJECT_ASSETS_SUCCESS:
             let assets = {};

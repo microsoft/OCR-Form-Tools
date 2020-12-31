@@ -6,6 +6,20 @@ Click [here](https://docs.microsoft.com/en-us/azure/cognitive-services/form-reco
 2.1-Preview's released container image, tracked by the `latest-preview` image tag in our [docker hub repository](https://hub.docker.com/_/microsoft-azure-cognitive-services-custom-form-labeltool), currently references **2.1-preview.1-1f33130 (10-09-2020)**
 
 ## Commit history
+### 2.1-preview.2-b6b9a2f (12-10-2020)
+* update appVersion to 2.1.2 ([#808](https://github.com/microsoft/OCR-Form-Tools/commit/b6b9a2f131485d08541a1e85f6af59ebfbeca773))
+* add locale in prebuiltPredictPage ([#772](https://github.com/microsoft/OCR-Form-Tools/commit/06d9c16a7c1fe64a95d835878dcb8dabb8c7e485)) ([#776](https://github.com/microsoft/OCR-Form-Tools/commit/06d9c16a7c1fe64a95d835878dcb8dabb8c7e485))
+* Stew ro/cherry pick 347e21e 2b6ead7 ([#766](https://github.com/microsoft/OCR-Form-Tools/commit/ca59cee26587e1aee49507abd75c0683d67f541f))
+* Cherry pick 34ce14d a7ccb34 ([#763](https://github.com/microsoft/OCR-Form-Tools/commit/244c23df700791794990eb6f7e196bcf9ff9c844))
+* Stew ro/cherry pick ab5a8a8 abfffbb ([#760](https://github.com/microsoft/OCR-Form-Tools/commit/93b7a2d4d7688cda4baa4cfd704b2666df524174))
+* refactor: disable api version selection ([#755](https://github.com/microsoft/OCR-Form-Tools/commit/be1f18db0b7073dad106f443f343aa221dea7fc6))
+* refactor: disable draw region button ([#756](https://github.com/microsoft/OCR-Form-Tools/commit/8816a85761a795f3f0b34b87360236cadd80a735))
+* feat: support null text values in analyze results ([#744](https://github.com/microsoft/OCR-Form-Tools/commit/0ddb7f1275d6f195c2af9f0b7053987e01a5d677))
+* feat: support rowspan and column span for layout tables ([#754](https://github.com/microsoft/OCR-Form-Tools/commit/6994ac929146e25370d1461e4e502773de3d5503))
+* Update changelog ([#750](https://github.com/microsoft/OCR-Form-Tools/commit/acba3966ce960e474dfd3d97510b07c108e7b39f))
+* check whether the label data is null ([#753](https://github.com/microsoft/OCR-Form-Tools/commit/f6ef41ac1500e52f3714eda6e99187e016e1b223))
+* fix issue of 773 ([#740](https://github.com/microsoft/OCR-Form-Tools/commit/9d35e79393cdb0de678e9ec6b850daf5a4df5c96))
+
 ### 2.1-preview.1-2e50498 (11-09-2020)
 * fix: enable api version selection ([#736](https://github.com/microsoft/OCR-Form-Tools/commit/2e5049883bd1550ba80210edca7db4233d7a15fa))
 * fix: labeling doesn't work via shortcuts on the new project or empty tags ([#677](https://github.com/microsoft/OCR-Form-Tools/commit/f11291940b776ceb8ba7708e6f58dc2572f7b01b))

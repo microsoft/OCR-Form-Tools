@@ -6,9 +6,12 @@ import {
     IconButton,
     ITooltipHostStyles,
     PrimaryButton,
+    Separator,
     Spinner,
     SpinnerSize,
-    TooltipHost
+    TooltipHost,
+    ContextualMenu,
+    IContextualMenuProps
 } from "@fluentui/react";
 import Fill from "ol/style/Fill";
 import Icon from "ol/style/Icon";
@@ -22,7 +25,7 @@ import url from "url";
 import {constants} from "../../../../common/constants";
 import {interpolate, strings} from "../../../../common/strings";
 import {getPrimaryGreenTheme, getPrimaryWhiteTheme} from "../../../../common/themes";
-import {downloadAsJsonFile, poll} from "../../../../common/utils";
+import {downloadFile, poll, zipData, downloadZipFile} from "../../../../common/utils";
 import {
     ErrorCode,
     IApplicationState,
@@ -34,6 +37,7 @@ import ServiceHelper from "../../../../services/serviceHelper";
 import Alert from "../../common/alert/alert";
 import {DocumentFilePicker} from "../../common/documentFilePicker/documentFilePicker";
 import {ImageMap} from "../../common/imageMap/imageMap";
+import {PageRange} from "../../common/pageRange/pageRange";
 import {PrebuiltSetting} from "../../common/prebuiltSetting/prebuiltSetting";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import {CanvasCommandBar} from "../editorPage/canvasCommandBar";
@@ -41,6 +45,7 @@ import {TableView} from "../editorPage/tableView";
 import {ILayoutHelper, LayoutHelper} from "./layoutHelper";
 import {ILoadFileHelper, LoadFileHelper} from "./LoadFileHelper";
 import {ITableHelper, ITableState, TableHelper} from "./tableHelper";
+import _ from "lodash";
 
 interface ILayoutPredictPageProps extends RouteComponentProps {
     prebuiltSettings: IPrebuiltSettings;
@@ -72,6 +77,10 @@ interface ILayoutPredictPageState extends ITableState {
     fetchedFileURL: string;
     layoutData: any;
     imageAngle: number;
+
+    withPageRange: boolean;
+    pageRange: string;
+    pageRangeIsValid?: boolean;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -117,6 +126,9 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
         hoveringFeature: null,
         tableToView: null,
         tableToViewId: null,
+
+        withPageRange: false,
+        pageRange: ""
     };
 
     private imageMap: ImageMap;
@@ -154,15 +166,33 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
             });
     }
 
-    render() {
-
-        const analyzeDisabled: boolean = this.state.isFetching || !this.state.file
+    getAnalyzeDisabled = () => {
+        return this.state.isFetching || !this.state.file
             || this.state.invalidFileFormat ||
             !this.state.fileLoaded ||
             this.state.isAnalyzing ||
             !this.props.prebuiltSettings?.apiKey ||
-            !this.props.prebuiltSettings?.serviceURI;
+            !this.props.prebuiltSettings?.serviceURI ||
+            (this.state.withPageRange && !this.state.pageRangeIsValid);
+    }
 
+    render() {
+        const analyzeDisabled: boolean = this.getAnalyzeDisabled();
+        const menuProps: IContextualMenuProps = {
+            className: "keep-button-120px",
+            items: [
+                {
+                    key: 'JSON',
+                    text: 'JSON',
+                    onClick: () => this.onJsonDownloadClick()
+                },
+                {
+                    key: 'Table',
+                    text: 'Table',
+                    onClick: () => this.onCSVDownloadClick()
+                }
+            ]
+        }
         return (
             <>
                 <div
@@ -179,24 +209,34 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
                         <div className="condensed-list">
                             <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
                                 <FontIcon className="mr-1" iconName="KeyPhraseExtraction" />
-                                <span>Layout</span>
+                                <span>{strings.layoutPredict.layout}</span>
                             </h6>
                             <PrebuiltSetting prebuiltSettings={this.props.prebuiltSettings}
                                 disabled={this.state.isFetching || this.state.isAnalyzing}
                                 actions={this.props.actions}
                             />
-                            <div className="p-3" style={{marginTop: "8px"}}>
-                                <h5>Upload file and run layout</h5>
+                            <div className="p-3">
+                                <h5>{strings.layoutPredict.selectFileAndRunLayout}</h5>
                                 <DocumentFilePicker
                                     disabled={this.state.isFetching || this.state.isAnalyzing}
                                     onFileChange={(data) => this.onFileChange(data)}
                                     onSelectSourceChange={() => this.onSelectSourceChange()}
                                     onError={(err) => this.onFileLoadError(err)} />
+                                <div className="page-range-section">
+                                    <PageRange
+                                        disabled={this.state.isFetching || this.state.isAnalyzing}
+                                        withPageRange={this.state.withPageRange}
+                                        pageRange={this.state.pageRange}
+                                        onPageRangeChange={this.onPageRangeChange} />
+                                </div>
+                            </div>
+                            <Separator className="separator-right-pane-main">{strings.layoutPredict.analysis}</Separator>
+                            <div className="p-3" style={{marginTop: "8px"}}>
                                 <div className="container-items-end predict-button">
                                     <PrimaryButton
                                         theme={getPrimaryWhiteTheme()}
                                         iconProps={{iconName: "KeyPhraseExtraction"}}
-                                        text="Run Layout"
+                                        text={strings.layoutPredict.runLayout}
                                         aria-label={!this.state.analyzationLoaded ? strings.layoutPredict.inProgress : ""}
                                         allowDisabledFocus
                                         disabled={analyzeDisabled}
@@ -225,14 +265,16 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
                                 }
                                 {this.state.layoutData && !this.state.isAnalyzing &&
                                     <div className="container-items-center container-space-between results-container">
-                                        <h5 className="results-header">Layout results</h5>
+                                        <h5 className="results-header">{strings.layoutPredict.layoutResults}</h5>
                                         <PrimaryButton
-                                            className="align-self-end keep-button-80px"
+                                            className="align-self-end keep-button-120px"
                                             theme={getPrimaryGreenTheme()}
-                                            text="Download"
+                                            text={strings.layoutPredict.download}
                                             allowDisabledFocus
                                             autoFocus={true}
-                                            onClick={this.onDownloadClick}
+                                            onClick={this.onJsonDownloadClick}
+                                            menuProps={menuProps}
+                                            menuAs={this.getMenu}
                                         />
                                     </div>
                                 }
@@ -259,10 +301,52 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
         )
     }
 
-    onDownloadClick = () => {
+    onPageRangeChange = (withPageRange: boolean, pageRange: string, pageRangeIsValid: boolean) => {
+        this.setState({withPageRange, pageRange, pageRangeIsValid});
+    }
+
+    onJsonDownloadClick = () => {
         const {layoutData} = this.state;
         if (layoutData) {
-            downloadAsJsonFile(layoutData, this.state.fileLabel, "Layout-");
+            downloadFile(JSON.stringify(layoutData), this.state.fileLabel+".json", "Layout-");
+        }
+    }
+    onCSVDownloadClick = () => {
+        const {layoutData} = this.state;
+        if (layoutData) {
+            const analyzeResult = layoutData.analyzeResult;
+            const ocrPageResults = analyzeResult["pageResults"];
+            const data: zipData[] = [];
+            for (let i = 0; i < ocrPageResults.length; i++) {
+                const currentPageResult = ocrPageResults[i];
+                if (currentPageResult?.tables) {
+                    currentPageResult.tables.forEach((table, index) => {
+                        if (table.cells && table.columns && table.rows) {
+                            let tableContent = "";
+                            let rowIndex = 0;
+                            table.cells.forEach(cell => {
+                                if (cell.rowIndex === rowIndex) {
+                                    tableContent += `"${cell.text}"${cell.columnSpan ? _.repeat(',', cell.columnSpan) : ','}`;
+                                }
+                                else {
+                                    tableContent += "\n";
+                                    tableContent += `"${cell.text}"${cell.columnSpan ? _.repeat(',', cell.columnSpan) : ','}`;
+                                    rowIndex = cell.rowIndex;
+                                }
+                            });
+                            if (tableContent.length > 0) {
+                                data.push({
+                                    fileName: `Layout-page-${i + 1}-table-${index + 1}.csv`,
+                                    data: tableContent
+                                });
+                            }
+                        }
+                    });
+                }
+            }
+            if (data.length > 0) {
+                downloadZipFile(data, this.state.fileLabel + "tables");
+            }
         }
     }
 
@@ -532,10 +616,13 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
     }
 
     private async getAnalzation(): Promise<any> {
-        const endpointURL = url.resolve(
+        let endpointURL = url.resolve(
             this.props.prebuiltSettings.serviceURI,
             `/formrecognizer/${constants.prebuiltServiceVersion}/layout/analyze`,
         );
+        if (this.state.withPageRange && this.state.pageRangeIsValid) {
+            endpointURL += `?pageRange=${this.state.pageRange}`;
+        }
         const apiKey = this.props.prebuiltSettings.apiKey;
 
         const headers = {
@@ -555,5 +642,9 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
         } catch (err) {
             ServiceHelper.handleServiceError({...err, endpoint: endpointURL});
         }
+    }
+
+    private getMenu(props: IContextualMenuProps): JSX.Element {
+        return <ContextualMenu {...props} />;
     }
 }

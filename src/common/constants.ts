@@ -53,5 +53,5 @@ export const constants = {
         return `https://fotts.azureedge.net/npm/pdfjs-dist/${version}/cmaps/`;
     },
     insightsKey: "",
-    prebuiltServiceVersion: "v2.1-preview.2"
+    prebuiltServiceVersion: "v2.1-preview.3"
 };

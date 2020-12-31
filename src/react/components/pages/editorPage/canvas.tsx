@@ -9,7 +9,7 @@ import {
     EditorMode, IAssetMetadata,
     IProject, IRegion, RegionType,
     AssetType, ILabelData, ILabel,
-    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, ImageMapParent, LabelType, ITableRegion, ITableTag, ITableLabel, ITableCellLabel, AssetLabelingState, APIVersionPatches, TableVisualizationHint
+    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, ImageMapParent, LabelType, ITableRegion, ITableTag, ITableLabel, ITableCellLabel, AssetLabelingState, APIVersionPatches, TableVisualizationHint, AssetState
 } from "../../../../models/applicationState";
 import CanvasHelpers from "./canvasHelpers";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
@@ -40,7 +40,6 @@ import { AssetService } from "../../../../services/assetService";
 import { interpolate, strings } from "../../../../common/strings";
 import { toast } from "react-toastify";
 import { BatchSizeModal } from "./batchSizeModal";
-import { AssetState } from "vott-react";
 
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
@@ -195,6 +194,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.selectedRegionIds = [];
             this.imageMap.removeAllFeatures();
             this.imageMap.resetAllLayerVisibility();
+            if (this.state.pdfFile) {
+                await this.state.pdfFile.destroy();
+            }
 
             this.setState({
                 currentAsset: this.props.selectedAsset,
@@ -415,7 +417,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         } catch(err){
             this.setState({
                 isError: true,
-                errorMessage: `${err.message}, code ${err.code}`
+                errorTitle: err.title,
+                errorMessage: err.message
             });
         }
         // catch(error){
@@ -509,8 +512,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         }
                     });
                 }
-
-
             }
         }
 
@@ -725,7 +726,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
      * @param selectedRegions
      */
     private updateAssetRegions = (regions: IRegion[], manualOption: boolean = false) => {
-
         const labelData = this.convertRegionsToLabelData(regions, this.state.currentAsset.asset.name);
         const currentAsset: IAssetMetadata = {
             ...this.state.currentAsset,
@@ -767,19 +767,21 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 currentAsset.labelData.labelingState = this.state.currentAsset.labelData.labelingState;
             }
         }
-        currentAsset.asset.labelingState = currentAsset.labelData?.labelingState;
-        if (currentAsset.labelData?.labelingState !== AssetLabelingState.AutoLabeledAndAdjusted) {
-            if (!currentAsset.labelData ||
-                (currentAsset.labelData.labels?.findIndex(label => label?.value.length > 0) < 0)) {
-                delete currentAsset.labelData?.labelingState;
-                delete currentAsset.asset.labelingState;
-            }
+        if(currentAsset.labelData?.labelingState!==AssetLabelingState.AutoLabeledAndAdjusted
+            &&(!currentAsset.labelData||currentAsset.labelData.labels?.findIndex(label=>label.value.length>0)<0)){
+            delete currentAsset.labelData?.labelingState;
+            delete currentAsset.asset.labelingState;
         }
-
+        else {
+            currentAsset.asset.labelingState = currentAsset.labelData.labelingState;
+        }
+        const isLabelChanged = this.compareLabelChanged(_.get(currentAsset, "labelData.labels", []) as ILabel[], _.get(this.state.currentAsset, "labelData.labels", []) as ILabel[]);
         this.setState({
             currentAsset,
         }, () => {
-            this.props.onAssetMetadataChanged(currentAsset);
+            if (isLabelChanged) {
+                this.props.onAssetMetadataChanged(currentAsset);
+            }
         });
     }
 
@@ -1344,7 +1346,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private loadOcr = async (force?: boolean) => {
-        const asset = this.state.currentAsset.asset;
+        const asset = {...this.state.currentAsset.asset};
 
         if (asset.isRunningOCR) {
             // Skip loading OCR this time since it's running. This will be triggered again once it's finished.
@@ -1354,7 +1356,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const ocr = await this.ocrService.getRecognizedText(asset.path, asset.name, asset.mimeType, this.setOCRStatus, force);
             if (asset.id === this.state.currentAsset.asset.id) {
                 // since get OCR is async, we only set currentAsset's OCR
+                const newAsset={};
+                if(asset.state===AssetState.NotVisited){
+                    asset.state=AssetState.Visited;
+                    newAsset["currentAsset"]={...this.state.currentAsset, asset};
+                }
                 this.setState({
+                    ...newAsset,
                     ocr,
                     ocrForCurrentPage: this.getOcrResultForCurrentPage(ocr),
                 }, () => {
@@ -1656,7 +1664,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 });
             }
         }
-
         const findOldLableBasedOnRegion = (labels, region): ILabel => {
             const boundingBox = region.id.split(",").map(parseFloat);
             return labels?.find(item =>
@@ -1740,7 +1747,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 labelData.labels = [...labels]
             });
         });
+        labelData.document = decodeURIComponent(assetName).split("/").pop();
         labelData.labels = labelData.labels.filter((label) => label.value.length > 0 && !label.revised);
+
         return labelData;
     }
 
@@ -2628,8 +2637,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     async focusOnLabel(label: ILabel) {
-        const { page } = label.value[ 0 ];
-        if (this.state.currentPage !== page) {
+        const page = label.value[ 0 ]?.page;
+        if (page && this.state.currentPage !== page) {
             await this.goToPage(page);
         }
     }

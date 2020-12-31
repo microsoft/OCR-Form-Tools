@@ -102,7 +102,6 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                 ],
             },
         };
-
         commandBarItems = [
             layerItem,
             {

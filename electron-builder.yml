@@ -9,6 +9,7 @@ extends: null # need this otherwise it won't use the entry point we set in "main
 files:
   - filter:
       - build/  # copy this directory to the asar directory that electron-builder use to look for the main entry file
+      - "!node_modules/**/*" # don't include node_modules since Webpack is used to combine all packages
 mac:
   icon: app-icons/icon.icns
   target: dmg

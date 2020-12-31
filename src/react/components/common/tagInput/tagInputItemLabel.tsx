@@ -56,4 +56,3 @@ export default function TagInputItemLabel(props: ITagInputItemLabelProps) {
             </div>
         );
     }
-

@@ -38,7 +38,7 @@ export default interface IProjectActions {
     addAssetToProject(project: IProject, fileName: string, buffer: Buffer, analyzeResult: any): Promise<IAsset>;
     deleteAsset(project: IProject, assetMetadata: IAssetMetadata): Promise<void>;
     loadAssets(project: IProject): Promise<IAsset[]>;
-    refreshAsset(project: IProject, assetName: string):Promise<void>;
+    refreshAsset(project: IProject, assetName: string): Promise<void>;
     loadAssetMetadata(project: IProject, asset: IAsset): Promise<IAssetMetadata>;
     saveAssetMetadata(project: IProject, assetMetadata: IAssetMetadata): Promise<IAssetMetadata>;
     saveAssetMetadataAndCleanEmptyLabel(project: IProject, assetMetadata: IAssetMetadata): Promise<IAssetMetadata>;
@@ -162,7 +162,7 @@ export function deleteProject(project: IProject)
 
         if (!projectToken) {
             dispatch(deleteProjectAction(project));
-            throw new AppError(ErrorCode.SecurityTokenNotFound, interpolate(strings.errors.projectDeleteErrorSecurityTokenNotFound.message, {project}));
+            throw new AppError(ErrorCode.SecurityTokenNotFound, interpolate(strings.errors.projectDeleteErrorSecurityTokenNotFound.message, { project }));
         }
 
         const decryptedProject = await projectService.load(project, projectToken);
@@ -239,11 +239,11 @@ function areAssetsEqual(assets: IAsset[], projectAssets: { [index: string]: IAss
     return JSON.stringify(assetsMap) === JSON.stringify(projectAssets);
 }
 
-export function refreshAsset(project: IProject, assetName:string):(dispatch:Dispatch) => Promise<void> {
-    return async (dispatch:Dispatch) =>{
+export function refreshAsset(project: IProject, assetName: string): (dispatch: Dispatch) => Promise<void> {
+    return async (dispatch: Dispatch) => {
         const assetService = new AssetService(project);
-        const asset = await assetService.getAsset( assetName);
-        dispatch(refreshAssetAction( asset));
+        const asset = await assetService.getAsset(assetName);
+        dispatch(refreshAssetAction(asset));
     }
 }
 
@@ -283,7 +283,7 @@ export function saveAssetMetadata(
 export function saveAssetMetadataAndCleanEmptyLabel(
     project: IProject,
     assetMetadata: IAssetMetadata): (dispatch: Dispatch) => Promise<IAssetMetadata> {
-    const newAssetMetadata: IAssetMetadata = { ...(_.cloneDeep(assetMetadata)), version: appInfo.version};
+    const newAssetMetadata: IAssetMetadata = { ...(_.cloneDeep(assetMetadata)), version: appInfo.version };
 
     return async (dispatch: Dispatch) => {
         const assetService = new AssetService(project);
@@ -557,7 +557,7 @@ export const deleteProjectAssetAction =
     createPayloadAction<IDeleteProjectAssetAction>(ActionTypes.DELETE_PROJECT_ASSET_SUCCESS);
 
 export const refreshAssetAction =
-createPayloadAction<IRefreshAssetAction>(ActionTypes.REFRESH_ASSET_SUCCESS);
+    createPayloadAction<IRefreshAssetAction>(ActionTypes.REFRESH_ASSET_SUCCESS);
 /**
  * Instance of Load Asset Metadata action
  */

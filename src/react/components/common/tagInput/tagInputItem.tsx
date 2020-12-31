@@ -71,6 +71,10 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         if (prevProps.isRenaming !== this.props.isRenaming) {
             this.setState({
                 isRenaming: this.props.isRenaming,
+            }, () => {
+                if (this.props.isRenaming) {
+                    this.inputElement.focus();
+                }
             });
         }
 
@@ -125,7 +129,13 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         e.stopPropagation();
 
         const clickedDropDown = true;
-        this.props.onClick(this.props.tag, { clickedDropDown });
+        this.props.onClick(this.props.tag, {clickedDropDown});
+    }
+
+    private handleContextMenu = (e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>) => {
+        e.preventDefault();
+        const clickedDropDown = true;
+        this.props.onClick(this.props.tag, {clickedDropDown});
     }
 
     private onColorClick = (e: MouseEvent) => {
@@ -134,7 +144,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         const ctrlKey = e.ctrlKey || e.metaKey;
         const altKey = e.altKey;
         const clickedColor = true;
-        this.props.onClick(this.props.tag, { ctrlKey, altKey, clickedColor });
+        this.props.onClick(this.props.tag, {ctrlKey, altKey, clickedColor});
     }
 
     private onNameClick = (e: MouseEvent) => {
@@ -142,12 +152,12 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
 
         const ctrlKey = e.ctrlKey || e.metaKey;
         const altKey = e.altKey;
-        this.props.onClick(this.props.tag, { ctrlKey, altKey });
+        this.props.onClick(this.props.tag, {ctrlKey, altKey});
     }
 
     private onNameDoubleClick = (e: MouseEvent) => {
         e.stopPropagation();
-        const { labels } = this.props;
+        const {labels} = this.props;
         if (labels.length > 0) {
             this.props.onTagDoubleClick(labels[0]);
         }
@@ -166,8 +176,10 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
 
     private getTagContent = () => {
         const displayIndex = this.getDisplayIndex();
+        const spanValue =  this.inputElement?.value ?? "";
         return (
             <div className={"tag-name-container"}
+                onContextMenu={this.handleContextMenu}
                 onMouseEnter={this.handleMouseEnter}
                 onMouseLeave={this.handleMouseLeave}>
                 {
@@ -272,7 +284,6 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                 </Fragment>);
         }
     }
-
     private onInputRef = (element: HTMLInputElement) => {
         this.inputElement = element;
         if (element) {
@@ -280,7 +291,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         }
     }
 
-    private onInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    onInputBlur = () => {
         this.onRenameTag();
     }
 
@@ -301,6 +312,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         const tag = this.props.tag;
         const name = this.inputElement.value.trim();
         this.props.onRename(tag, name, () => {
+            this.inputElement.value = this.props.tag.name;
             this.setState({
                 isRenaming: false,
             });
@@ -330,14 +342,14 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
     }
 
     private handleMouseEnter = () => {
-        const { labels } = this.props;
+        const {labels} = this.props;
         if (labels.length > 0) {
             this.props.onLabelEnter(labels[0]);
         }
     }
 
     private handleMouseLeave = () => {
-        const { labels } = this.props;
+        const {labels} = this.props;
         if (labels.length > 0) {
             this.props.onLabelLeave(labels[0]);
         }

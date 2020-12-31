@@ -8,6 +8,7 @@ import UTIF from "utif";
 import { useState, useEffect } from 'react';
 import {constants} from "./constants";
 import _ from "lodash";
+import JsZip from 'jszip';
 
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../react/components/common/tagColors.json");
@@ -198,7 +199,7 @@ export async function throttle<T>(max: number, arr: T[], worker: (payload: T) =>
 }
 
 export function delay(ms: number) {
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
         setTimeout(() => {
             resolve();
         }, ms);
@@ -463,12 +464,10 @@ export function poll(func, timeout, interval): Promise<any> {
  * @param fileName
  * @param prefix
  */
-export function downloadAsJsonFile(data: any, fileName: string, prefix?: string): void {
-    const predictionData = JSON.stringify(data);
-    const fileURL = window.URL.createObjectURL(new Blob([predictionData]));
+export function downloadFile(data: any, fileName: string, prefix?: string): void {
+    const fileURL = window.URL.createObjectURL(new Blob([data]));
     const fileLink = document.createElement("a");
-    const fileBaseName = fileName.split(".")[0];
-    const downloadFileName = prefix + "Result-" + fileBaseName + ".json";
+    const downloadFileName = prefix + "Result-" + fileName ;
 
     fileLink.href = fileURL;
     fileLink.setAttribute("download", downloadFileName);
@@ -488,4 +487,23 @@ export function  getTagCategory (tagType: string) {
         default:
             return "text";
     }
+}
+
+export type zipData = {
+    fileName: string;
+    data: any;
+}
+
+export function downloadZipFile(data: zipData[], fileName: string): void {
+    const zip = new JsZip();
+    data.forEach(item => {
+        zip.file(item.fileName, item.data);
+    })
+    zip.generateAsync({type: "blob"}).then(content => {
+        const fileLink = document.createElement("a");
+        fileLink.href = window.URL.createObjectURL(content);
+        fileLink.setAttribute("download", fileName+".zip");
+        document.body.appendChild(fileLink);
+        fileLink.click();
+    });
 }

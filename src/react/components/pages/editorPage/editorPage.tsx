@@ -449,6 +449,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         // workaround: tagInput will not lost focus with olmap,
         // so we fire the blur event manually here
         this.tagInputRef.current.triggerNewTagBlur();
+        this.tagInputRef.current.triggerRenameTagBlur();
     }
 
     // tslint:disable-next-line:no-empty
@@ -1007,7 +1008,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             }
         }
     }
-
     private runAutoLabelingOnNextBatch = async (batchSize: number) => {
         if (this.isBusy()) {
             return;
@@ -1057,7 +1057,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             }
         }
     }
-
     private compareAssetLabelsWithProjectTags = (labels: ILabel[], tags: ITag[]): boolean => {
         if (!labels || labels.length === 0) {
             return false;
@@ -1151,7 +1150,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             await this.props.actions.saveProject(this.props.project, false, false);
         });
     }
-
     private onLabelEnter = (label: ILabel) => {
         this.setState({ hoveredLabel: label });
     }

@@ -19,8 +19,16 @@
       "unicode": "E4C6"
     },
     {
+      "name": "AddTo",
+      "unicode": "ECC8"
+    },
+    {
       "name": "AutoEnhanceOff",
       "unicode": "E78E"
+    },
+    {
+      "name": "AutoEnhanceOn",
+      "unicode": "E78D"
     },
     {
       "name": "AlertSolid",
@@ -79,8 +87,16 @@
       "unicode": "EA3A"
     },
     {
+      "name": "ClearFilter",
+      "unicode": "EF8F"
+    },
+    {
       "name": "Cloud",
       "unicode": "E753"
+    },
+    {
+      "name": "ContactCard",
+      "unicode": "EEBD"
     },
     {
       "name": "Copy",
@@ -115,12 +131,28 @@
       "unicode": "E4C4"
     },
     {
+      "name": "FieldChanged",
+      "unicode": "F2C3"
+    },
+    {
+      "name": "FieldNotChanged",
+      "unicode": "F2C4"
+    },
+    {
       "name": "Filter",
       "unicode": "E71C"
     },
     {
       "name": "FixedColumnWidth",
       "unicode": "E3EA"
+    },
+    {
+      "name": "GroupedList",
+      "unicode": "EF74"
+    },
+    {
+      "name": "GroupList",
+      "unicode": "F168"
     },
     {
       "name": "Help",
@@ -167,8 +199,8 @@
       "unicode": "E3B8"
     },
     {
-      "name": "More",
-      "unicode": "E712"
+      "name": "MapLayers",
+      "unicode": "E81E"
     },
     {
       "name": "Merge",
@@ -209,6 +241,10 @@
     {
       "name": "Rename",
       "unicode": "E8AC"
+    },
+    {
+      "name": "Rocket",
+      "unicode": "F3B3"
     },
     {
       "name": "Rotate90Clockwise",

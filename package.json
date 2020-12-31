@@ -1,6 +1,6 @@
 {
     "name": "oflt",
-    "version": "2.1.1",
+    "version": "2.1.3",
     "author": {
         "name": "Microsoft",
         "url": "https://github.com/microsoft/OCR-Form-Tools"
@@ -24,7 +24,8 @@
         "chart.js": "^2.9.3",
         "exif-js": "^2.3.0",
         "file-type": "^14.6.2",
-        "lodash": "^4.17.19",
+        "jszip": "^3.5.0",
+        "lodash": "^4.17.20",
         "ol": "^5.3.3",
         "promise.allsettled": "^1.0.2",
         "rc-align": "^2.4.5",
@@ -47,8 +48,7 @@
         "serialize-javascript": "^5.0.1",
         "shortid": "^2.2.15",
         "utif": "^3.1.0",
-        "vott-react": "^0.2.12",
-        "yarn": "^1.22.4"
+        "vott-react": "^0.2.12"
     },
     "scripts": {
         "start": "env-cmd -f .env.electron nf start -p 3000",
@@ -85,7 +85,6 @@
         ]
     },
     "devDependencies": {
-        "@fortawesome/fontawesome-free": "^5.12.0",
         "@types/axios": "^0.14.0",
         "@types/enzyme": "^3.10.4",
         "@types/history": "^4.7.3",
@@ -100,14 +99,13 @@
         "@types/reactstrap": "^8.2.0",
         "@types/redux-logger": "^3.0.7",
         "acorn": "^7.1.1",
-        "electron": "8.3.0",
-        "electron-builder": "^22.6.1",
+        "electron": "10.1.5",
+        "electron-builder": "^22.9.1",
         "env-cmd": "^10.1.0",
         "enzyme": "^3.10.0",
         "enzyme-adapter-react-16": "^1.15.1",
         "eslint-utils": "^1.4.3",
         "foreman": "^3.0.1",
-        "jquery": "^3.5.0",
         "kind-of": "^6.0.3",
         "mime": "^2.4.6",
         "minimist": "^1.2.2",
@@ -118,11 +116,13 @@
         "redux-immutable-state-invariant": "^2.1.0",
         "redux-logger": "^3.0.6",
         "redux-mock-store": "^1.5.4",
+        "rimraf": "^3.0.2",
         "ts-loader": "^7.0.1",
         "tslint": "^6.1.1",
         "typescript": "^3.9.5",
         "webpack-cli": "^3.3.11",
-        "webpack-merge": "^4.2.2"
+        "webpack-merge": "^4.2.2",
+        "yarn": "^1.22.10"
     },
     "engines": {
         "node": ">=12.13.1",

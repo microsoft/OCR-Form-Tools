@@ -1,36 +1,33 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import {FontIcon, PrimaryButton, Spinner, SpinnerSize, TextField} from "@fluentui/react";
+import _ from "lodash";
 import React from "react";
-import { connect } from "react-redux";
-import { RouteComponentProps } from "react-router-dom";
-import { bindActionCreators } from "redux";
-import { FontIcon, PrimaryButton, Spinner, SpinnerSize, TextField } from "@fluentui/react";
-import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
+import {connect} from "react-redux";
+import {RouteComponentProps} from "react-router-dom";
+import {bindActionCreators} from "redux";
+import url from "url";
+import {constants} from "../../../../common/constants";
+import {isElectron} from "../../../../common/hostProcess";
+import {interpolate, strings} from "../../../../common/strings";
+import {getGreenWithWhiteBackgroundTheme, getPrimaryGreenTheme} from "../../../../common/themes";
+import {AssetLabelingState, FieldType, IApplicationState, IAppSettings, IAssetMetadata, IConnection, IProject, IRecentModel} from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
-import {
-    IApplicationState, IConnection, IProject, IAppSettings, FieldType, IRecentModel, AssetLabelingState, IAssetMetadata,
-} from "../../../../models/applicationState";
+import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
+import {AssetService} from "../../../../services/assetService";
+import ServiceHelper from "../../../../services/serviceHelper";
+import {getAppInsights} from '../../../../services/telemetryService';
+import UseLocalStorage from '../../../../services/useLocalStorage';
+import Alert from "../../common/alert/alert";
+import Confirm from "../../common/confirm/confirm";
+import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import TrainChart from "./trainChart";
 import "./trainPage.scss";
 import TrainPanel from "./trainPanel";
+import {ITrainRecordProps} from "./trainRecord";
 import TrainTable from "./trainTable";
-import { ITrainRecordProps } from "./trainRecord";
-import "./trainPage.scss";
-import { strings, interpolate } from "../../../../common/strings";
-import { constants } from "../../../../common/constants";
-import _ from "lodash";
-import Alert from "../../common/alert/alert";
-import url from "url";
-import PreventLeaving from "../../common/preventLeaving/preventLeaving";
-import ServiceHelper from "../../../../services/serviceHelper";
-import { getPrimaryGreenTheme, getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
-import { getAppInsights } from '../../../../services/telemetryService';
-import { AssetService } from "../../../../services/assetService";
-import Confirm from "../../common/confirm/confirm";
-import UseLocalStorage from '../../../../services/useLocalStorage';
-import { isElectron } from "../../../../common/hostProcess";
 import { getAPIVersion } from "../../../../common/utils";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
@@ -85,7 +82,6 @@ function mapDispatchToProps(dispatch) {
 export default class TrainPage extends React.Component<ITrainPageProps, ITrainPageState> {
     private appInsights: any = null;
     private notAdjustedLabelsConfirm: React.RefObject<Confirm> = React.createRef();
-
     constructor(props) {
         super(props);
 
@@ -424,7 +420,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         }
     }
     private async cleanLabelData() {
-
         const allAssets = { ...this.props.project.assets };
         const assetValues = Object.values(allAssets).filter(asset => asset.labelingState !== AssetLabelingState.Trained)
         for (const asset of assetValues) {
@@ -461,7 +456,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 });
                 isUpdated = true;
             });
-
             if (isUpdated) {
                 await this.props.actions.saveAssetMetadataAndCleanEmptyLabel(this.props.project, assetMetadata);
             }

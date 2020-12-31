@@ -136,7 +136,7 @@ const greyButtonPalette = {
     themeDark: "#adb0b1",
     themeDarker: "#c3c4c6",
     neutralLighterAlt: "#262a2f",
-    neutralLighter: "#262a2e",
+    neutralLighter: "#383e44",
     neutralLight: "#24282c",
     neutralQuaternaryAlt: "#222529",
     neutralQuaternary: "#202328",
