@@ -14,12 +14,17 @@ import {
     IProject,
     ITag,
     ISecurityToken,
+    FieldType,
+    FieldFormat, ITableConfigItem, ITableTag, IField, ITableField, ITableKeyField,
+    AssetLabelingState,
+    TableVisualizationHint
 } from "../../models/applicationState";
 import { createAction, createPayloadAction, IPayloadAction } from "./actionCreators";
 import { appInfo } from "../../common/appInfo";
 import { saveAppSettingsAction } from "./applicationActions";
 import { toast } from 'react-toastify';
 import { strings, interpolate } from "../../common/strings";
+import clone from "rfdc";
 import _ from "lodash";
 
 /**
@@ -38,9 +43,10 @@ export default interface IProjectActions {
     saveAssetMetadata(project: IProject, assetMetadata: IAssetMetadata): Promise<IAssetMetadata>;
     saveAssetMetadataAndCleanEmptyLabel(project: IProject, assetMetadata: IAssetMetadata): Promise<IAssetMetadata>;
     updateProjectTag(project: IProject, oldTag: ITag, newTag: ITag): Promise<IAssetMetadata[]>;
-    deleteProjectTag(project: IProject, tagName): Promise<IAssetMetadata[]>;
+    deleteProjectTag(project: IProject, tagName: string, tagType: FieldType, tagFormat: FieldFormat): Promise<IAssetMetadata[]>;
     updateProjectTagsFromFiles(project: IProject, asset?: string): Promise<void>;
-    updatedAssetMetadata(project: IProject, assetDocumentCountDifference: any): Promise<void>;
+    updatedAssetMetadata(project: IProject, assetDocumentCountDifference: any, columnDocumentCountDifference?: any, rowDocumentCountDifference?: any): Promise<void>;
+    reconfigureTableTag?(project: IProject, originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, visualizationHint: TableVisualizationHint, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[]): Promise<IAssetMetadata[]>;
 }
 
 /**
@@ -129,11 +135,11 @@ export function updateProjectTagsFromFiles(project: IProject, asset?: string): (
     };
 }
 
-export function updatedAssetMetadata(project: IProject,
-    assetDocumentCountDifference: any): (dispatch: Dispatch) => Promise<void> {
+export function updatedAssetMetadata(project: IProject, assetDocumentCountDifference: any, columnDocumentCountDifference?: any,
+    rowDocumentCountDifference?: any): (dispatch: Dispatch) => Promise<void> {
     return async (dispatch: Dispatch) => {
         const projectService = new ProjectService();
-        const updatedProject = await projectService.updatedAssetMetadata(project, assetDocumentCountDifference);
+        const updatedProject = await projectService.updatedAssetMetadata(project, assetDocumentCountDifference, columnDocumentCountDifference, rowDocumentCountDifference);
         if (updatedProject !== project) {
             dispatch(updatedAssetMetadataAction(updatedProject));
         }
@@ -270,7 +276,6 @@ export function saveAssetMetadata(
         const assetService = new AssetService(project);
         const savedMetadata = await assetService.save(newAssetMetadata);
         dispatch(saveAssetMetadataAction(savedMetadata));
-
         return { ...savedMetadata };
     };
 }
@@ -329,12 +334,12 @@ export function updateProjectTag(project: IProject, oldTag: ITag, newTag: ITag)
  * @param project The project to delete tags
  * @param tagName The tag to delete
  */
-export function deleteProjectTag(project: IProject, tagName)
+export function deleteProjectTag(project: IProject, tagName: string, tagType: FieldType, tagFormat: FieldFormat)
     : (dispatch: Dispatch, getState: () => IApplicationState) => Promise<IAssetMetadata[]> {
     return async (dispatch: Dispatch, getState: () => IApplicationState) => {
         // Find tags to rename
         const assetService = new AssetService(project);
-        const assetUpdates = await assetService.deleteTag(tagName);
+        const assetUpdates = await assetService.deleteTag(tagName, tagType, tagFormat);
 
         // Save updated assets
         for (const assetMetadata of assetUpdates) {
@@ -354,6 +359,85 @@ export function deleteProjectTag(project: IProject, tagName)
         return assetUpdates;
     };
 }
+
+export function reconfigureTableTag(project: IProject, originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, visualizationHint: TableVisualizationHint, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[])
+    : (dispatch: Dispatch, getState: () => IApplicationState) => Promise<IAssetMetadata[]> {
+        return async (dispatch: Dispatch, getState: () => IApplicationState) => {
+            // Find tags to rename
+            const assetService = new AssetService(project);
+            const assetUpdates = await assetService.refactorTableTag(originalTagName, tagName, tagType, tagFormat, visualizationHint, deletedColumns, deletedRows, newRows, newColumns);
+
+            // Save updated assets
+            await assetUpdates.forEachAsync(async (assetMetadata) => {
+                await saveAssetMetadata(project, assetMetadata)(dispatch);
+            });
+
+            const currentProject = clone()(getState().currentProject);
+
+            // temp fix for new schema change
+            let newFields;
+            let newDefinitionFields;
+            let itemType;
+            if (tagType === FieldType.Object) {
+                if (visualizationHint === TableVisualizationHint.Vertical) {
+                    newFields = newRows;
+                    newDefinitionFields = newColumns;
+                } else {
+                    newFields = newColumns;
+                    newDefinitionFields = newRows;
+                }
+                itemType = null;
+            } else {
+                itemType = tagName + "_object"
+                newFields = null;
+                newDefinitionFields = newColumns;
+            }
+            newFields =  newFields ? newFields.map((field) => {
+                return {
+                    fieldKey: field.name,
+                    fieldType: tagName + "_object",
+                    fieldFormat: FieldFormat.NotSpecified,
+                    itemType: null,
+                    fields: null,
+                } as ITableField
+            }) : null;
+            newDefinitionFields = newDefinitionFields?.map((definitionField) => {
+                return {
+                    fieldKey: definitionField.name,
+                    fieldType: definitionField.type,
+                    fieldFormat: definitionField.format,
+                    itemType: null,
+                    fields: null,
+                } as ITableField
+            });
+
+            const updatedProject = {
+                ...currentProject,
+                tags: currentProject.tags.reduce((result, tag) => {
+                    if (tag.name === originalTagName) {
+                        (tag as ITag).name = tagName;
+                        (tag as ITableTag).definition.fieldKey = tagName + "_object";
+                        (tag as ITableTag).definition.fields = newDefinitionFields || (tag as ITableTag).definition.fields;
+                        (tag as ITableTag).fields = newFields || (tag as ITableTag).fields;
+                        (tag as ITableTag).itemType = itemType;
+                        result.push(tag);
+                        return result;
+                    } else {
+                        result.push(tag);
+                        return result;
+                    }
+                }, [])
+            };
+
+
+            // Save updated project tags
+            await saveProject(updatedProject, true, false)(dispatch, getState);
+            dispatch(deleteProjectTagAction(updatedProject));
+
+            return assetUpdates;
+        };
+    }
+
 
 /**
  * Load project action type

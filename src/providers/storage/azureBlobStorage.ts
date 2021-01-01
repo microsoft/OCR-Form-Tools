@@ -256,7 +256,7 @@ export class AzureBlobStorage implements IStorageProvider {
                 return asset;
             }
         }
-        else{
+        else {
             return null;
         }
     }

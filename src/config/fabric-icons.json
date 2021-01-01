@@ -15,12 +15,12 @@
       "unicode": "E4C7"
     },
     {
-      "name": "AddTo",
-      "unicode": "ECC8"
+      "name": "AddTable",
+      "unicode": "E4C6"
     },
     {
-      "name": "AlertSolid",
-      "unicode": "F331"
+      "name": "AddTo",
+      "unicode": "ECC8"
     },
     {
       "name": "AutoEnhanceOff",
@@ -29,6 +29,10 @@
     {
       "name": "AutoEnhanceOn",
       "unicode": "E78D"
+    },
+    {
+      "name": "AlertSolid",
+      "unicode": "F331"
     },
     {
       "name": "AzureAPIManagement",
@@ -123,6 +127,10 @@
       "unicode": "E70F"
     },
     {
+      "name": "EditTable",
+      "unicode": "E4C4"
+    },
+    {
       "name": "FieldChanged",
       "unicode": "F2C3"
     },
@@ -133,6 +141,10 @@
     {
       "name": "Filter",
       "unicode": "E71C"
+    },
+    {
+      "name": "FixedColumnWidth",
+      "unicode": "E3EA"
     },
     {
       "name": "GroupedList",
@@ -157,6 +169,14 @@
     {
       "name": "Info",
       "unicode": "E946"
+    },
+    {
+      "name": "InsertColumnsRight",
+      "unicode": "F64B"
+    },
+    {
+      "name": "InsertRowsBelow",
+      "unicode": "F64D"
     },
     {
       "name": "Insights",
@@ -271,6 +291,18 @@
       "unicode": "ED86"
     },
     {
+      "name": "TableBrandedColumn",
+      "unicode": "E3F1"
+    },
+    {
+      "name": "TableBrandedRow",
+      "unicode": "E3EE"
+    },
+    {
+      "name": "TableGroup",
+      "unicode": "F6D9"
+    },
+    {
       "name": "Tag",
       "unicode": "E8EC"
     },
@@ -289,6 +321,10 @@
     {
       "name": "Up",
       "unicode": "E74A"
+    },
+    {
+      "name": "UpdateRestore",
+      "unicode": "E777"
     },
     {
       "name": "View",

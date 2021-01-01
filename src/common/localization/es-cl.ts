@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {IAppStrings} from "../strings";
+import { IAppStrings } from "../strings";
 
 /*eslint-disable no-template-curly-in-string, no-multi-str*/
 
@@ -336,7 +336,44 @@ export const spanish: IAppStrings = {
             autoLabel: "Auto-etiquetado: ",
             revised: "Revisado: ",
         },
+        regionTableTags: {
+            configureTag: {
+                errors: {
+                    atLeastOneColumn: "Asigne al menos una columna.",
+                    atLeastOneRow: "Asigne al menos una fila.",
+                    checkFields: "Verifique si completó todos los campos obligatorios correctamente.",
+                    assignTagName: "El nombre de la etiqueta no puede estar vacío.",
+                    notUniqueTagName: "El nombre de la etiqueta debe ser único",
+                    emptyTagName: "Asigne un nombre para la etiqueta de su mesa.",
+                    emptyName: "El nombre no puede estar vacío",
+                    notUniqueName: "El nombre debe ser único",
+                    notCompatibleTableColOrRowType: "El tipo $ {kind} no es compatible con este tipo. Si desea cambiar el tipo de este $ {kind}, elimine o asigne todas las etiquetas que usan este $ {kind} en su proyecto."
+                }
+            },
+            tableLabeling: {
+                title: "Tabla de etiquetas",
+                tableName: "Nombre de la tabla",
+                description: {
+                    title: "Para comenzar a etiquetar su mesa:",
+                    stepOne: "Seleccione las palabras del documento que desea etiquetar",
+                    stepTwo: "Haga clic en la celda de la tabla a la que desea etiquetar las palabras seleccionadas",
+                },
+                buttons: {
+                    done: "Hecho",
+                    reconfigureTable: "Reconfigurar la tabla",
+                    addRow: "Añadir fila"
+                }
+            },
+            confirm: {
+                reconfigure: {
+                    title: "Reconfigurar etiqueta",
+                    message: "¿Está seguro de que desea volver a configurar esta etiqueta?\n Se volverá a configurar para todos los documentos.",
+                }
+            }
+
+        },
         toolbar: {
+            addTable: "Agregar nueva etiqueta",
             add: "Agregar nueva etiqueta",
             onlyShowCurrentPageTags: "Mostrar solo las etiquetas utilizadas en la página actual",
             showAllTags: "Mostrar todas las etiquetas",

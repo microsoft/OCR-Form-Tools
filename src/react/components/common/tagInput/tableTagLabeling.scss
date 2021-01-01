@@ -1,0 +1,91 @@
+
+@import "../../../../assets/sass/theme.scss";
+
+.table-labeling_container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+    padding-right: .5rem;
+    h4 {
+        padding-left: 1.25rem;
+    }
+    .labeling-guideline {
+        margin: 1rem 1rem 2rem 1.5rem;
+        color: rgba(255, 255, 255, 0.6);
+        }
+        .table-name {
+            padding-left: 1.25rem;
+            span {
+                padding-bottom: .2rem;
+            }
+        }
+        .add-row-button_container {
+            margin-left: 1.5rem;
+            margin-bottom: 3rem;
+            margin-top: 1rem;
+        }
+        .table-view-container {
+            overflow-x: auto;
+        .viewed-table {
+            margin-bottom: 1rem;
+            .column_header {
+                text-overflow: ellipsis;
+                overflow: hidden;
+                min-width: 130px;
+                max-width: 200px;
+                background-color: $lighter-3;
+                border: 2px solid grey;
+                text-align: center;
+                padding: .125rem .25rem;
+            }
+            .row_header {
+                text-overflow: ellipsis;
+                overflow: hidden;
+                min-width: 130px;
+                max-width: 200px;
+                border: 2px solid grey;
+                background-color: $lighter-3;
+                text-align: center;
+                padding: .125rem .5rem;
+            }
+            .empty_header {
+                border: 2px solid grey;
+                background-color: $lighter-3;
+
+            }
+            .table-cell {
+                text-align: center;
+                background-color: $darker-3;
+                color: rgba(255, 255, 255, 0.75);
+                &:hover {
+                    background-color: $lighter-1;
+                }
+                &:active {
+                    background-color: $lighter-2;
+
+                }
+            }
+            .hidden {
+                border: none;
+                background-color: transparent;
+                text-align: center;
+                color: rgba(255, 255, 255, 0.45);
+                min-width: 12px;
+                max-width: 48px;
+                padding-right: 0.3rem;
+            }
+        }
+    }
+
+    .buttons-container {
+        display: flex;
+        padding: 1.5rem;
+        justify-content: space-between;
+        .button {
+            width: 160px;
+            &-reconfigure {
+            }
+        }
+    }
+}

@@ -306,22 +306,23 @@ export interface IAppStrings {
             color: string,
         }
         toolbar: {
-            add: string,
-            onlyShowCurrentPageTags: string,
-            showAllTags: string,
+            add: string;
+            addTable: string;
+            contextualMenu: string;
+            delete: string;
+            edit: string;
+            format: string;
+            lock: string;
+            moveDown: string;
+            moveUp: string;
+            rename: string;
+            search: string;
+            type: string;
+            vertiline: string;
+            onlyShowCurrentPageTags:string,
+            showAllTags:string,
             showOriginLabels: string
             hideOriginLabels: string,
-            contextualMenu: string,
-            delete: string,
-            edit: string,
-            format: string,
-            lock: string,
-            moveDown: string,
-            moveUp: string,
-            rename: string,
-            search: string,
-            type: string,
-            vertiline: string,
         }
         colors: {
             white: string,
@@ -346,12 +347,47 @@ export interface IAppStrings {
             notCompatibleTagType: string,
             checkboxPerTagLimit: string,
             notCompatibleWithDrawnRegionTag: string,
-            replaceAllExitingLabels: string,
-            replaceAllExitingLabelsTitle: string,
+            replaceAllExitingLabels:string,
+            replaceAllExitingLabelsTitle:string,
         },
-        preText: {
-            autoLabel: string,
-            revised: string,
+        preText:{
+            autoLabel:string,
+            revised:string,
+        }
+        regionTableTags: {
+            configureTag: {
+                errors: {
+                    atLeastOneColumn: string,
+                    atLeastOneRow: string,
+                    checkFields: string,
+                    assignTagName: string,
+                    notUniqueTagName: string,
+                    emptyTagName: string,
+                    emptyName: string,
+                    notUniqueName: string,
+                    notCompatibleTableColOrRowType: string;
+                },
+            },
+            tableLabeling: {
+                title: string,
+                description: {
+                    title: string,
+                    stepOne: string,
+                    stepTwo: string,
+                },
+                tableName: string,
+                buttons: {
+                    done: string,
+                    reconfigureTable: string,
+                    addRow: string,
+                }
+            },
+            confirm: {
+                reconfigure: {
+                    title: string,
+                    message: string,
+                }
+            }
         }
     };
     connections: {
@@ -677,7 +713,7 @@ interface IErrorMetadata {
     message: string,
 }
 
-interface IStrings extends LocalizedStringsMethods, IAppStrings { }
+interface IStrings extends LocalizedStringsMethods, IAppStrings {}
 
 export const strings: IStrings = new LocalizedStrings({
     en: english,

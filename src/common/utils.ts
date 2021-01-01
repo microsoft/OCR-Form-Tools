@@ -2,9 +2,10 @@
 // Licensed under the MIT license.
 
 import Guard from "./guard";
-import { IProject, ISecurityToken, IProviderOptions, ISecureString, ITag } from "../models/applicationState";
+import { IProject, ISecurityToken, IProviderOptions, ISecureString, ITag, FieldType, FieldFormat } from "../models/applicationState";
 import { encryptObject, decryptObject, encrypt, decrypt } from "./crypto";
 import UTIF from "utif";
+import { useState, useEffect } from 'react';
 import {constants} from "./constants";
 import _ from "lodash";
 import JsZip from 'jszip';
@@ -198,7 +199,7 @@ export async function throttle<T>(max: number, arr: T[], worker: (payload: T) =>
 }
 
 export function delay(ms: number) {
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
         setTimeout(() => {
             resolve();
         }, ms);
@@ -361,6 +362,64 @@ export function fixedEncodeURIComponent(str: string) {
     })
 }
 
+
+/**
+ * Filters tag's format according to chosen tag's type
+ * @param FieldType The json object
+ * @returns [] of corresponding tag's formats
+ */
+export function filterFormat(type: FieldType | string): any[] {
+    switch (type) {
+        case FieldType.String:
+            return [
+                FieldFormat.NotSpecified,
+                FieldFormat.Alphanumeric,
+                FieldFormat.NoWhiteSpaces,
+            ];
+        case FieldType.Number:
+            return [
+                FieldFormat.NotSpecified,
+                FieldFormat.Currency,
+            ];
+        case FieldType.Date:
+            return [
+                FieldFormat.NotSpecified,
+                FieldFormat.DMY,
+                FieldFormat.MDY,
+                FieldFormat.YMD,
+            ];
+        case FieldType.Object:
+        case FieldType.Array:
+            return [
+                FieldFormat.NotSpecified,
+            ];
+        default:
+            return [ FieldFormat.NotSpecified ];
+    }
+}
+
+/**
+ * UseDebounce - custom React hook for handling fast changing values, the hook re-call only if value or delay changes
+ * @param value The value to be changed
+ * @param delay - delay after which the change will be registered in milliseconds
+ */
+export function useDebounce(value: any, delay: number) {
+        const [debouncedValue, setDebouncedValue] = useState(value);
+        useEffect(
+          () => {
+            // Update debounced value after delay
+            const delayHandler = setTimeout(() => {
+              setDebouncedValue(value);
+            }, delay);
+            // cleanup
+            return () => {
+              clearTimeout(delayHandler);
+            };
+          },
+          [value, delay]
+        );
+        return debouncedValue;
+      }
 export function getAPIVersion(projectAPIVersion: string): string {
     return (constants.enableAPIVersionSelection && projectAPIVersion) ? projectAPIVersion : constants.apiVersion;
 }
@@ -414,6 +473,20 @@ export function downloadFile(data: any, fileName: string, prefix?: string): void
     fileLink.setAttribute("download", downloadFileName);
     document.body.appendChild(fileLink);
     fileLink.click();
+}
+
+export function  getTagCategory (tagType: string) {
+    switch (tagType) {
+        case FieldType.SelectionMark:
+        case "checkbox":
+            return "checkbox";
+            case FieldType.Object:
+                return FieldType.Object;
+            case FieldType.Array:
+                return FieldType.Array;
+        default:
+            return "text";
+    }
 }
 
 export type zipData = {

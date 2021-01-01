@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {IAppStrings} from "../strings";
+import { IAppStrings } from "../strings";
 
 /*eslint-disable no-template-curly-in-string, no-multi-str*/
 
@@ -271,7 +271,7 @@ export const english: IAppStrings = {
         localFile: "Local file",
         url: "URL",
     },
-    layoutPredict:{
+    layoutPredict: {
         layout: "Layout",
         title: "Layout analyze",
         inProgress: "Analysis in progress...",
@@ -337,7 +337,43 @@ export const english: IAppStrings = {
             autoLabel: "Auto-labeled: ",
             revised: "Revised: ",
         },
+        regionTableTags: {
+            configureTag: {
+                errors: {
+                    atLeastOneColumn: "Please assign at least one column.",
+                    atLeastOneRow: "Please assign at least one row.",
+                    checkFields: "Please check if you filled out all required fields correctly.",
+                    assignTagName: "Tag name cannot be empty",
+                    notUniqueTagName: "Tag name should be unique",
+                    emptyTagName: "Please assign name for your table tag.",
+                    emptyName: "Name cannot be empty",
+                    notUniqueName: "Name should be unique",
+                    notCompatibleTableColOrRowType: "\${kind}\ type is not compatible with this type. If you want to change type of this \${kind}\, please remove or assign all labels which using this \${kind}\ in your project.",
+                }
+            },
+            tableLabeling: {
+                title: "Label table",
+                tableName: "Table name",
+                description: {
+                    title: "To start labeling your table:",
+                    stepOne: "Select the words on the document you want to label",
+                    stepTwo: "Click the table cell you want to label selected words to",
+                },
+                buttons: {
+                    done: "Done",
+                    reconfigureTable: "Reconfigure table",
+                    addRow: "Add row"
+                },
+            },
+            confirm: {
+                reconfigure: {
+                    title: "Reconfigure tag",
+                    message: "Are you sure you want to reconfigure this tag? \n It will be reconfigured for all documents.",
+                }
+            }
+        },
         toolbar: {
+            addTable: "Add new table tag",
             add: "Add new tag",
             onlyShowCurrentPageTags: "Only show tags used in current page",
             showAllTags: "Show all tags",
@@ -524,7 +560,7 @@ export const english: IAppStrings = {
                             runOcrOnAllDocuments: "Run Layout on all documents",
                             runAutoLabelingCurrentDocument: "Auto-label the current document",
                             runAutoLabelingOnMultipleUnlabeledDocuments: "Auto-label multiple unlabeled documents",
-                            noPredictModelOnProject: "Predict model not avaliable, please train the model first.",
+                            noPredictModelOnProject: "Predict model not available, please train the model first.",
                         }
                     }
                 },
@@ -620,8 +656,8 @@ export const english: IAppStrings = {
                 description: "Select all labels for a tag on document and press 'delete' key"
             },
             groupSelect: {
-                name: "Select multiple words by drawing a bounding box around encompased words",
-                description: "Press and hold the shift key. Then, click and hold left mouse button. Then, drag the pointer to draw the bounding box around encompased words"
+                name: "Select multiple words by drawing a bounding box around encompassed words",
+                description: "Press and hold the shift key. Then, click and hold left mouse button. Then, drag the pointer to draw the bounding box around encompassed words"
             }
         },
         headers: {
@@ -642,7 +678,7 @@ export const english: IAppStrings = {
         },
         genericRenderError: {
             title: "Error Loading Application",
-            message: "An error occured while rendering the application. Please try again",
+            message: "An error occurred while rendering the application. Please try again",
         },
         projectInvalidSecurityToken: {
             title: "Error loading project file",
@@ -777,7 +813,7 @@ export const english: IAppStrings = {
             tokenNameExist: "Warning! You already have token with same name as in shared project. Please create a new token, and update the existing project which uses ''${sharedTokenName}'' with new token name."
         },
         copy: {
-            success: "Project token copied to clipboard and ready to share. Reciever of project token can click 'Open Cloud Project' from the Home page to use shared token.",
+            success: "Project token copied to clipboard and ready to share. Receiver of project token can click 'Open Cloud Project' from the Home page to use shared token.",
         }
     },
 };

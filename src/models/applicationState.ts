@@ -119,11 +119,28 @@ export interface IFileInfo {
  * @member color - User editable color associated to tag
  */
 export interface ITag {
-    name: string,
-    color: string,
-    type: FieldType,
-    format: FieldFormat,
-    documentCount?: number,
+    name: string;
+    color: string;
+    type: FieldType;
+    format: FieldFormat;
+    documentCount?: number;
+}
+
+export interface ITableTag extends ITag {
+    fields?: ITableField[];
+    itemType?: string;
+    definition?: ITableDefinition,
+    visualizationHint?: TableVisualizationHint,
+}
+
+export enum TableHeaderTypeAndFormat {
+    Rows = "rows",
+    Columns = "columns"
+}
+
+export enum TableVisualizationHint {
+    Horizontal = "horizontal",
+    Vertical = "vertical",
 }
 
 /**
@@ -217,7 +234,14 @@ export interface IRegion {
     boundingBox?: IBoundingBox,
     value?: string,
     pageNumber: number,
+    isTableRegion?: boolean,
     changed?: boolean,
+
+}
+
+export interface ITableRegion extends IRegion {
+    rowKey: string,
+    columnKey: string,
 }
 
 /**
@@ -228,6 +252,8 @@ export interface ILabelData {
     document: string,
     labelingState?: AssetLabelingState;
     labels: ILabel[],
+    tableLabels?: ITableLabel[],
+    $schema?: string,
 }
 
 /**
@@ -241,6 +267,18 @@ export interface ILabel {
     originValue?: IFormRegion[],
     labelType?: string,
     confidence?: number,
+    revised?: boolean;
+}
+
+export interface ITableLabel {
+    tableKey: string,
+    labels: ITableCellLabel[],
+}
+
+export interface ITableCellLabel {
+    rowKey: string,
+    columnKey: string,
+    value: IFormRegion[],
     revised?: boolean;
 }
 
@@ -290,13 +328,39 @@ export interface ISecurityToken {
 }
 
 export interface IField {
-    fieldKey: string,
-    fieldType: FieldType,
-    fieldFormat: FieldFormat,
+    fieldKey: string;
+    fieldType: FieldType;
+    fieldFormat: FieldFormat;
+}
+
+export interface ITableKeyField extends IField {
+    documentCount?: number;
+}
+
+export interface ITableField extends IField {
+    itemType?: string;
+    fields?: ITableField[];
+    visualizationHint?: TableVisualizationHint;
+}
+
+export interface ITableDefinition extends IField {
+    itemType?: string;
+    fields?: ITableField[];
+}
+
+export interface ITableConfigItem {
+    name: string,
+    format: string,
+    type: string;
+    originalName?: string;
+    originalFormat?: string,
+    originalType?: string;
 }
 
 export interface IFieldInfo {
+    schema?: string,
     fields: IField[],
+    definitions?: any,
 }
 
 export interface IRecentModel {
@@ -434,10 +498,19 @@ export enum FieldType {
     Time = "time",
     Integer = "integer",
     SelectionMark = "selectionMark",
+    Array = "array",
+    Object = "object",
 }
 
 export enum LabelType {
     DrawnRegion = "region"
+}
+
+export enum TableElements {
+    rows = "rows",
+    row = "row",
+    columns = "columns",
+    column = "column",
 }
 
 export enum FieldFormat {
@@ -462,4 +535,16 @@ export enum FeatureCategory {
 export enum ImageMapParent {
     Predict = "predict",
     Editor = "editor",
+}
+
+export enum TagInputMode {
+    Basic = "basic",
+    ConfigureTable = "configureTable",
+    LabelTable = "labelTable",
+}
+
+export enum AnalyzedTagsMode {
+    default = "default",
+    LoadingRecentModel = "loadingRecentModel",
+    ViewTable = "viewTable",
 }

@@ -111,7 +111,65 @@
   color: #d1d1d1;
   float: left;
 }
+
+.add-row-button_container {
+    margin-left: 1.5rem;
+    margin-bottom: 3rem;
+    margin-top: 1rem;
+
+}
+
+.table-view-container {
+    td, th {
+        text-align: center;
+        vertical-align: middle;
+        padding: 0.12rem 0.25rem;
+    }
+    overflow: auto;
+    padding-bottom: .5rem;
+    .column_header {
+        min-width: 130px;
+        max-width: 200px;
+        background-color: $lighter-3;
+        border: 1px solid grey;
+        text-align: center;
+        padding: .125rem .25rem;
+    }
+    .row_header {
+        min-width: 100px;
+        max-width: 200px;
+        border: 1px solid grey;
+        background-color: $lighter-3;
+        text-align: center;
+        padding: .125rem .5rem;
+    }
+    .empty_header {
+        border: 1px solid grey;
+        background-color: $lighter-3;
+
+    }
+    .table-cell {
+        text-align: center;
+        background-color: $darker-3;
+        color: rgba(255, 255, 255, 0.75);
+        &:hover {
+            background-color: $lighter-1;
+        }
+        border: 1px solid grey;
+
+    }
+    .hidden {
+        border: none;
+        background-color: transparent;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.45);
+        min-width: 12px;
+        max-width: 48px;
+        padding-right: 0.3rem;
+    }
+  }
+
 .p-3 + .separator-right-pane-main,
 .separator-right-pane-main + .p-3 {
   margin-top: -15px !important;
-}
+}  

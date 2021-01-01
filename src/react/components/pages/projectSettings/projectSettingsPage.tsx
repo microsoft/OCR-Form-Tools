@@ -186,6 +186,7 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
     private onFormChange = (project: IProject) => {
         if (this.isPartialProject(project)) {
             setStorageItem(constants.projectFormTempKey, JSON.stringify(project));
+            this.setState({ project });
         }
     }
 

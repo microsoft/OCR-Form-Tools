@@ -31,8 +31,8 @@ export interface ITableHelper {
 export interface ITableState {
     tableIconTooltip: any;
     hoveringFeature: string;
-    tableToView: object;
-    tableToViewId: string;
+    tableToView?: object;
+    tableToViewId?: string;
 }
 
 export class TableHelper<TState extends ITableState> {

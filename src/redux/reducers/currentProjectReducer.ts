@@ -47,7 +47,7 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
         case ActionTypes.LOAD_PROJECT_ASSETS_SUCCESS:
             let assets = {};
             action.payload.forEach((asset) => {
-                assets = {...assets, [asset.id]: {...asset}};
+                assets = { ...assets, [asset.id]: { ...asset } };
             });
 
             return {
@@ -58,7 +58,6 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
             if (!state) {
                 return state;
             }
-
             const updatedAssets = {...state.assets} || {};
             updatedAssets[action.payload.asset.id] = _.cloneDeep(action.payload.asset);
 

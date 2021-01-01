@@ -2,14 +2,15 @@
 // Licensed under the MIT license.
 
 import * as React from "react";
-import {CommandBar, ICommandBarItemProps} from "@fluentui/react/lib/CommandBar";
-import {ICustomizations, Customizer} from "@fluentui/react/lib/Utilities";
-import {getDarkGreyTheme} from "../../../../common/themes";
-import {strings} from '../../../../common/strings';
-import {ContextualMenuItemType} from "@fluentui/react";
-import {IProject, IAssetMetadata, AssetLabelingState} from "../../../../models/applicationState";
+import { CommandBar, ICommandBarItemProps } from "@fluentui/react/lib/CommandBar";
+import { ICustomizations, Customizer } from "@fluentui/react/lib/Utilities";
+import { getDarkGreyTheme } from "../../../../common/themes";
+import { interpolate, strings } from '../../../../common/strings';
+import { ContextualMenuItemType } from "@fluentui/react";
+import { IProject, IAssetMetadata, AssetLabelingState } from "../../../../models/applicationState";
 import _ from "lodash";
 import "./canvasCommandBar.scss";
+import { constants } from "../../../../common/constants";
 
 interface ICanvasCommandBarProps {
     handleZoomIn: () => void;
@@ -24,7 +25,6 @@ interface ICanvasCommandBarProps {
     project?: IProject;
     selectedAsset?: IAssetMetadata;
     handleRotateImage: (degrees: number) => void;
-
     drawRegionMode?: boolean;
     connectionType?: string;
     layers?: any;
@@ -213,8 +213,8 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                     {
                         key: "deleteAsset",
                         text: strings.editorPage.asset.delete.title,
-                        iconProps: {iconName: "Delete"},
-                        onClick: () => {if (props.handleAssetDeleted) props.handleAssetDeleted();},
+                        iconProps: { iconName: "Delete" },
+                        onClick: () => { if (props.handleAssetDeleted) props.handleAssetDeleted(); },
                     }
                 ],
             },

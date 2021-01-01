@@ -1,9 +1,9 @@
-# FoTT Changelog 
+# FoTT Changelog
 ## What's new in Form Recognizer?
 Click [here](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/whats-new) to see what's new in Form Recognizer.
 
 ## Released conatiner's currently referenced commit
-2.1-Preview's released container image, tracked by the `latest-preview` image tag in our [docker hub repository](https://hub.docker.com/_/microsoft-azure-cognitive-services-custom-form-labeltool), currently references **2.1-preview.2-b6b9a2f (12-10-2020)**
+2.1-Preview's released container image, tracked by the `latest-preview` image tag in our [docker hub repository](https://hub.docker.com/_/microsoft-azure-cognitive-services-custom-form-labeltool), currently references **2.1-preview.1-1f33130 (10-09-2020)**
 
 ## Commit history
 ### 2.1-preview.2-b6b9a2f (12-10-2020)
@@ -183,7 +183,7 @@ Click [here](https://docs.microsoft.com/en-us/azure/cognitive-services/form-reco
 
 ### 2.1-preview.1-530545c (08-28-2020)
 * fix: remove existing bounding boxes from document on analyze ([#523](https://github.com/microsoft/OCR-Form-Tools/commit/6a1aedfb89b0499a0f4782e16ccbd8a06887841d))
-* feat: enable download JSON of trained model ([#513](https://github.com/microsoft/OCR-Form-Tools/commits/master)) 
+* feat: enable download JSON of trained model ([#513](https://github.com/microsoft/OCR-Form-Tools/commits/master))
 
 ### 2.1-preview.1-529a0e8 (08-27-2020)
 * fix: show loading indicator while loading model info ([#514](https://github.com/microsoft/OCR-Form-Tools/commit/529a0e819f4cb405e290f34d18d15c487a7bcfad))
@@ -290,7 +290,7 @@ Click [here](https://docs.microsoft.com/en-us/azure/cognitive-services/form-reco
 ### 2.1-preview.1-a334cfc (07-07-2020)
 * fix: hide extra scrollbars for model compose view ([#380](https://github.com/microsoft/OCR-Form-Tools/commit/a334cfc45fc5ab137682ad2b48dd0ec1585055dc))
 * fix: handle version change state mutation error ([#382](https://github.com/microsoft/OCR-Form-Tools/commit/8991cc0c92f2f5cbd226f7e1c5c0825b7af8937c))
-* fix: handle pdf worker terminated error ([#381](https://github.com/microsoft/OCR-Form-Tools/commit/adc0498c31bfd5ba57ab98c373e73575589ab1e1)) 
+* fix: handle pdf worker terminated error ([#381](https://github.com/microsoft/OCR-Form-Tools/commit/adc0498c31bfd5ba57ab98c373e73575589ab1e1))
 
 ### 2.1-preview.1-7192170 (07-02-2020)
 * feat: support release ([#361](https://github.com/microsoft/OCR-Form-Tools/commit/7192170d73d24a43e7fff18cd2c6bae7f208f1b0))

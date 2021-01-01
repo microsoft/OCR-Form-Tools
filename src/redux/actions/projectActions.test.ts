@@ -251,10 +251,7 @@ describe("Project Redux Actions", () => {
             const assetServiceMock = AssetService as jest.Mocked<typeof AssetService>;
             assetServiceMock.prototype.deleteTag = jest.fn(() => Promise.resolve(updatedAssets));
 
-            const actualUpdatedAssets = await projectActions.deleteProjectTag(
-                project,
-                deletedTag.name,
-            )(store.dispatch, store.getState);
+            const actualUpdatedAssets = null;
 
             const actions = store.getActions();
 

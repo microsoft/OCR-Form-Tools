@@ -22,11 +22,11 @@ import url from "url";
 import {constants} from "../../../../common/constants";
 import {interpolate, strings} from "../../../../common/strings";
 import {
-    getPrimaryGreenTheme, getPrimaryWhiteTheme,
-    getRightPaneDefaultButtonTheme
+    getGreenWithWhiteBackgroundTheme, getPrimaryGreenTheme, getPrimaryGreyTheme, getPrimaryWhiteTheme, getRightPaneDefaultButtonTheme,
 } from "../../../../common/themes";
-import {getAPIVersion} from "../../../../common/utils";
-import {AppError, ErrorCode, IApplicationState, IAppSettings, IConnection, IProject, IRecentModel} from "../../../../models/applicationState";
+import { loadImageToCanvas, parseTiffData, renderTiffToCanvas } from "../../../../common/utils";
+import { AppError, ErrorCode, FieldFormat, IApplicationState, IAppSettings, IConnection, ImageMapParent, IProject, IRecentModel, IField, AnalyzedTagsMode } from "../../../../models/applicationState";
+import { getAPIVersion } from "../../../../common/utils";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -44,7 +44,7 @@ import {ILoadFileHelper, ILoadFileResult, LoadFileHelper} from "../prebuiltPredi
 import {ITableHelper, ITableState, TableHelper} from "../prebuiltPredict/tableHelper";
 import PredictModelInfo from './predictModelInfo';
 import "./predictPage.scss";
-import PredictResult, {IAnalyzeModelInfo} from "./predictResult";
+import PredictResult, { IAnalyzeModelInfo, ITableResultItem } from "./predictResult";
 import RecentModelsView from "./recentModelsView";
 import {UploadToTrainingSetView} from "./uploadToTrainingSetView";
 
@@ -85,6 +85,13 @@ export interface IPredictPageState extends ILoadFileResult, ITableState {
     modelOption: string;
     confirmDuplicatedAssetNameMessage?: string;
     imageAngle: number;
+    viewTable?: boolean;
+    viewRegionalTable?: boolean;
+    regionalTableToView?: any;
+    tableToView?: any;
+    tableTagColor?: string;
+    highlightedTableCellRowKey?: string;
+    highlightedTableCellColumnKey?: string;
 
     withPageRange: boolean;
     pageRange: string;
@@ -151,6 +158,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         modelList: [],
         modelOption: "",
         imageAngle: 0,
+        viewTable: false,
+        viewRegionalTable: false,
+        regionalTableToView: null,
+        tableTagColor: null,
+        highlightedTableCellRowKey: null,
+        highlightedTableCellColumnKey: null,
 
         tableIconTooltip: {display: "none", width: 0, height: 0, top: 0, left: 0},
         hoveringFeature: null,
@@ -220,6 +233,11 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             if (prevState.highlightedField !== this.state.highlightedField) {
                 this.setPredictedFieldHighlightStatus(this.state.highlightedField);
             }
+
+            if (prevState.highlightedTableCellColumnKey !== this.state.highlightedTableCellColumnKey ||
+                prevState.highlightedTableCellRowKey !== this.state.highlightedTableCellRowKey) {
+                this.setPredictedFieldTableCellHighlightStatus(this.state.highlightedTableCellRowKey, this.state.highlightedTableCellColumnKey)
+            }
         }
     }
 
@@ -239,6 +257,16 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const modelInfo: IAnalyzeModelInfo = this.getAnalyzeModelInfo(this.state.analyzeResult);
 
         const onPredictionPath: boolean = this.props.match.path.includes("predict");
+        const sidebarWidth = this.state.viewRegionalTable ? 650 : 400;
+
+        let tagViewMode: AnalyzedTagsMode;
+        if (this.state.loadingRecentModel) {
+            tagViewMode = AnalyzedTagsMode.LoadingRecentModel;
+        } else if (this.state.viewRegionalTable) {
+            tagViewMode = AnalyzedTagsMode.ViewTable;
+        } else {
+            tagViewMode = AnalyzedTagsMode.default;
+        }
 
         return (
             <div
@@ -251,16 +279,16 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     {this.renderNextPageButton()}
                     {this.renderPageIndicator()}
                 </div>
-                <div className="predict-sidebar bg-lighter-1">
+                <div className={"predict-sidebar bg-lighter-1"}  style={{width: sidebarWidth, minWidth: sidebarWidth }}>
                     <div className="condensed-list">
                         <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
                             <FontIcon className="mr-1" iconName="Insights" />
                             <span>{strings.predict.title}</span>
                         </h6>
-                        {!this.state.loadingRecentModel ?
+                        {tagViewMode === AnalyzedTagsMode.default &&
                             <>
                                 {!mostRecentModel ?
-                                    <div className="bg-darker-2 pl-3 pr-3 flex-center" >
+                                    <div className="bg-darker-2 pl-3 pr-3 flex-center ">
                                         <div className="alert alert-warning warning no-models-warning" role="alert">
                                             {strings.predict.noRecentModels}
                                         </div>
@@ -383,6 +411,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                     onPredictionClick={this.onPredictionClick}
                                                     onPredictionMouseEnter={this.onPredictionMouseEnter}
                                                     onPredictionMouseLeave={this.onPredictionMouseLeave}
+                                                    onTablePredictionClick={this.onTablePredictionClick}
                                                 >
                                                     <PredictModelInfo modelInfo={modelInfo} />
                                                 </PredictResult>
@@ -407,7 +436,20 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                         </div>
                                     </>
                                 }
-                            </> : <Spinner className="loading-tag" size={SpinnerSize.large} />
+                            </>
+                        }
+                        {tagViewMode === AnalyzedTagsMode.LoadingRecentModel &&
+                            <Spinner className="loading-tag" size={SpinnerSize.large} />
+                        }
+                        {this.state.viewRegionalTable &&
+                            <div className="m-2">
+                                <h4 className="ml-1 mb-4">View analyzed Table</h4>
+                                {this.displayRegionalTable(this.state.regionalTableToView)}
+                                <PrimaryButton
+                                    className="mt-4 ml-2"
+                                    theme={getPrimaryGreyTheme()}
+                                    onClick={() => this.setState({ viewRegionalTable: false })}>Back</PrimaryButton>
+                            </div>
                         }
                     </div>
                 </div>
@@ -663,7 +705,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 }, () => {
                     this.drawPredictionResult();
                 });
-            }).catch((error) => {
+            })
+            .catch((error) => {
                 let alertMessage = "";
                 if (error.response) {
                     alertMessage = error.response.data;
@@ -832,6 +875,39 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         return feature;
     }
 
+    private createBoundingBoxVectorFeatureForTableCell = (text, boundingBox, imageExtent, ocrExtent, rowKey, columnKey) => {
+        const coordinates: number[][] = [];
+
+        // extent is int[4] to represent image dimentions: [left, bottom, right, top]
+        const imageWidth = imageExtent[2] - imageExtent[0];
+        const imageHeight = imageExtent[3] - imageExtent[1];
+        const ocrWidth = ocrExtent[2] - ocrExtent[0];
+        const ocrHeight = ocrExtent[3] - ocrExtent[1];
+
+        for (let i = 0; i < boundingBox.length; i += 2) {
+            coordinates.push([
+                Math.round((boundingBox[i] / ocrWidth) * imageWidth),
+                Math.round((1 - (boundingBox[i + 1] / ocrHeight)) * imageHeight),
+            ]);
+        }
+
+        const feature = new Feature({
+            geometry: new Polygon([coordinates]),
+        });
+        const tag = this.props.project.tags.find((tag) => tag.name.toLocaleLowerCase() === text.toLocaleLowerCase());
+        const isHighlighted = (text.toLocaleLowerCase() === this.state.highlightedField.toLocaleLowerCase() ||
+            (this.state.highlightedTableCellRowKey === rowKey && this.state.highlightedTableCellColumnKey === columnKey));
+        feature.setProperties({
+            color: _.get(tag, "color", "#333333"),
+            fieldName: text,
+            isHighlighted,
+            rowKey,
+            columnKey,
+        });
+
+        return feature;
+    }
+
     private featureStyler = (feature) => {
         return new Style({
             stroke: new Stroke({
@@ -844,23 +920,57 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         });
     }
 
+    // here
     private drawPredictionResult = (): void => {
         this.imageMap?.removeAllFeatures();
         const features = [];
         const imageExtent = [0, 0, this.state.imageWidth, this.state.imageHeight];
         const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[this.state.currentPage - 1];
         const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
-        const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
+        const fields = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
 
-        for (const fieldName of Object.keys(predictions)) {
-            const field = predictions[fieldName];
-            if (_.get(field, "page", null) === this.state.currentPage) {
-                const text = fieldName;
-                const boundingbox = _.get(field, "boundingBox", []);
-                const feature = this.createBoundingBoxVectorFeature(text, boundingbox, imageExtent, ocrExtent);
-                features.push(feature);
+        Object.keys(fields).forEach((fieldName) => {
+            const field = fields[fieldName];
+            if (!field) {
+                return;
             }
-        }
+            if (field?.type === "object") {
+                Object.keys(field?.valueObject).forEach((rowName, rowIndex) => {
+                    if (field?.valueObject?.[rowName]) {
+                        Object.keys(field?.valueObject?.[rowName]?.valueObject).forEach((columnName, colIndex) => {
+                            const tableCell = field?.valueObject?.[rowName]?.valueObject?.[columnName];
+                            if (tableCell?.page === this.state.currentPage) {
+                                const text = fieldName;
+                                const boundingbox = _.get(tableCell, "boundingBox", []);
+                                const feature = this.createBoundingBoxVectorFeatureForTableCell(text, boundingbox, imageExtent, ocrExtent, rowName, columnName);
+                                features.push(feature);
+                            }
+                        })
+                    }
+                })
+            }
+            else if (field.type === "array") {
+                field?.valueArray.forEach((row, rowIndex) => {
+                    Object.keys(row?.valueObject).forEach((columnName, colIndex) => {
+                        const tableCell = field?.valueArray?.[rowIndex]?.valueObject?.[columnName];
+                        if (tableCell?.page === this.state.currentPage) {
+                            const text = fieldName;
+                            const boundingbox = _.get(tableCell, "boundingBox", []);
+                            const feature = this.createBoundingBoxVectorFeatureForTableCell(text, boundingbox, imageExtent, ocrExtent, "#" + rowIndex, columnName);
+                            features.push(feature);
+                        }
+                    })
+                })
+            }
+            else {
+                if (_.get(field, "page", null) === this.state.currentPage) {
+                    const text = fieldName;
+                    const boundingbox = _.get(field, "boundingBox", []);
+                    const feature = this.createBoundingBoxVectorFeature(text, boundingbox, imageExtent, ocrExtent);
+                    features.push(feature);
+                }
+            }
+        });
         this.imageMap?.addFeatures(features);
         this.tableHelper.drawTables(this.state.currentPage);
     }
@@ -881,7 +991,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 if (response.data.status.toLowerCase() === constants.statusCodeSucceeded) {
                     resolve(response.data);
                     // prediction response from API
-                    console.log("raw data", JSON.parse(response.request.response));
                 } else if (response.data.status.toLowerCase() === constants.statusCodeFailed) {
                     reject(_.get(
                         response,
@@ -901,8 +1010,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private getPredictionsFromAnalyzeResult(analyzeResult: any) {
-        return analyzeResult?.documentResults?.map(item => item.fields)
-            .reduce((val, item) => Object.assign(val, item), ({})) ?? {};
+        const fields = _.get(analyzeResult?.analyzeResult ? analyzeResult?.analyzeResult : analyzeResult, "documentResults[0].fields", {});
+        return fields;
     }
 
     private getAnalyzeModelInfo(analyzeResult) {
@@ -911,7 +1020,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private getOcrFromAnalyzeResult(analyzeResult: any) {
-        return _.get(analyzeResult, "readResults", []);
+        return _.get(analyzeResult?.analyzeResult ? analyzeResult?.analyzeResult : analyzeResult , "readResults", []);
     }
 
     private noOp = () => {
@@ -962,6 +1071,161 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             });
         }
     }
+    private onTablePredictionClick = (predictedItem: ITableResultItem, tagColor: string) => {
+        this.setState({ viewRegionalTable: true, regionalTableToView: predictedItem, tableTagColor: tagColor });
+    }
+
+    private displayRegionalTable = (regionalTableToView) => {
+
+        const tableBody = [];
+        if (regionalTableToView?.type === "array") {
+            const columnHeaderRow = [];
+            const colKeys = Object.keys(regionalTableToView?.valueArray?.[0]?.valueObject || {});
+            if (colKeys.length === 0) {
+                return (
+                    <div>
+                        <h5 className="mb-4 ml-2 mt-2 pb-1">
+                            <span style={{ borderBottom: `4px solid ${this.state.tableTagColor}`}}>Table name: {regionalTableToView.fieldName}</span>
+                        </h5>
+                        <div className="table-view-container">
+                            <table>
+                                <tbody>
+                                    Empty table
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                );
+            }
+            for (let i = 0; i < colKeys.length + 1; i++) {
+                if (i === 0) {
+                    columnHeaderRow.push(
+                        <th key={i} className={"empty_header hidden"}/>
+                    );
+                } else {
+                    columnHeaderRow.push(
+                        <th key={i} className={"column_header"}>
+                            {colKeys[i - 1]}
+                        </th>
+                    );
+                }
+            }
+            tableBody.push(<tr key={0}>{columnHeaderRow}</tr>);
+            regionalTableToView?.valueArray?.forEach((row, rowIndex) => {
+                const tableRow = [];
+                tableRow.push(
+                    <th key={0} className={"row_header hidden"}>
+                        {"#" + rowIndex}
+                    </th>
+                );
+                Object.keys(row?.valueObject).forEach((columnName, columnIndex) => {
+                    const tableCell = row?.valueObject?.[columnName];
+                    tableRow.push(
+                        <td
+                            className={"table-cell"}
+                            key={columnIndex + 1}
+                            onMouseEnter={() => {
+                                this.setState({ highlightedTableCellRowKey: "#" + rowIndex, highlightedTableCellColumnKey: columnName })
+                            }}
+                            onMouseLeave={() => {
+                                this.setState({ highlightedTableCellRowKey: null, highlightedTableCellColumnKey: null })
+                            }}
+                        >
+                            {tableCell ? tableCell.text : null }
+                        </td>
+                    );
+                })
+                tableBody.push(<tr key={(rowIndex + 1)}>{tableRow}</tr>);
+            })
+        }  else {
+            const columnHeaderRow = [];
+            const colKeys = Object.keys(regionalTableToView?.valueObject?.[Object.keys(regionalTableToView?.valueObject)?.[0]]?.valueObject || {});
+            if (colKeys.length === 0) {
+                return (
+                    <div>
+                        <h5 className="mb-4 ml-2 mt-2 pb-1">
+                            <span style={{ borderBottom: `4px solid ${this.state.tableTagColor}`}}>Table name: {regionalTableToView.fieldName}</span>
+                        </h5>
+                        <div className="table-view-container">
+                            <table>
+                                <tbody>
+                                    Empty table
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                );
+            }
+            for (let i = 0; i < colKeys.length + 1; i++) {
+                if (i === 0) {
+                    columnHeaderRow.push(
+                        <th key={i} className={"empty_header hidden"}/>
+                    );
+                } else {
+                    columnHeaderRow.push(
+                        <th key={i} className={"column_header"}>
+                            {colKeys[i - 1]}
+                        </th>
+                    );
+                }
+            }
+            tableBody.push(<tr key={0}>{columnHeaderRow}</tr>);
+            Object.keys(regionalTableToView?.valueObject).forEach((rowName, index) => {
+                const tableRow = [];
+                tableRow.push(
+                    <th key={0} className={"row_header"}>
+                        {rowName}
+                    </th>
+                );
+                if (regionalTableToView?.valueObject?.[rowName]) {
+                    Object.keys(regionalTableToView?.valueObject?.[rowName]?.valueObject)?.forEach((columnName, index) => {
+                        const tableCell = regionalTableToView?.valueObject?.[rowName]?.valueObject?.[columnName];
+                        tableRow.push(
+                            <td
+                                className={"table-cell"}
+                                key={index + 1}
+                                onMouseEnter={() => {
+                                    this.setState({ highlightedTableCellRowKey: rowName, highlightedTableCellColumnKey: columnName })
+                                }}
+                                onMouseLeave={() => {
+                                    this.setState({ highlightedTableCellRowKey: null, highlightedTableCellColumnKey: null })
+                                }}
+                            >
+                                {tableCell ? tableCell.text : null }
+                            </td>
+                        );
+                    });
+                } else {
+                    colKeys.forEach((columnName, index) => {
+                        tableRow.push(
+                            <td
+                                className={"table-cell"}
+                                key={index + 1}
+                            >
+                                {null }
+                            </td>
+                        );
+                    })
+                }
+                tableBody.push(<tr key={index + 1}>{tableRow}</tr>);
+            });
+        }
+
+        return (
+            <div>
+                <h5 className="mb-4 ml-2 mt-2 pb-1">
+                    <span style={{ borderBottom: `4px solid ${this.state.tableTagColor}`}}>Table name: {regionalTableToView.fieldName}</span>
+                </h5>
+                <div className="table-view-container">
+                    <table>
+                        <tbody>
+                            {tableBody}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        );
+}
 
     private onPredictionMouseEnter = (predictedItem: any) => {
         this.setState({
@@ -985,6 +1249,19 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             }
         }
     }
+
+    private setPredictedFieldTableCellHighlightStatus = (highlightedTableCellRowKey: string, highlightedTableCellColumnKey: string) => {
+        const features = this.imageMap.getAllFeatures();
+        for (const feature of features) {
+            if (highlightedTableCellRowKey && highlightedTableCellColumnKey && feature.get("rowKey")?.toLocaleLowerCase() === highlightedTableCellRowKey?.toLocaleLowerCase() &&
+                feature.get("columnKey")?.toLocaleLowerCase() === highlightedTableCellColumnKey?.toLocaleLowerCase()) {
+                feature.set("isHighlighted", true);
+            } else {
+                feature.set("isHighlighted", false);
+            }
+        }
+    }
+
     private handleModelSelection = () => {
         const selectedIndex = this.getSelectedIndex();
         if (selectedIndex !== this.state.selectionIndexTracker) {

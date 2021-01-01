@@ -1,0 +1,219 @@
+@import "../../../../assets/sass/theme.scss";
+@import "./tagInputSize.scss";
+
+
+.config-view_container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 1px;
+    padding-right: 12px;
+    h5, h4 {
+        margin-left: 12px;
+    }
+
+    .table-name_input {
+        width: 100%;
+        padding-right: 10px;
+    }
+
+    .columns_container, .rows_container {
+        margin-top: 2rem;
+        width: 99%;
+        h5 {
+            margin-left: 0;
+        }
+
+        .columns, .rows {
+            width: 99%;
+            margin-right: 2%;
+            background-color: $darker-2;
+        }
+        .ms-DetailsRow-cellCheck {
+            margin-right: -12px;
+            margin-top: 23px;
+        }
+
+        .ms-List-cell:not(:last-child){
+            border-bottom: 1px solid $lighter-4;
+        }
+
+        .column-name_input, .row-name_input {
+            margin-top: 16px;
+        }
+        .input-label-original-name {
+            color: rgb(177, 177, 177);
+            margin-bottom: 2px;
+            margin-right: 2px;
+            text-align: left;
+            margin-top: -24px;
+        }
+    }
+
+    .list_header {
+        width: 100%;
+        .ms-Button-label {
+            margin: 0 -4px;
+        }
+        .list-headers {
+            text-align: left;
+
+        &_name {
+            text-align: left;
+        }
+        &_type {
+            text-align: left;
+            margin: 0 20px;
+        }
+        &_format {
+            text-align: left;
+        }
+    }
+}
+
+    .add_button {
+        margin-top: 8px;
+        margin-left: 0px;
+        width: 140px
+    }
+
+    .control-buttons_container {
+        display: flex;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        justify-content: flex-end;
+        .save {
+            margin-left: 1rem;
+        }
+    }
+
+
+    .preview_container {
+        margin-top: 2rem;
+        h5 {
+            margin-left: 0;
+        }
+        .tableName {
+            &-current {
+                padding: 0 1px 2px 1px;
+            }
+            &-original {
+                margin-bottom: 0px;
+                text-decoration: line-through;
+                color: rgb(177, 177, 177);
+                font-size: small;
+            }
+        }
+
+        .table_container {
+            overflow: auto;
+            margin-top: 1rem;
+            .table {
+                td, th {
+                    border: 2px solid #8D8D8D;
+                    color: white;
+                    padding: 0;
+                    margin: 0;
+                }
+                .header {
+                    &_column, &_row {
+                        min-width: 130px;
+                        max-width: 200px;
+                        background-color: $lighter-3;
+                        border: 2px solid grey;
+                        text-align: center;
+                        padding: .125rem .5rem;
+                        .value {
+                        }
+                        .renamed-value {
+                            text-decoration: line-through;
+                            color: rgb(177, 177, 177);
+                            font-size: small;
+                        }
+                    }
+                    &_empty {
+                        border: 2px solid grey;
+                        background-color: $lighter-3;
+                    }
+                }
+                .table-cell {
+                    text-align: center;
+                    background-color: $darker-3;
+                    color: rgba(255, 255, 255, 0.75);
+                    height: 1.5rem;
+                }
+                .hidden {
+                    border: none;
+                    font-size: small;
+                    font-weight: 300;
+                    background-color: transparent;
+                    text-align: right;
+                    vertical-align: middle;
+                    color: rgba(255, 255, 255, 0.45);
+                    width: 3rem;
+                    padding-right: 0.4rem;
+                }
+            }
+        }
+        .rowDynamic_message {
+            margin-bottom: 4px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+    }
+}
+
+
+
+// ========= utility classes
+
+.original-value, .renamed-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.ml-12px {
+    margin-left: 12px;
+}
+
+  .ms-TextField-errorMessage {
+      padding: 0 0 .25rem .25rem;
+    span {
+        color: #db7272;
+    }
+}
+
+ .ms-DetailsRow-cellCheck {
+    display: flex;
+    width: 22px;
+    height: 28px;
+    margin-right: -12px;
+    margin-top: 6px;
+ }
+
+ .renamed-header-value {
+
+
+ }
+
+ .original-table-name {
+    margin-left: 12px;
+    color: rgb(177, 177, 177);
+    margin-bottom: 2px;
+ }
+
+.restore-button {
+    color: #2d8eac;
+    &:hover {
+        color: #6ac5e1;
+    }
+    &:active {
+        color: #91cee0;
+    }
+}
+
+.compact-row {
+    border-bottom: 0.5px solid $lighter-4;
+ }
+
+.table-name-preview {
+    font-weight: bold;
+}

@@ -14,6 +14,7 @@ import {
     IContextualMenuProps
 } from "@fluentui/react";
 import Fill from "ol/style/Fill";
+import Icon from "ol/style/Icon";
 import Stroke from "ol/style/Stroke";
 import Style from "ol/style/Style";
 import React from "react";

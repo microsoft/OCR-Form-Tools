@@ -10,6 +10,7 @@ import {
     FieldFormat,
     IField,
     IFieldInfo,
+    ITableTag, ITableField, TableHeaderTypeAndFormat, ITableLabel, ILabelData, TableVisualizationHint
 } from "../models/applicationState";
 import Guard from "../common/guard";
 import { constants } from "../common/constants";
@@ -17,6 +18,7 @@ import { decryptProject, encryptProject, joinPath, patch, getNextColor } from ".
 import packageJson from "../../package.json";
 import { strings, interpolate } from "../common/strings";
 import { toast } from "react-toastify";
+import clone from "rfdc";
 
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../react/components/common/tagColors.json");
@@ -40,7 +42,7 @@ export interface IProjectService {
     delete(project: IProject): Promise<void>;
     isDuplicate(project: IProject, projectList: IProject[]): boolean;
     updateProjectTagsFromFiles(oldProject: IProject): Promise<IProject>;
-    updatedAssetMetadata(oldProject: IProject, assetDocumentCountDifference: []): Promise<IProject>;
+    updatedAssetMetadata(oldProject: IProject, assetDocumentCountDifference: any, columnDocumentCountDifference: any, rowDocumentCountDifference: any): Promise<IProject>;
 }
 
 /**
@@ -192,23 +194,27 @@ export default class ProjectService implements IProjectService {
         }
     }
 
-    public async updatedAssetMetadata(project: IProject,  assetDocumentCountDifference: any): Promise<IProject> {
-        const updatedProject = Object.assign({}, project);
-        const tags: ITag[] = [];
-        updatedProject.tags.forEach((tag) => {
-            const diff = assetDocumentCountDifference[tag.name];
+    public async updatedAssetMetadata(project: IProject,  assetDocumentCountDifference: any, columnDocumentCountDifference?: any,
+        rowDocumentCountDifference?: any): Promise<IProject> {
+        const updatedProject = clone()(project);
+        updatedProject.tags?.forEach((tag: ITag) => {
+            const diff = assetDocumentCountDifference?.[tag.name];
             if (diff) {
-                tags.push({
-                    ...tag,
-                    documentCount: tag.documentCount + diff,
-                } as ITag);
-            } else {
-                tags.push({
-                    ...tag,
-                } as ITag);
+                tag.documentCount += diff;
+            }
+            if (tag.type === FieldType.Object || tag.type === FieldType.Array) {
+                // (tag as ITableTag).columnKeys?.forEach((columnKey) => {
+                //     if (columnDocumentCountDifference?.[tag.name]?.[columnKey.fieldKey]) {
+                //         columnKey.documentCount += columnDocumentCountDifference[tag.name][columnKey.fieldKey];
+                //     }
+                // });
+                // (tag as ITableTag).rowKeys?.forEach((rowKey) => {
+                //     if (rowDocumentCountDifference?.[tag.name]?.[rowKey.fieldKey]) {
+                //         rowKey.documentCount += rowDocumentCountDifference[tag.name][rowKey.fieldKey]
+                //     }
+                // });
             }
         });
-        updatedProject.tags = tags;
         if (JSON.stringify(updatedProject.tags) === JSON.stringify(project.tags)) {
             return project;
         } else {
@@ -241,13 +247,22 @@ export default class ProjectService implements IProjectService {
                     && blobs.has(blob.substr(0, blob.length - constants.labelFileExtension.length))) {
                     try {
                         if (!assetLabel || assetLabel === blob) {
-                            const content = JSON.parse(await storageProvider.readText(blob));
+                            const content = JSON.parse(await storageProvider.readText(blob)) as ILabelData;
                             content.labels.forEach((label) => {
-                                tagNameSet.add(label.label);
-                                if (tagDocumentCount[label.label]) {
-                                    tagDocumentCount[label.label] += 1;
+                                if (content.$schema === constants.labelsSchema && label.label.split("/").length > 1) {
+                                    return;
+                                }
+                                let labelName;
+                                if (content.$schema === constants.labelsSchema) {
+                                    labelName = label.label.replace(/\~1/g, "/").replace(/\~0/g, "~");
                                 } else {
-                                    tagDocumentCount[label.label] = 1;
+                                    labelName = label.label
+                                }
+                                tagNameSet.add(labelName);
+                                if (tagDocumentCount[labelName]) {
+                                    tagDocumentCount[labelName] += 1;
+                                } else {
+                                    tagDocumentCount[labelName] = 1;
                                 }
                             });
                         }
@@ -302,13 +317,47 @@ export default class ProjectService implements IProjectService {
             const fieldInfo = JSON.parse(json) as IFieldInfo;
             const tags: ITag[] = [];
             fieldInfo.fields.forEach((field, index) => {
-                tags.push({
-                    name: field.fieldKey,
-                    color: tagColors[index],
-                    type: normalizeFieldType(field.fieldType),
-                    format: field.fieldFormat,
-                    documentCount: 0,
-                } as ITag);
+                if (field.fieldType === FieldType.Object || field.fieldType === FieldType.Array) {
+                    const tableDefinition = fieldInfo?.definitions?.[field.fieldKey + "_object"];
+                    if (!tableDefinition) {
+                        toast.info("Table field " + field.fieldKey + " has no definition.")
+                        return;
+                    }
+                    if (field.fieldType === FieldType.Object) {
+                        tags.push({
+                            name: field.fieldKey,
+                            color: tagColors[index],
+                            type: normalizeFieldType(field.fieldType),
+                            format: field.fieldFormat,
+                            documentCount: 0,
+                            itemType: (field as ITableField).itemType,
+                            fields: (field as ITableField).fields,
+                            definition: tableDefinition,
+                            visualizationHint: (field as ITableField).visualizationHint || TableVisualizationHint.Vertical
+                        } as ITableTag);
+                    } else {
+                        tags.push({
+                            name: field.fieldKey,
+                            color: tagColors[index],
+                            type: normalizeFieldType(field.fieldType),
+                            format: field.fieldFormat,
+                            documentCount: 0,
+                            itemType: (field as ITableField).itemType,
+                            fields: (field as ITableField).fields,
+                            definition: tableDefinition,
+                            visualizationHint: null,
+                        } as ITableTag);
+                    }
+
+                } else {
+                    tags.push({
+                        name: field.fieldKey,
+                        color: tagColors[index],
+                        type: normalizeFieldType(field.fieldType),
+                        format: field.fieldFormat,
+                        documentCount: 0,
+                    } as ITag);
+                }
             });
             if (project.tags) {
                 project.tags = patch(project.tags, tags, "name", ["type", "format"]);
@@ -372,13 +421,33 @@ export default class ProjectService implements IProjectService {
         Guard.null(project);
         Guard.null(project.tags);
 
-        const fieldInfo = {
-            fields: project.tags.map((tag) => ({
-                fieldKey: tag.name,
-                fieldType: tag.type ? tag.type : FieldType.String,
-                fieldFormat: tag.format ? tag.format : FieldFormat.NotSpecified,
-            } as IField)),
-        };
+        const definitions = {};
+        const fieldInfo = {};
+        fieldInfo["$schema"] = "http://www.azure.com/schema/formrecognizer/fields.json"
+        fieldInfo["fields"] =
+            project.tags.map((tag ) => {
+                if (tag.type === FieldType.Object || tag.type === FieldType.Array) {
+                    const tableField = {
+                        fieldKey: tag.name,
+                        fieldType: tag.type ? tag.type : FieldType.String,
+                        fieldFormat: tag.format ? tag.format : FieldFormat.NotSpecified,
+                        itemType: (tag as ITableTag).itemType,
+                        fields: (tag as ITableTag).fields,
+                    } as ITableField;
+                    if (tag.type === FieldType.Object) {
+                        tableField.visualizationHint = (tag as ITableTag).visualizationHint
+                    }
+                    definitions[(tag as ITableTag).definition.fieldKey] = (tag as ITableTag).definition;
+                    return tableField;
+                } else {
+                    return ({
+                        fieldKey: tag.name,
+                        fieldType: tag.type ? tag.type : FieldType.String,
+                        fieldFormat: tag.format ? tag.format : FieldFormat.NotSpecified,
+                    } as IField)
+                }
+            })
+        fieldInfo["definitions"] = definitions;
 
         const fieldFilePath = joinPath("/", project.folderPath, constants.fieldsFileName);
         await storageProvider.writeText(fieldFilePath, JSON.stringify(fieldInfo, null, 4));

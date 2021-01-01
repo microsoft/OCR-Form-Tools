@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {FontIcon, IconButton} from "@fluentui/react";
+import { FontIcon, IconButton } from "@fluentui/react";
 import _ from "lodash";
-import React, {Fragment, MouseEvent} from "react";
-import {strings} from "../../../../common/strings";
-import {FieldFormat, FieldType, ILabel, ITag} from "../../../../models/applicationState";
-import {tagIndexKeys} from "./tagIndexKeys";
+import React, { Fragment, MouseEvent } from "react";
+import { strings } from "../../../../common/strings";
+import { FieldFormat, FieldType, ILabel, ITableLabel, ITag, TagInputMode } from "../../../../models/applicationState";
+import { tagIndexKeys } from "./tagIndexKeys";
 import TagInputItemLabel from "./tagInputItemLabel";
 
 export interface ITagClickProps {
@@ -41,9 +41,11 @@ export interface ITagInputItemProps {
     onClick: (tag: ITag, props: ITagClickProps) => void;
     /** Apply new name to tag */
     onRename: (oldTag: ITag, newName: string, cancelCallback: () => void) => void;
-    onLabelEnter: (label: ILabel) => void;
+    onLabelEnter: (label: ILabel|ITableLabel) => void;
     onLabelLeave: (label: ILabel) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
+    handleLabelTable: (tagInputMode: TagInputMode, selectedTableTagToLabel) => void;
+    addRowToDynamicTable: () => void;
     onTagDoubleClick?: (label: ILabel) => void;
 }
 
@@ -185,20 +187,23 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                     <FontIcon iconName="Link" className="pl-1" />
                 }
                 <div className="tag-name-body">
-                    <input
-                        ref={this.onInputRef}
-                        style={{display: this.state.isRenaming ? "block" : "none"}}
-                        className={`tag-name-editor ${this.getContentClassName()}`}
-                        type="text"
-                        defaultValue={this.props.tag.name}
-                        onKeyDown={(e) => this.onInputKeyDown(e)}
-                        onBlur={this.onInputBlur}
-                        autoFocus={true}
-                    />
-
-                    {!this.state.isRenaming && <span title={spanValue} className={this.getContentClassName()}>
-                        {spanValue}
-                    </span>}
+                    {
+                        this.state.isRenaming
+                            ?
+                            <input
+                                ref={this.onInputRef}
+                                className={`tag-name-editor ${this.getContentClassName()}`}
+                                type="text"
+                                defaultValue={this.props.tag.name}
+                                onKeyDown={(e) => this.onInputKeyDown(e)}
+                                onBlur={this.onInputBlur}
+                                autoFocus={true}
+                            />
+                            :
+                            <span title={this.props.tag.name} className={this.getContentClassName()}>
+                                {this.props.tag.name}
+                            </span>
+                    }
                 </div>
                 <div className={"tag-icons-container"}>
                     {(displayIndex !== null)
@@ -211,7 +216,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                         title={strings.tags.toolbar.contextualMenu}
                         ariaLabel={strings.tags.toolbar.contextualMenu}
                         className="tag-input-toolbar-iconbutton ml-2"
-                        iconProps={{iconName: "ChevronDown"}}
+                        iconProps={{ iconName: "ChevronDown" }}
                         onClick={this.onDropdownClick} />
                 </div>
             </div>
@@ -219,46 +224,65 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
     }
 
     private renderTagDetail = () => {
-        let confidence = _.get(this.props, "labels[0].confidence", null);
-        if (confidence > .995) {
-            confidence = 0.995;
-        }
-        const revised = _.get(this.props, "labels[0].revised", false);
-        return this.props.labels.map((label, idx) =>
-            <Fragment key={idx}>
-                <div className="tag-item-label-container">
-                    {(confidence||revised) &&
-                        <div className="tag-item-label-container-item1">
-                            {!revised && confidence &&
-                                <div className="tag-item-confidence">
-                                    {confidence}
-                                </div>
+        if (this.props.tag.type === FieldType.Object || this.props.tag.type === FieldType.Array) {
+            return (
+                <div
+                    className={"tag-item-label px-2"}
+                    onClick={() => {
+                        this.props.handleLabelTable(TagInputMode.LabelTable, this.props.tag);
+                        this.props.onLabelLeave(this.props.labels[0]);
+                    }}
+                    onMouseEnter={() => this.props.onLabelEnter(this.props.labels[0])}
+                    onMouseLeave={() => this.props.onLabelLeave(this.props.labels[0])}
+                >
+                    <FontIcon
+                        className="pr-1 pl-1" iconName="Table"
+                    />
+                Click to assign labels
+                </div>
+            );
+        } else {
+            let confidence = _.get(this.props, "labels[0].confidence", null);
+            if (confidence > .995) {
+                confidence = 0.995;
+            }
+            const revised = _.get(this.props, "labels[0].revised", false);
+            return this.props.labels.map((label, idx) =>
+                <Fragment key={idx}>
+                    <div className="tag-item-label-container">
+                        {(confidence || revised) &&
+                            <div className="tag-item-label-container-item1">
+                                {!revised && confidence &&
+                                    <div className="tag-item-confidence">
+                                        {confidence}
+                                    </div>
+                                }
+                                {revised &&
+                                    <FontIcon iconName="StatusCircleCheckmark" className="ms-Icon-25px" />
+                                }
+                            </div>
+                        }
+                        <div className="tag-item-label-container-item2">
+                            {this.props.showOriginLabels && label.originValue &&
+                                <TagInputItemLabel
+                                    label={label}
+                                    isOrigin={true}
+                                    value={label.originValue}
+                                    prefixText={strings.tags.preText.autoLabel}/>
                             }
-                            {revised &&
-                                <FontIcon iconName="StatusCircleCheckmark" className="ms-Icon-25px" />
+                            {(label.originValue?.length > 0 || label.value?.length > 0) &&
+                                <TagInputItemLabel
+                                    label={label}
+                                    value={label.value}
+                                    isOrigin={false}
+                                    onLabelEnter={this.props.onLabelEnter}
+                                    onLabelLeave={this.props.onLabelLeave}
+                                    prefixText={revised ? strings.tags.preText.revised : undefined}/>
                             }
                         </div>
-                    }
-                    <div className="tag-item-label-container-item2">
-                        {this.props.showOriginLabels && label.originValue &&
-                            <TagInputItemLabel
-                                label={label}
-                                isOrigin={true}
-                                value={label.originValue}
-                                prefixText={strings.tags.preText.autoLabel}
-                            />
-                        }
-                        {(label.originValue?.length > 0 || label.value?.length > 0) && <TagInputItemLabel
-                            label={label}
-                            value={label.value}
-                            isOrigin={false}
-                            onLabelEnter={this.props.onLabelEnter}
-                            onLabelLeave={this.props.onLabelLeave}
-                            prefixText={revised ? strings.tags.preText.revised : undefined}
-                        />}
                     </div>
-                </div>
-            </Fragment>);
+                </Fragment>);
+        }
     }
     private onInputRef = (element: HTMLInputElement) => {
         this.inputElement = element;
@@ -312,7 +336,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
     }
 
     private isTypeOrFormatSpecified = () => {
-        const {tag} = this.props;
+        const { tag } = this.props;
         return (tag.type && tag.type !== FieldType.String) ||
             (tag.format && tag.format !== FieldFormat.NotSpecified);
     }

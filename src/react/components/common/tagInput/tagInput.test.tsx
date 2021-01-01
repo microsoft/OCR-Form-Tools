@@ -30,6 +30,16 @@ describe("Tag Input Component", () => {
             labels: [],
             onLabelEnter: jest.fn(),
             onLabelLeave: jest.fn(),
+            tagInputMode: null,
+            selectedTableTagToLabel: null,
+            handleLabelTable: null,
+            addRowToDynamicTable: null,
+            reconfigureTableConfirm: null,
+            handleTableCellClick: null,
+            selectedTableTagBody: null,
+            splitPaneWidth: null,
+            handleTableCellMouseEnter: null,
+            handleTableCellMouseLeave: null
         };
     }
 

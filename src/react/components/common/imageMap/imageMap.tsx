@@ -87,7 +87,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
     private modify: Modify;
     private snap: Snap;
 
-    private drawnFeatures: Collection = new Collection([], {unique: true});
+    private drawnFeatures: Collection = new Collection([], { unique: true });
     public modifyStartFeatureCoordinates: any = {};
 
     private imageExtent: number[];
@@ -204,7 +204,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
                 onMouseEnter={this.handlePointerEnterImageMap}
                 className="map-wrapper"
             >
-                <div style={{cursor: this.getCursor()}} id="map" className="map" ref={(el) => this.mapElement = el} />
+                <div style={{ cursor: this.getCursor() }} id="map" className="map" ref={(el) => this.mapElement = el} />
             </div>
         );
     }
@@ -483,7 +483,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
         this.drawRegionVectorLayer?.getSource().clear();
         this.drawnLabelVectorLayer?.getSource().clear();
 
-        this.drawnFeatures = new Collection([], {unique: true});
+        this.drawnFeatures = new Collection([], { unique: true });
 
         this.drawRegionVectorLayer.getSource().on("addfeature", (evt) => {
             this.pushToDrawnFeatures(evt.feature, this.drawnFeatures);

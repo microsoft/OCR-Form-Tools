@@ -8,6 +8,8 @@
     &-input {
         display: flex;
         flex-grow: 1;
+        overflow-y: auto;
+        max-width: 100% !important;
         flex-direction: column;
         user-select: none;
         background: $lighter-1;
@@ -36,6 +38,18 @@
             &-container{
                 overflow-x: visible;
                 overflow-y: auto;
+                // padding: 0 0 0 100px;
+                // margin: 0 0 0 -100px;
+                &::before{
+                    // content: " ";
+                    // display: inline-block;
+                    // position: absolute;
+                    // width: 80px;
+                    // height: 100%;
+                    // left: -80px;
+                    // background: linear-gradient(to right, #00000000 0%,#000000 100%);
+                }
+
             };
         }
 

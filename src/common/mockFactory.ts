@@ -489,6 +489,7 @@ export default class MockFactory {
             saveAssetMetadataAndCleanEmptyLabel: jest.fn(()=> Promise.resolve()),
             updateProjectTag: jest.fn(() => Promise.resolve()),
             deleteProjectTag: jest.fn(() => Promise.resolve()),
+            reconfigureTableTag: jest.fn(() => Promise.resolve()),
         };
     }
 
