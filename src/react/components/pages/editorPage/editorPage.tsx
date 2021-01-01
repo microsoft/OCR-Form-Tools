@@ -230,13 +230,13 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 }
                 {
                     tagIndexKeys.map((index) =>
-                        (<KeyboardBinding
-                            displayName={strings.editorPage.tags.hotKey.apply}
-                            key={index}
-                            keyEventType={KeyEventType.KeyDown}
-                            accelerators={[`${index}`]}
-                            icon={"fa-tag"}
-                            handler={this.handleTagHotKey} />))
+                    (<KeyboardBinding
+                        displayName={strings.editorPage.tags.hotKey.apply}
+                        key={index}
+                        keyEventType={KeyEventType.KeyDown}
+                        accelerators={[`${index}`]}
+                        icon={"fa-tag"}
+                        handler={this.handleTagHotKey} />))
                 }
                 <SplitPane
                     split="vertical"
@@ -277,13 +277,13 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
                     </div>
                     <div className="editor-page-content" onClick={this.onPageClick}>
-                        <SplitPane split = "vertical"
+                        <SplitPane split="vertical"
                             primary="second"
                             maxSize={isBasicInputMode ? 400 : 700}
                             minSize={this.initialRightSplitPaneWidth}
                             className={"right-vertical_splitPane"}
                             pane1Style={{ height: "100%" }}
-                            pane2Style = {{height: "auto"}}
+                            pane2Style={{ height: "auto" }}
                             resizerStyle={{
                                 width: "5px",
                                 margin: "0px",
@@ -353,7 +353,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     onLabelEnter={this.onLabelEnter}
                                     onLabelLeave={this.onLabelLeave}
                                     onTagChanged={this.onTagChanged}
-                                    ref = {this.tagInputRef}
+                                    ref={this.tagInputRef}
                                     setTagInputMode={this.setTagInputMode}
                                     tagInputMode={this.state.tagInputMode}
                                     handleLabelTable={this.handleLabelTable}
@@ -366,7 +366,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     reconfigureTableConfirm={this.reconfigureTableConfirm}
                                     addRowToDynamicTable={this.addRowToDynamicTable}
                                     onTagDoubleClick={this.onLabelDoubleClicked}
-                                    />
+                                />
                                 <Confirm
                                     title={strings.editorPage.tags.rename.title}
                                     loadMessage={"Renaming..."}
@@ -395,21 +395,21 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                         onConfirm={this.onAssetDeleted}
                                     />
                                 }
-                                    <Confirm
-                                        title={strings.tags.regionTableTags.confirm.reconfigure.title}
-                                        loadMessage={"Reconfiguring..."}
-                                        ref={this.reconfigTableConfirm}
-                                        message={strings.tags.regionTableTags.confirm.reconfigure.message}
-                                        confirmButtonTheme={getPrimaryBlueTheme()}
-                                        onConfirm={this.reconfigureTable}
-                                    />
-                                    <Confirm
-                                        title={strings.tags.warnings.replaceAllExitingLabelsTitle}
-                                        ref={this.replaceConfirmRef}
-                                        message={strings.tags.warnings.replaceAllExitingLabels}
-                                        confirmButtonTheme={getPrimaryRedTheme()}
-                                        onConfirm={this.onTableTagClicked}
-                                    />
+                                <Confirm
+                                    title={strings.tags.regionTableTags.confirm.reconfigure.title}
+                                    loadMessage={"Reconfiguring..."}
+                                    ref={this.reconfigTableConfirm}
+                                    message={strings.tags.regionTableTags.confirm.reconfigure.message}
+                                    confirmButtonTheme={getPrimaryBlueTheme()}
+                                    onConfirm={this.reconfigureTable}
+                                />
+                                <Confirm
+                                    title={strings.tags.warnings.replaceAllExitingLabelsTitle}
+                                    ref={this.replaceConfirmRef}
+                                    message={strings.tags.warnings.replaceAllExitingLabels}
+                                    confirmButtonTheme={getPrimaryRedTheme()}
+                                    onConfirm={this.onTableTagClicked}
+                                />
 
                             </div>
                         </SplitPane>
@@ -438,7 +438,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                     message={strings.editorPage.warningMessage.PreventLeavingWhileRunningOCR}
                 />
                 <PreventLeaving
-                    when={isCanvasRunningAutoLabeling||isRunningAutoLabelings}
+                    when={isCanvasRunningAutoLabeling || isRunningAutoLabelings}
                     message={strings.editorPage.warningMessage.PreventLeavingRunningAutoLabeling} />
             </div>
         );
@@ -459,13 +459,13 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private setTagInputMode = (tagInputMode: TagInputMode, selectedTableTagToLabel: ITableTag = this.state.selectedTableTagToLabel, selectedTableTagBody: ITableRegion[][][] = this.state.selectedTableTagBody) => {
         // this.resizeCanvas();
 
-            this.setState({
-                selectedTableTagBody,
-                selectedTableTagToLabel,
-                tagInputMode,
-            }, () => {
-                this.resizeCanvas();
-            });
+        this.setState({
+            selectedTableTagBody,
+            selectedTableTagToLabel,
+            tagInputMode,
+        }, () => {
+            this.resizeCanvas();
+        });
 
     }
 
@@ -533,7 +533,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private addRowToDynamicTable = () => {
         const selectedTableTagBody = clone()(this.state.selectedTableTagBody)
         selectedTableTagBody.push(Array(this.state.selectedTableTagToLabel.definition.fields.length));
-        this.setState({selectedTableTagBody});
+        this.setState({ selectedTableTagBody });
     }
 
     private handleTableCellClick = (rowIndex: number, columnIndex: number) => {
@@ -544,9 +544,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 this.replaceConfirmRef.current.open(this.state.selectedTableTagToLabel, rowIndex, columnIndex);
                 return;
             }
-    
         }
- 
+
         this.onTableTagClicked(this.state.selectedTableTagToLabel, rowIndex, columnIndex);
     }
 
@@ -622,11 +621,13 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             const assetUpdates = await this.props.actions.reconfigureTableTag(this.props.project, tag.name, newTag.name, newTag.type, newTag.format, (newTag as ITableTag).visualizationHint, undefined, undefined, undefined, undefined);
             const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
             if (selectedAsset) {
-                this.setState({ selectedAsset,
+                this.setState({
+                    selectedAsset,
                     selectedTableTagToLabel: null,
-                    selectedTableTagBody: null, }, () => {
-                        this.canvas.current.temp();
-                    });
+                    selectedTableTagBody: null,
+                }, () => {
+                    this.canvas.current.temp();
+                });
             }
         } else {
             const assetUpdates = await this.props.actions.updateProjectTag(this.props.project, tag, newTag);
@@ -796,7 +797,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                     ...asset,
                 };
             }
-            return {assets, isValid: true};
+            return { assets, isValid: true };
         }, () => {
             this.handleLabelTable();
         });
@@ -811,10 +812,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             const assets: IAsset[] = [...preState.assets];
             const assetIndex = assets.findIndex((item) => item.id === asset.id);
             if (assetIndex > -1) {
-                const item = {...assets[assetIndex]};
+                const item = { ...assets[assetIndex] };
                 item.cachedImage = (contentSource as HTMLImageElement).src;
                 assets[assetIndex] = item;
-                return {assets};
+                return { assets };
             }
         });
     }
@@ -893,8 +894,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             tableToViewId: null,
             selectedAsset: assetMetadata,
         }, async () => {
-                await this.onAssetMetadataChanged(assetMetadata);
-                await this.props.actions.saveProject(this.props.project, false, false);
+            await this.onAssetMetadataChanged(assetMetadata);
+            await this.props.actions.saveProject(this.props.project, false, false);
         });
     }
 
@@ -907,7 +908,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const assetUpdates = await this.props.actions.reconfigureTableTag(this.props.project, originalTagName, tagName, tagType, tagFormat, visualizationHint, deletedColumns, deletedRows, newRows, newColumns);
         const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
         if (selectedAsset) {
-          this.setState({
+            this.setState({
                 selectedAsset,
                 selectedTableTagToLabel: null,
                 selectedTableTagBody: null,
@@ -916,7 +917,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             });
         }
         this.reconfigTableConfirm.current.close();
-        this.setState({tagInputMode: TagInputMode.Basic, reconfigureTableConfirm: false}, () => this.resizeCanvas());
+        this.setState({ tagInputMode: TagInputMode.Basic, reconfigureTableConfirm: false }, () => this.resizeCanvas());
         this.resizeCanvas();
     }
 
@@ -930,7 +931,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             if (key === "cachedImage") {
                 return undefined;
             }
-            else{
+            else {
                 return value;
             }
         }
@@ -985,10 +986,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                         const asset = this.state.assets.find((asset) => asset.id === assetId);
                         if (asset && (asset.state === AssetState.NotVisited || runForAll)) {
                             try {
-                                this.updateAssetOCRAndAutoLabelingState({id: asset.id, isRunningOCR: true });
+                                this.updateAssetOCRAndAutoLabelingState({ id: asset.id, isRunningOCR: true });
                                 const ocrResult = await ocrService.getRecognizedText(asset.path, asset.name, asset.mimeType, undefined, runForAll);
                                 if (ocrResult) {
-                                    this.updateAssetOCRAndAutoLabelingState({id: asset.id, isRunningOCR: false});
+                                    this.updateAssetOCRAndAutoLabelingState({ id: asset.id, isRunningOCR: false });
                                     await this.props.actions.refreshAsset(this.props.project, asset.name);
                                 }
                             } catch (err) {
@@ -1032,7 +1033,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                     unlabeledAssetsBatch,
                     async (asset) => {
                         try {
-                            this.updateAssetOCRAndAutoLabelingState({id: asset.id, isRunningAutoLabeling: true});
+                            this.updateAssetOCRAndAutoLabelingState({ id: asset.id, isRunningAutoLabeling: true });
                             const predictResult = await predictService.getPrediction(asset.path);
                             const assetMetadata = await assetService.getAssetPredictMetadata(asset, predictResult);
                             await assetService.uploadPredictResultAsOrcResult(asset, predictResult);
@@ -1041,7 +1042,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                             allAssets[asset.id] = assetMetadata.asset;
                             await this.props.actions.updatedAssetMetadata(this.props.project, assetMetadata);
                         } catch (err) {
-                            this.updateAssetOCRAndAutoLabelingState({id: asset.id, isRunningOCR: false, isRunningAutoLabeling: false});
+                            this.updateAssetOCRAndAutoLabelingState({ id: asset.id, isRunningOCR: false, isRunningAutoLabeling: false });
                             this.setState({
                                 isError: true,
                                 errorTitle: err.title,
@@ -1051,7 +1052,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                     }
                 );
             } finally {
-                await this.props.actions.saveProject({...this.props.project, assets: allAssets}, true, false);
+                await this.props.actions.saveProject({ ...this.props.project, assets: allAssets }, true, false);
                 this.setState({ isRunningAutoLabelings: false });
                 this.isOCROrAutoLabelingBatchRunning = false;
             }
@@ -1073,7 +1074,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         this.setState((state) => {
             const assets = state.assets.map((asset) => {
                 if (asset.id === newState.id) {
-                    const updatedAsset = {...asset, isRunningOCR: newState.isRunningOCR || false};
+                    const updatedAsset = { ...asset, isRunningOCR: newState.isRunningOCR || false };
                     if (newState.isRunningAutoLabeling !== undefined) {
                         updatedAsset.isRunningAutoLabeling = newState.isRunningAutoLabeling;
                     }
@@ -1086,18 +1087,18 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 assets
             }
         }, () => {
-                if (this.state.selectedAsset?.asset?.id === newState.id) {
-                    const asset = this.state.assets.find((asset) => asset.id === newState.id);
-                    if (this.state.selectedAsset && newState.id === this.state.selectedAsset.asset.id) {
-                        if (asset) {
-                            this.setState({
-                                selectedAsset: { ...this.state.selectedAsset, asset: { ...asset } },
-                            });
-                        }
+            if (this.state.selectedAsset?.asset?.id === newState.id) {
+                const asset = this.state.assets.find((asset) => asset.id === newState.id);
+                if (this.state.selectedAsset && newState.id === this.state.selectedAsset.asset.id) {
+                    if (asset) {
+                        this.setState({
+                            selectedAsset: { ...this.state.selectedAsset, asset: { ...asset } },
+                        });
                     }
                 }
+            }
 
-            });
+        });
     }
 
     /**
@@ -1164,20 +1165,20 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     private onCanvasRunningOCRStatusChanged = (ocrStatus: OcrStatus) => {
         if (ocrStatus === OcrStatus.done && this.state.selectedAsset?.asset?.state === AssetState.NotVisited) {
-            const allAssets: {[index: string]: IAsset} = _.cloneDeep(this.props.project.assets);
+            const allAssets: { [index: string]: IAsset } = _.cloneDeep(this.props.project.assets);
             const asset = Object.values(allAssets).find(item => item.id === this.state.selectedAsset?.asset?.id);
             if (asset) {
                 asset.state = AssetState.Visited;
-                Promise.all([this.props.actions.saveProject({...this.props.project, assets: allAssets}, false, false)]);
+                Promise.all([this.props.actions.saveProject({ ...this.props.project, assets: allAssets }, false, false)]);
             }
         }
-        this.setState({isCanvasRunningOCR: ocrStatus === OcrStatus.runningOCR});
+        this.setState({ isCanvasRunningOCR: ocrStatus === OcrStatus.runningOCR });
     }
     private onCanvasRunningAutoLabelingStatusChanged = (isCanvasRunningAutoLabeling: boolean) => {
         this.setState({ isCanvasRunningAutoLabeling });
     }
     private onFocused = () => {
-        if(!this.isOCROrAutoLabelingBatchRunning){
+        if (!this.isOCROrAutoLabelingBatchRunning) {
             this.loadProjectAssets();
         }
     }

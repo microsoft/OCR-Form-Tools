@@ -51,7 +51,7 @@ export interface ICanvasProps extends React.Props<Canvas> {
     editorMode: EditorMode;
     project: IProject;
     lockedTags: string[];
-    hoveredLabel: ILabel|any;
+    hoveredLabel: ILabel | any;
     isRunningOCRs?: boolean;
     children?: ReactElement<AssetPreview>;
     setTableToView?: (tableToView: object, tableToViewId: string) => void;
@@ -222,9 +222,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 currentAsset: this.props.selectedAsset
             }, () => {
 
-                    const newRegions = this.convertLabelDataToRegions(this.props.selectedAsset.labelData);
-                    this.updateAssetRegions(newRegions);
-                    this.redrawAllFeatures();
+                const newRegions = this.convertLabelDataToRegions(this.props.selectedAsset.labelData);
+                this.updateAssetRegions(newRegions);
+                this.redrawAllFeatures();
             });
 
         } else if (this.props.selectedAsset.asset.isRunningOCR !== prevProps.selectedAsset.asset.isRunningOCR) {
@@ -411,10 +411,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const result = await predictService.getPrediction(assetPath);
             const assetService = new AssetService(this.props.project);
             const assetMetadata = assetService.getAssetPredictMetadata(asset, result);
-            if(assetMetadata) {
+            if (assetMetadata) {
                 await this.props.onAssetMetadataChanged(assetMetadata);
             }
-        } catch(err){
+        } catch (err) {
             this.setState({
                 isError: true,
                 errorTitle: err.title,
@@ -480,7 +480,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     } else {
                         if ((inputTag as ITableTag[])[0].visualizationHint === TableVisualizationHint.Vertical) {
                             rowKey = (inputTag as ITableTag[])[0].fields[rowIndex].fieldKey;
-                            columnKey = (inputTag as ITableTag[])[0].definition.fields[columnIndex].fieldKey;    
+                            columnKey = (inputTag as ITableTag[])[0].definition.fields[columnIndex].fieldKey;
                             relatedLabel = labelsData.labels.find((label) => label.label === (this.encodeLabelString(tag) + "/" + this.encodeLabelString(rowKey) + "/" + this.encodeLabelString(columnKey)));
                         } else {
                             rowKey = (inputTag as ITableTag[])[0].definition.fields[rowIndex].fieldKey;
@@ -767,8 +767,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 currentAsset.labelData.labelingState = this.state.currentAsset.labelData.labelingState;
             }
         }
-        if(currentAsset.labelData?.labelingState!==AssetLabelingState.AutoLabeledAndAdjusted
-            &&(!currentAsset.labelData||currentAsset.labelData.labels?.findIndex(label=>label.value.length>0)<0)){
+        if (currentAsset.labelData?.labelingState !== AssetLabelingState.AutoLabeledAndAdjusted
+            && (!currentAsset.labelData || currentAsset.labelData.labels?.findIndex(label => label.value.length > 0) < 0)) {
             delete currentAsset.labelData?.labelingState;
             delete currentAsset.asset.labelingState;
         }
@@ -1162,14 +1162,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const id = feature.get("id");
             if (label?.tableKey) {
                 const tableLableValues = [];
-                 label.labels.forEach((i: { value: ITableLabel[]; })=> {
-                     i.value.forEach((i: ITableLabel) => tableLableValues.push(i))
-                 });
+                label.labels.forEach((i: { value: ITableLabel[]; }) => {
+                    i.value.forEach((i: ITableLabel) => tableLableValues.push(i))
+                });
                 label = { label: label.tableKey, value: tableLableValues };
             }
 
             if (label?.value?.find((region: { boundingBoxes: number[][]; page: number; }) =>
-                id === this.createRegionIdFromBoundingBox(region.boundingBoxes[0], region.page)) 
+                id === this.createRegionIdFromBoundingBox(region.boundingBoxes[0], region.page))
                 || this.props.highlightedTableCell?.find(i => i.id === id)) {
                 this.setFeatureProperty(feature, "highlighted", true);
             } else {
@@ -1346,7 +1346,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private loadOcr = async (force?: boolean) => {
-        const asset = {...this.state.currentAsset.asset};
+        const asset = { ...this.state.currentAsset.asset };
 
         if (asset.isRunningOCR) {
             // Skip loading OCR this time since it's running. This will be triggered again once it's finished.
@@ -1356,10 +1356,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const ocr = await this.ocrService.getRecognizedText(asset.path, asset.name, asset.mimeType, this.setOCRStatus, force);
             if (asset.id === this.state.currentAsset.asset.id) {
                 // since get OCR is async, we only set currentAsset's OCR
-                const newAsset={};
-                if(asset.state===AssetState.NotVisited){
-                    asset.state=AssetState.Visited;
-                    newAsset["currentAsset"]={...this.state.currentAsset, asset};
+                const newAsset = {};
+                if (asset.state === AssetState.NotVisited) {
+                    asset.state = AssetState.Visited;
+                    newAsset["currentAsset"] = { ...this.state.currentAsset, asset };
                 }
                 this.setState({
                     ...newAsset,
@@ -1539,11 +1539,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private encodeLabelLayers = (layers: string[]): string[] => {
-        return layers.map((layer) => {return this.encodeLabelString(layer)})
+        return layers.map((layer) => { return this.encodeLabelString(layer) })
     }
 
     private decodeLabelLayers = (layers: string[]): string[] => {
-        return layers.map((layer) => {return this.decodeLabelString(layer)})
+        return layers.map((layer) => { return this.decodeLabelString(layer) })
     }
 
     private convertLabelDataToRegions = (labelData: ILabelData): IRegion[] => {
@@ -1554,7 +1554,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
             regions = [...regions, ...this.convertLabelToRegion(label, encodedSchema)];
         });
-    
+
         return regions;
     }
 
@@ -1583,7 +1583,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     if (formRegion.boundingBoxes) {
                         formRegion.boundingBoxes.forEach((boundingBox, boundingBoxIndex) => {
                             const text = this.getBoundingBoxTextFromRegion(formRegion, boundingBoxIndex);
-                            const tx = {...this.createRegion(boundingBox, text, labelsTag.name, formRegion.page, label?.labelType), rowKey, columnKey, isTableRegion: true} as ITableRegion;
+                            const tx = { ...this.createRegion(boundingBox, text, labelsTag.name, formRegion.page, label?.labelType), rowKey, columnKey, isTableRegion: true } as ITableRegion;
                             regions.push(tx);
                         });
                     }
@@ -1631,20 +1631,20 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         };
 
         const labels = (this.props?.selectedAsset?.labelData?.labels?.map(label => {
-                if (this.props.selectedAsset.labelData.$schema === constants.labelsSchema) {
-                    return ({
-                        ...label,
-                        value: []
-                    })
-                } else {
-                    return ({
-                        ...label,
-                        label: this.encodeLabelString(label.label),
-                        value: []
-                    })
-                }
+            if (this.props.selectedAsset.labelData.$schema === constants.labelsSchema) {
+                return ({
+                    ...label,
+                    value: []
+                })
+            } else {
+                return ({
+                    ...label,
+                    label: this.encodeLabelString(label.label),
+                    value: []
+                })
+            }
 
-            })) || [];
+        })) || [];
 
         const selectedRegions = this.getSelectedRegions();
         if (selectedRegions.length > 0) {
@@ -1727,7 +1727,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         const tableTag = this.props.project.tags.find((projectTag) => tag === projectTag.name) as ITableTag;
                         if (!tableTag) return
                         labelName = this.getTableLabelFromRegion(tableTag, tableRegion);
-                    } 
+                    }
                     if (labelType) {
                         newLabel = {
                             label: labelName,
@@ -1741,7 +1741,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                             key: null,
                             value: [formRegion],
                         } as ILabel;
-                    } 
+                    }
                     labels.push(newLabel);
                 }
                 labelData.labels = [...labels]
@@ -2002,7 +2002,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     const newValue = newLabels.find(label => label.label === name).value?.map(region => region.boundingBoxes).join(",");
                     const prevValue = prevLabels.find(label => label.label === name).value?.map(region => region.boundingBoxes).join(",");
                     if (newValue !== prevValue) {
-                         return true;
+                        return true;
                     }
                 }
                 return false;
@@ -2026,7 +2026,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 for (const name of newFieldNames) {
                     const newValue = newLabels.find(label => label.tableKey === name);
                     const prevValue = prevLabels.find(label => label.tableKey === name);
-                    if (!_.isEqual(newValue,  prevValue)) {
+                    if (!_.isEqual(newValue, prevValue)) {
                         return true;
                     }
                 }
@@ -2637,7 +2637,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     async focusOnLabel(label: ILabel) {
-        const page = label.value[ 0 ]?.page;
+        const page = label.value[0]?.page;
         if (page && this.state.currentPage !== page) {
             await this.goToPage(page);
         }

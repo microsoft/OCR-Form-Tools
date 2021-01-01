@@ -56,7 +56,7 @@ export class AssetService {
         const getLabelValues = (field: any) => {
             return field.elements?.map((path: string): IFormRegion => {
                 const pathArr = path.split('/').slice(1);
-                const word = pathArr.reduce((obj: any, key: string) => obj[key], {...predictResults.analyzeResult});
+                const word = pathArr.reduce((obj: any, key: string) => obj[key], { ...predictResults.analyzeResult });
                 return {
                     page: field.page,
                     text: word.text || word.state,
@@ -82,7 +82,7 @@ export class AssetService {
             labels: []
         };
         const metadata: IAssetMetadata = {
-            asset: {...asset},
+            asset: { ...asset },
             regions: [],
             version: appInfo.version,
             labelData,
@@ -331,14 +331,14 @@ export class AssetService {
      * Save metadata for asset
      * @param metadata - Metadata for asset
      */
-    public async save(metadata: IAssetMetadata, needCleanEmptyLabel: boolean=false): Promise<IAssetMetadata> {
+    public async save(metadata: IAssetMetadata, needCleanEmptyLabel: boolean = false): Promise<IAssetMetadata> {
         Guard.null(metadata);
 
         const labelFileName = decodeURIComponent(`${metadata.asset.name}${constants.labelFileExtension}`);
         if (metadata.labelData) {
             await this.storageProvider.writeText(labelFileName, JSON.stringify(metadata.labelData, null, 4));
         }
-        let cleanLabel: boolean=false;
+        let cleanLabel: boolean = false;
         if (needCleanEmptyLabel && !metadata.labelData?.labels?.find(label => label?.value?.length !== 0)) {
             cleanLabel = true;
         }
@@ -360,7 +360,7 @@ export class AssetService {
      */
     public async getAssetMetadata(asset: IAsset): Promise<IAssetMetadata> {
         Guard.null(asset);
-        const newAsset=_.cloneDeep(asset);
+        const newAsset = _.cloneDeep(asset);
         const labelFileName = decodeURIComponent(`${newAsset.name}${constants.labelFileExtension}`);
         try {
             const json = await this.storageProvider.readText(labelFileName, true);
@@ -468,7 +468,7 @@ export class AssetService {
                     newTags = [];
                     newColumnKey = undefined;
                     newRowKey = undefined
-                    return {newTags, newColumnKey, newRowKey}
+                    return { newTags, newColumnKey, newRowKey }
                 }
                 const columnRenamed = newColumns?.find((newColumn) => newColumn.originalName === columnKey && newColumn.originalName !== newColumn.name)
                 const rowRenamed = newRows?.find((newRow) => newRow.originalName === rowKey && newRow.originalName !== newRow.name)
@@ -479,16 +479,16 @@ export class AssetService {
                     newRowKey = rowRenamed.name
                 }
             }
-            return {newTags, newColumnKey, newRowKey}
+            return { newTags, newColumnKey, newRowKey }
         }
         const labelTransformer = (labelData: ILabelData) => {
             labelData.labels = labelData?.labels?.reduce((result, label) => {
-                const labelString = label.label.split("/").map((layer) => {return layer.replace(/\~1/g, "/").replace(/\~0/g, "~")}); 
+                const labelString = label.label.split("/").map((layer) => { return layer.replace(/\~1/g, "/").replace(/\~0/g, "~") });
                 if (labelString.length > 1) {
                     const labelTagName = labelString[0];
                     if (labelTagName !== originalTagName) {
                         result.push(label);
-                        return result; 
+                        return result;
                     }
                     let columnKey;
                     let rowKey;
@@ -533,7 +533,7 @@ export class AssetService {
 
                 } else {
                     result.push(label);
-                    return result;   
+                    return result;
                 }
             }, [])
             return labelData;
@@ -641,7 +641,7 @@ export class AssetService {
         if (foundTag) {
             assetMetadata.labelData = labelTransformer(assetMetadata.labelData);
             assetMetadata.regions = assetMetadata.regions.filter((region) => region.tags.length > 0);
-            assetMetadata.asset.state = _.get(assetMetadata, "labelData.labels.length") ||  _.get(assetMetadata, "labelData.tableLabels.length")
+            assetMetadata.asset.state = _.get(assetMetadata, "labelData.labels.length") || _.get(assetMetadata, "labelData.tableLabels.length")
                 ? AssetState.Tagged : AssetState.Visited;
             return true;
         }
@@ -649,7 +649,7 @@ export class AssetService {
         return false;
     }
 
-    private reconfigureTableTagInAssetMetadata (
+    private reconfigureTableTagInAssetMetadata(
         assetMetadata: IAssetMetadata,
         originalTagName: string,
         tagName: string,
@@ -661,7 +661,7 @@ export class AssetService {
         for (const region of assetMetadata.regions) {
             if (region.tags.find((t) => t === originalTagName)) {
                 foundTag = true;
-                const {newTags, newColumnKey, newRowKey} = transformer((region as ITableRegion).tags, (region as ITableRegion).columnKey, (region as ITableRegion).rowKey);
+                const { newTags, newColumnKey, newRowKey } = transformer((region as ITableRegion).tags, (region as ITableRegion).columnKey, (region as ITableRegion).rowKey);
                 region.tags = newTags;
                 (region as ITableRegion).columnKey = newColumnKey;
                 (region as ITableRegion).rowKey = newRowKey;
@@ -675,24 +675,24 @@ export class AssetService {
             }
         }
 
-        if (foundTag) {                
+        if (foundTag) {
             assetMetadata.labelData = labelTransformer(assetMetadata.labelData);
             if (assetMetadata.labelData.labels.length === 0) {
                 delete assetMetadata.labelData.labelingState;
                 delete assetMetadata.asset.labelingState;
             }
             assetMetadata.regions = assetMetadata.regions.filter((region) => region.tags.length > 0);
-            assetMetadata.asset.state = _.get(assetMetadata, "labelData.labels.length") ||  _.get(assetMetadata, "labelData.tableLabels.length")
+            assetMetadata.asset.state = _.get(assetMetadata, "labelData.labels.length") || _.get(assetMetadata, "labelData.tableLabels.length")
                 ? AssetState.Tagged : AssetState.Visited;
-            if(assetMetadata.asset.labelingState===AssetLabelingState.Trained){
-                assetMetadata.asset.labelingState=AssetLabelingState.ManuallyLabeled;
-                if(assetMetadata.labelData){
-                    assetMetadata.labelData.labelingState=AssetLabelingState.ManuallyLabeled;
+            if (assetMetadata.asset.labelingState === AssetLabelingState.Trained) {
+                assetMetadata.asset.labelingState = AssetLabelingState.ManuallyLabeled;
+                if (assetMetadata.labelData) {
+                    assetMetadata.labelData.labelingState = AssetLabelingState.ManuallyLabeled;
                 }
-            }else if(assetMetadata.asset.labelingState===AssetLabelingState.AutoLabeled){
-                assetMetadata.asset.labelingState=AssetLabelingState.AutoLabeledAndAdjusted;
-                if(assetMetadata.labelData){
-                    assetMetadata.labelData.labelingState=AssetLabelingState.AutoLabeledAndAdjusted;
+            } else if (assetMetadata.asset.labelingState === AssetLabelingState.AutoLabeled) {
+                assetMetadata.asset.labelingState = AssetLabelingState.AutoLabeledAndAdjusted;
+                if (assetMetadata.labelData) {
+                    assetMetadata.labelData.labelingState = AssetLabelingState.AutoLabeledAndAdjusted;
                 }
             }
             return true;
