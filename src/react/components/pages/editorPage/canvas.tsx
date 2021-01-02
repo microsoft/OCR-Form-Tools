@@ -508,6 +508,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         }
                         const regionIndex = this.state.currentAsset.regions.findIndex(r => r.id === region.id);
                         if (regionIndex !== -1) {
+                            // TODO: update this part since we should not modify state directly.
                             this.state.currentAsset.regions.splice(regionIndex, 1, region);
                         }
                     });
@@ -536,6 +537,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     }
                 }
                 selectedRegion.isTableRegion = true;
+            }
+        } else {
+            // non-table region, clear table related properties.
+            for(const region of selectedRegions) {
+                region.isTableRegion = false;
+                delete (region as ITableRegion).rowKey;
+                delete (region as ITableRegion).columnKey;
             }
         }
 
