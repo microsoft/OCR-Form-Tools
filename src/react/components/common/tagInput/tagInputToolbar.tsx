@@ -79,7 +79,7 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
                 handler: this.handleAddTable,
             },
             {
-                displayName: strings.tags.toolbar.vertiline,
+                displayName: `${strings.tags.toolbar.vertiline}-1`,
                 category: Categories.Separator,
             },
             {
@@ -101,7 +101,7 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
                 handler: this.handleSearch,
             },
             {
-                displayName: strings.tags.toolbar.vertiline,
+                displayName: `${strings.tags.toolbar.vertiline}-2`,
                 category: Categories.Separator,
             },
             {
