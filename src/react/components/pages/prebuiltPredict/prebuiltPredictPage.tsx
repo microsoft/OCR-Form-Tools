@@ -852,15 +852,15 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         console.log("handleUpdateRequestURI");
         console.log(predictionEndpointUrl);
         if (predictionEndpointUrl.includes("?")){
-            var additionalUrl = predictionEndpointUrl.split("?")[1];
+            const additionalUrl = predictionEndpointUrl.split("?")[1];
             if (this.props.prebuiltSettings.serviceURI === "") {
                 this.setState({predictionEndpointUrl: ""});
             } else {
-                var parameterArray = additionalUrl.includes("&")? additionalUrl.split("&"): [additionalUrl];
-                var newAdditionalUrl = "";
-                var connector = "";
+                const parameterArray = additionalUrl.includes("&")? additionalUrl.split("&"): [additionalUrl];
+                let newAdditionalUrl = "";
+                let connector = "";
                 for (const parameter of parameterArray) {
-                    var name = parameter.split("=")[0];
+                    const name = parameter.split("=")[0];
                     if (name !== "locale" && name !== "pageRange") {
                         newAdditionalUrl += connector;
                         newAdditionalUrl += parameter;
@@ -869,14 +869,14 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 }
                 if (this.state.withPageRange && this.state.pageRangeIsValid) {
                     newAdditionalUrl += `&pageRange=${this.state.pageRange}`;
-                } 
+                }
                 if (this.state.currentPrebuiltType.useLocale){
                     newAdditionalUrl += `&locale=${this.state.currentLocale}`;
                 }
                 this.setState({
-                    predictionEndpointUrl: 
+                    predictionEndpointUrl:
                         this.props.prebuiltSettings.serviceURI +
-                        `/formrecognizer${constants.prebuiltServiceVersion}${currentPrebuiltType.servicePath}?`  
+                        `/formrecognizer${constants.prebuiltServiceVersion}${currentPrebuiltType.servicePath}?`
                         + newAdditionalUrl
                 });
             }

@@ -67,7 +67,7 @@ export class PageRange extends React.Component<Partial<IPageRangeProps>, IPageRa
 }
 
 const pageRangeIsValid = (pageRange: string): boolean => {
-    // It must be a valid page range format, e.g. 1,2,3-5,7 
+    // It must be a valid page range format, e.g. 1,2,3-5,7
     // The user can only type digit, dot, and dash.
     // Must start and end with digit.
     return /^\d+(?:-\d+)?(?:,\d+(?:-\d+)?)*$/.test(pageRange);
