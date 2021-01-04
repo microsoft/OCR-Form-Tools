@@ -1697,7 +1697,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     if (!tableTag) return
                     label = labels.find(label => label?.label === this.getTableLabelFromRegion(tableTag, tableRegion));
                 } else {
-                    if (this.props.selectedAsset.labelData.$schema === constants.labelsSchema) {
+                    if (this.props.selectedAsset?.labelData?.$schema === constants.labelsSchema) {
                         label = labels.find(label => this.decodeLabelString(label?.label) === tag);
                     } else {
                         label = labels.find(label => label?.label === tag);
