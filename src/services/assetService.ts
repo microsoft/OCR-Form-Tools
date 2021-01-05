@@ -446,7 +446,7 @@ export class AssetService {
             if (tagType === FieldType.Object || tagType === FieldType.Array) {
                 labelData.labels = labelData.labels.filter((label) => label.label.split("/")[0].replace(/\~1/g, "/").replace(/\~0/g, "~") !== tagName);
             } else {
-                if (labelData.$schema === constants.labelsSchema) {
+                if (labelData?.$schema === constants.labelsSchema) {
                     labelData.labels = labelData.labels.filter((label) => label.label.replace(/\~1/g, "/").replace(/\~0/g, "~") !== tagName);
                 } else {
                     labelData.labels = labelData.labels.filter((label) => label.label !== tagName);
