@@ -6,41 +6,42 @@ import {
     ITooltipHostStyles,
     PrimaryButton,
     Separator,
-    Spinner, SpinnerSize, TooltipHost
+    Spinner, SpinnerSize, TooltipHost,
+    TextField,
 } from "@fluentui/react";
 import _ from "lodash";
-import {Feature} from "ol";
+import { Feature } from "ol";
 import Polygon from "ol/geom/Polygon";
 import Fill from "ol/style/Fill";
 import Stroke from "ol/style/Stroke";
 import Style from "ol/style/Style";
 import React from "react";
-import {connect} from "react-redux";
-import {RouteComponentProps} from "react-router-dom";
-import {bindActionCreators} from "redux";
+import { connect } from "react-redux";
+import { RouteComponentProps } from "react-router-dom";
+import { bindActionCreators } from "redux";
 import url from "url";
-import {constants} from "../../../../common/constants";
-import {interpolate, strings} from "../../../../common/strings";
-import {getPrimaryWhiteTheme} from "../../../../common/themes";
-import {poll} from "../../../../common/utils";
-import {ErrorCode, FieldFormat, FieldType, IApplicationState, IPrebuiltSettings, ITag} from "../../../../models/applicationState";
+import { constants } from "../../../../common/constants";
+import { interpolate, strings } from "../../../../common/strings";
+import { getPrimaryWhiteTheme, getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
+import { poll } from "../../../../common/utils";
+import { ErrorCode, FieldFormat, FieldType, IApplicationState, IPrebuiltSettings, ITag } from "../../../../models/applicationState";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import IAppPrebuiltSettingsActions, * as appPrebuiltSettingsActions from "../../../../redux/actions/prebuiltSettingsActions";
 import ServiceHelper from "../../../../services/serviceHelper";
-import {getAppInsights} from "../../../../services/telemetryService";
+import { getAppInsights } from "../../../../services/telemetryService";
 import Alert from "../../common/alert/alert";
-import {DocumentFilePicker} from "../../common/documentFilePicker/documentFilePicker";
-import {ImageMap} from "../../common/imageMap/imageMap";
-import {PageRange} from "../../common/pageRange/pageRange";
-import {PrebuiltSetting} from "../../common/prebuiltSetting/prebuiltSetting";
+import { DocumentFilePicker } from "../../common/documentFilePicker/documentFilePicker";
+import { ImageMap } from "../../common/imageMap/imageMap";
+import { PageRange } from "../../common/pageRange/pageRange";
+import { PrebuiltSetting } from "../../common/prebuiltSetting/prebuiltSetting";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
-import {CanvasCommandBar} from "../editorPage/canvasCommandBar";
-import {TableView} from "../editorPage/tableView";
+import { CanvasCommandBar } from "../editorPage/canvasCommandBar";
+import { TableView } from "../editorPage/tableView";
 import "../predict/predictPage.scss";
 import PredictResult from "../predict/predictResult";
-import {ILoadFileHelper, ILoadFileResult, LoadFileHelper} from "./LoadFileHelper";
+import { ILoadFileHelper, ILoadFileResult, LoadFileHelper } from "./LoadFileHelper";
 import "./prebuiltPredictPage.scss";
-import {ITableHelper, ITableState, TableHelper} from "./tableHelper";
+import { ITableHelper, ITableState, TableHelper } from "./tableHelper";
 
 interface IPrebuiltTypes {
     name: string;
@@ -75,6 +76,7 @@ export interface IPrebuiltPredictPageState extends ILoadFileResult, ITableState 
     withPageRange: boolean;
     pageRange: string;
     pageRangeIsValid?: boolean;
+    predictionEndpointUrl: string;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -138,7 +140,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         imageAngle: 0,
         currentPrebuiltType: this.prebuiltTypes[0],
 
-        tableIconTooltip: {display: "none", width: 0, height: 0, top: 0, left: 0},
+        tableIconTooltip: { display: "none", width: 0, height: 0, top: 0, left: 0 },
         hoveringFeature: null,
         tableToView: null,
         tableToViewId: null,
@@ -146,6 +148,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
         withPageRange: false,
         pageRange: "",
+        predictionEndpointUrl: "",
     };
 
     private analyzeResults: any;
@@ -160,6 +163,12 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         this.appInsights = getAppInsights();
         document.title = strings.prebuiltPredict.title + " - " + strings.appName;
         this.props.appTitleActions.setTitle(`${strings.prebuiltPredict.title}`);
+        if (this.props.prebuiltSettings.serviceURI) {
+            this.setState({
+                predictionEndpointUrl: this.props.prebuiltSettings.serviceURI
+                    + `formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`
+            });
+        }
     }
 
     componentDidUpdate(_prevProps: IPrebuiltPredictPageProps, prevState: IPrebuiltPredictPageState) {
@@ -170,7 +179,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             } else if (prevState.currentPage !== this.state.currentPage) {
                 this.fileHelper.loadPage(this.state.currentPage).then((res: any) => {
                     if (res) {
-                        this.setState({...res});
+                        this.setState({ ...res });
                     }
                 });
             }
@@ -186,10 +195,14 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 this.setPredictedFieldHighlightStatus(this.state.highlightedField);
             }
         }
+
+        if (_prevProps.prebuiltSettings !== this.props.prebuiltSettings) {
+            this.handleUpdateRequestURI();
+        }
     }
 
     private loadFile = (file: File) => {
-        this.setState({isFetching: true});
+        this.setState({ isFetching: true });
         this.fileHelper.loadFile(file).then((res: ILoadFileResult) => {
             if (res) {
                 this.setState({
@@ -221,7 +234,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             <div
                 className={`predict skipToMainContent ${onPrebuiltsPath ? "" : "hidden"} `}
                 id="pagePredict"
-                style={{display: `${onPrebuiltsPath ? "flex" : "none"}`}} >
+                style={{ display: `${onPrebuiltsPath ? "flex" : "none"}` }} >
                 <div className="predict-main">
                     {this.state.file && this.state.imageUri && this.renderImageMap()}
                     {this.renderPrevPageButton()}
@@ -234,32 +247,43 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                             <FontIcon className="mr-1" iconName="ContactCard" />
                             <span>{interpolate(strings.prebuiltPredict.anlayWithPrebuiltModels, this.state.currentPrebuiltType)}</span>
                         </h6>
-
+                        <div className="p-3 prebuilt-setting" style={{ marginTop: "8px" }}>
+                            <h5>{strings.prebuiltSetting.serviceConfigurationTitle}</h5>
+                            <div style={{ marginBottom: "3px" }}>{"Request URI"}</div>
+                            <TextField
+                                className="mb-1"
+                                name="endpointUrl"
+                                theme={getGreenWithWhiteBackgroundTheme()}
+                                value={this.state.predictionEndpointUrl}
+                                onChange={this.setRequestURI}
+                                disabled={this.state.isPredicting}
+                            />
+                        </div>
                         <PrebuiltSetting prebuiltSettings={this.props.prebuiltSettings}
                             disabled={this.state.isPredicting}
                             actions={this.props.actions}
                         />
-                        <div className="p-3" style={{marginTop: "-3rem"}}>
+                        <div className="p-3" style={{ marginTop: "-3rem" }}>
                             <div className="formtype-section">
-                                <div style={{marginBottom: "3px"}}>{strings.prebuiltPredict.formTypeTitle}</div>
+                                <div style={{ marginBottom: "3px" }}>{strings.prebuiltPredict.formTypeTitle}</div>
                                 <Dropdown
                                     disabled={this.state.isPredicting}
                                     className="prebuilt-type-dropdown"
-                                    options={this.prebuiltTypes.map(type => ({key: type.name, text: type.name}))}
+                                    options={this.prebuiltTypes.map(type => ({ key: type.name, text: type.name }))}
                                     defaultSelectedKey={this.state.currentPrebuiltType.name}
                                     onChange={this.onPrebuiltTypeChange}></Dropdown>
                             </div>
-                            <div className="locales-section" style={{display: this.state.currentPrebuiltType.useLocale ? "block" : "none"}}>
-                                <div style={{marginBottom: "3px"}}>{strings.prebuiltPredict.locale}</div>
+                            <div className="locales-section" style={{ display: this.state.currentPrebuiltType.useLocale ? "block" : "none" }}>
+                                <div style={{ marginBottom: "3px" }}>{strings.prebuiltPredict.locale}</div>
                                 <Dropdown
                                     disabled={this.state.isPredicting}
                                     className="prebuilt-type-dropdown"
-                                    options={this.locales.map(type => ({key: type, text: type}))}
+                                    options={this.locales.map(type => ({ key: type, text: type }))}
                                     defaultSelectedKey={this.state.currentLocale}
                                     onChange={this.onLocaleChange}></Dropdown>
                             </div>
                         </div>
-                        <div className="p-3" style={{marginTop: "8px"}}>
+                        <div className="p-3" style={{ marginTop: "8px" }}>
                             <h5>{strings.prebuiltPredict.selectFileAndRunAnalysis}</h5>
                             <DocumentFilePicker
                                 disabled={this.state.isPredicting || this.state.isFetching}
@@ -275,11 +299,11 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                             </div>
                         </div>
                         <Separator className="separator-right-pane-main">{strings.prebuiltPredict.analysis}</Separator>
-                        <div className="p-3" style={{marginTop: "8px"}}>
+                        <div className="p-3" style={{ marginTop: "8px" }}>
                             <div className="container-items-end predict-button">
                                 <PrimaryButton
                                     theme={getPrimaryWhiteTheme()}
-                                    iconProps={{iconName: "ContactCard"}}
+                                    iconProps={{ iconName: "ContactCard" }}
                                     text={strings.prebuiltPredict.runAnalysis}
                                     aria-label={!this.state.isPredicting ? strings.prebuiltPredict.inProgress : ""}
                                     allowDisabledFocus
@@ -349,7 +373,9 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     onPageRangeChange = (withPageRange: boolean, pageRange: string, pageRangeIsValid: boolean) => {
-        this.setState({withPageRange, pageRange, pageRangeIsValid});
+        this.setState({ withPageRange, pageRange, pageRangeIsValid }, () => {
+            this.handleUpdateRequestURI();
+        });
     }
 
     onSelectSourceChange(): void {
@@ -363,7 +389,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         }
     }
 
-    onFileLoadError(err: {alertTitle: string; alertMessage: string;}): void {
+    onFileLoadError(err: { alertTitle: string; alertMessage: string; }): void {
         this.setState({
             ...err,
             shouldShowAlert: true,
@@ -398,12 +424,15 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 analyzeResult: {}
             }, () => {
                 this.imageMap?.removeAllFeatures();
+                this.handleUpdateRequestURI();
             });
         }
     }
     private onLocaleChange = (_e, option: IDropdownOption) => {
         const currentLocale: string = option.key as string;
-        this.setState({currentLocale});
+        this.setState({ currentLocale }, () => {
+            this.handleUpdateRequestURI();
+        });
     }
 
     private prevPage = () => {
@@ -414,7 +443,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         });
     };
     private nextPage = () => {
-        const {numPages} = this.state;
+        const { numPages } = this.state;
         this.setState((prevState) => ({
             currentPage: Math.min(prevState.currentPage + 1, numPages),
         }), () => {
@@ -426,7 +455,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             <IconButton
                 className="toolbar-btn prev"
                 title="Previous"
-                iconProps={{iconName: "ChevronLeft"}}
+                iconProps={{ iconName: "ChevronLeft" }}
                 onClick={this.prevPage}
             /> : <div></div>;
     }
@@ -437,12 +466,12 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 className="toolbar-btn next"
                 title="Next"
                 onClick={this.nextPage}
-                iconProps={{iconName: "ChevronRight"}}
+                iconProps={{ iconName: "ChevronRight" }}
             /> : <div></div>;
     }
 
     private renderPageIndicator = () => {
-        const {numPages} = this.state;
+        const { numPages } = this.state;
         return numPages > 1 ?
             <p className="page-number">
                 Page {this.state.currentPage} of {numPages}
@@ -461,7 +490,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             },
         };
         return (
-            <div style={{width: "100%", height: "100%"}}>
+            <div style={{ width: "100%", height: "100%" }}>
                 <CanvasCommandBar
                     handleZoomIn={this.handleCanvasZoomIn}
                     handleZoomOut={this.handleCanvasZoomOut}
@@ -576,12 +605,12 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private handleRotateCanvas = (degrees: number) => {
-        this.setState({imageAngle: this.state.imageAngle + degrees});
+        this.setState({ imageAngle: this.state.imageAngle + degrees });
     }
 
 
     private handleClick = () => {
-        this.setState({predictionLoaded: false, isPredicting: true});
+        this.setState({ predictionLoaded: false, isPredicting: true });
         this.getPrediction()
             .then((result) => {
                 this.analyzeResults = _.cloneDeep(result);
@@ -604,7 +633,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 } else if (error.errorCode === ErrorCode.ModelNotFound) {
                     alertMessage = error.message;
                 } else {
-                    alertMessage = interpolate(strings.errors.endpointConnectionError.message, {endpoint: "form recognizer backend URL"});
+                    alertMessage = interpolate(strings.errors.endpointConnectionError.message, { endpoint: "form recognizer backend URL" });
                 }
                 this.setState({
                     shouldShowAlert: true,
@@ -614,7 +643,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 });
             });
         if (this.appInsights) {
-            this.appInsights.trackEvent({name: "ANALYZE_EVENT"});
+            this.appInsights.trackEvent({ name: "ANALYZE_EVENT" });
         }
     }
 
@@ -636,34 +665,23 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private async getPrediction(): Promise<any> {
-        const endpointURL = this.getPredictionEndpointUrl();
+        const endpointURL = this.state.predictionEndpointUrl;
         const apiKey = this.props.prebuiltSettings.apiKey;
 
-        const headers = {"Content-Type": this.state.file ? this.state.file.type : "application/json", "cache-control": "no-cache"};
-        const body = this.state.file ?? {source: this.state.fetchedFileURL};
+        const headers = { "Content-Type": this.state.file ? this.state.file.type : "application/json", "cache-control": "no-cache" };
+        const body = this.state.file ?? { source: this.state.fetchedFileURL };
         let response;
         try {
             response = await ServiceHelper.postWithAutoRetry(
-                endpointURL, body, {headers}, apiKey as string);
+                endpointURL, body, { headers }, apiKey as string);
         } catch (err) {
-            ServiceHelper.handleServiceError({...err, endpoint: endpointURL});
+            ServiceHelper.handleServiceError({ ...err, endpoint: endpointURL });
         }
 
         const operationLocation = response.headers["operation-location"];
 
         // Make the second REST API call and get the response.
-        return poll(() => ServiceHelper.getWithAutoRetry(operationLocation, {headers}, apiKey as string), 120000, 500);
-    }
-
-    getPredictionEndpointUrl = (): string => {
-        let endpointUrl = url.resolve(
-            this.props.prebuiltSettings.serviceURI,
-            `/formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`
-        );
-        if (this.state.withPageRange && this.state.pageRangeIsValid) {
-            endpointUrl += `&pageRange=${this.state.pageRange}`;
-        }
-        return endpointUrl + (this.state.currentPrebuiltType.useLocale ? `&locale=${this.state.currentLocale}` : "");
+        return poll(() => ServiceHelper.getWithAutoRetry(operationLocation, { headers }, apiKey as string), 120000, 500);
     }
 
     private createBoundingBoxVectorFeature = (text, boundingBox, imageExtent, ocrExtent) => {
@@ -815,5 +833,56 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 feature.set("isHighlighted", false);
             }
         }
+    }
+
+    private handleUpdateRequestURI = () => {
+        const { currentPrebuiltType, predictionEndpointUrl } = this.state;
+        if (predictionEndpointUrl.includes("?")) {
+            const queryString = predictionEndpointUrl.split("?")[1];
+            if (this.props.prebuiltSettings.serviceURI === "") {
+                this.setState({ predictionEndpointUrl: "" });
+            } else {
+                const parameterArray = queryString.includes("&") ? queryString.split("&") : [queryString];
+                let newQueryString = "";
+                let connector = "";
+                for (const parameter of parameterArray) {
+                    const name = parameter.split("=")[0];
+                    if (name !== "locale" && name !== "pageRange") {
+                        newQueryString += `${connector}${parameter}`;
+                    }
+                    connector = "&";
+                }
+                if (this.state.withPageRange && this.state.pageRangeIsValid) {
+                    newQueryString += `${connector}pageRange=${this.state.pageRange}`;
+                    connector = "&";
+                }
+                if (this.state.currentPrebuiltType.useLocale) {
+                    newQueryString += `${connector}locale=${this.state.currentLocale}`;
+                }
+                this.setState({
+                    predictionEndpointUrl:
+                        this.props.prebuiltSettings.serviceURI +
+                        `formrecognizer/${constants.prebuiltServiceVersion}${currentPrebuiltType.servicePath}?`
+                        + newQueryString
+                });
+            }
+        } else {
+            if (this.props.prebuiltSettings.serviceURI) {
+                let endpointUrl = this.props.prebuiltSettings.serviceURI +
+                    `formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`;
+                if (this.state.withPageRange && this.state.pageRangeIsValid) {
+                    endpointUrl += `&pageRange=${this.state.pageRange}`;
+                }
+                this.setState({
+                    predictionEndpointUrl: endpointUrl + (this.state.currentPrebuiltType.useLocale ? `&locale=${this.state.currentLocale}` : "")
+                });
+            }
+        }
+    }
+
+    private setRequestURI = (e, newValue?) => {
+        this.setState({
+            predictionEndpointUrl: newValue
+        });
     }
 }

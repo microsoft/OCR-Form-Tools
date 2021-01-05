@@ -24,9 +24,8 @@ export class PrebuiltSetting extends React.Component<IPrebuiltSettingProps, IPre
     render() {
         const {disabled} = this.props;
         return <>
-            <div className="p-3 prebuilt-setting" style={{marginTop: "8px"}}>
+            <div className="p-3 prebuilt-setting" style={{marginTop: "-2rem"}}>
 
-                <h5>{strings.prebuiltSetting.serviceConfigurationTitle}</h5>
                 <div style={{marginBottom: "3px"}}>{strings.prebuiltSetting.serviceEndpointTitle}</div>
                 <TooltipHost
                     content={strings.prebuiltSetting.endpointTooltip}>
