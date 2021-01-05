@@ -540,7 +540,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             }
         } else {
             // non-table region, clear table related properties.
-            for(const region of selectedRegions) {
+            for (const region of selectedRegions) {
                 region.isTableRegion = false;
                 delete (region as ITableRegion).rowKey;
                 delete (region as ITableRegion).columnKey;
@@ -1554,7 +1554,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         return layers.map((layer) => { return this.decodeLabelString(layer) })
     }
 
-    private convertLabelDataToRegions = (labelData: ILabelData): IRegion[] => {
+    public convertLabelDataToRegions = (labelData: ILabelData): IRegion[] => {
         let regions = [];
         const encodedSchema = labelData?.$schema === constants.labelsSchema;
 
