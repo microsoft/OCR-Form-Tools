@@ -166,7 +166,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         if (this.props.prebuiltSettings.serviceURI){
             this.setState({
                 predictionEndpointUrl: this.props.prebuiltSettings.serviceURI
-                +`/formrecognizer${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`
+                +`formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`
             });
         }
     }
@@ -665,7 +665,6 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private async getPrediction(): Promise<any> {
-        // const endpointURL = this.getPredictionEndpointUrl();
         const endpointURL = this.state.predictionEndpointUrl;
         const apiKey = this.props.prebuiltSettings.apiKey;
 
@@ -683,17 +682,6 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
         // Make the second REST API call and get the response.
         return poll(() => ServiceHelper.getWithAutoRetry(operationLocation, {headers}, apiKey as string), 120000, 500);
-    }
-
-    getPredictionEndpointUrl = (): string => {
-        let endpointUrl = url.resolve(
-            this.props.prebuiltSettings.serviceURI,
-            `/formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`
-        );
-        if (this.state.withPageRange && this.state.pageRangeIsValid) {
-            endpointUrl += `&pageRange=${this.state.pageRange}`;
-        }
-        return endpointUrl + (this.state.currentPrebuiltType.useLocale ? `&locale=${this.state.currentLocale}` : "");
     }
 
     private createBoundingBoxVectorFeature = (text, boundingBox, imageExtent, ocrExtent) => {
@@ -849,41 +837,39 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
     private handleUpdateRequestURI = () => {
         const {currentPrebuiltType, predictionEndpointUrl} = this.state;
-        console.log("handleUpdateRequestURI");
-        console.log(predictionEndpointUrl);
         if (predictionEndpointUrl.includes("?")){
-            const additionalUrl = predictionEndpointUrl.split("?")[1];
+            const queryString = predictionEndpointUrl.split("?")[1];
             if (this.props.prebuiltSettings.serviceURI === "") {
                 this.setState({predictionEndpointUrl: ""});
             } else {
-                const parameterArray = additionalUrl.includes("&")? additionalUrl.split("&"): [additionalUrl];
-                let newAdditionalUrl = "";
+                const parameterArray = queryString.includes("&")? queryString.split("&"): [queryString];
+                let newQueryString = "";
                 let connector = "";
                 for (const parameter of parameterArray) {
                     const name = parameter.split("=")[0];
                     if (name !== "locale" && name !== "pageRange") {
-                        newAdditionalUrl += connector;
-                        newAdditionalUrl += parameter;
+                        newQueryString += `${connector}${parameter}`;
                     }
                     connector = "&";
                 }
                 if (this.state.withPageRange && this.state.pageRangeIsValid) {
-                    newAdditionalUrl += `&pageRange=${this.state.pageRange}`;
+                    newQueryString += `${connector}pageRange=${this.state.pageRange}`;
+                    connector = "&";
                 }
                 if (this.state.currentPrebuiltType.useLocale){
-                    newAdditionalUrl += `&locale=${this.state.currentLocale}`;
+                    newQueryString += `${connector}locale=${this.state.currentLocale}`;
                 }
                 this.setState({
                     predictionEndpointUrl:
                         this.props.prebuiltSettings.serviceURI +
-                        `/formrecognizer${constants.prebuiltServiceVersion}${currentPrebuiltType.servicePath}?`
-                        + newAdditionalUrl
+                        `formrecognizer/${constants.prebuiltServiceVersion}${currentPrebuiltType.servicePath}?`
+                        + newQueryString
                 });
             }
         } else {
             if (this.props.prebuiltSettings.serviceURI){
                 let endpointUrl = this.props.prebuiltSettings.serviceURI +
-                    `/formrecognizer${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`;
+                    `formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`;
                 if (this.state.withPageRange && this.state.pageRangeIsValid) {
                     endpointUrl += `&pageRange=${this.state.pageRange}`;
                 }
