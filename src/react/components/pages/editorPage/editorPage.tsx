@@ -766,8 +766,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             }
         }
 
-
-
         // Only update asset metadata if state changes or is different
         if (initialState !== asset.state || this.state.selectedAsset !== assetMetadata) {
             if (JSON.stringify(assetMetadata.labelData) !== JSON.stringify(this.state.selectedAsset.labelData)) {
@@ -779,6 +777,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             const newMeta = await this.props.actions.saveAssetMetadata(this.props.project, assetMetadata);
 
             if (this.props.project.lastVisitedAssetId === asset.id) {
+                // Get regions from label data since meta data will not have regions when loaded.
+                newMeta.regions = this.canvas.current?.convertLabelDataToRegions(newMeta.labelData) || [];
                 this.setState({ selectedAsset: newMeta });
             }
             if (this.compareAssetLabelsWithProjectTags(assetMetadata.labelData?.labels, this.props.project.tags)) {
@@ -888,6 +888,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         } catch (err) {
             console.warn("Error computing asset size");
         }
+
+        // Get regions from label data since meta data will not have regions when loaded.
+        assetMetadata.regions = this.canvas.current?.convertLabelDataToRegions(assetMetadata.labelData) || [];
 
         this.setState({
             tableToView: null,
