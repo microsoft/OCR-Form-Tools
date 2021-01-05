@@ -249,11 +249,11 @@ export default class ProjectService implements IProjectService {
                         if (!assetLabel || assetLabel === blob) {
                             const content = JSON.parse(await storageProvider.readText(blob)) as ILabelData;
                             content.labels.forEach((label) => {
-                                if (content.$schema === constants.labelsSchema && label.label.split("/").length > 1) {
+                                if (content?.$schema === constants.labelsSchema && label.label.split("/").length > 1) {
                                     return;
                                 }
                                 let labelName;
-                                if (content.$schema === constants.labelsSchema) {
+                                if (content?.$schema === constants.labelsSchema) {
                                     labelName = label.label.replace(/\~1/g, "/").replace(/\~0/g, "~");
                                 } else {
                                     labelName = label.label
