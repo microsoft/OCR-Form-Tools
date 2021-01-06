@@ -537,6 +537,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private handleTableCellClick = (rowIndex: number, columnIndex: number) => {
+        if (!this.state.selectedRegions || this.state.selectedRegions.length === 0) {
+            return;
+        }
+
         if (this.state?.selectedTableTagBody?.[rowIndex]?.[columnIndex]?.length > 0) {
             const selectionRegionCatagory = this.state.selectedRegions[0].category;
             const cellCatagory = this.state.selectedTableTagBody[rowIndex][columnIndex][0].category;
