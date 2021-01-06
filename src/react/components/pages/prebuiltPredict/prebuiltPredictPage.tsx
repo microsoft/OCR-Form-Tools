@@ -160,12 +160,13 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     private tagColors = require("../../common/tagColors.json");
 
     public async componentDidMount() {
+        const { appTitleActions, prebuiltSettings } = this.props;
         this.appInsights = getAppInsights();
         document.title = strings.prebuiltPredict.title + " - " + strings.appName;
-        this.props.appTitleActions.setTitle(`${strings.prebuiltPredict.title}`);
-        if (this.props.prebuiltSettings.serviceURI) {
+        appTitleActions.setTitle(`${strings.prebuiltPredict.title}`);
+        if (prebuiltSettings && prebuiltSettings.serviceURI) {
             this.setState({
-                predictionEndpointUrl: this.props.prebuiltSettings.serviceURI
+                predictionEndpointUrl: prebuiltSettings.serviceURI
                     + `formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`
             });
         }
@@ -836,10 +837,11 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private handleUpdateRequestURI = () => {
+        const { prebuiltSettings } = this.props;
         const { currentPrebuiltType, predictionEndpointUrl } = this.state;
         if (predictionEndpointUrl.includes("?")) {
             const queryString = predictionEndpointUrl.split("?")[1];
-            if (this.props.prebuiltSettings.serviceURI === "") {
+            if (!prebuiltSettings || !prebuiltSettings.serviceURI) {
                 this.setState({ predictionEndpointUrl: "" });
             } else {
                 const parameterArray = queryString.includes("&") ? queryString.split("&") : [queryString];
@@ -861,14 +863,14 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 }
                 this.setState({
                     predictionEndpointUrl:
-                        this.props.prebuiltSettings.serviceURI +
+                        prebuiltSettings.serviceURI +
                         `formrecognizer/${constants.prebuiltServiceVersion}${currentPrebuiltType.servicePath}?`
                         + newQueryString
                 });
             }
         } else {
-            if (this.props.prebuiltSettings.serviceURI) {
-                let endpointUrl = this.props.prebuiltSettings.serviceURI +
+            if (prebuiltSettings && prebuiltSettings.serviceURI) {
+                let endpointUrl = prebuiltSettings.serviceURI +
                     `formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`;
                 if (this.state.withPageRange && this.state.pageRangeIsValid) {
                     endpointUrl += `&pageRange=${this.state.pageRange}`;
