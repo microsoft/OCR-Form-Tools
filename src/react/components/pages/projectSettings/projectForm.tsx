@@ -95,13 +95,13 @@ export default class ProjectForm extends React.Component<IProjectFormProps, IPro
         if (prevProps.action !== this.props.action) {
             switch (this.props.action) {
                 case ProjectSettingAction.Create:
-                    this.setState({formSchema: newFormSchema});
+                    this.setState({ formSchema: newFormSchema });
                     break;
                 case ProjectSettingAction.Update:
-                    this.setState({formSchema: editFormSchema});
+                    this.setState({ formSchema: editFormSchema });
                     break;
                 default:
-                    this.setState({ formSchema: {}});
+                    this.setState({ formSchema: {} });
             }
         }
     }
@@ -185,7 +185,7 @@ export default class ProjectForm extends React.Component<IProjectFormProps, IPro
         if (project.apiUriBase && errors.apiUriBase) {
             const urlRegex = new RegExp(/^(\s*)?(https?:\/\/)/);
             if (urlRegex.test(project.apiUriBase)) {
-                const urlRegexOnlyProtocalAndDomain = new RegExp(/^(\s*)?(https?:\/\/)([^\s\/])+(\/)?(\s*)?$/);
+                const urlRegexOnlyProtocalAndDomain = new RegExp(/^(\s*)?(https?:\/\/)([^\s/])+(\/)?(\s*)?$/);
                 if (!urlRegexOnlyProtocalAndDomain.test(project.apiUriBase)) {
                     errors.apiUriBase.addError("should contain only protocol and domain name");
                 }
@@ -232,12 +232,12 @@ export default class ProjectForm extends React.Component<IProjectFormProps, IPro
         let normalizePath = folderPath ? folderPath.trim() : "";
 
         // trim left slash
-        while (normalizePath.length > 0 && normalizePath.indexOf("/") === 0 || normalizePath.indexOf(".") === 0) {
+        while (normalizePath.length > 0 && (normalizePath.indexOf("/") === 0 || normalizePath.indexOf(".") === 0)) {
             normalizePath = normalizePath.substr(normalizePath.indexOf("/") + 1, normalizePath.length - 1);
         }
 
         // trim right slash
-        while (normalizePath.length > 0 && normalizePath.lastIndexOf("/") === normalizePath.length - 1) {
+        while (normalizePath.length > 0 && (normalizePath.lastIndexOf("/") === normalizePath.length - 1)) {
             normalizePath = normalizePath.substr(0, normalizePath.length - 1);
         }
 

@@ -19,7 +19,6 @@ import React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
-import url from "url";
 import { constants } from "../../../../common/constants";
 import { interpolate, strings } from "../../../../common/strings";
 import { getPrimaryWhiteTheme, getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";

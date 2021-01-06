@@ -2,7 +2,7 @@ import React from 'react';
 import "./tableTagConfig.scss";
 import { PrimaryButton, FontIcon, DefaultButton } from "@fluentui/react";
 import { getPrimaryGreenTheme, getPrimaryBlueTheme } from '../../../../common/themes';
-import { FieldFormat, FieldType, TagInputMode, IRegion, ITableTag, ITableRegion, IField, TableElements, ITableField, ITableKeyField, TableVisualizationHint } from '../../../../models/applicationState';
+import { FieldFormat, FieldType, TagInputMode, IRegion, ITableTag, ITableRegion, TableElements, ITableKeyField, TableVisualizationHint } from '../../../../models/applicationState';
 import "./tableTagLabeling.scss";
 
 import { strings } from "../../../../common/strings";
@@ -36,7 +36,7 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
         selectedRowIndex: null,
         selectedColumnIndex: null,
         rows: this.props.selectedTag.type === FieldType.Array || this.props.selectedTag?.visualizationHint === TableVisualizationHint.Vertical ? this.props.selectedTag.fields : this.props.selectedTag.definition.fields,
-        columns: this.props.selectedTag.type === FieldType.Array || this.props.selectedTag.visualizationHint === TableVisualizationHint.Vertical ?  this.props.selectedTag.definition.fields : this.props.selectedTag.fields,
+        columns: this.props.selectedTag.type === FieldType.Array || this.props.selectedTag.visualizationHint === TableVisualizationHint.Vertical ? this.props.selectedTag.definition.fields : this.props.selectedTag.fields,
         selectedTableTagBody: this.props.selectedTableTagBody,
     };
 
@@ -62,57 +62,57 @@ export default class TableTagLabeling extends React.Component<ITableTagLabelingP
 
     public render() {
         return (
-                <div className="table-labeling_container">
-                    <h4 className="mt-2">{strings.tags.regionTableTags.tableLabeling.title}</h4>
-                    <div className="labeling-guideline">
-                        {strings.tags.regionTableTags.tableLabeling.description.title}
-                        <ol>
-                            <li>{strings.tags.regionTableTags.tableLabeling.description.stepOne}</li>
-                            <li>{strings.tags.regionTableTags.tableLabeling.description.stepTwo}</li>
-                        </ol>
-                    </div>
-                    <h5 className="mb-4 table-name">
-                        <span style={{ borderBottom: `4px solid ${this.props.selectedTag.color}` }}>{`${strings.tags.regionTableTags.tableLabeling.tableName}: ${this.props.selectedTag.name}`}</span>
-                    </h5>
-                    { (this.props.selectedTag.type === FieldType.Object && this.props.selectedTag.fields && this.props.selectedTag.definition.fields) || this.props.selectedTag.definition.fields ?
+            <div className="table-labeling_container">
+                <h4 className="mt-2">{strings.tags.regionTableTags.tableLabeling.title}</h4>
+                <div className="labeling-guideline">
+                    {strings.tags.regionTableTags.tableLabeling.description.title}
+                    <ol>
+                        <li>{strings.tags.regionTableTags.tableLabeling.description.stepOne}</li>
+                        <li>{strings.tags.regionTableTags.tableLabeling.description.stepTwo}</li>
+                    </ol>
+                </div>
+                <h5 className="mb-4 table-name">
+                    <span style={{ borderBottom: `4px solid ${this.props.selectedTag.color}` }}>{`${strings.tags.regionTableTags.tableLabeling.tableName}: ${this.props.selectedTag.name}`}</span>
+                </h5>
+                { (this.props.selectedTag.type === FieldType.Object && this.props.selectedTag.fields && this.props.selectedTag.definition.fields) || this.props.selectedTag.definition.fields ?
                     <div className="table-view-container">
-                    <table className="viewed-table">
-                        <tbody>
-                            {this.getTableBody()}
-                        </tbody>
-                    </table>
-                </div>
-                :
-                <div>Missing fields. Please Reconfigure table.</div>
-                    }
-                    {this.props.selectedTag.type === FieldType.Array && <div className="add-row-button_container">
-                        <PrimaryButton
-                            theme={getPrimaryBlueTheme()}
-                            className="add_button ml-6"
-                            autoFocus={true}
-                            onClick={this.addRow}
-                        >
-                            <FontIcon iconName="Add" className="mr-2" />
-                            {strings.tags.regionTableTags.tableLabeling.buttons.addRow}
-                        </PrimaryButton>
-                    </div>}
-                    <div className="buttons-container">
-                        <PrimaryButton
-                            className="button-done"
-                            theme={getPrimaryGreenTheme()}
-                            onClick={() => {
-                                this.props.setTagInputMode(TagInputMode.Basic, null, null)
-                            }}
-                        >{strings.tags.regionTableTags.tableLabeling.buttons.done}
-                        </PrimaryButton>
-                        <DefaultButton
-                            className="button-reconfigure"
-                            theme={getPrimaryGreenTheme()}
-                            onClick={() => { this.props.setTagInputMode(TagInputMode.ConfigureTable) }}
-                        >{strings.tags.regionTableTags.tableLabeling.buttons.reconfigureTable}
-                        </DefaultButton>
+                        <table className="viewed-table">
+                            <tbody>
+                                {this.getTableBody()}
+                            </tbody>
+                        </table>
                     </div>
+                    :
+                    <div>Missing fields. Please Reconfigure table.</div>
+                }
+                {this.props.selectedTag.type === FieldType.Array && <div className="add-row-button_container">
+                    <PrimaryButton
+                        theme={getPrimaryBlueTheme()}
+                        className="add_button ml-6"
+                        autoFocus={true}
+                        onClick={this.addRow}
+                    >
+                        <FontIcon iconName="Add" className="mr-2" />
+                        {strings.tags.regionTableTags.tableLabeling.buttons.addRow}
+                    </PrimaryButton>
+                </div>}
+                <div className="buttons-container">
+                    <PrimaryButton
+                        className="button-done"
+                        theme={getPrimaryGreenTheme()}
+                        onClick={() => {
+                            this.props.setTagInputMode(TagInputMode.Basic, null, null)
+                        }}
+                    >{strings.tags.regionTableTags.tableLabeling.buttons.done}
+                    </PrimaryButton>
+                    <DefaultButton
+                        className="button-reconfigure"
+                        theme={getPrimaryGreenTheme()}
+                        onClick={() => { this.props.setTagInputMode(TagInputMode.ConfigureTable) }}
+                    >{strings.tags.regionTableTags.tableLabeling.buttons.reconfigureTable}
+                    </DefaultButton>
                 </div>
+            </div>
         )
     }
 

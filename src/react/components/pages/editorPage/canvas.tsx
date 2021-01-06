@@ -9,7 +9,7 @@ import {
     EditorMode, IAssetMetadata,
     IProject, IRegion, RegionType,
     AssetType, ILabelData, ILabel,
-    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, ImageMapParent, LabelType, ITableRegion, ITableTag, ITableLabel, ITableCellLabel, AssetLabelingState, APIVersionPatches, TableVisualizationHint, AssetState
+    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat, LabelType, ITableRegion, ITableTag, ITableLabel, AssetLabelingState, APIVersionPatches, TableVisualizationHint, AssetState
 } from "../../../../models/applicationState";
 import CanvasHelpers from "./canvasHelpers";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
@@ -1539,19 +1539,19 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private encodeLabelString = (labelString: string): string => {
-        return labelString.replace(/\~/g, "~0").replace(/\//g, "~1")
+        return labelString.replace(/~/g, "~0").replace(/\//g, "~1");
     }
 
     private decodeLabelString = (labelString: string): string => {
-        return labelString.replace(/\~1/g, "/").replace(/\~0/g, "~")
+        return labelString.replace(/~1/g, "/").replace(/~0/g, "~");
     }
 
     private encodeLabelLayers = (layers: string[]): string[] => {
-        return layers.map((layer) => { return this.encodeLabelString(layer) })
+        return layers.map((layer) => { return this.encodeLabelString(layer) });
     }
 
     private decodeLabelLayers = (layers: string[]): string[] => {
-        return layers.map((layer) => { return this.decodeLabelString(layer) })
+        return layers.map((layer) => { return this.decodeLabelString(layer) });
     }
 
     public convertLabelDataToRegions = (labelData: ILabelData): IRegion[] => {

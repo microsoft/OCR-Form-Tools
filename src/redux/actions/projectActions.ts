@@ -15,8 +15,10 @@ import {
     ITag,
     ISecurityToken,
     FieldType,
-    FieldFormat, ITableConfigItem, ITableTag, IField, ITableField, ITableKeyField,
-    AssetLabelingState,
+    FieldFormat,
+    ITableConfigItem,
+    ITableTag,
+    ITableField,
     TableVisualizationHint
 } from "../../models/applicationState";
 import { createAction, createPayloadAction, IPayloadAction } from "./actionCreators";
@@ -362,81 +364,81 @@ export function deleteProjectTag(project: IProject, tagName: string, tagType: Fi
 
 export function reconfigureTableTag(project: IProject, originalTagName: string, tagName: string, tagType: FieldType, tagFormat: FieldFormat, visualizationHint: TableVisualizationHint, deletedColumns: ITableConfigItem[], deletedRows: ITableConfigItem[], newRows: ITableConfigItem[], newColumns: ITableConfigItem[])
     : (dispatch: Dispatch, getState: () => IApplicationState) => Promise<IAssetMetadata[]> {
-        return async (dispatch: Dispatch, getState: () => IApplicationState) => {
-            // Find tags to rename
-            const assetService = new AssetService(project);
-            const assetUpdates = await assetService.refactorTableTag(originalTagName, tagName, tagType, tagFormat, visualizationHint, deletedColumns, deletedRows, newRows, newColumns);
+    return async (dispatch: Dispatch, getState: () => IApplicationState) => {
+        // Find tags to rename
+        const assetService = new AssetService(project);
+        const assetUpdates = await assetService.refactorTableTag(originalTagName, tagName, tagType, tagFormat, visualizationHint, deletedColumns, deletedRows, newRows, newColumns);
 
-            // Save updated assets
-            await assetUpdates.forEachAsync(async (assetMetadata) => {
-                await saveAssetMetadata(project, assetMetadata)(dispatch);
-            });
+        // Save updated assets
+        await assetUpdates.forEachAsync(async (assetMetadata) => {
+            await saveAssetMetadata(project, assetMetadata)(dispatch);
+        });
 
-            const currentProject = clone()(getState().currentProject);
+        const currentProject = clone()(getState().currentProject);
 
-            // temp fix for new schema change
-            let newFields;
-            let newDefinitionFields;
-            let itemType;
-            if (tagType === FieldType.Object) {
-                if (visualizationHint === TableVisualizationHint.Vertical) {
-                    newFields = newRows;
-                    newDefinitionFields = newColumns;
-                } else {
-                    newFields = newColumns;
-                    newDefinitionFields = newRows;
-                }
-                itemType = null;
-            } else {
-                itemType = tagName + "_object"
-                newFields = null;
+        // temp fix for new schema change
+        let newFields;
+        let newDefinitionFields;
+        let itemType;
+        if (tagType === FieldType.Object) {
+            if (visualizationHint === TableVisualizationHint.Vertical) {
+                newFields = newRows;
                 newDefinitionFields = newColumns;
+            } else {
+                newFields = newColumns;
+                newDefinitionFields = newRows;
             }
-            newFields =  newFields ? newFields.map((field) => {
-                return {
-                    fieldKey: field.name,
-                    fieldType: tagName + "_object",
-                    fieldFormat: FieldFormat.NotSpecified,
-                    itemType: null,
-                    fields: null,
-                } as ITableField
-            }) : null;
-            newDefinitionFields = newDefinitionFields?.map((definitionField) => {
-                return {
-                    fieldKey: definitionField.name,
-                    fieldType: definitionField.type,
-                    fieldFormat: definitionField.format,
-                    itemType: null,
-                    fields: null,
-                } as ITableField
-            });
+            itemType = null;
+        } else {
+            itemType = tagName + "_object"
+            newFields = null;
+            newDefinitionFields = newColumns;
+        }
+        newFields = newFields ? newFields.map((field) => {
+            return {
+                fieldKey: field.name,
+                fieldType: tagName + "_object",
+                fieldFormat: FieldFormat.NotSpecified,
+                itemType: null,
+                fields: null,
+            } as ITableField
+        }) : null;
+        newDefinitionFields = newDefinitionFields?.map((definitionField) => {
+            return {
+                fieldKey: definitionField.name,
+                fieldType: definitionField.type,
+                fieldFormat: definitionField.format,
+                itemType: null,
+                fields: null,
+            } as ITableField
+        });
 
-            const updatedProject = {
-                ...currentProject,
-                tags: currentProject.tags.reduce((result, tag) => {
-                    if (tag.name === originalTagName) {
-                        (tag as ITag).name = tagName;
-                        (tag as ITableTag).definition.fieldKey = tagName + "_object";
-                        (tag as ITableTag).definition.fields = newDefinitionFields || (tag as ITableTag).definition.fields;
-                        (tag as ITableTag).fields = newFields || (tag as ITableTag).fields;
-                        (tag as ITableTag).itemType = itemType;
-                        result.push(tag);
-                        return result;
-                    } else {
-                        result.push(tag);
-                        return result;
-                    }
-                }, [])
-            };
-
-
-            // Save updated project tags
-            await saveProject(updatedProject, true, false)(dispatch, getState);
-            dispatch(deleteProjectTagAction(updatedProject));
-
-            return assetUpdates;
+        const updatedProject = {
+            ...currentProject,
+            tags: currentProject.tags.reduce((result, tag) => {
+                if (tag.name === originalTagName) {
+                    (tag as ITag).name = tagName;
+                    (tag as ITableTag).definition.fieldKey = tagName + "_object";
+                    (tag as ITableTag).definition.fields = newDefinitionFields || (tag as ITableTag).definition.fields;
+                    (tag as ITableTag).fields = newFields || (tag as ITableTag).fields;
+                    (tag as ITableTag).itemType = itemType;
+                    result.push(tag);
+                    return result;
+                } else {
+                    result.push(tag);
+                    return result;
+                }
+            }, [])
         };
-    }
+
+
+        // Save updated project tags
+        await saveProject(updatedProject, true, false)(dispatch, getState);
+        dispatch(deleteProjectTagAction(updatedProject));
+
+        return assetUpdates;
+    };
+}
 
 
 /**
