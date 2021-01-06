@@ -14,18 +14,17 @@ import {
     IContextualMenuProps
 } from "@fluentui/react";
 import Fill from "ol/style/Fill";
-import Icon from "ol/style/Icon";
 import Stroke from "ol/style/Stroke";
 import Style from "ol/style/Style";
 import React from "react";
-import {connect} from "react-redux";
-import {RouteComponentProps} from "react-router-dom";
-import {bindActionCreators} from "redux";
+import { connect } from "react-redux";
+import { RouteComponentProps } from "react-router-dom";
+import { bindActionCreators } from "redux";
 import url from "url";
-import {constants} from "../../../../common/constants";
-import {interpolate, strings} from "../../../../common/strings";
-import {getPrimaryGreenTheme, getPrimaryWhiteTheme} from "../../../../common/themes";
-import {downloadFile, poll, zipData, downloadZipFile} from "../../../../common/utils";
+import { constants } from "../../../../common/constants";
+import { interpolate, strings } from "../../../../common/strings";
+import { getPrimaryGreenTheme, getPrimaryWhiteTheme } from "../../../../common/themes";
+import { downloadFile, poll, zipData, downloadZipFile } from "../../../../common/utils";
 import {
     ErrorCode,
     IApplicationState,
@@ -35,16 +34,16 @@ import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/ap
 import IAppPrebuiltSettingsActions, * as appPrebuiltSettingsActions from "../../../../redux/actions/prebuiltSettingsActions";
 import ServiceHelper from "../../../../services/serviceHelper";
 import Alert from "../../common/alert/alert";
-import {DocumentFilePicker} from "../../common/documentFilePicker/documentFilePicker";
-import {ImageMap} from "../../common/imageMap/imageMap";
-import {PageRange} from "../../common/pageRange/pageRange";
-import {PrebuiltSetting} from "../../common/prebuiltSetting/prebuiltSetting";
+import { DocumentFilePicker } from "../../common/documentFilePicker/documentFilePicker";
+import { ImageMap } from "../../common/imageMap/imageMap";
+import { PageRange } from "../../common/pageRange/pageRange";
+import { PrebuiltSetting } from "../../common/prebuiltSetting/prebuiltSetting";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
-import {CanvasCommandBar} from "../editorPage/canvasCommandBar";
-import {TableView} from "../editorPage/tableView";
-import {ILayoutHelper, LayoutHelper} from "./layoutHelper";
-import {ILoadFileHelper, LoadFileHelper} from "./LoadFileHelper";
-import {ITableHelper, ITableState, TableHelper} from "./tableHelper";
+import { CanvasCommandBar } from "../editorPage/canvasCommandBar";
+import { TableView } from "../editorPage/tableView";
+import { ILayoutHelper, LayoutHelper } from "./layoutHelper";
+import { ILoadFileHelper, LoadFileHelper } from "./LoadFileHelper";
+import { ITableHelper, ITableState, TableHelper } from "./tableHelper";
 import _ from "lodash";
 
 interface ILayoutPredictPageProps extends RouteComponentProps {
@@ -120,9 +119,9 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
         layoutData: null,
         imageAngle: 0,
 
-        layers: {text: true, tables: true, checkboxes: true, label: true, drawnRegions: true},
+        layers: { text: true, tables: true, checkboxes: true, label: true, drawnRegions: true },
 
-        tableIconTooltip: {display: "none", width: 0, height: 0, top: 0, left: 0},
+        tableIconTooltip: { display: "none", width: 0, height: 0, top: 0, left: 0 },
         hoveringFeature: null,
         tableToView: null,
         tableToViewId: null,
@@ -145,7 +144,7 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
             } else if (this.state.fileLoaded && prevState.currentPage !== this.state.currentPage) {
                 this.fileHelper.loadPage(this.state.currentPage).then((res: any) => {
                     if (res) {
-                        this.setState({...res});
+                        this.setState({ ...res });
                     }
                 });
             }
@@ -153,7 +152,7 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
     }
 
     private loadFile = (file: File) => {
-        this.setState({isFetching: true});
+        this.setState({ isFetching: true });
         this.fileHelper.loadFile(file)
             .then((res: any) => {
                 if (res) {
@@ -198,7 +197,7 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
                 <div
                     className="predict skipToMainContent"
                     id="pagePredict"
-                    style={{display: "flex"}} >
+                    style={{ display: "flex" }} >
                     <div className="predict-main">
                         {this.state.file && this.state.imageUri && this.renderImageMap()}
                         {this.renderPrevPageButton()}
@@ -231,11 +230,11 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
                                 </div>
                             </div>
                             <Separator className="separator-right-pane-main">{strings.layoutPredict.analysis}</Separator>
-                            <div className="p-3" style={{marginTop: "8px"}}>
+                            <div className="p-3" style={{ marginTop: "8px" }}>
                                 <div className="container-items-end predict-button">
                                     <PrimaryButton
                                         theme={getPrimaryWhiteTheme()}
-                                        iconProps={{iconName: "KeyPhraseExtraction"}}
+                                        iconProps={{ iconName: "KeyPhraseExtraction" }}
                                         text={strings.layoutPredict.runLayout}
                                         aria-label={!this.state.analyzationLoaded ? strings.layoutPredict.inProgress : ""}
                                         allowDisabledFocus
@@ -302,17 +301,17 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
     }
 
     onPageRangeChange = (withPageRange: boolean, pageRange: string, pageRangeIsValid: boolean) => {
-        this.setState({withPageRange, pageRange, pageRangeIsValid});
+        this.setState({ withPageRange, pageRange, pageRangeIsValid });
     }
 
     onJsonDownloadClick = () => {
-        const {layoutData} = this.state;
+        const { layoutData } = this.state;
         if (layoutData) {
-            downloadFile(JSON.stringify(layoutData), this.state.fileLabel+".json", "Layout-");
+            downloadFile(JSON.stringify(layoutData), this.state.fileLabel + ".json", "Layout-");
         }
     }
     onCSVDownloadClick = () => {
-        const {layoutData} = this.state;
+        const { layoutData } = this.state;
         if (layoutData) {
             const analyzeResult = layoutData.analyzeResult;
             const ocrPageResults = analyzeResult["pageResults"];
@@ -376,7 +375,7 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
         });
     }
 
-    onFileLoadError(err: {alertTitle: string; alertMessage: string;}): void {
+    onFileLoadError(err: { alertTitle: string; alertMessage: string; }): void {
         this.setState({
             ...err,
             shouldShowAlert: true,
@@ -396,7 +395,7 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
             },
         };
         return (
-            <div style={{width: "100%", height: "100%"}}>
+            <div style={{ width: "100%", height: "100%" }}>
                 <CanvasCommandBar
                     handleZoomIn={this.handleCanvasZoomIn}
                     handleZoomOut={this.handleCanvasZoomOut}
@@ -455,7 +454,7 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
     }
 
     private handleRotateCanvas = (degrees: number) => {
-        this.setState({imageAngle: this.state.imageAngle + degrees});
+        this.setState({ imageAngle: this.state.imageAngle + degrees });
     }
 
     private handleLayerChange = (layer: string) => {
@@ -536,14 +535,14 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
             <IconButton
                 className="toolbar-btn prev"
                 title="Previous"
-                iconProps={{iconName: "ChevronLeft"}}
+                iconProps={{ iconName: "ChevronLeft" }}
                 onClick={prevPage}
             />
             : <div></div>;
     }
 
     private renderNextPageButton = () => {
-        const {numPages} = this.state;
+        const { numPages } = this.state;
         const nextPage = () => {
             this.goToPage(Math.min(this.state.currentPage + 1, numPages));
         };
@@ -553,13 +552,13 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
                 className="toolbar-btn next"
                 title="Next"
                 onClick={nextPage}
-                iconProps={{iconName: "ChevronRight"}}
+                iconProps={{ iconName: "ChevronRight" }}
             />
             : <div></div>;
     }
 
     private renderPageIndicator = () => {
-        const {numPages} = this.state;
+        const { numPages } = this.state;
         return numPages > 1 ?
             <p className="page-number">
                 Page {this.state.currentPage} of {numPages}
@@ -579,7 +578,7 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
     }
 
     private handleClick = () => {
-        this.setState({analyzationLoaded: false, isAnalyzing: true});
+        this.setState({ analyzationLoaded: false, isAnalyzing: true });
         this.getAnalzation()
             .then((result) => {
                 this.tableHelper.setAnalyzeResult(result?.analyzeResult);
@@ -604,7 +603,7 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
                     alertMessage = error.message;
                 }
                 else {
-                    alertMessage = interpolate(strings.errors.endpointConnectionError.message, {endpoint: "form recognizer backend URL"});
+                    alertMessage = interpolate(strings.errors.endpointConnectionError.message, { endpoint: "form recognizer backend URL" });
                 }
                 this.setState({
                     shouldShowAlert: true,
@@ -629,18 +628,18 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
             "Content-Type": this.state.file ? this.state.file.type : "application/json",
             "cache-control": "no-cache"
         };
-        const body = this.state.file ?? ({source: this.state.fetchedFileURL});
+        const body = this.state.file ?? ({ source: this.state.fetchedFileURL });
 
         // let response;
         try {
             const response = await ServiceHelper.postWithAutoRetry(
-                endpointURL, body, {headers}, apiKey as string);
+                endpointURL, body, { headers }, apiKey as string);
             const operationLocation = response.headers["operation-location"];
 
             // Make the second REST API call and get the response.
-            return poll(() => ServiceHelper.getWithAutoRetry(operationLocation, {headers}, apiKey as string), 120000, 500);
+            return poll(() => ServiceHelper.getWithAutoRetry(operationLocation, { headers }, apiKey as string), 120000, 500);
         } catch (err) {
-            ServiceHelper.handleServiceError({...err, endpoint: endpointURL});
+            ServiceHelper.handleServiceError({ ...err, endpoint: endpointURL });
         }
     }
 

@@ -2,13 +2,11 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { FieldFormat, ITag } from "../../../../models/applicationState";
+import { ITag } from "../../../../models/applicationState";
 import "./predictResult.scss";
 import { getPrimaryGreenTheme } from "../../../../common/themes";
-import { FontIcon, PrimaryButton, ContextualMenu, IContextualMenuProps, IIconProps } from "@fluentui/react";
-import PredictModelInfo from './predictModelInfo';
+import { FontIcon, PrimaryButton, ContextualMenu, IContextualMenuProps } from "@fluentui/react";
 import { strings } from "../../../../common/strings";
-import { tagIndexKeys } from "../../common/tagInput/tagIndexKeys";
 import { downloadFile, downloadZipFile, zipData } from "../../../../common/utils";
 
 export interface IAnalyzeModelInfo {
@@ -39,7 +37,7 @@ export interface IResultItem {
 }
 
 export interface IPredictResultProps {
-    predictions: {[key: string]: any};
+    predictions: { [key: string]: any };
     analyzeResult: {};
     downloadPrefix?: string;
     page: number;
@@ -94,7 +92,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                             theme={getPrimaryGreenTheme()}
                             onClick={this.onAddAssetToProject}
                             text={strings.predict.editAndUploadToTrainingSet} />
-                        :<span></span>
+                        : <span></span>
                     }
                     <PrimaryButton
                         className="align-self-end keep-button-120px"
@@ -107,7 +105,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                     />
                 </div>
                 {this.props.children}
-                <div className="prediction-field-header" style={{marginTop: 28}}>
+                <div className="prediction-field-header" style={{ marginTop: 28 }}>
                     <h6 className="prediction-field-header-field"> Page # / Field name / Value</h6>
                     <h6 className="prediction-field-header-confidence"> Confidence</h6>
                 </div>
@@ -205,35 +203,35 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         else {
             return (
                 <div key={key}
-                onClick={() => this.onPredictionClick(item)}
-                onMouseEnter={() => this.onPredictionMouseEnter(item)}
-                onMouseLeave={() => this.onPredictionMouseLeave(item)}>
-                <li className="predictiontag-item" style={style}>
-                    <div className={"predictiontag-color"}>
-                        <span>{item.page}</span>
-                    </div>
-                    <div className={"predictiontag-content"}>
-                        {this.getPredictionTagContent(item)}
-                    </div>
-                </li>
-                {item.text === null ?
-                    <>
-                        <li className={postProcessedValue ? "predictiontag-item-label-null mt-0" : "predictiontag-item-label-null mt-0 mb-1"}>
-                            {postProcessedValue ? "text: NULL": "NULL"}
-                        </li>
-                    </>
-                    :
-                    <>
-                        <li className={postProcessedValue ? "predictiontag-item-label mt-0" : "predictiontag-item-label mt-0 mb-1"}>
-                            {postProcessedValue ? "text: " + item.text : item.text}
-                        </li>
-                        {postProcessedValue &&
-                            <li className="predictiontag-item-label mb-1">
-                                {postProcessedValue}
+                    onClick={() => this.onPredictionClick(item)}
+                    onMouseEnter={() => this.onPredictionMouseEnter(item)}
+                    onMouseLeave={() => this.onPredictionMouseLeave(item)}>
+                    <li className="predictiontag-item" style={style}>
+                        <div className={"predictiontag-color"}>
+                            <span>{item.page}</span>
+                        </div>
+                        <div className={"predictiontag-content"}>
+                            {this.getPredictionTagContent(item)}
+                        </div>
+                    </li>
+                    {item.text === null ?
+                        <>
+                            <li className={postProcessedValue ? "predictiontag-item-label-null mt-0" : "predictiontag-item-label-null mt-0 mb-1"}>
+                                {postProcessedValue ? "text: NULL" : "NULL"}
                             </li>
-                        }
-                    </>
-                }
+                        </>
+                        :
+                        <>
+                            <li className={postProcessedValue ? "predictiontag-item-label mt-0" : "predictiontag-item-label mt-0 mb-1"}>
+                                {postProcessedValue ? "text: " + item.text : item.text}
+                            </li>
+                            {postProcessedValue &&
+                                <li className="predictiontag-item-label mb-1">
+                                    {postProcessedValue}
+                                </li>
+                            }
+                        </>
+                    }
                 </div>
             );
         }
@@ -247,7 +245,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         return "#999999";
     }
 
-    private isTableTag(item) : boolean{
+    private isTableTag(item): boolean {
         return (item.type === "array" || item.type === "object");
     }
 
@@ -276,7 +274,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
     }
 
     private triggerJSONDownload = (): void => {
-        const {analyzeResult} = this.props;
+        const { analyzeResult } = this.props;
         const predictionData = JSON.stringify(analyzeResult);
         downloadFile(predictionData, this.props.downloadResultLabel + ".json", this.props.downloadPrefix);
     }
@@ -286,7 +284,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         const items = this.getItems();
         let csvContent: string = `Key,Value,Confidence,Page,Bounding Box`;
         items.forEach(item => {
-            csvContent += `\n"${item.fieldName}","${item.text ?? ""}",${isNaN(item.confidence)? "NaN":(item.confidence * 100).toFixed(2) + "%"},${item.page},"[${item.boundingBox}]"`;
+            csvContent += `\n"${item.fieldName}","${item.text ?? ""}",${isNaN(item.confidence) ? "NaN" : (item.confidence * 100).toFixed(2) + "%"},${item.page},"[${item.boundingBox}]"`;
         });
         data.push({
             fileName: `${this.props.downloadPrefix}${this.props.downloadResultLabel}-keyvalues.csv`,
@@ -294,15 +292,15 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         });
 
         let tableContent: string = "";
-        const itemNames=["fieldName","text","confidence","page","boundingBox"];
-        const getValue=(item:any, fieldName:string)=>{
-            switch(fieldName){
+        const itemNames = ["fieldName", "text", "confidence", "page", "boundingBox"];
+        const getValue = (item: any, fieldName: string) => {
+            switch (fieldName) {
                 case "fieldName":
                     return `"${item[fieldName]}"`;
                 case "text":
                     return `"${item[fieldName]}"`;
                 case "confidence":
-                    return isNaN(item.confidence)? "NaN":(item.confidence * 100).toFixed(2) + "%";
+                    return isNaN(item.confidence) ? "NaN" : (item.confidence * 100).toFixed(2) + "%";
                 case "page":
                     return item[fieldName];
                 case "boundingBox":
@@ -311,12 +309,12 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                     return "";
             }
         }
-        itemNames.forEach(name=>{
-            tableContent+=(name+",");
-            items.forEach(item=>{
-                tableContent+=(getValue(item,name)+",");
+        itemNames.forEach(name => {
+            tableContent += (name + ",");
+            items.forEach(item => {
+                tableContent += (getValue(item, name) + ",");
             })
-            tableContent+="\n";
+            tableContent += "\n";
         })
         data.push({
             fileName: `${this.props.downloadPrefix}${this.props.downloadResultLabel}-table.csv`,
@@ -326,7 +324,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
     }
 
     private getItems() {
-        const {tags, predictions} = this.props;
+        const { tags, predictions } = this.props;
         const tagsDisplayOrder = tags.map((tag) => tag.name);
         for (const name of Object.keys(predictions)) {
             const prediction = predictions[name];

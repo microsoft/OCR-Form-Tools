@@ -10,7 +10,7 @@ import {
     FieldFormat,
     IField,
     IFieldInfo,
-    ITableTag, ITableField, TableHeaderTypeAndFormat, ITableLabel, ILabelData, TableVisualizationHint
+    ITableTag, ITableField, ILabelData, TableVisualizationHint
 } from "../models/applicationState";
 import Guard from "../common/guard";
 import { constants } from "../common/constants";
@@ -38,7 +38,7 @@ function normalizeFieldType(type: string): string {
 export interface IProjectService {
     load(project: IProject, securityToken: ISecurityToken): Promise<IProject>;
     save(project: IProject, securityToken: ISecurityToken, saveTags?: boolean,
-         updateTagsFromFiles?: boolean): Promise<IProject>;
+        updateTagsFromFiles?: boolean): Promise<IProject>;
     delete(project: IProject): Promise<void>;
     isDuplicate(project: IProject, projectList: IProject[]): boolean;
     updateProjectTagsFromFiles(oldProject: IProject): Promise<IProject>;
@@ -79,7 +79,7 @@ export default class ProjectService implements IProjectService {
      * @param securityToken - Security Token to encrypt
      */
     public async save(project: IProject, securityToken: ISecurityToken, saveTags?: boolean,
-                      updateTagsFromFiles?: boolean): Promise<IProject> {
+        updateTagsFromFiles?: boolean): Promise<IProject> {
         Guard.null(project);
 
         project.version = packageJson.version;
@@ -170,9 +170,9 @@ export default class ProjectService implements IProjectService {
         }
         if (!isValid) {
             if (project.sourceConnection.providerType === "localFileSystemProxy") {
-                await toast.error(interpolate(strings.connections.providers.local.invalidFolderMessage, {project}));
+                await toast.error(interpolate(strings.connections.providers.local.invalidFolderMessage, { project }));
             } else if (project.sourceConnection.providerType === "azureBlobStorage") {
-                await toast.error(interpolate(strings.connections.providers.azureBlob.invalidSASMessage, {project}));
+                await toast.error(interpolate(strings.connections.providers.azureBlob.invalidSASMessage, { project }));
             } else {
                 await toast.error(interpolate(strings.connections.genericInvalid, { project }));
             }
@@ -194,7 +194,7 @@ export default class ProjectService implements IProjectService {
         }
     }
 
-    public async updatedAssetMetadata(project: IProject,  assetDocumentCountDifference: any, columnDocumentCountDifference?: any,
+    public async updatedAssetMetadata(project: IProject, assetDocumentCountDifference: any, columnDocumentCountDifference?: any,
         rowDocumentCountDifference?: any): Promise<IProject> {
         const updatedProject = clone()(project);
         updatedProject.tags?.forEach((tag: ITag) => {
@@ -254,7 +254,7 @@ export default class ProjectService implements IProjectService {
                                 }
                                 let labelName;
                                 if (content?.$schema === constants.labelsSchema) {
-                                    labelName = label.label.replace(/\~1/g, "/").replace(/\~0/g, "~");
+                                    labelName = label.label.replace(/~1/g, "/").replace(/~0/g, "~");
                                 } else {
                                     labelName = label.label
                                 }
@@ -368,8 +368,8 @@ export default class ProjectService implements IProjectService {
             toast.dismiss();
         } catch (err) {
             if (err instanceof SyntaxError) {
-                const reason = interpolate(strings.errors.invalidJSONFormat.message, {fieldFilePath});
-                toast.error(reason, {autoClose: false});
+                const reason = interpolate(strings.errors.invalidJSONFormat.message, { fieldFilePath });
+                toast.error(reason, { autoClose: false });
             }
         }
     }
@@ -382,7 +382,7 @@ export default class ProjectService implements IProjectService {
         let existingTags: ITag[] = [];
         const newTags: ITag[] = [];
         updatedProject.tags.forEach((updatedTag) => {
-            if (!oldProject.tags.find((oldTag) => updatedTag.name === oldTag.name )) {
+            if (!oldProject.tags.find((oldTag) => updatedTag.name === oldTag.name)) {
                 newTags.push(updatedTag);
             } else {
                 existingTags.push(updatedTag);
@@ -398,12 +398,12 @@ export default class ProjectService implements IProjectService {
 
     private async addMissingTagsAndUpdateDocumentCount(project: IProject, tags: ITag[], tagDocumentCount?: any) {
         const missingTags = tags.filter((fileTag) => {
-            const foundExistingTag = project.tags.find((tag) => fileTag.name === tag.name );
+            const foundExistingTag = project.tags.find((tag) => fileTag.name === tag.name);
             if (!foundExistingTag) {
                 return true;
             } else {
                 if (tagDocumentCount) {
-                    foundExistingTag.documentCount =  tagDocumentCount[foundExistingTag.name];
+                    foundExistingTag.documentCount = tagDocumentCount[foundExistingTag.name];
                 }
                 return false;
             }
@@ -425,7 +425,7 @@ export default class ProjectService implements IProjectService {
         const fieldInfo = {};
         fieldInfo["$schema"] = "http://www.azure.com/schema/formrecognizer/fields.json"
         fieldInfo["fields"] =
-            project.tags.map((tag ) => {
+            project.tags.map((tag) => {
                 if (tag.type === FieldType.Object || tag.type === FieldType.Array) {
                     const tableField = {
                         fieldKey: tag.name,

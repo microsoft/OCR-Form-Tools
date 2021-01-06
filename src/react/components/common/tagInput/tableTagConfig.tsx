@@ -117,7 +117,7 @@ const defaultRowOrColumn = { name: "", type: FieldType.String, format: FieldForm
 
 export default function TableTagConfig(props: ITableTagConfigProps) {
     const { setTagInputMode = null, addTableTag = null, splitPaneWidth = null } = props;
-    const containerWidth = splitPaneWidth > 520 ? splitPaneWidth - 10: 510;
+    const containerWidth = splitPaneWidth > 520 ? splitPaneWidth - 10 : 510;
     const inputTableName = useRef(null);
     const lastColumnInputRef = useRef(null);
     const lastRowInputRef = useRef(null);
@@ -127,7 +127,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         if (props.tableTag?.type === FieldType.Object) {
             if (props.tableTag.visualizationHint === TableVisualizationHint.Vertical) {
                 table = {
-                    name: {tableName: props.tableTag.name, originalTableName: props.tableTag.name},
+                    name: { tableName: props.tableTag.name, originalTableName: props.tableTag.name },
                     type: FieldType.Object,
                     format: FieldFormat.NotSpecified,
                     rows: props.tableTag.fields?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat, originalName: row.fieldKey, originalFormat: row.fieldFormat, originalType: row.fieldType })) || [defaultRowOrColumn],
@@ -139,7 +139,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
             } else {
                 table = {
-                    name: {tableName: props.tableTag.name, originalTableName: props.tableTag.name},
+                    name: { tableName: props.tableTag.name, originalTableName: props.tableTag.name },
                     type: FieldType.Object,
                     format: FieldFormat.NotSpecified,
                     rows: props.tableTag?.definition?.fields?.map(row => ({ name: row.fieldKey, type: row.fieldType, format: row.fieldFormat, originalName: row.fieldKey, originalFormat: row.fieldFormat, originalType: row.fieldType })) || [defaultRowOrColumn],
@@ -155,7 +155,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 type: FieldType.Array,
                 format: FieldFormat.NotSpecified,
                 rows: [defaultRowOrColumn],
-                columns: props.tableTag?.definition?.fields?.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType  })),
+                columns: props.tableTag?.definition?.fields?.map(col => ({ name: col.fieldKey, type: col.fieldType, format: col.fieldFormat, originalName: col.fieldKey, originalFormat: col.fieldFormat, originalType: col.fieldType })),
                 headerTypeAndFormat: TableElements.columns,
                 deletedColumns: [],
             }
@@ -163,7 +163,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
     } else {
         table = {
-            name: {tableName: ""},
+            name: { tableName: "" },
             type: FieldType.Object,
             format: FieldFormat.NotSpecified,
             rows: [defaultRowOrColumn],
@@ -175,7 +175,6 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     const currentProjectTags = useSelector<ITag[]>((state: IApplicationState) => state.currentProject.tags);
     const [tableTagName, setTableTagName] = useState(table.name);
     const [type, setType] = useState<FieldType.Object | FieldType.Array>(table.type);
-    const [format, setFormat] = useState<FieldFormat.NotSpecified>(table.format);
     const [columns, setColumns] = useState(table.columns);
     const [rows, setRows] = useState<ITableConfigItem[]>(table.rows);
     const [notUniqueNames, setNotUniqueNames] = useState<{ columns: [], rows: [], tags: boolean }>({ columns: [], rows: [], tags: false });
@@ -189,7 +188,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
 
 
     const isCompatibleWithType = (documentCount: number, type: string, newType: string) => {
-        return documentCount  <= 0 ? true : getTagCategory(type) === getTagCategory(newType);
+        return documentCount <= 0 ? true : getTagCategory(type) === getTagCategory(newType);
     }
 
     function selectColumnType(idx: number, type: string, docCount: number) {
@@ -408,7 +407,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     }
 
     function setTableName(name: string) {
-        setTableTagName({...tableTagName,tableName: name});
+        setTableTagName({ ...tableTagName, tableName: name });
     }
 
     // Row/Column headers command bar (reorder, delete)
@@ -448,7 +447,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 iconOnly: true,
                 iconProps: { iconName: 'Delete' },
                 onClick: () => {
-                    const selectedRowIndex =  rowSelection.getSelectedIndices()[0];
+                    const selectedRowIndex = rowSelection.getSelectedIndices()[0];
                     if (props.tableTag && rows[selectedRowIndex].originalName) {
                         const deletedRow = Object.assign({}, rows[selectedRowIndex]);
                         deletedRow.name = deletedRow.originalName;
@@ -582,12 +581,14 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         if (columns) {
             checkNameUniqueness(debouncedColumns, TableElements.columns)
         }
+        // eslint-disable-next-line
     }, [debouncedColumns]);
 
     useEffect(() => {
         if (rows) {
             checkNameUniqueness(debouncedRows, TableElements.rows);
         }
+        // eslint-disable-next-line
     }, [debouncedRows]);
 
     // Check tableName uniqueness as type
@@ -598,6 +599,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             const existingTagName = currentProjectTags.find((item: ITag) => item.name === tableTagName.tableName.trim());
             setNotUniqueNames({ ...notUniqueNames, tags: existingTagName !== undefined ? true : false })
         }
+        // eslint-disable-next-line
     }, [debouncedTableTagName, currentProjectTags]);
 
     function trimFieldNames(array: ITableConfigItem[]) {
@@ -605,7 +607,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     }
 
     function save(cleanTableName: string, cleanRows: ITableConfigItem[], cleanColumns: ITableConfigItem[]) {
-        const [ firstLayerFieldsInput, secondLayerFieldsInput ] = getFieldsLayersInput(headersFormatAndType, cleanRows, cleanColumns);
+        const [firstLayerFieldsInput, secondLayerFieldsInput] = getFieldsLayersInput(headersFormatAndType, cleanRows, cleanColumns);
         const definition = getDefinitionLayer(cleanTableName, secondLayerFieldsInput);
         const fieldsLayer = getFieldsLayer(cleanTableName, firstLayerFieldsInput);
         const itemType = getItemType(cleanTableName);
@@ -614,7 +616,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             name: cleanTableName,
             type,
             columns: cleanColumns,
-            format : FieldFormat.NotSpecified,
+            format: FieldFormat.NotSpecified,
             itemType,
             fields: fieldsLayer,
             definition,
@@ -639,12 +641,12 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
     function getFieldsLayersInput(headersFormatAndType, cleanRows, cleanColumns) {
         if (type === FieldType.Object) {
             if (headersFormatAndType === TableElements.columns) {
-                return [ cleanRows, cleanColumns ];
+                return [cleanRows, cleanColumns];
             } else {
-                return [ cleanColumns, cleanRows ];
+                return [cleanColumns, cleanRows];
             }
         } else {
-            return [ cleanRows, cleanColumns ];
+            return [cleanRows, cleanColumns];
         }
     }
 
@@ -683,7 +685,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
             return firstLayerFieldsInput.map((field) => {
                 return {
                     fieldKey: field.name,
-                    fieldType:  cleanTableName + "_object",
+                    fieldType: cleanTableName + "_object",
                     fieldFormat: FieldFormat.NotSpecified,
                     itemType: null,
                     fields: null,
@@ -799,7 +801,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                 break;
         }
         setFields([...fields, deletedFields[index]]);
-        setDeletedFields([...deletedFields].slice(0, index).concat([...deletedFields].slice(index+1, deletedFields.length)));
+        setDeletedFields([...deletedFields].slice(0, index).concat([...deletedFields].slice(index + 1, deletedFields.length)));
     }
 
     function getDeletedFieldsTable(fieldType: TableElements) {
@@ -1013,15 +1015,15 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                         <FontIcon iconName="Add" className="mr-2" />
                     Add column
                 </PrimaryButton>
-                {deletedColumns?.length > 0 &&
-                <div className="mt-3">
-                    <table className="">
-                            <tbody>
-                                {getDeletedFieldsTable(TableElements.column)}
-                            </tbody>
-                        </table>
-                    </div>
-                }
+                    {deletedColumns?.length > 0 &&
+                        <div className="mt-3">
+                            <table className="">
+                                <tbody>
+                                    {getDeletedFieldsTable(TableElements.column)}
+                                </tbody>
+                            </table>
+                        </div>
+                    }
                 </div>
                 {((props.tableTag?.type === FieldType.Object) || type === FieldType.Object) &&
                     <div className="rows_container mb-4 ml-12px">
@@ -1054,15 +1056,15 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                             <FontIcon iconName="Add" className="mr-2" />
                                 Add row
                             </PrimaryButton>
-                            {deletedRows?.length > 0 &&
-                                <div className="mt-3">
-                                    <table className="">
-                                        <tbody>
-                                            {getDeletedFieldsTable(TableElements.row)}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            }
+                        {deletedRows?.length > 0 &&
+                            <div className="mt-3">
+                                <table className="">
+                                    <tbody>
+                                        {getDeletedFieldsTable(TableElements.row)}
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
                     </div>
                 }
                 {
@@ -1076,8 +1078,8 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                                         Table name: {tableTagName.originalTableName}
                                     </div>
                                 }
-                            <span className="tableName-current"
-                                style={{ borderBottom: props.tableTag ? `4px solid ${props.tableTag.color}` : null }}>
+                                <span className="tableName-current"
+                                    style={{ borderBottom: props.tableTag ? `4px solid ${props.tableTag.color}` : null }}>
                                     <span>Table name: </span>
                                     <span className="table-name-preview">{tableTagName.tableName}</span>
                                 </span>
@@ -1121,7 +1123,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
                                 toast.error(strings.tags.regionTableTags.configureTag.errors.checkFields, { autoClose: 8000 });
                                 return;
                             } else {
-                                const { cleanTableName, cleanRows, cleanColumns} = getCleanTable();
+                                const { cleanTableName, cleanRows, cleanColumns } = getCleanTable();
                                 if (props.tableTag) {
                                     const tableTagToReconfigure = {
                                         name: cleanTableName,

@@ -5,7 +5,7 @@ import _ from "lodash";
 import Guard from "../common/guard";
 import {
     IAsset, AssetType, IProject, IAssetMetadata, AssetState,
-    ILabelData, ILabel, AssetLabelingState, FieldType, FieldFormat, ITableConfigItem, ITableRegion, ITableCellLabel, IFormRegion, ITableLabel, TableVisualizationHint
+    ILabelData, ILabel, AssetLabelingState, FieldType, FieldFormat, ITableConfigItem, ITableRegion, IFormRegion, TableVisualizationHint
 } from "../models/applicationState";
 import { AssetProviderFactory, IAssetProvider } from "../providers/storage/assetProviderFactory";
 import { StorageProviderFactory, IStorageProvider } from "../providers/storage/storageProviderFactory";
@@ -155,13 +155,11 @@ export class AssetService {
         }
 
         const hash = await sha256Hash(filePath, nodejsMode);
-        // eslint-disable-next-line
-        const pathParts = filePath.split(/[\\\/]/);
+        const pathParts = filePath.split(/[\\/]/);
         fileName = fileName || pathParts[pathParts.length - 1];
         const fileNameParts = fileName.split(".");
 
-        // eslint-disable-next-line
-        const extensionParts = fileNameParts[fileNameParts.length - 1].split(/[\?#]/);
+        const extensionParts = fileNameParts[fileNameParts.length - 1].split(/[?#]/);
         let assetFormat = extensionParts[0].toLowerCase();
         let assetMimeType = mime.getType(assetFormat);
         if (supportedImageFormats.hasOwnProperty(assetFormat)) {
@@ -173,7 +171,7 @@ export class AssetService {
                 } catch {
                     // do nothing
                 }
-                corruptFileName = fileName.split(/[\\\/]/).pop().replace(/%20/g, " ");
+                corruptFileName = fileName.split(/[\\/]/).pop().replace(/%20/g, " ");
 
             } else {
                 try {
@@ -444,10 +442,10 @@ export class AssetService {
         const transformer = (tagNames) => tagNames.filter((t) => t !== tagName);
         const labelTransformer = (labelData: ILabelData) => {
             if (tagType === FieldType.Object || tagType === FieldType.Array) {
-                labelData.labels = labelData.labels.filter((label) => label.label.split("/")[0].replace(/\~1/g, "/").replace(/\~0/g, "~") !== tagName);
+                labelData.labels = labelData.labels.filter((label) => label.label.split("/")[0].replace(/~1/g, "/").replace(/~0/g, "~") !== tagName);
             } else {
                 if (labelData?.$schema === constants.labelsSchema) {
-                    labelData.labels = labelData.labels.filter((label) => label.label.replace(/\~1/g, "/").replace(/\~0/g, "~") !== tagName);
+                    labelData.labels = labelData.labels.filter((label) => label.label.replace(/~1/g, "/").replace(/~0/g, "~") !== tagName);
                 } else {
                     labelData.labels = labelData.labels.filter((label) => label.label !== tagName);
                 }
@@ -483,7 +481,7 @@ export class AssetService {
         }
         const labelTransformer = (labelData: ILabelData) => {
             labelData.labels = labelData?.labels?.reduce((result, label) => {
-                const labelString = label.label.split("/").map((layer) => { return layer.replace(/\~1/g, "/").replace(/\~0/g, "~") });
+                const labelString = label.label.split("/").map((layer) => { return layer.replace(/~1/g, "/").replace(/~0/g, "~") });
                 if (labelString.length > 1) {
                     const labelTagName = labelString[0];
                     if (labelTagName !== originalTagName) {
@@ -508,12 +506,12 @@ export class AssetService {
                         if (visualizationHint === TableVisualizationHint.Vertical) {
                             result.push({
                                 ...label,
-                                label: tagName.replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + (row?.name || rowKey).replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + (column?.name || columnKey).replace(/\~/g, "~0").replace(/\//g, "~1"),
+                                label: tagName.replace(/~/g, "~0").replace(/\//g, "~1") + "/" + (row?.name || rowKey).replace(/~/g, "~0").replace(/\//g, "~1") + "/" + (column?.name || columnKey).replace(/~/g, "~0").replace(/\//g, "~1"),
                             })
                         } else {
                             result.push({
                                 ...label,
-                                label: tagName.replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + (column?.name || columnKey).replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + (row?.name || rowKey).replace(/\~/g, "~0").replace(/\//g, "~1"),
+                                label: tagName.replace(/~/g, "~0").replace(/\//g, "~1") + "/" + (column?.name || columnKey).replace(/~/g, "~0").replace(/\//g, "~1") + "/" + (row?.name || rowKey).replace(/~/g, "~0").replace(/\//g, "~1"),
                             })
                         }
 
@@ -526,7 +524,7 @@ export class AssetService {
                         const column = newColumns?.find((newColumn) => newColumn.originalName === columnKey)
                         result.push({
                             ...label,
-                            label: tagName.replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + rowKey.replace(/\~/g, "~0").replace(/\//g, "~1") + "/" + (column?.name || columnKey).replace(/\~/g, "~0").replace(/\//g, "~1"),
+                            label: tagName.replace(/~/g, "~0").replace(/\//g, "~1") + "/" + rowKey.replace(/~/g, "~0").replace(/\//g, "~1") + "/" + (column?.name || columnKey).replace(/~/g, "~0").replace(/\//g, "~1"),
                         })
                     }
                     return result;
@@ -623,7 +621,7 @@ export class AssetService {
         }
         if (tagType === FieldType.Array || tagType === FieldType.Object) {
             if (assetMetadata?.labelData?.labels) {
-                const field = assetMetadata.labelData.labels.find((field) => field.label.split("/")[0].replace(/\~1/g, "/").replace(/\~0/g, "~") === tagName);
+                const field = assetMetadata.labelData.labels.find((field) => field.label.split("/")[0].replace(/~1/g, "/").replace(/~0/g, "~") === tagName);
                 if (field) {
                     foundTag = true;
                     assetMetadata.labelData = labelTransformer(assetMetadata.labelData);
@@ -669,7 +667,7 @@ export class AssetService {
             }
         }
         if (tagType === FieldType.Array || tagType === FieldType.Object) {
-            const field = assetMetadata?.labelData?.labels?.find((field) => field.label.split("/")[0] === originalTagName.replace(/\~/g, "~0").replace(/\//g, "~1"));
+            const field = assetMetadata?.labelData?.labels?.find((field) => field.label.split("/")[0] === originalTagName.replace(/~/g, "~0").replace(/\//g, "~1"));
             if (field) {
                 foundTag = true;
             }

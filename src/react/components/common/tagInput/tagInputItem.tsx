@@ -41,7 +41,7 @@ export interface ITagInputItemProps {
     onClick: (tag: ITag, props: ITagClickProps) => void;
     /** Apply new name to tag */
     onRename: (oldTag: ITag, newName: string, cancelCallback: () => void) => void;
-    onLabelEnter: (label: ILabel|ITableLabel) => void;
+    onLabelEnter: (label: ILabel | ITableLabel) => void;
     onLabelLeave: (label: ILabel) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
     handleLabelTable: (tagInputMode: TagInputMode, selectedTableTagToLabel) => void;
@@ -129,13 +129,13 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         e.stopPropagation();
 
         const clickedDropDown = true;
-        this.props.onClick(this.props.tag, {clickedDropDown});
+        this.props.onClick(this.props.tag, { clickedDropDown });
     }
 
     private handleContextMenu = (e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>) => {
         e.preventDefault();
         const clickedDropDown = true;
-        this.props.onClick(this.props.tag, {clickedDropDown});
+        this.props.onClick(this.props.tag, { clickedDropDown });
     }
 
     private onColorClick = (e: MouseEvent) => {
@@ -144,7 +144,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         const ctrlKey = e.ctrlKey || e.metaKey;
         const altKey = e.altKey;
         const clickedColor = true;
-        this.props.onClick(this.props.tag, {ctrlKey, altKey, clickedColor});
+        this.props.onClick(this.props.tag, { ctrlKey, altKey, clickedColor });
     }
 
     private onNameClick = (e: MouseEvent) => {
@@ -152,12 +152,12 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
 
         const ctrlKey = e.ctrlKey || e.metaKey;
         const altKey = e.altKey;
-        this.props.onClick(this.props.tag, {ctrlKey, altKey});
+        this.props.onClick(this.props.tag, { ctrlKey, altKey });
     }
 
     private onNameDoubleClick = (e: MouseEvent) => {
         e.stopPropagation();
-        const {labels} = this.props;
+        const { labels } = this.props;
         if (labels.length > 0) {
             this.props.onTagDoubleClick(labels[0]);
         }
@@ -176,7 +176,6 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
 
     private getTagContent = () => {
         const displayIndex = this.getDisplayIndex();
-        const spanValue =  this.inputElement?.value ?? "";
         return (
             <div className={"tag-name-container"}
                 onContextMenu={this.handleContextMenu}
@@ -268,7 +267,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                                     label={label}
                                     isOrigin={true}
                                     value={label.originValue}
-                                    prefixText={strings.tags.preText.autoLabel}/>
+                                    prefixText={strings.tags.preText.autoLabel} />
                             }
                             {(label.originValue?.length > 0 || label.value?.length > 0) &&
                                 <TagInputItemLabel
@@ -277,7 +276,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                                     isOrigin={false}
                                     onLabelEnter={this.props.onLabelEnter}
                                     onLabelLeave={this.props.onLabelLeave}
-                                    prefixText={revised ? strings.tags.preText.revised : undefined}/>
+                                    prefixText={revised ? strings.tags.preText.revised : undefined} />
                             }
                         </div>
                     </div>
@@ -342,14 +341,14 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
     }
 
     private handleMouseEnter = () => {
-        const {labels} = this.props;
+        const { labels } = this.props;
         if (labels.length > 0) {
             this.props.onLabelEnter(labels[0]);
         }
     }
 
     private handleMouseLeave = () => {
-        const {labels} = this.props;
+        const { labels } = this.props;
         if (labels.length > 0) {
             this.props.onLabelLeave(labels[0]);
         }

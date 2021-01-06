@@ -8,45 +8,42 @@ import {
 } from "@fluentui/react";
 import axios from "axios";
 import _ from "lodash";
-import {Feature} from "ol";
+import { Feature } from "ol";
 import Polygon from "ol/geom/Polygon";
 import Fill from "ol/style/Fill";
 import Stroke from "ol/style/Stroke";
 import Style from "ol/style/Style";
 import pdfjsLib from "pdfjs-dist";
 import React from "react";
-import {connect} from "react-redux";
-import {RouteComponentProps} from "react-router-dom";
-import {bindActionCreators} from "redux";
+import { connect } from "react-redux";
+import { RouteComponentProps } from "react-router-dom";
+import { bindActionCreators } from "redux";
 import url from "url";
-import {constants} from "../../../../common/constants";
-import {interpolate, strings} from "../../../../common/strings";
-import {
-    getGreenWithWhiteBackgroundTheme, getPrimaryGreenTheme, getPrimaryGreyTheme, getPrimaryWhiteTheme, getRightPaneDefaultButtonTheme,
-} from "../../../../common/themes";
-import { loadImageToCanvas, parseTiffData, renderTiffToCanvas } from "../../../../common/utils";
-import { AppError, ErrorCode, FieldFormat, IApplicationState, IAppSettings, IConnection, ImageMapParent, IProject, IRecentModel, IField, AnalyzedTagsMode } from "../../../../models/applicationState";
+import { constants } from "../../../../common/constants";
+import { interpolate, strings } from "../../../../common/strings";
+import { getPrimaryGreenTheme, getPrimaryGreyTheme, getPrimaryWhiteTheme, getRightPaneDefaultButtonTheme, } from "../../../../common/themes";
+import { AppError, ErrorCode, IApplicationState, IAppSettings, IConnection, IProject, IRecentModel, AnalyzedTagsMode } from "../../../../models/applicationState";
 import { getAPIVersion } from "../../../../common/utils";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import ServiceHelper from "../../../../services/serviceHelper";
-import {getAppInsights} from '../../../../services/telemetryService';
+import { getAppInsights } from '../../../../services/telemetryService';
 import Alert from "../../common/alert/alert";
 import Confirm from "../../common/confirm/confirm";
-import {DocumentFilePicker} from "../../common/documentFilePicker/documentFilePicker";
-import {ImageMap} from "../../common/imageMap/imageMap";
-import {PageRange} from "../../common/pageRange/pageRange";
+import { DocumentFilePicker } from "../../common/documentFilePicker/documentFilePicker";
+import { ImageMap } from "../../common/imageMap/imageMap";
+import { PageRange } from "../../common/pageRange/pageRange";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
-import {CanvasCommandBar} from "../editorPage/canvasCommandBar";
-import {TableView} from "../editorPage/tableView";
-import {ILoadFileHelper, ILoadFileResult, LoadFileHelper} from "../prebuiltPredict/LoadFileHelper";
-import {ITableHelper, ITableState, TableHelper} from "../prebuiltPredict/tableHelper";
+import { CanvasCommandBar } from "../editorPage/canvasCommandBar";
+import { TableView } from "../editorPage/tableView";
+import { ILoadFileHelper, ILoadFileResult, LoadFileHelper } from "../prebuiltPredict/LoadFileHelper";
+import { ITableHelper, ITableState, TableHelper } from "../prebuiltPredict/tableHelper";
 import PredictModelInfo from './predictModelInfo';
 import "./predictPage.scss";
 import PredictResult, { IAnalyzeModelInfo, ITableResultItem } from "./predictResult";
 import RecentModelsView from "./recentModelsView";
-import {UploadToTrainingSetView} from "./uploadToTrainingSetView";
+import { UploadToTrainingSetView } from "./uploadToTrainingSetView";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 
@@ -165,7 +162,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         highlightedTableCellRowKey: null,
         highlightedTableCellColumnKey: null,
 
-        tableIconTooltip: {display: "none", width: 0, height: 0, top: 0, left: 0},
+        tableIconTooltip: { display: "none", width: 0, height: 0, top: 0, left: 0 },
         hoveringFeature: null,
         tableToView: null,
         tableToViewId: null,
@@ -210,7 +207,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             this.state.selectedRecentModelIndex === -1) {
             this.updateRecentModelsViewer(this.props.project);
         } else if (this.state.loadingRecentModel) {
-            this.setState({loadingRecentModel: false});
+            this.setState({ loadingRecentModel: false });
         }
 
         if (this.state.file) {
@@ -221,7 +218,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
                 this.fileHelper.loadPage(this.state.currentPage).then((res: any) => {
                     if (res) {
-                        this.setState({...res});
+                        this.setState({ ...res });
                     }
                 });
             }
@@ -272,14 +269,14 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             <div
                 className={`predict skipToMainContent ${onPredictionPath ? "" : "hidden"} `}
                 id="pagePredict"
-                style={{display: `${onPredictionPath ? "flex" : "none"}`}} >
+                style={{ display: `${onPredictionPath ? "flex" : "none"}` }} >
                 <div className="predict-main">
                     {this.state.file && this.state.imageUri && this.renderImageMap()}
                     {this.renderPrevPageButton()}
                     {this.renderNextPageButton()}
                     {this.renderPageIndicator()}
                 </div>
-                <div className={"predict-sidebar bg-lighter-1"}  style={{width: sidebarWidth, minWidth: sidebarWidth }}>
+                <div className={"predict-sidebar bg-lighter-1"} style={{ width: sidebarWidth, minWidth: sidebarWidth }}>
                     <div className="condensed-list">
                         <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
                             <FontIcon className="mr-1" iconName="Insights" />
@@ -330,12 +327,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                 className="keep-button-80px"
                                                 theme={getRightPaneDefaultButtonTheme()}
                                                 text="Change"
-                                                onClick={() => {this.setState({showRecentModelsView: true})}}
+                                                onClick={() => { this.setState({ showRecentModelsView: true }) }}
                                                 disabled={!mostRecentModel || browseFileDisabled}
                                             />
                                         </div>
-                                        <div className="p-3" style={{marginTop: "8px"}}>
-                                            <div style={{display: "flex", justifyContent: "space-between"}}>
+                                        <div className="p-3" style={{ marginTop: "8px" }}>
+                                            <div style={{ display: "flex", justifyContent: "space-between" }}>
                                                 <h5>
                                                     {strings.predict.downloadScript}
                                                 </h5>
@@ -367,11 +364,11 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                 </div>}
                                         </div>
                                         <Separator className="separator-right-pane-main">{strings.predict.analysis}</Separator>
-                                        <div className="p-3" style={{marginTop: "8px"}}>
+                                        <div className="p-3" style={{ marginTop: "8px" }}>
                                             <div className="container-items-end predict-button">
                                                 <PrimaryButton
                                                     theme={getPrimaryWhiteTheme()}
-                                                    iconProps={{iconName: "Insights"}}
+                                                    iconProps={{ iconName: "Insights" }}
                                                     text={strings.predict.runAnalysis}
                                                     aria-label={!this.state.predictionLoaded ? strings.predict.inProgress : ""}
                                                     allowDisabledFocus
@@ -482,7 +479,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     onPageRangeChange = (withPageRange: boolean, pageRange: string) => {
-        this.setState({withPageRange, pageRange});
+        this.setState({ withPageRange, pageRange });
     }
 
     onFileChange(data: {
@@ -530,7 +527,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
 
     }
 
-    onFileLoadError(err: {alertTitle: string; alertMessage: string;}): void {
+    onFileLoadError(err: { alertTitle: string; alertMessage: string; }): void {
         this.setState({
             ...err,
             shouldShowAlert: true,
@@ -552,7 +549,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 <IconButton
                     className="toolbar-btn prev"
                     title="Previous"
-                    iconProps={{iconName: "ChevronLeft"}}
+                    iconProps={{ iconName: "ChevronLeft" }}
                     onClick={prevPage}
                 />
             );
@@ -562,7 +559,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private renderNextPageButton = () => {
-        const {currentPage, numPages} = this.state;
+        const { currentPage, numPages } = this.state;
         const nextPage = () => {
             this.setState((prevState) => ({
                 currentPage: Math.min(prevState.currentPage + 1, numPages),
@@ -577,7 +574,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     className="toolbar-btn next"
                     title="Next"
                     onClick={nextPage}
-                    iconProps={{iconName: "ChevronRight"}}
+                    iconProps={{ iconName: "ChevronRight" }}
                 />
             );
         } else {
@@ -585,7 +582,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         }
     }
     private renderPageIndicator = () => {
-        const {numPages} = this.state;
+        const { numPages } = this.state;
         return numPages > 1 ?
             <p className="page-number">
                 Page {this.state.currentPage} of {numPages}
@@ -604,7 +601,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             },
         };
         return (
-            <div style={{width: "100%", height: "100%"}}>
+            <div style={{ width: "100%", height: "100%" }}>
                 <CanvasCommandBar
                     handleZoomIn={this.handleCanvasZoomIn}
                     handleZoomOut={this.handleCanvasZoomOut}
@@ -687,11 +684,11 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private handleRotateCanvas = (degrees: number) => {
-        this.setState({imageAngle: this.state.imageAngle + degrees});
+        this.setState({ imageAngle: this.state.imageAngle + degrees });
     }
 
     private handleClick = () => {
-        this.setState({predictionLoaded: false, isPredicting: true});
+        this.setState({ predictionLoaded: false, isPredicting: true });
         this.getPrediction()
             .then((result) => {
                 this.analyzeResults = _.cloneDeep(result);
@@ -717,7 +714,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 } else if (error.code) {
                     alertMessage = `${error.message}, code ${error.code}`;
                 } else {
-                    alertMessage = interpolate(strings.errors.endpointConnectionError.message, {endpoint: "form recognizer backend URL"});
+                    alertMessage = interpolate(strings.errors.endpointConnectionError.message, { endpoint: "form recognizer backend URL" });
                 }
                 this.setState({
                     shouldShowAlert: true,
@@ -727,7 +724,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 });
             });
         if (this.appInsights) {
-            this.appInsights.trackEvent({name: "ANALYZE_EVENT"});
+            this.appInsights.trackEvent({ name: "ANALYZE_EVENT" });
         }
     }
 
@@ -780,7 +777,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             } else if (error.errorCode === ErrorCode.ModelNotFound) {
                 alertMessage = error.message;
             } else {
-                alertMessage = interpolate(strings.errors.endpointConnectionError.message, {endpoint: "form recognizer backend URL"});
+                alertMessage = interpolate(strings.errors.endpointConnectionError.message, { endpoint: "form recognizer backend URL" });
             }
             this.setState({
                 shouldShowAlert: true,
@@ -802,25 +799,25 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const apiVersion = getAPIVersion(this.props.project?.apiVersion);
         let endpointURL = url.resolve(
             this.props.project.apiUriBase,
-            `${interpolate(constants.apiModelsPath, {apiVersion})}/${modelID}/analyze?includeTextDetails=true`,
+            `${interpolate(constants.apiModelsPath, { apiVersion })}/${modelID}/analyze?includeTextDetails=true`,
         );
         if (this.state.withPageRange && this.state.pageRangeIsValid) {
             endpointURL += `&pageRange=${this.state.pageRange}`;
         }
-        const headers = {"Content-Type": this.state.file ? this.state.file.type : "application/json", "cache-control": "no-cache"};
-        const body = this.state.file ?? {source: this.state.fetchedFileURL};
+        const headers = { "Content-Type": this.state.file ? this.state.file.type : "application/json", "cache-control": "no-cache" };
+        const body = this.state.file ?? { source: this.state.fetchedFileURL };
         let response;
         try {
             response = await ServiceHelper.postWithAutoRetry(
-                endpointURL, body, {headers}, this.props.project.apiKey as string);
+                endpointURL, body, { headers }, this.props.project.apiKey as string);
         } catch (err) {
             if (err.response?.status === 404) {
                 throw new AppError(
                     ErrorCode.ModelNotFound,
-                    interpolate(strings.errors.modelNotFound.message, {modelID})
+                    interpolate(strings.errors.modelNotFound.message, { modelID })
                 );
             } else {
-                ServiceHelper.handleServiceError({...err, endpoint: endpointURL});
+                ServiceHelper.handleServiceError({ ...err, endpoint: endpointURL });
             }
         }
 
@@ -829,11 +826,11 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         // Make the second REST API call and get the response.
         return this.poll(() =>
             ServiceHelper.getWithAutoRetry(
-                operationLocation, {headers}, this.props.project.apiKey as string), 120000, 500);
+                operationLocation, { headers }, this.props.project.apiKey as string), 120000, 500);
     }
 
     private loadFile = (file: File) => {
-        this.setState({isFetching: true});
+        this.setState({ isFetching: true });
         this.fileHelper.loadFile(file).then((res: ILoadFileResult) => {
             if (res) {
                 this.setState({
@@ -1015,12 +1012,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private getAnalyzeModelInfo(analyzeResult) {
-        const {modelId, docType, docTypeConfidence} = _.get(analyzeResult, "documentResults[0]", {})
-        return {modelId, docType, docTypeConfidence};
+        const { modelId, docType, docTypeConfidence } = _.get(analyzeResult, "documentResults[0]", {})
+        return { modelId, docType, docTypeConfidence };
     }
 
     private getOcrFromAnalyzeResult(analyzeResult: any) {
-        return _.get(analyzeResult?.analyzeResult ? analyzeResult?.analyzeResult : analyzeResult , "readResults", []);
+        return _.get(analyzeResult?.analyzeResult ? analyzeResult?.analyzeResult : analyzeResult, "readResults", []);
     }
 
     private noOp = () => {
@@ -1031,7 +1028,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             const fileName = `${this.props.project.folderPath}/${decodeURIComponent(this.state.file.name)}`;
             const asset = Object.values(this.props.project.assets).find(asset => asset.name === fileName);
             if (asset) {
-                const confirmDuplicatedAssetNameMessage = interpolate(strings.predict.confirmDuplicatedAssetName.message, {name: decodeURI(this.state.file.name)});
+                const confirmDuplicatedAssetNameMessage = interpolate(strings.predict.confirmDuplicatedAssetName.message, { name: decodeURI(this.state.file.name) });
                 this.setState({
                     confirmDuplicatedAssetNameMessage
                 });
@@ -1085,7 +1082,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 return (
                     <div>
                         <h5 className="mb-4 ml-2 mt-2 pb-1">
-                            <span style={{ borderBottom: `4px solid ${this.state.tableTagColor}`}}>Table name: {regionalTableToView.fieldName}</span>
+                            <span style={{ borderBottom: `4px solid ${this.state.tableTagColor}` }}>Table name: {regionalTableToView.fieldName}</span>
                         </h5>
                         <div className="table-view-container">
                             <table>
@@ -1100,7 +1097,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             for (let i = 0; i < colKeys.length + 1; i++) {
                 if (i === 0) {
                     columnHeaderRow.push(
-                        <th key={i} className={"empty_header hidden"}/>
+                        <th key={i} className={"empty_header hidden"} />
                     );
                 } else {
                     columnHeaderRow.push(
@@ -1131,20 +1128,20 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                 this.setState({ highlightedTableCellRowKey: null, highlightedTableCellColumnKey: null })
                             }}
                         >
-                            {tableCell ? tableCell.text : null }
+                            {tableCell ? tableCell.text : null}
                         </td>
                     );
                 })
                 tableBody.push(<tr key={(rowIndex + 1)}>{tableRow}</tr>);
             })
-        }  else {
+        } else {
             const columnHeaderRow = [];
             const colKeys = Object.keys(regionalTableToView?.valueObject?.[Object.keys(regionalTableToView?.valueObject)?.[0]]?.valueObject || {});
             if (colKeys.length === 0) {
                 return (
                     <div>
                         <h5 className="mb-4 ml-2 mt-2 pb-1">
-                            <span style={{ borderBottom: `4px solid ${this.state.tableTagColor}`}}>Table name: {regionalTableToView.fieldName}</span>
+                            <span style={{ borderBottom: `4px solid ${this.state.tableTagColor}` }}>Table name: {regionalTableToView.fieldName}</span>
                         </h5>
                         <div className="table-view-container">
                             <table>
@@ -1159,7 +1156,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             for (let i = 0; i < colKeys.length + 1; i++) {
                 if (i === 0) {
                     columnHeaderRow.push(
-                        <th key={i} className={"empty_header hidden"}/>
+                        <th key={i} className={"empty_header hidden"} />
                     );
                 } else {
                     columnHeaderRow.push(
@@ -1191,7 +1188,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                     this.setState({ highlightedTableCellRowKey: null, highlightedTableCellColumnKey: null })
                                 }}
                             >
-                                {tableCell ? tableCell.text : null }
+                                {tableCell ? tableCell.text : null}
                             </td>
                         );
                     });
@@ -1202,7 +1199,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                 className={"table-cell"}
                                 key={index + 1}
                             >
-                                {null }
+                                {null}
                             </td>
                         );
                     })
@@ -1214,7 +1211,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         return (
             <div>
                 <h5 className="mb-4 ml-2 mt-2 pb-1">
-                    <span style={{ borderBottom: `4px solid ${this.state.tableTagColor}`}}>Table name: {regionalTableToView.fieldName}</span>
+                    <span style={{ borderBottom: `4px solid ${this.state.tableTagColor}` }}>Table name: {regionalTableToView.fieldName}</span>
                 </h5>
                 <div className="table-view-container">
                     <table>
@@ -1225,7 +1222,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 </div>
             </div>
         );
-}
+    }
 
     private onPredictionMouseEnter = (predictedItem: any) => {
         this.setState({
@@ -1265,12 +1262,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     private handleModelSelection = () => {
         const selectedIndex = this.getSelectedIndex();
         if (selectedIndex !== this.state.selectionIndexTracker) {
-            this.setState({selectionIndexTracker: selectedIndex})
+            this.setState({ selectionIndexTracker: selectedIndex })
         }
     }
 
     private handleRecentModelsViewClose = () => {
-        this.setState({showRecentModelsView: false});
+        this.setState({ showRecentModelsView: false });
         const selectedIndex = this.getSelectedIndex();
         if (selectedIndex !== this.state.selectedRecentModelIndex) {
             this.selectionHandler.setIndexSelected(this.state.selectedRecentModelIndex, true, true);
@@ -1290,12 +1287,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const apiVersion = getAPIVersion(this.props.project?.apiVersion);
         const endpointURL = url.resolve(
             this.props.project.apiUriBase,
-            `${interpolate(constants.apiModelsPath, {apiVersion})}/${modelID}`,
+            `${interpolate(constants.apiModelsPath, { apiVersion })}/${modelID}`,
         );
         let response;
         try {
             response = await axios.get(endpointURL,
-                {headers: {[constants.apiKeyHeader]: this.props.project.apiKey as string}})
+                { headers: { [constants.apiKeyHeader]: this.props.project.apiKey as string } })
                 .catch((err) => {
                     const status = err.response.status;
                     if (status === 401) {
@@ -1349,7 +1346,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             if (model.modelInfo.modelId === project.predictModelId) {
                 predictModelIndex = index
             }
-            recentModelRecordsWithKey[index] = Object.assign({key: index}, model);
+            recentModelRecordsWithKey[index] = Object.assign({ key: index }, model);
         })
         this.selectionHandler.setItems(recentModelRecordsWithKey, false);
         this.selectionHandler.setIndexSelected(predictModelIndex, true, false);
