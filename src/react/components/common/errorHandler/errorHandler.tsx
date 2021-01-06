@@ -96,7 +96,7 @@ export class ErrorHandler extends React.Component<IErrorHandlerProps> {
      */
     private onUnhandledRejection = (evt: PromiseRejectionEvent) => {
         evt.preventDefault();
-        this.handleError(evt.reason);
+        console.warn(evt.reason);
     }
 
     private onEdgeUnhandledRejection = (event: CustomEvent) => {
