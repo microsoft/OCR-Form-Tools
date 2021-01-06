@@ -131,7 +131,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         };
 
         if (item?.type === "array" || item?.type === "object") {
-            let pageNumber = this.getPageNumberFrom(item) || 1;
+            const pageNumber = this.getPageNumberFrom(item) || 1;
 
             return (
                 <div key={key}
@@ -366,7 +366,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
 
         // Get page number from item's children in a recursive way.
         if (item && item.type === "object") {
-            for (const property in item.valueObject) {
+            for (const property of Object.keys(item.valueObject)) {
                 const pageNumber = this.getPageNumberFrom(item.valueObject[property]);
                 if (pageNumber) {
                     return pageNumber;
