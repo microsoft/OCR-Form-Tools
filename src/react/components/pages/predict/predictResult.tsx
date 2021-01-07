@@ -358,7 +358,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
     }
 
     private getPageNumberFrom = (item: any) => {
-        if (item.hasOwnProperty("page")) {
+        if (item && item.hasOwnProperty("page")) {
             return item.page;
         }
 
