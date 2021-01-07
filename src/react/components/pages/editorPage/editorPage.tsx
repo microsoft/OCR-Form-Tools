@@ -915,6 +915,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const assetUpdates = await this.props.actions.reconfigureTableTag(this.props.project, originalTagName, tagName, tagType, tagFormat, visualizationHint, deletedColumns, deletedRows, newRows, newColumns);
         const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
         if (selectedAsset) {
+            selectedAsset.regions = this.canvas.current?.convertLabelDataToRegions(selectedAsset.labelData) || [];
             this.setState({
                 selectedAsset,
                 selectedTableTagToLabel: null,
