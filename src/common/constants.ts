@@ -38,7 +38,8 @@ export const constants = {
     convertedImageQuality: 0.7,
     convertedThumbnailQuality: 0.2,
     recentModelRecordsCount: 5,
-    apiModelsPath: `/formrecognizer/${apiVersion}/custom/models`,
+    // eslint-disable-next-line
+    apiModelsPath: "/formrecognizer/${apiVersion}/custom/models",
     autoLabelBatchSizeMax: 10,
     autoLabelBatchSizeMin: 3,
     showOriginLabelsByDefault: true,
