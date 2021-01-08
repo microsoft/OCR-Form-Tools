@@ -862,8 +862,8 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 }
                 this.setState({
                     predictionEndpointUrl:
-                        prebuiltSettings.serviceURI +
-                        `formrecognizer/${constants.prebuiltServiceVersion}${currentPrebuiltType.servicePath}?`
+                        prebuiltSettings.serviceURI.replace(/\/+$/, "") +
+                        `/formrecognizer/${constants.prebuiltServiceVersion}${currentPrebuiltType.servicePath}?`
                         + newQueryString
                 });
             }
