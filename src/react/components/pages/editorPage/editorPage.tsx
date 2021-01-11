@@ -924,7 +924,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 this.canvas.current.temp();
             });
         }
-        this.reconfigTableConfirm.current.close();
+        this.reconfigTableConfirm.current?.close();
         this.setState({ tagInputMode: TagInputMode.Basic, reconfigureTableConfirm: false }, () => this.resizeCanvas());
         this.resizeCanvas();
     }

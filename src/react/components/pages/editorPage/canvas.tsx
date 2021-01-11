@@ -1559,8 +1559,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const encodedSchema = labelData?.$schema === constants.labelsSchema;
 
         labelData?.labels?.forEach((label) => {
-
-            regions = [...regions, ...this.convertLabelToRegion(label, encodedSchema)];
+            const newRegions = this.convertLabelToRegion(label, encodedSchema);
+            if (newRegions && newRegions.length > 0) {
+                regions = [...regions, ...this.convertLabelToRegion(label, encodedSchema)];
+            }
         });
 
         return regions;
@@ -1583,10 +1585,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             })
             if (labelsTag) {
                 const tableTag = labelsTag as ITableTag;
-                const { rowKey, columnKey } = this.getRegionCellKeys(layers, tableTag);
-                if (!rowKey || !columnKey) {
-                    return
+                const regionCellKeys = this.getRegionCellKeys(layers, tableTag);
+                if (!regionCellKeys || !regionCellKeys.rowKey || !regionCellKeys.columnKey) {
+                    return;
                 }
+
+                const { rowKey, columnKey } = regionCellKeys;
                 label.value.forEach((formRegion) => {
                     if (formRegion.boundingBoxes) {
                         formRegion.boundingBoxes.forEach((boundingBox, boundingBoxIndex) => {
