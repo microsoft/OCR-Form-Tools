@@ -885,5 +885,5 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         this.setState({
             predictionEndpointUrl: newValue
         });
-    } 
+    }
 }
