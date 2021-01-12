@@ -706,6 +706,7 @@ export interface IAppStrings {
             success: string,
         }
     };
+    appSurveyText: string;
 }
 
 interface IErrorMetadata {
