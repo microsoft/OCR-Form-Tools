@@ -816,6 +816,7 @@ export const english: IAppStrings = {
             success: "Project token copied to clipboard and ready to share. Receiver of project token can click 'Open Cloud Project' from the Home page to use shared token.",
         }
     },
+    appSurveyText: "Help us improve Form Recognizer. Take our survey!"
 };
 
 /*eslint-enable no-template-curly-in-string, no-multi-str*/
