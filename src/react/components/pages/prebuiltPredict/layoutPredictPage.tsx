@@ -620,7 +620,7 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
             `/formrecognizer/${constants.prebuiltServiceVersion}/layout/analyze`,
         );
         if (this.state.withPageRange && this.state.pageRangeIsValid) {
-            endpointURL += `?Pages=${this.state.pageRange}`;
+            endpointURL += `?pages=${this.state.pageRange}`;
         }
         const apiKey = this.props.prebuiltSettings.apiKey;
 
