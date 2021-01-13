@@ -802,7 +802,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             `${interpolate(constants.apiModelsPath, { apiVersion })}/${modelID}/analyze?includeTextDetails=true`,
         );
         if (this.state.withPageRange && this.state.pageRangeIsValid) {
-            endpointURL += `&pageRange=${this.state.pageRange}`;
+            endpointURL += `&${constants.pages}=${this.state.pageRange}`;
         }
         const headers = { "Content-Type": this.state.file ? this.state.file.type : "application/json", "cache-control": "no-cache" };
         const body = this.state.file ?? { source: this.state.fetchedFileURL };
