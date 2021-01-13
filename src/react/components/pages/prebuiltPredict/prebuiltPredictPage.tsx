@@ -848,13 +848,13 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 let connector = "";
                 for (const parameter of parameterArray) {
                     const name = parameter.split("=")[0];
-                    if (name !== "locale" && name !== "pages") {
+                    if (name !== "locale" && name !== constants.pages) {
                         newQueryString += `${connector}${parameter}`;
                     }
                     connector = "&";
                 }
                 if (this.state.withPageRange && this.state.pageRangeIsValid) {
-                    newQueryString += `${connector}pages=${this.state.pageRange}`;
+                    newQueryString += `${connector}${constants.pages}=${this.state.pageRange}`;
                     connector = "&";
                 }
                 if (this.state.currentPrebuiltType.useLocale) {
@@ -872,7 +872,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 let endpointUrl = prebuiltSettings.serviceURI +
                     `formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`;
                 if (this.state.withPageRange && this.state.pageRangeIsValid) {
-                    endpointUrl += `&pages=${this.state.pageRange}`;
+                    endpointUrl += `&${constants.pages}=${this.state.pageRange}`;
                 }
                 this.setState({
                     predictionEndpointUrl: endpointUrl + (this.state.currentPrebuiltType.useLocale ? `&locale=${this.state.currentLocale}` : "")
