@@ -354,7 +354,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                 onFileChange={(data) => this.onFileChange(data)}
                                                 onSelectSourceChange={() => this.onSelectSourceChange()}
                                                 onError={(err) => this.onFileLoadError(err)} />
-                                            {this.props.project.apiVersion === constants.prebuiltServiceVersion &&
+                                            {this.props.project.apiVersion === constants.prebuiltServiceVersion && this.props.match.path !== "/projects/:projectId/predict" &&
                                                 <div className="page-range-section">
                                                     <PageRange
                                                         disabled={this.state.isFetching || this.state.isPredicting}
