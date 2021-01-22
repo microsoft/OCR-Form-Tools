@@ -773,7 +773,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                             if (isRootItemObject(rootFieldProps)) {
                                 flatFieldProps(prefixFiledName, rootFieldProps);
                             }
-                            for (let [fieldName, objFieldProps] of Object.entries(fieldProps.valueObject)) {
+                            for (const [fieldName, objFieldProps] of Object.entries(fieldProps.valueObject)) {
                                 flatFieldProps(fieldName, objFieldProps, `${prefixFiledName}: `);
                             }
                         } else {
@@ -784,7 +784,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                         }
                     }
                 }
-                for (let [fieldName, fieldProps] of Object.entries(fields)) {
+                for (const [fieldName, fieldProps] of Object.entries(fields)) {
                     flatFieldProps(fieldName, fieldProps);
                 }
             }
