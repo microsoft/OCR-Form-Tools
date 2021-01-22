@@ -758,14 +758,13 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             // flat fieldProps of type "array" and "object", and extract root level field props in "object" type
             const flattedFields = {};
             const flatFields = (fields = {}) => {
-                const flatFieldProps = (fieldName, fieldProps, prefixFiledName = "") => {
-                    if (isSupportField(fieldName)) {
+                const flatFieldProps = (displayName, fieldProps) => {
+                    if (isSupportField(displayName)) {
                         switch(_.get(fieldProps, "type", "")) {
                             case "array": {
                                 const valueArray = _.get(fieldProps, "valueArray", []);
                                 for (const [index, valueArrayItem] of valueArray.entries()) {
-                                    const arrayItemPrefix = `${fieldName} ${index + 1}`;
-                                    flatFieldProps(fieldName, valueArrayItem, arrayItemPrefix);
+                                    flatFieldProps(`${displayName} ${index + 1}`, valueArrayItem);
                                 }
                                 break;
                             }
@@ -773,18 +772,15 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                                 // root level field props
                                 const { type, valueObject, ...restProps } = fieldProps;
                                 if (isRootItemObject(restProps)) {
-                                    flatFieldProps(prefixFiledName, restProps);
+                                    flatFieldProps(displayName, restProps);
                                 }
                                 for (const [fieldName, objFieldProps] of Object.entries(fieldProps.valueObject)) {
-                                    flatFieldProps(fieldName, objFieldProps, `${prefixFiledName}: `);
+                                    flatFieldProps(`${displayName}: ${fieldName}`, objFieldProps);
                                 }
                                 break;
                             }
                             default: {
-                                if (prefixFiledName) {
-                                    fieldName = `${prefixFiledName}${fieldName}`;
-                                }
-                                flattedFields[fieldName] = fieldProps;
+                                flattedFields[displayName] = fieldProps;
                             }
                         }
                     }
