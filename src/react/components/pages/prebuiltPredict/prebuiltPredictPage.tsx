@@ -748,22 +748,33 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
     private getPredictionsFromAnalyzeResult(analyzeResult: any) {
         if (analyzeResult) {
-            const documentResults = _.get(analyzeResult, "documentResults", [])
-            console.log({documentResults})
+            const documentResults = _.get(analyzeResult, "documentResults", []);
+            const notBlockField = fieldName => {
             // block field name that should not be a tag
-            const blockedFieldNames = ["ReceiptType"]
-            const notBlockField = fieldName => blockedFieldNames.indexOf(fieldName) === -1
-
-
+                const blockedFieldNames = ["ReceiptType"];
+                return blockedFieldNames.indexOf(fieldName) === -1;
+            }
+            const isRootItemObject = obj => obj.hasOwnProperty("text") || obj.hasOwnProperty("valueString")
+            // flat fieldProps of type "array" and "object", and extract root level field props in "object" type
             const allFields = {}
-            const flatFields = (fields = {}, prefixFiledName = "") => {
-                for (let [fieldName, fieldProps] of Object.entries(fields)) {
+            const flatFields = (fields = {}) => {
+                const flatFieldProps = (fieldName, fieldProps, prefixFiledName = "") => {
                     if (notBlockField(fieldName)) { 
                         const fieldType = _.get(fieldProps, "type", "");
                         if (fieldType === "array") {
                             const valueArray = _.get(fieldProps, "valueArray", [])
                             for (const [index, valueArrayItem] of valueArray.entries()) {
-                                flatFields(valueArrayItem.valueObject, `${fieldName} ${index+1}: `)
+                                const arrayItemPrefix = `${fieldName} ${index + 1}`
+                                flatFieldProps(fieldName, valueArrayItem, arrayItemPrefix);
+                            }
+                        } else if (fieldType === "object") {
+                            // root level field props
+                            const { type, valueObject, ...rootFieldProps } = fieldProps;
+                            if (isRootItemObject(rootFieldProps)) {
+                                flatFieldProps(prefixFiledName, rootFieldProps);
+                            }
+                            for (let [fieldName, objFieldProps] of Object.entries(fieldProps.valueObject)) {
+                                flatFieldProps(fieldName, objFieldProps, `${prefixFiledName}: `);
                             }
                         } else {
                             if (prefixFiledName) {
@@ -772,6 +783,9 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                             allFields[fieldName] = fieldProps;
                         }
                     }
+                }
+                for (let [fieldName, fieldProps] of Object.entries(fields)) {
+                    flatFieldProps(fieldName, fieldProps);
                 }
             }
             for (const documentResult of documentResults) {
