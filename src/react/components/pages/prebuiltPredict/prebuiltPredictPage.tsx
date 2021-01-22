@@ -748,48 +748,38 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
     private getPredictionsFromAnalyzeResult(analyzeResult: any) {
         if (analyzeResult) {
-            const predictions = analyzeResult?.documentResults?.map(item => item.fields)
-                .reduce((val, item) => Object.assign(val, item), ({})) ?? {};
-            const predictionsCopy = Object.assign({}, predictions);
-            delete predictionsCopy.ReceiptType;
+            const documentResults = _.get(analyzeResult, "documentResults", [])
+            console.log({documentResults})
+            // block field name that should not be a tag
+            const blockedFieldNames = ["ReceiptType"]
+            const notBlockField = fieldName => blockedFieldNames.indexOf(fieldName) === -1
 
-            const extendPredictionItem = (key, field) => {
-                const result = {};
-                const updateFieldValueToResult = (item, itemName) => {
-                    if (item.valueObject) {
-                        Object.keys(item.valueObject).forEach(key => {
-                            result[`${itemName}: ${key}`] = item.valueObject[key];
-                        });
-                        if (item.text) {
-                            result[itemName] = item;
+
+            const allFields = {}
+            const flatFields = (fields = {}, prefixFiledName = "") => {
+                for (let [fieldName, fieldProps] of Object.entries(fields)) {
+                    if (notBlockField(fieldName)) { 
+                        const fieldType = _.get(fieldProps, "type", "");
+                        if (fieldType === "array") {
+                            const valueArray = _.get(fieldProps, "valueArray", [])
+                            for (const [index, valueArrayItem] of valueArray.entries()) {
+                                flatFields(valueArrayItem.valueObject, `${fieldName} ${index+1}: `)
+                            }
+                        } else {
+                            if (prefixFiledName) {
+                                fieldName = `${prefixFiledName}${fieldName}`;
+                            }
+                            allFields[fieldName] = fieldProps;
                         }
-                    }
-                    else {
-                        result[itemName] = item;
-                    }
-                }
-
-                if (field.valueArray) {
-                    field.valueArray.forEach((item, index) => {
-                        const itemName = field.valueArray.length === 1 ? key : `${key} ${index + 1}`;
-                        updateFieldValueToResult(item, itemName);
-                    });
-                }
-                else {
-                    updateFieldValueToResult(field, key);
-                }
-                return result;
-            };
-            let predictionResult = {};
-            for (const key in predictionsCopy) {
-                if (Object.prototype.hasOwnProperty.call(predictionsCopy, key)) {
-                    const item = predictionsCopy[key];
-                    if (item) {
-                        predictionResult = Object.assign({}, predictionResult, extendPredictionItem(key, item));
                     }
                 }
             }
-            return predictionResult;
+            for (const documentResult of documentResults) {
+                const fields = documentResult["fields"];
+                flatFields(fields)
+            }
+
+            return allFields;
         } else {
             return {};
         }
