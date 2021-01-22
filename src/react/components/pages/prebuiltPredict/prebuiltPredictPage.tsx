@@ -750,21 +750,21 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         if (analyzeResult) {
             const documentResults = _.get(analyzeResult, "documentResults", []);
             const notBlockField = fieldName => {
-            // block field name that should not be a tag
+                // block field name that should not be a tag
                 const blockedFieldNames = ["ReceiptType"];
                 return blockedFieldNames.indexOf(fieldName) === -1;
             }
-            const isRootItemObject = obj => obj.hasOwnProperty("text") || obj.hasOwnProperty("valueString")
+            const isRootItemObject = obj => obj.hasOwnProperty("text");
             // flat fieldProps of type "array" and "object", and extract root level field props in "object" type
-            const allFields = {}
+            const allFields = {};
             const flatFields = (fields = {}) => {
                 const flatFieldProps = (fieldName, fieldProps, prefixFiledName = "") => {
-                    if (notBlockField(fieldName)) { 
+                    if (notBlockField(fieldName)) {
                         const fieldType = _.get(fieldProps, "type", "");
                         if (fieldType === "array") {
-                            const valueArray = _.get(fieldProps, "valueArray", [])
+                            const valueArray = _.get(fieldProps, "valueArray", []);
                             for (const [index, valueArrayItem] of valueArray.entries()) {
-                                const arrayItemPrefix = `${fieldName} ${index + 1}`
+                                const arrayItemPrefix = `${fieldName} ${index + 1}`;
                                 flatFieldProps(fieldName, valueArrayItem, arrayItemPrefix);
                             }
                         } else if (fieldType === "object") {
@@ -790,9 +790,8 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             }
             for (const documentResult of documentResults) {
                 const fields = documentResult["fields"];
-                flatFields(fields)
+                flatFields(fields);
             }
-
             return allFields;
         } else {
             return {};
