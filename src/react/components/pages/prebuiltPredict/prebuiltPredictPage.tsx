@@ -749,38 +749,43 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     private getPredictionsFromAnalyzeResult(analyzeResult: any) {
         if (analyzeResult) {
             const documentResults = _.get(analyzeResult, "documentResults", []);
-            const notBlockField = fieldName => {
-                // block field name that should not be a tag
+            const isSupportField = fieldName => {
+                // Define list of unsupported field names.
                 const blockedFieldNames = ["ReceiptType"];
                 return blockedFieldNames.indexOf(fieldName) === -1;
             }
             const isRootItemObject = obj => obj.hasOwnProperty("text");
             // flat fieldProps of type "array" and "object", and extract root level field props in "object" type
-            const allFields = {};
+            const flattedFields = {};
             const flatFields = (fields = {}) => {
                 const flatFieldProps = (fieldName, fieldProps, prefixFiledName = "") => {
-                    if (notBlockField(fieldName)) {
-                        const fieldType = _.get(fieldProps, "type", "");
-                        if (fieldType === "array") {
-                            const valueArray = _.get(fieldProps, "valueArray", []);
-                            for (const [index, valueArrayItem] of valueArray.entries()) {
-                                const arrayItemPrefix = `${fieldName} ${index + 1}`;
-                                flatFieldProps(fieldName, valueArrayItem, arrayItemPrefix);
+                    if (isSupportField(fieldName)) {
+                        switch(_.get(fieldProps, "type", "")) {
+                            case "array": {
+                                const valueArray = _.get(fieldProps, "valueArray", []);
+                                for (const [index, valueArrayItem] of valueArray.entries()) {
+                                    const arrayItemPrefix = `${fieldName} ${index + 1}`;
+                                    flatFieldProps(fieldName, valueArrayItem, arrayItemPrefix);
+                                }
+                                break;
                             }
-                        } else if (fieldType === "object") {
-                            // root level field props
-                            const { type, valueObject, ...rootFieldProps } = fieldProps;
-                            if (isRootItemObject(rootFieldProps)) {
-                                flatFieldProps(prefixFiledName, rootFieldProps);
+                            case  "object": {
+                                // root level field props
+                                const { type, valueObject, ...restProps } = fieldProps;
+                                if (isRootItemObject(restProps)) {
+                                    flatFieldProps(prefixFiledName, restProps);
+                                }
+                                for (const [fieldName, objFieldProps] of Object.entries(fieldProps.valueObject)) {
+                                    flatFieldProps(fieldName, objFieldProps, `${prefixFiledName}: `);
+                                }
+                                break;
                             }
-                            for (const [fieldName, objFieldProps] of Object.entries(fieldProps.valueObject)) {
-                                flatFieldProps(fieldName, objFieldProps, `${prefixFiledName}: `);
+                            default: {
+                                if (prefixFiledName) {
+                                    fieldName = `${prefixFiledName}${fieldName}`;
+                                }
+                                flattedFields[fieldName] = fieldProps;
                             }
-                        } else {
-                            if (prefixFiledName) {
-                                fieldName = `${prefixFiledName}${fieldName}`;
-                            }
-                            allFields[fieldName] = fieldProps;
                         }
                     }
                 }
@@ -792,7 +797,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 const fields = documentResult["fields"];
                 flatFields(fields);
             }
-            return allFields;
+            return flattedFields;
         } else {
             return {};
         }
