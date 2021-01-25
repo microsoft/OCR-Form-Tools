@@ -748,48 +748,52 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
     private getPredictionsFromAnalyzeResult(analyzeResult: any) {
         if (analyzeResult) {
-            const predictions = analyzeResult?.documentResults?.map(item => item.fields)
-                .reduce((val, item) => Object.assign(val, item), ({})) ?? {};
-            const predictionsCopy = Object.assign({}, predictions);
-            delete predictionsCopy.ReceiptType;
-
-            const extendPredictionItem = (key, field) => {
-                const result = {};
-                const updateFieldValueToResult = (item, itemName) => {
-                    if (item.valueObject) {
-                        Object.keys(item.valueObject).forEach(key => {
-                            result[`${itemName}: ${key}`] = item.valueObject[key];
-                        });
-                        if (item.text) {
-                            result[itemName] = item;
+            const documentResults = _.get(analyzeResult, "documentResults", []);
+            const isSupportField = fieldName => {
+                // Define list of unsupported field names.
+                const blockedFieldNames = ["ReceiptType"];
+                return blockedFieldNames.indexOf(fieldName) === -1;
+            }
+            const isRootItemObject = obj => obj.hasOwnProperty("text");
+            // flat fieldProps of type "array" and "object", and extract root level field props in "object" type
+            const flattedFields = {};
+            const flatFields = (fields = {}) => {
+                const flatFieldProps = (displayName, fieldProps) => {
+                    if (isSupportField(displayName)) {
+                        switch(_.get(fieldProps, "type", "")) {
+                            case "array": {
+                                const valueArray = _.get(fieldProps, "valueArray", []);
+                                for (const [index, valueArrayItem] of valueArray.entries()) {
+                                    flatFieldProps(`${displayName} ${index + 1}`, valueArrayItem);
+                                }
+                                break;
+                            }
+                            case  "object": {
+                                // root level field props
+                                const { type, valueObject, ...restProps } = fieldProps;
+                                if (isRootItemObject(restProps)) {
+                                    flatFieldProps(displayName, restProps);
+                                }
+                                for (const [fieldName, objFieldProps] of Object.entries(fieldProps.valueObject)) {
+                                    flatFieldProps(`${displayName}: ${fieldName}`, objFieldProps);
+                                }
+                                break;
+                            }
+                            default: {
+                                flattedFields[displayName] = fieldProps;
+                            }
                         }
                     }
-                    else {
-                        result[itemName] = item;
-                    }
                 }
-
-                if (field.valueArray) {
-                    field.valueArray.forEach((item, index) => {
-                        const itemName = field.valueArray.length === 1 ? key : `${key} ${index + 1}`;
-                        updateFieldValueToResult(item, itemName);
-                    });
-                }
-                else {
-                    updateFieldValueToResult(field, key);
-                }
-                return result;
-            };
-            let predictionResult = {};
-            for (const key in predictionsCopy) {
-                if (Object.prototype.hasOwnProperty.call(predictionsCopy, key)) {
-                    const item = predictionsCopy[key];
-                    if (item) {
-                        predictionResult = Object.assign({}, predictionResult, extendPredictionItem(key, item));
-                    }
+                for (const [fieldName, fieldProps] of Object.entries(fields)) {
+                    flatFieldProps(fieldName, fieldProps);
                 }
             }
-            return predictionResult;
+            for (const documentResult of documentResults) {
+                const fields = documentResult["fields"];
+                flatFields(fields);
+            }
+            return flattedFields;
         } else {
             return {};
         }
