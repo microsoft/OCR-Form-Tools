@@ -40,12 +40,18 @@ Form Labeling Tool requires [NodeJS (>= 10.x, Dubnium) and NPM](https://github.c
 
 ### Set up this tool with Docker
 
-Please see instructions [here](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/quickstarts/label-tool#set-up-the-sample-labeling-tool), and view our docker hub repository [here](https://hub.docker.com/_/microsoft-azure-cognitive-services-custom-form-labeltool?tab=description) for the latest container image info. The `latest-preview` and `latest` docker image tags track the preview and general availability releases of FOTT.
+Please see instructions [here](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/quickstarts/label-tool#set-up-the-sample-labeling-tool), and view our docker hub repository [here](https://hub.docker.com/_/microsoft-azure-cognitive-services-custom-form-labeltool?tab=description) for the latest container image info.
+- `latest` docker image tags track the general availability releases of FOTT.
+- `latest-preview`, docker image tags track the preview releases of FOTT.
+- `latest-preview-private`, docker image tags track the private preview releases of FOTT.
 
 ### Run as web application
 
-Using a modern Web browser, FOTT can be run directly at: https://fott.azurewebsites.net/  (for Form Recognizer 2.0 GA services), and https://fott-preview.azurewebsites.net/  (for Form Recognizer 2.1-preview.* services). 
- 
+Using a modern Web browser, FOTT can be run directly at: 
+- https://fott.azurewebsites.net/  (for Form Recognizer 2.0 GA services)
+- https://fott-preview.azurewebsites.net/  (for Form Recognizer 2.1-preview.* services). 
+- https://fott-preview-private.azurewebsites.net/  (for Form Recognizer Private 2.1-preview.* services). 
+
 **Note: these web app are for testing purpose only. HTTPS is required, unless it's for localhost.**
 
 ### Run as desktop application
@@ -235,18 +241,6 @@ Hold Alt key and click on tag name, user can change the tag's name.
 
 To delete all labels for a tag - select all labels for a tag on document then press 'delete' key.
 
-### **Disclaimer**
-
-For development purposes and for better understanding of our tool usage we are [collecting*](#Data-Collection) some data, such as:
-
-custom events (training, model compose and prediction), Form recognizer API version, browser version, OS version, approximate location (according your ISP: country and city).
-
- >**ℹ️Telemetry service feature is currently disabled**
-
-*If you do not like to share this information with us, feel free to delete telemetry key. It is located at ```src/common/constant.ts```. It should not affect any of the tool's operations.*
-
-Alternatively if you want to gather your own telemetry - you can just replace the **insightsKey** with your own. We use **Azure Application Insights** telemetry service. All related docs are [here](https://docs.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview).
-
 ## Collaborators
 
 This project is cloned and modified from [VoTT](https://github.com/microsoft/VoTT) project.
@@ -260,8 +254,3 @@ the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) o
 with any additional questions or comments.
 
 [简体中文](README.zh-cn.md)
-
-___
-
-#### ***Data Collection**
- The software may collect information about you and your use of the software and send it to Microsoft. Microsoft may use this information to provide services and improve our products and services. You may turn off the telemetry as described in the repository. There are also some features in the software that may enable you and Microsoft to collect data from users of your applications. If you use these features, you must comply with applicable law, including providing appropriate notices to users of your applications together with a copy of Microsoft's privacy statement. Our privacy statement is located at https://go.microsoft.com/fwlink/?LinkID=824704. You can learn more about data collection and use in the help documentation and our privacy statement. Your use of the software operates as your consent to these practices.

@@ -167,27 +167,28 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                             {this.getPredictionTagContent(item)}
                         </div>
                     </li>
-                    {item.text === null ?
-                        <>
-                            <li className={postProcessedValue ? "predictiontag-item-label-null mt-0" : "predictiontag-item-label-null mt-0 mb-1"}>
-                                {postProcessedValue ? "text: NULL" : "NULL"}
-                            </li>
-                        </>
-                        :
-                        <>
-                            <li className={postProcessedValue ? "predictiontag-item-label mt-0" : "predictiontag-item-label mt-0 mb-1"}>
-                                {postProcessedValue ? "text: " + item.text : item.text}
-                            </li>
-                            {postProcessedValue &&
-                                <li className="predictiontag-item-label mb-1">
-                                    {postProcessedValue}
-                                </li>
-                            }
-                        </>
-                    }
+                    {this.renderPredictionItemLabel(item, postProcessedValue)}
                 </div>
             );
         }
+    }
+    private renderPredictionItemLabel = (item, postProcessedValue) => {
+        const displayText = item.text || item.valueString;
+        return (displayText == null ?
+            <li className={postProcessedValue ? "predictiontag-item-label-null mt-0" : "predictiontag-item-label-null mt-0 mb-1"}>
+                {postProcessedValue ? "text: NULL" : "NULL"}
+            </li>
+            :
+            <>
+                <li className={postProcessedValue ? "predictiontag-item-label mt-0" : "predictiontag-item-label mt-0 mb-1"}>
+                    {postProcessedValue ? "text: " + displayText : displayText}
+                </li>
+                {postProcessedValue &&
+                    <li className="predictiontag-item-label mb-1">
+                        {postProcessedValue}
+                    </li>
+                }
+            </>);
     }
 
     private getTagColor = (name: string): string => {
