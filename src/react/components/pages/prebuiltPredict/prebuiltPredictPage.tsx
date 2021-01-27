@@ -292,13 +292,14 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                         <div className="p-3" style={{ marginTop: "8px" }}>
                             <div style={{ marginBottom: "3px" }}>{"The composed API request is"}</div>
                             <TextField
-                                className="mb-1"
+                                className="mb-1 request-uri-textfield"
                                 name="endpointUrl"
                                 theme={getGreenWithWhiteBackgroundTheme()}
                                 value={this.state.predictionEndpointUrl}
                                 onChange={this.setRequestURI}
                                 disabled={this.state.isPredicting}
                                 multiline={true}
+                                autoAdjustHeight={true}
                             />
                             <div className="container-items-end predict-button">
                                 <PrimaryButton

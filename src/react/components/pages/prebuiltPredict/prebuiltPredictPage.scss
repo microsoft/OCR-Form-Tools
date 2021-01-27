@@ -10,7 +10,14 @@
 
 }
 .predict-button {
+    margin-top: 12px;
     .ms-Button-icon {
         color: rgb(120, 173, 14);
+    }
+}
+
+.request-uri-textfield {
+    textarea {
+        word-break: break-all;
     }
 }
