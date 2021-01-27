@@ -20,6 +20,17 @@ export interface IAPIVersionPickerProps {
 /**
  * api version Picker
  */
+
+interface IAPIVersions {
+    versions: Array<string>;
+    defaultIndex: number;
+}
+
+const APIVersions: IAPIVersions = {
+    versions: [APIVersionPatches.patch1, APIVersionPatches.patch2, APIVersionPatches.patch3],
+    defaultIndex: 2
+}
+
 export class APIVersionPicker extends React.Component<IAPIVersionPickerProps> {
     constructor(props) {
         super(props);
@@ -31,20 +42,22 @@ export class APIVersionPicker extends React.Component<IAPIVersionPickerProps> {
         return (
             <select id={this.props.id}
                 disabled={!constants.enableAPIVersionSelection}
-                defaultValue={constants.enableAPIVersionSelection && !this.props.value ? APIVersionPatches.patch2 : undefined}
+                defaultValue={APIVersions.versions[APIVersions.defaultIndex]}
                 className="form-control"
-                value={(constants.enableAPIVersionSelection ? this.props.value : APIVersionPatches.patch2)}
+                value={this.props.value}
                 onChange={this.onChange}
             >
-                <option value={APIVersionPatches.patch1}>{APIVersionPatches.patch1}</option>
-                <option value={APIVersionPatches.patch2}>{APIVersionPatches.patch2 + " (default)"}</option>
-                <option value={APIVersionPatches.patch3}>{APIVersionPatches.patch3 + " (testing)"}</option>
+                {APIVersions.versions.map((version, index) => {
+                    const isDefault = index === APIVersions.defaultIndex;
+                    return (<option key={version} value={version}>{`${version}${isDefault ? " (default)": ""}`}</option>)
+                }
+                )}
             </select>
         );
     }
 
     private onChange(e: SyntheticEvent) {
         const inputElement = e.target as HTMLSelectElement;
-        this.props.onChange(inputElement.value ? inputElement.value : "2.1-preview.3");
+        this.props.onChange(inputElement.value);
     }
 }
