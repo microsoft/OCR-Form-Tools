@@ -249,15 +249,6 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                         </h6>
                         <div className="p-3 prebuilt-setting" style={{ marginTop: "8px" }}>
                             <h5>{strings.prebuiltSetting.serviceConfigurationTitle}</h5>
-                            <div style={{ marginBottom: "3px" }}>{"Request URI"}</div>
-                            <TextField
-                                className="mb-1"
-                                name="endpointUrl"
-                                theme={getGreenWithWhiteBackgroundTheme()}
-                                value={this.state.predictionEndpointUrl}
-                                onChange={this.setRequestURI}
-                                disabled={this.state.isPredicting}
-                            />
                         </div>
                         <PrebuiltSetting prebuiltSettings={this.props.prebuiltSettings}
                             disabled={this.state.isPredicting}
@@ -300,6 +291,16 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                         </div>
                         <Separator className="separator-right-pane-main">{strings.prebuiltPredict.analysis}</Separator>
                         <div className="p-3" style={{ marginTop: "8px" }}>
+                            <div style={{ marginBottom: "3px" }}>{"Request URI"}</div>
+                            <TextField
+                                className="mb-1"
+                                name="endpointUrl"
+                                theme={getGreenWithWhiteBackgroundTheme()}
+                                value={this.state.predictionEndpointUrl}
+                                onChange={this.setRequestURI}
+                                disabled={this.state.isPredicting}
+                                multiline={true}
+                            />
                             <div className="container-items-end predict-button">
                                 <PrimaryButton
                                     theme={getPrimaryWhiteTheme()}
@@ -760,7 +761,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             const flatFields = (fields = {}) => {
                 const flatFieldProps = (displayName, fieldProps) => {
                     if (isSupportField(displayName)) {
-                        switch(_.get(fieldProps, "type", "")) {
+                        switch (_.get(fieldProps, "type", "")) {
                             case "array": {
                                 const valueArray = _.get(fieldProps, "valueArray", []);
                                 for (const [index, valueArrayItem] of valueArray.entries()) {
@@ -768,7 +769,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                                 }
                                 break;
                             }
-                            case  "object": {
+                            case "object": {
                                 // root level field props
                                 const { type, valueObject, ...restProps } = fieldProps;
                                 if (isRootItemObject(restProps)) {

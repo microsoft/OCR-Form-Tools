@@ -28,8 +28,11 @@
   width: 400px;
   min-width: 400px;
   .prebuilt-type-dropdown {
-    width: 130px;
+    width: 100%;
     margin-bottom: 10px;
+    > span {
+      width: 100%;
+    }
   }
 }
 
