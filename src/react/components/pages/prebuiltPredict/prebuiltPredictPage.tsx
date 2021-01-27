@@ -165,8 +165,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         appTitleActions.setTitle(`${strings.prebuiltPredict.title}`);
         if (prebuiltSettings && prebuiltSettings.serviceURI) {
             this.setState({
-                predictionEndpointUrl: prebuiltSettings.serviceURI
-                    + `formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`
+                predictionEndpointUrl: `/formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`
             });
         }
     }
@@ -291,7 +290,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                         </div>
                         <Separator className="separator-right-pane-main">{strings.prebuiltPredict.analysis}</Separator>
                         <div className="p-3" style={{ marginTop: "8px" }}>
-                            <div style={{ marginBottom: "3px" }}>{"Request URI"}</div>
+                            <div style={{ marginBottom: "3px" }}>{"The composed API request is"}</div>
                             <TextField
                                 className="mb-1"
                                 name="endpointUrl"
@@ -666,7 +665,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private async getPrediction(): Promise<any> {
-        const endpointURL = this.state.predictionEndpointUrl;
+        const endpointURL = this.getComposedURL();
         const apiKey = this.props.prebuiltSettings.apiKey;
 
         const headers = { "Content-Type": this.state.file ? this.state.file.type : "application/json", "cache-control": "no-cache" };
@@ -867,23 +866,24 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 }
                 this.setState({
                     predictionEndpointUrl:
-                        prebuiltSettings.serviceURI.replace(/\/+$/, "") +
                         `/formrecognizer/${constants.prebuiltServiceVersion}${currentPrebuiltType.servicePath}?`
                         + newQueryString
                 });
             }
         } else {
-            if (prebuiltSettings && prebuiltSettings.serviceURI) {
-                let endpointUrl = prebuiltSettings.serviceURI +
-                    `formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`;
+            let apiRequest = `/formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`;
                 if (this.state.withPageRange && this.state.pageRangeIsValid) {
-                    endpointUrl += `&${constants.pages}=${this.state.pageRange}`;
+                apiRequest += `&${constants.pages}=${this.state.pageRange}`;
                 }
                 this.setState({
-                    predictionEndpointUrl: endpointUrl + (this.state.currentPrebuiltType.useLocale ? `&locale=${this.state.currentLocale}` : "")
+                predictionEndpointUrl: apiRequest + (this.state.currentPrebuiltType.useLocale ? `&locale=${this.state.currentLocale}` : "")
                 });
             }
+
         }
+
+    private getComposedURL = () => {
+        return this.props.prebuiltSettings.serviceURI.replace(/\/+$/, "") +　this.state.predictionEndpointUrl;
     }
 
     private setRequestURI = (e, newValue?) => {
