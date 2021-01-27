@@ -22,7 +22,7 @@ export interface IAPIVersionPickerProps {
  */
 
 interface IAPIVersions {
-    versions: Array<string>;
+    versions: string[];
     defaultIndex: number;
 }
 
