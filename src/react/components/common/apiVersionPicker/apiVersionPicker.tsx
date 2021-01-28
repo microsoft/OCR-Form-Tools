@@ -39,17 +39,18 @@ export class APIVersionPicker extends React.Component<IAPIVersionPickerProps> {
     }
 
     public render() {
+        const { versions, defaultIndex } = APIVersions;
         return (
             <select id={this.props.id}
                 disabled={!constants.enableAPIVersionSelection}
-                defaultValue={APIVersions.versions[APIVersions.defaultIndex]}
+                defaultValue={versions[defaultIndex]}
                 className="form-control"
                 value={this.props.value}
                 onChange={this.onChange}
             >
-                {APIVersions.versions.map((version, index) => {
-                    const isDefault = index === APIVersions.defaultIndex;
-                    return (<option key={version} value={version}>{`${version}${isDefault ? " (default)": ""}`}</option>)
+                {versions.map((version, index) => {
+                    const isDefault = index === defaultIndex;
+                    return (<option key={version} value={version}>{`${version}${isDefault ? " (default)" : ""}`}</option>)
                 }
                 )}
             </select>
