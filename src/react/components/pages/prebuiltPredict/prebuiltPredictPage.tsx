@@ -21,7 +21,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
 import { constants } from "../../../../common/constants";
 import { interpolate, strings } from "../../../../common/strings";
-import { getPrimaryWhiteTheme, getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
+import { getPrimaryWhiteTheme, getLightGreyTheme } from "../../../../common/themes";
 import { poll } from "../../../../common/utils";
 import { ErrorCode, FieldFormat, FieldType, IApplicationState, IPrebuiltSettings, ITag } from "../../../../models/applicationState";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
@@ -294,7 +294,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                             <TextField
                                 className="mb-1 request-uri-textfield"
                                 name="endpointUrl"
-                                theme={getGreenWithWhiteBackgroundTheme()}
+                                theme={getLightGreyTheme()}
                                 value={this.state.predictionEndpointUrl}
                                 onChange={this.setRequestURI}
                                 disabled={this.state.isPredicting}
@@ -841,13 +841,13 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private handleUpdateRequestURI = () => {
-        this.setState({ predictionEndpointUrl: this.getUUpdateRequestURI() });
+        this.setState({ predictionEndpointUrl: this.getUpdateRequestURI() });
     }
 
-    private getUUpdateRequestURI = () => {
+    private getUpdateRequestURI = () => {
         const { prebuiltSettings } = this.props;
         const { currentPrebuiltType, predictionEndpointUrl } = this.state;
-        let ret = "";
+        let updatedURI = "";
         if (predictionEndpointUrl.includes("?")) {
             const queryString = predictionEndpointUrl.split("?")[1];
             if (!prebuiltSettings || !prebuiltSettings.serviceURI) {
@@ -869,23 +869,21 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 if (this.state.currentPrebuiltType.useLocale) {
                     newQueryString += `${connector}locale=${this.state.currentLocale}`;
                 }
-                ret = `/formrecognizer/${constants.prebuiltServiceVersion}${currentPrebuiltType.servicePath}?`
-                    + newQueryString
-                    ;
+                updatedURI = `/formrecognizer/${constants.prebuiltServiceVersion}${currentPrebuiltType.servicePath}?${newQueryString}`;
             }
         } else {
             let apiRequest = `/formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`;
             if (this.state.withPageRange && this.state.pageRangeIsValid) {
                 apiRequest += `&${constants.pages}=${this.state.pageRange}`;
             }
-            ret = apiRequest + (this.state.currentPrebuiltType.useLocale ? `&locale=${this.state.currentLocale}` : "");
+            updatedURI = apiRequest + (this.state.currentPrebuiltType.useLocale ? `&locale=${this.state.currentLocale}` : "");
         }
-        return ret;
 
+        return updatedURI;
     }
 
     private getComposedURL = () => {
-        const uri = this.getUUpdateRequestURI();
+        const uri = this.getUpdateRequestURI();
         return this.props.prebuiltSettings.serviceURI.replace(/\/+$/, "") + "/" + uri.replace(/(\r\n|\n|\r)/gm, "").replace(/^\/+/, "");
     }
 
