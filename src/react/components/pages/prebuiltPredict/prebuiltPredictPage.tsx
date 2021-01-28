@@ -850,8 +850,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         let updatedURI = "";
         if (predictionEndpointUrl.includes("?")) {
             const queryString = predictionEndpointUrl.split("?")[1];
-            if (!prebuiltSettings || !prebuiltSettings.serviceURI) {
-            } else {
+            if (prebuiltSettings && prebuiltSettings.serviceURI) {
                 const parameterArray = queryString.includes("&") ? queryString.split("&") : [queryString];
                 let newQueryString = "";
                 let connector = "";
