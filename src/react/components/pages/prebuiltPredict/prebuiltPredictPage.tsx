@@ -841,12 +841,16 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private handleUpdateRequestURI = () => {
+        this.setState({ predictionEndpointUrl: this.getUUpdateRequestURI() });
+    }
+
+    private getUUpdateRequestURI = () => {
         const { prebuiltSettings } = this.props;
         const { currentPrebuiltType, predictionEndpointUrl } = this.state;
+        let ret = "";
         if (predictionEndpointUrl.includes("?")) {
             const queryString = predictionEndpointUrl.split("?")[1];
             if (!prebuiltSettings || !prebuiltSettings.serviceURI) {
-                this.setState({ predictionEndpointUrl: "" });
             } else {
                 const parameterArray = queryString.includes("&") ? queryString.split("&") : [queryString];
                 let newQueryString = "";
@@ -865,26 +869,24 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 if (this.state.currentPrebuiltType.useLocale) {
                     newQueryString += `${connector}locale=${this.state.currentLocale}`;
                 }
-                this.setState({
-                    predictionEndpointUrl:
-                        `/formrecognizer/${constants.prebuiltServiceVersion}${currentPrebuiltType.servicePath}?`
-                        + newQueryString
-                });
+                ret = `/formrecognizer/${constants.prebuiltServiceVersion}${currentPrebuiltType.servicePath}?`
+                    + newQueryString
+                    ;
             }
         } else {
             let apiRequest = `/formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`;
-                if (this.state.withPageRange && this.state.pageRangeIsValid) {
+            if (this.state.withPageRange && this.state.pageRangeIsValid) {
                 apiRequest += `&${constants.pages}=${this.state.pageRange}`;
-                }
-                this.setState({
-                predictionEndpointUrl: apiRequest + (this.state.currentPrebuiltType.useLocale ? `&locale=${this.state.currentLocale}` : "")
-                });
             }
-
+            ret = apiRequest + (this.state.currentPrebuiltType.useLocale ? `&locale=${this.state.currentLocale}` : "");
         }
+        return ret;
+
+    }
 
     private getComposedURL = () => {
-        return this.props.prebuiltSettings.serviceURI.replace(/\/+$/, "") +　this.state.predictionEndpointUrl;
+        const uri = this.getUUpdateRequestURI();
+        return this.props.prebuiltSettings.serviceURI.replace(/\/+$/, "") + "/" + uri.replace(/(\r\n|\n|\r)/gm, "").replace(/^\/+/, "");
     }
 
     private setRequestURI = (e, newValue?) => {
