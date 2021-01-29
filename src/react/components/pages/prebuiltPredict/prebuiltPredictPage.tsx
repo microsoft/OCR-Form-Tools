@@ -21,7 +21,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
 import { constants } from "../../../../common/constants";
 import { interpolate, strings } from "../../../../common/strings";
-import { getPrimaryWhiteTheme, getGreenWithWhiteBackgroundTheme } from "../../../../common/themes";
+import { getPrimaryWhiteTheme, getLightGreyTheme } from "../../../../common/themes";
 import { poll } from "../../../../common/utils";
 import { ErrorCode, FieldFormat, FieldType, IApplicationState, IPrebuiltSettings, ITag } from "../../../../models/applicationState";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
@@ -165,8 +165,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         appTitleActions.setTitle(`${strings.prebuiltPredict.title}`);
         if (prebuiltSettings && prebuiltSettings.serviceURI) {
             this.setState({
-                predictionEndpointUrl: prebuiltSettings.serviceURI
-                    + `formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`
+                predictionEndpointUrl: `/formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`
             });
         }
     }
@@ -249,15 +248,6 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                         </h6>
                         <div className="p-3 prebuilt-setting" style={{ marginTop: "8px" }}>
                             <h5>{strings.prebuiltSetting.serviceConfigurationTitle}</h5>
-                            <div style={{ marginBottom: "3px" }}>{"Request URI"}</div>
-                            <TextField
-                                className="mb-1"
-                                name="endpointUrl"
-                                theme={getGreenWithWhiteBackgroundTheme()}
-                                value={this.state.predictionEndpointUrl}
-                                onChange={this.setRequestURI}
-                                disabled={this.state.isPredicting}
-                            />
                         </div>
                         <PrebuiltSetting prebuiltSettings={this.props.prebuiltSettings}
                             disabled={this.state.isPredicting}
@@ -300,6 +290,17 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                         </div>
                         <Separator className="separator-right-pane-main">{strings.prebuiltPredict.analysis}</Separator>
                         <div className="p-3" style={{ marginTop: "8px" }}>
+                            <div style={{ marginBottom: "3px" }}>{"The composed API request is"}</div>
+                            <TextField
+                                className="mb-1 request-uri-textfield"
+                                name="endpointUrl"
+                                theme={getLightGreyTheme()}
+                                value={this.state.predictionEndpointUrl}
+                                onChange={this.setRequestURI}
+                                disabled={this.state.isPredicting}
+                                multiline={true}
+                                autoAdjustHeight={true}
+                            />
                             <div className="container-items-end predict-button">
                                 <PrimaryButton
                                     theme={getPrimaryWhiteTheme()}
@@ -665,7 +666,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private async getPrediction(): Promise<any> {
-        const endpointURL = this.state.predictionEndpointUrl;
+        const endpointURL = this.getComposedURL();
         const apiKey = this.props.prebuiltSettings.apiKey;
 
         const headers = { "Content-Type": this.state.file ? this.state.file.type : "application/json", "cache-control": "no-cache" };
@@ -748,48 +749,52 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
     private getPredictionsFromAnalyzeResult(analyzeResult: any) {
         if (analyzeResult) {
-            const predictions = analyzeResult?.documentResults?.map(item => item.fields)
-                .reduce((val, item) => Object.assign(val, item), ({})) ?? {};
-            const predictionsCopy = Object.assign({}, predictions);
-            delete predictionsCopy.ReceiptType;
-
-            const extendPredictionItem = (key, field) => {
-                const result = {};
-                const updateFieldValueToResult = (item, itemName) => {
-                    if (item.valueObject) {
-                        Object.keys(item.valueObject).forEach(key => {
-                            result[`${itemName}: ${key}`] = item.valueObject[key];
-                        });
-                        if (item.text) {
-                            result[itemName] = item;
+            const documentResults = _.get(analyzeResult, "documentResults", []);
+            const isSupportField = fieldName => {
+                // Define list of unsupported field names.
+                const blockedFieldNames = ["ReceiptType"];
+                return blockedFieldNames.indexOf(fieldName) === -1;
+            }
+            const isRootItemObject = obj => obj.hasOwnProperty("text");
+            // flat fieldProps of type "array" and "object", and extract root level field props in "object" type
+            const flattedFields = {};
+            const flatFields = (fields = {}) => {
+                const flatFieldProps = (displayName, fieldProps) => {
+                    if (isSupportField(displayName)) {
+                        switch (_.get(fieldProps, "type", "")) {
+                            case "array": {
+                                const valueArray = _.get(fieldProps, "valueArray", []);
+                                for (const [index, valueArrayItem] of valueArray.entries()) {
+                                    flatFieldProps(`${displayName} ${index + 1}`, valueArrayItem);
+                                }
+                                break;
+                            }
+                            case "object": {
+                                // root level field props
+                                const { type, valueObject, ...restProps } = fieldProps;
+                                if (isRootItemObject(restProps)) {
+                                    flatFieldProps(displayName, restProps);
+                                }
+                                for (const [fieldName, objFieldProps] of Object.entries(fieldProps.valueObject)) {
+                                    flatFieldProps(`${displayName}: ${fieldName}`, objFieldProps);
+                                }
+                                break;
+                            }
+                            default: {
+                                flattedFields[displayName] = fieldProps;
+                            }
                         }
                     }
-                    else {
-                        result[itemName] = item;
-                    }
                 }
-
-                if (field.valueArray) {
-                    field.valueArray.forEach((item, index) => {
-                        const itemName = field.valueArray.length === 1 ? key : `${key} ${index + 1}`;
-                        updateFieldValueToResult(item, itemName);
-                    });
-                }
-                else {
-                    updateFieldValueToResult(field, key);
-                }
-                return result;
-            };
-            let predictionResult = {};
-            for (const key in predictionsCopy) {
-                if (Object.prototype.hasOwnProperty.call(predictionsCopy, key)) {
-                    const item = predictionsCopy[key];
-                    if (item) {
-                        predictionResult = Object.assign({}, predictionResult, extendPredictionItem(key, item));
-                    }
+                for (const [fieldName, fieldProps] of Object.entries(fields)) {
+                    flatFieldProps(fieldName, fieldProps);
                 }
             }
-            return predictionResult;
+            for (const documentResult of documentResults) {
+                const fields = documentResult["fields"];
+                flatFields(fields);
+            }
+            return flattedFields;
         } else {
             return {};
         }
@@ -836,13 +841,16 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private handleUpdateRequestURI = () => {
+        this.setState({ predictionEndpointUrl: this.getUpdateRequestURI() });
+    }
+
+    private getUpdateRequestURI = () => {
         const { prebuiltSettings } = this.props;
         const { currentPrebuiltType, predictionEndpointUrl } = this.state;
+        let updatedURI = "";
         if (predictionEndpointUrl.includes("?")) {
             const queryString = predictionEndpointUrl.split("?")[1];
-            if (!prebuiltSettings || !prebuiltSettings.serviceURI) {
-                this.setState({ predictionEndpointUrl: "" });
-            } else {
+            if (prebuiltSettings && prebuiltSettings.serviceURI) {
                 const parameterArray = queryString.includes("&") ? queryString.split("&") : [queryString];
                 let newQueryString = "";
                 let connector = "";
@@ -860,25 +868,22 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 if (this.state.currentPrebuiltType.useLocale) {
                     newQueryString += `${connector}locale=${this.state.currentLocale}`;
                 }
-                this.setState({
-                    predictionEndpointUrl:
-                        prebuiltSettings.serviceURI.replace(/\/+$/, "") +
-                        `/formrecognizer/${constants.prebuiltServiceVersion}${currentPrebuiltType.servicePath}?`
-                        + newQueryString
-                });
+                updatedURI = `/formrecognizer/${constants.prebuiltServiceVersion}${currentPrebuiltType.servicePath}?${newQueryString}`;
             }
         } else {
-            if (prebuiltSettings && prebuiltSettings.serviceURI) {
-                let endpointUrl = prebuiltSettings.serviceURI +
-                    `formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`;
-                if (this.state.withPageRange && this.state.pageRangeIsValid) {
-                    endpointUrl += `&${constants.pages}=${this.state.pageRange}`;
-                }
-                this.setState({
-                    predictionEndpointUrl: endpointUrl + (this.state.currentPrebuiltType.useLocale ? `&locale=${this.state.currentLocale}` : "")
-                });
+            let apiRequest = `/formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`;
+            if (this.state.withPageRange && this.state.pageRangeIsValid) {
+                apiRequest += `&${constants.pages}=${this.state.pageRange}`;
             }
+            updatedURI = apiRequest + (this.state.currentPrebuiltType.useLocale ? `&locale=${this.state.currentLocale}` : "");
         }
+
+        return updatedURI;
+    }
+
+    private getComposedURL = () => {
+        const uri = this.getUpdateRequestURI();
+        return this.props.prebuiltSettings.serviceURI.replace(/\/+$/, "") + "/" + uri.replace(/(\r\n|\n|\r)/gm, "").replace(/^\/+/, "");
     }
 
     private setRequestURI = (e, newValue?) => {
