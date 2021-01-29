@@ -745,7 +745,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private drawPredictionResult = (): void => {
-        // comment this line to prevent clear OCR readed boundary boxes
+        // Comment this line to prevent clear OCR boundary boxes.
         // this.imageMap.removeAllFeatures();
         const features = [];
         const imageExtent = [0, 0, this.state.imageWidth, this.state.imageHeight];
@@ -850,7 +850,8 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     private setPredictedFieldHighlightStatus = (highlightedField: string) => {
         const features = this.imageMap.getAllFeatures();
         for (const feature of features) {
-            if (feature.get("fieldName").toLocaleLowerCase() === highlightedField.toLocaleLowerCase()) {
+            const fieldName = feature.get("fieldName");
+            if (fieldName && fieldName.toLocaleLowerCase() === highlightedField.toLocaleLowerCase()) {
                 feature.set("isHighlighted", true);
             } else {
                 feature.set("isHighlighted", false);
