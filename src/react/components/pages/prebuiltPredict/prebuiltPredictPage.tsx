@@ -41,6 +41,7 @@ import PredictResult from "../predict/predictResult";
 import { ILoadFileHelper, ILoadFileResult, LoadFileHelper } from "./LoadFileHelper";
 import "./prebuiltPredictPage.scss";
 import { ITableHelper, ITableState, TableHelper } from "./tableHelper";
+import { ILayoutHelper, LayoutHelper } from "./layoutHelper";
 
 interface IPrebuiltTypes {
     name: string;
@@ -94,6 +95,7 @@ function mapDispatchToProps(dispatch) {
 @connect(mapStateToProps, mapDispatchToProps)
 export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPageProps, IPrebuiltPredictPageState> {
     private appInsights: any = null;
+    private layoutHelper: ILayoutHelper = new LayoutHelper();
     prebuiltTypes: IPrebuiltTypes[] = [
         {
             name: "Invoice",
@@ -623,6 +625,8 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                     predictionLoaded: true,
                     isPredicting: false,
                 }, () => {
+                    this.layoutHelper.setLayoutData(result);
+                    this.layoutHelper.drawLayout(this.state.currentPage);
                     this.drawPredictionResult();
                 });
             }).catch((error) => {
