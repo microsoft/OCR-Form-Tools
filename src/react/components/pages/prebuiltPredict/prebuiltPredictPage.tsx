@@ -43,6 +43,7 @@ import { ILoadFileHelper, ILoadFileResult, LoadFileHelper } from "./LoadFileHelp
 import "./prebuiltPredictPage.scss";
 import { ITableHelper, ITableState, TableHelper } from "./tableHelper";
 import { Toggle } from "office-ui-fabric-react/lib/Toggle";
+import { ILayoutHelper, LayoutHelper } from "./layoutHelper";
 
 interface IPrebuiltTypes {
     name: string;
@@ -98,6 +99,7 @@ function mapDispatchToProps(dispatch) {
 @connect(mapStateToProps, mapDispatchToProps)
 export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPageProps, IPrebuiltPredictPageState> {
     private appInsights: any = null;
+    private layoutHelper: ILayoutHelper = new LayoutHelper();
     prebuiltTypes: IPrebuiltTypes[] = [
         {
             name: "Invoice",
@@ -540,6 +542,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                     ref={(ref) => {
                         this.imageMap = ref;
                         this.tableHelper.setImageMap(ref);
+                        this.layoutHelper.setImageMap(ref);
                     }}
                     imageUri={this.state.imageUri || ""}
                     imageWidth={this.state.imageWidth}
@@ -659,6 +662,8 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                     predictionLoaded: true,
                     isPredicting: false,
                 }, () => {
+                    this.layoutHelper.setLayoutData(result);
+                    this.layoutHelper.drawLayout(this.state.currentPage);
                     this.drawPredictionResult();
                 });
             }).catch((error) => {
@@ -751,25 +756,37 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private featureStyler = (feature) => {
-        return new Style({
-            stroke: new Stroke({
-                color: feature.get("color"),
-                width: feature.get("isHighlighted") ? 4 : 2,
-            }),
-            fill: new Fill({
-                color: "rgba(255, 255, 255, 0)",
-            }),
-        });
+        if (feature.get("fieldName")) {
+            return new Style({
+                stroke: new Stroke({
+                    color: feature.get("color"),
+                    width: feature.get("isHighlighted") ? 4 : 2,
+                }),
+                fill: new Fill({
+                    color: "rgba(255, 255, 255, 0)",
+                }),
+            });
+        } else {
+            return new Style({
+                stroke: new Stroke({
+                    color: "#fffc7f",
+                    width: 1,
+                }),
+                fill: new Fill({
+                    color: "rgba(255, 252, 127, 0.2)",
+                }),
+            });
+        }
     }
 
     private drawPredictionResult = (): void => {
-        this.imageMap.removeAllFeatures();
+        // Comment this line to prevent clear OCR boundary boxes.
+        // this.imageMap.removeAllFeatures();
         const features = [];
         const imageExtent = [0, 0, this.state.imageWidth, this.state.imageHeight];
         const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[this.state.currentPage - 1];
         const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
         const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
-
         for (const fieldName of Object.keys(predictions)) {
             const field = predictions[fieldName];
             if (_.get(field, "page", null) === this.state.currentPage) {
@@ -868,7 +885,8 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     private setPredictedFieldHighlightStatus = (highlightedField: string) => {
         const features = this.imageMap.getAllFeatures();
         for (const feature of features) {
-            if (feature.get("fieldName").toLocaleLowerCase() === highlightedField.toLocaleLowerCase()) {
+            const fieldName = feature.get("fieldName");
+            if (fieldName && fieldName.toLocaleLowerCase() === highlightedField.toLocaleLowerCase()) {
                 feature.set("isHighlighted", true);
             } else {
                 feature.set("isHighlighted", false);
