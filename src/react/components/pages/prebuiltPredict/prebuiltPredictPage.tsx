@@ -720,8 +720,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private featureStyler = (feature) => {
-        const isDocumentFeature = feature => _.get(feature, "values_.fieldName", "");
-        if (isDocumentFeature(feature)) {
+        if (feature.get("fieldName")) {
             return new Style({
                 stroke: new Stroke({
                     color: feature.get("color"),
