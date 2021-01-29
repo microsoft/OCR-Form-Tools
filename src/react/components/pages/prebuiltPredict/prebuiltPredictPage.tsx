@@ -506,6 +506,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                     ref={(ref) => {
                         this.imageMap = ref;
                         this.tableHelper.setImageMap(ref);
+                        this.layoutHelper.setImageMap(ref);
                     }}
                     imageUri={this.state.imageUri || ""}
                     imageWidth={this.state.imageWidth}
@@ -719,25 +720,38 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private featureStyler = (feature) => {
-        return new Style({
-            stroke: new Stroke({
-                color: feature.get("color"),
-                width: feature.get("isHighlighted") ? 4 : 2,
-            }),
-            fill: new Fill({
-                color: "rgba(255, 255, 255, 0)",
-            }),
-        });
+        const isDocumentFeature = feature => _.get(feature, "values_.fieldName", "");
+        if (isDocumentFeature(feature)) {
+            return new Style({
+                stroke: new Stroke({
+                    color: feature.get("color"),
+                    width: feature.get("isHighlighted") ? 4 : 2,
+                }),
+                fill: new Fill({
+                    color: "rgba(255, 255, 255, 0)",
+                }),
+            });
+        } else {
+            return new Style({
+                stroke: new Stroke({
+                    color: "#fffc7f",
+                    width: 1,
+                }),
+                fill: new Fill({
+                    color: "rgba(255, 252, 127, 0.2)",
+                }),
+            });
+        }
     }
 
     private drawPredictionResult = (): void => {
-        this.imageMap.removeAllFeatures();
+        // comment this line to prevent clear OCR readed boundary boxes
+        // this.imageMap.removeAllFeatures();
         const features = [];
         const imageExtent = [0, 0, this.state.imageWidth, this.state.imageHeight];
         const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[this.state.currentPage - 1];
         const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
         const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
-
         for (const fieldName of Object.keys(predictions)) {
             const field = predictions[fieldName];
             if (_.get(field, "page", null) === this.state.currentPage) {
