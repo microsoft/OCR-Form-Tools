@@ -30,6 +30,7 @@ import ServiceHelper from "../../../../services/serviceHelper";
 import { getAppInsights } from "../../../../services/telemetryService";
 import Alert from "../../common/alert/alert";
 import { DocumentFilePicker } from "../../common/documentFilePicker/documentFilePicker";
+import { PredictionFilePicker } from "../../common/predictionFilePicker/predictionFilePicker";
 import { ImageMap } from "../../common/imageMap/imageMap";
 import { PageRange } from "../../common/pageRange/pageRange";
 import { PrebuiltSetting } from "../../common/prebuiltSetting/prebuiltSetting";
@@ -41,6 +42,7 @@ import PredictResult from "../predict/predictResult";
 import { ILoadFileHelper, ILoadFileResult, LoadFileHelper } from "./LoadFileHelper";
 import "./prebuiltPredictPage.scss";
 import { ITableHelper, ITableState, TableHelper } from "./tableHelper";
+import { Toggle } from "office-ui-fabric-react/lib/Toggle";
 
 interface IPrebuiltTypes {
     name: string;
@@ -76,6 +78,8 @@ export interface IPrebuiltPredictPageState extends ILoadFileResult, ITableState 
     pageRange: string;
     pageRangeIsValid?: boolean;
     predictionEndpointUrl: string;
+
+    liveMode: boolean;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -148,6 +152,8 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         withPageRange: false,
         pageRange: "",
         predictionEndpointUrl: "",
+
+        liveMode: true,
     };
 
     private analyzeResults: any;
@@ -246,35 +252,9 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                             <FontIcon className="mr-1" iconName="ContactCard" />
                             <span>{interpolate(strings.prebuiltPredict.anlayWithPrebuiltModels, this.state.currentPrebuiltType)}</span>
                         </h6>
-                        <div className="p-3 prebuilt-setting" style={{ marginTop: "8px" }}>
-                            <h5>{strings.prebuiltSetting.serviceConfigurationTitle}</h5>
-                        </div>
-                        <PrebuiltSetting prebuiltSettings={this.props.prebuiltSettings}
-                            disabled={this.state.isPredicting}
-                            actions={this.props.actions}
-                        />
-                        <div className="p-3" style={{ marginTop: "-3rem" }}>
-                            <div className="formtype-section">
-                                <div style={{ marginBottom: "3px" }}>{strings.prebuiltPredict.formTypeTitle}</div>
-                                <Dropdown
-                                    disabled={this.state.isPredicting}
-                                    className="prebuilt-type-dropdown"
-                                    options={this.prebuiltTypes.map(type => ({ key: type.name, text: type.name }))}
-                                    defaultSelectedKey={this.state.currentPrebuiltType.name}
-                                    onChange={this.onPrebuiltTypeChange}></Dropdown>
-                            </div>
-                            <div className="locales-section" style={{ display: this.state.currentPrebuiltType.useLocale ? "block" : "none" }}>
-                                <div style={{ marginBottom: "3px" }}>{strings.prebuiltPredict.locale}</div>
-                                <Dropdown
-                                    disabled={this.state.isPredicting}
-                                    className="prebuilt-type-dropdown"
-                                    options={this.locales.map(type => ({ key: type, text: type }))}
-                                    defaultSelectedKey={this.state.currentLocale}
-                                    onChange={this.onLocaleChange}></Dropdown>
-                            </div>
-                        </div>
-                        <div className="p-3" style={{ marginTop: "8px" }}>
-                            <h5>{strings.prebuiltPredict.selectFileAndRunAnalysis}</h5>
+                        <Separator className="separator-right-pane-main">1. Choose file for analysis.</Separator>
+                        <div className="p-3">
+                            {/* <h5>{strings.prebuiltPredict.selectFileAndRunAnalysis}</h5> */}
                             <DocumentFilePicker
                                 disabled={this.state.isPredicting || this.state.isFetching}
                                 onFileChange={(data) => this.onFileChange(data)}
@@ -288,30 +268,73 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                                     onPageRangeChange={this.onPageRangeChange} />
                             </div>
                         </div>
-                        <Separator className="separator-right-pane-main">{strings.prebuiltPredict.analysis}</Separator>
+                        <Separator className="separator-right-pane-main">2. Get prediction.</Separator>
                         <div className="p-3" style={{ marginTop: "8px" }}>
-                            <div style={{ marginBottom: "3px" }}>{"The composed API request is"}</div>
-                            <TextField
-                                className="mb-1 request-uri-textfield"
-                                name="endpointUrl"
-                                theme={getLightGreyTheme()}
-                                value={this.state.predictionEndpointUrl}
-                                onChange={this.setRequestURI}
-                                disabled={this.state.isPredicting}
-                                multiline={true}
-                                autoAdjustHeight={true}
-                            />
-                            <div className="container-items-end predict-button">
-                                <PrimaryButton
-                                    theme={getPrimaryWhiteTheme()}
-                                    iconProps={{ iconName: "ContactCard" }}
-                                    text={strings.prebuiltPredict.runAnalysis}
-                                    aria-label={!this.state.isPredicting ? strings.prebuiltPredict.inProgress : ""}
-                                    allowDisabledFocus
-                                    disabled={predictDisabled}
-                                    onClick={this.handleClick}
-                                />
+                            <Toggle theme={getLightGreyTheme()}
+                                className="predict-mode-toggle"
+                                defaultChecked
+                                onText="Call live service"
+                                offText="Use predicted file"
+                                onChange={this.handleLiveModeToggleChange} />
+                        </div>
+                        {!this.state.liveMode &&
+                            <div className="p-3" style={{ marginTop: "-2rem" }}>
+                                <PredictionFilePicker
+                                    disabled={this.state.isPredicting || this.state.isFetching}
+                                    onFileChange={(data) => this.onPredictionFileChange(data)}
+                                    onSelectSourceChange={() => this.onSelectPredictionSourceChange()}
+                                    onError={(err) => this.onPredictionFileLoadError(err)} />
                             </div>
+                        }
+                        {this.state.liveMode &&
+                            <>
+                                <PrebuiltSetting prebuiltSettings={this.props.prebuiltSettings}
+                                    disabled={this.state.isPredicting}
+                                    actions={this.props.actions}
+                                />
+                                <div className="p-3" style={{ marginTop: "-28px" }}>
+                                    <div className="formtype-section">
+                                        <div style={{ marginBottom: "3px" }}>{strings.prebuiltPredict.formTypeTitle}</div>
+                                        <Dropdown
+                                            disabled={this.state.isPredicting}
+                                            className="prebuilt-type-dropdown"
+                                            options={this.prebuiltTypes.map(type => ({ key: type.name, text: type.name }))}
+                                            defaultSelectedKey={this.state.currentPrebuiltType.name}
+                                            onChange={this.onPrebuiltTypeChange}></Dropdown>
+                                    </div>
+                                    <div className="locales-section" style={{ visibility: this.state.currentPrebuiltType.useLocale ? "visible" : "hidden" }}>
+                                        <div style={{ marginBottom: "3px" }}>{strings.prebuiltPredict.locale}</div>
+                                        <Dropdown
+                                            disabled={this.state.isPredicting}
+                                            className="prebuilt-type-dropdown"
+                                            options={this.locales.map(type => ({ key: type, text: type }))}
+                                            defaultSelectedKey={this.state.currentLocale}
+                                            onChange={this.onLocaleChange}></Dropdown>
+                                    </div>
+                                    <div style={{ marginBottom: "3px" }}>{"The composed API request is"}</div>
+                                    <TextField
+                                        className="mb-1 request-uri-textfield"
+                                        name="endpointUrl"
+                                        theme={getLightGreyTheme()}
+                                        value={this.state.predictionEndpointUrl}
+                                        onChange={this.setRequestURI}
+                                        disabled={this.state.isPredicting}
+                                        multiline={true}
+                                        autoAdjustHeight={true}
+                                    />
+                                    <div className="container-items-end predict-button">
+                                        <PrimaryButton
+                                            theme={getPrimaryWhiteTheme()}
+                                            iconProps={{ iconName: "ContactCard" }}
+                                            text={strings.prebuiltPredict.runAnalysis}
+                                            aria-label={!this.state.isPredicting ? strings.prebuiltPredict.inProgress : ""}
+                                            allowDisabledFocus
+                                            disabled={predictDisabled}
+                                            onClick={this.handleClick}
+                                        />
+                                    </div>
+                                </div>
+                            </> }
                             {this.state.isFetching &&
                                 <div className="loading-container">
                                     <Spinner
@@ -349,9 +372,6 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                                 (Object.keys(predictions).length === 0 && this.state.predictionLoaded) &&
                                 <div>{strings.prebuiltPredict.noFieldCanBeExtracted}</div>
                             }
-                        </div>
-
-
                     </div>
                 </div>
                 <Alert
@@ -414,6 +434,22 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 this.imageMap.removeAllFeatures();
             }
         });
+    }
+
+    onSelectPredictionSourceChange() {
+        // TODO: shihw: handle logic.
+    }
+
+    onPredictionFileLoadError(error) {
+        // TODO: shihw: handle logic.
+    }
+
+    onPredictionFileChange(data) {
+        // TODO: shihw: handle logic.
+    }
+
+    handleLiveModeToggleChange = (event, checked: boolean) => {
+        this.setState({ liveMode: checked });
     }
 
     private onPrebuiltTypeChange = (e, option: IDropdownOption) => {
