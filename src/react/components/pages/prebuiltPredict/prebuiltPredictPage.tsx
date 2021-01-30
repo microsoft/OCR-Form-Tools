@@ -471,7 +471,6 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 })
                 })
             }
-   
     }
 
     handleLiveModeToggleChange = (event, checked: boolean) => {
