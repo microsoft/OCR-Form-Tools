@@ -283,9 +283,9 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                             <div className="p-3" style={{ marginTop: "-2rem" }}>
                                 <PredictionFilePicker
                                     disabled={this.state.isPredicting || this.state.isFetching}
-                                    onFileChange={(data) => this.onPredictionFileChange(data)}
-                                    onSelectSourceChange={() => this.onSelectPredictionSourceChange()}
-                                    onError={(err) => this.onPredictionFileLoadError(err)} />
+                                    onFileChange={this.onPredictionFileChange}
+                                    onSelectSourceChange={this.onSelectSourceChange}
+                                    onError={this.onFileLoadError} />
                             </div>
                         }
                         {this.state.liveMode &&
@@ -337,43 +337,43 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                                     </div>
                                 </div>
                             </> }
-                            {this.state.isFetching &&
-                                <div className="loading-container">
-                                    <Spinner
-                                        label="Fetching..."
-                                        ariaLive="assertive"
-                                        labelPosition="right"
-                                        size={SpinnerSize.large}
-                                    />
-                                </div>
-                            }
-                            {this.state.isPredicting &&
-                                <div className="loading-container">
-                                    <Spinner
-                                        label={strings.prebuiltPredict.inProgress}
-                                        ariaLive="assertive"
-                                        labelPosition="right"
-                                        size={SpinnerSize.large}
-                                    />
-                                </div>
-                            }
-                            {Object.keys(predictions).length > 0 &&
-                                <PredictResult
-                                    predictions={predictions}
-                                    analyzeResult={this.analyzeResults}
-                                    page={this.state.currentPage}
-                                    tags={this.state.tags}
-                                    downloadPrefix={this.state.currentPrebuiltType.name}
-                                    downloadResultLabel={this.state.fileLabel}
-                                    onPredictionClick={this.onPredictionClick}
-                                    onPredictionMouseEnter={this.onPredictionMouseEnter}
-                                    onPredictionMouseLeave={this.onPredictionMouseLeave}
+                        {this.state.isFetching &&
+                            <div className="loading-container">
+                                <Spinner
+                                    label="Fetching..."
+                                    ariaLive="assertive"
+                                    labelPosition="right"
+                                    size={SpinnerSize.large}
                                 />
-                            }
-                            {
-                                (Object.keys(predictions).length === 0 && this.state.predictionLoaded) &&
-                                <div>{strings.prebuiltPredict.noFieldCanBeExtracted}</div>
-                            }
+                            </div>
+                        }
+                        {this.state.isPredicting &&
+                            <div className="loading-container">
+                                <Spinner
+                                    label={strings.prebuiltPredict.inProgress}
+                                    ariaLive="assertive"
+                                    labelPosition="right"
+                                    size={SpinnerSize.large}
+                                />
+                            </div>
+                        }
+                        {Object.keys(predictions).length > 0 &&
+                            <PredictResult
+                                predictions={predictions}
+                                analyzeResult={this.analyzeResults}
+                                page={this.state.currentPage}
+                                tags={this.state.tags}
+                                downloadPrefix={this.state.currentPrebuiltType.name}
+                                downloadResultLabel={this.state.fileLabel}
+                                onPredictionClick={this.onPredictionClick}
+                                onPredictionMouseEnter={this.onPredictionMouseEnter}
+                                onPredictionMouseLeave={this.onPredictionMouseLeave}
+                            />
+                        }
+                        {
+                            (Object.keys(predictions).length === 0 && this.state.predictionLoaded) &&
+                            <div>{strings.prebuiltPredict.noFieldCanBeExtracted}</div>
+                        }
                     </div>
                 </div>
                 <Alert
@@ -401,7 +401,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         });
     }
 
-    onSelectSourceChange(): void {
+    onSelectSourceChange = (): void => {
         this.setState({
             file: undefined,
             analyzeResult: {},
@@ -412,18 +412,18 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         }
     }
 
-    onFileLoadError(err: { alertTitle: string; alertMessage: string; }): void {
+    onFileLoadError = (err: { alertTitle: string; alertMessage: string; }): void => {
         this.setState({
             ...err,
             shouldShowAlert: true,
             isPredicting: false,
         });
     }
-    onFileChange(data: {
+    onFileChange = (data: {
         file: File,
         fileLabel: string,
         fetchedFileURL: string
-    }): void {
+    }): void => {
         this.setState({
             currentPage: 1,
             analyzeResult: null,
@@ -438,16 +438,27 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         });
     }
 
-    onSelectPredictionSourceChange() {
-        // TODO: shihw: handle logic.
-    }
-
-    onPredictionFileLoadError(error) {
-        // TODO: shihw: handle logic.
-    }
-
-    onPredictionFileChange(data) {
-        // TODO: shihw: handle logic.
+    onPredictionFileChange = (data: {
+        file: File,
+        fileLabel: string,
+        fetchedFileURL: string
+    }): void => {
+        if (this.imageMap) {
+            this.imageMap.removeAllFeatures();
+        }
+        const reader = new FileReader();
+        reader.onload = handleFile;
+        reader.readAsText(data.file);
+        const handlePredictionResult = this.handlePredictionResult.bind(this);
+        function handleFile() {
+            let { result } = reader;
+            if (result instanceof ArrayBuffer) {
+                const dataView = new DataView(result);
+                const decoder = new TextDecoder();
+                result = decoder.decode(dataView)
+            }
+            handlePredictionResult(JSON.parse(result));
+        }
     }
 
     handleLiveModeToggleChange = (event, checked: boolean) => {
@@ -648,25 +659,27 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         this.setState({ imageAngle: this.state.imageAngle + degrees });
     }
 
+    private handlePredictionResult = (result) => {
+        this.analyzeResults = _.cloneDeep(result);
+        this.tableHelper.setAnalyzeResult(result?.analyzeResult);
+        const tags = this.getTagsForPredictResults(this.getPredictionsFromAnalyzeResult(result?.analyzeResult));
+        this.setState({
+            tags,
+            analyzeResult: result.analyzeResult,
+            predictionLoaded: true,
+            isPredicting: false,
+        }, () => {
+            this.layoutHelper.setLayoutData(result);
+            this.layoutHelper.drawLayout(this.state.currentPage);
+            this.drawPredictionResult();
+        });
+    }
 
     private handleClick = () => {
         this.setState({ predictionLoaded: false, isPredicting: true });
         this.getPrediction()
-            .then((result) => {
-                this.analyzeResults = _.cloneDeep(result);
-                this.tableHelper.setAnalyzeResult(result?.analyzeResult);
-                const tags = this.getTagsForPredictResults(this.getPredictionsFromAnalyzeResult(result?.analyzeResult));
-                this.setState({
-                    tags,
-                    analyzeResult: result.analyzeResult,
-                    predictionLoaded: true,
-                    isPredicting: false,
-                }, () => {
-                    this.layoutHelper.setLayoutData(result);
-                    this.layoutHelper.drawLayout(this.state.currentPage);
-                    this.drawPredictionResult();
-                });
-            }).catch((error) => {
+            .then(this.handlePredictionResult)
+            .catch((error) => {
                 let alertMessage = "";
                 if (error.response) {
                     alertMessage = error.response.data;
