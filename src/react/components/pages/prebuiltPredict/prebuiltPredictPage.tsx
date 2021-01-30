@@ -44,6 +44,7 @@ import "./prebuiltPredictPage.scss";
 import { ITableHelper, ITableState, TableHelper } from "./tableHelper";
 import { Toggle } from "office-ui-fabric-react/lib/Toggle";
 import { ILayoutHelper, LayoutHelper } from "./layoutHelper";
+import HtmlFileReader from "../../../../common/htmlFileReader";
 
 interface IPrebuiltTypes {
     name: string;
@@ -457,32 +458,20 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             this.imageMap.removeAllFeatures();
         }
         if (data.file) {
-            const makeHandleFile = () => {
-                const handlePredictionResult = this.handlePredictionResult.bind(this);
-                const setState = this.setState.bind(this);
-                return () => {
-                    let { result } = reader;
-                    if (result instanceof ArrayBuffer) {
-                        const dataView = new DataView(result);
-                        const decoder = new TextDecoder();
-                        result = decoder.decode(dataView)
-                    }
-                    result = JSON.parse(result)
-                    setState({
-                        currentPage: 1,
-                        analyzeResult: null,
-                        predictionLoaded: false,
-                        fileLoaded: false,
-                    }, () => {
-                        handlePredictionResult(result);
-                    })
-                }
+            HtmlFileReader.readAsText(data.file)
+            .then(({ content }) => JSON.parse(content as string))
+            .then(result => {
+                this.setState({
+                    currentPage: 1,
+                    analyzeResult: null,
+                    predictionLoaded: false,
+                    fileLoaded: false,
+                }, () => {
+                    this.handlePredictionResult(result);
+                })
+                })
             }
-
-            const reader = new FileReader();
-            reader.onload = makeHandleFile();
-            reader.readAsText(data.file);
-        }
+   
     }
 
     handleLiveModeToggleChange = (event, checked: boolean) => {
