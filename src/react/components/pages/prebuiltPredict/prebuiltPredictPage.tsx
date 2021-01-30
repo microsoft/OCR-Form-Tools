@@ -460,16 +460,13 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         if (data.file) {
             HtmlFileReader.readAsText(data.file)
             .then(({ content }) => JSON.parse(content as string))
-            .then(result => {
-                this.setState({
+                .then(result => this.setState({
                     currentPage: 1,
                     analyzeResult: null,
                     predictionLoaded: false,
                     fileLoaded: false,
-                }, () => {
-                    this.handlePredictionResult(result);
-                })
-                })
+                }, () => new Promise(() => this.handlePredictionResult(result))
+                    .catch(this.handlePredictionError)))
             }
     }
 
@@ -687,11 +684,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         });
     }
 
-    private handleClick = () => {
-        this.setState({ predictionLoaded: false, isPredicting: true });
-        this.getPrediction()
-            .then(this.handlePredictionResult)
-            .catch((error) => {
+    private handlePredictionError = (error) => {
                 let alertMessage = "";
                 if (error.response) {
                     alertMessage = error.response.data;
@@ -708,7 +701,13 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                     alertMessage,
                     isPredicting: false,
                 });
-            });
+    }
+
+    private handleClick = () => {
+        this.setState({ predictionLoaded: false, isPredicting: true });
+        this.getPrediction()
+            .then(this.handlePredictionResult)
+            .catch(this.handlePredictionError);
         if (this.appInsights) {
             this.appInsights.trackEvent({ name: "ANALYZE_EVENT" });
         }
