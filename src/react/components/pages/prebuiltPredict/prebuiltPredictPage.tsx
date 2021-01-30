@@ -222,7 +222,6 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     getPredictDisabled = (): boolean => {
-        console.log("getPredictDisabled", "state: ", this.state, "props", this.props)
         return this.state.isPredicting || !this.state.file
             || this.state.invalidFileFormat ||
             !this.state.fileLoaded ||
