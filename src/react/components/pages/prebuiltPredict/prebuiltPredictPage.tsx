@@ -222,6 +222,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     getPredictDisabled = (): boolean => {
+        console.log("getPredictDisabled", "state: ", this.state, "props", this.props)
         return this.state.isPredicting || !this.state.file
             || this.state.invalidFileFormat ||
             !this.state.fileLoaded ||
@@ -692,6 +693,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             analyzeResult: result.analyzeResult,
             predictionLoaded: true,
             isPredicting: false,
+            fileLoaded: true
         }, () => {
             this.layoutHelper.setLayoutData(result);
             this.layoutHelper.drawLayout(this.state.currentPage);
