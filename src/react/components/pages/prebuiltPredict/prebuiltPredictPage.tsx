@@ -282,9 +282,9 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                         {!this.state.liveMode &&
                             <div className="p-3" style={{ marginTop: "-2rem" }}>
                                 <PredictionFilePicker
-                                    disabled={this.state.isPredicting || this.state.isFetching}
+                                    disabled={this.state.isPredicting || this.state.isFetching || !this.state.file}
                                     onFileChange={this.onPredictionFileChange}
-                                    onSelectSourceChange={this.onSelectSourceChange}
+                                    onSelectSourceChange={this.onPredictionSelectSourceChange}
                                     onError={this.onFileLoadError} />
                             </div>
                         }
@@ -438,6 +438,16 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         });
     }
 
+    onPredictionSelectSourceChange = (): void => {
+        this.setState({
+            analyzeResult: {},
+            predictionLoaded: false,
+        });
+        if (this.imageMap) {
+            this.imageMap.removeAllFeatures();
+        }
+    }
+
     onPredictionFileChange = (data: {
         file: File,
         fileLabel: string,
@@ -447,19 +457,31 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             this.imageMap.removeAllFeatures();
         }
         if (data.file) {
-            const reader = new FileReader();
-            reader.onload = handleFile;
-            reader.readAsText(data.file);
-            const handlePredictionResult = this.handlePredictionResult.bind(this);
-            function handleFile() {
-                let { result } = reader;
-                if (result instanceof ArrayBuffer) {
-                    const dataView = new DataView(result);
-                    const decoder = new TextDecoder();
-                    result = decoder.decode(dataView)
+            const makeHandleFile = () => {
+                const handlePredictionResult = this.handlePredictionResult.bind(this);
+                const setState = this.setState.bind(this);
+                return () => {
+                    let { result } = reader;
+                    if (result instanceof ArrayBuffer) {
+                        const dataView = new DataView(result);
+                        const decoder = new TextDecoder();
+                        result = decoder.decode(dataView)
+                    }
+                    result = JSON.parse(result)
+                    setState({
+                        currentPage: 1,
+                        analyzeResult: null,
+                        predictionLoaded: false,
+                        fileLoaded: false,
+                    }, () => {
+                        handlePredictionResult(result);
+                    })
                 }
-                handlePredictionResult(JSON.parse(result));
             }
+
+            const reader = new FileReader();
+            reader.onload = makeHandleFile();
+            reader.readAsText(data.file);
         }
     }
 

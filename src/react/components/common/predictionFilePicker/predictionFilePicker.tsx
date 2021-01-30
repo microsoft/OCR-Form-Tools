@@ -179,13 +179,6 @@ export class PredictionFilePicker extends React.Component<IPredictionFilePickerP
 
     private setInputedFileURL = (event) => {
         this.setState({ inputedFileURL: event.target.value });
-        if (this.props.onFileChange) {
-            this.props.onFileChange({
-                file: null,
-                fileLabel: "",
-                fetchedFileURL: event.target.value
-            });
-        }
     }
 
     private getFileFromURL = async () => {
