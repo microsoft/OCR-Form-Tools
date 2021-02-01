@@ -1,7 +1,7 @@
 
 # Form OCR Testing Tool
 
-Help us improve Form Recognizer. [Take our survey!](https://microsoft.qualtrics.com/jfe/form/SV_40zWLBFYILTkRWl?Kind=FormRecognizer&From=fott)
+Help us improve Form Recognizer. [Take our survey!](https://aka.ms/FR-HaTS-Survey)
 
 ## Features Preview
 
