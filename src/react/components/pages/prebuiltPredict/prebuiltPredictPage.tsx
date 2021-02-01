@@ -272,6 +272,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                             </div>
                         </div>
                         <Separator className="separator-right-pane-main">2. Get prediction.</Separator>
+                        {process.env.NODE_ENV === "development" &&
                         <div className="p-3" style={{ marginTop: "8px" }}>
                             <Toggle theme={getLightGreyTheme()}
                                 className="predict-mode-toggle"
@@ -280,6 +281,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                                 offText="Use predicted file"
                                 onChange={this.handleLiveModeToggleChange} />
                         </div>
+                        }
                         {!this.state.liveMode &&
                             <div className="p-3" style={{ marginTop: "-2rem" }}>
                                 <PredictionFilePicker
