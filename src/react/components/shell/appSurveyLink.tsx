@@ -8,7 +8,7 @@ export default class AppSurveyLink extends React.PureComponent {
             <a className="app-survey-link-anchor"
                 target="_blank"
                 rel="noopener noreferrer"
-                href="https://microsoft.qualtrics.com/jfe/form/SV_40zWLBFYILTkRWl?Kind=FormRecognizer&From=fott">
+                href="https://aka.ms/FR-HaTS-Survey">
                     {strings.appSurveyText}
             </a>
         )
