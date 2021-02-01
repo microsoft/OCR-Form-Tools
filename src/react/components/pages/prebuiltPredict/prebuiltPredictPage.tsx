@@ -272,7 +272,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                             </div>
                         </div>
                         <Separator className="separator-right-pane-main">2. Get prediction.</Separator>
-                        {process.env.NODE_ENV === "development" &&
+                        {constants.enablePredictionFileSelection &&
                             <div className="p-3" style={{ marginTop: "8px" }}>
                                 <Toggle theme={getLightGreyTheme()}
                                     className="predict-mode-toggle"
