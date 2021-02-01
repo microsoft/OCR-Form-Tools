@@ -1,24 +1,26 @@
-import React from 'react';
 import { Dropdown, IDropdownOption, PrimaryButton, TextField } from '@fluentui/react';
+import React from 'react';
+import HtmlFileReader from '../../../../common/htmlFileReader';
 import { strings } from '../../../../common/strings';
 import { getGreenWithWhiteBackgroundTheme, getPrimaryGreenTheme } from '../../../../common/themes';
 import "./predictionFilePicker.scss";
 
+interface IPredictionFile {
+    file: File;
+    fileLabel: string;
+    fetchedFileURL: string;
+}
+
 interface IPredictionFilePickerProps {
     disabled: boolean;
-    onFileChange?: (data: {
-        file: File;
-        fileLabel: string;
-        fetchedFileURL: string;
-    }) => void;
+    onFileChange?: (file: IPredictionFile) => void;
     onError?: (err: { alertTitle: string, alertMessage: string }) => void;
     onSelectSourceChange?: () => void;
 }
 
 interface IPredictionFilePickerState {
     sourceOption: string;
-    invalidFileFormat: boolean;
-    inputedLocalFile: string;
+    inputedLocalFileName: string;
     inputedFileURL: string;
     isFetching: boolean;
 }
@@ -26,13 +28,12 @@ interface IPredictionFilePickerState {
 export class PredictionFilePicker extends React.Component<IPredictionFilePickerProps, IPredictionFilePickerState>{
     state = {
         sourceOption: "localFile",
-        invalidFileFormat: false,
-        isFetching: false,
+        inputedLocalFileName: strings.predict.defaultLocalFileInput,
         inputedFileURL: "",
-        inputedLocalFile: strings.predict.defaultLocalFileInput,
+        isFetching: false,
     };
 
-    private fileInput: React.RefObject<HTMLInputElement> = React.createRef();
+    private filePicker: React.RefObject<HTMLInputElement> = React.createRef();
 
     render() {
         const sourceOptions: IDropdownOption[] = [
@@ -50,12 +51,11 @@ export class PredictionFilePicker extends React.Component<IPredictionFilePickerP
             this.state.inputedFileURL === strings.prebuiltPredict.defaultURLInput;
 
         return <>
-            <div
-                className="prediction-file-picker">
+            <div className="prediction-file-picker">
                 <div className="title mr-2">Prediction:</div>
                 <div className="container-space-between">
                     <Dropdown
-                        className="sourceDropdown"
+                        className="source-dropdown"
                         selectedKey={this.state.sourceOption}
                         options={sourceOptions}
                         disabled={disabled}
@@ -63,24 +63,22 @@ export class PredictionFilePicker extends React.Component<IPredictionFilePickerP
                     />
                     {this.state.sourceOption === "localFile" &&
                         <>
-                            <input
+                            <input ref={this.filePicker}
                                 aria-hidden="true"
                                 type="file"
                                 accept="application/json"
-                                id="shihwHiddenInputFile"
-                                ref={this.fileInput}
-                                onChange={this.handleFileChange}
                                 disabled={disabled}
+                                onChange={this.handleInputFileChange}
                             />
                             <TextField
                                 className="ml-2 local-file"
                                 theme={getGreenWithWhiteBackgroundTheme()}
                                 style={{ cursor: (disabled ? "default" : "pointer") }}
-                                onClick={this.handleDummyInputClick}
+                                onClick={this.handleInputFileClick}
                                 readOnly={true}
-                                aria-label={strings.prebuiltPredict.uploadFile}
-                                value={this.state.inputedLocalFile}
-                                placeholder={strings.predict.uploadFile}
+                                aria-label={strings.prebuiltPredict.defaultLocalFileInput}
+                                value={this.state.inputedLocalFileName}
+                                placeholder={strings.predict.defaultLocalFileInput}
                                 disabled={disabled}
                             />
                         </>
@@ -92,7 +90,7 @@ export class PredictionFilePicker extends React.Component<IPredictionFilePickerP
                                 theme={getGreenWithWhiteBackgroundTheme()}
                                 onFocus={this.removeDefaultInputedFileURL}
                                 onChange={this.setInputedFileURL}
-                                aria-label={strings.prebuiltPredict.uploadFile}
+                                aria-label={strings.prebuiltPredict.defaultLocalFileInput}
                                 value={this.state.inputedFileURL}
                                 disabled={urlInputDisabled}
                                 placeholder={strings.predict.defaultURLInput}
@@ -126,27 +124,51 @@ export class PredictionFilePicker extends React.Component<IPredictionFilePickerP
         }
     }
 
-    private handleFileChange = () => {
-        if (this.fileInput.current.value !== "") {
-            this.setState({ invalidFileFormat: false });
-            const fileName = this.fileInput.current.value.split("\\").pop();
-            if (fileName !== "") {
-                this.setState({
-                    inputedLocalFile: fileName,
-                }, () => {
-                    if (this.props.onFileChange) {
-                        this.props.onFileChange({
-                            file: this.fileInput.current.files[0],
-                            fileLabel: fileName,
-                            fetchedFileURL: ''
-                        });
-                    }
+    private handleInputFileChange = async () => {
+        const { current } = this.filePicker;
+        if (!current.value) {
+            return;
+        }
+
+        const fileName = current.value.split("\\").pop();
+        if (!fileName) {
+            return;
+        }
+
+        try {
+            const fileInfo = await HtmlFileReader.readAsText(current.files[0]);
+            if (!this.isValidSchema(JSON.parse(fileInfo.content as string))) {
+                // Throw error when invalid schema.
+                throw new Error("The file is not a proper prediction result, please try other file.");
+            }
+
+            this.setState({
+                inputedLocalFileName: fileName
+            }, () => {
+                if (this.props.onFileChange) {
+                    this.props.onFileChange({
+                        file: current.files[0],
+                        fileLabel: fileName,
+                        fetchedFileURL: "",
+                    });
+                }
+            });
+        } catch (err) {
+            // Report error.
+            if (this.props.onError) {
+                this.props.onError({
+                    alertTitle: "Load prediction file error",
+                    alertMessage: err?.message ? err.message : err,
                 });
             }
+
+            // Reset file input.
+            this.setState({ inputedLocalFileName: "" });
         }
     }
-    private handleDummyInputClick = () => {
-        document.getElementById("shihwHiddenInputFile").click();
+
+    private handleInputFileClick = () => {
+        this.filePicker.current?.click();
     }
 
     private removeDefaultInputedFileURL = () => {
@@ -166,73 +188,53 @@ export class PredictionFilePicker extends React.Component<IPredictionFilePickerP
         }
     }
 
-    private getFileFromURL = () => {
+    private getFileFromURL = async () => {
         this.setState({ isFetching: true });
-        fetch(this.state.inputedFileURL, { headers: { Accept: "application/pdf, image/jpeg, image/png, image/tiff" } })
-            .then(async (response) => {
-                if (!response.ok) {
-                    this.setState({
-                        isFetching: false,
-                    });
-                    if (this.props.onError) {
-                        this.props.onError({
-                            alertTitle: "Failed to fetch",
-                            alertMessage: response.status.toString() + " " + response.statusText,
-                        });
-                    }
-                    return;
-                }
-                const contentType = response.headers.get("Content-Type");
-                if (!["application/pdf", "image/jpeg", "image/png", "image/tiff"].includes(contentType)) {
-                    this.setState({
-                        isFetching: false,
-                    });
-                    if (this.props.onError) {
-                        this.props.onError({
-                            alertTitle: "Content-Type not supported",
-                            alertMessage: "Content-Type " + contentType + " not supported",
-                        });
-                    }
-                    return;
-                }
-                response.blob().then((blob) => {
-                    const fileAsURL = new URL(this.state.inputedFileURL);
-                    const fileName = fileAsURL.pathname.split("/").pop();
-                    const file = new File([blob], fileName, { type: contentType });
-                    this.setState({
-                        isFetching: false,
-                    }, () => {
-                        if (this.props.onFileChange) {
-                            this.props.onFileChange({
-                                file,
-                                fileLabel: fileName,
-                                fetchedFileURL: ""
-                            });
-                        }
-                    });
-                }).catch((error) => {
-                    this.setState({
-                        isFetching: false,
-                    });
-                    if (this.props.onError) {
-                        this.props.onError({
-                            alertTitle: "Invalid data",
-                            alertMessage: error
-                        });
-                    }
-                    return;
-                });
-            }).catch(() => {
-                this.setState({
-                    isFetching: false,
-                });
-                if (this.props.onError) {
-                    this.props.onError({
-                        alertTitle: "Fetch failed",
-                        alertMessage: "Network error or Cross-Origin Resource Sharing (CORS) is not configured server-side",
+
+        try {
+            const response = await fetch(this.state.inputedFileURL, { headers: { Accept: "application/json" } });
+
+            if (!response.ok) {
+                throw new Error(response.status.toString() + " " + response.statusText);
+            }
+
+            const contentType = response.headers.get("Content-Type");
+            if (!["application/json", "application/octet-stream"].includes(contentType)) {
+                throw new Error("Content-Type " + contentType + " not supported.");
+            }
+
+            if (!this.isValidSchema(await response.json())) {
+                throw new Error("The file is not a proper prediction result, please try other file.");
+            }
+
+            const blob = await response.blob();
+            const fileAsURL = new URL(this.state.inputedFileURL);
+            const fileName = fileAsURL.pathname.split("/").pop();
+            const file = new File([blob], fileName, { type: contentType });
+            this.setState({
+                isFetching: false,
+            }, () => {
+                if (this.props.onFileChange) {
+                    this.props.onFileChange({
+                        file,
+                        fileLabel: fileName,
+                        fetchedFileURL: ""
                     });
                 }
-                return;
             });
+        } catch (err) {
+            this.setState({ isFetching: false });
+            if (this.props.onError) {
+                this.props.onError({
+                    alertTitle: "Fetch failed",
+                    alertMessage: err?.message ? err.message : err,
+                });
+            }
+        }
+    }
+
+    private isValidSchema = (jsonData) => {
+        // TODO: shihw: implement validation logic.
+        return true;
     }
 }
