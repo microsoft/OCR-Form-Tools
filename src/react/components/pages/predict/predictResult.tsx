@@ -356,6 +356,10 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                 valueType = "valueGender";
                 postProcessedValue = prediction.valueGender;
                 break;
+            case "phoneNumber":
+                valueType = "phoneNumber";
+                postProcessedValue = prediction.valuePhoneNumber;
+                break;
             default:
                 return null;
         }
