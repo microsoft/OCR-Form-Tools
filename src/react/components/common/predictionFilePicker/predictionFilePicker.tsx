@@ -234,7 +234,12 @@ export class PredictionFilePicker extends React.Component<IPredictionFilePickerP
     }
 
     private isValidSchema = (jsonData) => {
-        // TODO: shihw: implement validation logic.
-        return true;
+        if (jsonData && jsonData.analyzeResult) {
+            // We should ensure version and documentResults exists.
+            const { version, documentResults } = jsonData.analyzeResult;
+            return !!version && !!documentResults;
+        }
+
+        return false;
     }
 }
