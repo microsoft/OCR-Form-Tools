@@ -1,8 +1,7 @@
-.document-file-picker {
+.prediction-file-picker {
     display: flex;
     flex-direction: row;
     align-items: center;
-    margin-bottom: 5px;
     .title {
         height: 32px;
         line-height: 32px;
@@ -11,9 +10,11 @@
     .container-space-between {
         flex: 1;
     }
-    .sourceDropdown {
+
+    .source-dropdown {
         width: 95px;
     }
+    
     .local-file {
         float: right;
         flex: 1;
