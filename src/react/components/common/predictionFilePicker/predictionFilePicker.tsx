@@ -203,11 +203,11 @@ export class PredictionFilePicker extends React.Component<IPredictionFilePickerP
                 throw new Error("Content-Type " + contentType + " not supported.");
             }
 
-            if (!this.isValidSchema(await response.json())) {
+            const blob = await response.blob();
+            if (!this.isValidSchema(JSON.parse(await blob.text()))) {
                 throw new Error("The file is not a proper prediction result, please try other file.");
             }
 
-            const blob = await response.blob();
             const fileAsURL = new URL(this.state.inputedFileURL);
             const fileName = fileAsURL.pathname.split("/").pop();
             const file = new File([blob], fileName, { type: contentType });
