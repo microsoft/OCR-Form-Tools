@@ -188,8 +188,8 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             if (this.getOcrFromAnalyzeResult(this.state.analyzeResult).length > 0 &&
                 prevState.imageUri !== this.state.imageUri) {
                 this.imageMap.removeAllFeatures();
+                this.layoutHelper.drawLayout(this.state.currentPage);
                 this.drawPredictionResult();
-
             }
 
             if (prevState.highlightedField !== this.state.highlightedField) {
