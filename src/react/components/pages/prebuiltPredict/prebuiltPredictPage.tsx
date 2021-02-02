@@ -446,18 +446,20 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         if (this.imageMap) {
             this.imageMap.removeAllFeatures();
         }
-        const reader = new FileReader();
-        reader.onload = handleFile;
-        reader.readAsText(data.file);
-        const handlePredictionResult = this.handlePredictionResult.bind(this);
-        function handleFile() {
-            let { result } = reader;
-            if (result instanceof ArrayBuffer) {
-                const dataView = new DataView(result);
-                const decoder = new TextDecoder();
-                result = decoder.decode(dataView)
+        if (data.file) {
+            const reader = new FileReader();
+            reader.onload = handleFile;
+            reader.readAsText(data.file);
+            const handlePredictionResult = this.handlePredictionResult.bind(this);
+            function handleFile() {
+                let { result } = reader;
+                if (result instanceof ArrayBuffer) {
+                    const dataView = new DataView(result);
+                    const decoder = new TextDecoder();
+                    result = decoder.decode(dataView)
+                }
+                handlePredictionResult(JSON.parse(result));
             }
-            handlePredictionResult(JSON.parse(result));
         }
     }
 
