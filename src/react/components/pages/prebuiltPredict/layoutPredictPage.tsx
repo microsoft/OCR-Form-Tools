@@ -206,7 +206,8 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
                     </div>
                     <div className="predict-sidebar bg-lighter-1">
                         <div className="condensed-list">
-                            <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
+                            <h6 className="condensed-list-header bg-darker-2 p-2 flex-center"
+                                style={{ marginBottom: "1rem" }}>
                                 <FontIcon className="mr-1" iconName="KeyPhraseExtraction" />
                                 <span>{strings.layoutPredict.layout}</span>
                             </h6>
