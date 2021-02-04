@@ -222,13 +222,13 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         });
     }
 
-    getPredictDisabled = (): boolean => {
+    getPredictDisabled = (needEndPoint: boolean = true): boolean => {
         return this.state.isPredicting || !this.state.file
             || this.state.invalidFileFormat ||
             !this.state.fileLoaded ||
-            !this.props.prebuiltSettings?.apiKey ||
-            !this.props.prebuiltSettings?.serviceURI ||
-            (this.state.withPageRange && !this.state.pageRangeIsValid);
+            (this.state.withPageRange && !this.state.pageRangeIsValid) ||
+            (needEndPoint && (!this.props.prebuiltSettings?.apiKey ||
+            !this.props.prebuiltSettings?.serviceURI));
     }
 
     public render() {
@@ -283,7 +283,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                         {!this.state.liveMode &&
                             <div className="p-3" style={{ marginTop: "-2rem" }}>
                                 <PredictionFilePicker
-                                    disabled={this.state.isPredicting || this.state.isFetching || !this.state.file}
+                                    disabled={this.getPredictDisabled(false)}
                                     onFileChange={this.onPredictionFileChange}
                                     onSelectSourceChange={this.onPredictionSelectSourceChange}
                                     onError={this.onFileLoadError} />
@@ -677,6 +677,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             analyzeResult: result.analyzeResult,
             predictionLoaded: true,
             isPredicting: false,
+            fileLoaded: true
         }, () => {
             this.layoutHelper.setLayoutData(result);
             this.layoutHelper.drawLayout(this.state.currentPage);
