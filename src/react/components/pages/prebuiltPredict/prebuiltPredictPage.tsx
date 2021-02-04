@@ -44,6 +44,7 @@ import "./prebuiltPredictPage.scss";
 import { ITableHelper, ITableState, TableHelper } from "./tableHelper";
 import { Toggle } from "office-ui-fabric-react/lib/Toggle";
 import { ILayoutHelper, LayoutHelper } from "./layoutHelper";
+import HtmlFileReader from "../../../../common/htmlFileReader";
 
 interface IPrebuiltTypes {
     name: string;
@@ -457,32 +458,16 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             this.imageMap.removeAllFeatures();
         }
         if (data.file) {
-            const makeHandleFile = () => {
-                const handlePredictionResult = this.handlePredictionResult.bind(this);
-                const setState = this.setState.bind(this);
-                return () => {
-                    let { result } = reader;
-                    if (result instanceof ArrayBuffer) {
-                        const dataView = new DataView(result);
-                        const decoder = new TextDecoder();
-                        result = decoder.decode(dataView)
-                    }
-                    result = JSON.parse(result)
-                    setState({
-                        currentPage: 1,
-                        analyzeResult: null,
-                        predictionLoaded: false,
-                        fileLoaded: false,
-                    }, () => {
-                        handlePredictionResult(result);
-                    })
-                }
+            HtmlFileReader.readAsText(data.file)
+            .then(({ content }) => JSON.parse(content as string))
+                .then(result => this.setState({
+                    currentPage: 1,
+                    analyzeResult: null,
+                    predictionLoaded: false,
+                    fileLoaded: false,
+                }, () => new Promise(() => this.handlePredictionResult(result))
+                    .catch(this.handlePredictionError)))
             }
-
-            const reader = new FileReader();
-            reader.onload = makeHandleFile();
-            reader.readAsText(data.file);
-        }
     }
 
     handleLiveModeToggleChange = (event, checked: boolean) => {
@@ -699,11 +684,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         });
     }
 
-    private handleClick = () => {
-        this.setState({ predictionLoaded: false, isPredicting: true });
-        this.getPrediction()
-            .then(this.handlePredictionResult)
-            .catch((error) => {
+    private handlePredictionError = (error) => {
                 let alertMessage = "";
                 if (error.response) {
                     alertMessage = error.response.data;
@@ -720,7 +701,13 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                     alertMessage,
                     isPredicting: false,
                 });
-            });
+    }
+
+    private handleClick = () => {
+        this.setState({ predictionLoaded: false, isPredicting: true });
+        this.getPrediction()
+            .then(this.handlePredictionResult)
+            .catch(this.handlePredictionError);
         if (this.appInsights) {
             this.appInsights.trackEvent({ name: "ANALYZE_EVENT" });
         }
