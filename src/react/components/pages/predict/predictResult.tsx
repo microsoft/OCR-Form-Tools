@@ -175,8 +175,8 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
     private renderPredictionItemLabel = (item, postProcessedValue) => {
         const displayText = item.text || item.valueString;
         return (displayText == null ?
-            <li className={postProcessedValue ? "predictiontag-item-label-null mt-0" : "predictiontag-item-label-null mt-0 mb-1"}>
-                {postProcessedValue ? "text: NULL" : "NULL"}
+            <li className={postProcessedValue ? "predictiontag-item-label mt-0" : "predictiontag-item-label-null mt-0 mb-1"}>
+                {postProcessedValue ? postProcessedValue : "NULL"}
             </li>
             :
             <>
@@ -320,14 +320,14 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
     }
 
     private getPostProcessedValue = (prediction: any) => {
-        if (!prediction.type || !prediction.text) {
+        if (!prediction) {
             return null;
         }
-        const predictionType = prediction.type;
-        const predictionText = prediction.text;
+
+        const { type, text } = prediction;
         let postProcessedValue;
         let valueType;
-        switch (predictionType) {
+        switch (type) {
             case "string":
                 valueType = "valueString";
                 postProcessedValue = prediction.valueString;
@@ -348,10 +348,19 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                 valueType = "valueTime";
                 postProcessedValue = prediction.valueTime;
                 break;
+            case "country":
+                valueType = "valueCountry";
+                postProcessedValue = prediction.valueCountry;
+                break;
+            case "gender":
+                valueType = "valueGender";
+                postProcessedValue = prediction.valueGender;
+                break;
             default:
                 return null;
         }
-        if (typeof postProcessedValue === "string" && predictionText !== postProcessedValue) {
+
+        if (typeof postProcessedValue === "string" && text !== postProcessedValue) {
             return valueType + ": " + postProcessedValue;
         } else {
             return null;
