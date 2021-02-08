@@ -923,11 +923,17 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         this.setState({ predictionEndpointUrl: this.getUpdateRequestURI() });
     }
 
-    private getUpdateRequestURI = (fromTextArea = false) => {
-        const pathTemp = "/formrecognizer/:prebuiltServiceVersion/prebuilt/:prebuiltType/analyze";
+    private getUpdateRequestURI = (fromTextArea: boolean = false) => {
+        const pathTemplate = "/formrecognizer/:prebuiltServiceVersion/prebuilt/:prebuiltType/analyze";
         const { predictionEndpointUrl } = this.state;
         const [path, queryString] = predictionEndpointUrl.split("?");
-        const pathParams = URIUtils.matchPath(pathTemp, URIUtils.normalizePath(path));
+        const newPath = this.getUpdatedPath(path, pathTemplate, fromTextArea);
+        const newQueryString = this.getUpdatedQueryString(queryString);
+        return `${newPath}?${newQueryString}`
+    }
+
+    private getUpdatedPath(path: string, pathTemplate: string, fromTextArea: boolean): string {
+        const pathParams = URIUtils.matchPath(pathTemplate, URIUtils.normalizePath(path));
         if (fromTextArea) {
             const prebuiltType = _.get(pathParams, "prebuiltType", "")
             if (prebuiltType && prebuiltType !== this.state.currentPrebuiltType.servicePath) {
@@ -939,7 +945,11 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         } else {
             pathParams["prebuiltType"] = this.state.currentPrebuiltType.servicePath;
         }
-        const newPath = URIUtils.compilePath(pathTemp, pathParams);
+
+        return URIUtils.compilePath(pathTemplate, pathParams);
+    }
+
+    private getUpdatedQueryString(queryString: string): string {
         let newQueryString = "";
         if (queryString) {
             const parameterArray = queryString.includes("&") ? queryString.split("&") : [queryString];
@@ -965,7 +975,8 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             }
             newQueryString += this.state.currentPrebuiltType.useLocale ? `&locale=${this.state.currentLocale}` : "";
         }
-        return `${newPath}?${newQueryString}`
+
+        return newQueryString;
     }
 
     private getComposedURL = () => {

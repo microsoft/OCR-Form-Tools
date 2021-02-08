@@ -510,18 +510,22 @@ export function downloadZipFile(data: zipData[], fileName: string): void {
 }
 
 export class URIUtils {
+
     public static normalizePath(path: string): string {
         return "/" + path.replace(/(\r\n|\n|\r)/gm, "").replace(/^\/+/, "");
     }
-    public static matchPath(tempPath: string, path: string): object {
-        const matcher = match(tempPath, { decode: decodeURIComponent });
+
+    public static matchPath(pathTemplate: string, path: string): object {
+        const matcher = match(pathTemplate, { decode: decodeURIComponent });
         const result = matcher(path)
         return (result && result.params) || {};
     }
-    public static compilePath(tempPath: string, params: object): string {
-        const toPath = compile(tempPath, { encode: encodeURIComponent });
+
+    public static compilePath(pathTemplate: string, params: object): string {
+        const toPath = compile(pathTemplate, { encode: encodeURIComponent });
         return toPath(params);
     }
+
     public static composeQueryString(params: object, blacklist = new Set<string>()) {
         const kvList = [];
         const connector = "&";
@@ -532,6 +536,7 @@ export class URIUtils {
         }
         return kvList.join(connector);
     }
+
     public static matchQueryString(queryString: string) {
         const params = {};
         queryString.split("&").forEach(s => {
