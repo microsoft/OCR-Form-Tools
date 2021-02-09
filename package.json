@@ -27,6 +27,7 @@
         "jszip": "^3.5.0",
         "lodash": "^4.17.20",
         "ol": "^5.3.3",
+        "path-to-regexp": "^6.2.0",
         "promise.allsettled": "^1.0.2",
         "rc-align": "^2.4.5",
         "rc-checkbox": "^2.1.8",

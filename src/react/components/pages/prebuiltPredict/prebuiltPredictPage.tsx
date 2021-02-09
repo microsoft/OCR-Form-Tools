@@ -45,6 +45,7 @@ import { ITableHelper, ITableState, TableHelper } from "./tableHelper";
 import { Toggle } from "office-ui-fabric-react/lib/Toggle";
 import { ILayoutHelper, LayoutHelper } from "./layoutHelper";
 import HtmlFileReader from "../../../../common/htmlFileReader";
+import {URIUtils} from "../../../../common/utils";
 
 interface IPrebuiltTypes {
     name: string;
@@ -104,21 +105,21 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     prebuiltTypes: IPrebuiltTypes[] = [
         {
             name: "Invoice",
-            servicePath: "/prebuilt/invoice/analyze"
+            servicePath: "invoice",
         },
         {
             name: "Receipt",
-            servicePath: "/prebuilt/receipt/analyze",
+            servicePath: "receipt",
             useLocale: true,
         },
         {
             name: "Business card",
-            servicePath: "/prebuilt/businessCard/analyze",
+            servicePath: "businessCard",
             useLocale: true,
         },
         {
             name: "ID",
-            servicePath: "/prebuilt/idDocument/analyze"
+            servicePath: "idDocument",
         }
     ];
 
@@ -174,7 +175,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         appTitleActions.setTitle(`${strings.prebuiltPredict.title}`);
         if (prebuiltSettings && prebuiltSettings.serviceURI) {
             this.setState({
-                predictionEndpointUrl: `/formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`
+                predictionEndpointUrl: `/formrecognizer/${constants.prebuiltServiceVersion}/prebuilt/${this.state.currentPrebuiltType.servicePath}/analyze?includeTextDetails=true`
             });
         }
     }
@@ -922,48 +923,68 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private handleUpdateRequestURI = () => {
-        this.setState({ predictionEndpointUrl: this.getUpdateRequestURI() });
+        this.setState({ predictionEndpointUrl: this.getUpdatedRequestURI() });
     }
 
-    private getUpdateRequestURI = () => {
-        const { prebuiltSettings } = this.props;
-        const { currentPrebuiltType, predictionEndpointUrl } = this.state;
-        let updatedURI = "";
-        if (predictionEndpointUrl.includes("?")) {
-            const queryString = predictionEndpointUrl.split("?")[1];
-            if (prebuiltSettings && prebuiltSettings.serviceURI) {
-                const parameterArray = queryString.includes("&") ? queryString.split("&") : [queryString];
-                let newQueryString = "";
-                let connector = "";
-                for (const parameter of parameterArray) {
-                    const name = parameter.split("=")[0];
-                    if (name !== "locale" && name !== constants.pages) {
-                        newQueryString += `${connector}${parameter}`;
-                    }
-                    connector = "&";
+    private getUpdatedRequestURI = (fromTextArea: boolean = false) => {
+        const { predictionEndpointUrl } = this.state;
+        const [path, queryString] = predictionEndpointUrl.split("?");
+        const newPath = this.getUpdatedPath(path, fromTextArea);
+        const newQueryString = this.getUpdatedQueryString(queryString);
+        return `${newPath}?${newQueryString}`;
+    }
+
+    private getUpdatedPath(path: string, fromTextArea: boolean): string {
+        const pathTemplate = "/formrecognizer/:prebuiltServiceVersion/prebuilt/:prebuiltType/analyze";
+        const normalizedPath = URIUtils.normalizePath(path);
+        const pathParams = URIUtils.matchPath(pathTemplate, normalizedPath);
+        if (fromTextArea) {
+            const prebuiltType = _.get(pathParams, "prebuiltType", "");
+            if (prebuiltType && prebuiltType !== this.state.currentPrebuiltType.servicePath) {
+                const ret = this.prebuiltTypes.filter(item => item.servicePath === prebuiltType);
+                if (ret.length === 1) {
+                    this.setState({ currentPrebuiltType: ret[0] });
                 }
-                if (this.state.withPageRange && this.state.pageRangeIsValid) {
-                    newQueryString += `${connector}${constants.pages}=${this.state.pageRange}`;
-                    connector = "&";
-                }
-                if (this.state.currentPrebuiltType.useLocale) {
-                    newQueryString += `${connector}locale=${this.state.currentLocale}`;
-                }
-                updatedURI = `/formrecognizer/${constants.prebuiltServiceVersion}${currentPrebuiltType.servicePath}?${newQueryString}`;
             }
         } else {
-            let apiRequest = `/formrecognizer/${constants.prebuiltServiceVersion}${this.state.currentPrebuiltType.servicePath}?includeTextDetails=true`;
-            if (this.state.withPageRange && this.state.pageRangeIsValid) {
-                apiRequest += `&${constants.pages}=${this.state.pageRange}`;
-            }
-            updatedURI = apiRequest + (this.state.currentPrebuiltType.useLocale ? `&locale=${this.state.currentLocale}` : "");
+            pathParams["prebuiltType"] = this.state.currentPrebuiltType.servicePath;
         }
 
-        return updatedURI;
+        return URIUtils.compilePath(pathTemplate, pathParams);
+    }
+
+    private getUpdatedQueryString(queryString: string): string {
+        let newQueryString = "";
+        if (queryString) {
+            const parameterArray = queryString.includes("&") ? queryString.split("&") : [queryString];
+            let connector = "";
+            for (const parameter of parameterArray) {
+                const name = parameter.split("=")[0];
+                if (name !== "locale" && name !== constants.pages) {
+                    newQueryString += `${connector}${parameter}`;
+                }
+                connector = "&";
+            }
+            if (this.state.withPageRange && this.state.pageRangeIsValid) {
+                newQueryString += `${connector}${constants.pages}=${this.state.pageRange}`;
+                connector = "&";
+            }
+            if (this.state.currentPrebuiltType.useLocale) {
+                newQueryString += `${connector}locale=${this.state.currentLocale}`;
+            }
+        } else {
+            newQueryString = `includeTextDetails=true`;
+            if (this.state.withPageRange && this.state.pageRangeIsValid) {
+                newQueryString += `&${constants.pages}=${this.state.pageRange}`;
+            }
+            newQueryString += this.state.currentPrebuiltType.useLocale ? `&locale=${this.state.currentLocale}` : "";
+        }
+
+        return newQueryString;
     }
 
     private getComposedURL = () => {
-        const uri = this.getUpdateRequestURI();
+        const uri = this.getUpdatedRequestURI(true);
         return this.props.prebuiltSettings.serviceURI.replace(/\/+$/, "") + "/" + uri.replace(/(\r\n|\n|\r)/gm, "").replace(/^\/+/, "");
     }
 
