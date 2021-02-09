@@ -9,6 +9,7 @@ appVersionArr[1] = appVersionArr[1] + "-preview";
 const appVersion = appVersionArr.join(".");
 
 const enableAPIVersionSelection = appInfo.enableAPIVersionSelection;
+const enablePredictionResultUpload = appInfo.enablePredictionResultUpload;
 const apiVersion = "v2.1-preview.2";
 
 /**
@@ -20,6 +21,7 @@ export const constants = {
     appVersion,
     apiVersion,
     enableAPIVersionSelection,
+    enablePredictionResultUpload,
     projectFormTempKey: "projectForm",
     projectFileExtensionOld: ".vott",
     projectFileExtension: ".fott",

@@ -18,10 +18,10 @@ export interface IAppInfo {
     description: string;
     /** Flag for if API version is selectable */
     enableAPIVersionSelection: boolean;
-
+    enablePredictionResultUpload: boolean;
 }
 
 /**
  * Gets current application info
  */
-export const appInfo = { ...packageJson, enableAPIVersionSelection: appConfig["enableAPIVersionSelection"] } as IAppInfo;
+export const appInfo = { ...packageJson, enableAPIVersionSelection: appConfig["enableAPIVersionSelection"], enablePredictionResultUpload: appConfig["enablePredictionResultUpload"] } as IAppInfo;
