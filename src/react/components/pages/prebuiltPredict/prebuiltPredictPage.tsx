@@ -921,26 +921,27 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private handleUpdateRequestURI = () => {
-        this.setState({ predictionEndpointUrl: this.getUpdateRequestURI() });
+        this.setState({ predictionEndpointUrl: this.getUpdatedRequestURI() });
     }
 
-    private getUpdateRequestURI = (fromTextArea: boolean = false) => {
-        const pathTemplate = "/formrecognizer/:prebuiltServiceVersion/prebuilt/:prebuiltType/analyze";
+    private getUpdatedRequestURI = (fromTextArea: boolean = false) => {
         const { predictionEndpointUrl } = this.state;
         const [path, queryString] = predictionEndpointUrl.split("?");
-        const newPath = this.getUpdatedPath(path, pathTemplate, fromTextArea);
+        const newPath = this.getUpdatedPath(path, fromTextArea);
         const newQueryString = this.getUpdatedQueryString(queryString);
-        return `${newPath}?${newQueryString}`
+        return `${newPath}?${newQueryString}`;
     }
 
-    private getUpdatedPath(path: string, pathTemplate: string, fromTextArea: boolean): string {
-        const pathParams = URIUtils.matchPath(pathTemplate, URIUtils.normalizePath(path));
+    private getUpdatedPath(path: string, fromTextArea: boolean): string {
+        const pathTemplate = "/formrecognizer/:prebuiltServiceVersion/prebuilt/:prebuiltType/analyze";
+        const normalizedPath = URIUtils.normalizePath(path);
+        const pathParams = URIUtils.matchPath(pathTemplate, normalizedPath);
         if (fromTextArea) {
-            const prebuiltType = _.get(pathParams, "prebuiltType", "")
+            const prebuiltType = _.get(pathParams, "prebuiltType", "");
             if (prebuiltType && prebuiltType !== this.state.currentPrebuiltType.servicePath) {
-                const ret = this.prebuiltTypes.filter(item => item.servicePath === prebuiltType)
+                const ret = this.prebuiltTypes.filter(item => item.servicePath === prebuiltType);
                 if (ret.length === 1) {
-                    this.setState({ currentPrebuiltType: ret[0] })
+                    this.setState({ currentPrebuiltType: ret[0] });
                 }
             }
         } else {
@@ -981,7 +982,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private getComposedURL = () => {
-        const uri = this.getUpdateRequestURI(true);
+        const uri = this.getUpdatedRequestURI(true);
         return this.props.prebuiltSettings.serviceURI.replace(/\/+$/, "") + "/" + uri.replace(/(\r\n|\n|\r)/gm, "").replace(/^\/+/, "");
     }
 
