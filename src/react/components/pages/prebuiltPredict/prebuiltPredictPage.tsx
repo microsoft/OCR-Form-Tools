@@ -272,14 +272,16 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                             </div>
                         </div>
                         <Separator className="separator-right-pane-main">2. Get prediction.</Separator>
-                        <div className="p-3" style={{ marginTop: "8px" }}>
-                            <Toggle theme={getLightGreyTheme()}
-                                className="predict-mode-toggle"
-                                defaultChecked
-                                onText="Call live service"
-                                offText="Use predicted file"
-                                onChange={this.handleLiveModeToggleChange} />
-                        </div>
+                        {constants.enablePredictionResultUpload &&
+                            <div className="p-3" style={{ marginTop: "8px" }}>
+                                <Toggle theme={getLightGreyTheme()}
+                                    className="predict-mode-toggle"
+                                    defaultChecked
+                                    onText="Call live service"
+                                    offText="Use predicted file"
+                                    onChange={this.handleLiveModeToggleChange} />
+                            </div>
+                        }
                         {!this.state.liveMode &&
                             <div className="p-3" style={{ marginTop: "-2rem" }}>
                                 <PredictionFilePicker
