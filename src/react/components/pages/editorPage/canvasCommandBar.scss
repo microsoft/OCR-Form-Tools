@@ -1,3 +1,35 @@
 .ms-ContextualMenu-link.is-disabled {
     color: gray;
 }
+
+.cost-warning-message.ms-ContextualMenu-item {
+    height: 44px;
+}
+
+.cost-warning-message .ms-ContextualMenu-link {
+    height: 100%;
+    padding-top: 2px;
+}
+
+.cost-warning-message .ms-ContextualMenu-linkContent {
+    display: grid;
+    grid-template-rows: 24px 8px;
+    grid-template-areas:
+        "icon text"
+        "icon secondaryText";
+}
+
+.cost-warning-message .ms-ContextualMenu-icon {
+    grid-area: icon;
+}
+
+.cost-warning-message .ms-ContextualMenu-itemText {
+    grid-area: text;
+}
+
+.cost-warning-message .ms-ContextualMenu-secondaryText {
+    grid-area: secondaryText;
+    color: darkorange;
+    font-size: 8px;
+    padding-left: 4px;
+}
