@@ -10,7 +10,7 @@ const appVersion = appVersionArr.join(".");
 
 const enableAPIVersionSelection = appInfo.enableAPIVersionSelection;
 const enablePredictionResultUpload = appInfo.enablePredictionResultUpload;
-const apiVersion = "v2.1-preview.2";
+const apiVersion = "v2.1-preview.3";
 
 /**
  * Constants used throughout application
