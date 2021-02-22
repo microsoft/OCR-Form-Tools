@@ -45,7 +45,7 @@ export const constants = {
     autoLabelBatchSizeMax: 10,
     autoLabelBatchSizeMin: 3,
     showOriginLabelsByDefault: true,
-    enableMultiPageField: true,
+    enableMultiPageField: false,
     fieldsSchema: "http://www.azure.com/schema/formrecognizer/fields.json",
     labelsSchema: "http://www.azure.com/schema/formrecognizer/labels.json",
 

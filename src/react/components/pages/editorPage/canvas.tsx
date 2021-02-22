@@ -2094,8 +2094,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private showMultiPageFieldWarningIfNecessary = (tagName: string, regions: IRegion[]): boolean => {
-        if (constants.enableMultiPageField)
+        if (constants.enableMultiPageField) {
             return false;
+        }
         const existedRegionsWithSameTag = this.state.currentAsset.regions.filter(
             (region) => _.get(region, "tags[0]", "") === tagName);
         const regionsWithSameTag = existedRegionsWithSameTag.concat(regions);
