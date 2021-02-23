@@ -522,19 +522,21 @@ export class URIUtils {
     }
 
     public static compilePath(pathTemplate: string, params: object, defaultPathParams: object): string {
-        /* Add required default key, value pairs for the toPath function into the params object. */
-        const addDefaultParams = (pathTemplate: string, params: object, defaultPathParams: object) => {
+        /* Add required default key, value pairs for the "toPath" function into a cloned params object. */
+        const withDefaultParams = (pathTemplate: string, params: object, defaultPathParams: object): object => {
             const requiredKeys = [];
+            const retParams = {...params};
             pathToRegexp(pathTemplate, requiredKeys);
             for (const { name } of requiredKeys) {
                 if (!Object.hasOwnProperty.call(params, name)) {
-                    params[name] = defaultPathParams.hasOwnProperty(name) ? defaultPathParams[name] : "";
+                    retParams[name] = defaultPathParams.hasOwnProperty(name) ? defaultPathParams[name] : "";
                 }
             }
+            return retParams;
         }
         const toPath = compile(pathTemplate, { encode: encodeURIComponent });
-        addDefaultParams(pathTemplate, params, defaultPathParams);
-        return toPath(params);
+        const addedParams = withDefaultParams(pathTemplate, params, defaultPathParams);
+        return toPath(addedParams);
     }
 
     public static composeQueryString(params: object, blacklist = new Set<string>()) {
