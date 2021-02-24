@@ -423,7 +423,7 @@ export default class ProjectService implements IProjectService {
 
         const definitions = {};
         const fieldInfo = {};
-        fieldInfo["$schema"] = "http://www.azure.com/schema/formrecognizer/fields.json"
+        fieldInfo["$schema"] = constants.fieldsSchema;
         fieldInfo["fields"] =
             project.tags.map((tag) => {
                 if (tag.type === FieldType.Object || tag.type === FieldType.Array) {
