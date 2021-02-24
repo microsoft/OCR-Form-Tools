@@ -563,6 +563,7 @@ export const spanish: IAppStrings = {
                             runAutoLabelingCurrentDocument: "Etiquetar automáticamente el documento actual",
                             runAutoLabelingOnMultipleUnlabeledDocuments: "Etiquetar automáticamente varios documentos sin etiquetar",
                             noPredictModelOnProject: "Predecir modelo no disponible, entrene el modelo primero.",
+                            costWarningMessage: "Esta función generará el uso de su cuenta para análisis personalizados.",
                         }
                     }
                 },

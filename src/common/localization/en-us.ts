@@ -561,6 +561,7 @@ export const english: IAppStrings = {
                             runAutoLabelingCurrentDocument: "Auto-label the current document",
                             runAutoLabelingOnMultipleUnlabeledDocuments: "Auto-label multiple unlabeled documents",
                             noPredictModelOnProject: "Predict model not available, please train the model first.",
+                            costWarningMessage: "This feature will incur usage to your account for custom analyze",
                         }
                     }
                 },
