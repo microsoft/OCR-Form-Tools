@@ -22,12 +22,6 @@ export const reducer = (state: IConnection[] = [], action: AnyAction): IConnecti
 
     switch (action.type) {
         case ActionTypes.SAVE_CONNECTION_SUCCESS:
-            const projectJson = getStorageItem(constants.projectFormTempKey);
-            if (projectJson) {
-                const project = JSON.parse(projectJson);
-                project.sourceConnection = action.payload;
-                setStorageItem(constants.projectFormTempKey, JSON.stringify(project));
-            }
             return [
                 { ...action.payload },
                 ...state.filter((connection) => connection.id !== action.payload.id),

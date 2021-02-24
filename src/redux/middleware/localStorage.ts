@@ -3,6 +3,7 @@
 
 import { Middleware, Dispatch, AnyAction, MiddlewareAPI } from "redux";
 import { constants } from "../../common/constants";
+import webStorageManager from "../../common/webStorageManager";
 
 export interface ILocalStorageMiddlewareOptions {
     paths: string[];
@@ -26,8 +27,8 @@ export function createLocalStorage(config: ILocalStorageMiddlewareOptions): Midd
 
 export function mergeInitialState(state: any, paths: string[]) {
     const initialState = { ...state };
-    paths.forEach((path) => {
-        const json = getStorageItem(path);
+    paths.forEach(async (path) => {
+        const json = await getStorageItem(path);
         if (json) {
             initialState[path] = JSON.parse(json);
         }
@@ -37,13 +38,13 @@ export function mergeInitialState(state: any, paths: string[]) {
 }
 
 export function setStorageItem(key: string, value: string) {
-    localStorage.setItem(`${constants.version}_${key}`, value);
+    webStorageManager.setItem(`${constants.version}_${key}`, value);
 }
 
-export function getStorageItem(key: string) {
-    return localStorage.getItem(`${constants.version}_${key}`);
+export async function getStorageItem(key: string) {
+    return await webStorageManager.getItem(`${constants.version}_${key}`);
 }
 
 export function removeStorageItem(key: string) {
-    return localStorage.removeItem(`${constants.version}_${key}`);
+    return webStorageManager.removeItem(`${constants.version}_${key}`);
 }

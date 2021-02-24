@@ -29,6 +29,7 @@ import TrainPanel from "./trainPanel";
 import {ITrainRecordProps} from "./trainRecord";
 import TrainTable from "./trainTable";
 import { getAPIVersion } from "../../../../common/utils";
+import webStorageManager from "../../../../common/webStorageManager";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -258,11 +259,11 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         );
     }
 
-    private checkAndUpdateInputsInLocalStorage = (projectId: string) => {
-        const storedTrainInputs = JSON.parse(window.localStorage.getItem("trainPage_inputs"));
+    private checkAndUpdateInputsInLocalStorage = async (projectId: string) => {
+        const storedTrainInputs = JSON.parse(await webStorageManager.getItem("trainPage_inputs") as string);
 
         if (storedTrainInputs?.id !== projectId) {
-            window.localStorage.removeItem("trainPage_inputs");
+            webStorageManager.removeItem("trainPage_inputs");
             UseLocalStorage.setItem("trainPage_inputs", "projectId", projectId);
         }
 
@@ -339,8 +340,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 currTrainRecord: this.getProjectTrainRecord(),
                 modelName: "",
             }));
-            // reset localStorage successful train process
-            localStorage.setItem("trainPage_inputs", "{}");
+            // reset webStorage successful train process
+            webStorageManager.setItem("trainPage_inputs", "{}");
         }).catch((err) => {
             this.setState({
                 isTraining: false,

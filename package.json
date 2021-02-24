@@ -25,6 +25,7 @@
         "exif-js": "^2.3.0",
         "file-type": "^14.6.2",
         "jszip": "^3.5.0",
+        "localforage": "^1.9.0",
         "lodash": "^4.17.20",
         "ol": "^5.3.3",
         "path-to-regexp": "^6.2.0",
