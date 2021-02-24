@@ -528,15 +528,14 @@ export class URIUtils {
             const retParams = {...params};
             pathToRegexp(pathTemplate, requiredKeys);
             for (const { name } of requiredKeys) {
-                if (!Object.hasOwnProperty.call(params, name)) {
+                if (!retParams.hasOwnProperty(name)) {
                     retParams[name] = defaultPathParams.hasOwnProperty(name) ? defaultPathParams[name] : "";
                 }
             }
             return retParams;
         }
         const toPath = compile(pathTemplate, { encode: encodeURIComponent });
-        const addedParams = withDefaultParams(pathTemplate, params, defaultPathParams);
-        return toPath(addedParams);
+        return toPath(withDefaultParams(pathTemplate, params, defaultPathParams));
     }
 
     public static composeQueryString(params: object, blacklist = new Set<string>()) {
