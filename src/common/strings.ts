@@ -556,6 +556,7 @@ export interface IAppStrings {
                             runAutoLabelingCurrentDocument: string,
                             runAutoLabelingOnMultipleUnlabeledDocuments: string,
                             noPredictModelOnProject: string,
+                            costWarningMessage: string
                         }
                     }
                 },

@@ -193,6 +193,8 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         onClick: () => {
                             if (props.handleRunAutoLabelingOnCurrentDocument) props.handleRunAutoLabelingOnCurrentDocument();
                         },
+                        secondaryText: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.costWarningMessage,
+                        className: "cost-warning-message"
                     },
                     {
                         key: "runAutoLabelingOnMultipleUnlabeledDocuments",
@@ -204,6 +206,8 @@ export const CanvasCommandBar: React.FunctionComponent<ICanvasCommandBarProps> =
                         onClick: () => {
                             if (props.handleRunAutoLabelingOnMultipleUnlabeledDocuments) props.handleRunAutoLabelingOnMultipleUnlabeledDocuments();
                         },
+                        secondaryText: strings.editorPage.canvas.canvasCommandBar.farItems.additionalActions.subIMenuItems.costWarningMessage,
+                        className: "cost-warning-message"
                     },
                     {
                         key: 'divider_1',
