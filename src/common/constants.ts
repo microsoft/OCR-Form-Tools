@@ -11,6 +11,7 @@ const appVersion = appVersionArr.join(".");
 const enableAPIVersionSelection = appInfo.enableAPIVersionSelection;
 const enablePredictionResultUpload = appInfo.enablePredictionResultUpload;
 const apiVersion = "v2.1-preview.3";
+const supportedLabelsSchemas = new Set(["http://www.azure.com/schema/formrecognizer/labels.json", "https://schema.cognitiveservices.azure.com/formrecognizer/2021-03-01/labels.json"]);
 
 /**
  * Constants used throughout application
@@ -47,6 +48,7 @@ export const constants = {
     showOriginLabelsByDefault: true,
     fieldsSchema: "https://schema.cognitiveservices.azure.com/formrecognizer/2021-03-01/fields.json",
     labelsSchema: "https://schema.cognitiveservices.azure.com/formrecognizer/2021-03-01/labels.json",
+    supportedLabelsSchemas,
     enableMultiPageField: false,
     pdfjsWorkerSrc(version: string) {
         return `https://fotts.azureedge.net/npm/pdfjs-dist/${version}/pdf.worker.js`;

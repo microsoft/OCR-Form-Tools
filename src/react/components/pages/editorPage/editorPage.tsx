@@ -341,7 +341,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                     lockedTags={this.state.lockedTags}
                                     selectedRegions={this.state.selectedRegions}
                                     labels={labels}
-                                    encoded={selectedAsset?.labelData?.$schema === constants.labelsSchema}
+                                    encoded={constants.supportedLabelsSchemas.has(selectedAsset?.labelData?.$schema)}
                                     tableLabels={tableLabels}
                                     pageNumber={this.state.pageNumber}
                                     onChange={this.onTagsChanged}

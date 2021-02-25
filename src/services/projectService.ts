@@ -249,11 +249,11 @@ export default class ProjectService implements IProjectService {
                         if (!assetLabel || assetLabel === blob) {
                             const content = JSON.parse(await storageProvider.readText(blob)) as ILabelData;
                             content.labels.forEach((label) => {
-                                if (content?.$schema === constants.labelsSchema && label.label.split("/").length > 1) {
+                                if (constants.supportedLabelsSchemas.has(content?.$schema) && label.label.split("/").length > 1) {
                                     return;
                                 }
                                 let labelName;
-                                if (content?.$schema === constants.labelsSchema) {
+                                if (constants.supportedLabelsSchemas.has(content?.$schema)) {
                                     labelName = label.label.replace(/~1/g, "/").replace(/~0/g, "~");
                                 } else {
                                     labelName = label.label
@@ -423,7 +423,7 @@ export default class ProjectService implements IProjectService {
 
         const definitions = {};
         const fieldInfo = {};
-        fieldInfo["$schema"] = "http://www.azure.com/schema/formrecognizer/fields.json"
+        fieldInfo["$schema"] = constants.fieldsSchema;
         fieldInfo["fields"] =
             project.tags.map((tag) => {
                 if (tag.type === FieldType.Object || tag.type === FieldType.Array) {

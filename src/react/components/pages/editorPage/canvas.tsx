@@ -489,7 +489,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         }
                     }
                 } else {
-                    if (labelsData.$schema === constants.labelsSchema) {
+                    if (constants.supportedLabelsSchemas.has(labelsData.$schema)) {
                         relatedLabel = labelsData.labels.find((label) => label.label === this.encodeLabelString(tag));
                     } else {
                         relatedLabel = labelsData.labels.find((label) => label.label === tag);
@@ -498,7 +498,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 if (relatedLabel &&
                     (((relatedLabel.labelType === null || relatedLabel.labelType === undefined) && (selectedRegions[0].category === FeatureCategory.DrawnRegion))
                         || (relatedLabel.labelType !== null && relatedLabel.labelType !== undefined && relatedLabel.labelType !== selectedRegions[0].category))) {
-                    regions = this.convertLabelToRegion(relatedLabel, labelsData?.$schema === constants.labelsSchema);
+                    regions = this.convertLabelToRegion(relatedLabel, constants.supportedLabelsSchemas.has(labelsData?.$schema));
                     regions.forEach((region) => {
                         region.tags = [];
                         if (region.isTableRegion) {
@@ -1556,7 +1556,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     public convertLabelDataToRegions = (labelData: ILabelData): IRegion[] => {
         let regions = [];
-        const encodedSchema = labelData?.$schema === constants.labelsSchema;
+        const encodedSchema = constants.supportedLabelsSchemas.has(labelData?.$schema);
 
         labelData?.labels?.forEach((label) => {
             const newRegions = this.convertLabelToRegion(label, encodedSchema);
@@ -1643,7 +1643,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         };
 
         const labels = (this.props?.selectedAsset?.labelData?.labels?.map(label => {
-            if (this.props.selectedAsset.labelData.$schema === constants.labelsSchema) {
+            if (constants.supportedLabelsSchemas.has(this.props.selectedAsset.labelData.$schema)) {
                 return ({
                     ...label,
                     value: []
@@ -1701,7 +1701,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     if (!tableTag) return
                     label = labels.find(label => label?.label === this.getTableLabelFromRegion(tableTag, tableRegion));
                 } else {
-                    if (this.props.selectedAsset.labelData?.$schema === constants.labelsSchema) {
+                    if (constants.supportedLabelsSchemas.has(this.props.selectedAsset.labelData?.$schema)) {
                         label = labels.find(label => this.decodeLabelString(label?.label) === tag);
                     } else {
                         label = labels.find(label => label?.label === tag);
