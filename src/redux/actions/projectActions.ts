@@ -104,24 +104,23 @@ export function saveProject(project: IProject, saveTags?: boolean, updateTagsFro
         project = Object.assign({}, project);
         const appState = getState();
         const projectService = new ProjectService();
-
         if (projectService.isDuplicate(project, appState.recentProjects)) {
             throw new AppError(ErrorCode.ProjectDuplicateName, `Project with name '${project.name}
                 already exists with the same target connection '${project.sourceConnection.name}'`);
         }
 
-        const projectToken = appState.appSettings.securityTokens
-            .find((securityToken) => securityToken.name === project.securityToken);
-
-        if (!projectToken) {
+        const findMatchToken = (tokens, project) => {
+            const tokenFinded = tokens.find((securityToken) => securityToken.name === project.securityToken);
+            if (!tokenFinded) {
             throw new AppError(ErrorCode.SecurityTokenNotFound, "Security Token Not Found");
         }
+            return tokenFinded;
+        }
 
+        const projectToken = findMatchToken(appState.appSettings.securityTokens, project);
         const savedProject = await projectService.save(project, projectToken, saveTags, updateTagsFromFiles);
         dispatch(saveProjectAction(savedProject));
-
-        // Reload project after save actions
-        await loadProject(savedProject)(dispatch, getState);
+        dispatch(loadProjectAction(await decryptProject(savedProject, projectToken)));
 
         return savedProject;
     };

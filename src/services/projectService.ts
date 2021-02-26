@@ -411,13 +411,13 @@ export default class ProjectService implements IProjectService {
         project.tags = [...project.tags, ...missingTags];
     }
 
-    // private async getAllTagsInProjectCount(project: IProject, tags: ITag[]) {}
+    // public async getAllTagsInProjectCount(project: IProject, tags: ITag[]) {}
     /**
      * Save fields.json
      * @param project the project we're trying to create
      * @param storageProvider the storage we're trying to save the project
      */
-    private async saveFieldsFile(project: IProject, storageProvider: IStorageProvider) {
+    public async saveFieldsFile(project: IProject, storageProvider: IStorageProvider) {
         Guard.null(project);
         Guard.null(project.tags);
 
