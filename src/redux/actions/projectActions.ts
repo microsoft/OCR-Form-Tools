@@ -28,6 +28,10 @@ import { toast } from 'react-toastify';
 import { strings, interpolate } from "../../common/strings";
 import clone from "rfdc";
 import _ from "lodash";
+import { decryptProject } from "../../common/utils";
+import { StorageProviderFactory, IStorageProvider } from "../../providers/storage/storageProviderFactory";
+import { constants } from "../../common/constants";
+
 
 /**
  * Actions to be performed in relation to projects
@@ -88,8 +92,10 @@ export function loadProject(project: IProject, sharedToken?: ISecurityToken):
             throw new AppError(ErrorCode.SecurityTokenNotFound, "Security Token Not Found");
         }
         const loadedProject = await projectService.load(project, projectToken);
+        
+        dispatch(loadProjectAction(checkAndUpdateSchema(loadedProject)));
 
-        dispatch(loadProjectAction(loadedProject));
+
         return loadedProject;
     };
 }
@@ -112,8 +118,8 @@ export function saveProject(project: IProject, saveTags?: boolean, updateTagsFro
         const findMatchToken = (tokens, project) => {
             const tokenFinded = tokens.find((securityToken) => securityToken.name === project.securityToken);
             if (!tokenFinded) {
-            throw new AppError(ErrorCode.SecurityTokenNotFound, "Security Token Not Found");
-        }
+                throw new AppError(ErrorCode.SecurityTokenNotFound, "Security Token Not Found");
+            }
             return tokenFinded;
         }
 
@@ -121,7 +127,7 @@ export function saveProject(project: IProject, saveTags?: boolean, updateTagsFro
         const savedProject = await projectService.save(project, projectToken, saveTags, updateTagsFromFiles);
         dispatch(saveProjectAction(savedProject));
         dispatch(loadProjectAction(await decryptProject(savedProject, projectToken)));
-
+        
         return savedProject;
     };
 }
@@ -210,12 +216,35 @@ export function deleteAsset(project: IProject, assetMetadata: IAssetMetadata): (
     };
 }
 
+
+export function checkAndUpdateSchema (project: IProject): IProject {
+    const projectService = new ProjectService();
+    const retProject = {...project};
+    if (retProject.assets && _.isPlainObject(retProject.assets)) {
+        const {assets} = retProject;
+        let shouldAssetsUpdate = false;
+        for (const [assetID, asset] of Object.entries(assets)) {
+            if (asset.schema !== constants.labelsSchema) {
+                shouldAssetsUpdate = true;
+                asset.schema = constants.labelsSchema;
+            }
+        }
+        if (shouldAssetsUpdate) { // update condition
+            const storageProvider = StorageProviderFactory.createFromConnection(retProject.sourceConnection);
+            projectService.saveFieldsFile(retProject, storageProvider);
+        }
+    }
+    return retProject
+}
+
+
 /**
  * Gets assets from project, dispatches load assets action and returns assets
  * @param project - Project from which to load assets
  */
 export function loadAssets(project: IProject): (dispatch: Dispatch) => Promise<IAsset[]> {
     return async (dispatch: Dispatch) => {
+        project = checkAndUpdateSchema(project);
         const assetService = new AssetService(project);
         const assets = await assetService.getAssets();
         if (!areAssetsEqual(assets, project.assets)) {
