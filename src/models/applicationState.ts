@@ -99,6 +99,7 @@ export interface IProject {
     trainRecord: ITrainRecordProps,
     recentModelRecords: IRecentModel[],
     predictModelId: string,
+    schema: string,
 }
 
 /**
@@ -186,6 +187,7 @@ export interface IAsset {
     isRunningAutoLabeling?: boolean,
     cachedImage?: string,
     mimeType?: string,
+    schema?: string
 }
 
 export interface IPrebuiltSettings{
