@@ -124,7 +124,7 @@ export function saveProject(project: IProject, saveTags?: boolean, updateTagsFro
         const projectToken = findMatchToken(appState.appSettings.securityTokens, project);
         const savedProject = await projectService.save(project, projectToken, saveTags, updateTagsFromFiles);
         dispatch(saveProjectAction(savedProject));
-        dispatch(loadProjectAction(await decryptProject(savedProject, projectToken))); 
+        dispatch(loadProjectAction(await decryptProject(savedProject, projectToken)));
         return savedProject;
     };
 }
