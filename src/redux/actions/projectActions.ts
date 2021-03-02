@@ -246,7 +246,7 @@ export function loadAssets(project: IProject): (dispatch: Dispatch) => Promise<I
         const assetService = new AssetService(project);
         let assets = await assetService.getAssets();
         // Suppose outdated schema will be updated through "loadProject" action, and prevent race.
-        assets = assets.map(asset => ({...asset,  schema: constants.fieldsSchema }))
+        assets = assets.map(asset => ({...asset,  schema: constants.fieldsSchema }));
         if (!areAssetsEqual(assets, project.assets)) {
             dispatch(loadProjectAssetsAction(assets));
         }
