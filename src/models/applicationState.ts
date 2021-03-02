@@ -99,7 +99,6 @@ export interface IProject {
     trainRecord: ITrainRecordProps,
     recentModelRecords: IRecentModel[],
     predictModelId: string,
-    schema: string,
 }
 
 /**
