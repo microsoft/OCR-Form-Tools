@@ -241,16 +241,26 @@ export async function checkAndUpdateSchema (project: IProject): Promise<IProject
  * Gets assets from project, dispatches load assets action and returns assets
  * @param project - Project from which to load assets
  */
-export function loadAssets(project: IProject): (dispatch: Dispatch) => Promise<IAsset[]> {
-    return async (dispatch: Dispatch) => {
+export function loadAssets(project: IProject): (dispatch: Dispatch, getState: () => IApplicationState) => Promise<IAsset[]> {
+    return async (dispatch: Dispatch, getState: () => IApplicationState) => {
         const assetService = new AssetService(project);
         let assets = await assetService.getAssets();
-        // Suppose outdated schema will be updated through "loadProject" action, and prevent race.
-        assets = assets.map(asset => ({...asset,  schema: constants.fieldsSchema }));
+        let shouldAssetsUpdate = false;
+        for (const asset of assets) {
+            if (asset.schema !== constants.labelsSchema) {
+                shouldAssetsUpdate = true;
+                asset.schema = constants.labelsSchema;
+            }
+        }
         if (!areAssetsEqual(assets, project.assets)) {
             dispatch(loadProjectAssetsAction(assets));
         }
-
+        if (shouldAssetsUpdate) {
+            const {currentProject} = getState();
+            const storageProvider = StorageProviderFactory.createFromConnection(currentProject.sourceConnection);
+            const projectService = new ProjectService();
+            await projectService.saveFieldsFile(currentProject, storageProvider);
+        }
         return assets;
     };
 }
