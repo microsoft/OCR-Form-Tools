@@ -29,9 +29,8 @@ import { strings, interpolate } from "../../common/strings";
 import clone from "rfdc";
 import _ from "lodash";
 import { decryptProject } from "../../common/utils";
-import { StorageProviderFactory, IStorageProvider } from "../../providers/storage/storageProviderFactory";
+import { StorageProviderFactory } from "../../providers/storage/storageProviderFactory";
 import { constants } from "../../common/constants";
-
 
 /**
  * Actions to be performed in relation to projects
@@ -125,8 +124,7 @@ export function saveProject(project: IProject, saveTags?: boolean, updateTagsFro
         const projectToken = findMatchToken(appState.appSettings.securityTokens, project);
         const savedProject = await projectService.save(project, projectToken, saveTags, updateTagsFromFiles);
         dispatch(saveProjectAction(savedProject));
-        dispatch(loadProjectAction(await decryptProject(savedProject, projectToken)));
-        
+        dispatch(loadProjectAction(await decryptProject(savedProject, projectToken))); 
         return savedProject;
     };
 }
