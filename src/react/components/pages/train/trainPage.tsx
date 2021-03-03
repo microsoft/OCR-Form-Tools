@@ -29,7 +29,6 @@ import TrainPanel from "./trainPanel";
 import {ITrainRecordProps} from "./trainRecord";
 import TrainTable from "./trainTable";
 import { getAPIVersion } from "../../../../common/utils";
-import {checkAndUpdateSchema} from "../../../../redux/actions/projectActions";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -315,7 +314,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         });
 
         this.trainProcess().then(async (trainResult) => {
-            await checkAndUpdateSchema(this.props.project);
+            await AssetService.checkAndUpdateSchema(this.props.project);
             const assets = Object.values(this.props.project.assets);
             const assetService = new AssetService(this.props.project);
 

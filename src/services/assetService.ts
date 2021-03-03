@@ -739,4 +739,35 @@ export class AssetService {
         };
         return new Promise(checkSucceeded);
     }
+
+    /**
+     * Chech and update schema version through label.json files relate to project assets.
+     * @param project to get assets and connect to file system. 
+     * @returns updated project 
+     */
+    public static checkAndUpdateSchema = async(project: IProject): Promise<IProject> => {
+        let shouldAssetsUpdate = false;
+        let updatedProject;
+        const { assets } = project;
+        const shouldSchemaUpdate = schema => constants.supportedLabelsSchemas.has(schema) && schema !== constants.labelsSchema;
+        if (_.isPlainObject(assets)) {
+            const assetService = new AssetService(project);
+            const assetMetadatas: IAssetMetadata[] = await Promise.all(Object.values(assets).map(async (asset) => await assetService.getAssetMetadata(asset)));
+            await Promise.all(assetMetadatas.map(async (assetMetadata) => {
+                if (_.isPlainObject(assetMetadata.labelData) && shouldSchemaUpdate(assetMetadata.labelData?.$schema)) {
+                    shouldAssetsUpdate = true;
+                    assetMetadata.labelData = { ...assetMetadata.labelData, "$schema": constants.labelsSchema };
+                    await assetService.save(assetMetadata);
+                }
+            }))
+            const updatedAssets = { ...assets };
+            for (const [assetID, asset] of Object.entries(assets)) {
+                if (shouldSchemaUpdate(asset.schema)) {
+                    updatedAssets[assetID] = { ...assets[assetID], schema: constants.labelsSchema };
+                }
+            }
+            updatedProject = { ...project, assets: updatedAssets };
+        }
+        return shouldAssetsUpdate ? updatedProject : project;
+    }
 }

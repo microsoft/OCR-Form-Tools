@@ -91,19 +91,10 @@ export function loadProject(project: IProject, sharedToken?: ISecurityToken):
             throw new AppError(ErrorCode.SecurityTokenNotFound, "Security Token Not Found");
         }
         const loadedProject = await projectService.load(project, projectToken);
-        const schemaUpdatedProject = await checkAndUpdateSchema(loadedProject);
+        const schemaUpdatedProject = await AssetService.checkAndUpdateSchema(loadedProject);
         dispatch(loadProjectAction(schemaUpdatedProject));
-
         return schemaUpdatedProject;
     };
-}
-
-export function findMatchToken(tokens, project) {
-    const tokenFinded = tokens.find((securityToken) => securityToken.name === project.securityToken);
-    if (!tokenFinded) {
-        throw new AppError(ErrorCode.SecurityTokenNotFound, "Security Token Not Found");
-    }
-    return tokenFinded;
 }
 
 /**
@@ -119,6 +110,13 @@ export function saveProject(project: IProject, saveTags?: boolean, updateTagsFro
         if (projectService.isDuplicate(project, appState.recentProjects)) {
             throw new AppError(ErrorCode.ProjectDuplicateName, `Project with name '${project.name}
                 already exists with the same target connection '${project.sourceConnection.name}'`);
+        }
+        const findMatchToken = (tokens, project) => {
+            const tokenFinded = tokens.find((securityToken) => securityToken.name === project.securityToken);
+            if (!tokenFinded) {
+                throw new AppError(ErrorCode.SecurityTokenNotFound, "Security Token Not Found");
+            }
+            return tokenFinded;
         }
 
         const projectToken = findMatchToken(appState.appSettings.securityTokens, project);
@@ -214,29 +212,6 @@ export function deleteAsset(project: IProject, assetMetadata: IAssetMetadata): (
 }
 
 
-export async function checkAndUpdateSchema (project: IProject): Promise<IProject> {
-    let shouldAssetsUpdate = false;
-    let updatedProject;
-    const {assets} = project;
-    if (_.isPlainObject(assets)) {
-        const assetService = new AssetService(project);
-        const assetMetadatas: IAssetMetadata[] = await Promise.all(Object.values(assets).map(async (asset) => await assetService.getAssetMetadata(asset)));
-        await Promise.all(assetMetadatas.map(async (assetMetadata) => {
-            if (_.isPlainObject(assetMetadata.labelData) && assetMetadata.labelData?.$schema !== constants.labelsSchema) {
-                assetMetadata.labelData = {...assetMetadata.labelData, "$schema": constants.labelsSchema};
-                await assetService.save(assetMetadata);
-            }
-        }))
-        const updatedAssets = {...assets};
-        for (const [assetID, asset] of Object.entries(assets)) {
-            if (asset.schema !== constants.labelsSchema) {
-                updatedAssets[assetID] = {...assets[assetID], schema: constants.labelsSchema};
-            }
-        }
-        updatedProject = {...project, assets: updatedAssets};
-    }
-    return shouldAssetsUpdate ? updatedProject : project;
-}
 
 
 /**
@@ -259,7 +234,7 @@ export function loadAssets(project: IProject): (dispatch: Dispatch, getState: ()
         }
         if (shouldAssetsUpdate) {
             const {currentProject} = getState();
-            await checkAndUpdateSchema(currentProject);
+            await AssetService.checkAndUpdateSchema(currentProject);
         }
         return assets;
     };
