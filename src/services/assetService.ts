@@ -742,8 +742,8 @@ export class AssetService {
 
     /**
      * Chech and update schema version through label.json files relate to project assets.
-     * @param project to get assets and connect to file system. 
-     * @returns updated project 
+     * @param project to get assets and connect to file system.
+     * @returns updated project
      */
     public static checkAndUpdateSchema = async(project: IProject): Promise<IProject> => {
         let shouldAssetsUpdate = false;
