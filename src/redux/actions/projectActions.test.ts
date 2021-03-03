@@ -127,7 +127,7 @@ describe("Project Redux Actions", () => {
         mockAssetService.prototype.getAssets = jest.fn(() => Promise.resolve(testAssets));
 
         const project = MockFactory.createTestProject("TestProject");
-        const results = await projectActions.loadAssets(project)(store.dispatch);
+        const results = await projectActions.loadAssets(project)(store.dispatch, store.getState);
         const actions = store.getActions();
 
         expect(actions.length).toEqual(1);
