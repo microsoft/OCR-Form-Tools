@@ -98,6 +98,14 @@ export function loadProject(project: IProject, sharedToken?: ISecurityToken):
     };
 }
 
+export function findMatchToken(tokens, project) {
+    const tokenFinded = tokens.find((securityToken) => securityToken.name === project.securityToken);
+    if (!tokenFinded) {
+        throw new AppError(ErrorCode.SecurityTokenNotFound, "Security Token Not Found");
+    }
+    return tokenFinded;
+}
+
 /**
  * Dispatches Save Project action and resolves with IProject
  * @param project - Project to save
@@ -111,14 +119,6 @@ export function saveProject(project: IProject, saveTags?: boolean, updateTagsFro
         if (projectService.isDuplicate(project, appState.recentProjects)) {
             throw new AppError(ErrorCode.ProjectDuplicateName, `Project with name '${project.name}
                 already exists with the same target connection '${project.sourceConnection.name}'`);
-        }
-
-        const findMatchToken = (tokens, project) => {
-            const tokenFinded = tokens.find((securityToken) => securityToken.name === project.securityToken);
-            if (!tokenFinded) {
-                throw new AppError(ErrorCode.SecurityTokenNotFound, "Security Token Not Found");
-            }
-            return tokenFinded;
         }
 
         const projectToken = findMatchToken(appState.appSettings.securityTokens, project);
@@ -215,23 +215,25 @@ export function deleteAsset(project: IProject, assetMetadata: IAssetMetadata): (
 
 
 export async function checkAndUpdateSchema (project: IProject): Promise<IProject> {
-    const projectService = new ProjectService();
-    const {assets} = project;
     let shouldAssetsUpdate = false;
     let updatedProject;
+    const {assets} = project;
     if (_.isPlainObject(assets)) {
+        const assetService = new AssetService(project);
+        const assetMetadatas: IAssetMetadata[] = await Promise.all(Object.values(assets).map(async (asset) => await assetService.getAssetMetadata(asset)));
+        await Promise.all(assetMetadatas.map(async (assetMetadata) => {
+            if (_.isPlainObject(assetMetadata.labelData) && assetMetadata.labelData?.$schema !== constants.labelsSchema) {
+                assetMetadata.labelData = {...assetMetadata.labelData, "$schema": constants.labelsSchema};
+                await assetService.save(assetMetadata);
+            }
+        }))
         const updatedAssets = {...assets};
         for (const [assetID, asset] of Object.entries(assets)) {
             if (asset.schema !== constants.labelsSchema) {
-                shouldAssetsUpdate = true;
                 updatedAssets[assetID] = {...assets[assetID], schema: constants.labelsSchema};
             }
         }
-        if (shouldAssetsUpdate) {
-            updatedProject = {...project, assets: updatedAssets};
-            const storageProvider = StorageProviderFactory.createFromConnection(updatedProject.sourceConnection);
-            await projectService.saveFieldsFile(updatedProject, storageProvider);
-        }
+        updatedProject = {...project, assets: updatedAssets};
     }
     return shouldAssetsUpdate ? updatedProject : project;
 }
@@ -244,7 +246,7 @@ export async function checkAndUpdateSchema (project: IProject): Promise<IProject
 export function loadAssets(project: IProject): (dispatch: Dispatch, getState: () => IApplicationState) => Promise<IAsset[]> {
     return async (dispatch: Dispatch, getState: () => IApplicationState) => {
         const assetService = new AssetService(project);
-        let assets = await assetService.getAssets();
+        const assets = await assetService.getAssets();
         let shouldAssetsUpdate = false;
         for (const asset of assets) {
             if (asset.schema !== constants.labelsSchema) {
@@ -257,9 +259,7 @@ export function loadAssets(project: IProject): (dispatch: Dispatch, getState: ()
         }
         if (shouldAssetsUpdate) {
             const {currentProject} = getState();
-            const storageProvider = StorageProviderFactory.createFromConnection(currentProject.sourceConnection);
-            const projectService = new ProjectService();
-            await projectService.saveFieldsFile(currentProject, storageProvider);
+            await checkAndUpdateSchema(currentProject);
         }
         return assets;
     };
