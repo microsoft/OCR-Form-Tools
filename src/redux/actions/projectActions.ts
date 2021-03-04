@@ -211,9 +211,6 @@ export function deleteAsset(project: IProject, assetMetadata: IAssetMetadata): (
     };
 }
 
-
-
-
 /**
  * Gets assets from project, dispatches load assets action and returns assets
  * @param project - Project from which to load assets
@@ -224,7 +221,7 @@ export function loadAssets(project: IProject): (dispatch: Dispatch, getState: ()
         const assets = await assetService.getAssets();
         let shouldAssetsUpdate = false;
         for (const asset of assets) {
-            if (asset.schema !== constants.labelsSchema) {
+            if (AssetService.shouldSchemaUpdate(asset.schema)) {
                 shouldAssetsUpdate = true;
                 asset.schema = constants.labelsSchema;
             }

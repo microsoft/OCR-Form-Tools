@@ -314,7 +314,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         });
 
         this.trainProcess().then(async (trainResult) => {
-            await AssetService.checkAndUpdateSchema(this.props.project);
             const assets = Object.values(this.props.project.assets);
             const assetService = new AssetService(this.props.project);
 

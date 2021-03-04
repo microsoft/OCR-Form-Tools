@@ -754,7 +754,7 @@ export class AssetService {
             const assetService = new AssetService(project);
             const assetMetadatas: IAssetMetadata[] = await Promise.all(Object.values(assets).map(async (asset) => await assetService.getAssetMetadata(asset)));
             await Promise.all(assetMetadatas.map(async (assetMetadata) => {
-                if (_.isPlainObject(assetMetadata.labelData) && shouldSchemaUpdate(assetMetadata.labelData?.$schema)) {
+                if (_.isPlainObject(assetMetadata.labelData) && AssetService.shouldSchemaUpdate(assetMetadata.labelData?.$schema)) {
                     shouldAssetsUpdate = true;
                     assetMetadata.labelData = { ...assetMetadata.labelData, "$schema": constants.labelsSchema };
                     await assetService.save(assetMetadata);
@@ -769,5 +769,9 @@ export class AssetService {
             updatedProject = { ...project, assets: updatedAssets };
         }
         return shouldAssetsUpdate ? updatedProject : project;
+    }
+
+    public static shouldSchemaUpdate = (schema: string): boolean => {
+        return constants.supportedLabelsSchemas.has(schema) && schema !== constants.labelsSchema;
     }
 }
