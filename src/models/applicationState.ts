@@ -186,6 +186,7 @@ export interface IAsset {
     isRunningAutoLabeling?: boolean,
     cachedImage?: string,
     mimeType?: string,
+    schema?: string
 }
 
 export interface IPrebuiltSettings{

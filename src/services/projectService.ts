@@ -249,11 +249,11 @@ export default class ProjectService implements IProjectService {
                         if (!assetLabel || assetLabel === blob) {
                             const content = JSON.parse(await storageProvider.readText(blob)) as ILabelData;
                             content.labels.forEach((label) => {
-                                if (content?.$schema === constants.labelsSchema && label.label.split("/").length > 1) {
+                                if (constants.supportedLabelsSchemas.has(content?.$schema) && label.label.split("/").length > 1) {
                                     return;
                                 }
                                 let labelName;
-                                if (content?.$schema === constants.labelsSchema) {
+                                if (constants.supportedLabelsSchemas.has(content?.$schema)) {
                                     labelName = label.label.replace(/~1/g, "/").replace(/~0/g, "~");
                                 } else {
                                     labelName = label.label
@@ -411,13 +411,13 @@ export default class ProjectService implements IProjectService {
         project.tags = [...project.tags, ...missingTags];
     }
 
-    // private async getAllTagsInProjectCount(project: IProject, tags: ITag[]) {}
+    // public async getAllTagsInProjectCount(project: IProject, tags: ITag[]) {}
     /**
      * Save fields.json
      * @param project the project we're trying to create
      * @param storageProvider the storage we're trying to save the project
      */
-    private async saveFieldsFile(project: IProject, storageProvider: IStorageProvider) {
+    public async saveFieldsFile(project: IProject, storageProvider: IStorageProvider) {
         Guard.null(project);
         Guard.null(project.tags);
 

@@ -28,6 +28,9 @@ import { toast } from 'react-toastify';
 import { strings, interpolate } from "../../common/strings";
 import clone from "rfdc";
 import _ from "lodash";
+import { decryptProject } from "../../common/utils";
+import { StorageProviderFactory } from "../../providers/storage/storageProviderFactory";
+import { constants } from "../../common/constants";
 
 /**
  * Actions to be performed in relation to projects
@@ -88,9 +91,9 @@ export function loadProject(project: IProject, sharedToken?: ISecurityToken):
             throw new AppError(ErrorCode.SecurityTokenNotFound, "Security Token Not Found");
         }
         const loadedProject = await projectService.load(project, projectToken);
-
-        dispatch(loadProjectAction(loadedProject));
-        return loadedProject;
+        const schemaUpdatedProject = await AssetService.checkAndUpdateSchema(loadedProject);
+        dispatch(loadProjectAction(schemaUpdatedProject));
+        return schemaUpdatedProject;
     };
 }
 
@@ -104,25 +107,22 @@ export function saveProject(project: IProject, saveTags?: boolean, updateTagsFro
         project = Object.assign({}, project);
         const appState = getState();
         const projectService = new ProjectService();
-
         if (projectService.isDuplicate(project, appState.recentProjects)) {
             throw new AppError(ErrorCode.ProjectDuplicateName, `Project with name '${project.name}
                 already exists with the same target connection '${project.sourceConnection.name}'`);
         }
-
-        const projectToken = appState.appSettings.securityTokens
-            .find((securityToken) => securityToken.name === project.securityToken);
-
-        if (!projectToken) {
-            throw new AppError(ErrorCode.SecurityTokenNotFound, "Security Token Not Found");
+        const findMatchToken = (tokens, project) => {
+            const tokenFinded = tokens.find((securityToken) => securityToken.name === project.securityToken);
+            if (!tokenFinded) {
+                throw new AppError(ErrorCode.SecurityTokenNotFound, "Security Token Not Found");
+            }
+            return tokenFinded;
         }
 
+        const projectToken = findMatchToken(appState.appSettings.securityTokens, project);
         const savedProject = await projectService.save(project, projectToken, saveTags, updateTagsFromFiles);
         dispatch(saveProjectAction(savedProject));
-
-        // Reload project after save actions
-        await loadProject(savedProject)(dispatch, getState);
-
+        dispatch(loadProjectAction(await decryptProject(savedProject, projectToken)));
         return savedProject;
     };
 }
@@ -215,14 +215,24 @@ export function deleteAsset(project: IProject, assetMetadata: IAssetMetadata): (
  * Gets assets from project, dispatches load assets action and returns assets
  * @param project - Project from which to load assets
  */
-export function loadAssets(project: IProject): (dispatch: Dispatch) => Promise<IAsset[]> {
-    return async (dispatch: Dispatch) => {
+export function loadAssets(project: IProject): (dispatch: Dispatch, getState: () => IApplicationState) => Promise<IAsset[]> {
+    return async (dispatch: Dispatch, getState: () => IApplicationState) => {
         const assetService = new AssetService(project);
         const assets = await assetService.getAssets();
+        let shouldAssetsUpdate = false;
+        for (const asset of assets) {
+            if (AssetService.shouldSchemaUpdate(asset.schema)) {
+                shouldAssetsUpdate = true;
+                asset.schema = constants.labelsSchema;
+            }
+        }
         if (!areAssetsEqual(assets, project.assets)) {
             dispatch(loadProjectAssetsAction(assets));
         }
-
+        if (shouldAssetsUpdate) {
+            const {currentProject} = getState();
+            await AssetService.checkAndUpdateSchema(currentProject);
+        }
         return assets;
     };
 }
