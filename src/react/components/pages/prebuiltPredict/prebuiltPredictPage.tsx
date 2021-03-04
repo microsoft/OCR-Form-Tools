@@ -45,7 +45,7 @@ import { ITableHelper, ITableState, TableHelper } from "./tableHelper";
 import { Toggle } from "office-ui-fabric-react/lib/Toggle";
 import { ILayoutHelper, LayoutHelper } from "./layoutHelper";
 import HtmlFileReader from "../../../../common/htmlFileReader";
-import {URIUtils} from "../../../../common/utils";
+import { URIUtils } from "../../../../common/utils";
 
 interface IPrebuiltTypes {
     name: string;
@@ -949,8 +949,12 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         } else {
             pathParams["prebuiltType"] = this.state.currentPrebuiltType.servicePath;
         }
+        const defaultPathParams = {
+            prebuiltServiceVersion: constants.apiVersion,
+            prebuiltType: this.state.currentPrebuiltType.servicePath
+        };
 
-        return URIUtils.compilePath(pathTemplate, pathParams);
+        return URIUtils.compilePath(pathTemplate, pathParams, defaultPathParams);
     }
 
     private getUpdatedQueryString(queryString: string): string {

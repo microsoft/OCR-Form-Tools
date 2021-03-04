@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 import {constants} from "./constants";
 import _ from "lodash";
 import JsZip from 'jszip';
-import { match, compile } from "path-to-regexp";
+import { match, compile, pathToRegexp } from "path-to-regexp";
 
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../react/components/common/tagColors.json");
@@ -521,9 +521,21 @@ export class URIUtils {
         return (result && result.params) || {};
     }
 
-    public static compilePath(pathTemplate: string, params: object): string {
+    public static compilePath(pathTemplate: string, params: object, defaultPathParams: object): string {
+        /* Add required default key, value pairs for the "toPath" function into a cloned params object. */
+        const withDefaultParams = (pathTemplate: string, params: object, defaultPathParams: object): object => {
+            const requiredKeys = [];
+            const retParams = {...params};
+            pathToRegexp(pathTemplate, requiredKeys);
+            for (const { name } of requiredKeys) {
+                if (!retParams.hasOwnProperty(name)) {
+                    retParams[name] = defaultPathParams.hasOwnProperty(name) ? defaultPathParams[name] : "";
+                }
+            }
+            return retParams;
+        }
         const toPath = compile(pathTemplate, { encode: encodeURIComponent });
-        return toPath(params);
+        return toPath(withDefaultParams(pathTemplate, params, defaultPathParams));
     }
 
     public static composeQueryString(params: object, blacklist = new Set<string>()) {
