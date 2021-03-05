@@ -23,7 +23,81 @@
 **When**  I go to train page  
 **Then** I should be able to download last train model by clicking on 'Download JSON file' button  
 
+------
+## **Feat: Table Label
 
+#### Scenario One ####
+**Given** I'm on the edit page and loaded images.
+**When** I click the "add new table tag" button
+**Then** I should see the "configure table tag" on the right side of the screen.
+
+## Configure fixed sized table
+
+#### Scenario Two ####
+**Given** I'm on the edit page and open the "configure table tag".
+**When** I select type "fixed sized" and format "column fields" and add multiple columns and row fields.
+**Then** I should see the column fields display in the preview table at column 1..n, row 0. And the row fields display in the preview table at row 1..n, column 0.
+
+#### Scenario Three ####
+**Given** I'm on the edit page and open the "configure table tag" and have multiple columns fields and row fields.
+**When** I select a field and click the "move up" or the "move down" button.
+**Then** I should see the field order display changed and correspond to the column fields order and row fields order.
+
+#### Scenario Four ####
+**Given** I'm on the edit page and open the "configure table tag" and have multiple columns fields and row fields.
+**When** I select a field and click the "delete now" button.
+**Then** I should see the field removed from both the fields and the preview table.
+
+#### Scenario Five ####
+**Given** I'm on the edit page and open the "configure table tag" and have multiple columns fields and row fields.
+**When** I select a field and click the "delete now" button.
+**Then** I should see the field removed from both the fields and the preview table.
+
+#### Scenario Six ####
+**Given** I'm on the edit page and open the "configure table tag" and have multiple columns fields and row fields.
+**When** I click the "save" button.
+**Then** I should see a new tag with the "click to assign labels" button. And a new object field was added into the fields.json file.
+
+## Assign labels to a table tag
+
+#### Scenario Seven ####
+**Given** I'm on the edit page and have a table tag.
+**When** I click the "click to assign labels" button.
+**Then** I should see a label table.
+
+#### Scenario Eight ####
+**Given** I'm on the edit page and opened a label table.
+**When** I click a bounding box and click a cell in the label table.
+**Then** I should see the text in the bounding box written into the cell. And the bounding box is rounded with the tag color. And the label is added to the labels.json file.
+
+#### Scenario Nine ####
+**Given** I'm on the edit page and have multiple labels in the label table.
+**When** I click "Reconfigure table" and delete a field.
+**Then** I should see the field and related label have been removed.
+
+#### Scenario Ten ####
+**Given** I'm on the edit page and assigned a bounding box into a cell of the label table.
+**When** I click the bounding box and click a different cell.
+**Then** I should see the text in the origin cell is removed and added into the new assigned cell.
+
+#### Scenario Eleven ####
+**Given** I'm on the edit page and opened a "row dynamic" label table.
+**When** I click a bounding box and click a cell in the label table.
+**Then** I should see the text in the bounding box written into the cell. And the bounding box is rounded with the tag color. And the label is added to the labels.json file.
+
+## Dynamic sized table
+
+#### Scenario Twelve ####
+**Given** I'm on the edit page and opened the "configure table tag".
+**When** I switch to the "row dynamic" type and add multiple fields.
+**Then** I should see the fields displayed on the preview table in the position from row 0 and column 0..n in order.
+
+#### Scenario Thirteen ####
+**Given** I created a row dynamic label table and clicked "click to assign labels".
+**When** I clicked "+Add row" button.
+**Then** I should see the row grow.
+
+--------------
 ## **Feat: support region labeling**
 
 > ### Feature description ###
@@ -166,7 +240,7 @@
 
 **Given** I've selected drawn regions  
 **When**  I press alt-backspace  
-**Then** I should see the selected regions should be deleted 
+**Then** I should see the selected regions should be deleted
 
 ## **Feat: support adding models to project's recent models from the model compose page**  
 
@@ -185,18 +259,18 @@
 
 **Given** I'm on the model compose page  
 **When** I double click on any model that has a ready status  
-**Then** I should see it's model information and an add to recent projects button  
+**Then** I should see its model information and a "select to analyze with" button  
 
 #### Scenario Two ####
 
-**Given** I'm on the model compose page and have double clicked on a model  
-**When** I click the add to recent projects button and then go to the analyze page  
+**Given** I'm on the model compose page and have double-clicked on a model  
+**When** I click the "select to analyze with"  button and then go to the analyze page  
 **Then** I should see the added model as the current model to analyze with  
 
 #### Scenario Three ####
 
-**Given** I'm on the model compose page and have double clicked on a model  
-**When** I click the add to recent projects button, then go to the analyze page, and analyze a document  
+**Given** I'm on the model compose page and have double-clicked on a model  
+**When** I click the "select to analyze with"  button, then go to the analyze page and analyze a document  
 **Then** I should see the analysis results using the model added  
 
 #### Scenario Four ####
@@ -276,7 +350,7 @@
 
 ___
 
-## Feat: show project's recent models at top of model compose page's list of models
+## Feat: Sort project models by clicking the column headers.
 
 > ### Feature description ###
 
@@ -285,22 +359,22 @@ ___
 > ### Use Case ###
 
 **As** a user  
-**I want** have my project's recent models at the top of the model compose page's list of models   
-**So** I don't have to search for my project's recent models
+**I want** to have my project's recent models at the top of the model compose page's list of models   
+**So** I click the header of the "Created" column. 
 
 > ### Acceptance criteria ###
 
 #### Scenario One ####
 
-**Given** I've opened a project with recent models  
-**When** I go to the model compose page  
-**Then** I should see my recent models at the top of the list of models
+**Given** I have a list of models  
+**When** I go to the model compose page and toggle "Created" button.  
+**Then** I should see models sorted by created time in ascending or descending order.
 
 #### Scenario Two ####
 
-**Given** I've opened a project with recent models, but one or more of the recent models have been deleted  
-**When** I go to the model compose page  
-**Then** I should see only the recent models that have not been deleted at the top of the list of models
+**Given** I have a list of models  
+**When** I go to the model compose page and toggle "Last Updated" button.  
+**Then** I should see models sorted by last updated time in ascending or descending order.
 
 ___
 
@@ -361,7 +435,7 @@ ___
 #### Scenario Seven ####
 
 **Given** I've trained or composed at least one model  
-**When** I train or compose another model, go to the analyze page, and click the choose model button  
+**When** I train or compose another model, go to the analyze page and click the choose model button  
 **Then** I should see the top five most recently change models (since pulling this change)  
 
 ___
@@ -542,7 +616,7 @@ ___
 Adding the following buttons to the canvas command bar:
 
 - "Run OCR on current document"
-- "Run OCR on all documents"
+- "Run OCR on all documents"s
 
 > ### Use Case ###
 
@@ -554,15 +628,15 @@ Adding the following buttons to the canvas command bar:
 
 #### Scenario One ####
 
-**Given** I've opened a project containing documents and I'm on the Tag Editor page.  
-**When** I click "Run OCR on current document" in the canvas command bar  
-**Then** I should see "Running OCR..." for the current document. When running OCR finishes, I should be able to view the document's updated OCR JSON file.
+**Given** I've opened a project containing documents ,and I'm on the Tag Editor page.  
+**When** I click "Run Layout on current document" in the canvas command bar  
+**Then** I should see "Running Layout..." for the current document. When running OCR finishes, I should be able to view the document's updated OCR JSON file.
 
 #### Scenario Two ####
 
-**Given** I've opened a project containing documents and I'm on the Tag Editor page.  
-**When** I click "Run OCR on all documents" in the canvas command bar  
-**Then** I should see "Running OCR..." for all documents. When running OCR finishes for each document, I should be ale to view each document's updated OCR JSON file.
+**Given** I've opened a project containing documents ,and I'm on the Tag Editor page.  
+**When** I click "Run Layout on all documents" in the canvas command bar  
+**Then** I should see "Running Layout..." for all documents. When running OCR finishes for each document, I should be able to view each document's updated OCR JSON file.
 
 ___
 
@@ -606,3 +680,45 @@ ___
 **Then** I should see the column becomes sorted in either ascending or descending order.  
 **When** I type some text inside the filter field on top right  
 **Then** I should see items whose id or name contains the text be filtered out.
+
+------------
+## **Prebuilt analyze 
+
+#### Scenario One ####
+
+**Given** I opened the prebuilts-analyze page.
+**When** I didn't select a file, or typed an endpoint, or input an API key. 
+**Then** I can't click run analysis.
+
+#### Scenario Two ####
+
+**Given** I opened the prebuilts-analyze page.
+**When** I change type or endpoint or change page range. 
+**Then** The composed API request changed.
+
+#### Scenario Three ####
+
+**Given** I opened the prebuilts-analyze page, input required fields.
+**When** I click the "run analyze" button. 
+**Then** The request URI is equal to the composed API in the text area.
+
+---------
+## **Update schema URI
+
+#### Scenario One ####
+
+**Given** An updated label schema URI.
+**When** I load an existed project.
+**Then** If the I $schema field in the label.json files is supported. I should see the $schema field in the label.json files correspond to the updated URI; else remain the same.
+
+#### Scenario Two ####
+
+**Given** An updated label schema URI.
+**When** I create a new project and add a few labels.
+**Then** I should see $schema field in the label.json files correspond to the updated URI.
+
+#### Scenario Three ####
+
+**Given** An updated field schema URI.
+**When** I load an existed project or create a new project.
+**Then** I should see the schema field in the fields.json file correspond  to the new URI.
