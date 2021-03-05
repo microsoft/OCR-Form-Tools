@@ -5,6 +5,7 @@ import { mount, ReactWrapper } from "enzyme";
 import React from "react";
 import { Provider } from "react-redux";
 import { BrowserRouter as Router } from "react-router-dom";
+import localforage from "localforage";
 import MockFactory from "../../../../common/mockFactory";
 import createReduxStore from "../../../../redux/store/store";
 import ProjectSettingsPage, { IProjectSettingsPageProps, IProjectSettingsPageState } from "./projectSettingsPage";
@@ -134,7 +135,7 @@ describe("Project settings page", () => {
             securityToken: `${project.name} Token`,
         });
 
-        expect(localStorage.removeItem).toBeCalledWith("projectForm");
+        expect(localforage.removeItem).toBeCalledWith("projectForm");
     });
 
     describe("project does not exists", () => {
@@ -181,7 +182,7 @@ describe("Project settings page", () => {
                 .find(ProjectSettingsPage)
                 .childAt(0) as ReactWrapper<IProjectSettingsPageProps, IProjectSettingsPageState>;
 
-            expect(localStorage.getItem).toBeCalledWith("projectForm");
+            expect(localforage.getItem).toBeCalledWith("projectForm");
             expect(projectSettingsPage.state().project).toEqual(partialProject);
         });
 
@@ -195,7 +196,7 @@ describe("Project settings page", () => {
             const projectForm = wrapper.find(ProjectForm) as ReactWrapper<IProjectFormProps>;
             projectForm.props().onChange(partialProject);
 
-            expect(localStorage.setItem).toBeCalledWith("projectForm", JSON.stringify(partialProject));
+            expect(localforage.setItem).toBeCalledWith("projectForm", JSON.stringify(partialProject));
         });
 
         it("Does NOT store empty project in local storage", () => {
@@ -209,7 +210,7 @@ describe("Project settings page", () => {
             const projectForm = wrapper.find(ProjectForm) as ReactWrapper<IProjectFormProps>;
             projectForm.props().onChange(emptyProject);
 
-            expect(localStorage.setItem).not.toBeCalled();
+            expect(localforage.setItem).not.toBeCalled();
         });
     });
 });
