@@ -1,4 +1,4 @@
 {
     "enableAPIVersionSelection" : true,
-    "enablePredictionResultUpload": true
+    "enablePredictionResultUpload": false
 }
