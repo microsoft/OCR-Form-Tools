@@ -29,7 +29,6 @@ import { strings, interpolate } from "../../common/strings";
 import clone from "rfdc";
 import _ from "lodash";
 import { decryptProject } from "../../common/utils";
-import { StorageProviderFactory } from "../../providers/storage/storageProviderFactory";
 import { constants } from "../../common/constants";
 
 /**
