@@ -53,12 +53,12 @@ describe("Homepage Component", () => {
         toast.info = jest.fn(() => 2);
     });
 
-    beforeEach(() => {
+    beforeEach(async () => {
         const projectServiceMock = ProjectService as jest.Mocked<typeof ProjectService>;
         projectServiceMock.prototype.load = jest.fn((project) => Promise.resolve(project));
         projectServiceMock.prototype.delete = jest.fn(() => Promise.resolve());
 
-        store = createStore(recentProjects);
+        store = await createStore(recentProjects);
         props = createProps();
         deleteProjectSpy = jest.spyOn(props.actions, "deleteProject");
         closeProjectSpy = jest.spyOn(props.actions, "closeProject");
@@ -174,7 +174,7 @@ describe("Homepage Component", () => {
         };
     }
 
-    function createStore(recentProjects: IProject[]): Store<IApplicationState, AnyAction> {
+    async function createStore(recentProjects: IProject[]): Promise<Store<IApplicationState, AnyAction>> {
         const initialState: IApplicationState = {
             currentProject: null,
             appSettings: MockFactory.appSettings(),
@@ -183,6 +183,6 @@ describe("Homepage Component", () => {
             appError: null,
         };
 
-        return createReduxStore(initialState);
+        return await createReduxStore(initialState);
     }
 });
