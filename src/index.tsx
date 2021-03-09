@@ -16,7 +16,7 @@ import { registerIcons } from "./registerIcons";
 import registerProviders from "./registerProviders";
 import registerMixins from "./registerMixins";
 
-(async function () {
+(async () => {
     registerIcons();
     registerMixins();
     registerProviders();

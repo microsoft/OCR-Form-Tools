@@ -42,7 +42,7 @@ export function saveConnection(connection: IConnection): (dispatch: Dispatch) =>
             const project = JSON.parse(projectJson as string);
             project.sourceConnection = connection;
             await webStorage.setItem(constants.projectFormTempKey, JSON.stringify(project));
-        }        
+        }
         dispatch(saveConnectionAction(connection));
         return Promise.resolve(connection);
     };
