@@ -13,9 +13,9 @@ import { Env } from "../../common/environment";
  * @param initialState - Initial state of application
  * @param useLocalStorage - Whether or not to use localStorage middleware
  */
-export default function createReduxStore(
+export default async function createReduxStore(
     initialState?: IApplicationState,
-    useLocalStorage: boolean = false): Store {
+    useLocalStorage: boolean = false): Promise<Store> {
     const paths: string[] = ["appSettings", "connections", "recentProjects", "prebuiltSettings"];
 
     let middlewares = [thunk];
@@ -39,9 +39,11 @@ export default function createReduxStore(
         ];
     }
 
+    const mergedInitialState = await mergeInitialState(initialState, paths);
+
     return createStore(
         rootReducer,
-        useLocalStorage ? mergeInitialState(initialState, paths) : initialState,
+        useLocalStorage ? mergedInitialState : initialState,
         applyMiddleware(...middlewares),
     );
 }

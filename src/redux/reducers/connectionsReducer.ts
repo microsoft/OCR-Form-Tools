@@ -1,11 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { constants } from "../../common/constants";
 import { ActionTypes } from "../actions/actionTypes";
 import { IConnection } from "../../models/applicationState";
 import { AnyAction } from "../actions/actionCreators";
-import { getStorageItem, setStorageItem } from "../middleware/localStorage";
 
 /**
  * Reducer for application connections. Actions handled:

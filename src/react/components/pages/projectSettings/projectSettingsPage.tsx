@@ -161,7 +161,7 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
         }
     }
 
-    private newProjectSetting = async (): void => {
+    private newProjectSetting = async (): Promise<void> => {
         const projectJson = await getStorageItem(constants.projectFormTempKey);
         if (projectJson) {
             this.setState({ project: JSON.parse(projectJson) });

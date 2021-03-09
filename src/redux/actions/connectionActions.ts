@@ -6,7 +6,7 @@ import { ActionTypes } from "./actionTypes";
 import { IPayloadAction, createPayloadAction } from "./actionCreators";
 import { Dispatch } from "redux";
 import ConnectionService from "../../services/connectionService";
-import webStorageManager from "../../common/webStorageManager";
+import { webStorage } from "../../common/webStorage";
 import { constants } from "../../common/constants";
 
 /**
@@ -37,11 +37,11 @@ export function saveConnection(connection: IConnection): (dispatch: Dispatch) =>
     return async (dispatch: Dispatch) => {
         const connectionService = new ConnectionService();
         await connectionService.save(connection);
-        const projectJson = await webStorageManager.getItem(constants.projectFormTempKey);
+        const projectJson = await webStorage.getItem(constants.projectFormTempKey);
         if (projectJson) {
             const project = JSON.parse(projectJson as string);
             project.sourceConnection = connection;
-            await webStorageManager.setItem(constants.projectFormTempKey, JSON.stringify(project));
+            await webStorage.setItem(constants.projectFormTempKey, JSON.stringify(project));
         }        
         dispatch(saveConnectionAction(connection));
         return Promise.resolve(connection);

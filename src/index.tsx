@@ -16,36 +16,38 @@ import { registerIcons } from "./registerIcons";
 import registerProviders from "./registerProviders";
 import registerMixins from "./registerMixins";
 
-registerIcons();
-registerMixins();
-registerProviders();
-const defaultState: IApplicationState = initialState;
-const store = createReduxStore(defaultState, true);
+(async function () {
+    registerIcons();
+    registerMixins();
+    registerProviders();
+    const defaultState: IApplicationState = initialState;
+    const store = await createReduxStore(defaultState, true);
 
-let noFocusOutline = true;
-document.body.classList.add("no-focus-outline");
+    let noFocusOutline = true;
+    document.body.classList.add("no-focus-outline");
 
-document.body.addEventListener("mousedown", () => {
-    if (!noFocusOutline) {
-        noFocusOutline = true;
-        document.body.classList.add("no-focus-outline");
-    }
-});
+    document.body.addEventListener("mousedown", () => {
+        if (!noFocusOutline) {
+            noFocusOutline = true;
+            document.body.classList.add("no-focus-outline");
+        }
+    });
 
-document.body.addEventListener("keydown", (event) => {
-    if (event.keyCode === 9 && noFocusOutline) {
-        noFocusOutline = false;
-        document.body.classList.remove("no-focus-outline");
-    }
-});
+    document.body.addEventListener("keydown", (event) => {
+        if (event.keyCode === 9 && noFocusOutline) {
+            noFocusOutline = false;
+            document.body.classList.remove("no-focus-outline");
+        }
+    });
 
-ReactDOM.render(
-    <Provider store={store}>
-        <App/>
-    </Provider>
-    , document.getElementById("rootdiv"));
+    ReactDOM.render(
+        <Provider store={store}>
+            <App />
+        </Provider>
+        , document.getElementById("rootdiv"));
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+    // If you want your app to work offline and load faster, you can change
+    // unregister() to register() below. Note this comes with some pitfalls.
+    // Learn more about service workers: https://bit.ly/CRA-PWA
+    serviceWorker.unregister();
+})();
