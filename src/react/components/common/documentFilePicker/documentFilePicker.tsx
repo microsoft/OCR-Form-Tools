@@ -229,7 +229,7 @@ export class DocumentFilePicker extends React.Component<IDocumentFilePickerProps
                 if (this.props.onError) {
                     this.props.onError({
                         alertTitle: "Fetch failed",
-                        alertMessage: "Network error or Cross-Origin Resource Sharing (CORS) is not configured server-side",
+                        alertMessage: "Can’t access the document URL. Please try downloading the file from URL, and use it as local file.",
                     });
                 }
                 return;
