@@ -853,8 +853,8 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
     private flatFields = (fields: object = {}): { [key: string]: (object[] | object) } => {
         /**
-         * @param fields: primitive types, object types liks array, object, and root level field 
-         * @return flattenfields, value is a field props or an array of field props  
+         * @param fields: primitive types, object types likes array, object, and root level field 
+         * @return flattenfields, a field props or an array of field props  
          */
         const flattedFields = {};
         const isSupportField = fieldName => {
