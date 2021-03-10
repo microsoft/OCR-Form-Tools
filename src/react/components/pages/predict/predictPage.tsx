@@ -442,7 +442,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                         {this.state.viewRegionalTable &&
                             <div className="m-2">
                                 <h4 className="ml-1 mb-4">View analyzed Table</h4>
-                                <RegionalTable 
+                                <RegionalTable
                                     regionalTableToView={this.state.regionalTableToView}
                                     tableTagColor={this.state.tableTagColor}
                                     onMouseEnter={this.onMouseEnter}
@@ -1232,10 +1232,10 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private onMouseEnter = (rowName: string, columnName: string) => {
-        this.setState({ highlightedTableCellRowKey: rowName, highlightedTableCellColumnKey: columnName })    
+        this.setState({ highlightedTableCellRowKey: rowName, highlightedTableCellColumnKey: columnName });
     }
 
     private onMouseLeave = () => {
-        this.setState({ highlightedTableCellRowKey: null, highlightedTableCellColumnKey: null })    
+        this.setState({ highlightedTableCellRowKey: null, highlightedTableCellColumnKey: null });
     }
 }

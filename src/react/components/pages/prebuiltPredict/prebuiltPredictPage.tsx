@@ -838,7 +838,6 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 }
             }
         }
-        
         const features = [];
         const imageExtent = [0, 0, this.state.imageWidth, this.state.imageHeight];
         const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[this.state.currentPage - 1];
@@ -853,8 +852,8 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
     private flatFields = (fields: object = {}): { [key: string]: (object[] | object) } => {
         /**
-         * @param fields: primitive types, object types likes array, object, and root level field 
-         * @return flattenfields, a field props or an array of field props  
+         * @param fields: primitive types, object types likes array, object, and root level field
+         * @return flattenfields, a field props or an array of field props
          */
         const flattedFields = {};
         const isSupportField = fieldName => {
