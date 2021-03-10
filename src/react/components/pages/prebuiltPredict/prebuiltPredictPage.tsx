@@ -38,7 +38,7 @@ import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import { CanvasCommandBar } from "../editorPage/canvasCommandBar";
 import { TableView } from "../editorPage/tableView";
 import "../predict/predictPage.scss";
-import PredictResult from "../predict/predictResult";
+import PredictResult, { ITableResultItem } from "../predict/predictResult";
 import { ILoadFileHelper, ILoadFileResult, LoadFileHelper } from "./LoadFileHelper";
 import "./prebuiltPredictPage.scss";
 import { ITableHelper, ITableState, TableHelper } from "./tableHelper";
@@ -83,6 +83,10 @@ export interface IPrebuiltPredictPageState extends ILoadFileResult, ITableState 
     predictionEndpointUrl: string;
 
     liveMode: boolean;
+
+    viewRegionalTable?: boolean;
+    regionalTableToView?: any;
+    tableTagColor?: string;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -158,6 +162,10 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         predictionEndpointUrl: "",
 
         liveMode: true,
+
+        viewRegionalTable: false,
+        regionalTableToView: null,
+        tableTagColor: null,
     };
 
     private analyzeResults: any;
@@ -203,7 +211,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             if (prevState.highlightedField !== this.state.highlightedField) {
                 this.setPredictedFieldHighlightStatus(this.state.highlightedField);
             }
-        }
+            }
 
         if (_prevProps.prebuiltSettings !== this.props.prebuiltSettings) {
             this.handleUpdateRequestURI();
@@ -229,7 +237,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             !this.state.fileLoaded ||
             (this.state.withPageRange && !this.state.pageRangeIsValid) ||
             (needEndPoint && (!this.props.prebuiltSettings?.apiKey ||
-            !this.props.prebuiltSettings?.serviceURI));
+                !this.props.prebuiltSettings?.serviceURI));
     }
 
     public render() {
@@ -372,11 +380,19 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                                 onPredictionClick={this.onPredictionClick}
                                 onPredictionMouseEnter={this.onPredictionMouseEnter}
                                 onPredictionMouseLeave={this.onPredictionMouseLeave}
+                                onTablePredictionClick={this.onTablePredictionClick}
                             />
                         }
                         {
                             (Object.keys(predictions).length === 0 && this.state.predictionLoaded) &&
                             <div>{strings.prebuiltPredict.noFieldCanBeExtracted}</div>
+                        }
+                        {this.state.viewRegionalTable &&
+                            <TableView
+                                handleTableViewClose={this.onTablePredictionClose}
+                                tableToView={this.state.regionalTableToView}
+                                showToolTips={true}
+                            />
                         }
                     </div>
                 </div>
@@ -462,7 +478,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         }
         if (data.file) {
             HtmlFileReader.readAsText(data.file)
-            .then(({ content }) => JSON.parse(content as string))
+                .then(({ content }) => JSON.parse(content as string))
                 .then(result => this.setState({
                     currentPage: 1,
                     analyzeResult: null,
@@ -470,7 +486,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                     fileLoaded: false,
                 }, () => new Promise(() => this.handlePredictionResult(result))
                     .catch(this.handlePredictionError)))
-            }
+        }
     }
 
     handleLiveModeToggleChange = (event, checked: boolean) => {
@@ -689,22 +705,22 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private handlePredictionError = (error) => {
-                let alertMessage = "";
-                if (error.response) {
-                    alertMessage = error.response.data;
-                } else if (error.errorCode === ErrorCode.PredictWithoutTrainForbidden) {
-                    alertMessage = strings.errors.predictWithoutTrainForbidden.message;
-                } else if (error.errorCode === ErrorCode.ModelNotFound) {
-                    alertMessage = error.message;
-                } else {
-                    alertMessage = interpolate(strings.errors.endpointConnectionError.message, { endpoint: "form recognizer backend URL" });
-                }
-                this.setState({
-                    shouldShowAlert: true,
-                    alertTitle: "Prediction Failed",
-                    alertMessage,
-                    isPredicting: false,
-                });
+        let alertMessage = "";
+        if (error.response) {
+            alertMessage = error.response.data;
+        } else if (error.errorCode === ErrorCode.PredictWithoutTrainForbidden) {
+            alertMessage = strings.errors.predictWithoutTrainForbidden.message;
+        } else if (error.errorCode === ErrorCode.ModelNotFound) {
+            alertMessage = error.message;
+        } else {
+            alertMessage = interpolate(strings.errors.endpointConnectionError.message, { endpoint: "form recognizer backend URL" });
+        }
+        this.setState({
+            shouldShowAlert: true,
+            alertTitle: "Prediction Failed",
+            alertMessage,
+            isPredicting: false,
+        });
     }
 
     private handleClick = () => {
@@ -810,72 +826,90 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     private drawPredictionResult = (): void => {
         // Comment this line to prevent clear OCR boundary boxes.
         // this.imageMap.removeAllFeatures();
+        const createFeature = (fieldName, field) => {
+            if (Array.isArray(field)) {
+                field.forEach(field => createFeature(fieldName, field))
+            } else {
+                if (_.get(field, "page", null) === this.state.currentPage) {
+                    const text = fieldName;
+                    const boundingbox = _.get(field, "boundingBox", []);
+                    const feature = this.createBoundingBoxVectorFeature(text, boundingbox, imageExtent, ocrExtent);
+                    features.push(feature);
+                }
+            }
+        }
+        
         const features = [];
         const imageExtent = [0, 0, this.state.imageWidth, this.state.imageHeight];
         const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[this.state.currentPage - 1];
         const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
-        const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
-        for (const fieldName of Object.keys(predictions)) {
-            const field = predictions[fieldName];
-            if (_.get(field, "page", null) === this.state.currentPage) {
-                const text = fieldName;
-                const boundingbox = _.get(field, "boundingBox", []);
-                const feature = this.createBoundingBoxVectorFeature(text, boundingbox, imageExtent, ocrExtent);
-                features.push(feature);
-            }
+        const predictions = this.flatFields(this.getPredictionsFromAnalyzeResult(this.state.analyzeResult));
+        for (const [fieldName, field] of Object.entries(predictions)) {
+            createFeature(fieldName, field);
         }
         this.imageMap.addFeatures(features);
         this.tableHelper.drawTables(this.state.currentPage);
     }
 
-    private getPredictionsFromAnalyzeResult(analyzeResult: any) {
-        if (analyzeResult) {
-            const documentResults = _.get(analyzeResult, "documentResults", []);
-            const isSupportField = fieldName => {
-                // Define list of unsupported field names.
-                const blockedFieldNames = ["ReceiptType"];
-                return blockedFieldNames.indexOf(fieldName) === -1;
-            }
-            const isRootItemObject = obj => obj.hasOwnProperty("text");
-            // flat fieldProps of type "array" and "object", and extract root level field props in "object" type
-            const flattedFields = {};
-            const flatFields = (fields = {}) => {
-                const flatFieldProps = (displayName, fieldProps) => {
-                    if (isSupportField(displayName)) {
-                        switch (_.get(fieldProps, "type", "")) {
-                            case "array": {
-                                const valueArray = _.get(fieldProps, "valueArray", []);
-                                for (const [index, valueArrayItem] of valueArray.entries()) {
-                                    flatFieldProps(`${displayName} ${index + 1}`, valueArrayItem);
-                                }
-                                break;
+    private flatFields = (fields: object = {}): { [key: string]: (object[] | object) } => {
+        /**
+         * @param fields: primitive types, object types liks array, object, and root level field 
+         * @return flattenfields, value is a field props or an array of field props  
+         */
+        const flattedFields = {};
+        const isSupportField = fieldName => {
+            // Define list of unsupported field names.
+            const blockedFieldNames = ["ReceiptType"];
+            return blockedFieldNames.indexOf(fieldName) === -1;
+        }
+        const isRootItemObject = obj => obj.hasOwnProperty("text");
+        // flat fieldProps of type "array" and "object", and extract root level field props in "object" type
+        const flatFieldProps = (fieldName, fieldProps) => {
+            if (isSupportField(fieldName)) {
+                switch (_.get(fieldProps, "type", "")) {
+                    case "array": {
+                        const valueArray = _.get(fieldProps, "valueArray", []);
+                        for (const arrayItem of valueArray) {
+                            flatFieldProps(fieldName, arrayItem);
+                        }
+                        break;
+                    }
+                    case "object": {
+                        // root level field props
+                        const { type, valueObject, ...restProps } = fieldProps;
+                        if (isRootItemObject(restProps)) {
+                            flatFieldProps(fieldName, restProps);
+                        }
+                        for (const objFieldProps of Object.values(fieldProps.valueObject)) {
+                            if (objFieldProps) {
+                                flatFieldProps(fieldName, objFieldProps);
                             }
-                            case "object": {
-                                // root level field props
-                                const { type, valueObject, ...restProps } = fieldProps;
-                                if (isRootItemObject(restProps)) {
-                                    flatFieldProps(displayName, restProps);
-                                }
-                                for (const [fieldName, objFieldProps] of Object.entries(fieldProps.valueObject)) {
-                                    flatFieldProps(`${displayName}: ${fieldName}`, objFieldProps);
-                                }
-                                break;
-                            }
-                            default: {
-                                flattedFields[displayName] = fieldProps;
-                            }
+                        }
+                        break;
+                    }
+                    default: {
+                        if (flattedFields[fieldName] == null) {
+                            flattedFields[fieldName] = fieldProps;
+                        }
+                        else if (Array.isArray(flattedFields[fieldName])) {
+                            flattedFields[fieldName].push(fieldProps)
+                        } else {
+                            flattedFields[fieldName] = [flattedFields[fieldName], fieldProps];
                         }
                     }
                 }
-                for (const [fieldName, fieldProps] of Object.entries(fields)) {
-                    flatFieldProps(fieldName, fieldProps);
-                }
             }
-            for (const documentResult of documentResults) {
-                const fields = documentResult["fields"];
-                flatFields(fields);
-            }
-            return flattedFields;
+        }
+        for (const [fieldName, fieldProps] of Object.entries(fields)) {
+            flatFieldProps(fieldName, fieldProps);
+        }
+        return flattedFields;
+    }
+
+    private getPredictionsFromAnalyzeResult(analyzeResult: any) {
+        if (analyzeResult) {
+            const documentResults = _.get(analyzeResult, "documentResults", []);
+            return documentResults.reduce((accFields, documentResult) => ({ ...accFields, ...documentResult.fields }), {});
         } else {
             return {};
         }
@@ -996,5 +1030,46 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         this.setState({
             predictionEndpointUrl: newValue
         });
+    }
+
+    private onTablePredictionClick = (predictedItem: ITableResultItem, tagColor: string) => {
+        const makeTable = (clickedFieldName) => {
+            function Cell(rowIndex, columnIndex, text = null, confidence = null) {
+                this.rowIndex = rowIndex;
+                this.columnIndex = columnIndex;
+                this.text = text;
+                this.confidence = confidence;
+            }
+
+            const valueArray = clickedFieldName.valueArray || [];
+            const columnNames = Object.keys(valueArray[0].valueObject);
+            const columnHeaders = function makeColumnHeaders() {
+                const indexColumn = new Cell(0, 0, "");
+                const contentColumns = columnNames.map((columnName, columnIndex) => new Cell(0, columnIndex + 1, columnName));
+                return [indexColumn, ...contentColumns];
+            }()
+            const matrix: any[] = [columnHeaders];
+            for (let i = 0; i < valueArray.length; i++) {
+                const valueObject = valueArray[i].valueObject || {};
+                const indexColumn = new Cell(i + 1, 0, `#${i + 1}`);
+                const contentColumns = columnNames.map((columnName, columnIndex) => {
+                    const { text, confidence } = valueObject[columnName] || {};
+                    return new Cell(i + 1, columnIndex + 1, text, confidence);
+                });
+                matrix.push([indexColumn, ...contentColumns]);
+            }
+            const flattenCells = matrix.reduce((cells, row) => cells = [...cells, ...row], []);
+            return { cells: flattenCells, columns: matrix[0].length, rows: matrix.length, fieldName: clickedField, tagColor };
+        }
+
+        const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult)
+        const clickedFieldName = predictedItem?.fieldName;
+        const clickedField = predictions[clickedFieldName];
+        const regionalTableToView = makeTable(clickedField);
+        this.setState({ viewRegionalTable: true, regionalTableToView });
+    }
+
+    private onTablePredictionClose = () => {
+        this.setState({ viewRegionalTable: false, regionalTableToView: null })
     }
 }
