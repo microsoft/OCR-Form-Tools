@@ -44,6 +44,7 @@ import "./predictPage.scss";
 import PredictResult, { IAnalyzeModelInfo, ITableResultItem } from "./predictResult";
 import RecentModelsView from "./recentModelsView";
 import { UploadToTrainingSetView } from "./uploadToTrainingSetView";
+import RegionalTable from "../../common/regionalTable/regionalTable";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 
@@ -441,7 +442,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                         {this.state.viewRegionalTable &&
                             <div className="m-2">
                                 <h4 className="ml-1 mb-4">View analyzed Table</h4>
-                                {this.displayRegionalTable(this.state.regionalTableToView)}
+                                <RegionalTable 
+                                    regionalTableToView={this.state.regionalTableToView}
+                                    tableTagColor={this.state.tableTagColor}
+                                    onMouseEnter={this.onMouseEnter}
+                                    onMouseLeave={this.onMouseLeave}
+                                />
                                 <PrimaryButton
                                     className="mt-4 ml-2"
                                     theme={getPrimaryGreyTheme()}
@@ -1072,158 +1078,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         this.setState({ viewRegionalTable: true, regionalTableToView: predictedItem, tableTagColor: tagColor });
     }
 
-    private displayRegionalTable = (regionalTableToView) => {
-
-        const tableBody = [];
-        if (regionalTableToView?.type === "array") {
-            const columnHeaderRow = [];
-            const colKeys = Object.keys(regionalTableToView?.valueArray?.[0]?.valueObject || {});
-            if (colKeys.length === 0) {
-                return (
-                    <div>
-                        <h5 className="mb-4 ml-2 mt-2 pb-1">
-                            <span style={{ borderBottom: `4px solid ${this.state.tableTagColor}` }}>Table name: {regionalTableToView.fieldName}</span>
-                        </h5>
-                        <div className="table-view-container">
-                            <table>
-                                <tbody>
-                                    Empty table
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                );
-            }
-            for (let i = 0; i < colKeys.length + 1; i++) {
-                if (i === 0) {
-                    columnHeaderRow.push(
-                        <th key={i} className={"empty_header hidden"} />
-                    );
-                } else {
-                    columnHeaderRow.push(
-                        <th key={i} className={"column_header"}>
-                            {colKeys[i - 1]}
-                        </th>
-                    );
-                }
-            }
-            tableBody.push(<tr key={0}>{columnHeaderRow}</tr>);
-            regionalTableToView?.valueArray?.forEach((row, rowIndex) => {
-                const tableRow = [];
-                tableRow.push(
-                    <th key={0} className={"row_header hidden"}>
-                        {"#" + rowIndex}
-                    </th>
-                );
-                Object.keys(row?.valueObject).forEach((columnName, columnIndex) => {
-                    const tableCell = row?.valueObject?.[columnName];
-                    tableRow.push(
-                        <td
-                            className={"table-cell"}
-                            key={columnIndex + 1}
-                            onMouseEnter={() => {
-                                this.setState({ highlightedTableCellRowKey: "#" + rowIndex, highlightedTableCellColumnKey: columnName })
-                            }}
-                            onMouseLeave={() => {
-                                this.setState({ highlightedTableCellRowKey: null, highlightedTableCellColumnKey: null })
-                            }}
-                        >
-                            {tableCell ? tableCell.text : null}
-                        </td>
-                    );
-                })
-                tableBody.push(<tr key={(rowIndex + 1)}>{tableRow}</tr>);
-            })
-        } else {
-            const columnHeaderRow = [];
-            const colKeys = Object.keys(regionalTableToView?.valueObject?.[Object.keys(regionalTableToView?.valueObject)?.[0]]?.valueObject || {});
-            if (colKeys.length === 0) {
-                return (
-                    <div>
-                        <h5 className="mb-4 ml-2 mt-2 pb-1">
-                            <span style={{ borderBottom: `4px solid ${this.state.tableTagColor}` }}>Table name: {regionalTableToView.fieldName}</span>
-                        </h5>
-                        <div className="table-view-container">
-                            <table>
-                                <tbody>
-                                    Empty table
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                );
-            }
-            for (let i = 0; i < colKeys.length + 1; i++) {
-                if (i === 0) {
-                    columnHeaderRow.push(
-                        <th key={i} className={"empty_header hidden"} />
-                    );
-                } else {
-                    columnHeaderRow.push(
-                        <th key={i} className={"column_header"}>
-                            {colKeys[i - 1]}
-                        </th>
-                    );
-                }
-            }
-            tableBody.push(<tr key={0}>{columnHeaderRow}</tr>);
-            Object.keys(regionalTableToView?.valueObject).forEach((rowName, index) => {
-                const tableRow = [];
-                tableRow.push(
-                    <th key={0} className={"row_header"}>
-                        {rowName}
-                    </th>
-                );
-                if (regionalTableToView?.valueObject?.[rowName]) {
-                    Object.keys(regionalTableToView?.valueObject?.[rowName]?.valueObject)?.forEach((columnName, index) => {
-                        const tableCell = regionalTableToView?.valueObject?.[rowName]?.valueObject?.[columnName];
-                        tableRow.push(
-                            <td
-                                className={"table-cell"}
-                                key={index + 1}
-                                onMouseEnter={() => {
-                                    this.setState({ highlightedTableCellRowKey: rowName, highlightedTableCellColumnKey: columnName })
-                                }}
-                                onMouseLeave={() => {
-                                    this.setState({ highlightedTableCellRowKey: null, highlightedTableCellColumnKey: null })
-                                }}
-                            >
-                                {tableCell ? tableCell.text : null}
-                            </td>
-                        );
-                    });
-                } else {
-                    colKeys.forEach((columnName, index) => {
-                        tableRow.push(
-                            <td
-                                className={"table-cell"}
-                                key={index + 1}
-                            >
-                                {null}
-                            </td>
-                        );
-                    })
-                }
-                tableBody.push(<tr key={index + 1}>{tableRow}</tr>);
-            });
-        }
-
-        return (
-            <div>
-                <h5 className="mb-4 ml-2 mt-2 pb-1">
-                    <span style={{ borderBottom: `4px solid ${this.state.tableTagColor}` }}>Table name: {regionalTableToView.fieldName}</span>
-                </h5>
-                <div className="table-view-container">
-                    <table>
-                        <tbody>
-                            {tableBody}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        );
-    }
-
     private onPredictionMouseEnter = (predictedItem: any) => {
         this.setState({
             highlightedField: predictedItem.fieldName ?? "",
@@ -1375,5 +1229,13 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             await this.props.actions.loadProject(project);
             this.props.appTitleActions.setTitle(project.name);
         }
+    }
+
+    private onMouseEnter = (rowName: string, columnName: string) => {
+        this.setState({ highlightedTableCellRowKey: rowName, highlightedTableCellColumnKey: columnName })    
+    }
+
+    private onMouseLeave = () => {
+        this.setState({ highlightedTableCellRowKey: null, highlightedTableCellColumnKey: null })    
     }
 }
