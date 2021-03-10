@@ -1,24 +1,25 @@
 import React from "react";
 
-export interface RegionalTableState { }
+export interface IRegionalTableState { }
 
-export interface RegionalTableProps {
+export interface IRegionalTableProps {
     regionalTableToView?: any;
     tableTagColor: string;
     onMouseEnter: (rowName: string, columnName: string) => void;
     onMouseLeave: () => void;
 }
 
-export default class RegionalTable extends React.Component<RegionalTableProps, RegionalTableState> {
+export default class RegionalTable extends React.Component<IRegionalTableProps, IRegionalTableState> {
     makeOnMouseEnter = (rowName, columnName) => () => {
         this.props.onMouseEnter(rowName, columnName);
     }
+
     onMouseLeave = () => {
         this.props.onMouseLeave();
     }
+
     private displayRegionalTable = (regionalTableToView) => {
         const tableBody = [];
-        console.log({ regionalTableToView })
         if (regionalTableToView?.type === "array") {
             const columnHeaderRow = [];
             const colKeys = Object.keys(regionalTableToView?.valueArray?.[0]?.valueObject || {});
@@ -166,7 +167,6 @@ export default class RegionalTable extends React.Component<RegionalTableProps, R
     }
 
     render() {
-
         return (
             <>
                 {this.displayRegionalTable(this.props.regionalTableToView)}
