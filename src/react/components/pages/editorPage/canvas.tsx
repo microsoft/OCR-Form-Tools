@@ -30,7 +30,7 @@ import Alert from "../../common/alert/alert";
 import * as pdfjsLib from "pdfjs-dist";
 import Polygon from "ol/geom/Polygon";
 import HtmlFileReader from "../../../../common/htmlFileReader";
-import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
+import { parseTiffData, renderTiffToCanvas, loadImageToCanvas, getAPIVersion } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./canvasCommandBar";
 import { TooltipHost, ITooltipHostStyles } from "@fluentui/react";
@@ -2532,7 +2532,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private handleToggleDrawRegionMode = () => {
-        if (!this.state.drawRegionMode && this.props.project.apiVersion !== APIVersionPatches.patch3) {
+        if (!this.state.drawRegionMode && getAPIVersion(this.props.project.apiVersion) !== APIVersionPatches.patch3) {
             toast.warn(interpolate(strings.editorPage.canvas.canvasCommandBar.warings.drawRegionUnsupportedAPIVersion, { apiVersion: (this.props.project.apiVersion || constants.appVersion) }), { autoClose: 7000 });
         }
         this.setState({
