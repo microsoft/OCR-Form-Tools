@@ -320,6 +320,6 @@ function createProps(route: string): IConnectionPageProps {
     };
 }
 
-function createStore(state?: IApplicationState): Store<any, AnyAction> {
-    return createReduxStore(state);
+async function createStore(state?: IApplicationState): Promise<Store<any, AnyAction>> {
+    return await createReduxStore(state);
 }

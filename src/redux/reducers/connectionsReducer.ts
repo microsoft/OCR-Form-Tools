@@ -1,11 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { constants } from "../../common/constants";
 import { ActionTypes } from "../actions/actionTypes";
 import { IConnection } from "../../models/applicationState";
 import { AnyAction } from "../actions/actionCreators";
-import { getStorageItem, setStorageItem } from "../middleware/localStorage";
 
 /**
  * Reducer for application connections. Actions handled:
@@ -22,12 +20,6 @@ export const reducer = (state: IConnection[] = [], action: AnyAction): IConnecti
 
     switch (action.type) {
         case ActionTypes.SAVE_CONNECTION_SUCCESS:
-            const projectJson = getStorageItem(constants.projectFormTempKey);
-            if (projectJson) {
-                const project = JSON.parse(projectJson);
-                project.sourceConnection = action.payload;
-                setStorageItem(constants.projectFormTempKey, JSON.stringify(project));
-            }
             return [
                 { ...action.payload },
                 ...state.filter((connection) => connection.id !== action.payload.id),

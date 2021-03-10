@@ -35,8 +35,8 @@ describe("App Settings Page", () => {
         toast.success = jest.fn(() => 2);
     });
 
-    it("renders correctly", () => {
-        const store = createStore();
+    it("renders correctly", async () => {
+        const store = await createStore();
         const wrapper = createComponent(store);
         expect(wrapper.find(AppSettingsForm).length).toEqual(1);
         expect(wrapper.find("button#toggleDevTools").length).toEqual(1);
@@ -45,7 +45,7 @@ describe("App Settings Page", () => {
 
     it("Saves app settings when click on save button", async () => {
         const appSettings = MockFactory.appSettings();
-        const store = createStore(appSettings);
+        const store = await createStore(appSettings);
         const props = createProps();
         const saveAppSettingsSpy = jest.spyOn(props.actions, "saveAppSettings");
         const goBackSpy = jest.spyOn(props.history, "goBack");
@@ -59,8 +59,8 @@ describe("App Settings Page", () => {
         expect(goBackSpy).toBeCalled();
     });
 
-    it("Navigates the user back to the previous page on cancel", () => {
-        const store = createStore();
+    it("Navigates the user back to the previous page on cancel", async () => {
+        const store = await createStore();
         const props = createProps();
         const goBackSpy = jest.spyOn(props.history, "goBack");
 
@@ -106,7 +106,7 @@ describe("App Settings Page", () => {
         };
     }
 
-    function createStore(appSettings: IAppSettings = null): Store<IApplicationState, AnyAction> {
+    async function createStore(appSettings: IAppSettings = null): Promise<Store<IApplicationState, AnyAction>> {
         const initialState: IApplicationState = {
             currentProject: null,
             appSettings: appSettings || MockFactory.appSettings(),
@@ -114,6 +114,6 @@ describe("App Settings Page", () => {
             recentProjects: [],
         };
 
-        return createReduxStore(initialState);
+        return await createReduxStore(initialState);
     }
 });

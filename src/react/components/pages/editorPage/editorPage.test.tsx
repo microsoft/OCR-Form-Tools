@@ -529,7 +529,7 @@ describe("Editor Page Component", () => {
     });
 });
 
-function createStore(project: IProject, setCurrentProject: boolean = false): Store<any, AnyAction> {
+async function createStore(project: IProject, setCurrentProject: boolean = false): Promise<Store<any, AnyAction>> {
     const initialState: IApplicationState = {
         currentProject: setCurrentProject ? project : null,
         appSettings: MockFactory.appSettings(),
@@ -537,7 +537,7 @@ function createStore(project: IProject, setCurrentProject: boolean = false): Sto
         recentProjects: [project],
     };
 
-    return createReduxStore(initialState);
+    return await createReduxStore(initialState);
 }
 
 async function waitForSelectedAsset(wrapper: ReactWrapper) {

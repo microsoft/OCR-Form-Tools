@@ -29,7 +29,6 @@ import { strings, interpolate } from "../../common/strings";
 import clone from "rfdc";
 import _ from "lodash";
 import { decryptProject } from "../../common/utils";
-import { StorageProviderFactory } from "../../providers/storage/storageProviderFactory";
 import { constants } from "../../common/constants";
 
 /**
@@ -91,6 +90,7 @@ export function loadProject(project: IProject, sharedToken?: ISecurityToken):
             throw new AppError(ErrorCode.SecurityTokenNotFound, "Security Token Not Found");
         }
         const loadedProject = await projectService.load(project, projectToken);
+        await ProjectService.checkAndUpdateSchema(loadedProject);
         const schemaUpdatedProject = await AssetService.checkAndUpdateSchema(loadedProject);
         dispatch(loadProjectAction(schemaUpdatedProject));
         return schemaUpdatedProject;

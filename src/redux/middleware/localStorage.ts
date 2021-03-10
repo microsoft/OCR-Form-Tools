@@ -3,6 +3,7 @@
 
 import { Middleware, Dispatch, AnyAction, MiddlewareAPI } from "redux";
 import { constants } from "../../common/constants";
+import { webStorage } from "../../common/webStorage";
 
 export interface ILocalStorageMiddlewareOptions {
     paths: string[];
@@ -24,26 +25,44 @@ export function createLocalStorage(config: ILocalStorageMiddlewareOptions): Midd
     };
 }
 
-export function mergeInitialState(state: any, paths: string[]) {
+export async function mergeInitialState(state: any, paths: string[]) {
     const initialState = { ...state };
-    paths.forEach((path) => {
-        const json = getStorageItem(path);
+
+    for (const path of paths) {
+        const isArray = Array.isArray(initialState[path]);
+
+        let legacyItem = isArray ? [] : {};
+        let item = isArray ? [] : {};
+
+        const json = (await getStorageItem(path)) as string;
         if (json) {
-            initialState[path] = JSON.parse(json);
+            item = JSON.parse(json);
         }
-    });
+
+        const legacyJson = localStorage.getItem(`${constants.version}_${path}`);
+        if (legacyJson) {
+            legacyItem = JSON.parse(legacyJson);
+            localStorage.removeItem(`${constants.version}_${path}`);
+        }
+
+        if (isArray) {
+            initialState[path] = [].concat(legacyItem, item);
+        } else {
+            initialState[path] = { ...initialState[path], ...item, ...legacyItem };
+        }
+    }
 
     return initialState;
 }
 
 export function setStorageItem(key: string, value: string) {
-    localStorage.setItem(`${constants.version}_${key}`, value);
+    webStorage.setItem(`${constants.version}_${key}`, value);
 }
 
-export function getStorageItem(key: string) {
-    return localStorage.getItem(`${constants.version}_${key}`);
+export async function getStorageItem(key: string): Promise<string> {
+    return (await webStorage.getItem(`${constants.version}_${key}`)) as string;
 }
 
 export function removeStorageItem(key: string) {
-    return localStorage.removeItem(`${constants.version}_${key}`);
+    return webStorage.removeItem(`${constants.version}_${key}`);
 }

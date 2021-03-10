@@ -19,6 +19,7 @@ import packageJson from "../../package.json";
 import { strings, interpolate } from "../common/strings";
 import { toast } from "react-toastify";
 import clone from "rfdc";
+import _ from "lodash";
 
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../react/components/common/tagColors.json");
@@ -222,6 +223,27 @@ export default class ProjectService implements IProjectService {
         }
     }
 
+    public static async checkAndUpdateSchema(project: IProject): Promise<void> {
+        try {
+            const storageProvider = StorageProviderFactory.createFromConnection(project.sourceConnection);
+            const fieldInfo = await ProjectService.getFieldInfo(project, storageProvider);
+            const fieldsSchema = _.get(fieldInfo, "$schema", "");
+            if (ProjectService.shouldUpdateSchema(fieldsSchema)) {
+                fieldInfo["$schema"] = constants.fieldsSchema;
+                const fieldFilePath = joinPath("/", project.folderPath, constants.fieldsFileName);
+                await storageProvider.writeText(fieldFilePath, JSON.stringify(fieldInfo, null, 4));
+            }
+        } catch (err) {
+            console.warn(err);
+        }
+    }
+
+    private static shouldUpdateSchema(fieldsSchema: string) {
+        return fieldsSchema
+            && constants.supportedFieldsSchemas.has(fieldsSchema)
+            && fieldsSchema !== constants.fieldsSchema;
+    }
+
     /**
      * Assign project tags.
      * A new project doesn't have any tags at the beginning. But it could connect to a blob container
@@ -299,6 +321,24 @@ export default class ProjectService implements IProjectService {
             }
         } catch (err) {
             // ignore err
+        }
+    }
+
+    /**
+     * Get fields info from fields.json file.
+     * @param project the project we're trying to create
+     * @param storageProvider the storage we're trying to save the project to
+     */
+     private static getFieldInfo = async (project: IProject, storageProvider: IStorageProvider): Promise<IFieldInfo> => {
+        const fieldFilePath = joinPath("/", project.folderPath, constants.fieldsFileName);
+        try {
+            const json = await storageProvider.readText(fieldFilePath, true);
+            return JSON.parse(json) as IFieldInfo;
+        } catch (err) {
+            if (err instanceof SyntaxError) {
+                const reason = interpolate(strings.errors.invalidJSONFormat.message, { fieldFilePath });
+                toast.error(reason, { autoClose: false });
+            }
         }
     }
 
