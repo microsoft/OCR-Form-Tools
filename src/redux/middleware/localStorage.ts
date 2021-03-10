@@ -48,7 +48,7 @@ export async function mergeInitialState(state: any, paths: string[]) {
         if (isArray) {
             initialState[path] = [].concat(legacyItem, item);
         } else {
-            initialState[path] = { ...item, ...legacyItem };
+            initialState[path] = { ...initialState[path], ...item, ...legacyItem };
         }
     }
 
