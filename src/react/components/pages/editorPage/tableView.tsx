@@ -2,13 +2,40 @@ import * as React from "react";
 import { ICustomizations, Customizer, ContextualMenu, IDragOptions, Modal, FontIcon } from "@fluentui/react";
 import { getDarkGreyTheme } from "../../../../common/themes";
 import "./tableView.scss";
+import { TooltipHost, TooltipDelay, DirectionalHint, ITooltipProps, ITooltipHostStyles } from "@fluentui/react";
+import { useId } from '@uifabric/react-hooks';
+
+function Tooltip({ children, content }) {
+    const makeTooltipProps = (content: object): ITooltipProps => ({
+        onRenderContent: () => (
+            <ul style={{ margin: 10, padding: 0 }}>
+                {Object.keys(content).map((key, index) => content[key] ? <li key={index}>{`${key}: ${content[key]}`}</li> : null)}
+            </ul>
+        ),
+    });
+    const hostStyles: Partial<ITooltipHostStyles> = { root: { display: 'inline-block' } };
+    const tooltipId = useId('tooltip');
+    const tooltipProps = makeTooltipProps(content);
+    return (
+        <TooltipHost
+            delay={TooltipDelay.zero}
+            directionalHint={DirectionalHint.topCenter}
+            id={tooltipId}
+            tooltipProps={tooltipProps}
+            styles={hostStyles}
+        >
+            {children}
+        </TooltipHost>
+    )
+}
 
 interface ITableViewProps {
     handleTableViewClose: () => any;
     tableToView: object;
+    showToolTips?: boolean;
 }
 
-export const TableView: React.FunctionComponent<ITableViewProps> = (props) => {
+export const TableView: React.FunctionComponent<ITableViewProps> = ({ handleTableViewClose, tableToView, showToolTips = false }) => {
     const dark: ICustomizations = {
         settings: {
             theme: getDarkGreyTheme(),
@@ -20,49 +47,52 @@ export const TableView: React.FunctionComponent<ITableViewProps> = (props) => {
         moveMenuItemText: "Move",
         closeMenuItemText: "Close",
         menu: ContextualMenu,
-      };
+    };
 
     function getTableBody() {
-        const table = props.tableToView;
+        const table = tableToView;
         let tableBody = null;
         if (table !== null) {
             tableBody = [];
             const rows = table["rows"];
-            // const columns = table["columns"];
             for (let i = 0; i < rows; i++) {
                 const tableRow = [];
                 tableBody.push(<tr key={i}>{tableRow}</tr>);
             }
-            table["cells"].forEach((cell) => {
-                const rowIndex = cell["rowIndex"];
-                const columnIndex = cell["columnIndex"];
-                const rowSpan = cell["rowSpan"];
-                const colSpan = cell["columnSpan"];
-                tableBody[rowIndex]["props"]["children"][columnIndex] =
+            table["cells"].forEach(({ rowIndex, columnIndex, rowSpan, colSpan, text, confidence }) => {
+                const content = { confidence: confidence || null };
+                const hasContentValue = Object.values(content).reduce((hasValue, value) => value || hasValue, false);
+                tableBody[rowIndex]["props"]["children"][columnIndex] = (
                     <td key={columnIndex} colSpan={colSpan} rowSpan={rowSpan}>
-                        {cell["text"]}
-                    </td>;
+                        {showToolTips && hasContentValue ? (
+                            <Tooltip content={content}>
+                                {text}
+                            </Tooltip>
+                        ) : (
+                            <React.Fragment>{text}</React.Fragment>
+                        )}
+                    </td>
+                )
             });
         }
         return tableBody;
     }
-
     return (
         <Customizer {...dark}>
             <Modal
                 titleAriaId={"Table view"}
-                isOpen={props.tableToView !== null}
+                isOpen={tableToView !== null}
                 isModeless={false}
                 isDarkOverlay={true}
                 dragOptions={dragOptions}
-                onDismiss={props.handleTableViewClose}
+                onDismiss={handleTableViewClose}
                 scrollableContentClassName={"table-view-scrollable-content"}
             >
-            <FontIcon
-                className="close-modal"
-                role="button"
-                iconName="Cancel"
-                onClick={props.handleTableViewClose}
+                <FontIcon
+                    className="close-modal"
+                    role="button"
+                    iconName="Cancel"
+                    onClick={handleTableViewClose}
                 />
                 <div className="table-view-container">
                     <table className="viewed-table">
