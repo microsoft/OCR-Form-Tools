@@ -211,7 +211,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             if (prevState.highlightedField !== this.state.highlightedField) {
                 this.setPredictedFieldHighlightStatus(this.state.highlightedField);
             }
-            }
+        }
 
         if (_prevProps.prebuiltSettings !== this.props.prebuiltSettings) {
             this.handleUpdateRequestURI();
@@ -348,7 +348,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                                         />
                                     </div>
                                 </div>
-                            </> }
+                            </>}
                         {this.state.isFetching &&
                             <div className="loading-container">
                                 <Spinner
@@ -1041,7 +1041,25 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             }
 
             const valueArray = clickedFieldName.valueArray || [];
-            const columnNames = Object.keys(valueArray[0].valueObject);
+            const reOrderColumnHeaders = columnHeaders => {
+                const headers = Array.from(columnHeaders);
+                const fixedColumns = [];
+                const fixedColumnHeaders = ["Date", "ProductCode", "Description", "UnitPrice", "Quantity", "Unit", "Tax", "Amount"];
+                for (const expectColumn of fixedColumnHeaders) {
+                    const index = headers.indexOf(expectColumn);
+                    if (index >= 0) {
+                        fixedColumns.push(expectColumn);
+                        headers.splice(index, 1);
+                    }
+                }
+                return [...fixedColumns, ...headers];
+            }
+            const collectHeaders = valueArray => {
+                const headers = new Set();
+                valueArray.map(item => Object.keys(item?.valueObject).map(column => headers.add(column)));
+                return headers;
+            }
+            let columnNames = reOrderColumnHeaders(collectHeaders(valueArray));
             const columnHeaders = function makeColumnHeaders() {
                 const indexColumn = new Cell(0, 0, "");
                 const contentColumns = columnNames.map((columnName, columnIndex) => new Cell(0, columnIndex + 1, columnName));
@@ -1060,12 +1078,20 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             const flattenCells = matrix.reduce((cells, row) => cells = [...cells, ...row], []);
             return { cells: flattenCells, columns: matrix[0].length, rows: matrix.length, fieldName: clickedField, tagColor };
         }
+        const isTableField = (field, docType) => {
+            const hasObjectInValueArray = field => field.valueArray.reduce((hasObject, value: any) => hasObject || value?.type === "object", false)
+            const isArrayOFObject = field?.type === "array" && hasObjectInValueArray(field);
+            return docType === "prebuilt:invoice" && field?.fieldName === "Items" && isArrayOFObject(field);
+        }
 
-        const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult)
+        const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
+        const docType = _.get(this.state.analyzeResult, "documentResults[0]", "");
         const clickedFieldName = predictedItem?.fieldName;
         const clickedField = predictions[clickedFieldName];
-        const regionalTableToView = makeTable(clickedField);
-        this.setState({ viewRegionalTable: true, regionalTableToView });
+        if (isTableField(clickedField, docType)) {
+            const regionalTableToView = makeTable(clickedField);
+            this.setState({ viewRegionalTable: true, regionalTableToView });
+        }
     }
 
     private onTablePredictionClose = () => {
