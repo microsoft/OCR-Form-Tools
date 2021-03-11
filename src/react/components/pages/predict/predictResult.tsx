@@ -192,7 +192,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
     }
 
     private getTagColor = (name: string): string => {
-        const tag: ITag = this.props.tags.find((tag) => tag.name.toLocaleLowerCase() === name.toLocaleLowerCase());
+        const tag: ITag = this.props.tags.find((tag) => name.toLocaleLowerCase().startsWith(tag.name.toLocaleLowerCase()));
         if (tag) {
             return tag.color;
         }

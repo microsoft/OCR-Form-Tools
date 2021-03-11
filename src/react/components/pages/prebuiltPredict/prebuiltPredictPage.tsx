@@ -243,7 +243,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     public render() {
         const predictDisabled: boolean = this.getPredictDisabled();
 
-        const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
+        const predictions = this.flatFields(this.getPredictionsFromAnalyzeResult(this.state.analyzeResult));
 
         const onPrebuiltsPath: boolean = this.props.match.path.includes("prebuilts");
 
@@ -789,7 +789,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         const feature = new Feature({
             geometry: new Polygon([coordinates]),
         });
-        const tag = this.state.tags.find((tag) => tag.name.toLocaleLowerCase() === text.toLocaleLowerCase());
+        const tag = this.state.tags.find((tag) => text.toLocaleLowerCase().startsWith(tag.name.toLocaleLowerCase()));
         const isHighlighted = (text.toLocaleLowerCase() === this.state.highlightedField?.toLocaleLowerCase());
         feature.setProperties({
             color: _.get(tag, "color", "#333333"),
@@ -827,8 +827,8 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         // Comment this line to prevent clear OCR boundary boxes.
         // this.imageMap.removeAllFeatures();
         const createFeature = (fieldName, field) => {
-            if (Array.isArray(field)) {
-                field.forEach(field => createFeature(fieldName, field))
+            if (field && field.type === "array") {
+                field.valueArray?.forEach(row => createFeature(fieldName, row))
             } else {
                 if (_.get(field, "page", null) === this.state.currentPage) {
                     const text = fieldName;
@@ -862,14 +862,20 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             return blockedFieldNames.indexOf(fieldName) === -1;
         }
         const isRootItemObject = obj => obj.hasOwnProperty("text");
+        const docType = _.get(this.state.analyzeResult, "documentResults[0].docType", "");
+
         // flat fieldProps of type "array" and "object", and extract root level field props in "object" type
-        const flatFieldProps = (fieldName, fieldProps) => {
-            if (isSupportField(fieldName)) {
+        const flatFieldProps = (displayName, fieldProps) => {
+            if (isSupportField(displayName)) {
                 switch (_.get(fieldProps, "type", "")) {
                     case "array": {
-                        const valueArray = _.get(fieldProps, "valueArray", []);
-                        for (const arrayItem of valueArray) {
-                            flatFieldProps(fieldName, arrayItem);
+                        if (docType === "prebuilt:invoice" && displayName === "Items") {
+                            flattedFields[displayName] = fieldProps;
+                        } else {
+                            const valueArray = _.get(fieldProps, "valueArray", []);
+                            for (const [index, valueArrayItem] of valueArray.entries()) {
+                                flatFieldProps(`${displayName} ${index + 1}`, valueArrayItem);
+                            }
                         }
                         break;
                     }
@@ -877,24 +883,15 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                         // root level field props
                         const { type, valueObject, ...restProps } = fieldProps;
                         if (isRootItemObject(restProps)) {
-                            flatFieldProps(fieldName, restProps);
+                            flatFieldProps(displayName, restProps);
                         }
-                        for (const objFieldProps of Object.values(fieldProps.valueObject)) {
-                            if (objFieldProps) {
-                                flatFieldProps(fieldName, objFieldProps);
-                            }
+                        for (const [fieldName, objFieldProps] of Object.entries(fieldProps.valueObject)) {
+                            flatFieldProps(`${displayName}: ${fieldName}`, objFieldProps);
                         }
                         break;
                     }
                     default: {
-                        if (flattedFields[fieldName] == null) {
-                            flattedFields[fieldName] = fieldProps;
-                        }
-                        else if (Array.isArray(flattedFields[fieldName])) {
-                            flattedFields[fieldName].push(fieldProps)
-                        } else {
-                            flattedFields[fieldName] = [flattedFields[fieldName], fieldProps];
-                        }
+                        flattedFields[displayName] = fieldProps;
                     }
                 }
             }
@@ -1056,7 +1053,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             }
             const collectHeaders = valueArray => {
                 const headers = new Set();
-                valueArray.map(item => Object.keys(item?.valueObject).map(column => headers.add(column)));
+                valueArray.map(item => Object.keys(_.get(item, "valueObject", [])).map(column => headers.add(column)));
                 return headers;
             }
             let columnNames = reOrderColumnHeaders(collectHeaders(valueArray));
@@ -1078,20 +1075,12 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             const flattenCells = matrix.reduce((cells, row) => cells = [...cells, ...row], []);
             return { cells: flattenCells, columns: matrix[0].length, rows: matrix.length, fieldName: clickedField, tagColor };
         }
-        const isTableField = (field, docType) => {
-            const hasObjectInValueArray = field => field.valueArray.reduce((hasObject, value: any) => hasObject || value?.type === "object", false)
-            const isArrayOFObject = field?.type === "array" && hasObjectInValueArray(field);
-            return docType === "prebuilt:invoice" && field?.fieldName === "Items" && isArrayOFObject(field);
-        }
 
         const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
-        const docType = _.get(this.state.analyzeResult, "documentResults[0]", "");
         const clickedFieldName = predictedItem?.fieldName;
         const clickedField = predictions[clickedFieldName];
-        if (isTableField(clickedField, docType)) {
-            const regionalTableToView = makeTable(clickedField);
-            this.setState({ viewRegionalTable: true, regionalTableToView });
-        }
+        const regionalTableToView = makeTable(clickedField);
+        this.setState({ viewRegionalTable: true, regionalTableToView });
     }
 
     private onTablePredictionClose = () => {
