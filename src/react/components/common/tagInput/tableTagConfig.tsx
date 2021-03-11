@@ -935,6 +935,7 @@ export default function TableTagConfig(props: ITableTagConfigProps) {
         <Customizer {...dark}>
             <div className="config-view_container">
                 <h4 className="mt-2">{props.tableTag ? "Reconfigure table tag" : "Configure table tag"}</h4>
+                <h5 className="mt-3 mb-1"><a href="https://aka.ms/form-recognizer/docs/table-labeling" target="_blnck" rel="noopeber bireferrer">Learn more about how to use table tags</a></h5>
                 <h5 className="mt-3 mb-1">Name</h5>
                 {tableTagName.originalTableName &&
                     <div className={"original-table-name"}>
