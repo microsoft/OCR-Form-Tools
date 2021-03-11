@@ -1056,7 +1056,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 valueArray.map(item => Object.keys(_.get(item, "valueObject", [])).map(column => headers.add(column)));
                 return headers;
             }
-            let columnNames = reOrderColumnHeaders(collectHeaders(valueArray));
+            const columnNames = reOrderColumnHeaders(collectHeaders(valueArray));
             const columnHeaders = function makeColumnHeaders() {
                 const indexColumn = new Cell(0, 0, "");
                 const contentColumns = columnNames.map((columnName, columnIndex) => new Cell(0, columnIndex + 1, columnName));
