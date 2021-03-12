@@ -183,7 +183,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         appTitleActions.setTitle(`${strings.prebuiltPredict.title}`);
         if (prebuiltSettings && prebuiltSettings.serviceURI) {
             this.setState({
-                predictionEndpointUrl: `/formrecognizer/${constants.prebuiltServiceVersion}/prebuilt/${this.state.currentPrebuiltType.servicePath}/analyze?includeTextDetails=false`
+                predictionEndpointUrl: `/formrecognizer/${constants.prebuiltServiceVersion}/prebuilt/${this.state.currentPrebuiltType.servicePath}/analyze?includeTextDetails=true`
             });
         }
     }
@@ -1009,7 +1009,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 newQueryString += `${connector}locale=${this.state.currentLocale}`;
             }
         } else {
-            newQueryString = `includeTextDetails=false`;
+            newQueryString = `includeTextDetails=true`;
             if (this.state.withPageRange && this.state.pageRangeIsValid) {
                 newQueryString += `&${constants.pages}=${this.state.pageRange}`;
             }
