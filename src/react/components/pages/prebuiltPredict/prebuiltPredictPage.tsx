@@ -183,7 +183,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         appTitleActions.setTitle(`${strings.prebuiltPredict.title}`);
         if (prebuiltSettings && prebuiltSettings.serviceURI) {
             this.setState({
-                predictionEndpointUrl: `/formrecognizer/${constants.prebuiltServiceVersion}/prebuilt/${this.state.currentPrebuiltType.servicePath}/analyze?includeTextDetails=true`
+                predictionEndpointUrl: `/formrecognizer/${constants.prebuiltServiceVersion}/prebuilt/${this.state.currentPrebuiltType.servicePath}/analyze?includeTextDetails=false`
             });
         }
     }
@@ -706,12 +706,14 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
     private handlePredictionError = (error) => {
         let alertMessage = "";
-        if (error.response) {
-            alertMessage = error.response.data;
-        } else if (error.errorCode === ErrorCode.PredictWithoutTrainForbidden) {
+        if (error?.errorCode === ErrorCode.PredictWithoutTrainForbidden) {
             alertMessage = strings.errors.predictWithoutTrainForbidden.message;
-        } else if (error.errorCode === ErrorCode.ModelNotFound) {
+        } else if (error?.errorCode === ErrorCode.ModelNotFound) {
             alertMessage = error.message;
+        } else if (error?.message) {
+            alertMessage = error.message;
+        } else if (error?.response) {
+            alertMessage = error.response.data;
         } else {
             alertMessage = interpolate(strings.errors.endpointConnectionError.message, { endpoint: "form recognizer backend URL" });
         }
@@ -1007,7 +1009,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 newQueryString += `${connector}locale=${this.state.currentLocale}`;
             }
         } else {
-            newQueryString = `includeTextDetails=true`;
+            newQueryString = `includeTextDetails=false`;
             if (this.state.withPageRange && this.state.pageRangeIsValid) {
                 newQueryString += `&${constants.pages}=${this.state.pageRange}`;
             }
