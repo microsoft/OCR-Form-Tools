@@ -78,7 +78,7 @@ export default class RegionalTable extends React.Component<IRegionalTableProps, 
             })
         } else {
             const columnHeaderRow = [];
-            const colKeys = Object.keys(regionalTableToView?.valueObject?.[Object.keys(regionalTableToView?.valueObject)?.[0]]?.valueObject || {});
+            const colKeys = this.getColumnNames(regionalTableToView);
             if (colKeys.length === 0) {
                 return (
                     <div>
@@ -164,6 +164,12 @@ export default class RegionalTable extends React.Component<IRegionalTableProps, 
                 </div>
             </div>
         );
+    }
+
+    private getColumnNames = (table) => {
+        const rows = Object.values(table?.valueObject || {});
+        const firstNonNullRow = rows.find(r => r != null) as any;
+        return Object.keys(firstNonNullRow?.valueObject || {});
     }
 
     render() {
