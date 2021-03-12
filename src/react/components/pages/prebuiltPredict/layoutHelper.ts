@@ -119,6 +119,7 @@ export class LayoutHelper implements ILayoutHelper {
     }
 
     public getOcrResultForPage = (targetPage: number): any => {
+        const isTargetPage = result => result.page === targetPage;
         if (!this.layoutData) {
             return {};
         }
@@ -126,9 +127,9 @@ export class LayoutHelper implements ILayoutHelper {
             // OCR schema with analyzeResult/readResults property
             const ocrResultsForCurrentPage = {};
             if (this.layoutData.analyzeResult.pageResults) {
-                ocrResultsForCurrentPage["pageResults"] = this.layoutData.analyzeResult.pageResults[targetPage - 1];
+                ocrResultsForCurrentPage["pageResults"] = this.layoutData.analyzeResult.pageResults.find(isTargetPage);
             }
-            ocrResultsForCurrentPage["readResults"] = this.layoutData.analyzeResult.readResults[targetPage - 1];
+            ocrResultsForCurrentPage["readResults"] = this.layoutData.analyzeResult.readResults.find(isTargetPage);
             return ocrResultsForCurrentPage;
         }
         return {};
