@@ -49,7 +49,7 @@ Form Labeling [NodeJS (>= 10.x, Dubnium) and NPM](https://github.com/nodejs/Rele
 
 ### Web アプリケーションを実行
 
-最新のWebブラウザを使って、FOTTを直接起動することができます:
+最新の Web ブラウザを使って、FOTT を直接起動することができます:
 
 * https://fott.azurewebsites.net/  (for Form Recognizer 2.0 GA services)
 * https://fott-preview.azurewebsites.net/  (for Form Recognizer 2.1-preview.* services)
@@ -177,7 +177,7 @@ Connections はプロジェクト間で設定して共有することができ�
 
 ![alt text](docs/images/train-model.png "Train Model")
 
-トレーニングが終了したら **Average Accuracy** の値を確認します。もし verage Accuracy  が低い場合は、ドキュメントを追加して上記の手順を繰り返す必要があります。ラベル付けされたドキュメントは、プロジェクトのインデックスに残ります。
+トレーニングが終了したら **Average Accuracy** の値を確認します。もし Average Accuracy  が低い場合は、ドキュメントを追加して上記の手順を繰り返す必要があります。ラベル付けされたドキュメントは、プロジェクトのインデックスに残ります。
 
 Tip: REST APIコールでトレーニングプロセスを実行することもできます。その方法については [Train with labels using Python](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/quickstarts/python-labeled-data) をご覧ください。
 
