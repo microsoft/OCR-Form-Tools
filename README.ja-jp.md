@@ -9,7 +9,7 @@ Form Recognizer の改善にご協力ください。[Take our survey!](https://a
 
 [Form Recognizer](https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/) のオープンソースの Labeling Tool で、Form OCR Test Toolset (FOTT) の一部です。
 
-これはツールの `MAINP ブランチです。これは、利用可能なすべての最新機能を含んでいます。プレビューのため、最も安定したバージョンでは**ありません**。
+これはツールの `MAIN` ブランチです。これは、利用可能なすべての最新機能を含んでいます。プレビューのため、最も安定したバージョンでは**ありません**。
 
 このリポジトリの目的は、お客様が Microsoft Forms と OCR サービスを使用する際に、最新のツールをテストできるようにすることです。現在のところ、Labeling Tool がここで紹介する最初のツールです。ユーザーはフィードバックを提供し、独自のニーズを満たすために顧客固有の変更を行うことができます。Microsoft Azure Form Recognizer チームは、定期的にソースコードを更新する予定です。コントリビュートしたいと思われる方は、コントリビュートのセクションをご覧ください。
 
