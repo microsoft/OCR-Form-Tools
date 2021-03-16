@@ -66,14 +66,14 @@ Test Runbook
 ## Configure fixed-sized table
 
 #### Scenario Two ####
-**Given** I'm on the edit page and open the "configure table tag".
-**When** I select type "fixed-sized" and format "column fields".
-**When** I click a "column fields" textarea and type "column1".
-**When** I click the "+Add column" button and see a new textarea , then type "column2".
-**When** I click the "+Add column" button and see a new textarea , then type "column3".
-**When** I click a "row fields" textarea and type "row1".
-**When** I click the "+Add row" button and see a new textarea, then type "row2".
-**Then** I should see a "Preview" table as below.
+**Given** I'm on the edit page and open the "configure table tag".  
+**When** I select type "fixed-sized" and format "column fields".  
+**When** I click a "column fields" textarea and type "column1".  
+**When** I click the "+Add column" button and see a new textarea , then type "column2".  
+**When** I click the "+Add column" button and see a new textarea , then type "column3".  
+**When** I click a "row fields" textarea and type "row1".  
+**When** I click the "+Add row" button and see a new textarea, then type "row2".  
+**Then** I should see a "Preview" table as below.  
 
 |      | column1 | column2 | column3 |
 | -----|-------- | ------- | ------- |
@@ -81,12 +81,12 @@ Test Runbook
 | row2 |         |         |         |
 
 #### Scenario Three ####
-**Given** I'm on the edit page and open the "configure table tag" and have multiple columns fields and row fields as scenario two.
-**When** I select the "column3" field and click the "move down" button twice.
-**When** I select the "column1" field and click the "delete column" button.
-**When** I select the "row2" field and click the "move up" button.
-**When** I select the "row2" field and click the "move up" button.
-**Then** I should see a "Preview" table as below.
+**Given** I'm on the edit page and open the "configure table tag" and have multiple columns fields and row fields as scenario two.  
+**When** I select the "column3" field and click the "move down" button twice.  
+**When** I select the "column1" field and click the "delete column" button.  
+**When** I select the "row2" field and click the "move up" button.  
+**When** I select the "row2" field and click the "move up" button.  
+**Then** I should see a "Preview" table as below.  
 
 |      | column3 | column2 |
 | -----|-------- | ------- |
@@ -94,48 +94,48 @@ Test Runbook
 | row1 |         |         |
 
 #### Scenario Four ####
-**Given** I'm on the edit page and open the "configure table tag" and have multiple columns fields and row fields.
-**When** I click the "save" button.
-**Then** I should see a new tag with the "click to assign labels" button. And a new object field was added into the fields.json file.
+**Given** I'm on the edit page and open the "configure table tag" and have multiple columns fields and row fields.  
+**When** I click the "save" button.  
+**Then** I should see a new tag with the "click to assign labels" button. And a new object field was added into the fields.json file.  
 
 ## Assign labels to a table tag
 
 #### Scenario Seven ####
-**Given** I'm on the edit page and have a table tag.
-**When** I click the "click to assign labels" button.
-**Then** I should see a label table.
+**Given** I'm on the edit page and have a table tag.  
+**When** I click the "click to assign labels" button.  
+**Then** I should see a label table.  
 
 #### Scenario Eight ####
-**Given** I'm on the edit page and opened a label table.
-**When** I click a bounding box and click a cell in the label table.
-**Then** I should see the text in the bounding box written into the cell. And the bounding box is rounded with the tag color. And the label is added to the labels.json file.
+**Given** I'm on the edit page and opened a label table.  
+**When** I click a bounding box and click a cell in the label table.  
+**Then** I should see the text in the bounding box written into the cell. And the bounding box is rounded with the tag color. And the label is added to the labels.json file.  
 
 #### Scenario Nine ####
-**Given** I'm on the edit page and have multiple labels in the label table.
-**When** I click "Reconfigure table" and delete a field.
-**Then** I should see the field and related label have been removed.
-
+**Given** I'm on the edit page and have multiple labels in the label table.  
+**When** I click "Reconfigure table" and delete a field.  
+**Then** I should see the field and related label have been removed.  
+ 
 #### Scenario Ten ####
-**Given** I'm on the edit page and assigned a bounding box into a cell of the label table.
-**When** I click the bounding box and click a different cell.
-**Then** I should see the text in the origin cell is removed and added into the new assigned cell.
+**Given** I'm on the edit page and assigned a bounding box into a cell of the label table.  
+**When** I click the bounding box and click a different cell.  
+**Then** I should see the text in the origin cell is removed and added into the new assigned cell.  
 
 #### Scenario Eleven ####
-**Given** I'm on the edit page and opened a "row dynamic" label table.
-**When** I click a bounding box and click a cell in the label table.
-**Then** I should see the text in the bounding box written into the cell. And the bounding box is rounded with the tag color. And the label is added to the labels.json file.
+**Given** I'm on the edit page and opened a "row dynamic" label table.  
+**When** I click a bounding box and click a cell in the label table.  
+**Then** I should see the text in the bounding box written into the cell. And the bounding box is rounded with the tag color. And the label is added to the labels.json file.  
 
 ## Dynamic sized table
 
 #### Scenario Twelve ####
-**Given** I'm on the edit page and opened the "configure table tag".
-**When** I switch to the "row dynamic" type and add multiple fields.
-**Then** I should see the fields displayed on the preview table in the position from row 0 and column 0..n in order.
+**Given** I'm on the edit page and opened the "configure table tag".  
+**When** I switch to the "row dynamic" type and add multiple fields.  
+**Then** I should see the fields displayed on the preview table in the position from row 0 and column 0..n in order.  
 
 #### Scenario Thirteen ####
-**Given** I created a row dynamic label table and clicked "click to assign labels".
-**When** I clicked "+Add row" button.
-**Then** I should see the row grow.
+**Given** I created a row dynamic label table and clicked "click to assign labels".  
+**When** I clicked "+Add row" button.  
+**Then** I should see the row grow.  
 
 --------------
 ## <h2 id="region-label">support region labeling</h2>
@@ -495,23 +495,23 @@ ___
 
 **As** a user  
 **I want** to be able to share to a project via shared string  
-**So** receiving user don't have to manually copy-paste project info into app settings
+**So** receiving user don't have to manually copy-paste project info into app settings  
 
 > ### Acceptance criteria ###
 
 #### Scenario One ####
 
-**Given** I've opened a project. 
+**Given** I've opened a project.  
 **When** I click "Share Project" in Canvas Commandbar. I should see tha message that shared string been saved to my clipboard.  
-**Then** I can paste the string from clipboard.
+**Then** I can paste the string from clipboard.  
 
 #### Scenario Two ####
 
-**Given** I've received the string with a project.
-**When** I go to the connection page. Click "New connection" button. Type the same name "Diaplay name" and "SAS URI" with the shared project. Then click the "Save Connection" button. 
-**When** I click the "Application Settings" icon button. Click the "Add Security Tokens" button. Type the same "Name" and "Key" with the shared project. Then click the "Save Settings" button. 
-**When** I go to the home page of the FOTT and click on "Open Cloud Project" icon, I can paste the string to the input field and click "OK".    
-**Then** FOTT should open the shared project as expected.
+**Given** I've received the string with a project.  
+**When** I go to the connection page. Click "New connection" button. Type the same name "Diaplay name" and "SAS URI" with the shared project. Then click the "Save Connection" button.  
+**When** I click the "Application Settings" icon button. Click the "Add Security Tokens" button. Type the same "Name" and "Key" with the shared project. Then click the "Save Settings" button.  
+**When** I go to the home page of the FOTT and click on "Open Cloud Project" icon, I can paste the string to the input field and click "OK".  
+**Then** FOTT should open the shared project as expected.  
 
 ___
 
@@ -734,21 +734,21 @@ ___
 #### Scenario One ####
 
 **Given** I opened the prebuilts-analyze page.  
-**When** I click the "run analysis" button.
+**When** I click the "run analysis" button.  
 **Then** No reaction.  
 
 #### Scenario Two ####
 
 **Given** I opened the prebuilts-analyze page.  
 **When** I click the "Browse for a file..." button. And select a supported file.  
-**Then** The text "Browse for a file..." change into the uploaded file name. 
+**Then** The text "Browse for a file..." change into the uploaded file name.  
 
 #### Scenario Three ####
 
-**Given** I opened the prebuilts-analyze page. And uploaded a file.
-**When** I type in the "Form recognizer service endpoint" field and "API key" field. 
-**When** I type om the "API key" field. 
-**When** I click the "Run analysis" button.
+**Given** I opened the prebuilts-analyze page. And uploaded a file.  
+**When** I type in the "Form recognizer service endpoint" field and "API key" field.  
+**When** I type om the "API key" field.  
+**When** I click the "Run analysis" button.  
 **Then** I can see "analyzing in progress..." then see the analyze result. 
 
 ---------
@@ -756,27 +756,27 @@ ___
 
 #### Scenario One ####
 
-**Given** An existed project.
-**When** I use a new version FOTT with updated "fieldsSchema" URI. 
-**Then** The "$schema" field in the "field.json" files is corresponding to the new "fieldsSchema" URI.
+**Given** An existed project.  
+**When** I use a new version FOTT with updated "fieldsSchema" URI.  
+**Then** The "$schema" field in the "field.json" files is corresponding to the new "fieldsSchema" URI.  
 
 #### Scenario Two ####
 
-**Given** An existed project.
+**Given** An existed project.  
 **When** I use a new version FOTT with updated "labelsSchema" URI.  
 **Then** The "$schema" field in the "label.json" files is corresponding to the new "labelsSchema" URI.
 
 #### Scenario Three ####
 
 **Given** A new version FOTT with updated "labelsSchema" URI.  
-**When** I create a new project and add a few labels.
-**Then** I should see "$schema" field in the "label.json" files corresponding to the updated "labelsSchema" URI.
+**When** I create a new project and add a few labels.  
+**Then** I should see "$schema" field in the "label.json" files corresponding to the updated "labelsSchema" URI.  
 
 #### Scenario Four ####
 
 **Given** A new version FOTT with updated "fieldsSchema" URI.  
-**When** I create a new project.
-**Then** I should see the "$schema" field in the "fields.json" file corresponding to the new "fieldsSchema" URI.
+**When** I create a new project.  
+**Then** I should see the "$schema" field in the "fields.json" file corresponding to the new "fieldsSchema" URI.  
 
 -------
 
