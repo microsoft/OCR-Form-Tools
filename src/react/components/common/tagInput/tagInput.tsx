@@ -589,7 +589,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                         toast.warn(strings.tags.warnings.checkboxPerTagLimit);
                         return;
                     }
-                    if (tagCategory === FeatureCategory.Checkbox && category !== FeatureCategory.Checkbox) {
+                    if (tagCategory === FeatureCategory.Checkbox && !(category === FeatureCategory.Checkbox || category === FeatureCategory.DrawnRegion)) {
                         toast.warn(strings.tags.warnings.notCompatibleTagType);
                         return;
                     }
@@ -638,6 +638,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
     public labelAssignedDrawnRegion = (labels: ILabel[], name): boolean => {
         const label = labels?.find((label) => label.label === name ? true : false);
+        debugger;
         if (label?.labelType === FeatureCategory.DrawnRegion) {
             return true;
         } else {

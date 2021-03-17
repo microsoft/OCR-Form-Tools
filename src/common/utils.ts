@@ -479,7 +479,6 @@ export function downloadFile(data: any, fileName: string, prefix?: string): void
 export function  getTagCategory (tagType: string) {
     switch (tagType) {
         case FieldType.SelectionMark:
-            return FieldType.SelectionMark;
         case "checkbox":
             return "checkbox";
             case FieldType.Object:
