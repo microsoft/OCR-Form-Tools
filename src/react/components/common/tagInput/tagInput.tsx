@@ -638,7 +638,6 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
 
     public labelAssignedDrawnRegion = (labels: ILabel[], name): boolean => {
         const label = labels?.find((label) => label.label === name ? true : false);
-        debugger;
         if (label?.labelType === FeatureCategory.DrawnRegion) {
             return true;
         } else {
