@@ -742,7 +742,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     items: this.getTypeSubMenuItems()
                 },
                 submenuIconProps: {
-                    iconName: tag.type !== FieldType.Object ? "ChevronRight" : ""
+                    iconName: !(tag.type === FieldType.Object || tag.type === FieldType.Array) ? "ChevronRight" : ""
                 }
             },
             {
