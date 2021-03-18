@@ -7,18 +7,21 @@ import {loadImageToCanvas, parseTiffData, renderTiffToCanvas} from "../../../../
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
 
-export interface ILoadFileResult {
-    currentPage: number;
-    numPages: number;
-    imageUri: string,
-    imageWidth: number,
-    imageHeight: number,
-
+export interface ILoadFileError {
     shouldShowAlert: boolean;
     invalidFileFormat?: boolean;
     alertTitle: string;
     alertMessage: string;
 }
+
+export interface ILoadFileResult extends ILoadFileError {
+    currentPage: number;
+    numPages: number;
+    imageUri: string,
+    imageWidth: number,
+    imageHeight: number,
+}
+
 export interface ILoadFileHelper {
     loadFile(file: File): Promise<Partial<ILoadFileResult>>;
     loadPage(pageNumber: number): Promise<Partial<ILoadFileResult>>;
@@ -28,6 +31,12 @@ export interface ILoadFileHelper {
 export class LoadFileHelper implements ILoadFileHelper {
     currPdf: any;
     tiffImages: any[];
+    defaultErrorState: ILoadFileError = {
+        shouldShowAlert: false,
+        invalidFileFormat: false,
+        alertTitle: "",
+        alertMessage: ""
+    };
 
     async loadFile(file: File): Promise<Partial<ILoadFileResult>> {
         if (!file) {
@@ -66,6 +75,7 @@ export class LoadFileHelper implements ILoadFileHelper {
         const imageUri = this.createObjectURL(file);
         const canvas = await loadImageToCanvas(imageUri);
         return ({
+            ...this.defaultErrorState,
             currentPage: 1,
             numPages: 1,
             imageUri: canvas.toDataURL(constants.convertedImageFormat, constants.convertedImageQuality),
@@ -98,6 +108,7 @@ export class LoadFileHelper implements ILoadFileHelper {
         const tiffImage = this.tiffImages[pageNumber - 1];
         const canvas = renderTiffToCanvas(tiffImage);
         return ({
+            ...this.defaultErrorState,
             currentPage: pageNumber,
             numPages: this.getPageCount(),
             imageUri: canvas.toDataURL(constants.convertedImageFormat, constants.convertedImageQuality),
@@ -159,6 +170,7 @@ export class LoadFileHelper implements ILoadFileHelper {
         const renderTask = page.render(renderContext);
         await renderTask.promise;
         return ({
+            ...this.defaultErrorState,
             currentPage: pageNumber,
             numPages: this.getPageCount(),
             imageUri: canvas.toDataURL(constants.convertedImageFormat, constants.convertedImageQuality),
