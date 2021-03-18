@@ -31,7 +31,7 @@ export interface ILoadFileHelper {
 export class LoadFileHelper implements ILoadFileHelper {
     currPdf: any;
     tiffImages: any[];
-    defaultErrorState: ILoadFileError = {
+    emptyErrorState: ILoadFileError = {
         shouldShowAlert: false,
         invalidFileFormat: false,
         alertTitle: "",
@@ -75,7 +75,7 @@ export class LoadFileHelper implements ILoadFileHelper {
         const imageUri = this.createObjectURL(file);
         const canvas = await loadImageToCanvas(imageUri);
         return ({
-            ...this.defaultErrorState,
+            ...this.emptyErrorState,
             currentPage: 1,
             numPages: 1,
             imageUri: canvas.toDataURL(constants.convertedImageFormat, constants.convertedImageQuality),
@@ -108,7 +108,7 @@ export class LoadFileHelper implements ILoadFileHelper {
         const tiffImage = this.tiffImages[pageNumber - 1];
         const canvas = renderTiffToCanvas(tiffImage);
         return ({
-            ...this.defaultErrorState,
+            ...this.emptyErrorState,
             currentPage: pageNumber,
             numPages: this.getPageCount(),
             imageUri: canvas.toDataURL(constants.convertedImageFormat, constants.convertedImageQuality),
@@ -170,7 +170,7 @@ export class LoadFileHelper implements ILoadFileHelper {
         const renderTask = page.render(renderContext);
         await renderTask.promise;
         return ({
-            ...this.defaultErrorState,
+            ...this.emptyErrorState,
             currentPage: pageNumber,
             numPages: this.getPageCount(),
             imageUri: canvas.toDataURL(constants.convertedImageFormat, constants.convertedImageQuality),
