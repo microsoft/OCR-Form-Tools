@@ -253,4 +253,5 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com)
 with any additional questions or comments.
 
-[简体中文](README.zh-cn.md)
+* [简体中文](README.zh-cn.md)
+* [日本語](README.ja-jp.md)

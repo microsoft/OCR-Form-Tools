@@ -706,12 +706,14 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
     private handlePredictionError = (error) => {
         let alertMessage = "";
-        if (error.response) {
-            alertMessage = error.response.data;
-        } else if (error.errorCode === ErrorCode.PredictWithoutTrainForbidden) {
+        if (error?.errorCode === ErrorCode.PredictWithoutTrainForbidden) {
             alertMessage = strings.errors.predictWithoutTrainForbidden.message;
-        } else if (error.errorCode === ErrorCode.ModelNotFound) {
+        } else if (error?.errorCode === ErrorCode.ModelNotFound) {
             alertMessage = error.message;
+        } else if (error?.message) {
+            alertMessage = error.message;
+        } else if (error?.response) {
+            alertMessage = error.response.data;
         } else {
             alertMessage = interpolate(strings.errors.endpointConnectionError.message, { endpoint: "form recognizer backend URL" });
         }
@@ -826,28 +828,31 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     private drawPredictionResult = (): void => {
         // Comment this line to prevent clear OCR boundary boxes.
         // this.imageMap.removeAllFeatures();
-        const createFeature = (fieldName, field) => {
-            if (field && field.type === "array") {
-                field.valueArray?.forEach(row => createFeature(fieldName, row))
-            } else {
-                if (_.get(field, "page", null) === this.state.currentPage) {
-                    const text = fieldName;
-                    const boundingbox = _.get(field, "boundingBox", []);
-                    const feature = this.createBoundingBoxVectorFeature(text, boundingbox, imageExtent, ocrExtent);
-                    features.push(feature);
-                }
-            }
-        }
         const features = [];
         const imageExtent = [0, 0, this.state.imageWidth, this.state.imageHeight];
-        const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[this.state.currentPage - 1];
-        const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
-        const predictions = this.flatFields(this.getPredictionsFromAnalyzeResult(this.state.analyzeResult));
-        for (const [fieldName, field] of Object.entries(predictions)) {
-            createFeature(fieldName, field);
-        }
-        this.imageMap.addFeatures(features);
         this.tableHelper.drawTables(this.state.currentPage);
+        const isCurrentPage = result => result.page === this.state.currentPage;
+        const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult).find(isCurrentPage);
+        if (ocrForCurrentPage) {
+            const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
+            const createFeature = (fieldName, field) => {
+                if (field && field.type === "array") {
+                    field.valueArray?.forEach(row => createFeature(fieldName, row))
+                } else {
+                    if (_.get(field, "page", null) === this.state.currentPage) {
+                        const text = fieldName;
+                        const boundingbox = _.get(field, "boundingBox", []);
+                        const feature = this.createBoundingBoxVectorFeature(text, boundingbox, imageExtent, ocrExtent);
+                        features.push(feature);
+                    }
+                }
+            }
+            const predictions = this.flatFields(this.getPredictionsFromAnalyzeResult(this.state.analyzeResult));
+            for (const [fieldName, field] of Object.entries(predictions)) {
+                createFeature(fieldName, field);
+            }
+            this.imageMap.addFeatures(features);
+        }
     }
 
     private flatFields = (fields: object = {}): { [key: string]: (object[] | object) } => {
