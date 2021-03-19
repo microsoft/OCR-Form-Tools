@@ -159,7 +159,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
         withPageRange: false,
         pageRange: "",
-        predictionEndpointUrl: "",
+        predictionEndpointUrl: "/formrecognizer/v2.1-preview.3/prebuilt/invoice/analyze?includeTextDetails=true",
 
         liveMode: true,
 
@@ -417,7 +417,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
     onPageRangeChange = (withPageRange: boolean, pageRange: string, pageRangeIsValid: boolean) => {
         this.setState({ withPageRange, pageRange, pageRangeIsValid }, () => {
-            this.handleUpdateRequestURI();
+            this.handleUpdateRequestURI(false);
         });
     }
 
@@ -502,14 +502,14 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 analyzeResult: {}
             }, () => {
                 this.imageMap?.removeAllFeatures();
-                this.handleUpdateRequestURI();
+                this.handleUpdateRequestURI(false);
             });
         }
     }
     private onLocaleChange = (_e, option: IDropdownOption) => {
         const currentLocale: string = option.key as string;
         this.setState({ currentLocale }, () => {
-            this.handleUpdateRequestURI();
+            this.handleUpdateRequestURI(false);
         });
     }
 
@@ -957,15 +957,15 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         }
     }
 
-    private handleUpdateRequestURI = () => {
-        this.setState({ predictionEndpointUrl: this.getUpdatedRequestURI() });
+    private handleUpdateRequestURI = (updateEmptyQuery: boolean = true) => {
+        this.setState({ predictionEndpointUrl: this.getUpdatedRequestURI(false, updateEmptyQuery) });
     }
 
-    private getUpdatedRequestURI = (fromTextArea: boolean = false) => {
+    private getUpdatedRequestURI = (fromTextArea: boolean = false, updateEmptyQuery: boolean = true) => {
         const { predictionEndpointUrl } = this.state;
         const [path, queryString] = predictionEndpointUrl.split("?");
         const newPath = this.getUpdatedPath(path, fromTextArea);
-        const newQueryString = this.getUpdatedQueryString(queryString);
+        const newQueryString = this.getUpdatedQueryString(queryString, updateEmptyQuery);
         return `${newPath}?${newQueryString}`;
     }
 
@@ -992,7 +992,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         return URIUtils.compilePath(pathTemplate, pathParams, defaultPathParams);
     }
 
-    private getUpdatedQueryString(queryString: string): string {
+    private getUpdatedQueryString(queryString: string, updateEmptyQuery: boolean): string {
         let newQueryString = "";
         if (queryString) {
             const parameterArray = queryString.includes("&") ? queryString.split("&") : [queryString];
@@ -1001,8 +1001,8 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 const name = parameter.split("=")[0];
                 if (name !== "locale" && name !== constants.pages) {
                     newQueryString += `${connector}${parameter}`;
+                    connector = "&";
                 }
-                connector = "&";
             }
             if (this.state.withPageRange && this.state.pageRangeIsValid) {
                 newQueryString += `${connector}${constants.pages}=${this.state.pageRange}`;
@@ -1011,14 +1011,14 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             if (this.state.currentPrebuiltType.useLocale) {
                 newQueryString += `${connector}locale=${this.state.currentLocale}`;
             }
-        } else {
-            newQueryString = `includeTextDetails=true`;
+        } else if (!updateEmptyQuery) {
+            let connector = "";
             if (this.state.withPageRange && this.state.pageRangeIsValid) {
-                newQueryString += `&${constants.pages}=${this.state.pageRange}`;
+                newQueryString += `${constants.pages}=${this.state.pageRange}`;
+                connector = "&";
             }
-            newQueryString += this.state.currentPrebuiltType.useLocale ? `&locale=${this.state.currentLocale}` : "";
+            newQueryString += this.state.currentPrebuiltType.useLocale ? `${connector}locale=${this.state.currentLocale}` : "";
         }
-
         return newQueryString;
     }
 
