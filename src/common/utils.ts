@@ -335,20 +335,20 @@ export function patch<T, K extends keyof T>(data: T[], diff: T[], key: K, proper
 }
 
 export function getNextColor(tags: ITag[]) {
-
-    for (const color of tagColors) {
-        let vacancy = true;
-        for (const tag of tags) {
-            if (color.toLowerCase() === tag.color.toLowerCase()) {
-                vacancy = false;
-                break;
+    if (tags.length <= tagColors.length - 1) {
+        for (const color of tagColors) {
+            let vacancy = true;
+            for (const tag of tags) {
+                if (color.toLowerCase() === tag.color.toLowerCase()) {
+                    vacancy = false;
+                    break;
+                }
+            }
+            if (vacancy) {
+                return color;
             }
         }
-        if (vacancy) {
-            return color;
-        }
     }
-
     return tagColors[randomIntInRange(0, tagColors.length - 1)];
 }
 
