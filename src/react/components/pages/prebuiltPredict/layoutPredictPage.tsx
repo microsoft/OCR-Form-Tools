@@ -594,16 +594,17 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
                 })
             }).catch((error) => {
                 let alertMessage = "";
-                if (error.response) {
-                    alertMessage = error.response.data;
-                } else if (error.errorCode === ErrorCode.PredictWithoutTrainForbidden) {
+                if (error?.errorCode === ErrorCode.PredictWithoutTrainForbidden) {
                     alertMessage = strings.errors.predictWithoutTrainForbidden.message;
-                } else if (error.errorCode === ErrorCode.ModelNotFound) {
+                } else if (error?.errorCode === ErrorCode.ModelNotFound) {
                     alertMessage = error.message;
-                } else if (error.errorCode === ErrorCode.HttpStatusUnauthorized) {
+                } else if (error?.errorCode === ErrorCode.HttpStatusUnauthorized) {
                     alertMessage = error.message;
-                }
-                else {
+                } else if (error?.message) {
+                    alertMessage = error.message;
+                } else if (error?.response) {
+                    alertMessage = error.response.data;
+                } else {
                     alertMessage = interpolate(strings.errors.endpointConnectionError.message, { endpoint: "form recognizer backend URL" });
                 }
                 this.setState({

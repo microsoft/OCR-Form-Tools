@@ -68,6 +68,7 @@ export class TableHelper<TState extends ITableState> {
     }
 
     private getOcrResultForPage = (targetPage: number): any => {
+        const isTargetPage = result => result.page === targetPage;
         if (!this.analyzeResult) {
             return {};
         }
@@ -75,9 +76,9 @@ export class TableHelper<TState extends ITableState> {
             // OCR schema with analyzeResult/readResults property
             const ocrResultsForCurrentPage = {};
             if (this.analyzeResult.pageResults) {
-                ocrResultsForCurrentPage["pageResults"] = this.analyzeResult.pageResults[targetPage - 1];
+                ocrResultsForCurrentPage["pageResults"] = this.analyzeResult.pageResults.find(isTargetPage);
             }
-            ocrResultsForCurrentPage["readResults"] = this.analyzeResult.readResults[targetPage - 1];
+            ocrResultsForCurrentPage["readResults"] = this.analyzeResult.readResults.find(isTargetPage);
             return ocrResultsForCurrentPage;
         }
         return {};
