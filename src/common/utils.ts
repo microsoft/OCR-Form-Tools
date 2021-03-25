@@ -559,14 +559,14 @@ export class URIUtils {
     }
 }
 
-export function fillTagsColor (project: IProject): IProject {
+export function fillTagsColor(project: IProject): IProject {
     /** Add a color to tags which tag.color == null */
     const supportedColors = new Set(tagColors);
     return {
         ...project,
-        tags: project?.tags.map((tag: ITag) => ({
+        tags: project.tags.map((tag: ITag) => ({
             ...tag,
-            color: supportedColors.has(tag.color) ? tag.color : getNextColor(project?.tags)
+            color: supportedColors.has(tag.color) ? tag.color : getNextColor(project.tags)
         }))
     }
 }

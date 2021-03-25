@@ -69,7 +69,7 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
             assetTags.forEach((tag) => {
                 if (!state.tags || state.tags.length === 0 ||
                     !state.tags.find((projectTag) => tag === projectTag.name)) {
-                    const color = getNextColor(newTags)
+                    const color = getNextColor(newTags);
                     newTags.push({
                         name: tag,
                         color,
