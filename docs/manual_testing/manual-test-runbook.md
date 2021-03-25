@@ -21,9 +21,11 @@ Test Runbook
   * Prebuilt analyze
     * [Prebuilt analyze](#prebuilt-analyze)
     * [Table "Items" field](#table-items)
+    * [Compose API request](#compose-api-request)
 
 * Backword Compatibility
   * [Update schema URI](#update-schema-uri)
+  * [Update tag color](#update-tag-color)
 * Release
   * [support distributable releasing](#distributable-releasing)
   * [support Electron for on premise solution](#electron-for-on-premise-solution)
@@ -804,5 +806,38 @@ ___
 **Given** I am on the "prebuilt analyze" page, analyzed an invoice type file with "Items" field, and open the table modal.  
 **When** I hover to a cell of the modal table.  
 **Then** I should see a tooltip with "confidence" of the cell.   
+
+-------
+
+<h2 id="update-tag-color">Update Tag Color</h2>
+
+> ### Feature description ###
+- Update undefined tag color to a supported tag color.
+  
+**Given** I have blob storage with a field.json file that has more than 248 fields.  
+**When**  I open a new project with the "v2.1-Preview.3" version.  
+**Then**  I can see n-248 gray tags at the end of the tags field.  
+**When**  I open a new project with the current testing version.  
+**Then**  I can see n-248 tags at the end of the tags field with different colors.  
+
+-------
+
+<h2 id="compose-api-request">Compose API request</h2>
+
+> ### Feature description ###
+- Update compose api.
+  
+**Given** I open the prebuilt analyze page.  
+**When**  I click the "Browse for a file..." then selecte a supported file.  
+**When**  I change the composed API value to "/formrecognizer/v2.1-preview.3/prebuilt/invoice/analyze?".  
+**When**  I open a browser inspector, then click the "Run analysis" button.  
+**Then**  I can see the request URI in the browser inspector is equal to "/formrecognizer/v2.1-preview.3/prebuilt/invoice/analyze?".  
+**When**  I click the "Page range" checkbox, then type in "1".  
+**Then**  I can see the composed API request is equal to "/formrecognizer/v2.1-preview.3/prebuilt/invoice/analyze?pages=1".  
+**When**  I click the "Form Type" list and selected "Business card".     
+**When**  I click the "Locale" list and selected "en-CA".  
+**When**  I click the "Run analysis" button.  
+**Then**   I can see the request URI in the browser inspector is equal to "/formrecognizer/v2.1-preview.3/prebuilt/businessCard/analyze?pages=1&locale=en-CA".  
+
 
 
