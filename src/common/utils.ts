@@ -334,7 +334,7 @@ export function patch<T, K extends keyof T>(data: T[], diff: T[], key: K, proper
     });
 }
 
-export function getNextColor(tags: ITag[]) {
+export function getNextColor(tags: ITag[]): string {
     if (tags.length <= tagColors.length - 1) {
         for (const color of tagColors) {
             let vacancy = true;
@@ -556,5 +556,17 @@ export class URIUtils {
             params[key] = value;
         });
         return params;
+    }
+}
+
+export function fillTagsColor (project: IProject): IProject {
+    /** Add a color to tags which tag.color == null */
+    const supportedColors = new Set(tagColors);
+    return {
+        ...project,
+        tags: project?.tags.map((tag: ITag) => ({
+            ...tag,
+            color: supportedColors.has(tag.color) ? tag.color : getNextColor(project?.tags)
+        }))
     }
 }

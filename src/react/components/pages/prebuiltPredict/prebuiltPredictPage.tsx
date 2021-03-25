@@ -22,7 +22,7 @@ import { bindActionCreators } from "redux";
 import { constants } from "../../../../common/constants";
 import { interpolate, strings } from "../../../../common/strings";
 import { getPrimaryWhiteTheme, getLightGreyTheme } from "../../../../common/themes";
-import { poll } from "../../../../common/utils";
+import { getNextColor, poll } from "../../../../common/utils";
 import { ErrorCode, FieldFormat, FieldType, IApplicationState, IPrebuiltSettings, ITag } from "../../../../models/applicationState";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import IAppPrebuiltSettingsActions, * as appPrebuiltSettingsActions from "../../../../redux/actions/prebuiltSettingsActions";
@@ -174,7 +174,6 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     private tableHelper: ITableHelper = new TableHelper(this);
 
     private imageMap: ImageMap;
-    private tagColors = require("../../common/tagColors.json");
 
     public async componentDidMount() {
         const { appTitleActions, prebuiltSettings } = this.props;
@@ -738,9 +737,10 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     private getTagsForPredictResults(predictions) {
         const tags: ITag[] = [];
         Object.keys(predictions).forEach((key, index) => {
+            const color = getNextColor(tags);
             tags.push({
                 name: key,
-                color: this.tagColors[index],
+                color,
                 // use default type
                 type: FieldType.String,
                 format: FieldFormat.NotSpecified,

@@ -25,7 +25,7 @@ import {
     ErrorCode, AppError, IAppSettings,
 } from "../../../../models/applicationState";
 import {StorageProviderFactory} from "../../../../providers/storage/storageProviderFactory";
-import {decryptProject, getNextColor} from "../../../../common/utils";
+import {decryptProject, fillTagsColor} from "../../../../common/utils";
 import {toast} from "react-toastify";
 import {isElectron} from "../../../../common/hostProcess";
 import ProjectService from "../../../../services/projectService";
@@ -267,16 +267,6 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                 }
             }
             const selectedProject = { ...JSON.parse(projectStr), sourceConnection: project.sourceConnection };
-            const fillTagsColor = project => {
-                /** Add a color to tags which tag.color == null */
-                return {
-                    ...project,
-                    tags: project?.tags.map(tag => ({
-                        ...tag,
-                        color: tag.color || getNextColor(project?.tags)
-                    }))
-                }
-            }
             await this.loadSelectedProject(fillTagsColor(selectedProject));
         } catch (err) {
             if (err instanceof AppError && err.errorCode === ErrorCode.BlobContainerIONotFound) {

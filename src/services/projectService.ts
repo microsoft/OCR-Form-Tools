@@ -21,9 +21,6 @@ import { toast } from "react-toastify";
 import clone from "rfdc";
 import _ from "lodash";
 
-// tslint:disable-next-line:no-var-requires
-const tagColors = require("../react/components/common/tagColors.json");
-
 function normalizeFieldType(type: string): string {
     if (type === "checkbox") {
         return FieldType.SelectionMark;

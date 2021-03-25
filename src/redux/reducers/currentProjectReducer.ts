@@ -5,8 +5,7 @@ import {ActionTypes} from "../actions/actionTypes";
 import {IProject, ITag} from "../../models/applicationState";
 import {AnyAction} from "../actions/actionCreators";
 import _ from "lodash";
-// tslint:disable-next-line:no-var-requires
-const tagColors = require("../../react/components/common/tagColors.json");
+import { getNextColor } from "../../common/utils";
 
 /**
  * Reducer for project. Actions handled:
@@ -70,9 +69,10 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
             assetTags.forEach((tag) => {
                 if (!state.tags || state.tags.length === 0 ||
                     !state.tags.find((projectTag) => tag === projectTag.name)) {
+                    const color = getNextColor(newTags)
                     newTags.push({
                         name: tag,
-                        color: tagColors[newTags.length % tagColors.length],
+                        color,
                     } as ITag);
                     updateTags = true;
                 }
