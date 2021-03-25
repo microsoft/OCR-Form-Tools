@@ -813,12 +813,26 @@ ___
 
 > ### Feature description ###
 - Update undefined tag color to a supported tag color.
-  
+
+#### Scenario One: Shared by open a new project ####
+
 **Given** I have blob storage with a field.json file that has more than 248 fields.  
 **When**  I open a new project with the "v2.1-Preview.3" version.  
 **Then**  I can see n-248 gray tags at the end of the tags field.  
 **When**  I open a new project with the current testing version.  
 **Then**  I can see n-248 tags at the end of the tags field with different colors.  
+
+#### Scenario Two: Shared by open cloud project ####
+
+**Given** I have blob storage with a field.json file that has more than 248 fields.  
+**When**  I open a new project with the "v2.1-Preview.3" version.  
+**Then**  I can see n-248 gray tags at the end of the tags field.  
+**When**  I copy the shared token from the current project.  
+**When**  I open a new website with the current testing version.  
+**When**  I create a new connection with the same "Display name" and "SAS URI". 
+**When**  I click "Open Cloud Project", paste the shared project token, then click the "Open" button.
+**Then**  I can see n-248 tags at the end of the tags field with different colors.  
+
 
 -------
 
