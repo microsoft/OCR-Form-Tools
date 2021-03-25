@@ -469,17 +469,11 @@ ___
 
 #### Scenario Five ####
 
-**Given** I've opened the model selection pop-up  
-**When** I deselect all models from the list  
-**Then** I should not be able to click apply  
-
-#### Scenario Six ####
-
 **Given**  I've selected a different model  
 **When** I run an analysis on a document  
 **Then** I should see results for the selected model  
 
-#### Scenario Seven ####
+#### Scenario Six ####
 
 **Given** I've trained or composed at least one model  
 **When** I train or compose another model, go to the analyze page and click the choose model button  
