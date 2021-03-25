@@ -262,7 +262,7 @@ export default class ProjectService implements IProjectService {
         try {
             const blobs = new Set<string>(await storageProvider.listFiles(project.folderPath));
             const assetLabel = asset ? asset + constants.labelFileExtension : undefined;
-            for (const blob of blobs) {
+            await Promise.all(Array.from(blobs).map(async (blob) => {
                 const blobFolderPath = blob.substr(0, blob.lastIndexOf("/"));
                 if (blobFolderPath === project.folderPath
                     && blob.endsWith(constants.labelFileExtension)
@@ -270,6 +270,7 @@ export default class ProjectService implements IProjectService {
                     try {
                         if (!assetLabel || assetLabel === blob) {
                             const content = JSON.parse(await storageProvider.readText(blob)) as ILabelData;
+                            const localTagDocumentCount = {};
                             content.labels.forEach((label) => {
                                 if (constants.supportedLabelsSchemas.has(content?.$schema) && label.label.split("/").length > 1) {
                                     return;
@@ -280,22 +281,32 @@ export default class ProjectService implements IProjectService {
                                 } else {
                                     labelName = label.label
                                 }
-                                tagNameSet.add(labelName);
-                                if (tagDocumentCount[labelName]) {
-                                    tagDocumentCount[labelName] += 1;
+                                if (localTagDocumentCount[labelName]) {
+                                    localTagDocumentCount[labelName] += 1;
                                 } else {
-                                    tagDocumentCount[labelName] = 1;
+                                    localTagDocumentCount[labelName] = 1;
                                 }
                             });
-                        }
-                        if (assetLabel && assetLabel === blob) {
-                            break;
+                            return localTagDocumentCount;
                         }
                     } catch (err) {
                         // ignore err
                     }
                 }
-            }
+            })).then(localTagDocumentCounts => {
+                for (const localTagDocumentCount of localTagDocumentCounts) {
+                    if (_.isPlainObject(localTagDocumentCount)) {
+                        for (const [labelName, labelCount] of Object.entries(localTagDocumentCount)) {
+                            tagNameSet.add(labelName);
+                            if (tagDocumentCount[labelName]) {
+                                tagDocumentCount[labelName] += labelCount;
+                            } else {
+                                tagDocumentCount[labelName] = labelCount;
+                            }
+                        }
+                    }
+                }
+            });
             const tagNameArray = Array.from(tagNameSet);
             if (tagNameArray.containsDuplicates((name) => name)) {
                 const reason = interpolate(
