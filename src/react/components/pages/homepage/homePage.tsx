@@ -134,7 +134,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                         <CloudFilePicker
                             ref={this.cloudFilePickerRef}
                             connections={this.props.connections}
-                            onSubmit={(content, sharedToken?) => this.loadSelectedProject(JSON.parse(content), sharedToken)}
+                            onSubmit={this.onCloudPickerClick}
                             fileExtension={constants.projectFileExtension}
                         />
                     </ul>
@@ -315,5 +315,10 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
         if (error instanceof AppError) {
             throw error;
         }
+    }
+
+    private onCloudPickerClick = (content, sharedToken?) => {
+        const project = JSON.parse(content);
+        this.loadSelectedProject(fillTagsColor(project), sharedToken);
     }
 }
