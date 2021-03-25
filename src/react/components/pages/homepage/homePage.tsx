@@ -25,7 +25,7 @@ import {
     ErrorCode, AppError, IAppSettings,
 } from "../../../../models/applicationState";
 import {StorageProviderFactory} from "../../../../providers/storage/storageProviderFactory";
-import {decryptProject} from "../../../../common/utils";
+import {decryptProject, fillTagsColor} from "../../../../common/utils";
 import {toast} from "react-toastify";
 import {isElectron} from "../../../../common/hostProcess";
 import ProjectService from "../../../../services/projectService";
@@ -134,7 +134,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                         <CloudFilePicker
                             ref={this.cloudFilePickerRef}
                             connections={this.props.connections}
-                            onSubmit={(content, sharedToken?) => this.loadSelectedProject(JSON.parse(content), sharedToken)}
+                            onSubmit={this.onCloudPickerClick}
                             fileExtension={constants.projectFileExtension}
                         />
                     </ul>
@@ -266,8 +266,8 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                     throw err;
                 }
             }
-            const selectedProject = {...JSON.parse(projectStr), sourceConnection: project.sourceConnection};
-            await this.loadSelectedProject(selectedProject);
+            const selectedProject = { ...JSON.parse(projectStr), sourceConnection: project.sourceConnection };
+            await this.loadSelectedProject(fillTagsColor(selectedProject));
         } catch (err) {
             if (err instanceof AppError && err.errorCode === ErrorCode.BlobContainerIONotFound) {
                 const reason = interpolate(strings.errors.projectNotFound.message, {file: `${project.name}${constants.projectFileExtension}`, container: project.sourceConnection.name});
@@ -315,5 +315,10 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
         if (error instanceof AppError) {
             throw error;
         }
+    }
+
+    private onCloudPickerClick = (content, sharedToken?) => {
+        const project = JSON.parse(content);
+        this.loadSelectedProject(fillTagsColor(project), sharedToken);
     }
 }
