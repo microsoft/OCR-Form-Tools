@@ -286,9 +286,9 @@ export function saveAssetMetadata(
 
     return async (dispatch: Dispatch) => {
         const assetService = new AssetService(project);
-        const savedMetadata = await assetService.save(newAssetMetadata);
-        dispatch(saveAssetMetadataAction(savedMetadata));
-        return { ...savedMetadata };
+        assetService.save(newAssetMetadata);
+        dispatch(saveAssetMetadataAction(newAssetMetadata));
+        return { ...newAssetMetadata };
     };
 }
 
