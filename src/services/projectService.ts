@@ -21,9 +21,6 @@ import { toast } from "react-toastify";
 import clone from "rfdc";
 import _ from "lodash";
 
-// tslint:disable-next-line:no-var-requires
-const tagColors = require("../react/components/common/tagColors.json");
-
 function normalizeFieldType(type: string): string {
     if (type === "checkbox") {
         return FieldType.SelectionMark;
@@ -316,9 +313,10 @@ export default class ProjectService implements IProjectService {
                 throw new Error("Invalid label file");
             }
             tagNameArray.forEach((name, index) => {
+                const color = getNextColor(tags);
                 tags.push({
                     name,
-                    color: tagColors[index],
+                    color,
                     // use default type
                     type: FieldType.String,
                     format: FieldFormat.NotSpecified,
@@ -375,9 +373,10 @@ export default class ProjectService implements IProjectService {
                         return;
                     }
                     if (field.fieldType === FieldType.Object) {
+                        const color = getNextColor(tags);
                         tags.push({
                             name: field.fieldKey,
-                            color: tagColors[index],
+                            color,
                             type: normalizeFieldType(field.fieldType),
                             format: field.fieldFormat,
                             documentCount: 0,
@@ -387,9 +386,10 @@ export default class ProjectService implements IProjectService {
                             visualizationHint: (field as ITableField).visualizationHint || TableVisualizationHint.Vertical
                         } as ITableTag);
                     } else {
+                        const color = getNextColor(tags);
                         tags.push({
                             name: field.fieldKey,
-                            color: tagColors[index],
+                            color,
                             type: normalizeFieldType(field.fieldType),
                             format: field.fieldFormat,
                             documentCount: 0,
@@ -401,9 +401,10 @@ export default class ProjectService implements IProjectService {
                     }
 
                 } else {
+                    const color = getNextColor(tags);
                     tags.push({
                         name: field.fieldKey,
-                        color: tagColors[index],
+                        color,
                         type: normalizeFieldType(field.fieldType),
                         format: field.fieldFormat,
                         documentCount: 0,
