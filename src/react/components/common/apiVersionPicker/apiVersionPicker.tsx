@@ -27,7 +27,7 @@ interface IAPIVersions {
 }
 
 const APIVersions: IAPIVersions = {
-    versions: [APIVersionPatches.patch1, APIVersionPatches.patch2, APIVersionPatches.patch3],
+    versions: [APIVersionPatches.patch1, APIVersionPatches.patch2, APIVersionPatches.patch3, APIVersionPatches.patch4],
     defaultIndex: 2
 }
 
