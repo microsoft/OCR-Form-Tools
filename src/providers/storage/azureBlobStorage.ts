@@ -7,6 +7,7 @@ import { AppError, AssetState, AssetType, ErrorCode, IAsset, StorageType, ILabel
 import { throwUnhandledRejectionForEdge } from "../../react/components/common/errorHandler/errorHandler";
 import { AssetService } from "../../services/assetService";
 import { IStorageProvider } from "./storageProviderFactory";
+import {withQueueMap} from "../../common/queueMap/withQueueMap"
 
 /**
  * Options for Azure Cloud Storage
@@ -21,6 +22,7 @@ export interface IAzureCloudStorageOptions {
 /**
  * Storage Provider for Azure Blob Storage
  */
+@withQueueMap
 export class AzureBlobStorage implements IStorageProvider {
     /**
      * Storage type

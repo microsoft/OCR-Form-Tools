@@ -268,7 +268,7 @@ export class AssetService {
                 this.project.sourceConnection.providerOptions,
             );
         }
-
+        
         return this.storageProviderInstance;
     }
 
@@ -745,7 +745,7 @@ export class AssetService {
      * @param project to get assets and connect to file system.
      * @returns updated project
      */
-    public static checkAndUpdateSchema = async(project: IProject): Promise<IProject> => {
+    public static checkAndUpdateSchema = async (project: IProject): Promise<IProject> => {
         let shouldAssetsUpdate = false;
         let updatedProject;
         const { assets } = project;
