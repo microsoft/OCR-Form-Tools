@@ -268,7 +268,6 @@ export class AssetService {
                 this.project.sourceConnection.providerOptions,
             );
         }
-        
         return this.storageProviderInstance;
     }
 

@@ -2,6 +2,7 @@ import { IStorageProvider } from "../../providers/storage/storageProviderFactory
 import { constants } from "../constants";
 import { queueMap } from "./queueMap";
 
+// tslint:disable-next-line
 export function withQueueMap<T extends { new(...args: any[]): IStorageProvider }>(constructor: T) {
     return class extends constructor {
         isQueuedFile = (filePath: string = ""): boolean => {

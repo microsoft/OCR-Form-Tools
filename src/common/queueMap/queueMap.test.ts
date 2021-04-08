@@ -105,7 +105,7 @@ describe("QueueMap", () => {
         expect(mockCallback.mock.calls[0]).toEqual(args);
     })
     test("can call callback finished", async () => {
-        const mockCallback = jest.fn()
+        const mockCallback = jest.fn();
         const queueMap = new QueueMap();
         const queueId = "1";
         queueMap.callAfterLoop(queueId, mockCallback);
