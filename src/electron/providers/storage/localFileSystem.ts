@@ -171,7 +171,7 @@ export default class LocalFileSystem implements IStorageProvider {
         folderPath = [folderPath, folderName].join("/");
         const result: IAsset[] = [];
         const files = await this.listFiles(path.normalize(folderPath));
-        for (const file of files) {
+        await Promise.all(files.map(async (file) => {
             const fileParts = file.split(/[\\\/]/);
             const fileName = fileParts[fileParts.length - 1];
             const asset = await AssetService.createAssetFromFilePath(file, folderName + "/" + fileName, true);
@@ -191,11 +191,9 @@ export default class LocalFileSystem implements IStorageProvider {
                 } else {
                     asset.state = AssetState.NotVisited;
                 }
-
                 result.push(asset);
             }
-        }
-
+        }));
         return result;
     }
 
