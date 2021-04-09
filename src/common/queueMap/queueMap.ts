@@ -55,7 +55,7 @@ export default class QueueMap {
      * @return - dequeue object
      */
     dequeueUntilLast = (id: string): Args => {
-        let ret = null;
+        let ret = [];
         const { queue } = this.getQueueById(id);
         while (queue.length > 1) {
             ret = queue.shift();

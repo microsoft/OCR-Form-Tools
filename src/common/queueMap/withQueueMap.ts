@@ -32,6 +32,7 @@ export function withQueueMap<T extends { new(...args: any[]): IStorageProvider }
         }
 
         deleteFile = async (filePath: string, ignoreNotFound?: boolean, ignoreForbidden?: boolean) => {
+            // Expect this function is not called too often or may cause race with readText.
             const parentDeleteFile = super.deleteFile.bind(this);
             if (this.isQueuedFile(filePath)) {
                 await queueMap.callAfterLoop(filePath, parentDeleteFile, [filePath, ignoreNotFound, ignoreForbidden])
