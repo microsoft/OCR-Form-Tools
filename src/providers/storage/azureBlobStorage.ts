@@ -207,7 +207,7 @@ export class AzureBlobStorage implements IStorageProvider {
     public async getAssets(folderPath?: string, folderName?: string): Promise<IAsset[]> {
         const files: string[] = await this.listFiles(folderPath);
         const result: IAsset[] = [];
-        for (const file of files) {
+        await Promise.all(files.map(async (file) => {
             const url = this.getUrl(file);
             const asset = await AssetService.createAssetFromFilePath(url, this.getFileName(url));
             if (this.isSupportedAssetType(asset.type)) {
@@ -230,7 +230,7 @@ export class AzureBlobStorage implements IStorageProvider {
                 }
                 result.push(asset);
             }
-        }
+        }));
         return result;
     }
 
