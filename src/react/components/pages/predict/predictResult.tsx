@@ -359,7 +359,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         }
     }
 
-    private capitalizeFirstLetter(string) {
-        return string.charAt(0).toUpperCase() + string.slice(1);
+    private capitalizeFirstLetter = (str: string): string => {
+        return str.charAt(0).toUpperCase() + str.slice(1);
     }
 }
