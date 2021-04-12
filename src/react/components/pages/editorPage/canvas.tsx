@@ -2532,7 +2532,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private handleToggleDrawRegionMode = () => {
-        if (!this.state.drawRegionMode && getAPIVersion(this.props.project.apiVersion) !== APIVersionPatches.patch3) {
+        if (!this.state.drawRegionMode && !this.isDrawRegionSupportedVersion()) {
             toast.warn(interpolate(strings.editorPage.canvas.canvasCommandBar.warings.drawRegionUnsupportedAPIVersion, { apiVersion: (this.props.project.apiVersion || constants.appVersion) }), { autoClose: 7000 });
         }
         this.setState({
@@ -2649,6 +2649,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             }
         });
         this.imageMap.modifyStartFeatureCoordinates = {};
+    }
+
+    private isDrawRegionSupportedVersion() {
+        const apiVersion = getAPIVersion(this.props.project.apiVersion);
+        return apiVersion === APIVersionPatches.patch3 || apiVersion === APIVersionPatches.patch4;
     }
 
     async focusOnLabel(label: ILabel) {
