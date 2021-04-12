@@ -360,6 +360,10 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                 valueType = "phoneNumber";
                 postProcessedValue = prediction.valuePhoneNumber;
                 break;
+            case "selectionMark":
+                valueType = "valueSelectionMark";
+                postProcessedValue = prediction.valueSelectionMark;
+                break;
             default:
                 return null;
         }
