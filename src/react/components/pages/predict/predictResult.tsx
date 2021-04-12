@@ -325,54 +325,15 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         }
 
         const { type, text } = prediction;
-        let postProcessedValue;
-        let valueType;
-        switch (type) {
-            case "string":
-                valueType = "valueString";
-                postProcessedValue = prediction.valueString;
-                break;
-            case "date":
-                valueType = "valueDate";
-                postProcessedValue = prediction.valueDate;
-                break;
-            case "number":
-                valueType = "valueNumber";
-                postProcessedValue = prediction.valueNumber?.toString();
-                break;
-            case "integer":
-                valueType = "valueInteger";
-                postProcessedValue = prediction.valueInteger?.toString();
-                break;
-            case "time":
-                valueType = "valueTime";
-                postProcessedValue = prediction.valueTime;
-                break;
-            case "country":
-                valueType = "valueCountry";
-                postProcessedValue = prediction.valueCountry;
-                break;
-            case "gender":
-                valueType = "valueGender";
-                postProcessedValue = prediction.valueGender;
-                break;
-            case "phoneNumber":
-                valueType = "phoneNumber";
-                postProcessedValue = prediction.valuePhoneNumber;
-                break;
-            case "selectionMark":
-                valueType = "valueSelectionMark";
-                postProcessedValue = prediction.valueSelectionMark;
-                break;
-            default:
-                return null;
+        if (type) {
+            const valueType = `value${this.capitalizeFirstLetter(type)}`;
+            const postProcessedValue = prediction[valueType]?.toString();
+            if (typeof postProcessedValue === "string" && text !== postProcessedValue) {
+                return valueType + ": " + postProcessedValue;
+            }
         }
 
-        if (typeof postProcessedValue === "string" && text !== postProcessedValue) {
-            return valueType + ": " + postProcessedValue;
-        } else {
-            return null;
-        }
+        return null;
     }
 
     private getPageNumberFrom = (item: any) => {
@@ -396,5 +357,9 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                 }
             }
         }
+    }
+
+    private capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
     }
 }
