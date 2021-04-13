@@ -132,26 +132,36 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
             const pageNumber = this.getPageNumberFrom(item) || 1;
 
             return (
-                <div key={key}
-                    onClick={() => {
-                        this.onTablePredictionClick(item, this.getTagColor(item.fieldName));
-                        this.onPredictionMouseLeave(item)
-                    }}
-                    onMouseEnter={() => this.onPredictionMouseEnter(item)}
-                    onMouseLeave={() => this.onPredictionMouseLeave(item)}>
-                    <li className="predictiontag-item" style={style}>
-                        <div className={"predictiontag-color"}>
-                            <span>{pageNumber}</span>
-                        </div>
-                        <div className={"predictiontag-content"}>
-                            {this.getPredictionTagContent(item)}
-                        </div>
-                    </li>
-                    <li className="predictiontag-item-label mt-0 mb-1">
-                        <FontIcon className="pr-1 pl-1" iconName="Table" />
-                        <span style={{ color: "rgba(255, 255, 255, 0.75)" }}>Click to view analyzed table</span>
-                    </li>
-                </div>
+                (item?.valueArray || item?.valueObject) ?
+                    <div key={key}
+                        onClick={() => {
+                            this.onTablePredictionClick(item, this.getTagColor(item.fieldName));
+                            this.onPredictionMouseLeave(item)
+                        }}
+                        onMouseEnter={() => this.onPredictionMouseEnter(item)}
+                        onMouseLeave={() => this.onPredictionMouseLeave(item)}>
+                        <li className="predictiontag-item" style={style}>
+                            <div className={"predictiontag-color"}>
+                                <span>{pageNumber}</span>
+                            </div>
+                            <div className={"predictiontag-content"}>
+                                {this.getPredictionTagContent(item)}
+                            </div>
+                        </li>
+                        <li className="predictiontag-item-label mt-0 mb-1">
+                            <FontIcon className="pr-1 pl-1" iconName="Table" />
+                            <span style={{ color: "rgba(255, 255, 255, 0.75)" }}>Click to view analyzed table</span>
+                        </li>
+                    </div> :
+                    <>
+                        <li className="predictiontag-item" style={style}>
+                            <div className={"predictiontag-color"}></div>
+                            <div className={"predictiontag-content"}>
+                                {this.getPredictionTagContent(item)}
+                            </div>
+                        </li>
+                        <li className="predictiontag-item-label-null mt-0 mb-1">NULL</li>
+                    </>
             )
         } else {
             return (
@@ -214,7 +224,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                     }
                 </div>
                 <div className={"predictiontag-confidence"}>
-                    {isNaN(item.confidence) ? <span>NaN</span> :
+                    {isNaN(item.confidence) ? <span></span> :
                         <span>{(item.confidence * 100).toFixed(2) + "%"}</span>}
                 </div>
             </div>
@@ -342,14 +352,14 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         }
 
         // Get page number from item's children in a recursive way.
-        if (item && item.type === "object") {
+        if (item && item.type === "object" && item.valueObject) {
             for (const property of Object.keys(item.valueObject)) {
                 const pageNumber = this.getPageNumberFrom(item.valueObject[property]);
                 if (pageNumber) {
                     return pageNumber;
                 }
             }
-        } else if (item && item.type === "array") {
+        } else if (item && item.type === "array" && item.valueArray) {
             for (const element of item.valueArray) {
                 const pageNumber = this.getPageNumberFrom(element);
                 if (pageNumber) {

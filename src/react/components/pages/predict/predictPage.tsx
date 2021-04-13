@@ -937,7 +937,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             if (!field) {
                 return;
             }
-            if (field?.type === "object") {
+            if (field?.type === "object" && field.valueObject) {
                 Object.keys(field?.valueObject).forEach((rowName, rowIndex) => {
                     if (field?.valueObject?.[rowName]) {
                         Object.keys(field?.valueObject?.[rowName]?.valueObject).forEach((columnName, colIndex) => {
@@ -952,7 +952,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     }
                 })
             }
-            else if (field.type === "array") {
+            else if (field.type === "array" && field.valueArray) {
                 field?.valueArray.forEach((row, rowIndex) => {
                     Object.keys(row?.valueObject).forEach((columnName, colIndex) => {
                         const tableCell = field?.valueArray?.[rowIndex]?.valueObject?.[columnName];
