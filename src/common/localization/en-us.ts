@@ -566,7 +566,7 @@ export const english: IAppStrings = {
                     }
                 },
                 warings: {
-                    drawRegionUnsupportedAPIVersion: "Region labeling is not supported with API ${apiVersion}. It will be supported with the release of v2.1-preview.3",
+                    drawRegionUnsupportedAPIVersion: "Region labeling is not supported with API ${apiVersion}. It will be supported with the release of v2.1",
                 }
             }
         },

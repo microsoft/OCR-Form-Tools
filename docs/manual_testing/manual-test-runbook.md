@@ -837,15 +837,15 @@ ___
   
 **Given** I open the prebuilt analyze page.  
 **When**  I click the "Browse for a file..." then selecte a supported file.  
-**When**  I change the composed API value to "/formrecognizer/v2.1-preview.3/prebuilt/invoice/analyze?".  
+**When**  I change the composed API value to "/formrecognizer/v2.1/prebuilt/invoice/analyze?".  
 **When**  I open a browser inspector, then click the "Run analysis" button.  
-**Then**  I can see the request URI in the browser inspector is equal to "/formrecognizer/v2.1-preview.3/prebuilt/invoice/analyze?".  
+**Then**  I can see the request URI in the browser inspector is equal to "/formrecognizer/v2.1/prebuilt/invoice/analyze?".  
 **When**  I click the "Page range" checkbox, then type in "1".  
-**Then**  I can see the composed API request is equal to "/formrecognizer/v2.1-preview.3/prebuilt/invoice/analyze?pages=1".  
+**Then**  I can see the composed API request is equal to "/formrecognizer/v2.1/prebuilt/invoice/analyze?pages=1".  
 **When**  I click the "Form Type" list and selected "Business card".     
 **When**  I click the "Locale" list and selected "en-CA".  
 **When**  I click the "Run analysis" button.  
-**Then**   I can see the request URI in the browser inspector is equal to "/formrecognizer/v2.1-preview.3/prebuilt/businessCard/analyze?pages=1&locale=en-CA".  
+**Then**   I can see the request URI in the browser inspector is equal to "/formrecognizer/v2.1/prebuilt/businessCard/analyze?pages=1&locale=en-CA".  
 
 
 
