@@ -28,7 +28,7 @@ interface IAPIVersions {
 
 const APIVersions: IAPIVersions = {
     versions: [APIVersionPatches.patch1, APIVersionPatches.patch2, APIVersionPatches.patch3, APIVersionPatches.patch4],
-    defaultIndex: 2
+    defaultIndex: 3,
 }
 
 export class APIVersionPicker extends React.Component<IAPIVersionPickerProps> {

@@ -3,14 +3,10 @@
 
 import { appInfo } from "./appInfo"
 
-const appVersionRaw = appInfo.version
-const appVersionArr = appVersionRaw.split(".");
-appVersionArr[1] = appVersionArr[1] + "-preview";
-const appVersion = appVersionArr.join(".");
-
+const appVersion = appInfo.version;
 const enableAPIVersionSelection = appInfo.enableAPIVersionSelection;
 const enablePredictionResultUpload = appInfo.enablePredictionResultUpload;
-const apiVersion = "v2.1-preview.3";
+const apiVersion = "v2.1";
 const supportedFieldsSchemas = new Set(["http://www.azure.com/schema/formrecognizer/fields.json", "https://schema.cognitiveservices.azure.com/formrecognizer/2021-03-01/fields.json"]);
 const supportedLabelsSchemas = new Set(["http://www.azure.com/schema/formrecognizer/labels.json", "https://schema.cognitiveservices.azure.com/formrecognizer/2021-03-01/labels.json"]);
 
@@ -19,7 +15,6 @@ const supportedLabelsSchemas = new Set(["http://www.azure.com/schema/formrecogni
  */
 export const constants = {
     version: "pubpreview_1.0",
-    appVersionRaw,
     appVersion,
     apiVersion,
     enableAPIVersionSelection,
@@ -60,6 +55,6 @@ export const constants = {
         return `https://fotts.azureedge.net/npm/pdfjs-dist/${version}/cmaps/`;
     },
     insightsKey: "",
-    prebuiltServiceVersion: "v2.1-preview.3",
+    prebuiltServiceVersion: "v2.1",
     pages: "pages"
 };

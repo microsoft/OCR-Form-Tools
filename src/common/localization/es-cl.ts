@@ -568,7 +568,7 @@ export const spanish: IAppStrings = {
                     }
                 },
                 warings: {
-                    drawRegionUnsupportedAPIVersion: "Las regiones de dibujo no son compatibles con la versión de API ${apiVersion}. Será compatible con el lanzamiento de v2.1-preview.3",
+                    drawRegionUnsupportedAPIVersion: "Las regiones de dibujo no son compatibles con la versión de API ${apiVersion}. Será compatible con el lanzamiento de v2.1",
                 }
             }
         },
