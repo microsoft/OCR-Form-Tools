@@ -329,7 +329,7 @@ export const english: IAppStrings = {
             unknownTagName: "Unknown",
             notCompatibleTagType: "Tag type is not compatible with this feature. If you want to change type of this tag, please remove or reassign all labels which using this tag in your project.",
             checkboxPerTagLimit: "Cannot assign more than one checkbox per tag",
-            notCompatibleWithDrawnRegionTag: "Drawn regions and ${otherCatagory} values cannot both be assigned to the same document's tag",
+            notCompatibleWithDrawnRegionTag: "Drawn regions and ${otherCategory} values cannot both be assigned to the same document's tag",
             replaceAllExitingLabels: "Are you sure you want to replace selected tag's labels?",
             replaceAllExitingLabelsTitle: "Replace tag's labels",
         },

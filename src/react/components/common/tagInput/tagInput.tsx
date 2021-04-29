@@ -574,11 +574,11 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     deselect = false;
                 } else if (labelAssigned && ((category === FeatureCategory.DrawnRegion) !== isTagLabelTypeDrawnRegion)) {
                     if (category === FeatureCategory.Checkbox && isTagLabelTypeDrawnRegion) {
-                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, { otherCatagory: FeatureCategory.Checkbox }));
+                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, { otherCategory: FeatureCategory.Checkbox }));
                     } else if (isTagLabelTypeDrawnRegion) {
                         this.replaceConfirmRef.current.open(tag, props);
                     } else if (tagCategory === FeatureCategory.Checkbox) {
-                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, { otherCatagory: FeatureCategory.Checkbox }));
+                        toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, { otherCategory: FeatureCategory.Checkbox }));
                     } else {
                         this.replaceConfirmRef.current.open(tag, props);
                     }
