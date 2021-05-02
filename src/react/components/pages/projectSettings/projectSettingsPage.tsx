@@ -215,6 +215,8 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
             } else {
                 this.props.history.goBack();
             }
+        } catch (error) {
+            toast.error(error.message);
         } finally {
             this.setState({ isCommiting: false });
         }
