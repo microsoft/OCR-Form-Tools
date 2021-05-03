@@ -761,7 +761,7 @@ export class AssetService {
                         assetMetadata.labelData = { ...assetMetadata.labelData, "$schema": constants.labelsSchema };
                         shouldSaveMetadata = true;
                     }
-    
+
                     // Check and remove labelType property.
                     let shouldUpdateLabels = false;
                     const labels = assetMetadata.labelData?.labels || [];
@@ -776,7 +776,7 @@ export class AssetService {
                         assetMetadata.labelData = { ...assetMetadata.labelData, labels };
                         shouldSaveMetadata = true;
                     }
-    
+
                     // Save back to storage.
                     if (shouldSaveMetadata) {
                         await assetService.save(assetMetadata);
