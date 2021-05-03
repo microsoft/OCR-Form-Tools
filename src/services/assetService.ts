@@ -748,20 +748,44 @@ export class AssetService {
         let shouldAssetsUpdate = false;
         let updatedProject;
         const { assets } = project;
-        const shouldSchemaUpdate = schema => constants.supportedLabelsSchemas.has(schema) && schema !== constants.labelsSchema;
         if (_.isPlainObject(assets)) {
             const assetService = new AssetService(project);
             const assetMetadatas: IAssetMetadata[] = await Promise.all(Object.values(assets).map(async (asset) => await assetService.getAssetMetadata(asset)));
             await Promise.all(assetMetadatas.map(async (assetMetadata) => {
-                if (_.isPlainObject(assetMetadata.labelData) && AssetService.shouldSchemaUpdate(assetMetadata.labelData?.$schema)) {
-                    shouldAssetsUpdate = true;
-                    assetMetadata.labelData = { ...assetMetadata.labelData, "$schema": constants.labelsSchema };
-                    await assetService.save(assetMetadata);
+                if (_.isPlainObject(assetMetadata.labelData)) {
+                    let shouldSaveMetadata = false;
+
+                    // Check and update $schema property.
+                    if (AssetService.shouldSchemaUpdate(assetMetadata.labelData?.$schema)) {
+                        shouldAssetsUpdate = true;
+                        assetMetadata.labelData = { ...assetMetadata.labelData, "$schema": constants.labelsSchema };
+                        shouldSaveMetadata = true;
+                    }
+    
+                    // Check and remove labelType property.
+                    let shouldUpdateLabels = false;
+                    const labels = assetMetadata.labelData?.labels || [];
+                    labels.forEach(label => {
+                        if (AssetService.shouldRemoveLabelType(label)) {
+                            delete label.labelType;
+                            shouldUpdateLabels = true;
+                        }
+                    });
+
+                    if (shouldUpdateLabels) {
+                        assetMetadata.labelData = { ...assetMetadata.labelData, labels };
+                        shouldSaveMetadata = true;
+                    }
+    
+                    // Save back to storage.
+                    if (shouldSaveMetadata) {
+                        await assetService.save(assetMetadata);
+                    }
                 }
-            }))
+            }));
             const updatedAssets = { ...assets };
             for (const [assetID, asset] of Object.entries(assets)) {
-                if (shouldSchemaUpdate(asset.schema)) {
+                if (AssetService.shouldSchemaUpdate(asset.schema)) {
                     updatedAssets[assetID] = { ...assets[assetID], schema: constants.labelsSchema };
                 }
             }
@@ -772,5 +796,9 @@ export class AssetService {
 
     public static shouldSchemaUpdate = (schema: string): boolean => {
         return constants.supportedLabelsSchemas.has(schema) && schema !== constants.labelsSchema;
+    }
+
+    public static shouldRemoveLabelType = (label: ILabel): boolean => {
+        return label.hasOwnProperty("labelType") && label.labelType === null;
     }
 }
