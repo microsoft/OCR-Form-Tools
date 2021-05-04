@@ -54,16 +54,16 @@ export const TableView: React.FunctionComponent<ITableViewProps> = ({ handleTabl
         let tableBody = null;
         if (table !== null) {
             tableBody = [];
-            const rows = table["rows"];
-            for (let i = 0; i < rows; i++) {
+            const rowCount = table["rows"];
+            for (let i = 0; i < rowCount; i++) {
                 const tableRow = [];
                 tableBody.push(<tr key={i}>{tableRow}</tr>);
             }
-            table["cells"].forEach(({ rowIndex, columnIndex, rowSpan, colSpan, text, confidence }) => {
+            table["cells"].forEach(({ rowIndex, columnIndex, rowSpan, columnSpan, text, confidence }) => {
                 const content = { confidence: confidence || null };
                 const hasContentValue = Object.values(content).reduce((hasValue, value) => value || hasValue, false);
                 tableBody[rowIndex]["props"]["children"][columnIndex] = (
-                    <td key={columnIndex} colSpan={colSpan} rowSpan={rowSpan}>
+                    <td key={columnIndex} colSpan={columnSpan} rowSpan={rowSpan}>
                         {showToolTips && hasContentValue ? (
                             <Tooltip content={content}>
                                 {text}
