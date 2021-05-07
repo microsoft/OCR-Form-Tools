@@ -11,7 +11,7 @@ import { IAppStrings } from "../strings";
 export const spanish: IAppStrings = {
     appName: "Herramienta de prueba de formulario OCR",
     projectService: {
-        existingLabelFiles: "",
+        existingLabelFiles: "ficheros de etiquetas existentes",
     },
     common: {
         displayName: "Nombre para Mostrar",
@@ -48,12 +48,12 @@ export const spanish: IAppStrings = {
         },
         deleteProject: {
             title: "Borrar Proyecto",
-            confirmation: "¿Está seguro que quiere borrar el proyecto",
+            confirmation: "¿Está seguro de que quiere borrar el proyecto",
         },
         importProject: {
             title: "Importar Proyecto",
             confirmation: "¿Está seguro que quiere convertir el proyecto ${project.file.name} " +
-                "a formato v2? Le recomendamos que haga una copia de seguridad de su archivo de proyecto.",
+                "a formato v2? Le recomendamos de que haga una copia de seguridad de su archivo de proyecto.",
         },
         messages: {
             deleteSuccess: "${project.name} eliminado correctamente",
@@ -97,7 +97,7 @@ export const spanish: IAppStrings = {
         version: {
             description: "Versión:",
         },
-        commit: "Cometer SHA",
+        commit: "Commit SHA",
         devTools: {
             description: "Abrir herramientas de desarrollo de aplicaciones para ayudar a diagnosticar problemas.",
             button: "Alternar Herramientas de Desarrollo",
@@ -119,7 +119,7 @@ export const spanish: IAppStrings = {
         save: "Guardar el Proyecto",
         sourceConnection: {
             title: "Conexión de Origen",
-            description: "De donde se gargan sus activos",
+            description: "De donde se cargan sus recursos",
         },
         targetConnection: {
             title: "Conexión de Destino",
@@ -149,7 +149,7 @@ export const spanish: IAppStrings = {
         downloadJson: "Descargar archivo JSON",
         trainConfirm: {
             title: "Etiquetas aún no revisadas",
-            message: "Hay archivos recién etiquetados automáticamente aún no revisados por usted, ¿quieres entrenar con esos archivos?"
+            message: "Hay archivos recién etiquetados automáticamente aún no revisados por usted, ¿quiere entrenar con esos archivos?"
         },
         errors: {
             electron: {
@@ -263,10 +263,10 @@ export const spanish: IAppStrings = {
     },
     prebuiltSetting: {
         serviceConfigurationTitle: "Configuración del servicio",
-        serviceEndpointTitle: "Punto final del servicio del reconocedor de formularios",
+        serviceEndpointTitle: "Dirección del servicio del reconocedor de formularios",
         apiKeyTitle: "Clave API",
-        endpointTooltip: "Establecer el punto final eg: https://xxx.cognitiveservices.azure.com/",
-        endpointPlaceholder: "necesita punto final",
+        endpointTooltip: "Establecer la dirección de la API ej: https://xxx.cognitiveservices.azure.com/",
+        endpointPlaceholder: "necesita la dirección de la API",
         apiKeyTooltip: "Obtener información clave de la página de claves de recursos y terminales de suscripción de Azure",
         apiKeyPlaceholder: "necesita apiKey"
     },
@@ -287,12 +287,12 @@ export const spanish: IAppStrings = {
     },
     projectMetrics: {
         title: "Métricas del proyecto",
-        assetsSectionTitle: "Activos",
-        totalAssetCount: "Total de activos",
-        visitedAssets: "Activos visitados (${count})",
-        taggedAssets: "Activos etiquetados (${count})",
-        nonTaggedAssets: "Activos no etiquetados (${count})",
-        nonVisitedAssets: "Activos no visitados (${count})",
+        assetsSectionTitle: "Recursos",
+        totalAssetCount: "Total de recursos",
+        visitedAssets: "Recursos visitados (${count})",
+        taggedAssets: "Recursos etiquetados (${count})",
+        nonTaggedAssets: "Recursos no etiquetados (${count})",
+        nonVisitedAssets: "Recursos no visitados (${count})",
         tagsSectionTitle: "Etiquetas & etiquetas",
         totalRegionCount: "Total de regiones",
         totalTagCount: "Total de etiquetas",
@@ -300,7 +300,7 @@ export const spanish: IAppStrings = {
     },
     tags: {
         title: "Etiquetas",
-        placeholder: "Agregar nuevo etiqueta",
+        placeholder: "Agregar nueva etiqueta",
         editor: "Editor de Etiquetas",
         modal: {
             name: "Nombre de Etiqueta",
@@ -315,11 +315,11 @@ export const spanish: IAppStrings = {
             olive: "Olivo",
             lime: "Lima",
             green: "Verde",
-            aqua: "Aqua",
-            teal: "Trullo",
+            aqua: "Aguamarina",
+            teal: "Azul Verdoso",
             blue: "Azul",
             navy: "Azul Marino",
-            fuschia: "Fuschia",
+            fuschia: "Fucsia",
             purple: "Púrpura",
         },
         warnings: {
@@ -354,7 +354,7 @@ export const spanish: IAppStrings = {
                 title: "Tabla de etiquetas",
                 tableName: "Nombre de la tabla",
                 description: {
-                    title: "Para comenzar a etiquetar su mesa:",
+                    title: "Para comenzar a etiquetar su tabla:",
                     stepOne: "Seleccione las palabras del documento que desea etiquetar",
                     stepTwo: "Haga clic en la celda de la tabla a la que desea etiquetar las palabras seleccionadas",
                 },
@@ -405,7 +405,7 @@ export const spanish: IAppStrings = {
             deleteSuccess: "${connection.name} eliminado correctamente",
             doNotAllowDuplicateNames: "La conexión con el nombre \"${connection.name}\" ya existe. Por favor, use otro nombre"
         },
-        imageCorsWarning: "Advertencia: Cuando se usa VoTT en un navegador web, es posible que algunos activos de este \
+        imageCorsWarning: "Advertencia: Cuando se usa VoTT en un navegador web, es posible que algunos recursos de este \
                           Búsqueda de Imágenes Bing no se exporten correctamente debido a las restricciones de CORS \
                           (Recursos de Origen Cruzado).",
         blobCorsWarning: "Advertencia: CORS (Recursos de Origen Cruzado) debe estar habilitado en la \
@@ -458,9 +458,9 @@ export const spanish: IAppStrings = {
         },
     },
     editorPage: {
-        title: "Editora",
-        width: "Anchura",
-        height: "Altura",
+        title: "Editor",
+        width: "Ancho",
+        height: "Alto",
         tagged: "Etiquetado",
         visited: "Visitado",
         toolbar: {
@@ -518,19 +518,19 @@ export const spanish: IAppStrings = {
             },
             rename: {
                 title: "Cambiar el nombre de la etiqueta",
-                confirmation: "¿Está seguro que quiere cambiar el nombre de esta etiqueta? \
-                Será cambiada en todos los activos",
+                confirmation: "¿Está seguro de que quiere cambiar el nombre de esta etiqueta? \
+                Será cambiada en todos los recursos",
             },
             delete: {
                 title: "Delete Tag",
-                confirmation: "¿Está seguro que quiere borrar esta etiqueta? Será borrada en todos \
-                los activos y en las regiones donde esta etiqueta sea la única, la region también será borrada",
+                confirmation: "¿Está seguro de que quiere borrar esta etiqueta? Será borrada en todos \
+                los recursos y en las regiones donde esta etiqueta sea la única, la region también será borrada",
             },
         },
         canvas: {
             removeAllRegions: {
                 title: "Borrar Regiones",
-                confirmation: "¿Está seguro que quiere borrar todas las regiones?",
+                confirmation: "¿Está seguro de que quiere borrar todas las regiones?",
             },
             canvasCommandBar: {
                 items: {
@@ -553,7 +553,7 @@ export const spanish: IAppStrings = {
                     },
                     zoom: {
                         zoomOut: "Alejar",
-                        zoomIn: "Acercarse",
+                        zoomIn: "Acercar",
                     },
                     additionalActions: {
                         text: "Acciones adicionales",
@@ -615,15 +615,15 @@ export const spanish: IAppStrings = {
                 slash: "/",
             },
             description: {
-                in: "Acercarse",
+                in: "Aumentar el zoom",
                 out: "Disminuir el zoom",
                 reset: "Restablecer zoom",
             },
         },
         deleteAndBackspace: {
             keys: {
-                delete: "Delete",
-                backSpace: "Backspace",
+                delete: "Suprimir",
+                backSpace: "Retroceso",
             },
             description: {
                 delete: "Eliminar selección del mapa del documento o clave de selección de una etiqueta",
@@ -634,7 +634,7 @@ export const spanish: IAppStrings = {
             keys: {
                 escape: "Escape",
                 alt: "Alt",
-                backSpace: "Backspace",
+                backSpace: "Retroceso",
             },
             description: {
                 deleteSelectedDrawnRegions: "Eliminar regiones dibujadas seleccionadas",
@@ -647,7 +647,7 @@ export const spanish: IAppStrings = {
                 description: "Las teclas de acceso rápido de 1 a 0 y todas las letras se asignan a las primeras 36 etiquetas, después de seleccionar una o varias palabras de los elementos de texto resaltados, al presionar estas teclas de acceso rápido, puede etiquetar las palabras seleccionadas.",
             },
             renameTag: {
-                name: "Rename Tag",
+                name: "Renombrar Etiqueta",
                 description: "Mantenga presionada la tecla Alt y haga clic en el nombre de la etiqueta, el usuario puede cambiar el nombre de la etiqueta.",
             },
             multipleWordSelection: {
@@ -660,7 +660,7 @@ export const spanish: IAppStrings = {
             },
             groupSelect: {
                 name: "Seleccione varias palabras dibujando un cuadro delimitador alrededor de las palabras incluidas",
-                description: "Mantenga presionada la tecla Mayús. Luego, haga clic y mantenga presionado el botón izquierdo del mouse. Luego, arrastre el puntero para dibujar el cuadro delimitador alrededor de las palabras incluidas"
+                description: "Mantenga presionada la tecla Mayús. Luego, haga clic y mantenga presionado el botón izquierdo del ratón. Luego, arrastre el puntero para dibujar el cuadro delimitador alrededor de las palabras incluidas"
             }
         },
         headers: {
@@ -672,37 +672,39 @@ export const spanish: IAppStrings = {
     errors: {
         unknown: {
             title: "Error desconocido",
-            message: "La aplicación contó un error desconocido.  Por favor inténtalo de nuevo.",
+            message: "La aplicación encontró un error desconocido. Por favor inténtelo de nuevo.",
         },
         projectUploadError: {
             title: "Error al cargar el archivo",
-            message: `Se ha cargado un error al cargar el archivo.
+            message: `Se ha encontrado un error al cargar el archivo.
                 Compruebe que el archivo es del tipo correcto e inténtelo de nuevo.`,
         },
         genericRenderError: {
             title: "Error desconocido",
-            message: "La aplicación contó un error desconocido.  Por favor inténtalo de nuevo.",
+            message: "La aplicación encontró un error desconocido.  Por favor inténtelo de nuevo.",
         },
         projectInvalidSecurityToken: {
             title: "Error al cargar el archivo de proyecto",
-            message: "Asegúrese de que el token de seguridad del proyecto existe",
+            message: "Asegúrese de que el token de seguridad del proyecto existe.",
         },
         projectInvalidJson: {
             title: "Error al analizar el archivo de proyecto",
-            message: "El archivo de proyecto no es válido JSON",
+            message: "El archivo de proyecto no es un JSON válido.",
         },
         projectDeleteError: {
             title: "Error al eliminar el proyecto",
             message: `Se ha producido un error al eliminar el proyecto.
-                Validar el archivo de proyecto y el token de seguridad existen e inténtelo de nuevo`,
+                Validar el archivo de proyecto y el token de seguridad existen e inténtelo de nuevo.`,
         },
         projectDeleteErrorSecurityTokenNotFound: {
             title: 'No se encontró el token de seguridad al eliminar el proyecto',
             message: "Token de seguridad no encontrado. El proyecto [$ {project.name}] se ha eliminado de la herramienta FoTT."
         },
         projectNotFound: {
-            title: "",
-            message: "",
+            title: "Error en la carga del proyecto",
+            message: "No podemos encontrar el fichero de proyecto ${file} en el blob container de destino ${container}.\
+            El fichero de proyecto puede haber sido eliminado del contenedor, \
+            o la configuración de la conexión asociada a este proyecto puede haber cambiado a un nuevo contenedor, donde este proyecto no existe.",
         },
         securityTokenNotFound: {
             title: "Error al cargar el archivo del proyecto",
@@ -712,7 +714,7 @@ export const spanish: IAppStrings = {
         },
         canvasError: {
             title: "Error al cargar el lienzo",
-            message: `Se produjo un error al cargar el lienzo, verifique los activos del
+            message: `Se produjo un error al cargar el lienzo, verifique los recursos del
                 proyecto y vuelva a intentarlo.`,
         },
         importError: {
@@ -734,60 +736,60 @@ export const spanish: IAppStrings = {
                 Compruebe la configuración de aprendizaje activa y vuelva a intentarlo",
         },
         blobContainerIONotFound: {
-            title: "",
-            message: "",
+            title: "No se encuentra el contenedor/blob",
+            message: "Compruebe si el contenedor/blob existe en la cuenta de almacenamiento.",
         },
         blobContainerIOForbidden: {
-            title: "",
-            message: "",
+            title: "No puede acceder al contenedor/blob",
+            message: "Verifique si dispone de permisos de leer/escribir/listar/borrar para el contenedor/blob.",
         },
         projectDeleteForbidden: {
-            title: "",
-            message: "",
+            title: "Error eliminando proyecto",
+            message: "No puedo eliminar ${file} de su contenedor de blobs del almacenamiento de Azure, debido a la falta de permiso de borrado en el SAS URI.",
         },
         projectDeleteNotFound: {
-            title: "",
-            message: "",
+            title: "Error eliminando proyecto",
+            message: "No puedo encontrar ${file} en su contenedor de blobs del almacenamiento de Azure. Por favor, verfique si ya ha sido eliminado.",
         },
         predictWithoutTrainForbidden: {
-            title: "",
-            message: "",
+            title: "Error de Predicción",
+            message: "No podemos encontrar un modelo entrenado. Por favor, vaya a la sección \"Train\" y verifique que haya un modelo entrenado.",
         },
         missingRequiredFieldInLabelFile: {
-            title: "",
-            message: "",
+            title: "Error cargando fichero de etiquetas",
+            message: "Visualización de etiquetas desactivada. Verifique que tanto los campos 'documento' como 'etiquetas' existen y no está en blanco en el fichero de etiquetas ${labelFileName}.",
         },
         noLabelInLabelFile: {
-            title: "",
-            message: "",
+            title: "Error cargando fichero de etiquetas",
+            message: "Visualización de etiquetas desactivada. No hay etiquetas en el fichero de etiquetas ${labelFileName}. Este fichero de etiquetas no puede ser usado para entrenar. Considere añadir etiquetas a este fichero.",
         },
         duplicateFieldKeyInLabelsFile: {
-            title: "",
-            message: "",
+            title: "Error cargando fichero de etiquetas",
+            message: "Visualización de etiquetas desactivada. Hay nombres de etiquetas duplicados en ${labelFileName}. Por favor, corrija su fichero de etiquetas en el almacenamiento de Azure y verifique que todos los nombres son únicos cuando se eliminen espacios y se conviertan a minúsculas.",
         },
         invalidJSONFormat: {
-            title: "",
-            message: "",
+            title: "Error cargando fichero de etiquetas",
+            message: "Visualización de etiquetas desactivada. Formato JSON incorrecto en el fichero ${labelFileName}. Por favor, corrija su fichero de etiquetas en el almacenamiento de Azure.",
         },
         sameLabelInDifferentPageError: {
-            title: "",
-            message: "",
+            title: "Error cargando fichero de etiquetas",
+            message: "Visualización de etiquetas desactivada. La etiqueta ${tagName} se encuentra en más de una página, cada etiqueta debe aplicarse solo en el misma página. Por favor, corrija su fichero de etiquetas en el almacenamiento de Azure.",
         },
         duplicateBoxInLabelFile: {
-            title: "",
-            message: "",
+            title: "Error cargando fichero de etiquetas",
+            message: "Visualización de etiquetas desactivada. Hay cajas de duplicadas en la página ${page}. Por favor, corrija su fichero de etiquetas en el almacenamiento de Azure.",
         },
         endpointConnectionError: {
-            title: "",
-            message: "",
+            title: "Error en la conexión a la API",
+            message: "No se puede conectar al API en la dirección ${endpoint}. Por favor, verifique la calidad de su conexión y que la dirección de la API es correcta.",
         },
         tooManyRequests: {
-            title: "",
-            message: "",
+            title: "Demasiadas solicitudes",
+            message: "Se han realizado demasiadas conexiones en un corto periodo de tiempo. Por favor, inténtelo de nuevo.",
         },
         modelCountLimitExceeded: {
-            title: "",
-            message: "",
+            title: "Demasiados modelos",
+            message: "El número de modelos asociados con la API indicada, ha superado el límite permitido.",
         },
         requestSendError: {
             title: "solicitud enviar error",
@@ -819,7 +821,7 @@ export const spanish: IAppStrings = {
             success: "Token de proyecto copiado al portapapeles y listo para compartir. El receptor del token del proyecto puede hacer clic en 'Abrir proyecto en la nube' desde la página de inicio para usar el token compartido.",
         }
     },
-    appSurveyText: "Ayúdanos a mejorar Form Recognizer. ¡Responde nuestra encuesta!"
+    appSurveyText: "Ayúdenos a mejorar Form Recognizer. ¡Responda nuestra encuesta!"
 };
 
 /*eslint-enable no-template-curly-in-string, no-multi-str*/
