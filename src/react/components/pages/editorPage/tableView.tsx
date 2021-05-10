@@ -59,11 +59,11 @@ export const TableView: React.FunctionComponent<ITableViewProps> = ({ handleTabl
                 const tableRow = [];
                 tableBody.push(<tr key={i}>{tableRow}</tr>);
             }
-            table["cells"].forEach(({ rowIndex, columnIndex, rowSpan, columnSpan, text, confidence }) => {
+            table["cells"].forEach(({ rowIndex, columnIndex, rowSpan, columnSpan, text, confidence, isHeader }) => {
                 const content = { confidence: confidence || null };
                 const hasContentValue = Object.values(content).reduce((hasValue, value) => value || hasValue, false);
                 tableBody[rowIndex]["props"]["children"][columnIndex] = (
-                    <td key={columnIndex} colSpan={columnSpan} rowSpan={rowSpan}>
+                    <td key={columnIndex} colSpan={columnSpan} rowSpan={rowSpan} className={ isHeader ? "table-header" : ""}>
                         {showToolTips && hasContentValue ? (
                             <Tooltip content={content}>
                                 {text}

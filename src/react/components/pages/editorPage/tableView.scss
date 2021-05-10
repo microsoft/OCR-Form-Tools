@@ -15,6 +15,10 @@
         td:empty::after {
             content: "\00a0";
         }
+        td.table-header {
+            font-weight: bold;
+            background-color: #272b30;
+        }
     }
 }
 

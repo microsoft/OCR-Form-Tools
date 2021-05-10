@@ -22,6 +22,8 @@ Test Runbook
     * [Prebuilt analyze](#prebuilt-analyze)
     * [Table "Items" field](#table-items)
     * [Compose API request](#compose-api-request)
+  * Layout analyze
+    * [Layout analyze](#layout-analyze)
 
 * Backword Compatibility
   * [Update schema URI](#update-schema-uri)
@@ -847,5 +849,33 @@ ___
 **When**  I click the "Run analysis" button.  
 **Then**   I can see the request URI in the browser inspector is equal to "/formrecognizer/v2.1/prebuilt/businessCard/analyze?pages=1&locale=en-CA".  
 
+------------
+## <h2 id="layout-analyze">Layout analyze</h2>
 
+#### Scenario One ####
+
+**Given** I opened the layout-analyze page.
+**When** I click the "Run Layout" button.
+**Then** No reaction.
+
+#### Scenario Two ####
+
+**Given** I opened the layout-analyze page.
+**When** I click the "Browse for a file..." button and select a supported file.
+**Then** The text "Browse for a file..." change into the uploaded file name.
+
+#### Scenario Three ####
+
+**Given** I opened the layout-analyze page and uploaded a file.
+**When** I type in the "Form recognizer service endpoint" field and "API key" fields.
+**When** I click the "Run analysis" button.
+**Then** I can see "analyzing in progress..." then see the analyze result.
+
+#### Scenario Four ####
+
+**Given** I saw the analyze result on the layout-analyza page.
+**When** I click the "Table" icon on the UI.
+**Then** I can see a table visulization popped up on the UI, when table styles, 1) merged cells, 2) collumn or row headers.
+
+---------
 
