@@ -431,7 +431,7 @@ export const english: IAppStrings = {
                     title: "Create Container",
                     description: "Creates the blob container if it does not already exist",
                 },
-                invalidSASMessage: "\"${project.sourceConnection.name}\" has no storage account. Please check it's SAS token in the Connections page",
+                invalidSASMessage: "Please check if you have unexpired read/write/list/delete permission to blob container/blob.",
             },
             bing: {
                 title: "Bing Image Search",

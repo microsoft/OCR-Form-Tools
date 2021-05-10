@@ -432,7 +432,7 @@ export const spanish: IAppStrings = {
                     title: "Crear contenedor",
                     description: "Crea el contenedor de blobs si aún no existe",
                 },
-                invalidSASMessage: "\"${project.sourceConnection.name}\" no tiene cuenta de almacenamiento. Verifique su token SAS en la página de Conexiones",
+                invalidSASMessage: "Verifique si dispone de permisos de leer/escribir/listar/borrar para el contenedor/blob.",
             },
             bing: {
                 title: "Búsqueda de Imágenes Bing",
