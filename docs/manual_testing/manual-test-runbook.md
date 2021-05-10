@@ -22,6 +22,8 @@ Test Runbook
     * [Prebuilt analyze](#prebuilt-analyze)
     * [Table "Items" field](#table-items)
     * [Compose API request](#compose-api-request)
+  * Layout analyze
+    * [Layout analyze](#layout-analyze)
 
 * Backword Compatibility
   * [Update schema URI](#update-schema-uri)
@@ -874,5 +876,6 @@ ___
 **Given** I saw the analyze result on the layout-analyza page.
 **When** I click the "Table" icon on the UI.
 **Then** I can see a table visulization popped up on the UI, when table styles, 1) merged cells, 2) collumn or row headers.
+
 ---------
 
