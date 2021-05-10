@@ -1035,11 +1035,12 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
     private onTablePredictionClick = (predictedItem: ITableResultItem, tagColor: string) => {
         const makeTable = (clickedFieldName) => {
-            function Cell(rowIndex, columnIndex, text = null, confidence = null) {
+            function Cell(rowIndex, columnIndex, text = null, confidence = null, isHeader = false) {
                 this.rowIndex = rowIndex;
                 this.columnIndex = columnIndex;
                 this.text = text;
                 this.confidence = confidence;
+                this.isHeader = isHeader;
             }
 
             const valueArray = clickedFieldName.valueArray || [];
@@ -1064,13 +1065,13 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             const columnNames = reOrderColumnHeaders(collectHeaders(valueArray));
             const columnHeaders = function makeColumnHeaders() {
                 const indexColumn = new Cell(0, 0, "");
-                const contentColumns = columnNames.map((columnName, columnIndex) => new Cell(0, columnIndex + 1, columnName));
+                const contentColumns = columnNames.map((columnName, columnIndex) => new Cell(0, columnIndex + 1, columnName, null, true));
                 return [indexColumn, ...contentColumns];
             }()
             const matrix: any[] = [columnHeaders];
             for (let i = 0; i < valueArray.length; i++) {
                 const valueObject = valueArray[i].valueObject || {};
-                const indexColumn = new Cell(i + 1, 0, `#${i + 1}`);
+                const indexColumn = new Cell(i + 1, 0, `#${i + 1}`, null, true);
                 const contentColumns = columnNames.map((columnName, columnIndex) => {
                     const { text, confidence } = valueObject[columnName] || {};
                     return new Cell(i + 1, columnIndex + 1, text, confidence);
