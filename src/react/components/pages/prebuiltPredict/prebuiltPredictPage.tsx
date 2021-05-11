@@ -890,7 +890,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                         if (isRootItemObject(restProps)) {
                             flatFieldProps(displayName, restProps);
                         }
-                        for (const [fieldName, objFieldProps] of Object.entries(fieldProps.valueObject)) {
+                        for (const [fieldName, objFieldProps] of Object.entries(valueObject || {})) {
                             flatFieldProps(`${displayName}: ${fieldName}`, objFieldProps);
                         }
                         break;
