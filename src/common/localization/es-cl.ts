@@ -248,7 +248,7 @@ export const spanish: IAppStrings = {
         defaultURLInput: "Pegar o escribir URL...",
         uploadFile: "Elija una imagen para analizar con",
         inProgress: "Análisis en curso...",
-        anlayWithPrebuiltModels: "Análisis ${name} (versión preliminar)",
+        anlayWithPrebuiltModels: "Análisis ${name}",
         locale: "Lugar",
         formTypeTitle: "Tipo de formulario",
         selectFileAndRunAnalysis: "Seleccionar archivo y ejecutar análisis",
@@ -539,8 +539,8 @@ export const spanish: IAppStrings = {
                         subMenuItems: {
                             text: "Texto",
                             tables: "Tablas",
-                            selectionMarks: "Marcas de selección (vista previa)",
-                            drawnRegions: "Regiones dibujadas (vista previa)",
+                            selectionMarks: "Marcas de selección",
+                            drawnRegions: "Regiones dibujadas",
                             labels: "Etiquetas"
                         },
                     },
