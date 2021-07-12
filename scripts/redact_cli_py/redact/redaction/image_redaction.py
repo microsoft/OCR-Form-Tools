@@ -11,7 +11,7 @@ from redact.types.annotation import Annotation
 
 class ImageRedaction:
     # White color in RGBA for redaction.
-    COLOR = (255, 255, 255, 0)
+    COLOR = (255, 255, 255, 255)
 
     def __init__(self, image: Image, annotations: List[Annotation]):
         self.image = image
