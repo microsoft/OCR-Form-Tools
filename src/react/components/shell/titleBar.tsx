@@ -104,8 +104,25 @@ export class TitleBar extends React.Component<ITitleBarProps, ITitleBarState> {
             );
         };
 
+        const onDoubleClick = () => {
+            if (!isElectron) {
+                return
+            }
+
+            const window = this.remote.getCurrentWindow();
+            if (!window) return; // No window, nothing to do, although this check doesn't make a whole lot of sense from the renderer process, but you shouldn't handle this from the renderer process
+            if (isMac) { // `getUserDefault` is only available under macOS
+                const action = this.remote.systemPreferences.getUserDefault('AppleActionOnDoubleClick', 'string');
+                if (action === 'None') return; // Action disabled entirely, nothing to do
+                if (action === 'Minimize') return window.minimize(); // The user prefers to minimize the window
+            }
+            // Toggling maximization otherwise
+            if (window.isMaximized()) return window.unmaximize();
+            return window.maximize();
+        }
+
         return (
-            <div className="title-bar bg-lighter-3">
+            <div className="title-bar bg-lighter-3" onDoubleClick={onDoubleClick}>
                 {isNotElectronAndMacOrLinux &&
                     <div className="title-bar-icon">
                         {typeof (this.props.icon) === "string" && <FontIcon iconName={this.props.icon} />}

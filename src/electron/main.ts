@@ -3,7 +3,7 @@
 
 import {
     app, ipcMain, BrowserWindow, BrowserWindowConstructorOptions,
-    Menu, MenuItemConstructorOptions,
+    Menu, MenuItemConstructorOptions, shell
 } from "electron";
 import { IpcMainProxy } from "./common/ipcMainProxy";
 import LocalFileSystem from "./providers/storage/localFileSystem";
@@ -23,15 +23,15 @@ async function createWindow() {
         minWidth: 450,
         minHeight: 100,
         frame: isLinux,
-        titleBarStyle: "hidden",
+        titleBarStyle: "hiddenInset",
         backgroundColor: "#272B30",
         show: false,
         icon: "app-icons/icon.png"
     };
     windowOptions.webPreferences = {
         nodeIntegration: true,
-        webSecurity: false,
-        enableRemoteModule: true
+        enableRemoteModule: true,
+        webSecurity: true
     };
 
     const staticUrl = process.env.ELECTRON_START_URL || `file:///${__dirname}/index.html`;
@@ -50,6 +50,15 @@ async function createWindow() {
 
     mainWindow.once("ready-to-show", () => {
         mainWindow.show();
+    });
+
+    mainWindow.webContents.on("new-window", (event: Event, url: string) => {
+        if (/^http(s)?:\/\//.test(url)) {
+            // Do not open a new Electron browser window, instead open in the user's default browser
+            event.preventDefault();
+            shell.openExternal(url, { activate: true });
+        }
+        // Normal behaviour
     });
 
     ipcMainProxy = new IpcMainProxy(ipcMain, mainWindow);
@@ -73,11 +82,11 @@ function registerContextMenu(browserWindow: BrowserWindow): void {
     const inputMenu = Menu.buildFromTemplate([
         { role: "undo", accelerator: "CmdOrCtrl+Z" },
         { role: "redo", accelerator: "CmdOrCtrl+Shift+Z" },
-        { type: "separator", label: "separator1"},
+        { type: "separator", label: "separator1" },
         { role: "cut", accelerator: "CmdOrCtrl+X" },
         { role: "copy", accelerator: "CmdOrCtrl+C" },
         { role: "paste", accelerator: "CmdOrCtrl+V" },
-        { type: "separator", label: "separator2"},
+        { type: "separator", label: "separator2" },
         { role: "selectAll", accelerator: "CmdOrCtrl+A" },
     ]);
 
@@ -95,40 +104,21 @@ function registerContextMenu(browserWindow: BrowserWindow): void {
     });
 
     const menuItems: MenuItemConstructorOptions[] = [
+        (isMac ? {
+            role: "appMenu",
+        } : {}),
         {
-            label: "File", submenu: [
-                isMac ? { role: "close" } : { role: "quit" }
-            ],
+            role: "fileMenu",
         },
         { role: "editMenu" },
-        {
-            label: "View", submenu: [
-                { role: "reload" },
-                { type: "separator", label: "separator1" },
-                { role: "toggleDevTools" },
-                { role: "togglefullscreen" },
-                { type: "separator", label: "separator2" },
-                { role: "resetZoom", label: "Reset Zoom" },
-                { role: "zoomIn", accelerator:  "CmdOrCtrl+="},
-                { role: "zoomOut" },
-            ],
-        },
-        {
-            label: "Window", submenu:
-                (isMac ? [
-                    { role: "minimize" },
-                    { role: "front" },
-                    { type: "separator" },
-                    { role: "window" }
-                ] : [
-                    { role: "minimize" },
-                    { role: "close" }
-                ])
-        },
+        { role: "viewMenu" },
+        { role: "windowMenu" },
     ];
     const menu = Menu.buildFromTemplate(menuItems);
     Menu.setApplicationMenu(menu);
 }
+
+app.setName("Form OCR Testing Tool");
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -139,7 +129,7 @@ app.on("ready", createWindow);
 app.on("window-all-closed", () => {
     // On OS X it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
-    if (process.platform !== "darwin") {
+    if (!isMac) {
         app.quit();
     }
 });
