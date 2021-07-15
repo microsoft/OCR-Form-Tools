@@ -945,14 +945,16 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             highlightedField: "",
         });
     }
+
     private pdfPageNumberLimit = () => {
-        if (this.getOcrFromAnalyzeResult(this.state.analyzeResult).length === 2 && this.state.numPages > 2 ) {
+        if (this.getOcrFromAnalyzeResult(this.state.analyzeResult).length === 2 && this.state.numPages > 2) {
             this.setState({
                 alertMessage: strings.prebuiltPredict.pdfPageNumberLimit,
                 shouldShowAlert: true,
             });
         }
     }
+    
     private setPredictedFieldHighlightStatus = (highlightedField: string) => {
         const features = this.imageMap.getAllFeatures();
         for (const feature of features) {
