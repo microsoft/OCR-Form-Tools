@@ -254,7 +254,8 @@ export const spanish: IAppStrings = {
         selectFileAndRunAnalysis: "Seleccionar archivo y ejecutar análisis",
         analysis: "Análisis",
         runAnalysis: "Ejecutar análisis",
-        noFieldCanBeExtracted: "No se puede extraer ningún campo."
+        noFieldCanBeExtracted: "No se puede extraer ningún campo.",
+        pdfPageNumberLimit:'El recurso identificador de formulario de capa libre sólo procesa las primeras 2 páginas del PDF'
     },
     documentFilePicker: {
         source: "Fuente",

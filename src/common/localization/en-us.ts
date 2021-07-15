@@ -256,6 +256,7 @@ export const english: IAppStrings = {
         analysis: "Analysis",
         runAnalysis: "Run analysis",
         noFieldCanBeExtracted: "No field can be extracted.",
+        pdfPageNumberLimit:'Free Tier Form Recognizer resource processes only first 2 pages from PDF'   
     },
     prebuiltSetting: {
         serviceConfigurationTitle: "Service configuration",

@@ -254,6 +254,7 @@ export interface IAppStrings {
         analysis: string;
         runAnalysis: string;
         noFieldCanBeExtracted: string;
+        pdfPageNumberLimit:string;
     };
     prebuiltSetting: {
         serviceConfigurationTitle: string;
