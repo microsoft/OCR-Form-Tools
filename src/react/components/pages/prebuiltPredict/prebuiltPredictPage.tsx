@@ -700,7 +700,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             this.layoutHelper.setLayoutData(result);
             this.layoutHelper.drawLayout(this.state.currentPage);
             this.drawPredictionResult();
-            this.pdfPageNumberLimit()
+            this.displayFreeResourceWarningIfNecessary()
         });
     }
 
@@ -945,7 +945,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             highlightedField: "",
         });
     }
-    private pdfPageNumberLimit = () => {
+    private displayFreeResourceWarningIfNecessary = () => {
         if (this.getOcrFromAnalyzeResult(this.state.analyzeResult).length === 2 && this.state.numPages > 2) {
             this.setState({
                 alertMessage: strings.prebuiltPredict.pdfPageNumberLimit,
