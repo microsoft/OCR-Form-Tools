@@ -229,6 +229,7 @@ export class AssetService {
             case "tif":
             case "tiff":
                 return AssetType.TIFF;
+            case "ai":
             case "pdf":
                 return AssetType.PDF;
             default:
