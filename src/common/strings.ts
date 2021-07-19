@@ -163,6 +163,7 @@ export interface IAppStrings {
         }
         loading: string,
         composing: string,
+        limitQuantityComposedModel:string,
         column: {
             icon: {
                 name: string,
