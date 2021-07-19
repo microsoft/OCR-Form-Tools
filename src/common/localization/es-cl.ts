@@ -164,6 +164,7 @@ export const spanish: IAppStrings = {
         },
         loading: "Cargando modelos...",
         composing: "La modelo está componiendo, por favor espera ...",
+        limitQuantityComposedModel:"Los recursos gratuitos del identificador de formularios soportan hasta cinco modelos en un modelo compuesto.Por favor, actualice a recursos pagados",
         column: {
             icon: {
                 name: "Icono compuesto",

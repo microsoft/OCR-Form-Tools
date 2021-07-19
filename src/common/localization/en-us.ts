@@ -164,6 +164,7 @@ export const english: IAppStrings = {
         },
         loading: "Loading models...",
         composing: "Model is composing, please wait...",
+        limitQuantityComposedModel:"Form Recognizer free resource supports up to 5 models in a composed model. Please upgrade to a paid resource",
         column: {
             icon: {
                 name: "Composed Icon",
