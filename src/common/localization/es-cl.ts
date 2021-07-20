@@ -331,6 +331,9 @@ export const spanish: IAppStrings = {
             notCompatibleWithDrawnRegionTag: "Los valores de drawnRegion y ${otherCategory} no pueden asignarse a la misma etiqueta del documento",
             replaceAllExitingLabels: "¿Está seguro de que desea reemplazar las etiquetas de la etiqueta seleccionada?",
             replaceAllExitingLabelsTitle: "Reemplazar las etiquetas de la etiqueta",
+            imageTagsOnlySupportDrawRegion:"Las etiquetas de imagen sólo soportan áreas de dibujo",
+            limitOfImageTags:"Cada etiqueta de campo de imagen limita un área de dibujo",
+            cannotSwitchToImage:"Cambiar a imagen no está soportado actualmente"
         },
         preText: {
             autoLabel: "Auto-etiquetado: ",

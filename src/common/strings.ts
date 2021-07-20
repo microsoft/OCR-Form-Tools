@@ -349,6 +349,9 @@ export interface IAppStrings {
             notCompatibleWithDrawnRegionTag: string,
             replaceAllExitingLabels:string,
             replaceAllExitingLabelsTitle:string,
+            imageTagsOnlySupportDrawRegion:string,
+            limitOfImageTags:string,
+            cannotSwitchToImage:string
         },
         preText:{
             autoLabel:string,

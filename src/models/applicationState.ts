@@ -500,6 +500,7 @@ export enum FieldType {
     Time = "time",
     Integer = "integer",
     SelectionMark = "selectionMark",
+    Image ="image",
     Array = "array",
     Object = "object",
 }
@@ -522,6 +523,7 @@ export enum FieldFormat {
     DecimalCommaSeparated = "decimal-comma-seperated",
     NoWhiteSpaces = "no-whitespaces",
     Alphanumeric = "alphanumeric",
+    Signature="signature",
     DMY = "dmy",
     MDY = "mdy",
     YMD = "ymd",

@@ -593,6 +593,10 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                         toast.warn(strings.tags.warnings.notCompatibleTagType);
                         return;
                     }
+                    if(tag.type === FieldType.Image && category !== FeatureCategory.DrawnRegion){
+                        toast.warn(strings.tags.warnings.imageTagsOnlySupportDrawRegion);
+                        return;
+                    }
                     onTagClick(tag);
                     deselect = false;
                 } else {
@@ -866,7 +870,11 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         if (type === tag.type) {
             return;
         }
-
+        
+       if((type ===FieldType.Image )){
+            toast.warn(strings.tags.warnings.cannotSwitchToImage);
+            return;
+       }
         const newTag = {
             ...tag,
             type,

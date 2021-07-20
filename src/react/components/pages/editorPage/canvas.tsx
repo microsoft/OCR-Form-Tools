@@ -466,6 +466,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
         let regions: IRegion[] = [];
         const inputTag: ITag[] = this.props.project.tags.filter((t) => t.name === tag);
+        if(selectedRegions.length >1 && inputTag[0].type ===FieldType.Image ){
+            this.setState({
+                isError: true,
+                errorMessage:strings.tags.warnings.limitOfImageTags
+            })
+           return
+        }
         if (selectedRegions.length > 0) {
             const labelsData = this.state.currentAsset.labelData;
             if (labelsData) {

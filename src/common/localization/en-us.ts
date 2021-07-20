@@ -332,6 +332,9 @@ export const english: IAppStrings = {
             notCompatibleWithDrawnRegionTag: "Drawn regions and ${otherCategory} values cannot both be assigned to the same document's tag",
             replaceAllExitingLabels: "Are you sure you want to replace selected tag's labels?",
             replaceAllExitingLabelsTitle: "Replace tag's labels",
+            imageTagsOnlySupportDrawRegion:"Image tags only support Draw region",
+            limitOfImageTags:"Limit one drawn region per Image field tag",
+            cannotSwitchToImage:"Switch to image is not supported at present"
         },
         preText: {
             autoLabel: "Auto-labeled: ",
