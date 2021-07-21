@@ -237,7 +237,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                     <FontIcon
                         className="pr-1 pl-1" iconName="Table"
                     />
-                Click to assign labels
+                    Click to assign labels
                 </div>
             );
         } else {
