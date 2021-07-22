@@ -2278,20 +2278,22 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             });
 
             if (tables) {
-                tables.forEach((table, index) => {
-                    const tableBoundingBox = this.getTableBoundingBox(table.cells.map((cell) => cell.boundingRegions[0].boundingBox));
-                    const createdTableFeatures = this.createBoundingBoxVectorTable(
-                        tableBoundingBox,
-                        imageExtent,
-                        ocrExtent,
-                        pageNumber,
-                        table.rowCount,
-                        table.columnCount,
-                        index);
-                    tableBorderFeatures.push(createdTableFeatures["border"]);
-                    tableIconFeatures.push(createdTableFeatures["icon"]);
-                    tableIconBorderFeatures.push(createdTableFeatures["iconBorder"]);
-                });
+                tables
+                    .filter((table) => table.boundingRegions.some((boundingRegion => boundingRegion.pageNumber === pageNumber)))
+                    .forEach((table, index) => {
+                        const tableBoundingBox = this.getTableBoundingBox(table.cells.map((cell) => cell.boundingRegions[0].boundingBox));
+                        const createdTableFeatures = this.createBoundingBoxVectorTable(
+                            tableBoundingBox,
+                            imageExtent,
+                            ocrExtent,
+                            pageNumber,
+                            table.rowCount,
+                            table.columnCount,
+                            index);
+                        tableBorderFeatures.push(createdTableFeatures["border"]);
+                        tableIconFeatures.push(createdTableFeatures["icon"]);
+                        tableIconBorderFeatures.push(createdTableFeatures["iconBorder"]);
+                    });
             }
 
             if (selectionMarks) {
