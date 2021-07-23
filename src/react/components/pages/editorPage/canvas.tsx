@@ -2281,6 +2281,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 tables
                     .filter((table) => table.boundingRegions.some((boundingRegion => boundingRegion.pageNumber === pageNumber)))
                     .forEach((table, index) => {
+                        // Take first boundingRegion for a table.
                         const tableBoundingBox = this.getTableBoundingBox(table.cells.map((cell) => cell.boundingRegions[0].boundingBox));
                         const createdTableFeatures = this.createBoundingBoxVectorTable(
                             tableBoundingBox,
@@ -2668,7 +2669,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private getFeatureIDAndBoundingBox = (featureCoordinates) => {
         const imageExtent = this.imageMap.getImageExtent();
-        const ocrExtent = [0, 0, this.state.ocrForCurrentPage.readResults.width, this.state.ocrForCurrentPage.readResults.height];
+        const version = getAPIVersion(this.props.project.apiVersion);
+        let ocrExtent;
+        if (version === APIVersionPatches.patch5) {
+            ocrExtent = [0, 0, this.state.ocrForCurrentPage.width, this.state.ocrForCurrentPage.height];
+        } else {
+            ocrExtent = [0, 0, this.state.ocrForCurrentPage.readResults.width, this.state.ocrForCurrentPage.readResults.height];
+        }
         const ocrPage = this.state.currentPage;
         const imageWidth = imageExtent[2] - imageExtent[0];
         const imageHeight = imageExtent[3] - imageExtent[1];
