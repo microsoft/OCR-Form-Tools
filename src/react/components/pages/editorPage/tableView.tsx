@@ -4,6 +4,7 @@ import { getDarkGreyTheme } from "../../../../common/themes";
 import "./tableView.scss";
 import { TooltipHost, TooltipDelay, DirectionalHint, ITooltipProps, ITooltipHostStyles } from "@fluentui/react";
 import { useId } from '@uifabric/react-hooks';
+import { APIVersionPatches } from "../../../../models/applicationState";
 
 function Tooltip({ children, content }) {
     const makeTooltipProps = (content: object): ITooltipProps => ({
@@ -54,26 +55,45 @@ export const TableView: React.FunctionComponent<ITableViewProps> = ({ handleTabl
         let tableBody = null;
         if (table !== null) {
             tableBody = [];
-            const rowCount = table["rows"];
+            const rowCount = table["rows"] || table["rowCount"];
             for (let i = 0; i < rowCount; i++) {
                 const tableRow = [];
                 tableBody.push(<tr key={i}>{tableRow}</tr>);
             }
-            table["cells"].forEach(({ rowIndex, columnIndex, rowSpan, columnSpan, text, confidence, isHeader }) => {
-                const content = { confidence: confidence || null };
-                const hasContentValue = Object.values(content).reduce((hasValue, value) => value || hasValue, false);
-                tableBody[rowIndex]["props"]["children"][columnIndex] = (
-                    <td key={columnIndex} colSpan={columnSpan} rowSpan={rowSpan} className={ isHeader ? "table-header" : ""}>
-                        {showToolTips && hasContentValue ? (
-                            <Tooltip content={content}>
-                                {text}
-                            </Tooltip>
-                        ) : (
-                            <React.Fragment>{text}</React.Fragment>
-                        )}
-                    </td>
-                )
-            });
+            if (table["cells"][0].boundingRegions) {
+                table["cells"].forEach(({ rowIndex, columnIndex, rowSpan, columnSpan, content, confidence, kind }) => {
+                    const isHeader = kind === "rowHeader" || kind === "columnHeader";
+                    const tooltipContent = { confidence: confidence || null };
+                    const hasContentValue = Object.values(content).reduce((hasValue, value) => value || hasValue, false);
+                    tableBody[rowIndex]["props"]["children"][columnIndex] = (
+                        <td key={columnIndex} colSpan={columnSpan || 1} rowSpan={rowSpan || 1} className={isHeader ? "table-header" : ""}>
+                            {showToolTips && hasContentValue ? (
+                                <Tooltip content={tooltipContent}>
+                                    {content}
+                                </Tooltip>
+                            ) : (
+                                <React.Fragment>{content}</React.Fragment>
+                            )}
+                        </td>
+                    )
+                });
+            } else {
+                table["cells"].forEach(({ rowIndex, columnIndex, rowSpan, columnSpan, text, confidence, isHeader }) => {
+                    const content = { confidence: confidence || null };
+                    const hasContentValue = Object.values(content).reduce((hasValue, value) => value || hasValue, false);
+                    tableBody[rowIndex]["props"]["children"][columnIndex] = (
+                        <td key={columnIndex} colSpan={columnSpan} rowSpan={rowSpan} className={isHeader ? "table-header" : ""}>
+                            {showToolTips && hasContentValue ? (
+                                <Tooltip content={content}>
+                                    {text}
+                                </Tooltip>
+                            ) : (
+                                <React.Fragment>{text}</React.Fragment>
+                            )}
+                        </td>
+                    )
+                });
+            }
         }
         return tableBody;
     }

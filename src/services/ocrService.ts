@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import Guard from "../common/guard";
-import { IProject } from "../models/applicationState";
+import { IProject, APIVersionPatches } from "../models/applicationState";
 import { IStorageProvider, StorageProviderFactory } from "../providers/storage/storageProviderFactory";
 import { constants } from "../common/constants";
 import ServiceHelper from "./serviceHelper";
@@ -93,6 +93,7 @@ export class OCRService {
         try {
             let body;
             let headers;
+            const apiVersion = getAPIVersion(this.project?.apiVersion);
             if (filePath.startsWith("file:")) {
                 const bodyAndType = await Promise.all(
                     [
@@ -103,12 +104,24 @@ export class OCRService {
                 body = bodyAndType[0];
                 headers = { "Content-Type": mimeType, "cache-control": "no-cache" };
             } else {
-                body = { url: filePath };
                 headers = { "Content-Type": "application/json" };
+                if (apiVersion === APIVersionPatches.patch5) {
+                    body = {
+                        source: {
+                        kind: "web",
+                        url: filePath
+                      }
+                    };
+                } else {
+                    body = { url: filePath };
+                }
             }
-            const apiVersion = getAPIVersion(this.project?.apiVersion);
+
+            const endpoint = apiVersion === APIVersionPatches.patch5 ?
+                `/formrecognizer/documentModels/prebuilt:layout/:analyze?api-version=2021-07-30-preview`
+                : `/formrecognizer/${apiVersion}/layout/analyze`;
             const response = await ServiceHelper.postWithAutoRetry(
-                this.project.apiUriBase + `/formrecognizer/${apiVersion}/layout/analyze`,
+                this.project.apiUriBase + endpoint,
                 body,
                 { headers },
                 this.project.apiKey as string,
@@ -172,6 +185,10 @@ export class OCRService {
     }
 
     private isValidOcrFormat = (ocr): boolean => {
+        const version = getAPIVersion(this.project.apiVersion);
+        if (version === APIVersionPatches.patch5) {
+            return ocr && ocr.analyzeResult && ocr.analyzeResult.pages;
+        }
         return ocr && ocr.analyzeResult && ocr.analyzeResult.readResults;
     }
 }
