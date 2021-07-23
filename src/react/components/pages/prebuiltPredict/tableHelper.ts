@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {Feature} from "ol";
+import { Feature } from "ol";
 import Point from "ol/geom/Point";
 import Polygon from "ol/geom/Polygon";
 import Fill from "ol/style/Fill";
 import Icon from "ol/style/Icon";
 import Stroke from "ol/style/Stroke";
 import Style from "ol/style/Style";
-import {Component} from "react";
-import {ImageMap} from "../../common/imageMap/imageMap";
+import { Component } from "react";
+import { ImageMap } from "../../common/imageMap/imageMap";
 
 export interface ITableHelper {
     setImageMap(imageMap: ImageMap): void;
@@ -63,25 +63,17 @@ export class TableHelper<TState extends ITableState> {
     }
 
     public getTable = (targetPage: number, hoveringFeature: string) => {
-        const pageOcrData = this.getOcrResultForPage(targetPage);
-        return pageOcrData?.pageResults?.tables[this.tableIDToIndexMap[hoveringFeature]] ?? [];
+        return this.analyzeResult?.tables[this.tableIDToIndexMap[hoveringFeature]] ?? [];
     }
 
     private getOcrResultForPage = (targetPage: number): any => {
-        const isTargetPage = result => result.page === targetPage;
         if (!this.analyzeResult) {
-            return {};
+            return undefined;
         }
-        if (this.analyzeResult?.readResults) {
-            // OCR schema with analyzeResult/readResults property
-            const ocrResultsForCurrentPage = {};
-            if (this.analyzeResult.pageResults) {
-                ocrResultsForCurrentPage["pageResults"] = this.analyzeResult.pageResults.find(isTargetPage);
-            }
-            ocrResultsForCurrentPage["readResults"] = this.analyzeResult.readResults.find(isTargetPage);
-            return ocrResultsForCurrentPage;
+        if (this.analyzeResult.pages) {
+            return this.analyzeResult.pages.find(page => page.pageNumber === targetPage) || undefined;
         }
-        return {};
+        return undefined;
     }
 
     drawTables = (targetPage: number) => {
@@ -89,31 +81,33 @@ export class TableHelper<TState extends ITableState> {
         const tableBorderFeatures = [];
         const tableIconFeatures = [];
         const tableIconBorderFeatures = [];
-
-        const ocrReadResults = ocrForCurrentPage["readResults"];
-        const ocrPageResults = ocrForCurrentPage["pageResults"];
         const imageExtent = this.imageMap.getImageExtent();
-
         this.tableIDToIndexMap = {};
-        if (ocrPageResults?.tables) {
-            const ocrExtent = [0, 0, ocrReadResults.width, ocrReadResults.height];
-            ocrPageResults.tables.forEach((table, index) => {
 
-                if (table.cells && table.columns && table.rows) {
-                    const tableBoundingBox = getTableBoundingBox(table.cells.map((cell) => cell.boundingBox));
-                    const createdTableFeatures = this.createBoundingBoxVectorTable(
-                        tableBoundingBox,
-                        imageExtent,
-                        ocrExtent,
-                        ocrPageResults.page,
-                        table.rows,
-                        table.columns,
-                        index);
-                    tableBorderFeatures.push(createdTableFeatures["border"]);
-                    tableIconFeatures.push(createdTableFeatures["icon"]);
-                    tableIconBorderFeatures.push(createdTableFeatures["iconBorder"]);
-                }
-            });
+        if (ocrForCurrentPage) {
+            const { tables } = this.analyzeResult;
+            const { pageNumber } = ocrForCurrentPage;
+            const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
+
+            if (tables) {
+                tables
+                    .filter((table) => table.boundingRegions.some((boundingRegion => boundingRegion.pageNumber === pageNumber)))
+                    .forEach((table, index) => {
+                        // Take first boundingRegion for a table.
+                        const tableBoundingBox = getTableBoundingBox(table.cells.map((cell) => cell.boundingRegions[0].boundingBox));
+                        const createdTableFeatures = this.createBoundingBoxVectorTable(
+                            tableBoundingBox,
+                            imageExtent,
+                            ocrExtent,
+                            pageNumber,
+                            table.rowCount,
+                            table.columnCount,
+                            index);
+                        tableBorderFeatures.push(createdTableFeatures["border"]);
+                        tableIconFeatures.push(createdTableFeatures["icon"]);
+                        tableIconBorderFeatures.push(createdTableFeatures["iconBorder"]);
+                    });
+            }
             if (tableBorderFeatures.length > 0 && tableBorderFeatures.length === tableIconFeatures.length
                 && tableBorderFeatures.length === tableIconBorderFeatures.length) {
                 this.imageMap.addTableBorderFeatures(tableBorderFeatures);
@@ -256,7 +250,7 @@ export class TableHelper<TState extends ITableState> {
     }
 
     public setTableToView = (tableToView: object, tableToViewId: string): void => {
-        const {state} = this.component;
+        const { state } = this.component;
         if (state.tableToViewId) {
             this.setTableState(state.tableToViewId, "rest");
         }
@@ -273,7 +267,7 @@ export class TableHelper<TState extends ITableState> {
             return;
         }
 
-        const {state} = this.component;
+        const { state } = this.component;
 
         if (featureID !== null && this.imageMap.getTableBorderFeatureByID(featureID).get("state") !== "selected") {
             this.imageMap.getTableBorderFeatureByID(featureID).set("state", "hovering");
