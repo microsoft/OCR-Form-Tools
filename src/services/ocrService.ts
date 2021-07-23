@@ -108,9 +108,9 @@ export class OCRService {
                 if (apiVersion === APIVersionPatches.patch5) {
                     body = {
                         source: {
-                        kind: "web",
-                        url: filePath
-                      }
+                            kind: "web",
+                            url: filePath
+                        }
                     };
                 } else {
                     body = { url: filePath };
@@ -118,7 +118,7 @@ export class OCRService {
             }
 
             const endpoint = apiVersion === APIVersionPatches.patch5 ?
-                `/formrecognizer/documentModels/prebuilt:layout/:analyze?api-version=2021-07-30-preview`
+                `/formrecognizer/documentModels/prebuilt:layout/:analyze?${constants.apiVersionQuery}`
                 : `/formrecognizer/${apiVersion}/layout/analyze`;
             const response = await ServiceHelper.postWithAutoRetry(
                 this.project.apiUriBase + endpoint,

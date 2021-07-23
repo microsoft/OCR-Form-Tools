@@ -619,7 +619,7 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
     private async getAnalzation(): Promise<any> {
         let endpointURL = url.resolve(
             this.props.prebuiltSettings.serviceURI,
-            `formrecognizer/documentModels/prebuilt:layout/:analyze?api-version=2021-07-30-preview`,
+            `formrecognizer/documentModels/prebuilt:layout/:analyze?${constants.apiVersionQuery}`,
         );
         if (this.state.withPageRange && this.state.pageRangeIsValid) {
             endpointURL += `&${constants.pages}=${this.state.pageRange}`;
