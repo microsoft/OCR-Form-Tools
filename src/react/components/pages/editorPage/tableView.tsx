@@ -4,7 +4,6 @@ import { getDarkGreyTheme } from "../../../../common/themes";
 import "./tableView.scss";
 import { TooltipHost, TooltipDelay, DirectionalHint, ITooltipProps, ITooltipHostStyles } from "@fluentui/react";
 import { useId } from '@uifabric/react-hooks';
-import { APIVersionPatches } from "../../../../models/applicationState";
 
 function Tooltip({ children, content }) {
     const makeTooltipProps = (content: object): ITooltipProps => ({
