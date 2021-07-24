@@ -3,7 +3,11 @@
 
 import { appInfo } from "./appInfo"
 
-const appVersion = appInfo.version;
+const appVersionRaw = appInfo.version
+const appVersionArr = appVersionRaw.split(".");
+appVersionArr[1] = appVersionArr[1] + "-preview";
+const appVersion = appVersionArr.join(".");
+
 const enableAPIVersionSelection = appInfo.enableAPIVersionSelection;
 const enablePredictionResultUpload = appInfo.enablePredictionResultUpload;
 const apiVersion = "v2.1";
