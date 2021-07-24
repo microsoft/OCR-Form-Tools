@@ -159,7 +159,8 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
         withPageRange: false,
         pageRange: "",
-        predictionEndpointUrl: "/formrecognizer/v2.1/prebuilt/invoice/analyze?includeTextDetails=true",
+        // predictionEndpointUrl: "/formrecognizer/v2.1/prebuilt/invoice/analyze?includeTextDetails=true",
+        predictionEndpointUrl: `/formrecognizer/documentModels/prebuilt/:analyze?${constants.apiVersionQuery}`,
 
         liveMode: true,
 
@@ -182,7 +183,9 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         appTitleActions.setTitle(`${strings.prebuiltPredict.title}`);
         if (prebuiltSettings && prebuiltSettings.serviceURI) {
             this.setState({
-                predictionEndpointUrl: `/formrecognizer/${constants.prebuiltServiceVersion}/prebuilt/${this.state.currentPrebuiltType.servicePath}/analyze?includeTextDetails=true`
+
+                predictionEndpointUrl: `/formrecognizer/documentModels/prebuilt:${this.state.currentPrebuiltType.servicePath}/:analyze?${constants.apiVersionQuery}&includeTextDetails=true`
+                // predictionEndpointUrl: `/formrecognizer/${constants.prebuiltServiceVersion}/prebuilt/${this.state.currentPrebuiltType.servicePath}/analyze?includeTextDetails=true`
             });
         }
     }
@@ -725,6 +728,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private handleClick = () => {
+
         this.setState({ predictionLoaded: false, isPredicting: true });
         this.getPrediction()
             .then(this.handlePredictionResult)
@@ -970,7 +974,8 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private getUpdatedPath(path: string, fromTextArea: boolean): string {
-        const pathTemplate = "/formrecognizer/:prebuiltServiceVersion/prebuilt/:prebuiltType/analyze";
+        const pathTemplate = "/formrecognizer/documentModels/prebuilt:prebuiltType/:analyze";
+        // const pathTemplate = "/formrecognizer/:prebuiltServiceVersion/prebuilt/:prebuiltType/analyze";
         const normalizedPath = URIUtils.normalizePath(path);
         const pathParams = URIUtils.matchPath(pathTemplate, normalizedPath);
         if (fromTextArea) {
@@ -989,7 +994,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             prebuiltType: this.state.currentPrebuiltType.servicePath
         };
 
-        return URIUtils.compilePath(pathTemplate, pathParams, defaultPathParams);
+        return fromTextArea ? URIUtils.compilePath(pathTemplate, pathParams, defaultPathParams) : URIUtils.compilePath(pathTemplate, pathParams, defaultPathParams).replace("prebuilt", "prebuilt:");
     }
 
     private getUpdatedQueryString(queryString: string, updateEmptyQuery: boolean): string {

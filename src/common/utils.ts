@@ -6,7 +6,7 @@ import { IProject, ISecurityToken, IProviderOptions, ISecureString, ITag, FieldT
 import { encryptObject, decryptObject, encrypt, decrypt } from "./crypto";
 import UTIF from "utif";
 import { useState, useEffect } from 'react';
-import {constants} from "./constants";
+import { constants } from "./constants";
 import _ from "lodash";
 import JsZip from 'jszip';
 import { match, compile, pathToRegexp } from "path-to-regexp";
@@ -326,7 +326,7 @@ export function patch<T, K extends keyof T>(data: T[], diff: T[], key: K, proper
     return data.map((item) => {
         const change = diff.find((i) => i[key] === item[key]);
         if (change) {
-            const update = {...item};
+            const update = { ...item };
             properties.forEach((p) => update[p] = change[p]);
             return update;
         }
@@ -352,14 +352,14 @@ export function getNextColor(tags: ITag[]): string {
     return tagColors[randomIntInRange(0, tagColors.length - 1)];
 }
 
-export function getSasFolderString(sas:string): string {
+export function getSasFolderString(sas: string): string {
     return sas.substr(0, sas.indexOf("?"))
 }
 
 
 export function fixedEncodeURIComponent(str: string) {
     return encodeURIComponent(str).replace(/[!'()*]/g, (c) => {
-      return '%' + c.charCodeAt(0).toString(16)
+        return '%' + c.charCodeAt(0).toString(16)
     })
 }
 
@@ -400,7 +400,7 @@ export function filterFormat(type: FieldType | string): any[] {
                 FieldFormat.NotSpecified,
             ];
         default:
-            return [ FieldFormat.NotSpecified ];
+            return [FieldFormat.NotSpecified];
     }
 }
 
@@ -410,22 +410,22 @@ export function filterFormat(type: FieldType | string): any[] {
  * @param delay - delay after which the change will be registered in milliseconds
  */
 export function useDebounce(value: any, delay: number) {
-        const [debouncedValue, setDebouncedValue] = useState(value);
-        useEffect(
-          () => {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+    useEffect(
+        () => {
             // Update debounced value after delay
             const delayHandler = setTimeout(() => {
-              setDebouncedValue(value);
+                setDebouncedValue(value);
             }, delay);
             // cleanup
             return () => {
-              clearTimeout(delayHandler);
+                clearTimeout(delayHandler);
             };
-          },
-          [value, delay]
-        );
-        return debouncedValue;
-      }
+        },
+        [value, delay]
+    );
+    return debouncedValue;
+}
 export function getAPIVersion(projectAPIVersion: string): string {
     return (constants.enableAPIVersionSelection && projectAPIVersion) ? projectAPIVersion : constants.apiVersion;
 }
@@ -473,7 +473,7 @@ export function poll(func, timeout, interval): Promise<any> {
 export function downloadFile(data: any, fileName: string, prefix?: string): void {
     const fileURL = window.URL.createObjectURL(new Blob([data]));
     const fileLink = document.createElement("a");
-    const downloadFileName = prefix + "Result-" + fileName ;
+    const downloadFileName = prefix + "Result-" + fileName;
 
     fileLink.href = fileURL;
     fileLink.setAttribute("download", downloadFileName);
@@ -481,15 +481,15 @@ export function downloadFile(data: any, fileName: string, prefix?: string): void
     fileLink.click();
 }
 
-export function  getTagCategory (tagType: string) {
+export function getTagCategory(tagType: string) {
     switch (tagType) {
         case FieldType.SelectionMark:
         case "checkbox":
             return "checkbox";
-            case FieldType.Object:
-                return FieldType.Object;
-            case FieldType.Array:
-                return FieldType.Array;
+        case FieldType.Object:
+            return FieldType.Object;
+        case FieldType.Array:
+            return FieldType.Array;
         default:
             return "text";
     }
@@ -505,10 +505,10 @@ export function downloadZipFile(data: zipData[], fileName: string): void {
     data.forEach(item => {
         zip.file(item.fileName, item.data);
     })
-    zip.generateAsync({type: "blob"}).then(content => {
+    zip.generateAsync({ type: "blob" }).then(content => {
         const fileLink = document.createElement("a");
         fileLink.href = window.URL.createObjectURL(content);
-        fileLink.setAttribute("download", fileName+".zip");
+        fileLink.setAttribute("download", fileName + ".zip");
         document.body.appendChild(fileLink);
         fileLink.click();
     });
@@ -530,7 +530,7 @@ export class URIUtils {
         /* Add required default key, value pairs for the "toPath" function into a cloned params object. */
         const withDefaultParams = (pathTemplate: string, params: object, defaultPathParams: object): object => {
             const requiredKeys = [];
-            const retParams = {...params};
+            const retParams = { ...params };
             pathToRegexp(pathTemplate, requiredKeys);
             for (const { name } of requiredKeys) {
                 if (!retParams.hasOwnProperty(name)) {
@@ -539,7 +539,7 @@ export class URIUtils {
             }
             return retParams;
         }
-        const toPath = compile(pathTemplate, { encode: encodeURIComponent });
+        const toPath = compile(pathTemplate);
         return toPath(withDefaultParams(pathTemplate, params, defaultPathParams));
     }
 

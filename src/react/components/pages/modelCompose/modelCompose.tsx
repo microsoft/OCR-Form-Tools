@@ -762,7 +762,13 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 };
 
                 const apiVersion = getAPIVersion(this.props.project?.apiVersion);
-                const link = interpolate(constants.apiModelsPath, { apiVersion }) + "/compose";
+                let link;
+                if (apiVersion === 'v3.0-preview.1') {
+                    link = `/formrecognizer/documentModels/:compose`
+
+                } else {
+                    link = interpolate(constants.apiModelsPath, { apiVersion }) + "/compose";
+                }
                 const composeRes = await this.post(link, payload);
                 const composedModel = await this.waitUntilModelIsReady(composeRes["headers"]["location"]);
 

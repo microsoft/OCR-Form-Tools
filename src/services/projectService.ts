@@ -338,7 +338,7 @@ export default class ProjectService implements IProjectService {
      * @param project the project we're trying to create
      * @param storageProvider the storage we're trying to save the project to
      */
-     private static getFieldInfo = async (project: IProject, storageProvider: IStorageProvider): Promise<IFieldInfo> => {
+    private static getFieldInfo = async (project: IProject, storageProvider: IStorageProvider): Promise<IFieldInfo> => {
         const fieldFilePath = joinPath("/", project.folderPath, constants.fieldsFileName);
         try {
             const json = await storageProvider.readText(fieldFilePath, true);

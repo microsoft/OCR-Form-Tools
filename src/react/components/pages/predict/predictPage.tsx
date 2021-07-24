@@ -803,10 +803,18 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 strings.errors.predictWithoutTrainForbidden.title);
         }
         const apiVersion = getAPIVersion(this.props.project?.apiVersion);
-        let endpointURL = url.resolve(
-            this.props.project.apiUriBase,
-            `${interpolate(constants.apiModelsPath, { apiVersion })}/${modelID}/analyze?includeTextDetails=true`,
-        );
+        let endpointURL;
+        if (apiVersion === 'v3.0-preview.1') {
+            endpointURL = url.resolve(
+                this.props.project.apiUriBase,
+                `formrecognizer/documentModels/${modelID}/:analyze`,
+            );
+        } else {
+            endpointURL = url.resolve(
+                this.props.project.apiUriBase,
+                `${interpolate(constants.apiModelsPath, { apiVersion })}/${modelID}/analyze?includeTextDetails=true`,
+            );
+        }
         if (this.state.withPageRange && this.state.pageRangeIsValid) {
             endpointURL += `&${constants.pages}=${this.state.pageRange}`;
         }
