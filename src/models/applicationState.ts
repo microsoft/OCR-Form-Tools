@@ -189,7 +189,7 @@ export interface IAsset {
     schema?: string
 }
 
-export interface IPrebuiltSettings{
+export interface IPrebuiltSettings {
     serviceURI: string;
     apiKey: string;
 }
@@ -500,7 +500,7 @@ export enum FieldType {
     Time = "time",
     Integer = "integer",
     SelectionMark = "selectionMark",
-    Image ="image",
+    Signature = "Signature",
     Array = "array",
     Object = "object",
 }
@@ -523,7 +523,7 @@ export enum FieldFormat {
     DecimalCommaSeparated = "decimal-comma-seperated",
     NoWhiteSpaces = "no-whitespaces",
     Alphanumeric = "alphanumeric",
-    Signature="signature",
+    Signature = "signature",
     DMY = "dmy",
     MDY = "mdy",
     YMD = "ymd",

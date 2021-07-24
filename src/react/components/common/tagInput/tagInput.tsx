@@ -593,7 +593,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                         toast.warn(strings.tags.warnings.notCompatibleTagType);
                         return;
                     }
-                    if (tag.type === FieldType.Image && category !== FeatureCategory.DrawnRegion) {
+                    if (tag.type === FieldType.Signature && category !== FeatureCategory.DrawnRegion) {
                         toast.warn(strings.tags.warnings.imageTagsOnlySupportDrawRegion);
                         return;
                     }
@@ -872,7 +872,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
             return;
         }
 
-        if ((type === FieldType.Image)) {
+        if ((type === FieldType.Signature)) {
             toast.warn(strings.tags.warnings.cannotSwitchToImage);
             return;
         }
