@@ -7,6 +7,7 @@ const appVersion = appInfo.version;
 const enableAPIVersionSelection = appInfo.enableAPIVersionSelection;
 const enablePredictionResultUpload = appInfo.enablePredictionResultUpload;
 const apiVersion = "v2.1";
+const apiVersionQuery = "api-version=2021-07-30-preview";
 const supportedFieldsSchemas = new Set(["http://www.azure.com/schema/formrecognizer/fields.json", "https://schema.cognitiveservices.azure.com/formrecognizer/2021-03-01/fields.json"]);
 const supportedLabelsSchemas = new Set(["http://www.azure.com/schema/formrecognizer/labels.json", "https://schema.cognitiveservices.azure.com/formrecognizer/2021-03-01/labels.json"]);
 
@@ -17,6 +18,7 @@ export const constants = {
     version: "pubpreview_1.0",
     appVersion,
     apiVersion,
+    apiVersionQuery,
     enableAPIVersionSelection,
     enablePredictionResultUpload,
     projectFormTempKey: "projectForm",
