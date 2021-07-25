@@ -594,7 +594,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                         return;
                     }
                     if (tag.type === FieldType.Signature && category !== FeatureCategory.DrawnRegion) {
-                        toast.warn(strings.tags.warnings.imageTagsOnlySupportDrawRegion);
+                        toast.warn(strings.tags.warnings.signatureTagsOnlySupportDrawRegion);
                         return;
                     }
                     onTagClick(tag);
@@ -873,7 +873,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         }
 
         if ((type === FieldType.Signature)) {
-            toast.warn(strings.tags.warnings.cannotSwitchToImage);
+            toast.warn(strings.tags.warnings.cannotSwitchToSignature);
             return;
         }
         const newTag = {

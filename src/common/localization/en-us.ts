@@ -164,7 +164,7 @@ export const english: IAppStrings = {
         },
         loading: "Loading models...",
         composing: "Model is composing, please wait...",
-        limitQuantityComposedModel:"Form Recognizer free resource supports up to 5 models in a composed model. Please upgrade to a paid resource",
+        limitQuantityComposedModel: "Form Recognizer free resource supports up to 5 models in a composed model. Please upgrade to a paid resource",
         column: {
             icon: {
                 name: "Composed Icon",
@@ -334,9 +334,9 @@ export const english: IAppStrings = {
             notCompatibleWithDrawnRegionTag: "Drawn regions and ${otherCategory} values cannot both be assigned to the same document's tag",
             replaceAllExitingLabels: "Are you sure you want to replace selected tag's labels?",
             replaceAllExitingLabelsTitle: "Replace tag's labels",
-            imageTagsOnlySupportDrawRegion:"Image tags only support Draw region",
-            limitOfImageTags:"Limit one drawn region per Image field tag",
-            cannotSwitchToImage:"Switch to image is not supported at present"
+            signatureTagsOnlySupportDrawRegion: "Signature tags only support Draw region",
+            limitOfSignatureTags: "Limit one drawn region per Signature field tag",
+            cannotSwitchToSignature: "Switch to Signature is not supported at present"
         },
         preText: {
             autoLabel: "Auto-labeled: ",

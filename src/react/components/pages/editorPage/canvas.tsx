@@ -469,7 +469,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         if (selectedRegions.length > 1 && inputTag[0].type === FieldType.Signature) {
             this.setState({
                 isError: true,
-                errorMessage: strings.tags.warnings.limitOfImageTags
+                errorMessage: strings.tags.warnings.limitOfSignatureTags
             })
             return
         }
