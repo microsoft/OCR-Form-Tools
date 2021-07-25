@@ -12,7 +12,7 @@ import {constants} from "../../../../common/constants";
 import {isElectron} from "../../../../common/hostProcess";
 import {interpolate, strings} from "../../../../common/strings";
 import {getGreenWithWhiteBackgroundTheme, getPrimaryGreenTheme} from "../../../../common/themes";
-import {AssetLabelingState, FieldType, IApplicationState, IAppSettings, IAssetMetadata, IConnection, IProject, IRecentModel} from "../../../../models/applicationState";
+import {APIVersionPatches, AssetLabelingState, FieldType, IApplicationState, IAppSettings, IAssetMetadata, IConnection, IProject, IRecentModel} from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -360,8 +360,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     private async trainProcess(): Promise<any> {
         try {
             const trainRes = await this.train();
-            const trainStatusRes =
-                await this.getTrainStatus(trainRes.headers["location"]);
+            const trainStatusRes = await this.getTrainStatus(this.getOperationLocation(trainRes));
             const updatedProject = this.buildUpdatedProject(
                 this.parseTrainResult(trainStatusRes),
             );
@@ -382,10 +381,6 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
     private async train(): Promise<any> {
         const apiVersion = getAPIVersion(this.props.project?.apiVersion);
-        const baseURL = url.resolve(
-            this.props.project.apiUriBase,
-            interpolate(constants.apiModelsPath, {apiVersion}),
-        );
         const provider = this.props.project.sourceConnection.providerOptions as any;
         let trainSourceURL;
         let trainPrefix;
@@ -397,16 +392,42 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             trainSourceURL = provider.sas;
             trainPrefix = this.props.project.folderPath ? this.props.project.folderPath : "";
         }
+
+        let baseURL;
+        let payload;
+        if (apiVersion === APIVersionPatches.patch5) {
+            baseURL = url.resolve(
+                this.props.project.apiUriBase,
+                `/formrecognizer/documentModels:build?${constants.apiVersionQuery}`,
+            );
+
+            payload = {
+                modelId: this.state.modelName,
+                technique: "fixedTemplate-2021-07-30",
+                source: {
+                    kind: "azure.blob",
+                    containerUrl: trainSourceURL,
+                    path: trainPrefix
+                }
+            };
+        } else {
+            baseURL = url.resolve(
+                this.props.project.apiUriBase,
+                interpolate(constants.apiModelsPath, {apiVersion}),
+            );
+
+            payload = {
+                source: trainSourceURL,
+                sourceFilter: {
+                    prefix: trainPrefix,
+                    includeSubFolders: false,
+                },
+                useLabelFile: true,
+                modelName: this.state.modelName,
+            };
+        }
+
         await this.cleanLabelData();
-        const payload = {
-            source: trainSourceURL,
-            sourceFilter: {
-                prefix: trainPrefix,
-                includeSubFolders: false,
-            },
-            useLabelFile: true,
-            modelName: this.state.modelName,
-        };
         try {
             const result = await ServiceHelper.postWithAutoRetry(
                 baseURL,
@@ -414,7 +435,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 {},
                 this.props.project.apiKey as string,
             );
-            this.setState({ modelUrl: result.headers.location });
+            this.setState({ modelUrl: this.getOperationLocation(result) });
             return result;
         } catch (err) {
             ServiceHelper.handleServiceError({...err, endpoint: baseURL});
@@ -465,7 +486,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
     private async getTrainStatus(operationLocation: string): Promise<any> {
         const timeoutPerFileInMs = 10000;  // 10 second for each file
-        const minimumTimeoutInMs = 300000;  // 5 minutes minimum waiting time  for each training process
+        const minimumTimeoutInMs = 10 * 60 * 1000;  // 10 minutes minimum waiting time for each training process
         const extendedTimeoutInMs = timeoutPerFileInMs * Object.keys(this.props.project.assets || []).length;
         const res = this.poll(() => {
             return ServiceHelper.getWithAutoRetry(
@@ -493,8 +514,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private getTrainMessage = (trainingResult): string => {
-        if (trainingResult !== undefined && trainingResult.modelInfo !== undefined
-            && trainingResult.modelInfo.status === constants.statusCodeReady) {
+        if (trainingResult !== undefined && 
+                ((trainingResult.modelInfo !== undefined && trainingResult.modelInfo.status === constants.statusCodeReady) || 
+                (trainingResult.status === constants.statusCodeReady))) {
             return "Trained successfully";
         }
         return "Training failed";
@@ -509,6 +531,19 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private parseTrainResult = (response: ITrainApiResponse): ITrainRecordProps => {
+        const apiVersion = getAPIVersion(this.props.project?.apiVersion);
+        if (apiVersion === APIVersionPatches.patch5) {
+            return {
+                modelInfo: {
+                    modelId: response["modelId"],
+                    createdDateTime: response["createdDateTime"],
+                    modelName: response["description"],
+                    isComposed: false,
+                },
+                accuracies: response["documentTypes"][response["modelId"]]["confidence"],
+            };
+        }
+
         return {
             modelInfo: {
                 modelId: response["modelInfo"]["modelId"],
@@ -542,9 +577,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         const checkSucceeded = (resolve, reject) => {
             const ajax = func();
             ajax.then((response) => {
-                if (response.data.modelInfo && response.data.modelInfo.status === constants.statusCodeReady) {
+                if ((response.data.modelInfo && response.data.modelInfo.status === constants.statusCodeReady) || (response.data === constants.statusCodeReady)) {
                     resolve(response.data);
-                } else if (response.data.modelInfo && response.data.modelInfo.status === "invalid") {
+                } else if ((response.data.modelInfo && response.data.modelInfo.status === "invalid") || (response.data.status === constants.statusCodeInvalid)) {
                     const message = _.get(
                         response,
                         "data.trainResult.errors[0].message",
@@ -613,5 +648,13 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         } catch (error) {
             ServiceHelper.handleServiceError({...error, endpoint: baseURL});
         }
+    }
+
+    private getOperationLocation(response) {
+        const apiVersion = getAPIVersion(this.props.project?.apiVersion);
+        if (apiVersion === APIVersionPatches.patch5) {
+            return response.headers["operation-location"];
+        }
+        return response.headers["location"];
     }
 }
