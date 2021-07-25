@@ -514,8 +514,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private getTrainMessage = (trainingResult): string => {
-        if (trainingResult !== undefined && 
-                ((trainingResult.modelInfo !== undefined && trainingResult.modelInfo.status === constants.statusCodeReady) || 
+        if (trainingResult !== undefined &&
+                ((trainingResult.modelInfo !== undefined && trainingResult.modelInfo.status === constants.statusCodeReady) ||
                 (trainingResult.status === constants.statusCodeReady))) {
             return "Trained successfully";
         }
