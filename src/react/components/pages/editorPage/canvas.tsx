@@ -2745,7 +2745,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private isDrawRegionSupportedVersion() {
         const apiVersion = getAPIVersion(this.props.project.apiVersion);
-        return apiVersion === APIVersionPatches.patch3 || apiVersion === APIVersionPatches.patch4;
+        return apiVersion === APIVersionPatches.patch3 || apiVersion === APIVersionPatches.patch4 || apiVersion === APIVersionPatches.patch5;
     }
 
     async focusOnLabel(label: ILabel) {
