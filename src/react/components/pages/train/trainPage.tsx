@@ -386,7 +386,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         if (apiVersion === 'v3.0-preview.1') {
             baseURL = url.resolve(
                 this.props.project.apiUriBase,
-                '/formrecognizer/documentModels/:train'
+                '/formrecognizer/documentModels/:build'
             );
         } else {
             baseURL = url.resolve(
