@@ -118,7 +118,7 @@ export class OCRService {
             }
 
             const endpoint = apiVersion === APIVersionPatches.patch5 ?
-                `/formrecognizer/documentModels/prebuilt:layout/:analyze?${constants.apiVersionQuery}`
+                `/formrecognizer/documentModels/prebuilt-layout:analyze?${constants.apiVersionQuery}`
                 : `/formrecognizer/${apiVersion}/layout/analyze`;
             const response = await ServiceHelper.postWithAutoRetry(
                 this.project.apiUriBase + endpoint,

@@ -110,20 +110,22 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         {
             name: "Invoice",
             servicePath: "invoice",
+            useLocale: false,
         },
         {
             name: "Receipt",
             servicePath: "receipt",
-            useLocale: true,
+            useLocale: false,
         },
         {
             name: "Business card",
             servicePath: "businessCard",
-            useLocale: true,
+            useLocale: false,
         },
         {
             name: "ID",
             servicePath: "idDocument",
+            useLocale: false,
         }
     ];
 
@@ -182,7 +184,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         appTitleActions.setTitle(`${strings.prebuiltPredict.title}`);
         if (prebuiltSettings && prebuiltSettings.serviceURI) {
             this.setState({
-                predictionEndpointUrl: `/formrecognizer/documentModels/prebuilt:${this.state.currentPrebuiltType.servicePath}/:analyze?${constants.apiVersionQuery}&includeTextDetails=true`
+                predictionEndpointUrl: `/formrecognizer/documentModels/prebuilt-${this.state.currentPrebuiltType.servicePath}:analyze?${constants.apiVersionQuery}`
             });
         }
     }
@@ -980,7 +982,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
     private getUpdatedPath(path: string, fromTextArea: boolean): string {
         const encodedColon = "%3A"; // HACK: Use this to escape match path parameters with colon.
-        const pathTemplate = `/formrecognizer/documentModels/prebuilt${encodedColon}:prebuiltType/${encodedColon}analyze`;
+        const pathTemplate = `/formrecognizer/documentModels/prebuilt-:prebuiltType${encodedColon}analyze`;
         const normalizedPath = URIUtils.normalizePath(path);
         const pathParams = URIUtils.matchPath(pathTemplate, normalizedPath);
         if (fromTextArea) {
