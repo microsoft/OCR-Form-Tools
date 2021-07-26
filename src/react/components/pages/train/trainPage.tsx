@@ -407,7 +407,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 source: {
                     kind: "azure.blob",
                     containerUrl: trainSourceURL,
-                    path: trainPrefix
+                    path: `${trainPrefix}/`
                 }
             };
         } else {
@@ -533,14 +533,15 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     private parseTrainResult = (response: ITrainApiResponse): ITrainRecordProps => {
         const apiVersion = getAPIVersion(this.props.project?.apiVersion);
         if (apiVersion === APIVersionPatches.patch5) {
+            const { result } = response as any;
             return {
                 modelInfo: {
-                    modelId: response["modelId"],
-                    createdDateTime: response["createdDateTime"],
-                    modelName: response["description"],
+                    modelId: result["modelId"],
+                    createdDateTime: result["createdDateTime"],
+                    modelName: result["description"],
                     isComposed: false,
                 },
-                accuracies: response["documentTypes"][response["modelId"]]["confidence"],
+                accuracies: result["docTypes"][result["modelId"]]["confidence"],
             };
         }
 
@@ -577,9 +578,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         const checkSucceeded = (resolve, reject) => {
             const ajax = func();
             ajax.then((response) => {
-                if ((response.data.modelInfo && response.data.modelInfo.status === constants.statusCodeReady) || (response.data === constants.statusCodeReady)) {
+                if ((response.data.modelInfo && response.data.modelInfo.status === constants.statusCodeReady) || (response.data.status === constants.statusCodeSucceeded)) {
                     resolve(response.data);
-                } else if ((response.data.modelInfo && response.data.modelInfo.status === "invalid") || (response.data.status === constants.statusCodeInvalid)) {
+                } else if ((response.data.modelInfo && response.data.modelInfo.status === "invalid") || (response.data.status === constants.statusCodeFailed)) {
                     const message = _.get(
                         response,
                         "data.trainResult.errors[0].message",
