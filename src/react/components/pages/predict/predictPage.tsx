@@ -942,9 +942,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     if (field?.valueObject?.[rowName]) {
                         Object.keys(field?.valueObject?.[rowName]?.valueObject).forEach((columnName, colIndex) => {
                             const tableCell = field?.valueObject?.[rowName]?.valueObject?.[columnName];
-                            if (tableCell?.page === this.state.currentPage) {
+                            if (_.get(tableCell, "boundingRegions[0].pageNumber", null) === this.state.currentPage) {
                                 const text = fieldName;
-                                const boundingbox = _.get(tableCell, "boundingBox", []);
+                                const boundingbox = _.get(tableCell, "boundingRegions[0].boundingBox", []);
                                 const feature = this.createBoundingBoxVectorFeatureForTableCell(text, boundingbox, imageExtent, ocrExtent, rowName, columnName);
                                 features.push(feature);
                             }
@@ -956,9 +956,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 field?.valueArray.forEach((row, rowIndex) => {
                     Object.keys(row?.valueObject).forEach((columnName, colIndex) => {
                         const tableCell = field?.valueArray?.[rowIndex]?.valueObject?.[columnName];
-                        if (tableCell?.page === this.state.currentPage) {
+                        if (_.get(tableCell, "boundingRegions[0].pageNumber", null) === this.state.currentPage) {
                             const text = fieldName;
-                            const boundingbox = _.get(tableCell, "boundingBox", []);
+                            const boundingbox = _.get(tableCell, "boundingRegions[0].boundingBox", []);
                             const feature = this.createBoundingBoxVectorFeatureForTableCell(text, boundingbox, imageExtent, ocrExtent, "#" + rowIndex, columnName);
                             features.push(feature);
                         }

@@ -70,7 +70,7 @@ export default class RegionalTable extends React.Component<IRegionalTableProps, 
                             onMouseEnter={this.makeOnMouseEnter(rowName, columnName)}
                             onMouseLeave={this.onMouseLeave}
                         >
-                            {tableCell ? tableCell.text : null}
+                            {tableCell ? tableCell.content : null}
                         </td>
                     );
                 })
@@ -130,7 +130,7 @@ export default class RegionalTable extends React.Component<IRegionalTableProps, 
                                     this.setState({ highlightedTableCellRowKey: null, highlightedTableCellColumnKey: null })
                                 }}
                             >
-                                {tableCell ? tableCell.text : null}
+                                {tableCell ? tableCell.content : null}
                             </td>
                         );
                     });
