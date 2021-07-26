@@ -134,6 +134,10 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                                 onChange={this.onTextChange}
                             />
                             {
+                                this.modelName ==='' &&
+                                <div className="modal-alert">{strings.modelCompose.modelView.NoModelName}</div>
+                            }
+                            {
                                 this.state.items &&
                                 <DetailsList
                                     className="modal-list-container"
@@ -284,7 +288,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
     }
 
     public confirm = () => {
-        if (this.state.items.length > 1) {
+        if (this.state.items.length > 1 && this.modelName!=='') {
             this.props.onComposeConfirm(this.modelName);
             this.setState({
                 hideModal: true,
@@ -297,5 +301,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
 
     private onTextChange = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string) => {
         this.modelName = text;
+        // /.^[a-zA-Z0-9][a-zA-Z0-9._~]{1,63}$/.test(this.modelName)
+        this.setState({})
     }
 }

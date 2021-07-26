@@ -198,7 +198,8 @@ export const english: IAppStrings = {
             modelCannotBeIncluded: "Warning: This model will not be included in composed model!",
             addModelToRecentModels: "Model [${modelID}] added to recent models",
             recentModelsAlreadyContainsModel: "Recent models already contains model [${modelID}]",
-            loadingDetails: "Loading model details..."
+            loadingDetails: "Loading model details...",
+            NoModelName:"compose model name  is a required field"
         },
         commandBar: {
             ariaLabel: "Please use command bar to compose models",

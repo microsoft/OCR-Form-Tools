@@ -5,7 +5,7 @@ import React, { ReactElement } from "react";
 import { connect } from "react-redux";
 import url from "url";
 import { RouteComponentProps } from "react-router-dom";
-import { IProject, IConnection, IAppSettings, IApplicationState, AppError, ErrorCode, IRecentModel } from "../../../../models/applicationState";
+import { APIVersionPatches,IProject, IConnection, IAppSettings, IApplicationState, AppError, ErrorCode, IRecentModel } from "../../../../models/applicationState";
 import { constants } from "../../../../common/constants";
 import ServiceHelper from "../../../../services/serviceHelper";
 import {
@@ -155,16 +155,16 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 onColumnClick: this.handleColumnClick,
                 onRender: (model: IModel) => <span>{model.modelName}</span>,
             },
-            {
-                key: "column4",
-                name: strings.modelCompose.column.status.headerName,
-                fieldName: strings.modelCompose.column.status.fieldName,
-                minWidth: 50,
-                maxWidth: 100,
-                isResizable: true,
-                onColumnClick: this.handleColumnClick,
-                onRender: (model: IModel) => <span>{model.status}</span>
-            },
+            // {
+            //     key: "column4",
+            //     name: strings.modelCompose.column.status.headerName,
+            //     fieldName: strings.modelCompose.column.status.fieldName,
+            //     minWidth: 50,
+            //     maxWidth: 100,
+            //     isResizable: true,
+            //     onColumnClick: this.handleColumnClick,
+            //     onRender: (model: IModel) => <span>{model.status}</span>
+            // },
             {
                 key: "column5",
                 name: strings.modelCompose.column.created.headerName,
@@ -177,16 +177,16 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 onColumnClick: this.handleColumnClick,
                 onRender: (model: IModel) => <span>{new Date(model.createdDateTime).toLocaleString()}</span>,
             },
-            {
-                key: "column6",
-                name: strings.modelCompose.column.lastUpdated.headerName,
-                fieldName: strings.modelCompose.column.lastUpdated.fieldName,
-                minWidth: 175,
-                maxWidth: 175,
-                isResizable: true,
-                onColumnClick: this.handleColumnClick,
-                onRender: (model: IModel) => <span>{new Date(model.lastUpdatedDateTime).toLocaleString()}</span>,
-            },
+            // {
+            //     key: "column6",
+            //     name: strings.modelCompose.column.lastUpdated.headerName,
+            //     fieldName: strings.modelCompose.column.lastUpdated.fieldName,
+            //     minWidth: 175,
+            //     maxWidth: 175,
+            //     isResizable: true,
+            //     onColumnClick: this.handleColumnClick,
+            //     onRender: (model: IModel) => <span>{new Date(model.lastUpdatedDateTime).toLocaleString()}</span>,
+            // },
         ];
 
         this.state = {
@@ -384,7 +384,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         };
         this.composeModalRef.current.open([], false, false);
 
-        if (model.attributes.isComposed) {
+        if (model.attributes && model.attributes.isComposed) {
             const apiVersion = getAPIVersion(this.props.project?.apiVersion);
             const inclModels = model.composedTrainResults ?
                 model.composedTrainResults
@@ -429,7 +429,16 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             }
 
             const res = await this.getResponse();
-            let models = this.returnReadyModels(res.data.modelList)
+
+            const apiVersion = getAPIVersion(this.props.project?.apiVersion);
+            let models = this.returnReadyModels(res.data.value)
+            if(apiVersion === APIVersionPatches.patch5){
+                models = res.data.value;
+                models.forEach((Item) => {
+                    Item.status = constants.statusCodeReady
+                });
+            }
+
             const link = res.data.nextLink;
 
             const recentModelIds = this.getRecentModelIds(recentModels);
@@ -482,7 +491,13 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         const recentModelsList: IModel[] = [];
         const apiVersion = getAPIVersion(this.props.project?.apiVersion);
         const recentModelRequest = await allSettled(this.props.project.recentModelRecords.map(async (model) => {
-            return this.getModelByURl(interpolate(constants.apiModelsPath, { apiVersion }) + "/" + model.modelInfo.modelId);
+        let link;
+            if(apiVersion === APIVersionPatches.patch5){
+                 link = `/formrecognizer/documentModels/${model.modelInfo.modelId}?${constants.apiVersionQuery}`
+            }else{
+                link =  interpolate(constants.apiModelsPath, { apiVersion }) + "/" + model.modelInfo.modelId
+            }
+            return this.getModelByURl(link);
         }))
         recentModelRequest.forEach((recentModelRequest) => {
             if (recentModelRequest.status === "fulfilled") {
@@ -550,9 +565,13 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
     private async getResponse(nextLink?: string) {
         const apiVersion = getAPIVersion(this.props.project?.apiVersion);
+        let sourceUrl=interpolate(constants.apiModelsPath, { apiVersion });
+        if(apiVersion === APIVersionPatches.patch5){
+            sourceUrl = `formrecognizer/documentModels?${constants.apiVersionQuery}`
+        }
         const baseURL = nextLink === undefined ? url.resolve(
             this.props.project.apiUriBase,
-            interpolate(constants.apiModelsPath, { apiVersion }),
+            sourceUrl,
         ) : url.resolve(
             this.props.project.apiUriBase,
             nextLink,
@@ -701,8 +720,13 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     private passSelectedItems = (Items: any[]) => {
-        this.cannotBeIncludedItems = Items.filter((item: IModel) => item.status !== constants.statusCodeReady);
-        this.selectedItems = Items.filter((item: IModel) => item.status === constants.statusCodeReady);
+        const apiVersion = getAPIVersion(this.props.project?.apiVersion);
+        if (apiVersion === APIVersionPatches.patch5) {
+            this.selectedItems = Items;
+        }else{
+            this.cannotBeIncludedItems = Items.filter((item: IModel) => item.status !== constants.statusCodeReady);
+            this.selectedItems = Items.filter((item: IModel) => item.status === constants.statusCodeReady);
+        }
     }
 
     /**
@@ -756,21 +780,28 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             try {
                 const idList = [];
                 selections.forEach((s) => idList.push(s.modelId));
-                const payload = {
-                    modelIds: idList,
-                    modelName: name,
-                };
 
+                let payload;
                 const apiVersion = getAPIVersion(this.props.project?.apiVersion);
                 let link;
-                if (apiVersion === 'v3.0-preview.1') {
-                    link = `/formrecognizer/documentModels/:compose`
-
+                if (apiVersion === APIVersionPatches.patch5) {
+                    link = `/formrecognizer/documentModels:compose?${constants.apiVersionQuery}`
+                     payload = {
+                        modelId: name,
+                        description: null,
+                        componentModels:idList.map(item=>{
+                           return item={modelId:item}
+                        })
+                    }
                 } else {
                     link = interpolate(constants.apiModelsPath, { apiVersion }) + "/compose";
+                     payload = {
+                        modelIds: idList,
+                        modelName: name,
+                    };
                 }
                 const composeRes = await this.post(link, payload);
-                const composedModel = await this.waitUntilModelIsReady(composeRes["headers"]["location"]);
+                const composedModel = await this.waitUntilModelIsReady(composeRes["headers"]["operation-location"]);
 
                 const updatedProject = this.buildUpdatedProject(composedModel);
                 await this.props.actions.saveProject(updatedProject, false, false);
