@@ -339,11 +339,11 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
             return null;
         }
 
-        const { type, text } = prediction;
+        const { type, content } = prediction;
         if (type) {
             const valueType = `value${this.capitalizeFirstLetter(type)}`;
             const postProcessedValue = prediction[valueType]?.toString();
-            if (typeof postProcessedValue === "string" && text !== postProcessedValue) {
+            if (typeof postProcessedValue === "string" && content !== postProcessedValue) {
                 return valueType + ": " + postProcessedValue;
             }
         }
