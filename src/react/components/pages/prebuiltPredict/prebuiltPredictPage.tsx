@@ -161,7 +161,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
         withPageRange: false,
         pageRange: "",
-        predictionEndpointUrl: "/formrecognizer/v2.1/prebuilt/invoice/analyze?includeTextDetails=true",
+        predictionEndpointUrl: `/formrecognizer/documentModels/prebuilt-${this.prebuiltTypes[0].servicePath}:analyze?${constants.apiVersionQuery}`,
 
         liveMode: true,
 
