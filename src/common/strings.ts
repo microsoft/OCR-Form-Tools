@@ -163,6 +163,7 @@ export interface IAppStrings {
         }
         loading: string,
         composing: string,
+        limitQuantityComposedModel:string,
         column: {
             icon: {
                 name: string,
@@ -254,6 +255,7 @@ export interface IAppStrings {
         analysis: string;
         runAnalysis: string;
         noFieldCanBeExtracted: string;
+        pdfPageNumberLimit:string;
     };
     prebuiltSetting: {
         serviceConfigurationTitle: string;

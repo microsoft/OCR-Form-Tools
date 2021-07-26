@@ -164,6 +164,7 @@ export const english: IAppStrings = {
         },
         loading: "Loading models...",
         composing: "Model is composing, please wait...",
+        limitQuantityComposedModel:"Form Recognizer free resource supports up to 5 models in a composed model. Please upgrade to a paid resource",
         column: {
             icon: {
                 name: "Composed Icon",
@@ -256,6 +257,7 @@ export const english: IAppStrings = {
         analysis: "Analysis",
         runAnalysis: "Run analysis",
         noFieldCanBeExtracted: "No field can be extracted.",
+        pdfPageNumberLimit: 'Free Tier Form Recognizer resource processes only first 2 pages from PDF'
     },
     prebuiltSetting: {
         serviceConfigurationTitle: "Service configuration",

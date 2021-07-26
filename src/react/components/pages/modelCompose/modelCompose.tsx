@@ -790,7 +790,14 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 this.setState({
                     isComposing: false,
                 })
-                throw new AppError(ErrorCode.ModelNotFound, error.message);
+                if( error.errorCode===ErrorCode.ModelNotFound){
+                    this.setState({
+                        isError:true,
+                        errorMessage:strings.modelCompose.limitQuantityComposedModel
+                    })
+                }else{
+                     throw new AppError(ErrorCode.ModelNotFound, error.message);
+                }
             }
         }, 5000);
     }
