@@ -229,8 +229,8 @@ export class PredictionFilePicker extends React.Component<IPredictionFilePickerP
     private isValidSchema = (jsonData) => {
         if (jsonData && jsonData.analyzeResult) {
             // We should ensure version and documentResults exists.
-            const { version, documentResults } = jsonData.analyzeResult;
-            return !!version && !!documentResults;
+            const { apiVersion, documents } = jsonData.analyzeResult;
+            return !!apiVersion && !!documents;
         }
 
         return false;

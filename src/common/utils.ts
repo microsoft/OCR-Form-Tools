@@ -382,7 +382,7 @@ export function filterFormat(type: FieldType | string): any[] {
                 FieldFormat.NotSpecified,
                 FieldFormat.Currency,
             ];
-        case FieldType.Image:
+        case FieldType.Signature:
             return [
                 FieldFormat.NotSpecified,
                 FieldFormat.Signature,
