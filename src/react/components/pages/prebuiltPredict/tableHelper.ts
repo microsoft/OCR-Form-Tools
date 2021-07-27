@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import _ from "lodash";
 import { Feature } from "ol";
 import Point from "ol/geom/Point";
 import Polygon from "ol/geom/Polygon";
@@ -92,9 +93,10 @@ export class TableHelper<TState extends ITableState> {
             if (tables) {
                 tables
                     .filter((table) => table.boundingRegions.some((boundingRegion => boundingRegion.pageNumber === pageNumber)))
-                    .forEach((table, index) => {
+                    .forEach((table) => {
                         // Take first boundingRegion for a table.
                         const tableBoundingBox = getTableBoundingBox(table.cells.map((cell) => cell.boundingRegions[0].boundingBox));
+                        const index = tables.findIndex(t => _.isEqual(table.boundingRegions, t.boundingRegions));
                         const createdTableFeatures = this.createBoundingBoxVectorTable(
                             tableBoundingBox,
                             imageExtent,
