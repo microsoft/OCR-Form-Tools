@@ -802,19 +802,10 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 strings.errors.predictWithoutTrainForbidden.message,
                 strings.errors.predictWithoutTrainForbidden.title);
         }
-        const apiVersion = getAPIVersion(this.props.project?.apiVersion);
-        let endpointURL;
-        if (apiVersion === 'v3.0-preview.1') {
-            endpointURL = url.resolve(
-                this.props.project.apiUriBase,
-                `formrecognizer/documentModels/${modelID}:analyze?${constants.apiVersionQuery}`
-            );
-        } else {
-            endpointURL = url.resolve(
-                this.props.project.apiUriBase,
-                `${interpolate(constants.apiModelsPath, { apiVersion })}/${modelID}/analyze?includeTextDetails=true`,
-            );
-        }
+        let endpointURL = url.resolve(
+            this.props.project.apiUriBase,
+            `formrecognizer/documentModels/${modelID}:analyze?${constants.apiVersionQuery}`
+        );
         if (this.state.withPageRange && this.state.pageRangeIsValid) {
             endpointURL += `&${constants.pages}=${this.state.pageRange}`;
         }
@@ -936,7 +927,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         this.imageMap?.removeAllFeatures();
         const features = [];
         const imageExtent = [0, 0, this.state.imageWidth, this.state.imageHeight];
-        const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[this.state.currentPage - 1];
+        const isCurrentPage = result => result.pageNumber === this.state.currentPage;
+        const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult).find(isCurrentPage);
         const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
         const fields = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
 
@@ -950,9 +942,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                     if (field?.valueObject?.[rowName]) {
                         Object.keys(field?.valueObject?.[rowName]?.valueObject).forEach((columnName, colIndex) => {
                             const tableCell = field?.valueObject?.[rowName]?.valueObject?.[columnName];
-                            if (tableCell?.page === this.state.currentPage) {
+                            if (_.get(tableCell, "boundingRegions[0].pageNumber", null) === this.state.currentPage) {
                                 const text = fieldName;
-                                const boundingbox = _.get(tableCell, "boundingBox", []);
+                                const boundingbox = _.get(tableCell, "boundingRegions[0].boundingBox", []);
                                 const feature = this.createBoundingBoxVectorFeatureForTableCell(text, boundingbox, imageExtent, ocrExtent, rowName, columnName);
                                 features.push(feature);
                             }
@@ -964,9 +956,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 field?.valueArray.forEach((row, rowIndex) => {
                     Object.keys(row?.valueObject).forEach((columnName, colIndex) => {
                         const tableCell = field?.valueArray?.[rowIndex]?.valueObject?.[columnName];
-                        if (tableCell?.page === this.state.currentPage) {
+                        if (_.get(tableCell, "boundingRegions[0].pageNumber", null) === this.state.currentPage) {
                             const text = fieldName;
-                            const boundingbox = _.get(tableCell, "boundingBox", []);
+                            const boundingbox = _.get(tableCell, "boundingRegions[0].boundingBox", []);
                             const feature = this.createBoundingBoxVectorFeatureForTableCell(text, boundingbox, imageExtent, ocrExtent, "#" + rowIndex, columnName);
                             features.push(feature);
                         }
@@ -974,9 +966,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 })
             }
             else {
-                if (_.get(field, "page", null) === this.state.currentPage) {
+                if (_.get(field, "boundingRegions[0].pageNumber", null) === this.state.currentPage) {
                     const text = fieldName;
-                    const boundingbox = _.get(field, "boundingBox", []);
+                    const boundingbox = _.get(field, "boundingRegions[0].boundingBox", []);
                     const feature = this.createBoundingBoxVectorFeature(text, boundingbox, imageExtent, ocrExtent);
                     features.push(feature);
                 }
@@ -1021,8 +1013,12 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private getPredictionsFromAnalyzeResult(analyzeResult: any) {
-        const fields = _.get(analyzeResult?.analyzeResult ? analyzeResult?.analyzeResult : analyzeResult, "documentResults[0].fields", {});
-        return fields;
+        if (analyzeResult) {
+            const documentResults = _.get(analyzeResult, "documents", []);
+            return documentResults.reduce((accFields, documentResult) => ({ ...accFields, ...documentResult.fields }), {});
+        } else {
+            return {};
+        }
     }
 
     private getAnalyzeModelInfo(analyzeResult) {
@@ -1031,7 +1027,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private getOcrFromAnalyzeResult(analyzeResult: any) {
-        return _.get(analyzeResult?.analyzeResult ? analyzeResult?.analyzeResult : analyzeResult, "readResults", []);
+        return _.get(analyzeResult, "pages", []);
     }
 
     private noOp = () => {
