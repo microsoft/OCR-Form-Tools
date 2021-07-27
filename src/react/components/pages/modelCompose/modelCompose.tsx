@@ -437,7 +437,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 models.forEach((Item) => {
                     Item.status = constants.statusCodeReady
                 });
-                let newColumns = this.state.columns.filter((item) => 'column4,column6'.indexOf(item.key) === -1);
+                const newColumns = this.state.columns.filter((item) => 'column4,column6'.indexOf(item.key) === -1);
                 this.setState({
                     columns: newColumns
                 });
