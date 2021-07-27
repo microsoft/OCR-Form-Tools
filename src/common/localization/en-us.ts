@@ -200,6 +200,7 @@ export const english: IAppStrings = {
             recentModelsAlreadyContainsModel: "Recent models already contains model [${modelID}]",
             loadingDetails: "Loading model details...",
             NoModelName: "model name  is a required field and can only use uppercase and lowercase letters, numbers, '~_ .'"
+
         },
         commandBar: {
             ariaLabel: "Please use command bar to compose models",
