@@ -539,7 +539,7 @@ export class URIUtils {
             }
             return retParams;
         }
-        const toPath = compile(pathTemplate);
+        const toPath = compile(pathTemplate, { encode: encodeURIComponent });
         return toPath(withDefaultParams(pathTemplate, params, defaultPathParams));
     }
 

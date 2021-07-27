@@ -5,7 +5,7 @@ import React, { ReactElement } from "react";
 import { connect } from "react-redux";
 import url from "url";
 import { RouteComponentProps } from "react-router-dom";
-import { APIVersionPatches,IProject, IConnection, IAppSettings, IApplicationState, AppError, ErrorCode, IRecentModel } from "../../../../models/applicationState";
+import { APIVersionPatches, IProject, IConnection, IAppSettings, IApplicationState, AppError, ErrorCode, IRecentModel } from "../../../../models/applicationState";
 import { constants } from "../../../../common/constants";
 import ServiceHelper from "../../../../services/serviceHelper";
 import {
@@ -155,16 +155,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 onColumnClick: this.handleColumnClick,
                 onRender: (model: IModel) => <span>{model.modelName}</span>,
             },
-            // {
-            //     key: "column4",
-            //     name: strings.modelCompose.column.status.headerName,
-            //     fieldName: strings.modelCompose.column.status.fieldName,
-            //     minWidth: 50,
-            //     maxWidth: 100,
-            //     isResizable: true,
-            //     onColumnClick: this.handleColumnClick,
-            //     onRender: (model: IModel) => <span>{model.status}</span>
-            // },
             {
                 key: "column5",
                 name: strings.modelCompose.column.created.headerName,
@@ -177,16 +167,6 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 onColumnClick: this.handleColumnClick,
                 onRender: (model: IModel) => <span>{new Date(model.createdDateTime).toLocaleString()}</span>,
             },
-            // {
-            //     key: "column6",
-            //     name: strings.modelCompose.column.lastUpdated.headerName,
-            //     fieldName: strings.modelCompose.column.lastUpdated.fieldName,
-            //     minWidth: 175,
-            //     maxWidth: 175,
-            //     isResizable: true,
-            //     onColumnClick: this.handleColumnClick,
-            //     onRender: (model: IModel) => <span>{new Date(model.lastUpdatedDateTime).toLocaleString()}</span>,
-            // },
         ];
 
         this.state = {
@@ -432,7 +412,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
             const apiVersion = getAPIVersion(this.props.project?.apiVersion);
             let models = this.returnReadyModels(res.data.value)
-            if(apiVersion === APIVersionPatches.patch5){
+            if (apiVersion === APIVersionPatches.patch5) {
                 models = res.data.value;
                 models.forEach((Item) => {
                     Item.status = constants.statusCodeReady
@@ -491,11 +471,11 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         const recentModelsList: IModel[] = [];
         const apiVersion = getAPIVersion(this.props.project?.apiVersion);
         const recentModelRequest = await allSettled(this.props.project.recentModelRecords.map(async (model) => {
-        let link;
-            if(apiVersion === APIVersionPatches.patch5){
-                 link = `/formrecognizer/documentModels/${model.modelInfo.modelId}?${constants.apiVersionQuery}`
-            }else{
-                link =  interpolate(constants.apiModelsPath, { apiVersion }) + "/" + model.modelInfo.modelId
+            let link;
+            if (apiVersion === APIVersionPatches.patch5) {
+                link = `/formrecognizer/documentModels/${model.modelInfo.modelId}?${constants.apiVersionQuery}`
+            } else {
+                link = interpolate(constants.apiModelsPath, { apiVersion }) + "/" + model.modelInfo.modelId
             }
             return this.getModelByURl(link);
         }))
@@ -565,8 +545,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
     private async getResponse(nextLink?: string) {
         const apiVersion = getAPIVersion(this.props.project?.apiVersion);
-        let sourceUrl=interpolate(constants.apiModelsPath, { apiVersion });
-        if(apiVersion === APIVersionPatches.patch5){
+        let sourceUrl = interpolate(constants.apiModelsPath, { apiVersion });
+        if (apiVersion === APIVersionPatches.patch5) {
             sourceUrl = `formrecognizer/documentModels?${constants.apiVersionQuery}`
         }
         const baseURL = nextLink === undefined ? url.resolve(
@@ -723,7 +703,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         const apiVersion = getAPIVersion(this.props.project?.apiVersion);
         if (apiVersion === APIVersionPatches.patch5) {
             this.selectedItems = Items;
-        }else{
+        } else {
             this.cannotBeIncludedItems = Items.filter((item: IModel) => item.status !== constants.statusCodeReady);
             this.selectedItems = Items.filter((item: IModel) => item.status === constants.statusCodeReady);
         }
@@ -786,16 +766,16 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 let link;
                 if (apiVersion === APIVersionPatches.patch5) {
                     link = `/formrecognizer/documentModels:compose?${constants.apiVersionQuery}`
-                     payload = {
+                    payload = {
                         modelId: name,
                         description: null,
-                        componentModels:idList.map(item=>{
-                           return item={modelId:item}
+                        componentModels: idList.map(item => {
+                            return item = { modelId: item }
                         })
                     }
                 } else {
                     link = interpolate(constants.apiModelsPath, { apiVersion }) + "/compose";
-                     payload = {
+                    payload = {
                         modelIds: idList,
                         modelName: name,
                     };
@@ -821,13 +801,13 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 this.setState({
                     isComposing: false,
                 })
-                if( error.errorCode===ErrorCode.ModelNotFound){
+                if (error.errorCode === ErrorCode.ModelNotFound) {
                     this.setState({
-                        isError:true,
-                        errorMessage:strings.modelCompose.limitQuantityComposedModel
+                        isError: true,
+                        errorMessage: strings.modelCompose.limitQuantityComposedModel
                     })
-                }else{
-                     throw new AppError(ErrorCode.ModelNotFound, error.message);
+                } else {
+                    throw new AppError(ErrorCode.ModelNotFound, error.message);
                 }
             }
         }, 5000);
