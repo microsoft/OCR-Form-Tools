@@ -807,7 +807,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         if (apiVersion === 'v3.0-preview.1') {
             endpointURL = url.resolve(
                 this.props.project.apiUriBase,
-                `formrecognizer/documentModels/${modelID}/:analyze`,
+                `formrecognizer/documentModels/${modelID}:analyze?${constants.apiVersionQuery}`
             );
         } else {
             endpointURL = url.resolve(
