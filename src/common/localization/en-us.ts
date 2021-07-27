@@ -199,7 +199,7 @@ export const english: IAppStrings = {
             addModelToRecentModels: "Model [${modelID}] added to recent models",
             recentModelsAlreadyContainsModel: "Recent models already contains model [${modelID}]",
             loadingDetails: "Loading model details...",
-            NoModelName: "compose model name  is a required field and can only use uppercase and lowercase letters, numbers, '~_ .'"
+            NoModelName: "model name  is a required field and can only use uppercase and lowercase letters, numbers, '~_ .'"
         },
         commandBar: {
             ariaLabel: "Please use command bar to compose models",
