@@ -156,6 +156,16 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 onRender: (model: IModel) => <span>{model.modelName}</span>,
             },
             {
+                key: "column4",
+                name: strings.modelCompose.column.status.headerName,
+                fieldName: strings.modelCompose.column.status.fieldName,
+                minWidth: 50,
+                maxWidth: 100,
+                isResizable: true,
+                onColumnClick: this.handleColumnClick,
+                onRender: (model: IModel) => <span>{model.status}</span>
+            },
+            {
                 key: "column5",
                 name: strings.modelCompose.column.created.headerName,
                 fieldName: strings.modelCompose.column.created.fieldName,
@@ -166,6 +176,16 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 isSortedDescending: true,
                 onColumnClick: this.handleColumnClick,
                 onRender: (model: IModel) => <span>{new Date(model.createdDateTime).toLocaleString()}</span>,
+            },
+            {
+                key: "column6",
+                name: strings.modelCompose.column.lastUpdated.headerName,
+                fieldName: strings.modelCompose.column.lastUpdated.fieldName,
+                minWidth: 175,
+                maxWidth: 175,
+                isResizable: true,
+                onColumnClick: this.handleColumnClick,
+                onRender: (model: IModel) => <span>{new Date(model.lastUpdatedDateTime).toLocaleString()}</span>,
             },
         ];
 
@@ -416,6 +436,10 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                 models = res.data.value;
                 models.forEach((Item) => {
                     Item.status = constants.statusCodeReady
+                });
+                let newColumns = this.state.columns.filter((item) => 'column4,column6'.indexOf(item.key) === -1);
+                this.setState({
+                    columns: newColumns
                 });
             }
 
