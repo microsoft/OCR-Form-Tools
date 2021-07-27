@@ -8,11 +8,11 @@ import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
 import url from "url";
-import {constants} from "../../../../common/constants";
-import {isElectron} from "../../../../common/hostProcess";
-import {interpolate, strings} from "../../../../common/strings";
-import {getGreenWithWhiteBackgroundTheme, getPrimaryGreenTheme} from "../../../../common/themes";
-import {APIVersionPatches, AssetLabelingState, FieldType, IApplicationState, IAppSettings, IAssetMetadata, IConnection, IProject, IRecentModel} from "../../../../models/applicationState";
+import { constants } from "../../../../common/constants";
+import { isElectron } from "../../../../common/hostProcess";
+import { interpolate, strings } from "../../../../common/strings";
+import { getGreenWithWhiteBackgroundTheme, getPrimaryGreenTheme } from "../../../../common/themes";
+import { APIVersionPatches, AssetLabelingState, FieldType, IApplicationState, IAppSettings, IAssetMetadata, IConnection, IProject, IRecentModel } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -181,6 +181,10 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                     value={this.state.modelName}
                                 >
                                 </TextField>
+                                {
+                                    (this.state.modelName === '' || !/^[a-zA-Z0-9][a-zA-Z0-9._~]{1,63}$/.test(this.state.modelName)) &&
+                                    <div className="modal-alert">{strings.modelCompose.modelView.NoModelName}</div>
+                                }
                                 {!this.state.isTraining ? (
                                     <div className="container-items-end">
                                         <PrimaryButton
@@ -295,12 +299,14 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private handleTrainClick = () => {
-        const assets = Object.values(this.props.project.assets)
-            .filter(asset => asset.labelingState === AssetLabelingState.AutoLabeled);
-        if (assets.length > 0) {
-            this.notAdjustedLabelsConfirm.current.open();
-        } else {
-            this.handleModelTrain();
+        if (this.state.modelName && /^[a-zA-Z0-9][a-zA-Z0-9._~]{1,63}$/.test(this.state.modelName)) {
+            const assets = Object.values(this.props.project.assets)
+                .filter(asset => asset.labelingState === AssetLabelingState.AutoLabeled);
+            if (assets.length > 0) {
+                this.notAdjustedLabelsConfirm.current.open();
+            } else {
+                this.handleModelTrain();
+            }
         }
     }
 
@@ -413,7 +419,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         } else {
             baseURL = url.resolve(
                 this.props.project.apiUriBase,
-                interpolate(constants.apiModelsPath, {apiVersion}),
+                interpolate(constants.apiModelsPath, { apiVersion }),
             );
 
             payload = {
@@ -515,7 +521,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
     private getTrainMessage = (trainingResult): string => {
         if (trainingResult !== undefined &&
-                ((trainingResult.modelInfo !== undefined && trainingResult.modelInfo.status === constants.statusCodeReady) ||
+            ((trainingResult.modelInfo !== undefined && trainingResult.modelInfo.status === constants.statusCodeReady) ||
                 (trainingResult.status === constants.statusCodeReady))) {
             return "Trained successfully";
         }
