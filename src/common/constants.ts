@@ -1,12 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { APIVersionPatches } from "../models/applicationState";
 import { appInfo } from "./appInfo"
 
-const appVersion = appInfo.version;
+const appVersionRaw = appInfo.version
+const appVersionArr = appVersionRaw.split(".");
+appVersionArr[1] = appVersionArr[1] + "-preview";
+const appVersion = appVersionArr.join(".");
+
 const enableAPIVersionSelection = appInfo.enableAPIVersionSelection;
 const enablePredictionResultUpload = appInfo.enablePredictionResultUpload;
-const apiVersion = "v2.1";
+const apiVersion = APIVersionPatches.patch5;
+const apiVersionQuery = "api-version=2021-07-30-preview";
 const supportedFieldsSchemas = new Set(["http://www.azure.com/schema/formrecognizer/fields.json", "https://schema.cognitiveservices.azure.com/formrecognizer/2021-03-01/fields.json"]);
 const supportedLabelsSchemas = new Set(["http://www.azure.com/schema/formrecognizer/labels.json", "https://schema.cognitiveservices.azure.com/formrecognizer/2021-03-01/labels.json"]);
 
@@ -17,6 +23,7 @@ export const constants = {
     version: "pubpreview_1.0",
     appVersion,
     apiVersion,
+    apiVersionQuery,
     enableAPIVersionSelection,
     enablePredictionResultUpload,
     projectFormTempKey: "projectForm",

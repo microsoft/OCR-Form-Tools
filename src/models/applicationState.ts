@@ -189,7 +189,7 @@ export interface IAsset {
     schema?: string
 }
 
-export interface IPrebuiltSettings{
+export interface IPrebuiltSettings {
     serviceURI: string;
     apiKey: string;
 }
@@ -406,6 +406,7 @@ export enum APIVersionPatches {
     patch2 = "v2.1-preview.2",
     patch3 = "v2.1-preview.3",
     patch4 = "v2.1",
+    patch5 = "v3.0-preview.1"
 }
 
 /**
@@ -500,6 +501,7 @@ export enum FieldType {
     Time = "time",
     Integer = "integer",
     SelectionMark = "selectionMark",
+    Signature = "Signature",
     Array = "array",
     Object = "object",
 }
@@ -522,6 +524,7 @@ export enum FieldFormat {
     DecimalCommaSeparated = "decimal-comma-seperated",
     NoWhiteSpaces = "no-whitespaces",
     Alphanumeric = "alphanumeric",
+    Signature = "signature",
     DMY = "dmy",
     MDY = "mdy",
     YMD = "ymd",

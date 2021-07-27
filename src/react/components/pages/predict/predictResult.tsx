@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-
+import _ from "lodash";
 import React from "react";
 import { ITag } from "../../../../models/applicationState";
 import "./predictResult.scss";
@@ -164,6 +164,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                     </>
             )
         } else {
+            const pageNumber = _.get(item, "boundingRegions[0].pageNumber", undefined);
             return (
                 <div key={key}
                     onClick={() => this.onPredictionClick(item)}
@@ -171,7 +172,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                     onMouseLeave={() => this.onPredictionMouseLeave(item)}>
                     <li className="predictiontag-item" style={style}>
                         <div className={"predictiontag-color"}>
-                            <span>{item.page}</span>
+                            <span>{pageNumber}</span>
                         </div>
                         <div className={"predictiontag-content"}>
                             {this.getPredictionTagContent(item)}
@@ -183,7 +184,7 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         }
     }
     private renderPredictionItemLabel = (item, postProcessedValue) => {
-        const displayText = item.text || item.valueString;
+        const displayText = item.content || item.valueString;
         return (displayText == null ?
             <li className={postProcessedValue ? "predictiontag-item-label mt-0" : "predictiontag-item-label-null mt-0 mb-1"}>
                 {postProcessedValue ? postProcessedValue : "NULL"}
@@ -248,7 +249,9 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         const items = this.getItems();
         let csvContent: string = `Key,Value,Confidence,Page,Bounding Box`;
         items.forEach(item => {
-            csvContent += `\n"${item.fieldName}","${item.text ?? ""}",${isNaN(item.confidence) ? "NaN" : (item.confidence * 100).toFixed(2) + "%"},${item.page},"[${item.boundingBox}]"`;
+            const page = _.get(item, "boundingRegions[0].pageNumber");
+            const boundingBox = _.get(item, "boundingRegions[0].boundingBox", []);
+            csvContent += `\n"${item.fieldName}","${item.content ?? ""}",${isNaN(item.confidence) ? "NaN" : (item.confidence * 100).toFixed(2) + "%"},${page},"[${boundingBox}]"`;
         });
         data.push({
             fileName: `${this.props.downloadPrefix}${this.props.downloadResultLabel}-keyvalues.csv`,
@@ -258,17 +261,19 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         let tableContent: string = "";
         const itemNames = ["fieldName", "text", "confidence", "page", "boundingBox"];
         const getValue = (item: any, fieldName: string) => {
+            const page = _.get(item, "boundingRegions[0].pageNumber");
+            const boundingBox = _.get(item, "boundingRegions[0].boundingBox", []);
             switch (fieldName) {
                 case "fieldName":
                     return `"${item[fieldName]}"`;
                 case "text":
-                    return `"${item[fieldName]}"`;
+                    return `"${item.content}"`;
                 case "confidence":
                     return isNaN(item.confidence) ? "NaN" : (item.confidence * 100).toFixed(2) + "%";
                 case "page":
-                    return item[fieldName];
+                    return page;
                 case "boundingBox":
-                    return `"[${item.boundingBox}]"`;
+                    return `"[${boundingBox}]"`;
                 default:
                     return "";
             }
@@ -334,11 +339,11 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
             return null;
         }
 
-        const { type, text } = prediction;
+        const { type, content } = prediction;
         if (type) {
             const valueType = `value${this.capitalizeFirstLetter(type)}`;
             const postProcessedValue = prediction[valueType]?.toString();
-            if (typeof postProcessedValue === "string" && text !== postProcessedValue) {
+            if (typeof postProcessedValue === "string" && content !== postProcessedValue) {
                 return valueType + ": " + postProcessedValue;
             }
         }
@@ -347,8 +352,8 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
     }
 
     private getPageNumberFrom = (item: any) => {
-        if (item && item.hasOwnProperty("page")) {
-            return item.page;
+        if (item && _.get(item, "boundingRegions[0].pageNumber")) {
+            return item.boundingRegions[0].pageNumber;
         }
 
         // Get page number from item's children in a recursive way.

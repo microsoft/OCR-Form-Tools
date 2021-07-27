@@ -110,20 +110,22 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         {
             name: "Invoice",
             servicePath: "invoice",
+            useLocale: false,
         },
         {
             name: "Receipt",
             servicePath: "receipt",
-            useLocale: true,
+            useLocale: false,
         },
         {
             name: "Business card",
             servicePath: "businessCard",
-            useLocale: true,
+            useLocale: false,
         },
         {
             name: "ID",
             servicePath: "idDocument",
+            useLocale: false,
         }
     ];
 
@@ -159,7 +161,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
         withPageRange: false,
         pageRange: "",
-        predictionEndpointUrl: "/formrecognizer/v2.1/prebuilt/invoice/analyze?includeTextDetails=true",
+        predictionEndpointUrl: `/formrecognizer/documentModels/prebuilt-${this.prebuiltTypes[0].servicePath}:analyze?${constants.apiVersionQuery}`,
 
         liveMode: true,
 
@@ -182,7 +184,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         appTitleActions.setTitle(`${strings.prebuiltPredict.title}`);
         if (prebuiltSettings && prebuiltSettings.serviceURI) {
             this.setState({
-                predictionEndpointUrl: `/formrecognizer/${constants.prebuiltServiceVersion}/prebuilt/${this.state.currentPrebuiltType.servicePath}/analyze?includeTextDetails=true`
+                predictionEndpointUrl: `/formrecognizer/documentModels/prebuilt-${this.state.currentPrebuiltType.servicePath}:analyze?${constants.apiVersionQuery}`
             });
         }
     }
@@ -832,7 +834,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         const features = [];
         const imageExtent = [0, 0, this.state.imageWidth, this.state.imageHeight];
         this.tableHelper.drawTables(this.state.currentPage);
-        const isCurrentPage = result => result.page === this.state.currentPage;
+        const isCurrentPage = result => result.pageNumber === this.state.currentPage;
         const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult).find(isCurrentPage);
         if (ocrForCurrentPage) {
             const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
@@ -840,9 +842,10 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 if (field && field.type === "array") {
                     field.valueArray?.forEach(row => createFeature(fieldName, row))
                 } else {
-                    if (_.get(field, "page", null) === this.state.currentPage) {
+                    // Only take first boundingRegion.
+                    if (_.get(field, "boundingRegions[0].pageNumber", null) === this.state.currentPage) {
                         const text = fieldName;
-                        const boundingbox = _.get(field, "boundingBox", []);
+                        const boundingbox = _.get(field, "boundingRegions[0].boundingBox", []);
                         const feature = this.createBoundingBoxVectorFeature(text, boundingbox, imageExtent, ocrExtent);
                         features.push(feature);
                     }
@@ -867,8 +870,8 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             const blockedFieldNames = ["ReceiptType"];
             return blockedFieldNames.indexOf(fieldName) === -1;
         }
-        const isRootItemObject = obj => obj.hasOwnProperty("text");
-        const docType = _.get(this.state.analyzeResult, "documentResults[0].docType", "");
+        const isRootItemObject = obj => obj.hasOwnProperty("content");
+        const docType = _.get(this.state.analyzeResult, "documents[0].docType", "");
 
         // flat fieldProps of type "array" and "object", and extract root level field props in "object" type
         const flatFieldProps = (displayName, fieldProps) => {
@@ -910,7 +913,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
 
     private getPredictionsFromAnalyzeResult(analyzeResult: any) {
         if (analyzeResult) {
-            const documentResults = _.get(analyzeResult, "documentResults", []);
+            const documentResults = _.get(analyzeResult, "documents", []);
             return documentResults.reduce((accFields, documentResult) => ({ ...accFields, ...documentResult.fields }), {});
         } else {
             return {};
@@ -918,14 +921,14 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private getOcrFromAnalyzeResult(analyzeResult: any) {
-        return _.get(analyzeResult, "readResults", []);
+        return _.get(analyzeResult, "pages", []);
     }
 
     private noOp = () => {
         // no operation
     }
     private onPredictionClick = (predictedItem: any) => {
-        const targetPage = predictedItem.page;
+        const targetPage = _.get(predictedItem, "boundingRegions[0].pageNumber", this.state.currentPage);
         if (Number.isInteger(targetPage) && targetPage !== this.state.currentPage) {
             this.setState({
                 currentPage: targetPage,
@@ -978,7 +981,8 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private getUpdatedPath(path: string, fromTextArea: boolean): string {
-        const pathTemplate = "/formrecognizer/:prebuiltServiceVersion/prebuilt/:prebuiltType/analyze";
+        const encodedColon = "%3A"; // HACK: Use this to escape match path parameters with colon.
+        const pathTemplate = `/formrecognizer/documentModels/prebuilt-:prebuiltType${encodedColon}analyze`;
         const normalizedPath = URIUtils.normalizePath(path);
         const pathParams = URIUtils.matchPath(pathTemplate, normalizedPath);
         if (fromTextArea) {
@@ -993,11 +997,10 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             pathParams["prebuiltType"] = this.state.currentPrebuiltType.servicePath;
         }
         const defaultPathParams = {
-            prebuiltServiceVersion: constants.apiVersion,
             prebuiltType: this.state.currentPrebuiltType.servicePath
         };
-
-        return URIUtils.compilePath(pathTemplate, pathParams, defaultPathParams);
+        // Make encodedColon back to colon.
+        return URIUtils.compilePath(pathTemplate, pathParams, defaultPathParams).replaceAll(encodedColon, ":");
     }
 
     private getUpdatedQueryString(queryString: string, updateEmptyQuery: boolean): string {
@@ -1081,8 +1084,8 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
                 const valueObject = valueArray[i].valueObject || {};
                 const indexColumn = new Cell(i + 1, 0, `#${i + 1}`, null, true);
                 const contentColumns = columnNames.map((columnName, columnIndex) => {
-                    const { text, confidence } = valueObject[columnName] || {};
-                    return new Cell(i + 1, columnIndex + 1, text, confidence);
+                    const { content, confidence } = valueObject[columnName] || {};
+                    return new Cell(i + 1, columnIndex + 1, content, confidence);
                 });
                 matrix.push([indexColumn, ...contentColumns]);
             }
