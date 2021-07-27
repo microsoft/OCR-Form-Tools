@@ -1,6 +1,5 @@
 import _ from "lodash";
 import url from 'url';
-import { getAPIVersion } from "../common/utils";
 import { AppError, ErrorCode, IProject } from "../models/applicationState";
 import { constants } from "../common/constants";
 import { interpolate, strings } from "../common/strings";
@@ -23,14 +22,18 @@ export class PredictService {
                 strings.errors.predictWithoutTrainForbidden.message,
                 strings.errors.predictWithoutTrainForbidden.title);
         }
-        const apiVersion = getAPIVersion(this.project?.apiVersion);
         const endpointURL = url.resolve(
             this.project.apiUriBase,
-            `${interpolate(constants.apiModelsPath, { apiVersion })}/${modelID}/analyze?includeTextDetails=true`,
+            `formrecognizer/documentModels/${modelID}:analyze?${constants.apiVersionQuery}`,
         );
 
         const headers = { "Content-Type": "application/json", "cache-control": "no-cache" };
-        const body = { source: fileUrl };
+        const body = {
+            source: {
+                kind: "web",
+                url: fileUrl
+            }
+        };
 
         try {
             const response = await ServiceHelper.postWithAutoRetry(endpointURL, body, { headers }, this.project.apiKey as string);
