@@ -199,7 +199,7 @@ export const spanish: IAppStrings = {
             addModelToRecentModels: "Modelo [${modelID}] agregado a modelos recientes",
             recentModelsAlreadyContainsModel: "Los modelos recientes ya contienen el modelo [${modelID}]",
             loadingDetails: "Cargando detalles del modelo ...",
-            NoModelName:"El nombre del modelo compuesto es un campo requerido"
+            NoModelName: "Los nombres de los modelos sintéticos son campos obligatorios, sólo se pueden utilizar letras mayúsculas y minúsculas, números,'~_ .' "
         },
         commandBar: {
             ariaLabel: "Utilice la barra de comandos para componer modelos",

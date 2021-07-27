@@ -134,7 +134,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                                 onChange={this.onTextChange}
                             />
                             {
-                                this.modelName === '' &&
+                                (this.modelName === '' || !/^[a-zA-Z0-9][a-zA-Z0-9._~]{1,63}$/.test(this.modelName)) &&
                                 <div className="modal-alert">{strings.modelCompose.modelView.NoModelName}</div>
                             }
                             {

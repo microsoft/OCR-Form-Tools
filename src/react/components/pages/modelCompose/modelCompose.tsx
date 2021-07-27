@@ -493,21 +493,21 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
     private getRecentModels = async (): Promise<IModel[]> => {
         const recentModelsList: IModel[] = [];
-        const apiVersion = getAPIVersion(this.props.project?.apiVersion);
-        const recentModelRequest = await allSettled(this.props.project.recentModelRecords.map(async (model) => {
-            let link;
-            if (apiVersion === APIVersionPatches.patch5) {
-                link = `/formrecognizer/documentModels/${model.modelInfo.modelId}?${constants.apiVersionQuery}`
-            } else {
-                link = interpolate(constants.apiModelsPath, { apiVersion }) + "/" + model.modelInfo.modelId
-            }
-            return this.getModelByURl(link);
-        }))
-        recentModelRequest.forEach((recentModelRequest) => {
-            if (recentModelRequest.status === "fulfilled") {
-                recentModelsList.push(recentModelRequest.value);
-            }
-        });
+        // const apiVersion = getAPIVersion(this.props.project?.apiVersion);
+        // const recentModelRequest = await allSettled(this.props.project.recentModelRecords.map(async (model) => {
+        //     let link;
+        //     if (apiVersion === APIVersionPatches.patch5) {
+        //         link = `/formrecognizer/documentModels/${model.modelInfo.modelId}?${constants.apiVersionQuery}`
+        //     } else {
+        //         link = interpolate(constants.apiModelsPath, { apiVersion }) + "/" + model.modelInfo.modelId
+        //     }
+        //     return this.getModelByURl(link);
+        // }))
+        // recentModelRequest.forEach((recentModelRequest) => {
+        //     if (recentModelRequest.status === "fulfilled") {
+        //         recentModelsList.push(recentModelRequest.value);
+        //     }
+        // });
         return recentModelsList;
     }
 
