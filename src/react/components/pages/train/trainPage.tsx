@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {FontIcon, PrimaryButton, Spinner, SpinnerSize, TextField} from "@fluentui/react";
+import { FontIcon, PrimaryButton, Spinner, SpinnerSize, TextField } from "@fluentui/react";
 import _ from "lodash";
 import React from "react";
-import {connect} from "react-redux";
-import {RouteComponentProps} from "react-router-dom";
-import {bindActionCreators} from "redux";
+import { connect } from "react-redux";
+import { RouteComponentProps } from "react-router-dom";
+import { bindActionCreators } from "redux";
 import url from "url";
 import {constants} from "../../../../common/constants";
 import {isElectron} from "../../../../common/hostProcess";
@@ -16,9 +16,9 @@ import {APIVersionPatches, AssetLabelingState, FieldType, IApplicationState, IAp
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
-import {AssetService} from "../../../../services/assetService";
+import { AssetService } from "../../../../services/assetService";
 import ServiceHelper from "../../../../services/serviceHelper";
-import {getAppInsights} from '../../../../services/telemetryService';
+import { getAppInsights } from '../../../../services/telemetryService';
 import UseLocalStorage from '../../../../services/useLocalStorage';
 import Alert from "../../common/alert/alert";
 import Confirm from "../../common/confirm/confirm";
@@ -26,7 +26,7 @@ import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import TrainChart from "./trainChart";
 import "./trainPage.scss";
 import TrainPanel from "./trainPanel";
-import {ITrainRecordProps} from "./trainRecord";
+import { ITrainRecordProps } from "./trainRecord";
 import TrainTable from "./trainTable";
 import { getAPIVersion } from "../../../../common/utils";
 import { webStorage } from "../../../../common/webStorage";
@@ -104,7 +104,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     public async componentDidMount() {
         const projectId = this.props.match.params["projectId"];
         if (projectId) {
-            const project = {...this.props.recentProjects.find((project) => project.id === projectId)};
+            const project = { ...this.props.recentProjects.find((project) => project.id === projectId) };
             await this.props.actions.loadProject(project);
 
             this.props.appTitleActions.setTitle(project.name);
@@ -197,16 +197,16 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                         </PrimaryButton>
                                     </div>
                                 ) : (
-                                        <div className="loading-container">
-                                            <Spinner
-                                                label="Training in progress..."
-                                                ariaLive="assertive"
-                                                labelPosition="right"
-                                                size={SpinnerSize.large}
-                                                className={"training-spinner"}
-                                            />
-                                        </div>
-                                    )
+                                    <div className="loading-container">
+                                        <Spinner
+                                            label="Training in progress..."
+                                            ariaLive="assertive"
+                                            labelPosition="right"
+                                            size={SpinnerSize.large}
+                                            className={"training-spinner"}
+                                        />
+                                    </div>
+                                )
                                 }
                             </div>
                             <div className={!this.state.isTraining ? "" : "greyOut"}>
@@ -323,9 +323,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 const newAsset = _.cloneDeep(asset);
 
                 const metadata = await assetService.getAssetMetadata(newAsset);
-                if (metadata.labelData && metadata.labelData.labels?.findIndex(label=>label.value?.length>0)>=0 && metadata.labelData.labelingState !== AssetLabelingState.Trained) {
+                if (metadata.labelData && metadata.labelData.labels?.findIndex(label => label.value?.length > 0) >= 0 && metadata.labelData.labelingState !== AssetLabelingState.Trained) {
                     metadata.labelData.labelingState = AssetLabelingState.Trained;
-                    metadata.asset.labelingState=AssetLabelingState.Trained;
+                    metadata.asset.labelingState = AssetLabelingState.Trained;
                     const newMeta = await assetService.save({ ...metadata });
                     newAssets[asset.id] = newMeta.asset;
                 }
@@ -333,7 +333,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                     newAssets[asset.id] = newAsset;
                 }
             }
-            await this.props.actions.saveProject({...this.props.project, assets: newAssets},false,false);
+            await this.props.actions.saveProject({ ...this.props.project, assets: newAssets }, false, false);
             this.setState((prevState, props) => ({
                 isTraining: false,
                 trainMessage: this.getTrainMessage(trainResult),
@@ -438,7 +438,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             this.setState({ modelUrl: this.getOperationLocation(result) });
             return result;
         } catch (err) {
-            ServiceHelper.handleServiceError({...err, endpoint: baseURL});
+            ServiceHelper.handleServiceError({ ...err, endpoint: baseURL });
         }
     }
     private async cleanLabelData() {
@@ -613,7 +613,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
     private async triggerJsonDownload(): Promise<any> {
         const apiVersion = getAPIVersion(this.props.project?.apiVersion);
-        const currModelUrl = this.props.project.apiUriBase + interpolate(constants.apiModelsPath, {apiVersion}) + "/" + this.state.currTrainRecord.modelInfo.modelId;
+        const currModelUrl = this.props.project.apiUriBase + interpolate(constants.apiModelsPath, { apiVersion }) + "/" + this.state.currTrainRecord.modelInfo.modelId;
         const modelUrl = this.state.modelUrl.length ? this.state.modelUrl : currModelUrl;
         const modelJSON = await this.getModelsJson(this.props.project, modelUrl);
 
@@ -647,7 +647,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 project.apiKey as string,
             ).then(res => res.request.response);
         } catch (error) {
-            ServiceHelper.handleServiceError({...error, endpoint: baseURL});
+            ServiceHelper.handleServiceError({ ...error, endpoint: baseURL });
         }
     }
 

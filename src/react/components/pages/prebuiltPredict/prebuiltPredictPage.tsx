@@ -728,6 +728,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private handleClick = () => {
+
         this.setState({ predictionLoaded: false, isPredicting: true });
         this.getPrediction()
             .then(this.handlePredictionResult)

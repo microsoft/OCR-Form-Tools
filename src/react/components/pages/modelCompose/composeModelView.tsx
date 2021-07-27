@@ -134,6 +134,10 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                                 onChange={this.onTextChange}
                             />
                             {
+                                (this.modelName === '' || !/^[a-zA-Z0-9][a-zA-Z0-9._~]{1,63}$/.test(this.modelName)) &&
+                                <div className="modal-alert">{strings.modelCompose.modelView.NoModelName}</div>
+                            }
+                            {
                                 this.state.items &&
                                 <DetailsList
                                     className="modal-list-container"
@@ -172,7 +176,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                                     theme={getPrimaryGreenTheme()}
                                     onClick={this.confirm}>
                                     Compose
-                        </PrimaryButton>
+                                </PrimaryButton>
                                 <PrimaryButton
                                     className="modal-cancel"
                                     theme={getPrimaryGreyTheme()}
@@ -199,20 +203,20 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                                         <div className="model-information-container">
                                             <h6 className="mr-2 model-information-prop">
                                                 Model name:
-                                    </h6> {this.state.items["modelName"]}
+                                            </h6> {this.state.items["modelName"]}
                                         </div>
                                     }
                                     <div className="model-information-container">
                                         <h6 className="mr-2 model-information-prop">
                                             Created date:
-                                </h6>
+                                        </h6>
                                         {new Date(this.state.items["createdDateTime"]).toLocaleString()}
                                     </div>
                                     {this.state.items?.["composedTrainResults"]?.length > 0 &&
                                         <>
                                             <h6 className="mb-0">
                                                 Composed of:
-                                    </h6>
+                                            </h6>
                                             <div className="mr-4 ml-4 mb-2 composed-of-list">
                                                 <DetailsList
                                                     items={this.state.items["composedTrainResults"]}
@@ -284,7 +288,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
     }
 
     public confirm = () => {
-        if (this.state.items.length > 1) {
+        if (this.state.items.length > 1 && this.modelName !== '') {
             this.props.onComposeConfirm(this.modelName);
             this.setState({
                 hideModal: true,
@@ -297,5 +301,6 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
 
     private onTextChange = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string) => {
         this.modelName = text;
+        this.setState({})
     }
 }

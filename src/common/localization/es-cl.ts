@@ -198,7 +198,8 @@ export const spanish: IAppStrings = {
             modelCannotBeIncluded: "Advertencia: ¡Este modelo no se incluirá en el modelo compuesto!",
             addModelToRecentModels: "Modelo [${modelID}] agregado a modelos recientes",
             recentModelsAlreadyContainsModel: "Los modelos recientes ya contienen el modelo [${modelID}]",
-            loadingDetails: "Cargando detalles del modelo ..."
+            loadingDetails: "Cargando detalles del modelo ...",
+            NoModelName: "Los nombres de los modelos sintéticos son campos obligatorios, sólo se pueden utilizar letras mayúsculas y minúsculas, números,'~_ .' "
         },
         commandBar: {
             ariaLabel: "Utilice la barra de comandos para componer modelos",
