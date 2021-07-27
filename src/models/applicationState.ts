@@ -501,7 +501,7 @@ export enum FieldType {
     Time = "time",
     Integer = "integer",
     SelectionMark = "selectionMark",
-    Signature = "Signature",
+    Signature = "signature",
     Array = "array",
     Object = "object",
 }
