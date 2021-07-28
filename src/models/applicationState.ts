@@ -524,7 +524,6 @@ export enum FieldFormat {
     DecimalCommaSeparated = "decimal-comma-seperated",
     NoWhiteSpaces = "no-whitespaces",
     Alphanumeric = "alphanumeric",
-    Signature = "signature",
     DMY = "dmy",
     MDY = "mdy",
     YMD = "ymd",
