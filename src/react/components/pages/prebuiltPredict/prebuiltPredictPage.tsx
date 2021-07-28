@@ -120,7 +120,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         {
             name: "Business card",
             servicePath: "businessCard",
-            useLocale: false,
+            useLocale: true,
         },
         {
             name: "ID",
