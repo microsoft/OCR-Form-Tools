@@ -815,6 +815,13 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         try {
             response = await ServiceHelper.postWithAutoRetry(
                 endpointURL, body, { headers }, this.props.project.apiKey as string);
+
+            const operationLocation = response.headers["operation-location"];
+
+            // Make the second REST API call and get the response.
+            return this.poll(() =>
+                ServiceHelper.getWithAutoRetry(
+                    operationLocation, { headers }, this.props.project.apiKey as string), 120000, 500);
         } catch (err) {
             if (err.response?.status === 404) {
                 throw new AppError(
@@ -825,13 +832,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 ServiceHelper.handleServiceError({ ...err, endpoint: endpointURL });
             }
         }
-
-        const operationLocation = response.headers["operation-location"];
-
-        // Make the second REST API call and get the response.
-        return this.poll(() =>
-            ServiceHelper.getWithAutoRetry(
-                operationLocation, { headers }, this.props.project.apiKey as string), 120000, 500);
     }
 
     private loadFile = (file: File) => {
