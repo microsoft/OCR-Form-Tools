@@ -866,43 +866,37 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
          * @return flattenfields, a field props or an array of field props
          */
         const flattedFields = {};
-        const isSupportField = fieldName => {
-            // Define list of unsupported field names.
-            const blockedFieldNames = ["ReceiptType"];
-            return blockedFieldNames.indexOf(fieldName) === -1;
-        }
         const isRootItemObject = obj => obj.hasOwnProperty("content");
         const docType = _.get(this.state.analyzeResult, "documents[0].docType", "");
 
         // flat fieldProps of type "array" and "object", and extract root level field props in "object" type
         const flatFieldProps = (displayName, fieldProps) => {
-            if (isSupportField(displayName)) {
-                switch (_.get(fieldProps, "type", "")) {
-                    case "array": {
-                        if (docType === "prebuilt:invoice" && displayName === "Items") {
-                            flattedFields[displayName] = fieldProps;
-                        } else {
-                            const valueArray = _.get(fieldProps, "valueArray", []);
-                            for (const [index, valueArrayItem] of valueArray.entries()) {
-                                flatFieldProps(`${displayName} ${index + 1}`, valueArrayItem);
-                            }
-                        }
-                        break;
-                    }
-                    case "object": {
-                        // root level field props
-                        const { type, valueObject, ...restProps } = fieldProps;
-                        if (isRootItemObject(restProps)) {
-                            flatFieldProps(displayName, restProps);
-                        }
-                        for (const [fieldName, objFieldProps] of Object.entries(valueObject || {})) {
-                            flatFieldProps(`${displayName}: ${fieldName}`, objFieldProps);
-                        }
-                        break;
-                    }
-                    default: {
+
+            switch (_.get(fieldProps, "type", "")) {
+                case "array": {
+                    if (docType === "prebuilt:invoice" && displayName === "Items") {
                         flattedFields[displayName] = fieldProps;
+                    } else {
+                        const valueArray = _.get(fieldProps, "valueArray", []);
+                        for (const [index, valueArrayItem] of valueArray.entries()) {
+                            flatFieldProps(`${displayName} ${index + 1}`, valueArrayItem);
+                        }
                     }
+                    break;
+                }
+                case "object": {
+                    // root level field props
+                    const { type, valueObject, ...restProps } = fieldProps;
+                    if (isRootItemObject(restProps)) {
+                        flatFieldProps(displayName, restProps);
+                    }
+                    for (const [fieldName, objFieldProps] of Object.entries(valueObject || {})) {
+                        flatFieldProps(`${displayName}: ${fieldName}`, objFieldProps);
+                    }
+                    break;
+                }
+                default: {
+                    flattedFields[displayName] = fieldProps;
                 }
             }
         }
