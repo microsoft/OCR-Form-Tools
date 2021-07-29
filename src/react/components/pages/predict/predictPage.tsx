@@ -1022,8 +1022,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private getAnalyzeModelInfo(analyzeResult) {
-        const { modelId, docType, docTypeConfidence } = _.get(analyzeResult, "documentResults[0]", {})
-        return { modelId, docType, docTypeConfidence };
+        const { docType, confidence } = _.get(analyzeResult, "documents[0]", {})
+        const modelId = _.get(analyzeResult, "modelId", '')
+        return { modelId, docType, docTypeConfidence: confidence };
     }
 
     private getOcrFromAnalyzeResult(analyzeResult: any) {
