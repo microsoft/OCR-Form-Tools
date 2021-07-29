@@ -34,6 +34,8 @@ export default class ServiceHelper {
                     errorTitle = strings.errors.tooManyRequests.title;
                 }
                 throw new AppError(errorCode, errorMessage, errorTitle);
+            } else if (err.response?.data?.innererror) {
+                throw new AppError(ErrorCode.Unknown, err.response?.data?.innererror.message, err.response?.data?.innererror.code);
             } else if (err.response.data && err.response.data.error && err.response.data.error.code === "1001") {
                 throw new AppError(
                     ErrorCode.ModelNotFound,
@@ -42,6 +44,8 @@ export default class ServiceHelper {
                 throw new AppError(
                     ErrorCode.Unknown,
                     err.response.data.error.message);
+            } else if (err.response?.data?.message && err.response?.data?.code) {
+                throw new AppError(ErrorCode.Unknown, err.response?.data.message, err.response?.data.code);
             } else {
                 throw new AppError(
                     ErrorCode.Unknown,

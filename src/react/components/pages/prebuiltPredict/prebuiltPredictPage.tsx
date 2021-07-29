@@ -120,7 +120,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         {
             name: "Business card",
             servicePath: "businessCard",
-            useLocale: false,
+            useLocale: true,
         },
         {
             name: "ID",
@@ -766,14 +766,14 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         try {
             response = await ServiceHelper.postWithAutoRetry(
                 endpointURL, body, { headers }, apiKey as string);
+
+            const operationLocation = response.headers["operation-location"];
+
+            // Make the second REST API call and get the response.
+            return poll(() => ServiceHelper.getWithAutoRetry(operationLocation, { headers }, apiKey as string), 120000, 500);
         } catch (err) {
             ServiceHelper.handleServiceError({ ...err, endpoint: endpointURL });
         }
-
-        const operationLocation = response.headers["operation-location"];
-
-        // Make the second REST API call and get the response.
-        return poll(() => ServiceHelper.getWithAutoRetry(operationLocation, { headers }, apiKey as string), 120000, 500);
     }
 
     private createBoundingBoxVectorFeature = (text, boundingBox, imageExtent, ocrExtent) => {
