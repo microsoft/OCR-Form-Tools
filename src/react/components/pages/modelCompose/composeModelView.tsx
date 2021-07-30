@@ -6,7 +6,6 @@ import { Customizer, IColumn, ICustomizations, Modal, DetailsList, SelectionMode
 import { getDarkGreyTheme, getPrimaryGreenTheme, getPrimaryGreyTheme, getDefaultDarkTheme } from "../../../../common/themes";
 import { strings } from "../../../../common/strings";
 import { IModel } from "./modelCompose";
-import { getAppInsights } from '../../../../services/telemetryService';
 import "./modelCompose.scss";
 import { IRecentModel } from "../../../../models/applicationState";
 
@@ -28,7 +27,6 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
      *
      */
     private modelName: string = "";
-    private appInsights: any = null;
 
     constructor(props: Readonly<IComposeModelViewProps>) {
         super(props);
@@ -38,10 +36,6 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
             cannotBeIncludeModels: [],
             composing: false,
         }
-    }
-
-    public componentDidMount() {
-        this.appInsights = getAppInsights();
     }
 
     public render() {
@@ -66,11 +60,11 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
             },
             {
                 key: "column3",
-                name: strings.modelCompose.column.name.headerName,
+                name: strings.modelCompose.column.description.headerName,
                 minWidth: 50,
                 maxWidth: 300,
                 isResizable: true,
-                onRender: (model) => <span>{model.modelName}</span>,
+                onRender: (model) => <span>{model.description}</span>,
             },
             {
                 key: "column4",
@@ -93,11 +87,11 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
             },
             {
                 key: "column3",
-                name: strings.modelCompose.column.name.headerName,
+                name: strings.modelCompose.column.description.headerName,
                 minWidth: 100,
                 maxWidth: 330,
                 isResizable: true,
-                onRender: (model) => <span>{model.name}</span>,
+                onRender: (model) => <span>{model.description}</span>,
             },
             {
                 key: "column4",
@@ -199,11 +193,11 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                                         </h6>
                                         {this.state.items["modelId"]}
                                     </div>
-                                    {this.state.items["modelName"] &&
+                                    {this.state.items["description"] &&
                                         <div className="model-information-container">
                                             <h6 className="mr-2 model-information-prop">
-                                                Model name:
-                                            </h6> {this.state.items["modelName"]}
+                                                Description:
+                                            </h6> {this.state.items["description"]}
                                         </div>
                                     }
                                     <div className="model-information-container">
@@ -249,7 +243,7 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
                                                 isComposed: Boolean(this.state.items["composedTrainResults"]),
                                                 modelId: this.state.items["modelId"],
                                                 createdDateTime: this.state.items["createdDateTime"],
-                                                modelName: this.state.items?.["modelName"],
+                                                description: this.state.items?.["description"],
                                             }
                                         })
                                     }}
@@ -293,9 +287,6 @@ export default class ComposeModelView extends React.Component<IComposeModelViewP
             this.setState({
                 hideModal: true,
             });
-        }
-        if (this.appInsights) {
-            this.appInsights.trackEvent({ name: "COMPOSE_MODEL_EVENT" });
         }
     }
 

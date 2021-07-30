@@ -310,13 +310,13 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                             </td>
                                                         </tr>
                                                         <tr>
-                                                            {mostRecentModel.modelInfo.modelName &&
+                                                            {mostRecentModel.modelInfo.description &&
                                                                 <td className="model-selection-info-header p-0" >
                                                                     <span className="model-selection-info-key">
-                                                                        {strings.predict.modelNamePrefix}
+                                                                        {strings.predict.modelDescriptionPrefix}
                                                                     </span>
-                                                                    <span title={mostRecentModel.modelInfo.modelName} className="model-selection-info-value">
-                                                                        {mostRecentModel.modelInfo.modelName}
+                                                                    <span title={mostRecentModel.modelInfo.description} className="model-selection-info-value">
+                                                                        {mostRecentModel.modelInfo.description}
                                                                     </span>
                                                                 </td>
                                                             }
@@ -1183,7 +1183,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             modelInfo: {
                 createdDateTime: response["modelInfo"]["createdDateTime"],
                 modelId: response["modelInfo"]["modelId"],
-                modelName: response["modelInfo"]["modelName"],
+                description: response["modelInfo"]["description"],
                 isComposed: response["modelInfo"]["attributes"]["isComposed"],
             }
         } as IRecentModel;
