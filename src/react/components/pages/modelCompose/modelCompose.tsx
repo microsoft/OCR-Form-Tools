@@ -5,6 +5,7 @@ import React, { ReactElement } from "react";
 import { connect } from "react-redux";
 import url from "url";
 import { RouteComponentProps } from "react-router-dom";
+import allSettled from "promise.allsettled"
 import { APIVersionPatches, IProject, IConnection, IAppSettings, IApplicationState, AppError, ErrorCode, IRecentModel } from "../../../../models/applicationState";
 import { constants } from "../../../../common/constants";
 import ServiceHelper from "../../../../services/serviceHelper";
@@ -80,15 +81,15 @@ export interface IModel {
     };
     key?: string;
     modelId: string;
-    modelName: string;
     createdDateTime: string;
     lastUpdatedDateTime?: string;
     status?: string;
     composedTrainResults?: [];
+    description?: string;
 }
 export interface IComposedModelInfo {
     id: string,
-    name?: string,
+    description?: string,
     createdDateTime?: string;
 }
 
@@ -147,12 +148,12 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             },
             {
                 key: "column3",
-                name: strings.modelCompose.column.name.headerName,
-                fieldName: strings.modelCompose.column.name.fieldName,
+                name: strings.modelCompose.column.description.headerName,
+                fieldName: strings.modelCompose.column.description.fieldName,
                 minWidth: 150,
                 isResizable: true,
                 onColumnClick: this.handleColumnClick,
-                onRender: (model: IModel) => <span>{model.modelName}</span>,
+                onRender: (model: IModel) => <span>{model.description}</span>,
             },
             {
                 key: "column4",
@@ -377,33 +378,32 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     private onItemInvoked = async (model: IModel, index: number, ev: Event) => {
         const composedModelInfo: IModel = {
             modelId: model.modelId,
-            modelName: model.modelName,
+            description: model.description,
             createdDateTime: model.createdDateTime,
             composedTrainResults: []
         };
-        this.composeModalRef.current.open([], false, false);
+        this.composeModalRef.current.open([composedModelInfo], false, false);
 
         if (model.attributes && model.attributes.isComposed) {
-            const apiVersion = getAPIVersion(this.props.project?.apiVersion);
             const inclModels = model.composedTrainResults ?
                 model.composedTrainResults
-                : (await this.getModelByURl(interpolate(constants.apiModelsPath, { apiVersion }) + "/" + model.modelId)).composedTrainResults;
+                : (await this.getModelById(model.modelId)).composedTrainResults;
 
             for (const i of Object.keys(inclModels)) {
                 let _model: IModel;
                 let modelInfo: IComposedModelInfo;
                 try {
-                    _model = await this.getModelByURl(interpolate(constants.apiModelsPath, { apiVersion }) + "/" + inclModels[i].modelId);
+                    _model = await this.getModelById(inclModels[i].modelId);
                     modelInfo = {
                         id: _model.modelId,
-                        name: _model.modelName,
+                        description: _model.description,
                         createdDateTime: _model.createdDateTime,
                     };
                     composedModelInfo.composedTrainResults.push(modelInfo as never);
                 } catch (e) {
                     modelInfo = {
                         id: inclModels[i].modelId,
-                        name: strings.modelCompose.errors.noInfoAboutModel,
+                        description: strings.modelCompose.errors.noInfoAboutModel,
                     };
                     composedModelInfo.composedTrainResults.push(modelInfo as never);
                 }
@@ -418,16 +418,13 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
     private getModelList = async () => {
         try {
-            this.setState({
-                isLoading: true,
-            });
+            this.setState({ isLoading: true });
 
             let recentModels: IModel[] = [];
             if (this.props.project?.recentModelRecords?.length) {
                 recentModels = await this.getRecentModels();
             }
-
-            const res = await this.getResponse();
+            const res = await this.getModels();
 
             const apiVersion = getAPIVersion(this.props.project?.apiVersion);
             let models = this.returnReadyModels(res.data.value)
@@ -469,12 +466,12 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     private buildUpdatedProject = (composedModel: object): IProject => {
         const newTrainRecord = {
             modelInfo: {
-                createdDateTime: composedModel["modelInfo"]["createdDateTime"],
-                modelId: composedModel["modelInfo"]["modelId"],
-                modelName: composedModel["modelInfo"]["modelName"],
+                createdDateTime: composedModel["result"]["createdDateTime"],
+                modelId: composedModel["result"]["modelId"],
+                description: composedModel["result"]["description"],
                 isComposed: true,
             },
-            composedTrainResults: composedModel["composedTrainResults"]
+            composedTrainResults: this.getComposedTrainResults(composedModel["result"]["docTypes"])
         } as IRecentModel;
         const recentModelRecords: IRecentModel[] = this.props.project.recentModelRecords ?
             [...this.props.project.recentModelRecords] : [];
@@ -492,30 +489,15 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
     private getRecentModels = async (): Promise<IModel[]> => {
         const recentModelsList: IModel[] = [];
-        // const apiVersion = getAPIVersion(this.props.project?.apiVersion);
-        // const recentModelRequest = await allSettled(this.props.project.recentModelRecords.map(async (model) => {
-        //     let link;
-        //     if (apiVersion === APIVersionPatches.patch5) {
-        //         link = `/formrecognizer/documentModels/${model.modelInfo.modelId}?${constants.apiVersionQuery}`
-        //     } else {
-        //         link = interpolate(constants.apiModelsPath, { apiVersion }) + "/" + model.modelInfo.modelId
-        //     }
-        //     return this.getModelByURl(link);
-        // }))
-        // recentModelRequest.forEach((recentModelRequest) => {
-        //     if (recentModelRequest.status === "fulfilled") {
-        //         recentModelsList.push(recentModelRequest.value);
-        //     }
-        // });
+        const recentModelRequest = await allSettled(this.props.project.recentModelRecords.map(async (model) => {
+            return this.getModelById(model.modelInfo.modelId);
+        }))
+        recentModelRequest.forEach((recentModelRequest) => {
+            if (recentModelRequest.status === "fulfilled") {
+                recentModelsList.push(recentModelRequest.value);
+            }
+        });
         return recentModelsList;
-    }
-
-    private getModelByURl = async (idURL): Promise<IModel> => {
-        const res = await this.getResponse(idURL);
-        const model: IModel = res.data.modelInfo;
-        model.key = model.modelId;
-        model.composedTrainResults = res.data.composedTrainResults;
-        return model;
     }
 
     private getNextPage = async () => {
@@ -559,26 +541,56 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     private getModelsFromNextLink = async (link: string) => {
-        const res = await this.getResponse(link);
-        return {
-            nextList: this.returnReadyModels(res.data.modelList),
-            nextLink: res.data.nextLink,
+        const baseURL = url.resolve(
+            this.props.project.apiUriBase,
+            link,
+        );
+        const config = {
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "withCredentials": "true",
+            },
         };
+
+        try {
+            const res = await ServiceHelper.getWithAutoRetry(
+                baseURL,
+                config,
+                this.props.project.apiKey as string,
+            );
+
+            return {
+                nextList: this.returnReadyModels(res.data.value),
+                nextLink: res.data.nextLink,
+            };
+        } catch (err) {
+            this.setState({
+                isLoading: false,
+            });
+
+            ServiceHelper.handleServiceError({ ...err, endpoint: baseURL });
+        }
     }
 
-    private async getResponse(nextLink?: string) {
-        const apiVersion = getAPIVersion(this.props.project?.apiVersion);
-        let sourceUrl = interpolate(constants.apiModelsPath, { apiVersion });
-        if (apiVersion === APIVersionPatches.patch5) {
-            sourceUrl = `formrecognizer/documentModels?${constants.apiVersionQuery}`
-        }
-        const baseURL = nextLink === undefined ? url.resolve(
+    private getModelById = async (modelId): Promise<IModel> => {
+        const res = await this.getModels(modelId);
+        const model: IModel = res.data;
+        model.key = model.modelId;
+        model.composedTrainResults = this.getComposedTrainResults(res.data.docTypes);
+        model.status = constants.statusCodeReady;
+        model.attributes = { isComposed: Object.keys(res.data.docTypes).length > 1}
+        return model;
+    }
+
+    private async getModels(modelId?: string) {
+        const baseURL = modelId === undefined ? url.resolve(
             this.props.project.apiUriBase,
-            sourceUrl,
+            `formrecognizer/documentModels?${constants.apiVersionQuery}`,
         ) : url.resolve(
             this.props.project.apiUriBase,
-            nextLink,
+            `formrecognizer/documentModels/${modelId}?${constants.apiVersionQuery}`,
         );
+
         const config = {
             headers: {
                 "Access-Control-Allow-Origin": "*",
@@ -643,15 +655,15 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                         }
                     }
                 }));
-        } else if (key === strings.modelCompose.column.name.fieldName) {
+        } else if (key === strings.modelCompose.column.description.fieldName) {
             return (
                 modelList.slice(0).sort((a, b) => {
-                    if (a.modelName && b.modelName) {
-                        return isSortedDescending ? b.modelName.localeCompare(a.modelName) : -b.modelName.localeCompare(a.modelName)
-                    } else if (a.modelName || b.modelName) {
-                        if (a.modelName) {
+                    if (a.description && b.description) {
+                        return isSortedDescending ? b.description.localeCompare(a.description) : -b.description.localeCompare(a.description)
+                    } else if (a.description || b.description) {
+                        if (a.description) {
                             return -1;
-                        } else if (b.modelName) {
+                        } else if (b.description) {
                             return 1;
                         }
                     }
@@ -672,8 +684,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     private onTextChange = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string): void => {
         this.setState({
             modelList: text ?
-                this.allModels.filter(({ modelName, modelId }) => (modelId.indexOf(text.toLowerCase()) > -1) ||
-                    (modelName !== undefined ? modelName.toLowerCase().indexOf(text.toLowerCase()) > -1 : false)) : this.allModels,
+                this.allModels.filter(({ description, modelId }) => (modelId.indexOf(text.toLowerCase()) > -1) ||
+                    (description !== undefined ? description.toLowerCase().indexOf(text.toLowerCase()) > -1 : false)) : this.allModels,
             hasText: text ? true : false,
         });
     }
@@ -695,8 +707,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             [...this.props.project.recentModelRecords] : [];
 
         if (recentModelRecords.find((recentModel) => recentModel.modelInfo.modelId === modelToAdd.modelInfo.modelId)) {
-            if (modelToAdd.modelInfo.modelName) {
-                toast.success(interpolate(strings.modelCompose.modelView.recentModelsAlreadyContainsModel, { modelID: modelToAdd.modelInfo.modelName }));
+            if (modelToAdd.modelInfo.description) {
+                toast.success(interpolate(strings.modelCompose.modelView.recentModelsAlreadyContainsModel, { modelID: modelToAdd.modelInfo.description }));
             } else {
                 toast.success(interpolate(strings.modelCompose.modelView.recentModelsAlreadyContainsModel, { modelID: modelToAdd.modelInfo.modelId }));
             }
@@ -714,8 +726,8 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
             predictModelId: modelToAdd.modelInfo.modelId,
         };
         this.composeModalRef.current.close();
-        if (modelToAdd.modelInfo.modelName) {
-            toast.success(interpolate(strings.modelCompose.modelView.addModelToRecentModels, { modelID: modelToAdd.modelInfo.modelName }));
+        if (modelToAdd.modelInfo.description) {
+            toast.success(interpolate(strings.modelCompose.modelView.addModelToRecentModels, { modelID: modelToAdd.modelInfo.description }));
         } else {
             toast.success(interpolate(strings.modelCompose.modelView.addModelToRecentModels, { modelID: modelToAdd.modelInfo.modelId }));
         }
@@ -745,9 +757,9 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         const checkSucceeded = (resolve, reject) => {
             const ajax = func();
             ajax.then((response) => {
-                if (response.data.modelInfo.status.toLowerCase() === constants.statusCodeReady) {
+                if (response.data.status.toLowerCase() === constants.statusCodeSucceeded) {
                     resolve(response.data);
-                } else if (response.data.modelInfo.status.toLowerCase() === constants.statusCodeInvalid) {
+                } else if (response.data.status.toLowerCase() === constants.statusCodeFailed) {
                     toast.error(strings.modelCompose.errors.failedCompose, { autoClose: false });
                     this.setState({ isComposing: false });
                     return;
@@ -817,7 +829,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
 
                 this.setState({
                     isComposing: false,
-                    composeModelId: [composedModel["modelInfo"]["modelId"]],
+                    composeModelId: [composedModel["result"]["modelId"]],
                     columns: newCols,
                 });
             } catch (error) {
@@ -879,5 +891,14 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
         } else {
             return null;
         }
+    }
+
+    private getComposedTrainResults = (docTypes): [] => {
+        return Object.keys(docTypes).map((modelId) => {
+            return {
+                modelId,
+                ...docTypes[modelId]
+            };
+        }) as [];
     }
 }

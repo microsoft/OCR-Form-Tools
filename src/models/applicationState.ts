@@ -372,7 +372,7 @@ export interface IRecentModel {
         readonly isComposed: boolean,
         readonly modelId: string,
         readonly createdDateTime: string,
-        readonly modelName: string,
+        readonly description?: string,
     },
 }
 

@@ -177,6 +177,10 @@ export const spanish: IAppStrings = {
                 headerName: "Nombre del Modelo",
                 fieldName: "modelName",
             },
+            description: {
+                headerName: "Descripción",
+                fieldName: "descripción",
+            },
             status: {
                 headerName: "Estado",
                 fieldName: "status",
@@ -227,6 +231,7 @@ export const spanish: IAppStrings = {
         selectModelHeader: "Modelo para analizar con",
         modelIDPrefix: "ID del modelo: ",
         modelNamePrefix: "Nombre del modelo: ",
+        modelDescriptionPrefix: "Descripción: ",
         downloadScript: "Analizar con script python",
         defaultLocalFileInput: "Busca un archivo...",
         defaultURLInput: "Pegar o escribir URL...",

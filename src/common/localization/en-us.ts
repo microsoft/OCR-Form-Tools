@@ -177,6 +177,10 @@ export const english: IAppStrings = {
                 headerName: "Model Name",
                 fieldName: "modelName",
             },
+            description: {
+                headerName: "Description",
+                fieldName: "description",
+            },
             status: {
                 headerName: "Status",
                 fieldName: "status",
@@ -228,6 +232,7 @@ export const english: IAppStrings = {
         selectModelHeader: "Model to analyze with",
         modelIDPrefix: "Model ID: ",
         modelNamePrefix: "Model name: ",
+        modelDescriptionPrefix: "Description: ",
         downloadScript: "Analyze with python script",
         defaultLocalFileInput: "Browse for a file...",
         defaultURLInput: "Paste or type URL...",
