@@ -73,11 +73,11 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
                     text: 'JSON',
                     onClick: () => this.triggerJSONDownload()
                 },
-                {
-                    key: 'CSV',
-                    text: 'CSV',
-                    onClick: () => this.triggerCSVDownload()
-                }
+                // {
+                //     key: 'CSV',
+                //     text: 'CSV',
+                //     onClick: () => this.triggerCSVDownload()
+                // }
             ]
         }
         return (
