@@ -438,7 +438,7 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
                     columns: newColumns
                 });
             }
-            
+
             const link = res.data.nextLink;
 
             const recentModelIds = this.getRecentModelIds(recentModels);
