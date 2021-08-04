@@ -48,9 +48,7 @@ Please see instructions [here](https://docs.microsoft.com/en-us/azure/cognitive-
 ### Run as web application
 
 Using a modern Web browser, FOTT can be run directly at: 
-- https://fott.azurewebsites.net/  (for Form Recognizer 2.0 GA services)
-- https://fott-preview.azurewebsites.net/  (for Form Recognizer 2.1-preview.* services). 
-- https://fott-preview-private.azurewebsites.net/  (for Form Recognizer Private 2.1-preview.* services). 
+- https://fott-2-1.azurewebsites.net/
 
 **Note: these web app are for testing purpose only. HTTPS is required, unless it's for localhost.**
 
