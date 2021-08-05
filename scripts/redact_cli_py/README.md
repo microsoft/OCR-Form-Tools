@@ -1,7 +1,7 @@
 # Redact CLI
 
 ## Version
-Redact CLI 0.2.0
+Redact CLI 0.2.1
 
 ## Setup Environment
 

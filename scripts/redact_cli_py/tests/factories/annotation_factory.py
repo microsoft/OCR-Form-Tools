@@ -21,3 +21,17 @@ class AnnotationFactory:
                        field='Total', text='$3000.00')]
 
         return annotations
+
+    def build_annotations_mode_1() -> List[Annotation]:
+        annotations = [
+            Annotation(bounding_box=[76, 105, 104, 105,
+                       104, 111, 76, 111],
+                       field='Name', text=''),
+            Annotation(bounding_box=[255, 155, 301, 155,
+                       301, 161, 255, 162],
+                       field='Date', text=''),
+            Annotation(bounding_box=[254, 166, 291, 166,
+                       291, 172, 254, 173],
+                       field='Total', text='')]
+
+        return annotations

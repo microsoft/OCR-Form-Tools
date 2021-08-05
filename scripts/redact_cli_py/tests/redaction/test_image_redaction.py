@@ -34,3 +34,20 @@ class TestImageRedaction:
         # stat.mean is a 3-tuple representing the mean value of [r, g, b].
         for channel in stat.mean:
             assert channel < epsilon
+
+    def test_redact_mode_1(self) -> None:
+        # A small tolerance epsilon
+        epsilon = 0.01
+        image = ImageFactory.build_mode_1()
+        expected_image = ImageFactory.build_redacted_mode_1()
+        annotations = AnnotationFactory.build_annotations_mode_1()
+
+        image_redaction = ImageRedaction(image, annotations)
+        image_redaction.redact()
+
+        expected_image.save("expected.tiff")
+        image_redaction.image.save("actual.tiff")
+
+        diff = ImageChops.difference(image_redaction.image, expected_image)
+        stat = ImageStat.Stat(diff)
+        assert stat.mean[0] < epsilon
