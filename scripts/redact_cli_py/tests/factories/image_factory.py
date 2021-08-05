@@ -16,3 +16,13 @@ class ImageFactory:
     def build_redacted() -> Image:
         image_path = "testdata/testdata.redacted.jpg"
         return Image.open(image_path)
+
+    @staticmethod
+    def build_mode_1() -> Image:
+        image_path = "testdata/testdata-mode-1.tiff"
+        return Image.open(image_path)
+
+    @staticmethod
+    def build_redacted_mode_1() -> Image:
+        image_path = "testdata/testdata-mode-1.redacted.tiff"
+        return Image.open(image_path)

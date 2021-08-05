@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2021-08-05
+### Added
+- Support to image modes other than 'RGB' and 'RGBA'. E.g. image mode '1'.
+
 ## [0.2.0] - 2021-07-09
 ### Added
 - Support Microsoft Azure Blob Storage as IO by `azure-storage-blob` package.
