@@ -360,9 +360,16 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     />
                 }
                 {this.shouldShowMultiPageIndicator() &&
-                    <p className="page-number">
-                        Page {this.state.currentPage} of {this.state.numPages}
-                    </p>
+                    <div className="page-number">
+                        <p>
+                            Page {this.state.currentPage} of {this.state.numPages}
+                        </p>
+                        <select value={this.state.currentPage} onChange={(val) => this.navigateToPageNumber(Number(val.target.value))}>
+                            {
+                            Array.from(Array(this.state.numPages).keys()).map(i =><option key={i+1} value={i+1}>{i+1}</option>)
+                            };
+                        </select>
+                    </div>
                 }
                 {(this.props.isRunningOCRs || (this.state.ocrStatus !== OcrStatus.done && this.state.ocrStatus !== OcrStatus.failed)) &&
                     <div className="canvas-ocr-loading">
@@ -1468,6 +1475,13 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             await this.goToPage(this.state.currentPage - 1);
         }
     }
+
+    private navigateToPageNumber = async (pageNumber: number) => {
+        if ((this.state.pdfFile !== null || this.state.tiffImages.length !== 0)  && this.state.currentPage < this.state.numPages) {
+            this.props.closeTableView("rest");
+            await this.goToPage(pageNumber);
+        }
+     }
 
     private goToPage = async (targetPage: number) => {
         if (targetPage < 1 || targetPage > this.state.numPages) {
