@@ -1,5 +1,14 @@
 # Redact CLI
 
+## Overview
+The Redaction Tool is provided by Azure Form Recognizer team to help our customers who are willing to share/donate data with Microsoft that can share/donate data efficiently without privacy concern. It can also be leveraged for your own purpose of data redaction on Personally Identifiable Information (PII) or sensitive data.
+
+Below is an example of an image before and after redaction.
+![image-before-after-redaction](./images/DL-before-after-redaction.png)
+
+The OCR results will also be redacted while keeping the semantics of the texts (e.g. length, upper/lower case, character/digit patterns, etc.)
+![ocr-before-after-redaction](./images/ocr-before-after-redaction.png)
+
 ## Version
 Redact CLI 0.2.1
 
