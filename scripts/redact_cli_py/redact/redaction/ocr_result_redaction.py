@@ -15,14 +15,16 @@ class OcrResultRedaction:
     LINE_OVERLAP_THRESHOLD = 0.1
     WORD_OVERLAP_THRESHOLD = 0.98
 
-    def __init__(self, ocr_result: dict, annotations: List[Annotation]):
+    def __init__(self, ocr_result: dict, annotations: List[Annotation], labels_to_redact: List[str] = []):
         self.ocr_result = ocr_result
         self.annotations = annotations
+        self.labels_to_redact = labels_to_redact
 
     def redact(self):
         refs = []
         for annot in self.annotations:
-            refs.extend(self.find_mapped_refs(annot))
+            if len(self.labels_to_redact) == 0 or annot.field in self.labels_to_redact:
+                refs.extend(self.find_mapped_refs(annot))
         self.redact_words(refs)
         self.redact_lines(refs)
         # Set is faster than List in this case.

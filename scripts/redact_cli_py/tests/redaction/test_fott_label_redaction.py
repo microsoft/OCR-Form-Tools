@@ -24,6 +24,16 @@ class TestFottLabelRedaction:
         actual = fott_label_redaction.fott_label
         assert actual == expected
 
+    def test_redact_partial(self) -> None:
+        fott_label = FottLabelFactory.build_partial()
+        expected = FottLabelFactory.build_redacted_partial()
+        fott_label_redaction = FottLabelRedaction(fott_label, ["Name", "Date"])
+
+        fott_label_redaction.redact()
+
+        actual = fott_label_redaction.fott_label
+        assert actual == expected
+
     def test_redact_first_char(self) -> None:
         fott_label = FottLabelFactory.build()
         fott_label_redaction = FottLabelRedaction(fott_label)
