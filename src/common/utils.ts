@@ -385,7 +385,6 @@ export function filterFormat(type: FieldType | string): any[] {
         case FieldType.Signature:
             return [
                 FieldFormat.NotSpecified,
-                FieldFormat.Signature,
             ];
         case FieldType.Date:
             return [

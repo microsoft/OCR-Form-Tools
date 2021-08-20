@@ -177,6 +177,10 @@ export const english: IAppStrings = {
                 headerName: "Model Name",
                 fieldName: "modelName",
             },
+            description: {
+                headerName: "Description",
+                fieldName: "description",
+            },
             status: {
                 headerName: "Status",
                 fieldName: "status",
@@ -198,7 +202,9 @@ export const english: IAppStrings = {
             modelCannotBeIncluded: "Warning: This model will not be included in composed model!",
             addModelToRecentModels: "Model [${modelID}] added to recent models",
             recentModelsAlreadyContainsModel: "Recent models already contains model [${modelID}]",
-            loadingDetails: "Loading model details..."
+            loadingDetails: "Loading model details...",
+            NoModelName: "model name  is a required field and can only use uppercase and lowercase letters, numbers, '~_ .'"
+
         },
         commandBar: {
             ariaLabel: "Please use command bar to compose models",
@@ -226,6 +232,7 @@ export const english: IAppStrings = {
         selectModelHeader: "Model to analyze with",
         modelIDPrefix: "Model ID: ",
         modelNamePrefix: "Model name: ",
+        modelDescriptionPrefix: "Description: ",
         downloadScript: "Analyze with python script",
         defaultLocalFileInput: "Browse for a file...",
         defaultURLInput: "Paste or type URL...",

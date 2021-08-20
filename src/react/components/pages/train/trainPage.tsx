@@ -1,24 +1,24 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {FontIcon, PrimaryButton, Spinner, SpinnerSize, TextField} from "@fluentui/react";
+import { FontIcon, PrimaryButton, Spinner, SpinnerSize, TextField } from "@fluentui/react";
 import _ from "lodash";
 import React from "react";
-import {connect} from "react-redux";
-import {RouteComponentProps} from "react-router-dom";
-import {bindActionCreators} from "redux";
+import { connect } from "react-redux";
+import { RouteComponentProps } from "react-router-dom";
+import { bindActionCreators } from "redux";
 import url from "url";
-import {constants} from "../../../../common/constants";
-import {isElectron} from "../../../../common/hostProcess";
-import {interpolate, strings} from "../../../../common/strings";
-import {getGreenWithWhiteBackgroundTheme, getPrimaryGreenTheme} from "../../../../common/themes";
-import {APIVersionPatches, AssetLabelingState, FieldType, IApplicationState, IAppSettings, IAssetMetadata, IConnection, IProject, IRecentModel} from "../../../../models/applicationState";
+import { constants } from "../../../../common/constants";
+import { isElectron } from "../../../../common/hostProcess";
+import { interpolate, strings } from "../../../../common/strings";
+import { getGreenWithWhiteBackgroundTheme, getPrimaryGreenTheme } from "../../../../common/themes";
+import { APIVersionPatches, AssetLabelingState, FieldType, IApplicationState, IAppSettings, IAssetMetadata, IConnection, IProject, IRecentModel } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
-import {AssetService} from "../../../../services/assetService";
+import { AssetService } from "../../../../services/assetService";
 import ServiceHelper from "../../../../services/serviceHelper";
-import {getAppInsights} from '../../../../services/telemetryService';
+import { getAppInsights } from '../../../../services/telemetryService';
 import UseLocalStorage from '../../../../services/useLocalStorage';
 import Alert from "../../common/alert/alert";
 import Confirm from "../../common/confirm/confirm";
@@ -26,7 +26,7 @@ import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import TrainChart from "./trainChart";
 import "./trainPage.scss";
 import TrainPanel from "./trainPanel";
-import {ITrainRecordProps} from "./trainRecord";
+import { ITrainRecordProps } from "./trainRecord";
 import TrainTable from "./trainTable";
 import { getAPIVersion } from "../../../../common/utils";
 import { webStorage } from "../../../../common/webStorage";
@@ -104,7 +104,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     public async componentDidMount() {
         const projectId = this.props.match.params["projectId"];
         if (projectId) {
-            const project = {...this.props.recentProjects.find((project) => project.id === projectId)};
+            const project = { ...this.props.recentProjects.find((project) => project.id === projectId) };
             await this.props.actions.loadProject(project);
 
             this.props.appTitleActions.setTitle(project.name);
@@ -181,6 +181,10 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                     value={this.state.modelName}
                                 >
                                 </TextField>
+                                {
+                                    (this.state.modelName === '' || !/^[a-zA-Z0-9][a-zA-Z0-9._~]{1,63}$/.test(this.state.modelName)) &&
+                                    <div className="modal-alert">{strings.modelCompose.modelView.NoModelName}</div>
+                                }
                                 {!this.state.isTraining ? (
                                     <div className="container-items-end">
                                         <PrimaryButton
@@ -197,16 +201,16 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                         </PrimaryButton>
                                     </div>
                                 ) : (
-                                        <div className="loading-container">
-                                            <Spinner
-                                                label="Training in progress..."
-                                                ariaLive="assertive"
-                                                labelPosition="right"
-                                                size={SpinnerSize.large}
-                                                className={"training-spinner"}
-                                            />
-                                        </div>
-                                    )
+                                    <div className="loading-container">
+                                        <Spinner
+                                            label="Training in progress..."
+                                            ariaLive="assertive"
+                                            labelPosition="right"
+                                            size={SpinnerSize.large}
+                                            className={"training-spinner"}
+                                        />
+                                    </div>
+                                )
                                 }
                             </div>
                             <div className={!this.state.isTraining ? "" : "greyOut"}>
@@ -295,12 +299,14 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private handleTrainClick = () => {
-        const assets = Object.values(this.props.project.assets)
-            .filter(asset => asset.labelingState === AssetLabelingState.AutoLabeled);
-        if (assets.length > 0) {
-            this.notAdjustedLabelsConfirm.current.open();
-        } else {
-            this.handleModelTrain();
+        if (this.state.modelName && /^[a-zA-Z0-9][a-zA-Z0-9._~]{1,63}$/.test(this.state.modelName)) {
+            const assets = Object.values(this.props.project.assets)
+                .filter(asset => asset.labelingState === AssetLabelingState.AutoLabeled);
+            if (assets.length > 0) {
+                this.notAdjustedLabelsConfirm.current.open();
+            } else {
+                this.handleModelTrain();
+            }
         }
     }
 
@@ -323,9 +329,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 const newAsset = _.cloneDeep(asset);
 
                 const metadata = await assetService.getAssetMetadata(newAsset);
-                if (metadata.labelData && metadata.labelData.labels?.findIndex(label=>label.value?.length>0)>=0 && metadata.labelData.labelingState !== AssetLabelingState.Trained) {
+                if (metadata.labelData && metadata.labelData.labels?.findIndex(label => label.value?.length > 0) >= 0 && metadata.labelData.labelingState !== AssetLabelingState.Trained) {
                     metadata.labelData.labelingState = AssetLabelingState.Trained;
-                    metadata.asset.labelingState=AssetLabelingState.Trained;
+                    metadata.asset.labelingState = AssetLabelingState.Trained;
                     const newMeta = await assetService.save({ ...metadata });
                     newAssets[asset.id] = newMeta.asset;
                 }
@@ -333,7 +339,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                     newAssets[asset.id] = newAsset;
                 }
             }
-            await this.props.actions.saveProject({...this.props.project, assets: newAssets},false,false);
+            await this.props.actions.saveProject({ ...this.props.project, assets: newAssets }, false, false);
             this.setState((prevState, props) => ({
                 isTraining: false,
                 trainMessage: this.getTrainMessage(trainResult),
@@ -413,7 +419,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         } else {
             baseURL = url.resolve(
                 this.props.project.apiUriBase,
-                interpolate(constants.apiModelsPath, {apiVersion}),
+                interpolate(constants.apiModelsPath, { apiVersion }),
             );
 
             payload = {
@@ -438,7 +444,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             this.setState({ modelUrl: this.getOperationLocation(result) });
             return result;
         } catch (err) {
-            ServiceHelper.handleServiceError({...err, endpoint: baseURL});
+            ServiceHelper.handleServiceError({ ...err, endpoint: baseURL });
         }
     }
     private async cleanLabelData() {
@@ -515,7 +521,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
     private getTrainMessage = (trainingResult): string => {
         if (trainingResult !== undefined &&
-                ((trainingResult.modelInfo !== undefined && trainingResult.modelInfo.status === constants.statusCodeReady) ||
+            ((trainingResult.modelInfo !== undefined && trainingResult.modelInfo.status === constants.statusCodeReady) ||
                 (trainingResult.status === constants.statusCodeReady))) {
             return "Trained successfully";
         }
@@ -613,7 +619,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
     private async triggerJsonDownload(): Promise<any> {
         const apiVersion = getAPIVersion(this.props.project?.apiVersion);
-        const currModelUrl = this.props.project.apiUriBase + interpolate(constants.apiModelsPath, {apiVersion}) + "/" + this.state.currTrainRecord.modelInfo.modelId;
+        const currModelUrl = this.props.project.apiUriBase + interpolate(constants.apiModelsPath, { apiVersion }) + "/" + this.state.currTrainRecord.modelInfo.modelId;
         const modelUrl = this.state.modelUrl.length ? this.state.modelUrl : currModelUrl;
         const modelJSON = await this.getModelsJson(this.props.project, modelUrl);
 
@@ -647,7 +653,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 project.apiKey as string,
             ).then(res => res.request.response);
         } catch (error) {
-            ServiceHelper.handleServiceError({...error, endpoint: baseURL});
+            ServiceHelper.handleServiceError({ ...error, endpoint: baseURL });
         }
     }
 

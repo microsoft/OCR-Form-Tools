@@ -176,6 +176,10 @@ export interface IAppStrings {
                 headerName: string,
                 fieldName: string,
             }
+            description: {
+                headerName: string,
+                fieldName: string,
+            }
             status: {
                 headerName: string,
                 fieldName: string,
@@ -197,7 +201,9 @@ export interface IAppStrings {
             modelCannotBeIncluded: string;
             addModelToRecentModels: string,
             recentModelsAlreadyContainsModel: string,
+            NoModelName:string,
             loadingDetails: string;
+
         }
         commandBar: {
             ariaLabel: string,
@@ -224,6 +230,7 @@ export interface IAppStrings {
         selectModelHeader: string,
         modelIDPrefix: string,
         modelNamePrefix: string,
+        modelDescriptionPrefix: string,
         downloadScript: string,
         defaultLocalFileInput: string,
         defaultURLInput: string,

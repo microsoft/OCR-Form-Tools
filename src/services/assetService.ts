@@ -35,12 +35,14 @@ interface IMime {
  */
 export class AssetService {
     private getOcrFromAnalyzeResult(analyzeResult: any) {
-        return _.get(analyzeResult, "analyzeResult.readResults", []);
+        return _.get(analyzeResult, "pages", []);
     }
+
     getAssetPredictMetadata(asset: IAsset, predictResults: any): IAssetMetadata {
         asset = _.cloneDeep(asset);
-        const getBoundingBox = (pageIndex, arr: number[]) => {
-            const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(predictResults)[pageIndex - 1];
+        const getBoundingBox = (page, arr: number[]) => {
+            const isCurrentPage = result => result.pageNumber === page;
+            const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(predictResults.analyzeResult).find(isCurrentPage);
             const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
             const ocrWidth = ocrExtent[2] - ocrExtent[0];
             const ocrHeight = ocrExtent[3] - ocrExtent[1];
@@ -54,25 +56,26 @@ export class AssetService {
             return result;
         };
         const getLabelValues = (field: any) => {
-            return field.elements?.map((path: string): IFormRegion => {
-                const pathArr = path.split('/').slice(1);
-                const word = pathArr.reduce((obj: any, key: string) => obj[key], { ...predictResults.analyzeResult });
-                return {
-                    page: field.page,
-                    text: word.text || word.state,
-                    boundingBoxes: [getBoundingBox(field.page, word.boundingBox)]
+            const pageNumber = _.get(field, "boundingRegions[0].pageNumber", 0);
+            if (pageNumber !== 0) {
+                const label: IFormRegion = {
+                    page: pageNumber,
+                    text: field.content,
+                    boundingBoxes: [getBoundingBox(pageNumber, _.get(field, "boundingRegions[0].boundingBox", 0))]
                 };
-            });
+                return [label];
+            }
+            return [];
         };
         const labels =
-            predictResults.analyzeResult.documentResults
+            predictResults.analyzeResult.documents
                 .map(result => Object.keys(result.fields)
                     .filter(key => result.fields[key])
                     .map<ILabel>(key => (
                         {
                             label: key,
                             key: null,
-                            confidence: result.fields[key].confidence,
+                            confidence: result.fields[key].confidence?.toFixed(3),
                             value: getLabelValues(result.fields[key])
                         }))).flat(2);
 
@@ -97,7 +100,7 @@ export class AssetService {
     }
     async uploadPredictResultAsOrcResult(asset: IAsset, predictResults: any): Promise<void> {
         const ocrData = _.cloneDeep(predictResults);
-        delete ocrData.analyzeResult.documentResults;
+        delete ocrData.analyzeResult.documents;
         if (ocrData.analyzeResult.errors) {
             delete ocrData.analyzeResult.errors;
         }

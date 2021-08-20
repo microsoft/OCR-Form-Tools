@@ -120,7 +120,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         {
             name: "Business card",
             servicePath: "businessCard",
-            useLocale: false,
+            useLocale: true,
         },
         {
             name: "ID",
@@ -728,6 +728,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private handleClick = () => {
+
         this.setState({ predictionLoaded: false, isPredicting: true });
         this.getPrediction()
             .then(this.handlePredictionResult)
@@ -765,14 +766,14 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
         try {
             response = await ServiceHelper.postWithAutoRetry(
                 endpointURL, body, { headers }, apiKey as string);
+
+            const operationLocation = response.headers["operation-location"];
+
+            // Make the second REST API call and get the response.
+            return poll(() => ServiceHelper.getWithAutoRetry(operationLocation, { headers }, apiKey as string), 120000, 500);
         } catch (err) {
             ServiceHelper.handleServiceError({ ...err, endpoint: endpointURL });
         }
-
-        const operationLocation = response.headers["operation-location"];
-
-        // Make the second REST API call and get the response.
-        return poll(() => ServiceHelper.getWithAutoRetry(operationLocation, { headers }, apiKey as string), 120000, 500);
     }
 
     private createBoundingBoxVectorFeature = (text, boundingBox, imageExtent, ocrExtent) => {
@@ -865,43 +866,37 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
          * @return flattenfields, a field props or an array of field props
          */
         const flattedFields = {};
-        const isSupportField = fieldName => {
-            // Define list of unsupported field names.
-            const blockedFieldNames = ["ReceiptType"];
-            return blockedFieldNames.indexOf(fieldName) === -1;
-        }
         const isRootItemObject = obj => obj.hasOwnProperty("content");
         const docType = _.get(this.state.analyzeResult, "documents[0].docType", "");
 
         // flat fieldProps of type "array" and "object", and extract root level field props in "object" type
         const flatFieldProps = (displayName, fieldProps) => {
-            if (isSupportField(displayName)) {
-                switch (_.get(fieldProps, "type", "")) {
-                    case "array": {
-                        if (docType === "prebuilt:invoice" && displayName === "Items") {
-                            flattedFields[displayName] = fieldProps;
-                        } else {
-                            const valueArray = _.get(fieldProps, "valueArray", []);
-                            for (const [index, valueArrayItem] of valueArray.entries()) {
-                                flatFieldProps(`${displayName} ${index + 1}`, valueArrayItem);
-                            }
-                        }
-                        break;
-                    }
-                    case "object": {
-                        // root level field props
-                        const { type, valueObject, ...restProps } = fieldProps;
-                        if (isRootItemObject(restProps)) {
-                            flatFieldProps(displayName, restProps);
-                        }
-                        for (const [fieldName, objFieldProps] of Object.entries(valueObject || {})) {
-                            flatFieldProps(`${displayName}: ${fieldName}`, objFieldProps);
-                        }
-                        break;
-                    }
-                    default: {
+
+            switch (_.get(fieldProps, "type", "")) {
+                case "array": {
+                    if (docType === "prebuilt:invoice" && displayName === "Items") {
                         flattedFields[displayName] = fieldProps;
+                    } else {
+                        const valueArray = _.get(fieldProps, "valueArray", []);
+                        for (const [index, valueArrayItem] of valueArray.entries()) {
+                            flatFieldProps(`${displayName} ${index + 1}`, valueArrayItem);
+                        }
                     }
+                    break;
+                }
+                case "object": {
+                    // root level field props
+                    const { type, valueObject, ...restProps } = fieldProps;
+                    if (isRootItemObject(restProps)) {
+                        flatFieldProps(displayName, restProps);
+                    }
+                    for (const [fieldName, objFieldProps] of Object.entries(valueObject || {})) {
+                        flatFieldProps(`${displayName}: ${fieldName}`, objFieldProps);
+                    }
+                    break;
+                }
+                default: {
+                    flattedFields[displayName] = fieldProps;
                 }
             }
         }

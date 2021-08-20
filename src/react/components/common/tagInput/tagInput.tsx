@@ -575,6 +575,8 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 } else if (labelAssigned && ((category === FeatureCategory.DrawnRegion) !== isTagLabelTypeDrawnRegion)) {
                     if (category === FeatureCategory.Checkbox && isTagLabelTypeDrawnRegion) {
                         toast.warn(interpolate(strings.tags.warnings.notCompatibleWithDrawnRegionTag, { otherCategory: FeatureCategory.Checkbox }));
+                    } else if (tag.type === FieldType.Signature && isTagLabelTypeDrawnRegion) {
+                        toast.warn(strings.tags.warnings.signatureTagsOnlySupportDrawRegion);
                     } else if (isTagLabelTypeDrawnRegion) {
                         this.replaceConfirmRef.current.open(tag, props);
                     } else if (tagCategory === FeatureCategory.Checkbox) {
@@ -867,12 +869,12 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         event.preventDefault();
         const type = item.text as FieldType;
         const tag = this.state.selectedTag;
-
+        const isTagLabelTypeDrawnRegion = this.labelAssignedDrawnRegion(this.props.labels, tag.name);
         if (type === tag.type) {
             return;
         }
 
-        if ((type === FieldType.Signature)) {
+        if (type === FieldType.Signature && tag.documentCount > 0 && !isTagLabelTypeDrawnRegion) {
             toast.warn(strings.tags.warnings.cannotSwitchToSignature);
             return;
         }

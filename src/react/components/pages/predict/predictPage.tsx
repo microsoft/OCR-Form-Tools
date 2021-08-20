@@ -310,13 +310,13 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                                                             </td>
                                                         </tr>
                                                         <tr>
-                                                            {mostRecentModel.modelInfo.modelName &&
+                                                            {mostRecentModel.modelInfo.description &&
                                                                 <td className="model-selection-info-header p-0" >
                                                                     <span className="model-selection-info-key">
-                                                                        {strings.predict.modelNamePrefix}
+                                                                        {strings.predict.modelDescriptionPrefix}
                                                                     </span>
-                                                                    <span title={mostRecentModel.modelInfo.modelName} className="model-selection-info-value">
-                                                                        {mostRecentModel.modelInfo.modelName}
+                                                                    <span title={mostRecentModel.modelInfo.description} className="model-selection-info-value">
+                                                                        {mostRecentModel.modelInfo.description}
                                                                     </span>
                                                                 </td>
                                                             }
@@ -815,6 +815,13 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         try {
             response = await ServiceHelper.postWithAutoRetry(
                 endpointURL, body, { headers }, this.props.project.apiKey as string);
+
+            const operationLocation = response.headers["operation-location"];
+
+            // Make the second REST API call and get the response.
+            return this.poll(() =>
+                ServiceHelper.getWithAutoRetry(
+                    operationLocation, { headers }, this.props.project.apiKey as string), 120000, 500);
         } catch (err) {
             if (err.response?.status === 404) {
                 throw new AppError(
@@ -825,13 +832,6 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 ServiceHelper.handleServiceError({ ...err, endpoint: endpointURL });
             }
         }
-
-        const operationLocation = response.headers["operation-location"];
-
-        // Make the second REST API call and get the response.
-        return this.poll(() =>
-            ServiceHelper.getWithAutoRetry(
-                operationLocation, { headers }, this.props.project.apiKey as string), 120000, 500);
     }
 
     private loadFile = (file: File) => {
@@ -1022,8 +1022,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private getAnalyzeModelInfo(analyzeResult) {
-        const { modelId, docType, docTypeConfidence } = _.get(analyzeResult, "documentResults[0]", {})
-        return { modelId, docType, docTypeConfidence };
+        const { docType, confidence } = _.get(analyzeResult, "documents[0]", {})
+        const modelId = _.get(analyzeResult, "modelId", '')
+        return { modelId, docType, docTypeConfidence: confidence };
     }
 
     private getOcrFromAnalyzeResult(analyzeResult: any) {
@@ -1182,7 +1183,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
             modelInfo: {
                 createdDateTime: response["modelInfo"]["createdDateTime"],
                 modelId: response["modelInfo"]["modelId"],
-                modelName: response["modelInfo"]["modelName"],
+                description: response["modelInfo"]["description"],
                 isComposed: response["modelInfo"]["attributes"]["isComposed"],
             }
         } as IRecentModel;
