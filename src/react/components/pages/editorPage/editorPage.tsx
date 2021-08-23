@@ -204,6 +204,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const { project } = this.props;
         const { selectedAsset, isRunningOCRs, isCanvasRunningOCR, isCanvasRunningAutoLabeling, isRunningAutoLabelings } = this.state;
         const assets = this.state.assets.sort((a, b) => a.name.localeCompare(b.name));
+
         const labels = (selectedAsset &&
             selectedAsset.labelData &&
             selectedAsset.labelData.labels) || [];
