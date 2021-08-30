@@ -522,7 +522,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             selectedRegion.tags = transformer(selectedRegion.tags, tag);
         }
 
-        if (inputTag[0].type === FieldType.Array || inputTag[0].type === FieldType.Object) {
+        if (inputTag[0]?.type === FieldType.Array || inputTag[0]?.type === FieldType.Object) {
             for (const selectedRegion of selectedRegions as ITableRegion[]) {
                 if (inputTag[0].type === FieldType.Array) {
                     selectedRegion.rowKey = "#" + (rowIndex);
