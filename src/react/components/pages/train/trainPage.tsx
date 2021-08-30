@@ -413,7 +413,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 source: {
                     kind: "azure.blob",
                     containerUrl: trainSourceURL,
-                    path: `${trainPrefix}/`
+                    path: trainPrefix? `${trainPrefix}/`:''
                 }
             };
         } else {
