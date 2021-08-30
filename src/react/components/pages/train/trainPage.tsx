@@ -411,7 +411,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             const result = await ServiceHelper.postWithAutoRetry(
                 baseURL,
                 payload,
-                {},
+                {timeout:5400000},
                 this.props.project.apiKey as string,
             );
             this.setState({ modelUrl: result.headers.location });
