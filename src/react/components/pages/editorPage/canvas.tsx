@@ -43,6 +43,7 @@ import { BatchSizeModal } from "./batchSizeModal";
 
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
+const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
 
 export interface ICanvasProps extends React.Props<Canvas> {
     appSettings: IAppSettings,
@@ -1409,7 +1410,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private loadPdfFile = async (assetId, url) => {
         try {
-            const pdf = await pdfjsLib.getDocument({ url, cMapPacked: true }).promise;
+            const pdf = await pdfjsLib.getDocument({ url, cMapUrl, cMapPacked: true }).promise;
             // Fetch current page
             if (assetId === this.state.currentAsset.asset.id) {
                 await this.loadPdfPage(assetId, pdf, this.state.currentPage);
