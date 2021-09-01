@@ -1,5 +1,5 @@
 import _ from "lodash";
-import pdfjsLib from "pdfjs-dist";
+import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf";
 import {constants} from "../../../../common/constants";
 import HtmlFileReader from "../../../../common/htmlFileReader";
 import {loadImageToCanvas, parseTiffData, renderTiffToCanvas} from "../../../../common/utils";
