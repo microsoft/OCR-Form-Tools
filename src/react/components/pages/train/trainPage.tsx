@@ -465,7 +465,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
     private async getTrainStatus(operationLocation: string): Promise<any> {
         const timeoutPerFileInMs = 10000;  // 10 second for each file
-        const minimumTimeoutInMs = 10 * 60 * 1000;  // 10 minutes minimum waiting time for each training process.
+        const minimumTimeoutInMs = 90 * 60 * 1000;  // 90 minutes minimum waiting time for each training process.
         const extendedTimeoutInMs = timeoutPerFileInMs * Object.keys(this.props.project.assets || []).length;
         const res = this.poll(() => {
             return ServiceHelper.getWithAutoRetry(
