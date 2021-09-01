@@ -470,7 +470,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const labelsData = this.state.currentAsset.labelData;
             if (labelsData) {
                 let relatedLabel;
-                if (inputTag[0].type === FieldType.Array || inputTag[0].type === FieldType.Object) {
+                if (inputTag[0]?.type === FieldType.Array || inputTag[0]?.type === FieldType.Object) {
                     let rowKey;
                     let columnKey;
                     if (inputTag[0].type === FieldType.Array) {
