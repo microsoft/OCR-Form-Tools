@@ -245,7 +245,10 @@ export default class ModelComposePage extends React.Component<IModelComposePageP
     }
 
     public render() {
-        const { modelList, isCompactMode, columns } = this.state;
+        const {  isCompactMode, columns } = this.state;
+        const modelList = this.state.modelList.filter(item=>{
+            return item.modelId.indexOf('prebuilt-')===-1
+        })
         const dark: ICustomizations = {
             settings: {
                 theme: getDarkGreyTheme(),
