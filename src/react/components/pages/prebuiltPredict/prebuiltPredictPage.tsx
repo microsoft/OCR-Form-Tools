@@ -947,7 +947,7 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
     }
 
     private displayFreeResourceWarningIfNecessary = () => {
-        let { withPageRange, pageRange } = this.state
+        const { withPageRange, pageRange } = this.state
         if (withPageRange) {
             if (pageRange.indexOf('-') !== -1) {   //When filling in the page range, it is necessary to determine whether to enter a group of values or a value
                 let pageNumber, Difference;
