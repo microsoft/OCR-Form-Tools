@@ -2202,7 +2202,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 this.regionOrderById[pageIndex] = [];
                 let order = 0;
                 page.words.forEach((word) => {
-                    const text = word.content || word.text;
+                    const text = word.content || word.text || "";
                     if (this.shouldDisplayOcrWord(text)) {
                         const feature = this.createBoundingBoxVectorFeature(
                             text, word.boundingBox, imageExtent, ocrExtent, pageNumber);
@@ -2229,7 +2229,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     ocr.lines.forEach((line) => {
                         if (line.words) {
                             line.words.forEach((word) => {
-                                const text = word.content || word.text;
+                                const text = word.content || word.text || "";
                                 if (this.shouldDisplayOcrWord(text)) {
                                     const feature = this.createBoundingBoxVectorFeature(
                                         text, word.boundingBox, imageExtent, ocrExtent, ocr.page);
@@ -2280,7 +2280,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const { words, selectionMarks, pageNumber } = ocrForCurrentPage;
             const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
             words.forEach((word) => {
-                const text = word.content || word.text;
+                const text = word.content || word.text || "";
                 if (this.shouldDisplayOcrWord(text)) {
                     textFeatures.push(this.createBoundingBoxVectorFeature(
                         text, word.boundingBox, imageExtent, ocrExtent, pageNumber));
@@ -2322,7 +2322,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     ocrReadResults.lines.forEach((line) => {
                         if (line.words) {
                             line.words.forEach((word) => {
-                                const text = word.content || word.text;
+                                const text = word.content || word.text || "";
                                 if (this.shouldDisplayOcrWord(text)) {
                                     textFeatures.push(this.createBoundingBoxVectorFeature(
                                         text, word.boundingBox, imageExtent, ocrExtent, ocrReadResults.page));
