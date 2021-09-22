@@ -28,12 +28,7 @@ export class PredictService {
         );
 
         const headers = { "Content-Type": "application/json", "cache-control": "no-cache" };
-        const body = {
-            source: {
-                kind: "web",
-                url: fileUrl
-            }
-        };
+        const body = { urlSource: fileUrl };
 
         try {
             const response = await ServiceHelper.postWithAutoRetry(endpointURL, body, { headers }, this.project.apiKey as string);

@@ -410,10 +410,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             payload = {
                 modelId: this.state.modelName,
                 technique: "fixedTemplate-2021-07-30",
-                source: {
-                    kind: "azure.blob",
+                azureBlobSource: {
                     containerUrl: trainSourceURL,
-                    path: trainPrefix ? `${trainPrefix}/` : ""
+                    prefix: trainPrefix ? `${trainPrefix}/` : ""
                 }
             };
         } else {
@@ -547,7 +546,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                     modelName: result["description"],
                     isComposed: false,
                 },
-                accuracies: result["docTypes"][result["modelId"]]["confidence"],
+                accuracies: result["docTypes"][result["modelId"]]["fieldConfidence"],
             };
         }
 
