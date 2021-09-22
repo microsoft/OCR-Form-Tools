@@ -106,12 +106,7 @@ export class OCRService {
             } else {
                 headers = { "Content-Type": "application/json" };
                 if (apiVersion === APIVersionPatches.patch5) {
-                    body = {
-                        source: {
-                            kind: "web",
-                            url: filePath
-                        }
-                    };
+                    body = { urlSource: filePath };
                 } else {
                     body = { url: filePath };
                 }

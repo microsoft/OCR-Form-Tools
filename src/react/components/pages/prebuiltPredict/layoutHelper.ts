@@ -50,9 +50,10 @@ export class LayoutHelper implements ILayoutHelper {
             this.regionOrderById[pageIndex] = [];
             let order = 0;
             page.words.forEach((word) => {
-                if (this.shouldDisplayOcrWord(word.text)) {
+                const text = word.content || word.text || "";
+                if (this.shouldDisplayOcrWord(text)) {
                     const feature = this.createBoundingBoxVectorFeature(
-                        word.text, word.boundingBox, imageExtent, ocrExtent, pageNumber);
+                        text, word.boundingBox, imageExtent, ocrExtent, pageNumber);
                     this.regionOrders[pageIndex][feature.getId()] = order++;
                     this.regionOrderById[pageIndex].push(feature.getId());
                 }
@@ -74,9 +75,10 @@ export class LayoutHelper implements ILayoutHelper {
             const { words, selectionMarks, pageNumber } = ocrForCurrentPage;
             const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
             words.forEach((word) => {
-                if (this.shouldDisplayOcrWord(word.text)) {
+                const text = word.content || word.text || "";
+                if (this.shouldDisplayOcrWord(text)) {
                     textFeatures.push(this.createBoundingBoxVectorFeature(
-                        word.text, word.boundingBox, imageExtent, ocrExtent, pageNumber));
+                        text, word.boundingBox, imageExtent, ocrExtent, pageNumber));
                 }
             });
 
