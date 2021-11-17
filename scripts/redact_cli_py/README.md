@@ -11,7 +11,7 @@ The OCR.json and labels.json will also be redacted while keeping the semantics o
 ![labels-before-after-redaction](./images/labels-before-after-redaction.png)
 
 ## Version
-Redact CLI 0.2.1
+Redact CLI 0.2.2
 
 ## Setup Environment
 
