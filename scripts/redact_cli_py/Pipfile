@@ -9,6 +9,7 @@ jsonpointer = "*"
 shapely = "*"
 dacite = "*"
 azure-storage-blob = "*"
+pypdfium = "*"
 
 [dev-packages]
 pytest = "*"

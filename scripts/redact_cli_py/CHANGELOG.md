@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2021-11-17
+### Added
+- Support to only redact specific labels.
+- Add support for one page pdfs in batch redact CLI (`batch_redact.py`)
+
 ## [0.2.1] - 2021-08-05
 ### Added
 - Support to image modes other than 'RGB' and 'RGBA'. E.g. image mode '1'.

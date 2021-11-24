@@ -16,20 +16,22 @@ class ImageRedaction:
     COLOR = "#FFFFFF"
     COLOR_WITH_ALPHA = "#FFFFFFFF"
 
-    def __init__(self, image: Image, annotations: List[Annotation]):
+    def __init__(self, image: Image, annotations: List[Annotation], labels_to_redact: List[str] = []):
         self.image = image
         self.anntations = annotations
+        self.labels_to_redact = labels_to_redact
 
     def redact(self):
         draw = ImageDraw.Draw(self.image)
         for annotation in self.anntations:
-            if self.with_alpha_channel(self.image.mode):
-                draw.polygon(annotation.bounding_box,
-                             fill=self.COLOR_WITH_ALPHA,
-                             outline=self.COLOR_WITH_ALPHA)
-            else:
-                draw.polygon(annotation.bounding_box,
-                             fill=self.COLOR, outline=self.COLOR)
+            if len(self.labels_to_redact) == 0 or annotation.field in self.labels_to_redact:
+                if self.with_alpha_channel(self.image.mode):
+                    draw.polygon(annotation.bounding_box,
+                                 fill=self.COLOR_WITH_ALPHA,
+                                 outline=self.COLOR_WITH_ALPHA)
+                else:
+                    draw.polygon(annotation.bounding_box,
+                                 fill=self.COLOR, outline=self.COLOR)
 
     def with_alpha_channel(self, mode):
         """See https://github.com/python-pillow/Pillow/blob/affa059e959280bf7826ec1a023a64cb8f111b6d/Tests/test_image_access.py#L185

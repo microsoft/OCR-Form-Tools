@@ -35,6 +35,22 @@ class TestImageRedaction:
         for channel in stat.mean:
             assert channel < epsilon
 
+    def test_redact_partial(self) -> None:
+        # A small tolerance epsilon because of the jpg compression loss.
+        epsilon = 0.1
+        image = ImageFactory.build_partial()
+        expected_image = ImageFactory.build_redacted_partial()
+        annotations = AnnotationFactory.build_annotations()
+
+        image_redaction = ImageRedaction(image, annotations, ["Name","Date"])
+        image_redaction.redact()
+
+        diff = ImageChops.difference(image_redaction.image, expected_image)
+        stat = ImageStat.Stat(diff)
+        # stat.mean is a 3-tuple representing the mean value of [r, g, b].
+        for channel in stat.mean:
+            assert channel < epsilon
+
     def test_redact_mode_1(self) -> None:
         # A small tolerance epsilon
         epsilon = 0.01
