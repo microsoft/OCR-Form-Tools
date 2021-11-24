@@ -8,6 +8,7 @@ from pathlib import Path
 from azure.storage.blob import ContainerClient
 
 from redact.types.file_bundle import FileBundle
+from redact.types.file_bundle import FileType
 
 
 class BlobReader():
@@ -16,10 +17,10 @@ class BlobReader():
             container_url)
         self.prefix = prefix
 
-    def download_bundles(self, to: str) -> List[FileBundle]:
+    def download_bundles(self, to: str, mode=FileType.IMAGE_ONLY) -> List[FileBundle]:
         blobs = self.container_client.list_blobs(name_starts_with=self.prefix)
         all_file_name_list = [Path(blob.name).name for blob in blobs]
-        file_bundles = FileBundle.from_names(all_file_name_list)
+        file_bundles = FileBundle.from_names(all_file_name_list, mode)
 
         for bundle in file_bundles:
             image_blob_path = self.prefix + bundle.image_file_name
