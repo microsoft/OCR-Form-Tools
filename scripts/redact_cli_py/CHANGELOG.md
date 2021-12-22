@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.3] - 2021-12-13
+### Added
+- Support to redact some Latin ligature letters and letters with diacritics.
+
 ## [0.2.2] - 2021-11-17
 ### Added
 - Support to only redact specific labels.
