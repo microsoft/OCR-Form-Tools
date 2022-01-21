@@ -46,7 +46,7 @@ export const constants = {
     labelsSchema: "https://schema.cognitiveservices.azure.com/formrecognizer/2021-03-01/labels.json",
     supportedFieldsSchemas,
     supportedLabelsSchemas,
-    enableMultiPageField: false,
+    enableMultiPageField: true,
     pdfjsWorkerSrc(version: string) {
         return `https://fotts.azureedge.net/npm/pdfjs-dist/${version}/pdf.worker.js`;
     },
