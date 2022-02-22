@@ -27,7 +27,7 @@ import { KeyboardBinding } from "../../common/keyboardBinding/keyboardBinding";
 import { KeyEventType } from "../../common/keyboardManager/keyboardManager";
 import _ from "lodash";
 import Alert from "../../common/alert/alert";
-import * as pdfjsLib from "pdfjs-dist";
+import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf";
 import Polygon from "ol/geom/Polygon";
 import HtmlFileReader from "../../../../common/htmlFileReader";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas, getAPIVersion } from "../../../../common/utils";
@@ -470,7 +470,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             const labelsData = this.state.currentAsset.labelData;
             if (labelsData) {
                 let relatedLabel;
-                if (inputTag[0].type === FieldType.Array || inputTag[0].type === FieldType.Object) {
+                if (inputTag[0]?.type === FieldType.Array || inputTag[0]?.type === FieldType.Object) {
                     let rowKey;
                     let columnKey;
                     if (inputTag[0].type === FieldType.Array) {
