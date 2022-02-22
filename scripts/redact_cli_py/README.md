@@ -10,6 +10,9 @@ The OCR.json and labels.json will also be redacted while keeping the semantics o
 ![ocr-before-after-redaction](./images/ocr-before-after-redaction.png)
 ![labels-before-after-redaction](./images/labels-before-after-redaction.png)
 
+## Language support
+This tool supports Latin characters redaction only. For any non-Latin document support, please [contact us](mailto:formrecog_contact@microsoft.com?subject=Redaction%20tool%20language%20support).
+
 ## Version
 Redact CLI 0.2.3
 
