@@ -1,7 +1,7 @@
 # How to use the Redaction Tool?
 
 ## Overview
-The Redaction Tool is provided by Azure Form Recognizer team to help our customers who are willing to share/donate data with Microsoft that can share/donate data efficiently without privacy concern. It is focused on Personally Identifiable Information (PII) or sensitive data labeling and redaction while keeping the semantics of these fields (e.g. length of the values, character/digit patterns, upper/lower case etc.) for prebuilt model training. This is a step-by-step instruction to guide our you how to use the tool.
+The Redaction Tool is provided by Azure Form Recognizer team to help our customers who are willing to share/donate data with Microsoft that can share/donate data efficiently without privacy concern. It focuses on Personally Identifiable Information (PII) or sensitive data labeling and redaction while keeping the semantics of these fields (e.g. length of the values, character/digit patterns, upper/lower case etc.) for prebuilt model training. This is a step-by-step instruction to guide our you how to use the tool.
 
 ![process-overview](./images/redaction-tool.png)
 
@@ -19,20 +19,20 @@ This tool supports Latin characters redaction only. For any non-Latin document s
   - Format must be JPG, JPEG, PNG, BMP or TIFF.
   - File size must be less than 50 MB.
   - Image dimensions must be between 50 x 50 pixels and 10000 x 10000 pixels.
-* Generate a Shared access (SAS) token and URL for FoTT to access the blob storage. Make sure you have selected all the options in “Permissions”.
+* Generate a Shared access (SAS) token and URL for FoTT to access the blob storage. Make sure you have selected all the options including **Read**, **Add**, **Create**, **Write**, **Delete**, **List**, **Immutable storage** in “Permissions”.
 ![generate-sas-token](./images/SAS-token.png)
 * Go to [FoTT portal](https://fott-2-1.azurewebsites.net/) and create a new data connection by clicking on the left side navigation icon.
 ![fott-connection](./images/fott-connection.png)
-* Got to the homepage of FoTT portal and create a new project by clicking “Use Custom to train a model with labels and get key value pairs”.
+* Go to the homepage of FoTT portal and create a new project by clicking “Use Custom to train a model with labels and get key value pairs”.
 ![fott-project](./images/fott-project.png)
 * Once your project is created and opened, “Run layout on all documents” to get the OCR results with yellow bounding box first. This will make your tagging easier in later steps.
 ![fott-run-layout](./images/fott-run-layout.png)
-* Label the PII or sensitive fields only by following [this guidance](https://docs.microsoft.com/en-us/azure/applied-ai-services/form-recognizer/label-tool?tabs=v2-1#label-your-forms). Please try to leverage the OCR detected results (aka. yellow bounding boxes as much as possible). You can multi-select these bounding boxes to associate with a tag. If the value is not detected by OCR, or you want to redact a picture like profile image, you can *draw a region* to associate the area with the tag.
+* Only label the PII or sensitive fields (refer to [Appendix](#appendix-pii-fields-reference)) by following [this guidance](https://docs.microsoft.com/azure/applied-ai-services/form-recognizer/label-tool?tabs=v2-1#label-your-forms). Please try to leverage the OCR detected results (aka. yellow bounding boxes) as much as possible. You can multi-select these bounding boxes to associate with a tag. If the value is not detected by OCR, or you want to redact a picture like profile image, you can *draw a region* to associate the area with the tag.
 
 ---
 **NOTE**
 
-It's best practice to label as much granulaity as possible, e.g. first name and last name in separate tags, city, zipcode, building address separately so that the redacted results can keep as much semantics as possible.
+It's better to label as fine-grained as possible, e.g. first name and last name in separate tags, city, zipcode, building address separately so that the redacted results can keep as much semantics as possible.
 
 ---
 
