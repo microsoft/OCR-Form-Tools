@@ -16,6 +16,18 @@ $lighter-8: rgba(255,255,255,0.60);
         flex-grow: 1;
         overflow-y: auto;
 
+        .app-banner {
+            position: fixed;
+            width: 600px;
+            height: 145px;
+            margin: 50px -300px;
+            padding: 8px 10px;
+            background-color: $lighter-1;
+            left: 50%;
+            color: $lighter-8;
+            border-radius: 3px;
+        }
+
         ul {
             display: flex;
             flex-direction: row;
