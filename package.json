@@ -1,6 +1,6 @@
 {
     "name": "oflt",
-    "version": "2.1",
+    "version": "2.1.0",
     "author": {
         "name": "Microsoft",
         "url": "https://github.com/microsoft/OCR-Form-Tools"
@@ -128,7 +128,7 @@
         "yarn": "^1.22.10"
     },
     "engines": {
-        "node": ">=12.13.1",
+        "node": ">=12.13.0",
         "npm": ">=6.4.1"
     }
 }
