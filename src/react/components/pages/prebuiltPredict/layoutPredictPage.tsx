@@ -381,7 +381,7 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
         const {layoutData} = this.state;
         if (layoutData){
             console.log("fw" + '\n');
-            downloadFile((this.OBJtoXML(layoutData)), "test1.xml");
+            downloadFile((this.OBJtoXML(layoutData)), this.state.fileLabel + ".xml");
         }
     }
 
