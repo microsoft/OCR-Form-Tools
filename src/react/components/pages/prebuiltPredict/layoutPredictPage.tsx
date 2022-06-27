@@ -358,7 +358,7 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
     OBJtoXML = (obj) => {
         var xml = '';
         for (var prop in obj) {
-          console.log(prop);
+          console.log(prop + '\n');
           xml += obj[prop] instanceof Array ? '' : "<" + prop + ">";
           if (obj[prop] instanceof Array) {
             for (var array in obj[prop]) {
@@ -380,6 +380,7 @@ export class LayoutPredictPage extends React.Component<Partial<ILayoutPredictPag
     onXMLDownloadClick = () =>{
         const {layoutData} = this.state;
         if (layoutData){
+            console.log("fw" + '\n');
             downloadFile((this.OBJtoXML(layoutData)), "test1.xml");
         }
     }
