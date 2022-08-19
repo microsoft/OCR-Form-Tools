@@ -15,10 +15,9 @@ def first_char(item: str) -> str:
 
     # This also takes care of other common letter in Europe languages (Ø) and
     # linguistic ligatures (Œ) instead of just A-Z.
-    ret = re.sub('[A-ZØÞŁꜲÆꜴꜶꜸꜺꜼǶŒꝎẞꜨꝠ]', 'A', ret)
-    ret = re.sub('[a-zøþıłꜳæꬱꜵꜷꜹꜻꜽ🙰ꭁƕỻœꝏßꜩꝡ]', 'a', ret)
-    ret = re.sub('[0-9]', '0', ret)
-    return ret
+    ret = re.sub("[A-ZØÞŁꜲÆꜴꜶꜸꜺꜼǶŒꝎẞꜨꝠ]", "A", ret)
+    ret = re.sub("[a-zøþıłꜳæꬱꜵꜷꜹꜻꜽ🙰ꭁƕỻœꝏßꜩꝡ]", "a", ret)
+    return re.sub("[0-9]", "0", ret)
 
 
 def remove_diacritics(input_str: str) -> str:
@@ -35,5 +34,5 @@ def remove_diacritics(input_str: str) -> str:
     Returns:
         str: The string without diacritics and typographical ligatures.
     """
-    nfkd_form = unicodedata.normalize('NFKD', input_str)
-    return u"".join([c for c in nfkd_form if not unicodedata.combining(c)])
+    nfkd_form = unicodedata.normalize("NFKD", input_str)
+    return "".join([c for c in nfkd_form if not unicodedata.combining(c)])

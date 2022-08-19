@@ -7,9 +7,11 @@ import re
 from typing import List, Any
 from enum import Enum
 
+
 class FileType(Enum):
-    IMAGE_ONLY = ".+(\\.jpeg|\\.jpg|\\.tif|\\.tiff|\\.png|\\.bmp)$"
-    PDF_ONLY = ".+(\\.pdf)$"
+    SINGLE_PAGE_IMAGE = ".+(\\.jpeg|\\.jpg|\\.png|\\.bmp)$"
+    MULTI_PAGE = ".+(\\.pdf|\\.tif|\\.tiff)$"
+
 
 @dataclass
 class FileBundle:
@@ -31,9 +33,12 @@ class FileBundle:
             ocr_file = img_file + ocr_suffix
 
             if label_file in names and ocr_file in names:
-                ret.append(FileBundle(
-                    image_file_name=img_file,
-                    fott_file_name=label_file,
-                     ocr_file_name=ocr_file))
+                ret.append(
+                    FileBundle(
+                        image_file_name=img_file,
+                        fott_file_name=label_file,
+                        ocr_file_name=ocr_file,
+                    )
+                )
 
         return ret

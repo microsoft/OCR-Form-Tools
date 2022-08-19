@@ -10,11 +10,11 @@ The OCR.json and labels.json will also be redacted while keeping the semantics o
 ![ocr-before-after-redaction](./images/ocr-before-after-redaction.png)
 ![labels-before-after-redaction](./images/labels-before-after-redaction.png)
 
-## Language support
-This tool supports Latin characters redaction only. For any non-Latin document support, please [contact us](mailto:formrecog_contact@microsoft.com?subject=Redaction%20tool%20language%20support).
+## Language Support
+This tool supports Latin characters redaction only. For any non-Latin document support, please [contact us](mailto:formrecog_contact@microsoft.cosubject=Redaction%20tool%20language%20support).
 
 ## Version
-Redact CLI 0.2.3
+Redact CLI 0.3.2
 
 ## Setup Environment
 
@@ -103,7 +103,21 @@ python redact.py image <image_path> <fott_label_path> <output_path>
 ### Redact OCR Result
 
 ``` bash
-python redact.py ocr <ocr_result_path> <fott_label_path> <output_path>
+python redact.py ocr <ocr_result_path> <fott_label_path> <output_path> <api_version>
+```
+
+#### API Version
+
+In Azure Form Recognizer, The OCR result for different API version has different schema. To successfully redact the OCR result, you must give one of the `<api_version>` to the redaction toolkit.
+
+- v2.0
+- v2.1
+- v3.0
+
+For example,
+
+``` bash
+python redact.py ocr sample.ocr.json sample.labels.json redacted_sample.ocr.json "v3.0"
 ```
 
 ### Redact FOTT Label Path
@@ -113,6 +127,7 @@ python redact.py fott <fott_label_path> <output_path>
 ```
 
 ### Redact specific labels from Image, OCR results or FOTT Label Path
+
 In some specific use-cases, the need may arise to redact specific labels from an image, OCR results or/and FOTT Label Path.
 Labels to be redacted need to provided together in a string separated by commas.
 
@@ -127,17 +142,17 @@ And _Label_01_ and _Label_04_ need to be redacted, the following commands can be
 #### Redact specific labels from Image
 
 ``` bash
-python redact.py image <fott_label_path> <output_path> "Label_01,Label_04"
+python redact.py image <fott_label_path> <output_path> <api_version> "Label_01,Label_04"
 ```
 #### Redact specific labels from OCR Result
 
 ``` bash
-python redact.py ocr <ocr_result_path> <image_path> <fott_label_path> <output_path> "Label_01,Label_04"
+python redact.py ocr <ocr_result_path> <image_path> <fott_label_path> <output_path> <api_version> "Label_01,Label_04"
 ```
 #### Redact specific labels from FOTT Label Path
 
 ``` bash
-python redact.py image <image_path> <fott_label_path> <output_path> "Label_01,Label_04"
+python redact.py image <image_path> <fott_label_path> <output_path> <api_version> "Label_01,Label_04"
 ```
 
 ### Batch Redaction
@@ -146,7 +161,7 @@ Batch redaction supports redacting a folder rather than executing on a single fi
 2. Azure Blob Storage virtual folder: a URL to a Blob Storage container and a folder path to denotes the folder.
 
 ``` bash
-python batch_redact.py <input_container> <input_folder_path> <output_container> <output_folder_path>
+python batch_redact.py <input_container> <input_folder_path> <output_container> <output_folder_path> <api_version>
 ```
 
 #### Container
@@ -176,11 +191,15 @@ python batch_redact.py local raw/ "https://my.blob.account/data?<my_secret_SAS_t
 python batch_redact.py "https://my.blob.account/data?<my_secret_SAS_token>" folder1/ "https://my.blob.account/data?<my_secret_SAS_token>" folder2/
 ```
 
-#### Note
+---
+
+**NOTE**
 
 1. Surround the URL with double quotes to prevent wrong character escape in the SAS token.
 2. Visit [Create Your SAS tokens with Azure Storage Explorer](https://docs.microsoft.com/en-us/azure/cognitive-services/translator/document-translation/create-sas-tokens?tabs=Containers) to see how to create a SAS token for this program to use.
 3. Currently, this redact CLI only support ASCII character redaction (Latin alphabets without the accent marks).
+
+---
 
 #### PDF Support
 
@@ -204,7 +223,17 @@ pytest
 
 in the root folder.
 
-### Note
+---
+
+**NOTE**
 
 1. You can also take a look at the `redact/__init__.py` file. The command line interface (CLI) is just a thin wrapper on `redact_image()`, `redact_ocr_result()`, and `redact_fott_label()`. You could extend the code on top of the three functions for achieving your own goal, such as to redact a batch of data.
 2. For batch redaction, we currently only support `.jpeg`, `.jpg`, `.png`, `.tif`, `.tiff`, and `.bmp` as the file extension for images. PDF files are not supported.
+
+---
+
+## References
+
+- [Form Recognizer API v2.0](https://westus2.dev.cognitive.microsoft.com/docs/services/form-recognizer-api-v2/operations/AnalyzeWithCustomForm)
+- [Form Recognizer API v2.1](https://westus.dev.cognitive.microsoft.com/docs/services/form-recognizer-api-v2-1/operations/AnalyzeWithCustomForm)
+- [Form Recognizer API v3.0 (2021-09-30-preview)](https://westus.dev.cognitive.microsoft.com/docs/services/form-recognizer-api-v3-0-preview-1/operations/AnalyzeDocument)

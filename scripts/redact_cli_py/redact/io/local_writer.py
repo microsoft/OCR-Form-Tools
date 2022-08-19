@@ -6,7 +6,7 @@ from pathlib import Path
 import shutil
 
 
-class LocalWriter():
+class LocalWriter:
     def __init__(self, output_path: str):
         self.output_path = Path(output_path)
         Path(self.output_path).mkdir(parents=True, exist_ok=True)

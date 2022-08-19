@@ -24,8 +24,10 @@ class TestFottLabel:
         bbox = annotations[0].bounding_box
         for i, element in enumerate(bbox):
             bbox[i] = element * 10
+        annotations[0].page = 2
 
         actual = fott_label.to_annotations(
-            page_size={1: (2481, 3509), 2: (24810, 35090)})
+            page_size={1: (2481, 3509), 2: (24810, 35090)}
+        )
 
         assert actual == annotations
