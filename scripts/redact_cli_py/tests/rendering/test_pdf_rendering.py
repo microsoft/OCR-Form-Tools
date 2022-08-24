@@ -2,13 +2,13 @@
 # Licensed under the MIT License. See License.txt in the project
 # root for license information.
 
-from PIL import ImageChops, ImageStat, Image
+from PIL import ImageChops, ImageStat
 
-from redact.utils.pdf_renderer import PdfRenderer
+from redact.preprocess.pdf_renderer import PdfRenderer
 from tests.factories.image_factory import ImageFactory
 
-class TestPdfRendering:
 
+class TestPdfRendering:
     def test_rendering(self) -> None:
         # A small tolerance epsilon because of the jpg compression loss.
         epsilon = 0.1

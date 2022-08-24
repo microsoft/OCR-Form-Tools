@@ -8,17 +8,16 @@ from redact.types.file_bundle import FileType
 
 class TestFileBundle:
     def test_from_names(self) -> None:
-        names = [
-            "a.jpg",
-            "a.jpg.labels.json",
-            "dummy_file.jpg",
-            "a.jpg.ocr.json"]
-        expected = [FileBundle(
-            image_file_name="a.jpg",
-            fott_file_name="a.jpg.labels.json",
-            ocr_file_name="a.jpg.ocr.json")]
+        names = ["a.jpg", "a.jpg.labels.json", "dummy_file.jpg", "a.jpg.ocr.json"]
+        expected = [
+            FileBundle(
+                image_file_name="a.jpg",
+                fott_file_name="a.jpg.labels.json",
+                ocr_file_name="a.jpg.ocr.json",
+            )
+        ]
 
-        actual = FileBundle.from_names(names, FileType.IMAGE_ONLY)
+        actual = FileBundle.from_names(names, FileType.SINGLE_PAGE_IMAGE)
 
         assert actual == expected
 
@@ -30,12 +29,16 @@ class TestFileBundle:
             "a.jpg",
             "a.jpg.labels.json",
             "dummy_file.pdf",
-            "a.pdf.ocr.json"]
-        expected = [FileBundle(
-            image_file_name="a.pdf",
-            fott_file_name="a.pdf.labels.json",
-            ocr_file_name="a.pdf.ocr.json")]
+            "a.pdf.ocr.json",
+        ]
+        expected = [
+            FileBundle(
+                image_file_name="a.pdf",
+                fott_file_name="a.pdf.labels.json",
+                ocr_file_name="a.pdf.ocr.json",
+            )
+        ]
 
-        actual = FileBundle.from_names(names, FileType.PDF_ONLY)
+        actual = FileBundle.from_names(names, FileType.MULTI_PAGE)
 
         assert actual == expected
