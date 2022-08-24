@@ -101,7 +101,7 @@
         "@types/reactstrap": "^8.2.0",
         "@types/redux-logger": "^3.0.7",
         "acorn": "^7.1.1",
-        "electron": "10.1.5",
+        "electron": "15.5.5",
         "electron-builder": "^22.9.1",
         "env-cmd": "^10.1.0",
         "enzyme": "^3.10.0",
