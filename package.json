@@ -23,7 +23,7 @@
         "bootstrap": "^4.4.1",
         "chart.js": "^2.9.3",
         "exif-js": "^2.3.0",
-        "file-type": "^14.6.2",
+        "file-type": "^16.5.4",
         "jszip": "^3.5.0",
         "localforage": "^1.9.0",
         "lodash": "^4.17.20",
