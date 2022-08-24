@@ -11,7 +11,7 @@ The OCR.json and labels.json will also be redacted while keeping the semantics o
 ![labels-before-after-redaction](./images/labels-before-after-redaction.png)
 
 ## Language Support
-This tool supports Latin characters redaction only. For any non-Latin document support, please [contact us](mailto:formrecog_contact@microsoft.cosubject=Redaction%20tool%20language%20support).
+This tool supports Latin characters redaction only. For any non-Latin document support, please [contact us](mailto:formrecog_contact@microsoft.com?subject=Redaction%20tool%20language%20support).
 
 ## Version
 Redact CLI 0.3.2
@@ -236,4 +236,4 @@ in the root folder.
 
 - [Form Recognizer API v2.0](https://westus2.dev.cognitive.microsoft.com/docs/services/form-recognizer-api-v2/operations/AnalyzeWithCustomForm)
 - [Form Recognizer API v2.1](https://westus.dev.cognitive.microsoft.com/docs/services/form-recognizer-api-v2-1/operations/AnalyzeWithCustomForm)
-- [Form Recognizer API v3.0 (2021-09-30-preview)](https://westus.dev.cognitive.microsoft.com/docs/services/form-recognizer-api-v3-0-preview-1/operations/AnalyzeDocument)
+- [Form Recognizer API v3.0](https://westus.dev.cognitive.microsoft.com/docs/services/form-recognizer-api-2022-08-31/operations/GetAnalyzeDocumentResult)
