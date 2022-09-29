@@ -228,7 +228,7 @@ in the root folder.
 **NOTE**
 
 1. You can also take a look at the `redact/__init__.py` file. The command line interface (CLI) is just a thin wrapper on `redact_image()`, `redact_ocr_result()`, and `redact_fott_label()`. You could extend the code on top of the three functions for achieving your own goal, such as to redact a batch of data.
-2. For batch redaction, we currently only support `.jpeg`, `.jpg`, `.png`, `.tif`, `.tiff`, and `.bmp` as the file extension for images. PDF files are not supported.
+2. For batch redaction, we currently support `.jpeg`, `.jpg`, `.png`, `.tif`, `.tiff`, `.pdf`, and `.bmp` as the file extension for images.
 
 ---
 
