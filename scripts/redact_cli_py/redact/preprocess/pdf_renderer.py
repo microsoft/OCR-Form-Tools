@@ -2,9 +2,9 @@
 # Licensed under the MIT License. See License.txt in the project
 # root for license information.
 
-import typing
 import PIL.Image
 import pypdfium2 as pdfium
+from typing import Optional, Sequence, Iterator
 
 
 class PdfRenderer:
@@ -26,12 +26,13 @@ class PdfRenderer:
         page.close()
         return image
     
-    def render_doc(self) -> typing.Iterator[PIL.Image.Image]:
+    def render_doc(self, page_indices: Optional[Sequence[int]] = None) -> Iterator[PIL.Image.Image]:
         # using pypdfium2's multi-page renderer, which is backed by a process pool
         # this is faster than iterating over the page indices and calling render_page()
         yield from self.pdf.render_to(
             pdfium.BitmapConv.pil_image,
             scale = self.dpi / 72,
+            page_indices = page_indices
         )
     
     def close(self):

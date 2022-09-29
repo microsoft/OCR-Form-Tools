@@ -2,8 +2,8 @@
 # Licensed under the MIT License. See License.txt in the project
 # root for license information.
 
-import typing
 import PIL.Image
+from typing import Iterator
 
 
 class TiffRenderer:
@@ -20,7 +20,7 @@ class TiffRenderer:
         self.tiffstack.seek(index)
         return self.tiffstack
     
-    def render_doc(self) -> typing.Iterator[PIL.Image.Image]:
+    def render_doc(self) -> Iterator[PIL.Image.Image]:
         for i in range(len(self)):
             yield self.render_page(i)
     
