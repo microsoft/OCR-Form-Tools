@@ -73,4 +73,6 @@ def preprocess_multi_page_bundle(
             )
         )
     
+    renderer.close()
+    
     return file_bundles

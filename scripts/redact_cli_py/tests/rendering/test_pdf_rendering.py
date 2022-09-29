@@ -23,3 +23,5 @@ class TestPdfRendering:
         # stat.mean is a 3-tuple representing the mean value of [r, g, b].
         for channel in stat.mean:
             assert channel < epsilon
+        
+        renderer.close()
