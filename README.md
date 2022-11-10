@@ -11,9 +11,12 @@ An open source labeling tool for [Form Recognizer](https://docs.microsoft.com/en
 
 This is a `MAIN` branch of the Tool. It contains all the newest features available. This is **NOT** the most stable version since this is a preview.
 
-The purpose of this repo is to allow customers to test the latest tools available when working with Microsoft Forms and OCR services.  Currently, Labeling tool is the first tool we present here.  Users could provide feedback, and make customer-specific changes to meet their unique needs.  Microsoft Azure Form Recognizer team will update the source code periodically.  If you would like to contribute, please check the contributing section.
+The purpose of this repo is to allow customers to test the tools available when working with Microsoft Forms and OCR services.  Currently, Labeling tool is the first tool we present here.  Users could provide feedback, and make customer-specific changes to meet their unique needs.  Microsoft Azure Form Recognizer team will update the source code periodically.  If you would like to contribute, please check the contributing section.
 
-**If you want to checkout our latest GA  version of the tool, please follow this [link](https://github.com/microsoft/OCR-Form-Tools/tree/v2.0-General-Availability-Release).**
+* **If you want to checkout our latest GA version, please go to [Form-Recognizer-Toolkit](https://github.com/microsoft/Form-Recognizer-Toolkit/tree/main/SampleCode/LabelingUX), or use [Form Recognizer Studio](https://formrecognizer.appliedai.azure.com/studio).**
+* **If you want to checkout our V2.1 GA  version of the tool, please follow this [link](https://github.com/microsoft/OCR-Form-Tools/tree/v2.1-General-Availability-Release).**
+* **If you want to checkout our V2.0 GA  version of the tool, please follow this [link](https://github.com/microsoft/OCR-Form-Tools/tree/v2.0-General-Availability-Release).**
+
 ___
 
 FOTT's Labeling Tool is a React + Redux Web application, written in [TypeScript](https://github.com/Microsoft/TypeScript). This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
