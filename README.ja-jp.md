@@ -13,7 +13,10 @@ Form Recognizer の改善にご協力ください。[Take our survey!](https://a
 
 このリポジトリの目的は、お客様が Microsoft Forms と OCR サービスを使用する際に、最新のツールをテストできるようにすることです。現在のところ、Labeling Tool がここで紹介する最初のツールです。ユーザーはフィードバックを提供し、独自のニーズを満たすために顧客固有の変更を行うことができます。Microsoft Azure Form Recognizer チームは、定期的にソースコードを更新する予定です。コントリビュートしたいと思われる方は、コントリビュートのセクションをご覧ください。
 
-**このツールの最新の GA バージョンをチェックしたい方は、こちらの[リンク]((https://github.com/microsoft/OCR-Form-Tools/tree/v2.0-General-Availability-Release))をご覧ください。**
+* **このツールの最新の GA バージョンをチェックしたい方は、こちらの[Form-Recognizer-Toolkit](https://github.com/microsoft/Form-Recognizer-Toolkit/tree/main/SampleCode/LabelingUX), or [Form Recognizer Studio](https://formrecognizer.appliedai.azure.com/studio)をご覧ください。**
+* **このツールのV2.1の GA バージョンをチェックしたい方は、こちらの[リンク](https://github.com/microsoft/OCR-Form-Tools/tree/v2.1-General-Availability-Release)をご覧ください。**
+* **このツールのV2.0の GA バージョンをチェックしたい方は、こちらの[リンク](https://github.com/microsoft/OCR-Form-Tools/tree/v2.0-General-Availability-Release)をご覧ください。**
+
 
 ___
 
