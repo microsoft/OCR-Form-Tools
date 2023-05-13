@@ -112,7 +112,7 @@
         "kind-of": "^6.0.3",
         "mime": "^2.4.6",
         "minimist": "^1.2.2",
-        "node-forge": "^0.10.0",
+        "node-forge": "^1.3.0",
         "node-sass": "^4.14.1",
         "pdfjs-dist": "^2.9.359",
         "react-scripts": "3.4.1",
