@@ -8,7 +8,7 @@ export default class AppSurveyLink extends React.PureComponent {
             <a className="app-survey-link-anchor"
                 target="_blank"
                 rel="noopener noreferrer"
-                href="https://aka.ms/FR-HaTS-Survey">
+                href="https://go.microsoft.com/fwlink/?linkid=2163219">
                     {strings.appSurveyText}
             </a>
         )
