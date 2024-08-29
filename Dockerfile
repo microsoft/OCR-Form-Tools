@@ -11,6 +11,7 @@ ENV PATH /usr/src/app/node_modules/.bin:$PATH
 # where available (npm@5+)
 COPY package*.json ./
 COPY yarn.lock ./
+RUN yarn config set strict-ssl false
 RUN yarn install
 
 COPY . .

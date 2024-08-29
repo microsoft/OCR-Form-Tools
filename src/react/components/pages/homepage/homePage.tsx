@@ -83,40 +83,23 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
         return (
             <div className="app-homepage" id="pageHome">
                 <div className="app-homepage-main">
-                <div className="app-banner">
+                    <div className="app-banner">
+                    <span className="highlight-white">Please note that this FoTT site is deprecating <b>by Oct 31, 2024</b> while API support for Form Recognizer v2.1 still continues until Sep 15, 2027.</span>
+                    <br /><br />
                         <span>
-                            Please use the new{" "}
-                            <a
-                                href="https://formrecognizer.appliedai.azure.com/studio"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                Form Recognizer v3.0 Studio (preview){" "}
-                            </a>
-                            for a better experience and model quality, and to
-                            keep up with the latest features.
+                            <span>Please use </span>
+                            <a href="https://aka.ms/DIStudio" target="_blank" rel="noopener noreferrer">Document Intelligence Studio</a>
+                            <span> for a better experience and model quality, and to keep up with the latest features. Document Intelligence Studio supports training models with any v2.1 labeled data. Refer to the </span>
+                            <a href="https://aka.ms/FRMigrateGuide" target="_blank" rel="noopener noreferrer">API migration guide</a>
+                            <span> to learn more about the new API to better support the long-term product roadmap and get started with the latest GA </span>
+                            <a href="https://aka.ms/FRRestApiRefLatestGA" target="_blank" rel="noopener noreferrer">REST API and SDK QuickStarts</a>.
                         </span>
                         <br />
                         <span>
-                            The v3.0 Studio supports training models with any
-                            v2.1 labeled data. Please refer to the{" "}
-                            <a
-                                href="https://docs.microsoft.com/en-us/azure/applied-ai-services/form-recognizer/v3-migration-guide"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                API migration guide
-                            </a>{" "}
-                            to learn more about the new API to better support
-                            the long-term product roadmap. Get started with the
-                            v3.0 preview{" "}
-                            <a
-                                href="https://docs.microsoft.com/en-us/azure/applied-ai-services/form-recognizer/quickstarts/try-v3-python-sdk"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                REST API and SDK QuickStarts.
-                            </a>
+                            <span>To continue using v2.1 labeled data, please build the tool from </span>
+                            <a href="https://aka.ms/FoTTv21GitHub">OCR-Form-Tools</a>
+                            <span> or use the </span>
+                            <a href="https://aka.ms/FoTTv21Alternative">electron app</a>.
                         </span>
                     </div>
                     <ul>
