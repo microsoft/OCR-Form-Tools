@@ -82,6 +82,25 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
         return (
             <div className="app-homepage" id="pageHome">
                 <div className="app-homepage-main">
+                    <div className="app-banner">
+                        <span className="highlight-white">Please note that this FoTT site is deprecating <b>by Oct 31, 2024</b> while API support for Form Recognizer v2.0 still continues.</span>
+                        <br /><br />
+                        <span>
+                            <span>Please use </span>
+                            <a href="https://aka.ms/DIStudio" target="_blank" rel="noopener noreferrer">Document Intelligence Studio</a>
+                            <span> for a better experience and model quality, and to keep up with the latest features. Document Intelligence Studio supports training models with any v2.1 labeled data. Refer to the </span>
+                            <a href="https://aka.ms/FRMigrateGuide" target="_blank" rel="noopener noreferrer">API migration guide</a>
+                            <span> to learn more about the new API to better support the long-term product roadmap and get started with the latest GA </span>
+                            <a href="https://aka.ms/FRRestApiRefLatestGA" target="_blank" rel="noopener noreferrer">REST API and SDK QuickStarts</a>.
+                        </span>
+                        <br />
+                        <span>
+                            <span>To continue using v2.0 labeled data, please build the tool from </span>
+                            <a href="https://aka.ms/FoTTv20GitHub">OCR-Form-Tools</a>
+                            <span> or host the </span>
+                            <a href="https://aka.ms/FoTTv20Alternative">docker image</a>.
+                        </span>
+                    </div>
                     <ul>
                         <li>
                             {/* eslint-disable-next-line */}
