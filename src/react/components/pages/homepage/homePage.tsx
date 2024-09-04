@@ -83,7 +83,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
             <div className="app-homepage" id="pageHome">
                 <div className="app-homepage-main">
                     <div className="app-banner">
-                        <span className="highlight-white">Please note that this FoTT site is deprecating <b>by Oct 31, 2024</b> while API support for Form Recognizer v2.0 still continues.</span>
+                        <span className="highlight-white">Please note that this FoTT site is deprecating <b>by Oct 31, 2024</b> while API support for Form Recognizer v2.0 still continues until Sep 15, 2026.</span>
                         <br /><br />
                         <span>
                             <span>Please use </span>
