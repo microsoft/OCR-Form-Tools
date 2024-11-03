@@ -18,23 +18,11 @@ export interface IPDFAssetState {
  */
 export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState> {
     private image: React.RefObject<HTMLImageElement> = React.createRef();
-    private pdf;
-    private page;
-    private renderTask;
-    private canvas;
-    private loadingTask;
-    private unmounted;
-    private pendingRelease;
+    private unmounted: boolean;
 
     constructor(props: IAssetPreviewProps) {
         super(props);
         this.unmounted = false;
-        this.page = null;
-        this.pdf = null;
-        this.renderTask = null;
-        this.canvas = null;
-        this.loadingTask = null;
-        this.pendingRelease = false;
         this.state = {
             imageUri: "",
         };
@@ -45,7 +33,7 @@ export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState
     }
 
     public componentDidMount() {
-        if (this.unmounted || this.pendingRelease) {
+        if (this.unmounted) {
             return;
         }
         if (this.props.asset) {
@@ -67,99 +55,59 @@ export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState
                 src={this.state.imageUri}
                 alt={this.props.asset.name}
                 onLoad={this.onLoad}
-                style={ { display: this.state.imageUri ? "block" : "none" } }
+                style={{display: this.state.imageUri ? "block" : "none"}}
                 crossOrigin="anonymous" />
         );
     }
 
-    private loadPdfFile = (url) => {
-        if (this.unmounted || this.pendingRelease) {
+    private loadPdfFile = async (url) => {
+        if (this.unmounted) {
             return;
         }
-        this.loadingTask = pdfjsLib.getDocument(url);
-        this.loadingTask.promise.then((pdf) => {
-            this.pdf = pdf;
-            if (this.pendingRelease) {
-                return
-            }
-            if (this.unmounted) {
-                if (this.pdf) {
-                    this.releaseMemoryUsedByPDF();
-                }
-                return;
-            }
-            // Fetch the first page
-            this.loadPdfPage(pdf, 1 /*pageNumber*/);
-        }, (reason) => {
-            // PDF loading error
+        let pdf;
+        try {
+            pdf = await pdfjsLib.getDocument(url).promise;
+            await this.loadPdfPage(pdf, 1);
+        }
+        catch (err) {
             if (this.props.onError) {
-                this.props.onError(reason);
+                this.props.onError(err);
             }
-        });
+        }
+        finally {
+            if (pdf) {
+                pdf.destroy();
+            }
+        }
     }
 
-    private loadPdfPage = (pdf, pageNumber) => {
-            if (this.pendingRelease) {
-                return
-            }
-            if (this.unmounted) {
-                if (this.pdf) {
-                    this.releaseMemoryUsedByPDF();
-                }
-                return;
-            }
-        pdf.getPage(pageNumber).then((page) => {
-            this.page = page;
-            this.page.cleanupAfterRender = true;
+    private loadPdfPage = async (pdf, pageNumber) => {
+        const page: any = await pdf.getPage(pageNumber);
+        if (page) {
+            page.cleanupAfterRender = true;
             const defaultScale = 1;
-            const viewport = page.getViewport({ scale: defaultScale });
+            const viewport = page.getViewport({scale: defaultScale});
 
             // Prepare canvas using PDF page dimensions
-            this.canvas = document.createElement("canvas");
-            const context = this.canvas.getContext("2d");
-            this.canvas.height = viewport.height;
-            this.canvas.width = viewport.width;
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
 
             // Render PDF page into canvas context
             const renderContext = {
                 canvasContext: context,
                 viewport,
             };
-            if (this.pendingRelease || !this.page) {
-                return
-            }
-            if (this.unmounted) {
-                if (this.page) {
-                    this.releaseMemoryUsedByPDF();
-                }
-                return;
-            }
-            this.renderTask = page.render(renderContext);
-            this.renderTask.promise.then(() => {
-                if (this.pendingRelease) {
-                    return
-                }
-                if (this.unmounted || !this.page) {
-                    if (this.page) {
-                        this.releaseMemoryUsedByPDF();
-                    }
-                    return;
-                }
-                const thumbnails = resizeCanvas(this.canvas, 240, 240).toDataURL(constants.convertedImageFormat,
-                                                                                 constants.convertedThumbnailQuality);
+            await page.render(renderContext).promise;
+            const thumbnailsUri = resizeCanvas(canvas, 240, 240).toDataURL(constants.convertedImageFormat,
+                constants.convertedThumbnailQuality);
+            if (!this.unmounted) {
                 this.setState({
-                    imageUri: thumbnails,
-                }, () => {
-                    if (this.page) {
-                        this.releaseMemoryUsedByPDF();
-                    }
+                    imageUri: thumbnailsUri
                 });
-            }).catch((err) => {
-                this.releaseMemoryUsedByPDF();
-            });
-        }).catch((err) => {
-            this.releaseMemoryUsedByPDF();
-        });
+            }
+        }
     }
 
     private onLoad = () => {
@@ -171,34 +119,6 @@ export class PDFAsset extends React.Component<IAssetPreviewProps, IPDFAssetState
         }
         if (this.props.onDeactivated) {
             this.props.onDeactivated(this.image.current);
-        }
-    }
-
-    private async releaseMemoryUsedByPDF() {
-        if (this.pendingRelease) {
-            return;
-        }
-        this.pendingRelease = true;
-        try {
-            if (this.renderTask) {
-                await this.renderTask?.promise
-                this.renderTask = null;
-            }
-            if (this.loadingTask) {
-                await this.loadingTask?.promise
-                this.loadingTask = null;
-            }
-            if (this.pdf) {
-                await this.pdf?.cleanup();
-                await this.pdf?.destroy();
-                this.pdf = null;
-            }
-            if (this.canvas) {
-                delete this.canvas;
-                this.canvas = null;
-            }
-        } catch {
-            // do nothing on rejects
         }
     }
 }

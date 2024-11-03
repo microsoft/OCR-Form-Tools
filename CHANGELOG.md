@@ -1,4 +1,4 @@
-# FoTT Changelog
+# FoTT Changelog  
 ## Released conatiner's currently referenced commit
 2.0-GA's released container image, tracked by the `latest` image tag in our [docker hub repository](https://hub.docker.com/_/microsoft-azure-cognitive-services-custom-form-labeltool), currently references **2.0.0-deff6dd (08-14-2020)**
 
