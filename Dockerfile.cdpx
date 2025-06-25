@@ -3,6 +3,7 @@ WORKDIR /usr/src/app
 ENV PATH /usr/src/app/node_modules/.bin:$PATH
 COPY package*.json ./
 COPY yarn.lock ./
+COPY scripts/post-install.js ./scripts/post-install.js
 RUN yarn install
 COPY . .
 RUN yarn build
