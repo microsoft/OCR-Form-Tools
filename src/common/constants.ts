@@ -48,11 +48,11 @@ export const constants = {
     supportedLabelsSchemas,
     enableMultiPageField: false,
     pdfjsWorkerSrc(version: string) {
-        return `https://fotts.azureedge.net/npm/pdfjs-dist/${version}/pdf.worker.js`;
+        return `/pdfjs-dist/${version}/pdf.worker.js`;
     },
 
     pdfjsCMapUrl(version: string) {
-        return `https://fotts.azureedge.net/npm/pdfjs-dist/${version}/cmaps/`;
+        return `/pdfjs-dist/${version}/cmaps/`;
     },
     insightsKey: "",
     prebuiltServiceVersion: "v2.1",

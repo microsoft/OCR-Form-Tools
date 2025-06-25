@@ -12,6 +12,7 @@ ENV PATH /usr/src/app/node_modules/.bin:$PATH
 COPY package*.json ./
 COPY yarn.lock ./
 RUN yarn config set strict-ssl false
+COPY scripts/post-install.js ./scripts/post-install.js
 RUN yarn install
 
 COPY . .
