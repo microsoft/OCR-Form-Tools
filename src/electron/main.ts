@@ -30,7 +30,7 @@ async function createWindow() {
     };
     windowOptions.webPreferences = {
         nodeIntegration: true,
-        webSecurity: false,
+        webSecurity: false, // CodeQL [SM02732] This tool is standalone and designed to run locally, so disabling web security is acceptable.
         enableRemoteModule: true
     };
 
