@@ -823,7 +823,7 @@ export const spanish: IAppStrings = {
             success: "Token de proyecto copiado al portapapeles y listo para compartir. El receptor del token del proyecto puede hacer clic en 'Abrir proyecto en la nube' desde la página de inicio para usar el token compartido.",
         }
     },
-    appSurveyText: "Ayúdenos a mejorar Form Recognizer. ¡Responda nuestra encuesta!"
+    appSurveyText: "Si necesita ayuda, póngase en contacto con soporte.  Nueva solicitud de soporte técnico"
 };
 
 /*eslint-enable no-template-curly-in-string, no-multi-str*/
