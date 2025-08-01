@@ -945,14 +945,30 @@ export class PrebuiltPredictPage extends React.Component<IPrebuiltPredictPagePro
             highlightedField: "",
         });
     }
+
     private displayFreeResourceWarningIfNecessary = () => {
-        if (this.getOcrFromAnalyzeResult(this.state.analyzeResult).length === 2 && this.state.numPages > 2) {
-            this.setState({
-                alertMessage: strings.prebuiltPredict.pdfPageNumberLimit,
-                shouldShowAlert: true,
-            });
+        const { withPageRange, pageRange } = this.state
+        if (withPageRange) {
+            if (pageRange.indexOf('-') !== -1) {   // When filling in the page range, it is necessary to determine whether to enter a group of values or a value
+                const pageNumber = pageRange.split("-")
+                const Difference = Math.abs(Number(pageNumber[1]) - Number(pageNumber[0])) + 1;
+                if (Difference > 2 && this.getOcrFromAnalyzeResult(this.state.analyzeResult).length === 2 && this.state.numPages > 2) {
+                    this.setState({
+                        alertMessage: strings.prebuiltPredict.pdfPageNumberLimit,
+                        shouldShowAlert: true,
+                    });
+                }
+            }
+        } else {
+            if (this.getOcrFromAnalyzeResult(this.state.analyzeResult).length === 2 && this.state.numPages > 2) {
+                this.setState({
+                    alertMessage: strings.prebuiltPredict.pdfPageNumberLimit,
+                    shouldShowAlert: true,
+                });
+            }
         }
     }
+
     private setPredictedFieldHighlightStatus = (highlightedField: string) => {
         const features = this.imageMap.getAllFeatures();
         for (const feature of features) {
