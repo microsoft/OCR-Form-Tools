@@ -402,11 +402,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.props.runOcrForAllDocs(true);
     }
 
-    private runAutoLabelingOnCurrentDocument = async () => {
+    private runAutoLabelingOnCurrentDocument = async (noSas?: boolean, retry?: boolean) => {
         try {
             this.setAutoLabelingStatus(AutoLabelingStatus.running);
             const asset = this.state.currentAsset.asset;
-            const assetPath = asset.path;
+            const assetPath = noSas ? asset.path : asset.path.split('?')[0];
             const predictService = new PredictService(this.props.project);
             const result = await predictService.getPrediction(assetPath);
             const assetService = new AssetService(this.props.project);
@@ -415,19 +415,17 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 await this.props.onAssetMetadataChanged(assetMetadata);
             }
         } catch (err) {
-            this.setState({
-                isError: true,
-                errorTitle: err.title,
-                errorMessage: err.message
-            });
+            if (err.code === "2001" && retry !== true){
+                return await this.runAutoLabelingOnCurrentDocument(true, true);//this.runAutoLabelingOnCurrentDocumentNoSAS();
+            }
+            else{
+                this.setState({
+                    isError: true,
+                    errorTitle: err.title,
+                    errorMessage: err.message
+                });
+            }
         }
-        // catch(error){
-        //     this.setState({
-        //         isError: true,
-        //         errorTitle: error.title,
-        //         errorMessage: error.message,
-        //     });
-        // }
         finally {
             this.setAutoLabelingStatus(AutoLabelingStatus.done);
         }
