@@ -42,7 +42,7 @@ class TestImageRedaction:
         expected_image = ImageFactory.build_redacted_partial()
         annotations = AnnotationFactory.build_annotations()
 
-        image_redaction = ImageRedaction(image, annotations, ["Name","Date"])
+        image_redaction = ImageRedaction(image, annotations, ["Name", "Date"])
         image_redaction.redact()
 
         diff = ImageChops.difference(image_redaction.image, expected_image)

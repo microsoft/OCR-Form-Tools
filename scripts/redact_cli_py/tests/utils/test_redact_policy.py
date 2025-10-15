@@ -11,7 +11,7 @@ class TestRedactPolicy:
         actual = first_char(text)
         assert "" == actual
 
-    def test_first_char_Apple(self) -> None:
+    def test_first_char_apple(self) -> None:
         text = "Apple"
         actual = first_char(text)
         assert "Aaaaa" == actual

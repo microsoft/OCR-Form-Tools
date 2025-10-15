@@ -6,6 +6,11 @@
 
 本仓库的目的是开发并维护和微软表单识别和OCR服务相关的多种工具。目前，表单标注工具是首个发布到本仓库的工具。用户可以提供反馈并根据自己的需求做定制化改动。微软Azure表单识别团队将定期更新源代码。如果你希望参与此项目，请参考下文的参与贡献一节。
 
+* **如果想使用最新GA版本的工具，請至 [Form-Recognizer-Toolkit](https://github.com/microsoft/Form-Recognizer-Toolkit/tree/main/SampleCode/LabelingUX)，或者[Form Recognizer Studio](https://formrecognizer.appliedai.azure.com/studio)。**
+* **如果想使用V2.1 GA版本的工具，請至 [link](https://github.com/microsoft/OCR-Form-Tools/tree/v2.1-General-Availability-Release).**
+* **如果想使用V2.0 GA版本的工具，請至 [link](https://github.com/microsoft/OCR-Form-Tools/tree/v2.0-General-Availability-Release).**
+
+
 FOTT 的标注工具是一个由 React + Redux 开发的 Web 应用程序， 该项目使用 [Typescript](https://github.com/Microsoft/TypeScript) 语言开发。本项目使用 [Create React App](https://github.com/facebook/create-react-app) 启动。
 
 当前标注工具具有下面这些特性：

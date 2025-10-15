@@ -10,12 +10,14 @@ from redact.types.file_bundle import FileBundle
 from redact.types.file_bundle import FileType
 
 
-class LocalReader():
+class LocalReader:
     def __init__(self, input_path: str):
         self.input_path = Path(input_path)
 
-    def copy_bundles(self, to: str, mode=FileType.IMAGE_ONLY) -> List[FileBundle]:
-        file_names = [path.name for path in self.input_path.glob('**/*')]
+    def copy_bundles(
+        self, to: str, mode=FileType.SINGLE_PAGE_IMAGE
+    ) -> List[FileBundle]:
+        file_names = [path.name for path in self.input_path.glob("**/*")]
         file_bundles = FileBundle.from_names(file_names, mode)
 
         for bundle in file_bundles:

@@ -1,0 +1,1233 @@
+{
+  "status": "succeeded",
+  "createdDateTime": "2022-01-05T11:02:29Z",
+  "lastUpdatedDateTime": "2022-01-05T11:02:33Z",
+  "analyzeResult": {
+      "apiVersion": "2021-09-30-preview",
+      "modelId": "prebuilt-layout",
+      "stringIndexType": "textElements",
+      "content": "Lorem Ipsum\nLorem ipsum dolor sit amet, consectetur adipiscing 30 elit.\nAenean nisl odio, pharetra ac erat ac, pellentesque viverra 1000 arcu. Sed ullamcorper\nmolestie erat, vel convallis enim. Vestibulum vulputate dapibus ipsum, vel semper eros\nfeugiat et.\nLorem\nIpsum\nDolor\n1900/01/01\nAmet\n$3000.00",
+      "pages": [
+          {
+              "pageNumber": 1,
+              "angle": -0.0507,
+              "width": 2481,
+              "height": 3509,
+              "unit": "pixel",
+              "words": [
+                  {
+                      "content": "Lorem",
+                      "boundingBox": [
+                          370,
+                          398,
+                          817,
+                          383,
+                          819,
+                          549,
+                          371,
+                          520
+                      ],
+                      "confidence": 0.995,
+                      "span": {
+                          "offset": 0,
+                          "length": 5
+                      }
+                  },
+                  {
+                      "content": "Ipsum",
+                      "boundingBox": [
+                          919,
+                          383,
+                          1356,
+                          398,
+                          1358,
+                          554,
+                          920,
+                          552
+                      ],
+                      "confidence": 0.993,
+                      "span": {
+                          "offset": 6,
+                          "length": 5
+                      }
+                  },
+                  {
+                      "content": "Lorem",
+                      "boundingBox": [
+                          371,
+                          623,
+                          479,
+                          623,
+                          481,
+                          670,
+                          374,
+                          670
+                      ],
+                      "confidence": 0.995,
+                      "span": {
+                          "offset": 12,
+                          "length": 5
+                      }
+                  },
+                  {
+                      "content": "ipsum",
+                      "boundingBox": [
+                          498,
+                          623,
+                          611,
+                          623,
+                          613,
+                          669,
+                          500,
+                          670
+                      ],
+                      "confidence": 0.995,
+                      "span": {
+                          "offset": 18,
+                          "length": 5
+                      }
+                  },
+                  {
+                      "content": "dolor",
+                      "boundingBox": [
+                          627,
+                          623,
+                          731,
+                          622,
+                          732,
+                          669,
+                          629,
+                          669
+                      ],
+                      "confidence": 0.995,
+                      "span": {
+                          "offset": 24,
+                          "length": 5
+                      }
+                  },
+                  {
+                      "content": "sit",
+                      "boundingBox": [
+                          741,
+                          622,
+                          788,
+                          622,
+                          789,
+                          669,
+                          742,
+                          669
+                      ],
+                      "confidence": 0.995,
+                      "span": {
+                          "offset": 30,
+                          "length": 3
+                      }
+                  },
+                  {
+                      "content": "amet,",
+                      "boundingBox": [
+                          797,
+                          622,
+                          908,
+                          622,
+                          909,
+                          669,
+                          799,
+                          669
+                      ],
+                      "confidence": 0.993,
+                      "span": {
+                          "offset": 34,
+                          "length": 5
+                      }
+                  },
+                  {
+                      "content": "consectetur",
+                      "boundingBox": [
+                          917,
+                          622,
+                          1144,
+                          621,
+                          1145,
+                          670,
+                          918,
+                          669
+                      ],
+                      "confidence": 0.995,
+                      "span": {
+                          "offset": 40,
+                          "length": 11
+                      }
+                  },
+                  {
+                      "content": "adipiscing",
+                      "boundingBox": [
+                          1154,
+                          621,
+                          1356,
+                          621,
+                          1355,
+                          670,
+                          1154,
+                          670
+                      ],
+                      "confidence": 0.996,
+                      "span": {
+                          "offset": 52,
+                          "length": 10
+                      }
+                  },
+                  {
+                      "content": "30",
+                      "boundingBox": [
+                          1365,
+                          620,
+                          1412,
+                          620,
+                          1412,
+                          670,
+                          1365,
+                          670
+                      ],
+                      "confidence": 0.999,
+                      "span": {
+                          "offset": 63,
+                          "length": 2
+                      }
+                  },
+                  {
+                      "content": "elit.",
+                      "boundingBox": [
+                          1422,
+                          620,
+                          1501,
+                          620,
+                          1500,
+                          670,
+                          1422,
+                          670
+                      ],
+                      "confidence": 0.994,
+                      "span": {
+                          "offset": 66,
+                          "length": 5
+                      }
+                  },
+                  {
+                      "content": "Aenean",
+                      "boundingBox": [
+                          375,
+                          739,
+                          513,
+                          738,
+                          513,
+                          782,
+                          375,
+                          781
+                      ],
+                      "confidence": 0.995,
+                      "span": {
+                          "offset": 72,
+                          "length": 6
+                      }
+                  },
+                  {
+                      "content": "nisl",
+                      "boundingBox": [
+                          522,
+                          738,
+                          590,
+                          738,
+                          590,
+                          782,
+                          522,
+                          782
+                      ],
+                      "confidence": 0.988,
+                      "span": {
+                          "offset": 79,
+                          "length": 4
+                      }
+                  },
+                  {
+                      "content": "odio,",
+                      "boundingBox": [
+                          599,
+                          738,
+                          702,
+                          738,
+                          702,
+                          783,
+                          599,
+                          782
+                      ],
+                      "confidence": 0.995,
+                      "span": {
+                          "offset": 84,
+                          "length": 5
+                      }
+                  },
+                  {
+                      "content": "pharetra",
+                      "boundingBox": [
+                          711,
+                          738,
+                          876,
+                          738,
+                          876,
+                          783,
+                          711,
+                          783
+                      ],
+                      "confidence": 0.997,
+                      "span": {
+                          "offset": 90,
+                          "length": 8
+                      }
+                  },
+                  {
+                      "content": "ac",
+                      "boundingBox": [
+                          885,
+                          738,
+                          929,
+                          738,
+                          929,
+                          783,
+                          884,
+                          783
+                      ],
+                      "confidence": 0.999,
+                      "span": {
+                          "offset": 99,
+                          "length": 2
+                      }
+                  },
+                  {
+                      "content": "erat",
+                      "boundingBox": [
+                          938,
+                          738,
+                          1018,
+                          738,
+                          1017,
+                          783,
+                          937,
+                          783
+                      ],
+                      "confidence": 0.992,
+                      "span": {
+                          "offset": 102,
+                          "length": 4
+                      }
+                  },
+                  {
+                      "content": "ac,",
+                      "boundingBox": [
+                          1026,
+                          738,
+                          1082,
+                          738,
+                          1082,
+                          784,
+                          1026,
+                          784
+                      ],
+                      "confidence": 0.998,
+                      "span": {
+                          "offset": 107,
+                          "length": 3
+                      }
+                  },
+                  {
+                      "content": "pellentesque",
+                      "boundingBox": [
+                          1091,
+                          738,
+                          1339,
+                          737,
+                          1338,
+                          784,
+                          1091,
+                          784
+                      ],
+                      "confidence": 0.988,
+                      "span": {
+                          "offset": 111,
+                          "length": 12
+                      }
+                  },
+                  {
+                      "content": "viverra",
+                      "boundingBox": [
+                          1348,
+                          737,
+                          1484,
+                          738,
+                          1482,
+                          784,
+                          1347,
+                          784
+                      ],
+                      "confidence": 0.997,
+                      "span": {
+                          "offset": 124,
+                          "length": 7
+                      }
+                  },
+                  {
+                      "content": "1000",
+                      "boundingBox": [
+                          1492,
+                          738,
+                          1587,
+                          738,
+                          1586,
+                          784,
+                          1491,
+                          784
+                      ],
+                      "confidence": 0.996,
+                      "span": {
+                          "offset": 132,
+                          "length": 4
+                      }
+                  },
+                  {
+                      "content": "arcu.",
+                      "boundingBox": [
+                          1596,
+                          738,
+                          1690,
+                          738,
+                          1689,
+                          783,
+                          1594,
+                          784
+                      ],
+                      "confidence": 0.995,
+                      "span": {
+                          "offset": 137,
+                          "length": 5
+                      }
+                  },
+                  {
+                      "content": "Sed",
+                      "boundingBox": [
+                          1699,
+                          738,
+                          1775,
+                          738,
+                          1774,
+                          783,
+                          1698,
+                          783
+                      ],
+                      "confidence": 0.997,
+                      "span": {
+                          "offset": 143,
+                          "length": 3
+                      }
+                  },
+                  {
+                      "content": "ullamcorper",
+                      "boundingBox": [
+                          1784,
+                          738,
+                          2026,
+                          738,
+                          2025,
+                          782,
+                          1783,
+                          783
+                      ],
+                      "confidence": 0.995,
+                      "span": {
+                          "offset": 147,
+                          "length": 11
+                      }
+                  },
+                  {
+                      "content": "molestie",
+                      "boundingBox": [
+                          373,
+                          819,
+                          529,
+                          818,
+                          530,
+                          862,
+                          375,
+                          861
+                      ],
+                      "confidence": 0.997,
+                      "span": {
+                          "offset": 159,
+                          "length": 8
+                      }
+                  },
+                  {
+                      "content": "erat,",
+                      "boundingBox": [
+                          538,
+                          818,
+                          625,
+                          818,
+                          626,
+                          863,
+                          540,
+                          862
+                      ],
+                      "confidence": 0.995,
+                      "span": {
+                          "offset": 168,
+                          "length": 5
+                      }
+                  },
+                  {
+                      "content": "vel",
+                      "boundingBox": [
+                          634,
+                          818,
+                          693,
+                          817,
+                          695,
+                          863,
+                          636,
+                          863
+                      ],
+                      "confidence": 0.984,
+                      "span": {
+                          "offset": 174,
+                          "length": 3
+                      }
+                  },
+                  {
+                      "content": "convallis",
+                      "boundingBox": [
+                          702,
+                          817,
+                          870,
+                          817,
+                          871,
+                          864,
+                          704,
+                          863
+                      ],
+                      "confidence": 0.996,
+                      "span": {
+                          "offset": 178,
+                          "length": 9
+                      }
+                  },
+                  {
+                      "content": "enim.",
+                      "boundingBox": [
+                          879,
+                          817,
+                          988,
+                          816,
+                          989,
+                          864,
+                          880,
+                          864
+                      ],
+                      "confidence": 0.995,
+                      "span": {
+                          "offset": 188,
+                          "length": 5
+                      }
+                  },
+                  {
+                      "content": "Vestibulum",
+                      "boundingBox": [
+                          997,
+                          816,
+                          1208,
+                          816,
+                          1209,
+                          865,
+                          998,
+                          864
+                      ],
+                      "confidence": 0.996,
+                      "span": {
+                          "offset": 194,
+                          "length": 10
+                      }
+                  },
+                  {
+                      "content": "vulputate",
+                      "boundingBox": [
+                          1227,
+                          816,
+                          1410,
+                          816,
+                          1410,
+                          866,
+                          1227,
+                          865
+                      ],
+                      "confidence": 0.996,
+                      "span": {
+                          "offset": 205,
+                          "length": 9
+                      }
+                  },
+                  {
+                      "content": "dapibus",
+                      "boundingBox": [
+                          1419,
+                          816,
+                          1578,
+                          816,
+                          1578,
+                          866,
+                          1420,
+                          866
+                      ],
+                      "confidence": 0.994,
+                      "span": {
+                          "offset": 215,
+                          "length": 7
+                      }
+                  },
+                  {
+                      "content": "ipsum,",
+                      "boundingBox": [
+                          1587,
+                          816,
+                          1717,
+                          817,
+                          1717,
+                          866,
+                          1587,
+                          866
+                      ],
+                      "confidence": 0.997,
+                      "span": {
+                          "offset": 223,
+                          "length": 6
+                      }
+                  },
+                  {
+                      "content": "vel",
+                      "boundingBox": [
+                          1727,
+                          817,
+                          1785,
+                          817,
+                          1785,
+                          866,
+                          1726,
+                          866
+                      ],
+                      "confidence": 0.998,
+                      "span": {
+                          "offset": 230,
+                          "length": 3
+                      }
+                  },
+                  {
+                      "content": "semper",
+                      "boundingBox": [
+                          1795,
+                          817,
+                          1938,
+                          818,
+                          1937,
+                          866,
+                          1794,
+                          866
+                      ],
+                      "confidence": 0.997,
+                      "span": {
+                          "offset": 234,
+                          "length": 6
+                      }
+                  },
+                  {
+                      "content": "eros",
+                      "boundingBox": [
+                          1947,
+                          818,
+                          2040,
+                          819,
+                          2039,
+                          866,
+                          1946,
+                          866
+                      ],
+                      "confidence": 0.992,
+                      "span": {
+                          "offset": 241,
+                          "length": 4
+                      }
+                  },
+                  {
+                      "content": "feugiat",
+                      "boundingBox": [
+                          372,
+                          899,
+                          501,
+                          897,
+                          502,
+                          951,
+                          374,
+                          952
+                      ],
+                      "confidence": 0.997,
+                      "span": {
+                          "offset": 246,
+                          "length": 7
+                      }
+                  },
+                  {
+                      "content": "et.",
+                      "boundingBox": [
+                          512,
+                          897,
+                          571,
+                          897,
+                          572,
+                          951,
+                          513,
+                          951
+                      ],
+                      "confidence": 0.997,
+                      "span": {
+                          "offset": 254,
+                          "length": 3
+                      }
+                  },
+                  {
+                      "content": "Lorem",
+                      "boundingBox": [
+                          399,
+                          1016,
+                          505,
+                          1017,
+                          505,
+                          1052,
+                          399,
+                          1053
+                      ],
+                      "confidence": 0.995,
+                      "span": {
+                          "offset": 258,
+                          "length": 5
+                      }
+                  },
+                  {
+                      "content": "Ipsum",
+                      "boundingBox": [
+                          1258,
+                          1015,
+                          1371,
+                          1013,
+                          1372,
+                          1059,
+                          1261,
+                          1059
+                      ],
+                      "confidence": 0.713,
+                      "span": {
+                          "offset": 264,
+                          "length": 5
+                      }
+                  },
+                  {
+                      "content": "Dolor",
+                      "boundingBox": [
+                          399,
+                          1089,
+                          514,
+                          1090,
+                          513,
+                          1130,
+                          399,
+                          1129
+                      ],
+                      "confidence": 0.995,
+                      "span": {
+                          "offset": 270,
+                          "length": 5
+                      }
+                  },
+                  {
+                      "content": "1900/01/01",
+                      "boundingBox": [
+                          1265,
+                          1091,
+                          1495,
+                          1090,
+                          1494,
+                          1132,
+                          1267,
+                          1134
+                      ],
+                      "confidence": 0.99,
+                      "span": {
+                          "offset": 276,
+                          "length": 10
+                      }
+                  },
+                  {
+                      "content": "Amet",
+                      "boundingBox": [
+                          399,
+                          1169,
+                          508,
+                          1168,
+                          508,
+                          1207,
+                          399,
+                          1208
+                      ],
+                      "confidence": 0.993,
+                      "span": {
+                          "offset": 287,
+                          "length": 4
+                      }
+                  },
+                  {
+                      "content": "$3000.00",
+                      "boundingBox": [
+                          1260,
+                          1165,
+                          1443,
+                          1165,
+                          1441,
+                          1210,
+                          1261,
+                          1212
+                      ],
+                      "confidence": 0.993,
+                      "span": {
+                          "offset": 292,
+                          "length": 8
+                      }
+                  }
+              ],
+              "selectionMarks": [],
+              "lines": [
+                  {
+                      "content": "Lorem Ipsum",
+                      "boundingBox": [
+                          370,
+                          382,
+                          1440,
+                          392,
+                          1439,
+                          554,
+                          369,
+                          539
+                      ],
+                      "spans": [
+                          {
+                              "offset": 0,
+                              "length": 11
+                          }
+                      ]
+                  },
+                  {
+                      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing 30 elit.",
+                      "boundingBox": [
+                          371,
+                          621,
+                          1502,
+                          620,
+                          1502,
+                          669,
+                          371,
+                          670
+                      ],
+                      "spans": [
+                          {
+                              "offset": 12,
+                              "length": 59
+                          }
+                      ]
+                  },
+                  {
+                      "content": "Aenean nisl odio, pharetra ac erat ac, pellentesque viverra 1000 arcu. Sed ullamcorper",
+                      "boundingBox": [
+                          374,
+                          737,
+                          2026,
+                          737,
+                          2026,
+                          783,
+                          374,
+                          782
+                      ],
+                      "spans": [
+                          {
+                              "offset": 72,
+                              "length": 86
+                          }
+                      ]
+                  },
+                  {
+                      "content": "molestie erat, vel convallis enim. Vestibulum vulputate dapibus ipsum, vel semper eros",
+                      "boundingBox": [
+                          373,
+                          815,
+                          2041,
+                          816,
+                          2041,
+                          865,
+                          373,
+                          863
+                      ],
+                      "spans": [
+                          {
+                              "offset": 159,
+                              "length": 86
+                          }
+                      ]
+                  },
+                  {
+                      "content": "feugiat et.",
+                      "boundingBox": [
+                          372,
+                          898,
+                          573,
+                          897,
+                          574,
+                          949,
+                          372,
+                          951
+                      ],
+                      "spans": [
+                          {
+                              "offset": 246,
+                              "length": 11
+                          }
+                      ]
+                  },
+                  {
+                      "content": "Lorem",
+                      "boundingBox": [
+                          398,
+                          1015,
+                          529,
+                          1015,
+                          529,
+                          1052,
+                          398,
+                          1052
+                      ],
+                      "spans": [
+                          {
+                              "offset": 258,
+                              "length": 5
+                          }
+                      ]
+                  },
+                  {
+                      "content": "Ipsum",
+                      "boundingBox": [
+                          1258,
+                          1013,
+                          1397,
+                          1012,
+                          1397,
+                          1057,
+                          1258,
+                          1059
+                      ],
+                      "spans": [
+                          {
+                              "offset": 264,
+                              "length": 5
+                          }
+                      ]
+                  },
+                  {
+                      "content": "Dolor",
+                      "boundingBox": [
+                          400,
+                          1089,
+                          515,
+                          1090,
+                          514,
+                          1130,
+                          399,
+                          1129
+                      ],
+                      "spans": [
+                          {
+                              "offset": 270,
+                              "length": 5
+                          }
+                      ]
+                  },
+                  {
+                      "content": "1900/01/01",
+                      "boundingBox": [
+                          1264,
+                          1090,
+                          1495,
+                          1089,
+                          1495,
+                          1133,
+                          1265,
+                          1134
+                      ],
+                      "spans": [
+                          {
+                              "offset": 276,
+                              "length": 10
+                          }
+                      ]
+                  },
+                  {
+                      "content": "Amet",
+                      "boundingBox": [
+                          399,
+                          1169,
+                          512,
+                          1168,
+                          513,
+                          1207,
+                          400,
+                          1208
+                      ],
+                      "spans": [
+                          {
+                              "offset": 287,
+                              "length": 4
+                          }
+                      ]
+                  },
+                  {
+                      "content": "$3000.00",
+                      "boundingBox": [
+                          1259,
+                          1165,
+                          1445,
+                          1165,
+                          1445,
+                          1210,
+                          1260,
+                          1211
+                      ],
+                      "spans": [
+                          {
+                              "offset": 292,
+                              "length": 8
+                          }
+                      ]
+                  }
+              ],
+              "spans": [
+                  {
+                      "offset": 0,
+                      "length": 300
+                  }
+              ]
+          }
+      ],
+      "tables": [
+          {
+              "rowCount": 3,
+              "columnCount": 2,
+              "cells": [
+                  {
+                      "kind": "columnHeader",
+                      "rowIndex": 0,
+                      "columnIndex": 0,
+                      "rowSpan": 1,
+                      "columnSpan": 1,
+                      "content": "Lorem",
+                      "boundingRegions": [
+                          {
+                              "pageNumber": 1,
+                              "boundingBox": [
+                                  375,
+                                  991,
+                                  1241,
+                                  991,
+                                  1239,
+                                  1067,
+                                  375,
+                                  1067
+                              ]
+                          }
+                      ],
+                      "spans": [
+                          {
+                              "offset": 258,
+                              "length": 5
+                          }
+                      ]
+                  },
+                  {
+                      "kind": "columnHeader",
+                      "rowIndex": 0,
+                      "columnIndex": 1,
+                      "rowSpan": 1,
+                      "columnSpan": 1,
+                      "content": "Ipsum",
+                      "boundingRegions": [
+                          {
+                              "pageNumber": 1,
+                              "boundingBox": [
+                                  1241,
+                                  991,
+                                  2105,
+                                  991,
+                                  2105,
+                                  1069,
+                                  1239,
+                                  1067
+                              ]
+                          }
+                      ],
+                      "spans": [
+                          {
+                              "offset": 264,
+                              "length": 5
+                          }
+                      ]
+                  },
+                  {
+                      "rowIndex": 1,
+                      "columnIndex": 0,
+                      "rowSpan": 1,
+                      "columnSpan": 1,
+                      "content": "Dolor",
+                      "boundingRegions": [
+                          {
+                              "pageNumber": 1,
+                              "boundingBox": [
+                                  375,
+                                  1067,
+                                  1239,
+                                  1067,
+                                  1239,
+                                  1145,
+                                  375,
+                                  1145
+                              ]
+                          }
+                      ],
+                      "spans": [
+                          {
+                              "offset": 270,
+                              "length": 5
+                          }
+                      ]
+                  },
+                  {
+                      "rowIndex": 1,
+                      "columnIndex": 1,
+                      "rowSpan": 1,
+                      "columnSpan": 1,
+                      "content": "1900/01/01",
+                      "boundingRegions": [
+                          {
+                              "pageNumber": 1,
+                              "boundingBox": [
+                                  1239,
+                                  1067,
+                                  2105,
+                                  1069,
+                                  2105,
+                                  1145,
+                                  1239,
+                                  1145
+                              ]
+                          }
+                      ],
+                      "spans": [
+                          {
+                              "offset": 276,
+                              "length": 10
+                          }
+                      ]
+                  },
+                  {
+                      "rowIndex": 2,
+                      "columnIndex": 0,
+                      "rowSpan": 1,
+                      "columnSpan": 1,
+                      "content": "Amet",
+                      "boundingRegions": [
+                          {
+                              "pageNumber": 1,
+                              "boundingBox": [
+                                  375,
+                                  1145,
+                                  1239,
+                                  1145,
+                                  1239,
+                                  1222,
+                                  375,
+                                  1222
+                              ]
+                          }
+                      ],
+                      "spans": [
+                          {
+                              "offset": 287,
+                              "length": 4
+                          }
+                      ]
+                  },
+                  {
+                      "rowIndex": 2,
+                      "columnIndex": 1,
+                      "rowSpan": 1,
+                      "columnSpan": 1,
+                      "content": "$3000.00",
+                      "boundingRegions": [
+                          {
+                              "pageNumber": 1,
+                              "boundingBox": [
+                                  1239,
+                                  1145,
+                                  2105,
+                                  1145,
+                                  2105,
+                                  1222,
+                                  1239,
+                                  1222
+                              ]
+                          }
+                      ],
+                      "spans": [
+                          {
+                              "offset": 292,
+                              "length": 8
+                          }
+                      ]
+                  }
+              ],
+              "boundingRegions": [
+                  {
+                      "pageNumber": 1,
+                      "boundingBox": [
+                          371,
+                          987,
+                          2112,
+                          987,
+                          2112,
+                          1229,
+                          371,
+                          1229
+                      ]
+                  }
+              ],
+              "spans": [
+                  {
+                      "offset": 258,
+                      "length": 42
+                  }
+              ]
+          }
+      ],
+      "styles": []
+  }
+}
+

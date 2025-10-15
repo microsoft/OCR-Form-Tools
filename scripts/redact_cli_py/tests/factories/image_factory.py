@@ -6,7 +6,6 @@ from PIL import Image
 
 
 class ImageFactory:
-
     @staticmethod
     def build() -> Image:
         image_path = "testdata/testdata.jpg"

@@ -4,6 +4,7 @@
 
 from dataclasses import dataclass
 from typing import List, Dict, Tuple
+from types import MappingProxyType
 
 from redact.types.annotation import Annotation
 
@@ -13,7 +14,7 @@ class Entity:
     page: int
     text: str
     # camelCase instead of snake_case for aligning with the JSON schema.
-    boundingBoxes: List[List[float]]
+    boundingBoxes: List[List[float]]  # noqa: N815
 
 
 @dataclass
@@ -26,7 +27,10 @@ class Label:
 class FottLabel:
     labels: List[Label]
 
-    def to_annotations(self, page_size: Dict[int, Tuple[float, float]] = {1: (1.0, 1.0)}) -> List[Annotation]:
+    def to_annotations(
+        self,
+        page_size: Dict[int, Tuple[float, float]] = MappingProxyType({1: (1.0, 1.0)}),
+    ) -> List[Annotation]:
         def to_pixel(page: int, bounding_box: List[float]) -> List[float]:
             width = page_size[page][0]
             height = page_size[page][1]
@@ -44,7 +48,11 @@ class FottLabel:
             for entity in label.value:
                 for bounding_box in entity.boundingBoxes:
                     annot = Annotation(
-                        bounding_box=to_pixel(entity.page, bounding_box), field=label.label, text=entity.text)
+                        bounding_box=to_pixel(entity.page, bounding_box),
+                        field=label.label,
+                        text=entity.text,
+                        page=entity.page,
+                    )
                     annotations.append(annot)
 
         return annotations

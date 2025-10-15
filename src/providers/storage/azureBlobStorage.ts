@@ -7,7 +7,7 @@ import { AppError, AssetState, AssetType, ErrorCode, IAsset, StorageType, ILabel
 import { throwUnhandledRejectionForEdge } from "../../react/components/common/errorHandler/errorHandler";
 import { AssetService } from "../../services/assetService";
 import { IStorageProvider } from "./storageProviderFactory";
-import {withQueueMap} from "../../common/queueMap/withQueueMap"
+import { withQueueMap } from "../../common/queueMap/withQueueMap"
 
 /**
  * Options for Azure Cloud Storage
@@ -156,7 +156,7 @@ export class AzureBlobStorage implements IStorageProvider {
      * check file is exists
      * @param filePath
      */
-    public async isFileExists(filePath: string) :Promise<boolean> {
+    public async isFileExists(filePath: string): Promise<boolean> {
         const client = this.containerClient.getBlobClient(filePath);
         return await client.exists();
     }
@@ -234,9 +234,9 @@ export class AzureBlobStorage implements IStorageProvider {
         return result;
     }
 
-    public async getAsset(folderPath: string, assetName: string): Promise<IAsset>{
+    public async getAsset(folderPath: string, assetName: string): Promise<IAsset> {
         const files: string[] = await this.listFiles(folderPath);
-        if(files.findIndex(f=>f===assetName)!==-1){
+        if (files.findIndex(f => f === assetName) !== -1) {
             const url = this.getUrl(assetName);
             const asset = await AssetService.createAssetFromFilePath(url, this.getFileName(url));
             if (this.isSupportedAssetType(asset.type)) {
@@ -270,8 +270,8 @@ export class AzureBlobStorage implements IStorageProvider {
      * @param url - URL for Azure Blob
      */
     public getFileName(url: string) {
-        const pathParts = url.split("/");
-        return pathParts[pathParts.length - 1].split("?")[0];
+        // offset path by 2 to remove container name
+        return new URL(url).pathname.split('/').slice(2).join('/');
     }
 
     private isSupportedAssetType(assetType: AssetType) {
@@ -279,7 +279,10 @@ export class AzureBlobStorage implements IStorageProvider {
     }
 
     private getUrl(blobName: string): string {
-        return this.containerClient.getBlobClient(blobName).url;
+        // Azure Storage SDK returns blob name with slashes encoded (encodeURIComponent).
+        // Reconstruct the blob URL to use encodeURI instead
+        const [baseUrl, queryString] = this.containerClient.url.split('?');
+        return baseUrl + '/' + encodeURI(blobName) + (queryString ? `?${queryString}` : '');
     }
 
     private async blobToString(blob: Blob): Promise<string> {

@@ -10,6 +10,12 @@ shapely = "*"
 dacite = "*"
 azure-storage-blob = "*"
 pypdfium = "*"
+flake8 = "*"
+black = "*"
+flake8-bugbear = "*"
+flake8-pie = "*"
+pep8-naming = "*"
+flake8-black = "*"
 
 [dev-packages]
 pytest = "*"
